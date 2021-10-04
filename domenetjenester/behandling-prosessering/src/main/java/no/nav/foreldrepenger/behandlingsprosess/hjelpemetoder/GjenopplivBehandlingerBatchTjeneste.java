@@ -4,7 +4,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.batch.BatchArguments;
-import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.gjenopptak.AutomatiskGjenopptagelseTjeneste;
 
@@ -30,11 +29,6 @@ public class GjenopplivBehandlingerBatchTjeneste implements BatchTjeneste {
     public String launch(BatchArguments arguments) {
         var executionId = BATCHNAME + automatiskGjenopptagelseTjeneste.gjenopplivBehandlinger();
         return executionId;
-    }
-
-    @Override
-    public BatchStatus status(String executionId) {
-        return BatchStatus.OK;
     }
 
     @Override

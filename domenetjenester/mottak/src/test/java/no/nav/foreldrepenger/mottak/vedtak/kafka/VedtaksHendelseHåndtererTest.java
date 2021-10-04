@@ -1,22 +1,22 @@
 package no.nav.foreldrepenger.mottak.vedtak.kafka;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOpphørAvYtelserTask;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -33,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -63,13 +64,13 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOpphørAvYtelserTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelserTask;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.konfig.Tid;
 
 @ExtendWith(MockitoExtension.class)
@@ -77,8 +78,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     private VedtaksHendelseHåndterer vedtaksHendelseHåndterer;
 
     @Mock
-    private ProsessTaskEventPubliserer eventPubliserer;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private OverlappVedtakRepository overlappInfotrygdRepository;
@@ -90,7 +90,6 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     public void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         behandlingVedtakRepository = new BehandlingVedtakRepository(getEntityManager());
-        prosessTaskRepository = new ProsessTaskRepositoryImpl(getEntityManager(), null, eventPubliserer);
         beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(getEntityManager());
         beregningsresultatRepository = new BeregningsresultatRepository(getEntityManager());
         overlappInfotrygdRepository = new OverlappVedtakRepository(getEntityManager());
@@ -101,7 +100,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
             null, null, null, null,
             overlappInfotrygdRepository, behandlingRepository);
         vedtaksHendelseHåndterer = new VedtaksHendelseHåndterer(fagsakTjeneste, beregningsresultatRepository, behandlingRepository, overlappTjeneste,
-                prosessTaskRepository);
+            taskTjeneste);
     }
 
     @Test
@@ -111,9 +110,12 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         vedtaksHendelseHåndterer.handleMessageIntern(fpYtelse);
 
-        var prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
-        assertThat(tasktyper).contains(VurderOpphørAvYtelserTask.TASKTYPE, StartBerørtBehandlingTask.TASKTYPE);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(taskTjeneste, times(2)).lagre(captor.capture());
+        var prosessTaskDataList = captor.getAllValues();
+
+        var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).collect(Collectors.toList());
+        assertThat(tasktyper).contains(TaskType.forProsessTask(VurderOpphørAvYtelserTask.class), TaskType.forProsessTask(StartBerørtBehandlingTask.class));
 
     }
 
@@ -124,10 +126,13 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         vedtaksHendelseHåndterer.handleMessageIntern(svpYtelse);
 
-        var prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(taskTjeneste).lagre(captor.capture());
+        var prosessTaskDataList = captor.getAllValues();
 
-        assertThat(tasktyper).contains(VurderOpphørAvYtelserTask.TASKTYPE);
+        var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).collect(Collectors.toList());
+
+        assertThat(tasktyper).contains(TaskType.forProsessTask(VurderOpphørAvYtelserTask.class));
     }
 
     @Test
@@ -137,12 +142,8 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         vedtaksHendelseHåndterer.handleMessageIntern(esYtelse);
 
-        var prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        var tasktyper = prosessTaskDataList.stream()
-            .filter(t -> t.getFagsakId().equals(esBehandling.getFagsakId()))
-            .collect(Collectors.toList());
-
-        assertThat(tasktyper).isEmpty();
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verifyNoInteractions(taskTjeneste);
     }
 
     @Test
@@ -269,11 +270,14 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         vedtaksHendelseHåndterer.handleMessageIntern(psbYtelseMedOverlapp);
 
         // then
-        var taskList = prosessTaskRepository.finnIkkeStartet();
-        assertThat(taskList.size()).isEqualTo(1);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(taskTjeneste).lagre(captor.capture());
+        var prosessTaskDataList = captor.getAllValues();
 
-        var task = taskList.get(0);
-        assertThat(task.getTaskType()).isEqualTo(HåndterOpphørAvYtelserTask.TASKTYPE);
+        assertThat(prosessTaskDataList.size()).isEqualTo(1);
+
+        var task = prosessTaskDataList.get(0);
+        assertThat(task.taskType()).isEqualTo(TaskType.forProsessTask(HåndterOpphørAvYtelserTask.class));
         assertThat(task.getAktørId()).isEqualTo(aktørFra(fpBehandling).getVerdi());
         assertThat(task.getFagsakId()).isEqualTo(fpBehandling.getFagsak().getId());
         assertThat(task.getPropertyValue(HåndterOpphørAvYtelserTask.BEHANDLING_ÅRSAK_KEY)).isEqualTo(BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER.getKode());
@@ -294,8 +298,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         vedtaksHendelseHåndterer.handleMessageIntern(psbYtelseUTENOverlapp);
 
         // then
-        var taskList = prosessTaskRepository.finnIkkeStartet();
-        assertThat(taskList.size()).isEqualTo(0);
+        verifyNoInteractions(taskTjeneste);
     }
 
     private YtelseV1 lagVedtakForPeriode(YtelseType abakusYtelse, Aktør aktør, LocalDateInterval vedtaksPeriode, PeriodeMedUtbetalingsgrad... anvistPerioder) {

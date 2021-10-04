@@ -26,13 +26,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Oppgit
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.domene.risikoklassifisering.task.RisikoklassifiseringUtførTask;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 public class RisikoklassifiseringTest {
@@ -55,7 +57,7 @@ public class RisikoklassifiseringTest {
     private PersonopplysningRepository personopplysningRepository;
 
     @Mock
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     private static final AktørId ANNEN_PART_AKTØR_ID = AktørId.dummy();
 
@@ -65,15 +67,13 @@ public class RisikoklassifiseringTest {
 
     private Risikoklassifisering risikoklassifisering;
 
-    private static final String TASKTYPE = "risiko.klassifisering";
-
     private static final String KONSUMENT_ID = "konsumentId";
 
     private static final String RISIKOKLASSIFISERING_JSON = "risikoklassifisering.request.json";
 
     @BeforeEach
     void setUp() {
-        risikoklassifisering = new Risikoklassifisering(prosessTaskRepository, skjæringstidspunktTjeneste,
+        risikoklassifisering = new Risikoklassifisering(taskTjeneste, skjæringstidspunktTjeneste,
             risikovurderingTjeneste, opplysningsPeriodeTjeneste, personopplysningRepository,
             familieHendelseRepository);
     }
@@ -124,7 +124,7 @@ public class RisikoklassifiseringTest {
     }
 
     private void verifyProcessTask(ProsessTaskData prosessTaskData) {
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(TASKTYPE);
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(RisikoklassifiseringUtførTask.class));
         assertThat(prosessTaskData.getProperties().getProperty(KONSUMENT_ID)).isNotBlank();
         assertThat(prosessTaskData.getPayloadAsString()).isNotBlank();
     }

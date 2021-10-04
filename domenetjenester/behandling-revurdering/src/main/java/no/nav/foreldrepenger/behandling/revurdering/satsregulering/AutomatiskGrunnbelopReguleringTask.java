@@ -25,11 +25,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(AutomatiskGrunnbelopReguleringTask.TASKTYPE)
+@ProsessTask("behandlingsprosess.satsregulering")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
 
-    public static final String TASKTYPE = "behandlingsprosess.satsregulering";
     public static final String MANUELL_KEY = "manuell";
 
     private static final Logger LOG = LoggerFactory.getLogger(AutomatiskGrunnbelopReguleringTask.class);

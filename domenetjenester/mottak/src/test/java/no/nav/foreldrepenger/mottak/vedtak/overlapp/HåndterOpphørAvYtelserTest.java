@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -45,9 +46,9 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 public class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
@@ -67,8 +68,8 @@ public class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
     private BehandlingRepositoryProvider repositoryProvider;
     private FagsakRepository fagsakRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
-    private final ProsessTaskEventPubliserer eventPubliserer = Mockito.mock(ProsessTaskEventPubliserer.class);
-    private ProsessTaskRepository prosessTaskRepository;
+    @Mock
+    private ProsessTaskTjeneste taskTjeneste;
     private final BehandlendeEnhetTjeneste behandlendeEnhetTjeneste = Mockito.mock(BehandlendeEnhetTjeneste.class);
 
     @Mock
@@ -85,9 +86,8 @@ public class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
         fagsakRepository = new FagsakRepository(entityManager);
-        prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, eventPubliserer);
         håndterOpphørAvYtelser = new HåndterOpphørAvYtelser(repositoryProvider, revurderingTjenesteMockFP, revurderingTjenesteMockSVP,
-            prosessTaskRepository, behandlendeEnhetTjeneste, behandlingProsesseringTjenesteMock, mock(KøKontroller.class));
+            taskTjeneste, behandlendeEnhetTjeneste, behandlingProsesseringTjenesteMock, mock(KøKontroller.class));
     }
 
     @Test
@@ -108,8 +108,10 @@ public class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
         // Assert
         verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehMor), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
 
-        var vurderKonsekvens = prosessTaskRepository.finnIkkeStartet().stream().findFirst().orElse(null);
-        assertThat(vurderKonsekvens.getTaskType()).isEqualTo(OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(taskTjeneste).lagre(captor.capture());
+        var vurderKonsekvens = captor.getValue();
+        assertThat(vurderKonsekvens.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class));
         assertThat(vurderKonsekvens.getFagsakId()).isEqualTo(fsavsluttetBehMor.getId());
         assertThat(vurderKonsekvens.getPropertyValue(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE)).isEqualTo(BESKRIVELSE);
     }
@@ -134,8 +136,10 @@ public class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
         // Assert
         verify(revurderingTjenesteMockFP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
 
-        var vurderKonsekvens = prosessTaskRepository.finnIkkeStartet().stream().findFirst().orElse(null);
-        assertThat(vurderKonsekvens.getTaskType()).isEqualTo(OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(taskTjeneste).lagre(captor.capture());
+        var vurderKonsekvens = captor.getValue();
+        assertThat(vurderKonsekvens.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class));
         assertThat(vurderKonsekvens.getFagsakId()).isEqualTo(fsavsluttetBehMor.getId());
         assertThat(vurderKonsekvens.getPropertyValue(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE)).isEqualTo(BESKRIVELSE);
 

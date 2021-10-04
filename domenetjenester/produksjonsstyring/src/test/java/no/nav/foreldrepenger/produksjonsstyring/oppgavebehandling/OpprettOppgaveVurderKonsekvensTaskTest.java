@@ -46,7 +46,7 @@ public class OpprettOppgaveVurderKonsekvensTaskTest {
     @Test
     public void skal_opprette_oppgave_for_å_vurdere_konsekvens_basert_på_fagsakId() {
         // Arrange
-        var prosessTaskData = new ProsessTaskData(OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class);
         prosessTaskData.setFagsakId(FAGSAK_ID);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, OpprettOppgaveVurderKonsekvensTask.STANDARD_BESKRIVELSE);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_NORM);

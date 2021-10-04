@@ -3,15 +3,15 @@ package no.nav.foreldrepenger.domene.vedtak.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -27,22 +27,23 @@ import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjenest
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTask;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 public class OpprettProsessTaskIverksettKlageTest extends EntityManagerAwareTest {
 
-    private ProsessTaskRepository prosessTaskRepository;
+    private static final TaskType AVSLUTT_BEHANDLING_TASK = TaskType.forProsessTask(AvsluttBehandlingTask.class);
+    private static final TaskType VEDTAKSBREV_TASK = TaskType.forProsessTask(SendVedtaksbrevTask.class);
+    private static final TaskType AVSLUTT_OPPGAVE_TASK = TaskType.forProsessTask(AvsluttOppgaveTask.class);
+
+    @Mock
+    private ProsessTaskTjeneste taskTjeneste;
 
     @Mock
     private OppgaveTjeneste oppgaveTjeneste;
 
-    @BeforeEach
-    void setUp() {
-        prosessTaskRepository = new ProsessTaskRepositoryImpl(getEntityManager(), null, null);
-    }
 
     @Test
     public void testOpprettIverksettingstaskerForKlagebehandling() {
@@ -52,16 +53,16 @@ public class OpprettProsessTaskIverksettKlageTest extends EntityManagerAwareTest
         var behandling = scenario.lagMocked();
         mockOpprettTaskAvsluttOppgave(behandling);
 
-        List<ProsessTaskData> resultat;
-
         // Act
         var opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
         opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
-        resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        var tasktyper = resultat.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
-        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE, AvsluttOppgaveTask.TASKTYPE);
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(taskTjeneste).lagre(captor.capture());
+        var resultat = captor.getValue().getTasks().stream().map(ProsessTaskGruppe.Entry::task).toList();
+        var tasktyper = resultat.stream().map(ProsessTaskData::taskType).collect(Collectors.toList());
+        assertThat(tasktyper).contains(AVSLUTT_BEHANDLING_TASK, VEDTAKSBREV_TASK, AVSLUTT_OPPGAVE_TASK);
     }
 
     @Test
@@ -72,16 +73,17 @@ public class OpprettProsessTaskIverksettKlageTest extends EntityManagerAwareTest
         var behandling = scenario.lagMocked();
         mockOpprettTaskAvsluttOppgave(behandling);
 
-        List<ProsessTaskData> resultat;
-
         // Act
         var opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
         opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
-        resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        var tasktyper = resultat.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
-        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE, AvsluttOppgaveTask.TASKTYPE);
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(taskTjeneste).lagre(captor.capture());
+        var resultat = captor.getValue().getTasks().stream().map(ProsessTaskGruppe.Entry::task).toList();
+
+        var tasktyper = resultat.stream().map(ProsessTaskData::taskType).collect(Collectors.toList());
+        assertThat(tasktyper).contains(AVSLUTT_BEHANDLING_TASK, VEDTAKSBREV_TASK, AVSLUTT_OPPGAVE_TASK);
     }
 
 
@@ -92,16 +94,16 @@ public class OpprettProsessTaskIverksettKlageTest extends EntityManagerAwareTest
         var scenario = ScenarioKlageEngangsstønad.forStadfestetNK(abstractScenario);
         var behandling = scenario.lagMocked();
 
-        List<ProsessTaskData> resultat;
-
         // Act
         var opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
         opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
-        resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        var tasktyper = resultat.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
-        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE);
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(taskTjeneste).lagre(captor.capture());
+        var resultat = captor.getValue().getTasks().stream().map(ProsessTaskGruppe.Entry::task).toList();
+        var tasktyper = resultat.stream().map(ProsessTaskData::taskType).collect(Collectors.toList());
+        assertThat(tasktyper).contains(AVSLUTT_BEHANDLING_TASK, VEDTAKSBREV_TASK);
     }
 
     @Test
@@ -111,16 +113,17 @@ public class OpprettProsessTaskIverksettKlageTest extends EntityManagerAwareTest
         var scenario = ScenarioKlageEngangsstønad.forMedholdNK(abstractScenario);
         var behandling = scenario.lagMocked();
         mockOpprettTaskAvsluttOppgave(behandling);
-        List<ProsessTaskData> resultat;
 
         // Act
         var opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
         opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
-        resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        var tasktyper = resultat.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
-        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE, AvsluttOppgaveTask.TASKTYPE, OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(taskTjeneste).lagre(captor.capture());
+        var resultat = captor.getValue().getTasks().stream().map(ProsessTaskGruppe.Entry::task).toList();
+        var tasktyper = resultat.stream().map(ProsessTaskData::taskType).collect(Collectors.toList());
+        assertThat(tasktyper).contains(AVSLUTT_BEHANDLING_TASK, VEDTAKSBREV_TASK, AVSLUTT_OPPGAVE_TASK, TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class));
     }
 
     @Test
@@ -129,16 +132,17 @@ public class OpprettProsessTaskIverksettKlageTest extends EntityManagerAwareTest
         var abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var scenario = ScenarioKlageEngangsstønad.forMedholdNK(abstractScenario);
         var behandling = scenario.lagMocked();
-        List<ProsessTaskData> resultat;
 
         // Act
         var opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
         opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
-        resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        var tasktyper = resultat.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
-        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE, OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(taskTjeneste).lagre(captor.capture());
+        var resultat = captor.getValue().getTasks().stream().map(ProsessTaskGruppe.Entry::task).toList();
+        var tasktyper = resultat.stream().map(ProsessTaskData::taskType).collect(Collectors.toList());
+        assertThat(tasktyper).contains(AVSLUTT_BEHANDLING_TASK, VEDTAKSBREV_TASK, TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class));
     }
 
     @Test
@@ -148,23 +152,23 @@ public class OpprettProsessTaskIverksettKlageTest extends EntityManagerAwareTest
         var scenario = ScenarioKlageEngangsstønad.forOpphevetNK(abstractScenario);
         var behandling = scenario.lagMocked();
         mockOpprettTaskAvsluttOppgave(behandling);
-        List<ProsessTaskData> resultat;
 
         // Act
         var opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
         opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
-        resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        var tasktyper = resultat.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
-        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE,
-            AvsluttOppgaveTask.TASKTYPE, OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(taskTjeneste).lagre(captor.capture());
+        var resultat = captor.getValue().getTasks().stream().map(ProsessTaskGruppe.Entry::task).toList();
+        var tasktyper = resultat.stream().map(ProsessTaskData::taskType).collect(Collectors.toList());
+        assertThat(tasktyper).contains(AVSLUTT_BEHANDLING_TASK, VEDTAKSBREV_TASK, AVSLUTT_OPPGAVE_TASK, TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class));
     }
 
     private OpprettProsessTaskIverksett opprettKlageProsessTask(ScenarioKlageEngangsstønad scenario) {
         var behandlingRepository = scenario.mockBehandlingRepositoryProvider().getBehandlingRepository();
         var klageRepository = scenario.getKlageRepository();
-        return new OpprettProsessTaskIverksett(prosessTaskRepository, behandlingRepository, null, klageRepository, oppgaveTjeneste);
+        return new OpprettProsessTaskIverksett(taskTjeneste, behandlingRepository, null, klageRepository, oppgaveTjeneste);
     }
 
     @Test
@@ -174,17 +178,17 @@ public class OpprettProsessTaskIverksettKlageTest extends EntityManagerAwareTest
         var scenario = ScenarioKlageEngangsstønad.forHjemsendtNK(abstractScenario);
         var behandling = scenario.lagMocked();
         mockOpprettTaskAvsluttOppgave(behandling);
-        List<ProsessTaskData> resultat;
 
         // Act
         var opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
         opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
-        resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        var tasktyper = resultat.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
-        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE,
-            AvsluttOppgaveTask.TASKTYPE, OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(taskTjeneste).lagre(captor.capture());
+        var resultat = captor.getValue().getTasks().stream().map(ProsessTaskGruppe.Entry::task).toList();
+        var tasktyper = resultat.stream().map(ProsessTaskData::taskType).collect(Collectors.toList());
+        assertThat(tasktyper).contains(AVSLUTT_BEHANDLING_TASK, VEDTAKSBREV_TASK, AVSLUTT_OPPGAVE_TASK, TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class));
     }
 
     @Test
@@ -194,16 +198,17 @@ public class OpprettProsessTaskIverksettKlageTest extends EntityManagerAwareTest
         var scenario = ScenarioKlageEngangsstønad.forAvvistNK(abstractScenario);
         var behandling = scenario.lagMocked();
         mockOpprettTaskAvsluttOppgave(behandling);
-        List<ProsessTaskData> resultat;
 
         // Act
         var opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
         opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
-        resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        var tasktyper = resultat.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
-        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE, AvsluttOppgaveTask.TASKTYPE);
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(taskTjeneste).lagre(captor.capture());
+        var resultat = captor.getValue().getTasks().stream().map(ProsessTaskGruppe.Entry::task).toList();
+        var tasktyper = resultat.stream().map(ProsessTaskData::taskType).collect(Collectors.toList());
+        assertThat(tasktyper).contains(AVSLUTT_BEHANDLING_TASK, VEDTAKSBREV_TASK, AVSLUTT_OPPGAVE_TASK);
     }
 
     @Test
@@ -213,23 +218,24 @@ public class OpprettProsessTaskIverksettKlageTest extends EntityManagerAwareTest
         var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(abstractScenario);
         var behandling = scenario.lagMocked();
         mockOpprettTaskAvsluttOppgave(behandling);
-        List<ProsessTaskData> resultat;
 
         // Act
         var opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
         opprettProsessTaskIverksettKlage.opprettIverksettingTasks(behandling);
 
         // Assert
-        resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        var tasktyper = resultat.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
-        assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE, AvsluttOppgaveTask.TASKTYPE);
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(taskTjeneste).lagre(captor.capture());
+        var resultat = captor.getValue().getTasks().stream().map(ProsessTaskGruppe.Entry::task).toList();
+        var tasktyper = resultat.stream().map(ProsessTaskData::taskType).collect(Collectors.toList());
+        assertThat(tasktyper).contains(AVSLUTT_BEHANDLING_TASK, VEDTAKSBREV_TASK, AVSLUTT_OPPGAVE_TASK);
     }
 
 
     private void mockOpprettTaskAvsluttOppgave(Behandling behandling) {
-        var prosessTaskData = new ProsessTaskData(AvsluttOppgaveTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(AvsluttOppgaveTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setOppgaveId("1001");
+        OppgaveTjeneste.setOppgaveId(prosessTaskData, "1001");
         when(oppgaveTjeneste.opprettTaskAvsluttOppgave(any(Behandling.class), any(OppgaveÅrsak.class), anyBoolean())).thenReturn(Optional.of(prosessTaskData));
     }
 

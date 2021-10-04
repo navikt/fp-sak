@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.batch.task;
 
-import static no.nav.foreldrepenger.batch.task.BatchSchedulerTask.TASKTYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
@@ -20,7 +19,7 @@ public class BatchSchedulerTaskTest {
 
     private BatchSchedulerTask task;
     private BatchSupportTjenesteTest testsupport;
-    private ProsessTaskData taskData = new ProsessTaskData(TASKTYPE);
+    private ProsessTaskData taskData = ProsessTaskData.forProsessTask(BatchSchedulerTask.class);
 
     @BeforeEach
     public void setup() {

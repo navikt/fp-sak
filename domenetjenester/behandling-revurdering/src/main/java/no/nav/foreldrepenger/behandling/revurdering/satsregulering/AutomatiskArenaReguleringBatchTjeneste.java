@@ -10,13 +10,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.batch.BatchArguments;
-import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 /**
@@ -31,12 +30,12 @@ public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
     private static final String EXECUTION_ID_SEPARATOR = "-";
 
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     @Inject
     public AutomatiskArenaReguleringBatchTjeneste(BehandlingRepositoryProvider repositoryProvider,
-            ProsessTaskRepository prosessTaskRepository) {
-        this.prosessTaskRepository = prosessTaskRepository;
+            ProsessTaskTjeneste taskTjeneste) {
+        this.taskTjeneste = taskTjeneste;
         this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
     }
 
@@ -67,20 +66,15 @@ public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
     }
 
     @Override
-    public BatchStatus status(String batchInstanceNumber) {
-        return BatchStatus.OK;
-    }
-
-    @Override
     public String getBatchName() {
         return BATCHNAME;
     }
 
     private void opprettReguleringTask(Long fagsakId, AktørId aktørId, String callId) {
-        var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
         prosessTaskData.setFagsak(fagsakId, aktørId.getId());
         prosessTaskData.setCallId(callId + fagsakId);
         prosessTaskData.setPrioritet(100);
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 }

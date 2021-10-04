@@ -41,12 +41,20 @@
 			<artifactId>okonomistotte</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>no.nav.foreldrepenger</groupId>
-			<artifactId>vedtak</artifactId>
-		</dependency>
-		<dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>skjaeringstidspunkt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-xmlutils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+            <artifactId>behandlingsprosess-vedtak-v1</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+            <artifactId>behandlingsprosess-vedtak-v2</artifactId>
         </dependency>
 
 		<!-- Test avhengigheter -->

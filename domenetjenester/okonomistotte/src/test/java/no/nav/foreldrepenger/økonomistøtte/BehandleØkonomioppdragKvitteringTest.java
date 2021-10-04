@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.økonomistøtte;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -20,10 +21,9 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelseMottak;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 public class BehandleØkonomioppdragKvitteringTest {
 
@@ -67,26 +67,23 @@ public class BehandleØkonomioppdragKvitteringTest {
 
     private BehandleØkonomioppdragKvittering behandleØkonomioppdragKvittering;
 
-    private ProsessTaskHendelseMottak hendelsesmottak;
+    private ProsessTaskTjeneste taskTjeneste;
     private ØkonomioppdragRepository økonomioppdragRepository;
     private BehandleNegativeKvitteringTjeneste behandleHendelseØkonomioppdrag;
-    private ProsessTaskRepositoryImpl prosessTaskRepository;
 
     private ProsessTaskData prosessTaskData;
 
     @BeforeEach
     void setUp() {
-        hendelsesmottak = mock(ProsessTaskHendelseMottak.class);
+        taskTjeneste = mock(ProsessTaskTjeneste.class);
         økonomioppdragRepository = mock(ØkonomioppdragRepository.class);
         behandleHendelseØkonomioppdrag = mock(BehandleNegativeKvitteringTjeneste.class);
-        prosessTaskRepository = mock(ProsessTaskRepositoryImpl.class);
         behandleØkonomioppdragKvittering = new BehandleØkonomioppdragKvittering(
-            hendelsesmottak,
+            taskTjeneste,
             økonomioppdragRepository,
-            behandleHendelseØkonomioppdrag,
-            prosessTaskRepository);
+            behandleHendelseØkonomioppdrag);
 
-        var testTask = new ProsessTaskData("testTask");
+        var testTask = ProsessTaskData.forTaskType(new TaskType("testTask"));
         testTask.setStatus(ProsessTaskStatus.VENTER_SVAR);
         testTask.setId(PROSESSTASKID);
         prosessTaskData = testTask;
@@ -99,7 +96,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         ØkonomiOppdragUtils.setupOppdrag110(oppdrag, false);
 
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_ES)).thenReturn(oppdrag.getOppdrag110Liste().get(0));
-        when(prosessTaskRepository.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
+        when(taskTjeneste.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
         var kvittering = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, false);
 
         // Act
@@ -109,7 +106,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         assertThat(oppdrag.getVenterKvittering()).isFalse();
         verify(økonomioppdragRepository).lagre(oppdrag);
         verify(økonomioppdragRepository, times(1)).lagre(any(OppdragKvittering.class));
-        verify(hendelsesmottak).mottaHendelse(PROSESSTASKID, ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
+        verify(taskTjeneste).mottaHendelse(eq(prosessTaskData), eq(BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING), any());
     }
 
     @Test
@@ -119,7 +116,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         ØkonomiOppdragUtils.setupOppdrag110(oppdrag, false);
 
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_ES)).thenReturn(oppdrag.getOppdrag110Liste().get(0));
-        when(prosessTaskRepository.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
+        when(taskTjeneste.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
         var kvittering = opprettKvittering(KVITTERING_FEIL, KVITTERING_MELDINGKODE_FEIL, KVITTERING_MELDING_FEIL, FAGSYSTEMID_BRUKER, false);
 
         // Act
@@ -129,7 +126,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         assertThat(oppdrag.getVenterKvittering()).isFalse();
         verify(økonomioppdragRepository).lagre(oppdrag);
         verify(økonomioppdragRepository, times(1)).lagre(any(OppdragKvittering.class));
-        verify(hendelsesmottak, never()).mottaHendelse(any(), any());
+        verify(taskTjeneste, never()).mottaHendelse(any(), any(), any());
     }
 
     @Test
@@ -141,7 +138,7 @@ public class BehandleØkonomioppdragKvitteringTest {
 
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragBruker);
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_ARBEIDSGIVER, BEHANDLINGID_FP)).thenReturn(oppdragAg);
-        when(prosessTaskRepository.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
+        when(taskTjeneste.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
         var kvittering_1 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
         var kvittering_2 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_ARBEIDSGIVER, true);
 
@@ -153,7 +150,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         assertThat(oppdrag.getVenterKvittering()).isFalse();
         verify(økonomioppdragRepository, times(1)).lagre(oppdrag);
         verify(økonomioppdragRepository, times(2)).lagre(any(OppdragKvittering.class));
-        verify(hendelsesmottak).mottaHendelse(PROSESSTASKID, ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
+        verify(taskTjeneste).mottaHendelse(eq(prosessTaskData), eq(BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING), any());
         oppdrag.getOppdrag110Liste().forEach(o110 -> {
             assertThat(o110.getOppdragKvittering()).isNotNull();
             assertThat(o110.getOppdragKvittering().getOppdrag110()).isNotNull();
@@ -169,7 +166,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         OppdragKvittering.builder().medAlvorlighetsgrad(KVITTERING_OK).medOppdrag110(oppdrag110).build();
 
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdrag110);
-        when(prosessTaskRepository.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
+        when(taskTjeneste.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
         var kvittering_1 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
 
         // Act
@@ -190,7 +187,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         oppdragBruker2.setOpprettetTidspunkt(LocalDateTime.now());
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragBruker2);
         var kvittering_1 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
-        when(prosessTaskRepository.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
+        when(taskTjeneste.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
 
         // Act
         behandleØkonomioppdragKvittering.behandleKvittering(kvittering_1);
@@ -198,7 +195,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         // Assert
         assertThat(oppdrag.getVenterKvittering()).isFalse();
         verify(økonomioppdragRepository, times(1)).lagre(oppdrag);
-        verify(hendelsesmottak).mottaHendelse(PROSESSTASKID, ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
+        verify(taskTjeneste).mottaHendelse(eq(prosessTaskData), eq(BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING), any());
         oppdrag.getOppdrag110Liste().forEach(o110 -> {
             assertThat(o110.getOppdragKvittering()).isNotNull();
             assertThat(o110.getOppdragKvittering().getOppdrag110()).isNotNull();
@@ -213,7 +210,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
 
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragBruker1);
-        when(prosessTaskRepository.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
+        when(taskTjeneste.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
         var kvittering_1 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
         var kvittering_2 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
 
@@ -233,7 +230,7 @@ public class BehandleØkonomioppdragKvitteringTest {
 
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragBruker);
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_ARBEIDSGIVER, BEHANDLINGID_FP)).thenReturn(oppdragAg);
-        when(prosessTaskRepository.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
+        when(taskTjeneste.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
         var kvittering_1 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
         var kvittering_2 = opprettKvittering(KVITTERING_FEIL, KVITTERING_MELDINGKODE_FEIL, KVITTERING_MELDING_FEIL, FAGSYSTEMID_ARBEIDSGIVER, true);
 
@@ -244,7 +241,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         // Assert
         assertThat(oppdrag.getVenterKvittering()).isFalse();
         verify(økonomioppdragRepository, times(1)).lagre(oppdrag);
-        verify(hendelsesmottak, never()).mottaHendelse(any(), any());
+        verify(taskTjeneste, never()).mottaHendelse(any(), any(), any());
         verify(økonomioppdragRepository, times(2)).lagre(any(OppdragKvittering.class));
         verify(behandleHendelseØkonomioppdrag).nullstilleØkonomioppdragTask(any());
     }
@@ -259,7 +256,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         oppdragPositiv.setOpprettetTidspunkt(LocalDateTime.now());
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragPositiv);
         var kvittering_2 = opprettKvittering(KVITTERING_OK, null, null, FAGSYSTEMID_BRUKER, true);
-        when(prosessTaskRepository.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
+        when(taskTjeneste.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
 
         // Act
         behandleØkonomioppdragKvittering.behandleKvittering(kvittering_2);
@@ -268,7 +265,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         assertThat(oppdrag.getVenterKvittering()).isFalse();
         verify(økonomioppdragRepository, times(1)).lagre(oppdrag);
         verify(økonomioppdragRepository, times(1)).lagre(any(OppdragKvittering.class));
-        verify(hendelsesmottak).mottaHendelse(any(), any());
+        verify(taskTjeneste).mottaHendelse(any(), any(), any());
     }
 
     @Test
@@ -282,7 +279,7 @@ public class BehandleØkonomioppdragKvitteringTest {
 
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragNegativ2);
         var kvittering_2 = opprettKvittering(KVITTERING_FEIL, KVITTERING_MELDINGKODE_FEIL, KVITTERING_MELDINGKODE_FEIL, FAGSYSTEMID_BRUKER, true);
-        when(prosessTaskRepository.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
+        when(taskTjeneste.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
 
         // Act
         behandleØkonomioppdragKvittering.behandleKvittering(kvittering_2);
@@ -291,7 +288,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         assertThat(oppdrag.getVenterKvittering()).isFalse();
         verify(økonomioppdragRepository, times(1)).lagre(oppdrag);
         verify(økonomioppdragRepository, times(1)).lagre(any(OppdragKvittering.class));
-        verify(hendelsesmottak, never()).mottaHendelse(any(), any());
+        verify(taskTjeneste, never()).mottaHendelse(any(), any(), any());
     }
 
     @Test
@@ -305,7 +302,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_ARBEIDSGIVER, BEHANDLINGID_FP)).thenReturn(oppdragAg);
         var kvittering_1 = opprettKvittering(KVITTERING_FEIL, KVITTERING_MELDINGKODE_FEIL, KVITTERING_MELDING_FEIL, FAGSYSTEMID_BRUKER, true);
         var kvittering_2 = opprettKvittering(KVITTERING_FEIL, KVITTERING_MELDINGKODE_FEIL, KVITTERING_MELDING_FEIL, FAGSYSTEMID_ARBEIDSGIVER, true);
-        when(prosessTaskRepository.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
+        when(taskTjeneste.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
 
         // Act
         behandleØkonomioppdragKvittering.behandleKvittering(kvittering_1);
@@ -315,7 +312,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         assertThat(oppdrag.getVenterKvittering()).isFalse();
         verify(økonomioppdragRepository, times(1)).lagre(oppdrag);
         verify(økonomioppdragRepository, times(2)).lagre(any(OppdragKvittering.class));
-        verify(hendelsesmottak, never()).mottaHendelse(any(), any());
+        verify(taskTjeneste, never()).mottaHendelse(any(), any(), any());
     }
 
     private ØkonomiKvittering opprettKvittering(Alvorlighetsgrad alvorlighetsgrad, String meldingKode, String beskrMelding, Long fagsystemId, Boolean gjelderFP) {

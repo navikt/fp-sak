@@ -10,10 +10,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(SendØkonomiOppdragTask.TASKTYPE)
+@ProsessTask(value = "iverksetteVedtak.sendØkonomiOppdrag", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class SendØkonomiOppdragTask extends GenerellProsessTask {
-    public static final String TASKTYPE = "iverksetteVedtak.sendØkonomiOppdrag";
 
     private ØkonomiOppdragKøTjeneste køTjeneste;
 

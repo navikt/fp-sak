@@ -31,9 +31,9 @@ import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @Dependent
 @Transactional
@@ -44,7 +44,7 @@ class ForvaltningOppdragTjeneste {
     private ØkonomioppdragRepository økonomioppdragRepository;
     private BehandlingRepository behandlingRepository;
     private PersoninfoAdapter personinfoAdapter;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private EntityManager entityManager;
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
@@ -53,14 +53,14 @@ class ForvaltningOppdragTjeneste {
                                       ØkonomioppdragRepository økonomioppdragRepository,
                                       BehandlingRepository behandlingRepository,
                                       PersoninfoAdapter personinfoAdapter,
-                                      ProsessTaskRepository prosessTaskRepository,
+                                      ProsessTaskTjeneste taskTjeneste,
                                       EntityManager entityManager,
                                       BehandlingVedtakRepository behandlingVedtakRepository) {
         this.økonomioppdragKvitteringTjeneste = økonomioppdragKvitteringTjeneste;
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.behandlingRepository = behandlingRepository;
         this.personinfoAdapter = personinfoAdapter;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.entityManager = entityManager;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
     }
@@ -81,7 +81,7 @@ class ForvaltningOppdragTjeneste {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId)
             .orElseThrow(() -> new IllegalArgumentException("Fant ikke oppdragskontroll for behandlingId=" + behandlingId));
-        var vurderØkonomiTask = prosessTaskRepository.finn(oppdragskontroll.getProsessTaskId());
+        var vurderØkonomiTask = taskTjeneste.finn(oppdragskontroll.getProsessTaskId());
 
         validerUferdigProsesstask(vurderØkonomiTask);
 
@@ -98,7 +98,7 @@ class ForvaltningOppdragTjeneste {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId)
             .orElseThrow(() -> new IllegalArgumentException("Fant ikke oppdragskontroll for behandlingId=" + behandlingId));
-        var vurderØkonomiTask = prosessTaskRepository.finn(oppdragskontroll.getProsessTaskId());
+        var vurderØkonomiTask = taskTjeneste.finn(oppdragskontroll.getProsessTaskId());
 
         validerFerdigProsesstask(vurderØkonomiTask);
 
@@ -215,43 +215,43 @@ class ForvaltningOppdragTjeneste {
     }
 
     private void byttStatusTilVenterPåKvittering(ProsessTaskData task) {
-        task.venterPåHendelse(ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
-        prosessTaskRepository.lagre(task);
+        task.venterPåHendelse(BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING);
+        taskTjeneste.lagre(task);
     }
 
     private void lagSendØkonomioppdragTask(ProsessTaskData hovedProsessTask, boolean hardPatch) {
-        var sendØkonomiOppdrag = new ProsessTaskData(SendØkonomiOppdragTask.TASKTYPE);
+        var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(SendØkonomiOppdragTask.class);
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setProperty("patchet", hardPatch ? "hardt" : "vanlig"); // for sporing
         sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
             Long.valueOf(hovedProsessTask.getBehandlingId()),
             hovedProsessTask.getAktørId());
-        prosessTaskRepository.lagre(sendØkonomiOppdrag);
+        taskTjeneste.lagre(sendØkonomiOppdrag);
     }
 
     private void lagSendØkonomioppdragTask(Behandling behandling) {
-        var sendØkonomiOppdrag = new ProsessTaskData(SendØkonomiOppdragTask.TASKTYPE);
+        var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(SendØkonomiOppdragTask.class);
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setProperty("patchet", "k27rapport"); // for sporing
         sendØkonomiOppdrag.setBehandling(behandling.getFagsakId(),
             behandling.getId(),
             behandling.getAktørId().getId());
-        prosessTaskRepository.lagre(sendØkonomiOppdrag);
+        taskTjeneste.lagre(sendØkonomiOppdrag);
     }
 
     private void lagVurderOgSendØkonomioppdragTask(Behandling behandling) {
-        var sendØkonomiOppdrag = new ProsessTaskData(VurderOgSendØkonomiOppdragTask.TASKTYPE);
+        var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(VurderOgSendØkonomiOppdragTask.class);
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setProperty("patchet", "refusjonsinfo-maxDato"); // for sporing
         sendØkonomiOppdrag.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskRepository.lagre(sendØkonomiOppdrag);
+        taskTjeneste.lagre(sendØkonomiOppdrag);
     }
 
     private int finnAntallPatchedeSistePeriode(EntityManager entityManager, Period periode) {
         var query = entityManager.createNativeQuery(
             "select count(*) from PROSESS_TASK where TASK_TYPE=:task_type AND OPPRETTET_TID > cast(:opprettet_fom as timestamp(0)) AND TASK_PARAMETERE like '%patchet%'")
-            .setParameter("task_type", SendØkonomiOppdragTask.TASKTYPE)
+            .setParameter("task_type", TaskType.forProsessTask(SendØkonomiOppdragTask.class).value())
             .setParameter("opprettet_fom", ZonedDateTime.now().minus(periode));
 
         var result = (BigDecimal) query.getSingleResult();

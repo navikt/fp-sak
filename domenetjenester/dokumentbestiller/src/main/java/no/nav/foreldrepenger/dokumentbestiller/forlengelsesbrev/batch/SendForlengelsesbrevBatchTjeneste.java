@@ -1,16 +1,11 @@
 package no.nav.foreldrepenger.dokumentbestiller.forlengelsesbrev.batch;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.batch.BatchArguments;
-import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.forlengelsesbrev.tjeneste.SendForlengelsesbrevTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
-import no.nav.vedtak.felles.prosesstask.api.TaskStatus;
 
 /**
  * Henter ut åpne behandlinger der behandlingsfrist er utløpt,
@@ -32,29 +27,6 @@ public class SendForlengelsesbrevBatchTjeneste implements BatchTjeneste {
     public String launch(BatchArguments arguments) {
         final var gruppe = tjeneste.sendForlengelsesbrev();
         return BATCHNAME + "-" + gruppe;
-    }
-
-    @Override
-    public BatchStatus status(String batchInstanceNumber) {
-        final var gruppe = batchInstanceNumber.substring(batchInstanceNumber.indexOf('-') + 1);
-        final var taskStatuses = tjeneste.hentStatusForForlengelsesbrevBatchGruppe(gruppe);
-
-        if (isCompleted(taskStatuses)) {
-            if (isContainingFailures(taskStatuses)) {
-                return BatchStatus.WARNING;
-            }
-            return BatchStatus.OK;
-        }
-        // Is still running
-        return BatchStatus.RUNNING;
-    }
-
-    private boolean isContainingFailures(List<TaskStatus> taskStatuses) {
-        return taskStatuses.stream().anyMatch(it -> it.getStatus() == ProsessTaskStatus.FEILET);
-    }
-
-    private boolean isCompleted(List<TaskStatus> taskStatuses) {
-        return taskStatuses.isEmpty() || taskStatuses.stream().noneMatch(it -> it.getStatus() == ProsessTaskStatus.KLAR);
     }
 
     @Override

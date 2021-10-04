@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTj
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.ÅpneBehandlingForEndringerTask;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.web.app.tjenester.VurderProsessTaskStatusForPollingApi;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.util.LdapUtil;
@@ -27,7 +28,6 @@ import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.integrasjon.ldap.LdapBrukeroppslag;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ApplicationScoped
@@ -177,11 +177,11 @@ public class BehandlingsprosessTjeneste {
         }
         var gruppe = new ProsessTaskGruppe();
 
-        var åpneBehandlingForEndringerTask = new ProsessTaskData(ÅpneBehandlingForEndringerTask.TASKTYPE);
+        var åpneBehandlingForEndringerTask = ProsessTaskData.forProsessTask(ÅpneBehandlingForEndringerTask.class);
         åpneBehandlingForEndringerTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         åpneBehandlingForEndringerTask.setCallIdFraEksisterende();
         gruppe.addNesteSekvensiell(åpneBehandlingForEndringerTask);
-        var fortsettBehandlingTask = new ProsessTaskData(FortsettBehandlingTask.TASKTYPE);
+        var fortsettBehandlingTask = ProsessTaskData.forProsessTask(FortsettBehandlingTask.class);
         fortsettBehandlingTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         fortsettBehandlingTask.setProperty(FortsettBehandlingTask.MANUELL_FORTSETTELSE, String.valueOf(true));
         fortsettBehandlingTask.setCallIdFraEksisterende();

@@ -15,11 +15,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(InnhentPersonopplysningerTask.TASKTYPE)
+@ProsessTask("innhentsaksopplysninger.personopplysninger")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class InnhentPersonopplysningerTask extends BehandlingProsessTask {
 
-    public static final String TASKTYPE = "innhentsaksopplysninger.personopplysninger";
     private static final Logger LOG = LoggerFactory.getLogger(InnhentPersonopplysningerTask.class);
     private BehandlingRepository behandlingRepository;
     private RegisterdataInnhenter registerdataInnhenter;

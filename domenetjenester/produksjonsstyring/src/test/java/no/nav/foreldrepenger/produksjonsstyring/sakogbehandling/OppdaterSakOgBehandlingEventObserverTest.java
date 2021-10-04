@@ -23,21 +23,22 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.observer.OppdaterSakOgBehandlingEventObserver;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 public class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAwareTest {
 
     private OppdaterSakOgBehandlingEventObserver observer;
     private BehandlingRepositoryProvider repositoryProvider;
 
-    private ProsessTaskRepository prosessTaskRepositoryMock;
+    private ProsessTaskTjeneste taskTjenesteMock;
 
     @BeforeEach
     public void setup() {
-        prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
+        taskTjenesteMock = mock(ProsessTaskTjeneste.class);
 
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        observer = new OppdaterSakOgBehandlingEventObserver(repositoryProvider, prosessTaskRepositoryMock);
+        observer = new OppdaterSakOgBehandlingEventObserver(repositoryProvider, taskTjenesteMock);
     }
 
     @Test
@@ -56,7 +57,7 @@ public class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAware
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         observer.observerBehandlingStatus(event);
 
-        verify(prosessTaskRepositoryMock).lagre(captor.capture());
+        verify(taskTjenesteMock).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
         verifiserProsessTaskData(scenario, prosessTaskData);
 
@@ -76,13 +77,13 @@ public class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAware
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         observer.observerBehandlingStatus(event);
 
-        verify(prosessTaskRepositoryMock).lagre(captor.capture());
+        verify(taskTjenesteMock).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
         verifiserProsessTaskData(scenario, prosessTaskData);
     }
 
     private void verifiserProsessTaskData(ScenarioMorSøkerEngangsstønad scenario, ProsessTaskData prosessTaskData) {
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(SakOgBehandlingTask.TASKTYPE);
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(SakOgBehandlingTask.class));
         assertThat(new AktørId(prosessTaskData.getAktørId()))
                 .isEqualTo(scenario.getFagsak().getNavBruker().getAktørId());
         assertThat(prosessTaskData.getBehandlingId()).isEqualTo(scenario.getBehandling().getId().toString());

@@ -95,24 +95,6 @@ public class BatchRestTjeneste {
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
-    @GET
-    @Path("/poll")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Operation(description = "Poll status of batchjob", tags = "batch", responses = {
-            @ApiResponse(responseCode = "200", description = "Henter ut exitkode for executionId", content = @Content(mediaType = MediaType.TEXT_PLAIN, schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "400", description = "Ukjent batch forespurt"),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil")
-    })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
-    public Response poll(@NotNull @QueryParam("executionId") @Valid BatchExecutionDto dto) {
-        final var batchName = retrieveBatchServiceFrom(dto.getExecutionId());
-        final var batchTjeneste = batchSupportTjeneste.finnBatchTjenesteForNavn(batchName);
-        if (batchTjeneste != null) {
-            return Response.ok(batchTjeneste.status(dto.getExecutionId()).value()).build();
-        }
-        return Response.status(Response.Status.BAD_REQUEST).build();
-    }
-
     @POST
     @Path("/autorun")
     @Consumes(MediaType.APPLICATION_JSON)

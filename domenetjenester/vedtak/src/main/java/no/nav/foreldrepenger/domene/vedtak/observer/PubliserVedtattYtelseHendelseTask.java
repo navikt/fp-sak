@@ -15,18 +15,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @ApplicationScoped
-@ProsessTask(PubliserVedtattYtelseHendelseTask.TASKTYPE)
+@ProsessTask("vedtak.publiserHendelse")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
 
-    public static final String TASKTYPE = "vedtak.publiserHendelse";
     public static final String KEY = "vedtattBehandlingId";
 
     private BehandlingRepository behandlingRepository;

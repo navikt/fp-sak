@@ -18,13 +18,14 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTj
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus.Status;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 public class BehandlingsprosessTjenesteTest {
 
     private static final String GRUPPE_1 = "gruppe1";
 
-    private final ProsessTaskData taskData = new ProsessTaskData("taskType1");
+    private final ProsessTaskData taskData = ProsessTaskData.forTaskType(new TaskType("taskType1"));
     private Behandling behandling;
 
     public BehandlingsprosessTjenesteTest() {

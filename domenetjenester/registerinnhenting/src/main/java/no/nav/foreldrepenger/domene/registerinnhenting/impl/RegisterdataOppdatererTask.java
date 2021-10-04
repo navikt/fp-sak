@@ -23,13 +23,11 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
  * Utfører innhenting av registerdata.
  */
 @ApplicationScoped
-@ProsessTask(RegisterdataOppdatererTask.TASKTYPE)
+@ProsessTask("behandlingskontroll.registerdataOppdaterBehandling")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class RegisterdataOppdatererTask extends BehandlingProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(RegisterdataOppdatererTask.class);
-
-    public static final String TASKTYPE = "behandlingskontroll.registerdataOppdaterBehandling";
 
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private RegisterdataEndringshåndterer registerdataOppdaterer;

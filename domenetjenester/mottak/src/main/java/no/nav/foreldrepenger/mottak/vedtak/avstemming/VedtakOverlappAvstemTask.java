@@ -18,10 +18,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(VedtakOverlappAvstemTask.TASKTYPE)
+@ProsessTask(value = "vedtak.overlapp.avstem", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VedtakOverlappAvstemTask extends GenerellProsessTask {
-    public static final String TASKTYPE = "vedtak.overlapp.avstem";
 
     private static final Logger LOG = LoggerFactory.getLogger(VedtakOverlappAvstemTask.class);
     public static final String LOG_TEMA_KEY_KEY = "logtema";

@@ -39,7 +39,7 @@ public class LesKontrollresultatTaskTest {
         var builder = new KontrollResultatV1.Builder();
         var uuid = UUID.randomUUID();
         var resultatV1 = builder.medBehandlingUuid(uuid).medResultatkode(KontrollResultatkode.HØY).build();
-        var prosessTaskData = new ProsessTaskData(LesKontrollresultatTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(LesKontrollresultatTask.class);
         prosessTaskData.setPayload(StandardJsonConfig.toJson(resultatV1));
         var wrapper = new KontrollresultatWrapper(uuid, Kontrollresultat.HØY);
         when(kontrollresultatMapper.fraKontrakt(any(KontrollResultatV1.class))).thenReturn(wrapper);

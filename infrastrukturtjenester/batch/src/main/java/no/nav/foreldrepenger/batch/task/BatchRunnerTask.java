@@ -22,12 +22,11 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
  * Opp
  */
 @ApplicationScoped
-@ProsessTask(BatchRunnerTask.TASKTYPE)
+@ProsessTask(value = "batch.runner", maxFailedRuns = 1)
 public class BatchRunnerTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(BatchRunnerTask.class);
 
-    public static final String TASKTYPE = "batch.runner";
     static final String BATCH_NAME = "batch.runner.name";
     static final String BATCH_PARAMS = "batch.runner.params";
     static final String BATCH_RUN_DATE = "batch.runner.onlydate";

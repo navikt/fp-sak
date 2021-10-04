@@ -14,13 +14,11 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(VurderOppgaveArenaTask.TASKTYPE)
+@ProsessTask("iverksetteVedtak.oppgaveArena")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VurderOppgaveArenaTask extends GenerellProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(VurderOppgaveArenaTask.class);
-
-    public static final String TASKTYPE = "iverksetteVedtak.oppgaveArena";
 
     private VurderOmArenaYtelseSkalOpphøre vurdereOmArenaYtelseSkalOpphøre;
 

@@ -37,10 +37,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(OpprettInformasjonsFagsakTask.TASKTYPE)
+@ProsessTask("opprettsak.informasjonssak")
 public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
 
-    public static final String TASKTYPE = "opprettsak.informasjonssak";
     public static final String FH_DATO_KEY = "familieHendelseDato";
     public static final String OPPRETTET_DATO_KEY = "opprettetDato";
     public static final String BEH_ENHET_ID_KEY = "enhetId";

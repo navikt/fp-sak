@@ -11,12 +11,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(ValiderOgRegenererVedtaksXmlTask.TASKTYPE)
+@ProsessTask(value = "iverksetteVedtak.validerOgRegenererVedtaksXmlTask", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class ValiderOgRegenererVedtaksXmlTask extends GenerellProsessTask {
 
-
-    public static final String TASKTYPE = "iverksetteVedtak.validerOgRegenererVedtaksXmlTask";
 
     private BehandlingRepository behandlingRepository;
 

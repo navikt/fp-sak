@@ -26,11 +26,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 
 @ApplicationScoped
-@ProsessTask(AutomatiskFagsakAvslutningTask.TASKTYPE)
+@ProsessTask("behandlingskontroll.fagsakAvslutning")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
-
-    public static final String TASKTYPE = "behandlingskontroll.fagsakAvslutning";
 
     private BehandlingRepository behandlingRepository;
     private Instance<OppdaterFagsakStatus> oppdaterFagsakStatuser;

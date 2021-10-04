@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.økonomistøtte;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -15,21 +16,19 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelseMottak;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 @ActivateRequestContext
 @Transactional
 public class BehandleØkonomioppdragKvittering {
 
-    private ProsessTaskHendelseMottak hendelsesmottak;
+    public static final String ØKONOMI_OPPDRAG_KVITTERING = "ØKONOMI_OPPDRAG_KVITTERING";
+
+    private ProsessTaskTjeneste taskTjeneste;
     private ØkonomioppdragRepository økonomioppdragRepository;
     private BehandleNegativeKvitteringTjeneste behandleNegativeKvittering;
-    private ProsessTaskRepositoryImpl prosessTaskRepository;
 
     private static final Logger LOG = LoggerFactory.getLogger(BehandleØkonomioppdragKvittering.class);
 
@@ -38,14 +37,12 @@ public class BehandleØkonomioppdragKvittering {
     }
 
     @Inject
-    public BehandleØkonomioppdragKvittering(ProsessTaskHendelseMottak hendelsesmottak,
+    public BehandleØkonomioppdragKvittering(ProsessTaskTjeneste taskTjeneste,
                                             ØkonomioppdragRepository økonomioppdragRepository,
-                                            BehandleNegativeKvitteringTjeneste behandleNegativeKvitteringTjeneste,
-                                            ProsessTaskRepositoryImpl prosessTaskRepository) {
-        this.hendelsesmottak = hendelsesmottak;
+                                            BehandleNegativeKvitteringTjeneste behandleNegativeKvitteringTjeneste) {
+        this.taskTjeneste = taskTjeneste;
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.behandleNegativeKvittering = behandleNegativeKvitteringTjeneste;
-        this.prosessTaskRepository = prosessTaskRepository;
     }
 
     /**
@@ -92,9 +89,9 @@ public class BehandleØkonomioppdragKvittering {
                 if (alleViserPositivtResultat) {
                     LOG.info("Alle økonomioppdrag-kvitteringer viser positivt resultat for behandling: {}", behandlingId);
                     try {
-                        var prosessTaskData = prosessTaskRepository.finn(prosessTaskId);
+                        var prosessTaskData = taskTjeneste.finn(prosessTaskId);
                         if (prosessTaskData.getStatus() == ProsessTaskStatus.VENTER_SVAR) {
-                            hendelsesmottak.mottaHendelse(prosessTaskId, ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
+                            taskTjeneste.mottaHendelse(prosessTaskData, ØKONOMI_OPPDRAG_KVITTERING, new Properties());
                         }
                     } catch (Exception ex) {
                         LOG.info("Feil ved oppdatering av prosesstask. Sjekke om task med id {} er i status FERDIG. Hvis ja - ignorer denne meldingen, hvis ikke - opprett en sak.", prosessTaskId);

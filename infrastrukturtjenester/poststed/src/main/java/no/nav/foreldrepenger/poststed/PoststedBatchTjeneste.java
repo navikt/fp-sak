@@ -6,7 +6,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.batch.BatchArguments;
-import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 /**
  * Henter ned offisielle kodeverk fra NAV som brukes i løsningen og synker den til egen kodeverk-tabell.
@@ -31,11 +30,6 @@ public class PoststedBatchTjeneste implements BatchTjeneste {
     public String launch(BatchArguments arguments) {
         kodeverkSynkronisering.synkroniserPostnummer();
         return BATCHNAVN + "-" + UUID.randomUUID();
-    }
-
-    @Override
-    public BatchStatus status(String batchInstanceNumber) {
-        return BatchStatus.OK;
     }
 
     @Override

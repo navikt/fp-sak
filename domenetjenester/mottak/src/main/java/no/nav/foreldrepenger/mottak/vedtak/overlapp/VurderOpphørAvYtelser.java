@@ -48,7 +48,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
 /**
@@ -68,7 +68,7 @@ public class VurderOpphørAvYtelser  {
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private OverlappFPInfotrygdTjeneste sjekkOverlappInfortrygd;
     private FamilieHendelseRepository familieHendelseRepository;
@@ -84,7 +84,7 @@ public class VurderOpphørAvYtelser  {
     public VurderOpphørAvYtelser(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                  @FagsakYtelseTypeRef("FP") RevurderingTjeneste revurderingTjenesteFP,
                                  @FagsakYtelseTypeRef("SVP") RevurderingTjeneste revurderingTjenesteSVP,
-                                 ProsessTaskRepository prosessTaskRepository,
+                                 ProsessTaskTjeneste taskTjeneste,
                                  BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                  OverlappFPInfotrygdTjeneste sjekkOverlappInfortrygd,
                                  EntityManager entityManager) {
@@ -93,7 +93,7 @@ public class VurderOpphørAvYtelser  {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.beregningsresultatRepository = behandlingRepositoryProvider.getBeregningsresultatRepository();
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.sjekkOverlappInfortrygd = sjekkOverlappInfortrygd;
         this.familieHendelseRepository = behandlingRepositoryProvider.getFamilieHendelseRepository();
@@ -193,12 +193,12 @@ public class VurderOpphørAvYtelser  {
 
     private void opprettTaskForÅHåndtereOpphør(Fagsak sakOpphør) {
         var beskrivelse = String.format("Overlapp identifisert: Vurder saksnr %s", sakOpphør.getSaksnummer());
-        var prosessTaskData = new ProsessTaskData(HåndterOpphørAvYtelserTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOpphørAvYtelserTask.class);
         prosessTaskData.setFagsakId(sakOpphør.getId());
         prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, beskrivelse);
         prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BEHANDLING_ÅRSAK_KEY, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN.getKode());
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 
     private List<Fagsak> løpendeSakerSomOverlapperUttakPåNySak(AktørId aktørId, Fagsak fagsakIVB, LocalDate startDato) {
@@ -314,14 +314,14 @@ public class VurderOpphørAvYtelser  {
     }
 
     void opprettTaskForÅVurdereKonsekvens(Long fagsakId, String behandlendeEnhetsId, String oppgaveBeskrivelse, Optional<String> gjeldendeAktørId) {
-        var prosessTaskData = new ProsessTaskData(OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, behandlendeEnhetsId);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, oppgaveBeskrivelse);
         gjeldendeAktørId.ifPresent(a-> prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_GJELDENDE_AKTØR_ID, a));
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_HØY);
         prosessTaskData.setFagsakId(fagsakId);
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 
     private OrganisasjonsEnhet utledEnhetFraBehandling(Behandling behandling) {

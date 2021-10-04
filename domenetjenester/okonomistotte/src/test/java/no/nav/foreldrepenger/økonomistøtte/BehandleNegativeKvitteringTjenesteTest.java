@@ -10,40 +10,40 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 public class BehandleNegativeKvitteringTjenesteTest {
 
-    private final static String TASKTYPE = "iverksetteVedtak.oppdragTilØkonomi";
+    private final static TaskType TASKTYPE = new TaskType("iverksetteVedtak.oppdragTilØkonomi"); //TODO deps
     private final static Long BEHANDLING_ID = 100010010L;
     private final static Long FAGSAK_ID = 987654301L;
     private final static String AKTØR_ID = "AA-BB-CC-DD-EE";
 
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     private BehandleNegativeKvitteringTjeneste tjeneste;
 
     @BeforeEach
     void setUp() {
-        prosessTaskRepository = mock(ProsessTaskRepository.class);
-        tjeneste = new BehandleNegativeKvitteringTjeneste(prosessTaskRepository);
+        taskTjeneste = mock(ProsessTaskTjeneste.class);
+        tjeneste = new BehandleNegativeKvitteringTjeneste(taskTjeneste);
     }
 
     @Test
     public void skal_nullstille_hendelse() {
         var taskData = lagØkonomioppragTaskPåVent();
 
-        when(prosessTaskRepository.finn(taskData.getId())).thenReturn(taskData);
+        when(taskTjeneste.finn(taskData.getId())).thenReturn(taskData);
 
         tjeneste.nullstilleØkonomioppdragTask(taskData.getId());
 
-        verify(prosessTaskRepository).lagre(taskData);
+        verify(taskTjeneste).lagre(taskData);
 
         assertThat(taskData.getStatus()).isEqualTo(ProsessTaskStatus.FEILET);
         assertThat(taskData.getSisteFeil()).contains("\"Det finnes negativ kvittering for minst en av oppdragsmottakerne.\"");
-        assertThat(taskData.getHendelse()).isEmpty();
+        assertThat(taskData.getVentetHendelse()).isEmpty();
     }
 
     @Test
@@ -56,9 +56,9 @@ public class BehandleNegativeKvitteringTjenesteTest {
     }
 
     private ProsessTaskData lagØkonomioppragTaskPåVent() {
-        var taskData = new ProsessTaskData(TASKTYPE);
+        var taskData = ProsessTaskData.forTaskType(TASKTYPE);
         taskData.setBehandling(FAGSAK_ID, BEHANDLING_ID, AKTØR_ID);
-        taskData.venterPåHendelse(ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
+        taskData.venterPåHendelse(BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING);
         return taskData;
     }
 }

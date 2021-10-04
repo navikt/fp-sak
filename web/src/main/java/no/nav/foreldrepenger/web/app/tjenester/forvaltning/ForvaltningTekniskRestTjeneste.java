@@ -77,7 +77,7 @@ public class ForvaltningTekniskRestTjeneste {
 
     @Inject
     public ForvaltningTekniskRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
-            FagsakProsessTaskRepository fagsakProsessTaskRepository,
+                                          FagsakProsessTaskRepository fagsakProsessTaskRepository,
             OppgaveTjeneste oppgaveTjeneste,
             PoststedKodeverkRepository postnummerKodeverkRepository,
             PostnummerSynkroniseringTjeneste postnummerTjeneste,

@@ -48,7 +48,7 @@ import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
 public class DokumentmottakerInntektsmeldingTest {
@@ -65,7 +65,7 @@ public class DokumentmottakerInntektsmeldingTest {
     private ForeldrepengerUttakTjeneste fpUttakTjeneste;
 
     @Mock
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     @Mock
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     @Mock
@@ -84,7 +84,7 @@ public class DokumentmottakerInntektsmeldingTest {
     public void oppsett() {
         MockitoAnnotations.initMocks(this);
 
-        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, prosessTaskRepository, behandlendeEnhetTjeneste,
+        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, taskTjeneste, behandlendeEnhetTjeneste,
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);
 
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);

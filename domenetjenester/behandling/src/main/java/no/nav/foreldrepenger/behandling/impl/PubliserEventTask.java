@@ -13,10 +13,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(PubliserEventTask.TASKTYPE)
+@ProsessTask("oppgavebehandling.PubliserEvent")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class PubliserEventTask implements ProsessTaskHandler {
-    public static final String TASKTYPE = "oppgavebehandling.PubliserEvent";
+
     public static final String PROPERTY_KEY = "topicKey";
 
     private static final Logger LOG = LoggerFactory.getLogger(PubliserEventTask.class);

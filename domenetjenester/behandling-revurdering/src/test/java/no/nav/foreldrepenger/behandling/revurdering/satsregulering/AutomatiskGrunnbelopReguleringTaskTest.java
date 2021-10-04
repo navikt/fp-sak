@@ -70,7 +70,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusWeeks(3)).build());
 
-        var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -108,7 +108,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     public void skal_ikke_opprette_revurdering_dersom_åpen_behandling_på_fagsak() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.UTREDES);
 
-        var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -126,7 +126,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusWeeks(3)).build());
 
-        var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -145,7 +145,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusYears(1)).build());
 
-        var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -160,7 +160,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
 
-        var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
         prosessTaskData.setProperty(AutomatiskGrunnbelopReguleringTask.MANUELL_KEY, "true");
         prosessTaskData.setSekvens("1");

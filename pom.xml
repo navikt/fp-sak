@@ -30,7 +30,7 @@
     </modules>
 
     <properties>
-        <java.version>16</java.version>
+        <java.version>17</java.version>
         <!-- default argLine for surefire-plugin -->
         <argLine>-Xms256m -Dlog.level.no.nav=WARN -Dfile.encoding=${project.build.sourceEncoding}</argLine>
         <jacoco.skip>true</jacoco.skip> <!-- default skip coverage -->
@@ -43,8 +43,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <fp-uttak.version>11.0.6</fp-uttak.version>
         <svp-uttak.version>2.1.2</svp-uttak.version>
-        <felles.version>4.0.6</felles.version>
-        <prosesstask.version>2.6.6</prosesstask.version>
+        <felles.version>4.0.10</felles.version>
+        <prosesstask.version>3.0.6</prosesstask.version>
         <ukelonn.felles.version>2.0.22</ukelonn.felles.version>
 
         <fp-kontrakter.version>6.0.4</fp-kontrakter.version>
@@ -53,7 +53,7 @@
         <kalkulus.version>1.2.61</kalkulus.version>
         <abakus-kontrakt.version>1.3.12</abakus-kontrakt.version>
 
-        <swaggercore.version>2.1.10</swaggercore.version>
+        <swaggercore.version>2.1.11</swaggercore.version>
         <flyway.version>4.2.0</flyway.version>
         <!-- Hold samme som i felles -->
         <cxf.version>3.4.4</cxf.version>
@@ -522,12 +522,12 @@
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
-                <version>2.8.0</version>
+                <version>3.0.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-streams</artifactId>
-                <version>2.8.0</version>
+                <version>3.0.0</version>
             </dependency>
 
             <!-- SoB -->
@@ -546,7 +546,7 @@
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-compat-spec-parser</artifactId>
-                <version>1.0.55</version>
+                <version>1.0.56</version>
             </dependency>
             <dependency>
                 <groupId>io.javaslang</groupId>
@@ -940,10 +940,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
 
         </plugins>

@@ -11,10 +11,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(HåndterOpphørAvYtelserTask.TASKTYPE)
+@ProsessTask(value = "iverksetteVedtak.håndterOpphørAvYtelser", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class HåndterOpphørAvYtelserTask extends GenerellProsessTask {
-    public static final String TASKTYPE = "iverksetteVedtak.håndterOpphørAvYtelser";
 
     public static final String BESKRIVELSE_KEY = "beskrivelse";
     public static final String BEHANDLING_ÅRSAK_KEY = "behandlingAarsak";

@@ -51,7 +51,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSupp
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.AktørParam;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -79,7 +79,7 @@ public class VedtakRestTjeneste {
     private VedtattYtelseTjeneste vedtattYtelseTjeneste;
     private BehandlingRepository behandlingRepository;
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private RegenererVedtaksXmlTjeneste regenererVedtaksXmlTjeneste;
     private static final Logger LOG = LoggerFactory.getLogger(VedtakRestTjeneste.class);
 
@@ -89,7 +89,7 @@ public class VedtakRestTjeneste {
 
     @Inject
     public VedtakRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
-                              ProsessTaskRepository prosessTaskRepository,
+                              ProsessTaskTjeneste taskTjeneste,
                               VedtakInnsynTjeneste vedtakInnsynTjeneste,
                               VedtakTjeneste vedtakTjeneste,
                               FagsakTjeneste fagsakTjeneste,
@@ -99,7 +99,7 @@ public class VedtakRestTjeneste {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.vedtakInnsynTjeneste = vedtakInnsynTjeneste;
         this.vedtakTjeneste = vedtakTjeneste;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.regenererVedtaksXmlTjeneste = regenererVedtaksXmlTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
         this.vedtattYtelseTjeneste = vedtattYtelseTjeneste;
@@ -194,11 +194,11 @@ public class VedtakRestTjeneste {
 
         for (var b : behandlinger) {
             var behandling = behandlingsprosessTjeneste.hentBehandling(b);
-            var prosessTaskData = new ProsessTaskData(ValiderOgRegenererVedtaksXmlTask.TASKTYPE);
+            var prosessTaskData = ProsessTaskData.forProsessTask(ValiderOgRegenererVedtaksXmlTask.class);
 
             prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
             prosessTaskData.setCallIdFraEksisterende();
-            prosessTaskRepository.lagre(prosessTaskData);
+            taskTjeneste.lagre(prosessTaskData);
         }
 
         return Response.ok().build();

@@ -7,12 +7,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.batch.BatchArguments;
-import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingKandidaterRepository;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task.OppdaterBehandlendeEnhetTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 /**
  * Flytting iht PFP-4662
@@ -23,7 +22,7 @@ public class FlyttEnhetBatchTjeneste implements BatchTjeneste {
     private static final String BATCHNAVN = "BVL061";
 
     private BehandlingKandidaterRepository behandlingKandidaterRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     FlyttEnhetBatchTjeneste() {
         // for CDI proxy
@@ -31,9 +30,9 @@ public class FlyttEnhetBatchTjeneste implements BatchTjeneste {
 
     @Inject
     public FlyttEnhetBatchTjeneste(BehandlingKandidaterRepository behandlingKandidaterRepository,
-                                   ProsessTaskRepository prosessTaskRepository) {
+                                   ProsessTaskTjeneste taskTjeneste) {
         this.behandlingKandidaterRepository = behandlingKandidaterRepository;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
     }
 
     @Override
@@ -46,17 +45,12 @@ public class FlyttEnhetBatchTjeneste implements BatchTjeneste {
         var flyttEnhetBatchArguments = (FlyttEnhetBatchArguments)arguments;  // NOSONAR
         var kandidater = behandlingKandidaterRepository.finnBehandlingerIkkeAvsluttetPåAngittEnhet(flyttEnhetBatchArguments.getEnhetId());
         kandidater.forEach(beh -> {
-            var taskData = new ProsessTaskData(OppdaterBehandlendeEnhetTask.TASKTYPE);
+            var taskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetTask.class);
             taskData.setBehandling(beh.getFagsakId(), beh.getId(), beh.getAktørId().getId());
             taskData.setCallIdFraEksisterende();
-            prosessTaskRepository.lagre(taskData);
+            taskTjeneste.lagre(taskData);
         });
         return BATCHNAVN + "-" + UUID.randomUUID();
-    }
-
-    @Override
-    public BatchStatus status(String batchInstanceNumber) {
-        return BatchStatus.OK;
     }
 
     @Override

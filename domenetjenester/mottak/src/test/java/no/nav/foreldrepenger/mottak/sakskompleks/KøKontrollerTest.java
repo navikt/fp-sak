@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 public class KøKontrollerTest {
@@ -53,7 +53,7 @@ public class KøKontrollerTest {
     @Mock
     private BehandlingFlytkontroll flytkontroll;
     @Mock
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     private KøKontroller køKontroller;
 
@@ -65,7 +65,7 @@ public class KøKontrollerTest {
         when(behandlingRepositoryProvider.getYtelsesFordelingRepository()).thenReturn(ytelsesFordelingRepository);
         when(behandlingRepositoryProvider.getBehandlingRevurderingRepository()).thenReturn(behandlingRevurderingRepository);
         køKontroller = new KøKontroller(behandlingProsesseringTjeneste, behandlingskontrollTjeneste,
-                behandlingRepositoryProvider, prosessTaskRepository, behandlingsoppretter, flytkontroll);
+                behandlingRepositoryProvider, taskTjeneste, behandlingsoppretter, flytkontroll);
     }
 
     @Test
@@ -172,7 +172,7 @@ public class KøKontrollerTest {
         køKontroller.håndterSakskompleks(farFgBehandling.getFagsak());
 
         // Assert
-        Mockito.verify(prosessTaskRepository).lagre(any(ProsessTaskData.class));
+        Mockito.verify(taskTjeneste).lagre(any(ProsessTaskData.class));
     }
 
     @Test

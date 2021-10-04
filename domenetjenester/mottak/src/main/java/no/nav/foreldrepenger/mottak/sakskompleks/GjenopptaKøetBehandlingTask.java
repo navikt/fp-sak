@@ -13,11 +13,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(GjenopptaKøetBehandlingTask.TASKTYPE)
+@ProsessTask(value = "kompletthettjeneste.gjenopptaBehandling", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class GjenopptaKøetBehandlingTask extends FagsakProsessTask {
-
-    public static final String TASKTYPE = "kompletthettjeneste.gjenopptaBehandling";
 
     private static final Logger LOG = LoggerFactory.getLogger(GjenopptaKøetBehandlingTask.class);
 

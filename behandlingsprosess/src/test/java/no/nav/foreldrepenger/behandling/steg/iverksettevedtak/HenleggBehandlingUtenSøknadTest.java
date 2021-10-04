@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 public class HenleggBehandlingUtenSøknadTest extends EntityManagerAwareTest {
 
@@ -35,7 +35,7 @@ public class HenleggBehandlingUtenSøknadTest extends EntityManagerAwareTest {
         var serviceProvider = new BehandlingskontrollServiceProvider(getEntityManager(), new BehandlingModellRepository(), null);
         var behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(serviceProvider);
         henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider, behandlingskontrollTjenesteImpl,
-                mock(DokumentBestillerTjeneste.class), mock(ProsessTaskRepository.class));
+                mock(DokumentBestillerTjeneste.class), mock(ProsessTaskTjeneste.class));
     }
 
     @Test

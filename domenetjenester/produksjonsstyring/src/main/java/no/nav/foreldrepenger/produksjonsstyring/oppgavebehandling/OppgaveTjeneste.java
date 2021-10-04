@@ -37,11 +37,13 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ApplicationScoped
 public class OppgaveTjeneste {
+
     private static final Logger LOG = LoggerFactory.getLogger(OppgaveTjeneste.class);
     private static final int DEFAULT_OPPGAVEFRIST_DAGER = 1;
     private static final String DEFAULT_OPPGAVEBESKRIVELSE = "Må behandle sak i VL!";
@@ -51,6 +53,8 @@ public class OppgaveTjeneste {
     private static final String NØS_ANSVARLIG_ENHETID = "4151";
     private static final String NØS_BEH_TEMA = "ab0273";
     private static final String NØS_TEMA = "STO";
+
+    private static final String OPPGAVE_ID_TASK_KEY = "oppgaveId";
 
     private static final Map<OppgaveÅrsak, Oppgavetyper> ÅRSAK_TIL_OPPGAVETYPER = Map.ofEntries(
         Map.entry(OppgaveÅrsak.BEHANDLE_SAK, Oppgavetyper.BEHANDLE_SAK_VL),
@@ -66,7 +70,7 @@ public class OppgaveTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private PersoninfoAdapter personinfoAdapter;
     private OppgaveRestKlient restKlient;
 
@@ -79,13 +83,13 @@ public class OppgaveTjeneste {
                            BehandlingRepository behandlingRepository,
                            OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
                            OppgaveRestKlient restKlient,
-                           ProsessTaskRepository prosessTaskRepository,
+                           ProsessTaskTjeneste taskTjeneste,
                            PersoninfoAdapter personinfoAdapter) {
         this.fagsakRepository = fagsakRepository;
         this.behandlingRepository = behandlingRepository;
         this.oppgaveBehandlingKoblingRepository = oppgaveBehandlingKoblingRepository;
         this.restKlient = restKlient;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.personinfoAdapter = personinfoAdapter;
     }
 
@@ -167,7 +171,7 @@ public class OppgaveTjeneste {
         oppgaveBehandlingKoblingRepository.lagre(aktivOppgave);
     }
 
-    public void avsluttOppgaveOgStartTask(Behandling behandling, OppgaveÅrsak oppgaveÅrsak, String taskType) {
+    public void avsluttOppgaveOgStartTask(Behandling behandling, OppgaveÅrsak oppgaveÅrsak, TaskType taskType) {
         var taskGruppe = new ProsessTaskGruppe();
         taskGruppe.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         opprettTaskAvsluttOppgave(behandling, oppgaveÅrsak, false).ifPresent(taskGruppe::addNesteSekvensiell);
@@ -175,7 +179,7 @@ public class OppgaveTjeneste {
 
         taskGruppe.setCallIdFraEksisterende();
 
-        prosessTaskRepository.lagre(taskGruppe);
+        taskTjeneste.lagre(taskGruppe);
     }
 
     public Optional<ProsessTaskData> opprettTaskAvsluttOppgave(Behandling behandling) {
@@ -202,19 +206,27 @@ public class OppgaveTjeneste {
                 return Optional.empty();
             }
             ferdigstillOppgaveBehandlingKobling(aktivOppgave);
-            var avsluttOppgaveTask = opprettProsessTask(behandling, AvsluttOppgaveTask.TASKTYPE);
-            avsluttOppgaveTask.setOppgaveId(aktivOppgave.getOppgaveId());
+            var avsluttOppgaveTask = opprettProsessTask(behandling, TaskType.forProsessTask(AvsluttOppgaveTask.class));
+            setOppgaveId(avsluttOppgaveTask, aktivOppgave.getOppgaveId());
             if (skalLagres) {
                 avsluttOppgaveTask.setCallIdFraEksisterende();
-                prosessTaskRepository.lagre(avsluttOppgaveTask);
+                taskTjeneste.lagre(avsluttOppgaveTask);
             }
             return Optional.of(avsluttOppgaveTask);
         }
         return Optional.empty();
     }
 
-    private ProsessTaskData opprettProsessTask(Behandling behandling, String taskType) {
-        var prosessTask = new ProsessTaskData(taskType);
+    public static void setOppgaveId(ProsessTaskData taskData, String oppgaveId) {
+        taskData.setProperty(OPPGAVE_ID_TASK_KEY, oppgaveId);
+    }
+
+    public static Optional<String> getOppgaveId(ProsessTaskData taskData) {
+        return Optional.ofNullable(taskData.getPropertyValue(OPPGAVE_ID_TASK_KEY));
+    }
+
+    private ProsessTaskData opprettProsessTask(Behandling behandling, TaskType taskType) {
+        var prosessTask = ProsessTaskData.forTaskType(taskType);
         prosessTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTask.setPrioritet(50);
         return prosessTask;

@@ -24,14 +24,6 @@ public interface BatchTjeneste {
     String launch(BatchArguments arguments);
 
     /**
-     * For checking status of a running batch.
-     *
-     * @param batchInstanceNumber unique batch-id
-     * @return Exit-status of the batch
-     */
-    BatchStatus status(String batchInstanceNumber);
-
-    /**
      * Unikt batchnavn etter følgende mønster:
      *     B<appnavn><løpenummer>
      *     Eks: BVLFP001 - Grensesnittavstemning

@@ -7,7 +7,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.batch.BatchArguments;
-import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDefDvh;
@@ -35,11 +34,6 @@ public class OppdaterAksjonspunktDefinisjonBatchTjeneste implements BatchTjenest
     public String launch(BatchArguments arguments) {
         oppdaterAksjonspunktDefinisjonDVH();
         return BATCHNAME + EXECUTION_ID_SEPARATOR + LocalDate.now().toString();
-    }
-
-    @Override
-    public BatchStatus status(String executionId) {
-        return BatchStatus.OK;
     }
 
     @Override

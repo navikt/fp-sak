@@ -15,12 +15,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
-import no.nav.foreldrepenger.dokumentbestiller.forlengelsesbrev.SendForlengelsesbrevTaskProperties;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(SendForlengelsesbrevTaskProperties.TASKTYPE)
+@ProsessTask("behandlingsstotte.sendForlengelsesbrev")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class SendForlengelsesbrevTask extends BehandlingProsessTask {
 

@@ -53,7 +53,7 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest {
@@ -68,7 +68,7 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
     @Mock
     private Behandlingsoppretter behandlingsoppretter;
     @Mock
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     @Mock
     private BehandlendeEnhetTjeneste enhetsTjeneste;
 
@@ -98,7 +98,7 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
         var enhet = new OrganisasjonsEnhet("0312", "enhetNavn");
         lenient().when(enhetsTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
 
-        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, prosessTaskRepository,
+        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, taskTjeneste,
             enhetsTjeneste, historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 

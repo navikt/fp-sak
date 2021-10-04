@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
@@ -43,7 +43,7 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 public class DatavarehusAdminRestTjeneste {
 
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private LagretVedtakRepository lagretVedtakRepository;
     private DatavarehusTjeneste datavarehusTjeneste;
     private VedtakTjeneste vedtakTjeneste;
@@ -55,12 +55,12 @@ public class DatavarehusAdminRestTjeneste {
 
     @Inject
     public DatavarehusAdminRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
-                                        ProsessTaskRepository prosessTaskRepository,
+                                        ProsessTaskTjeneste taskTjeneste,
                                         LagretVedtakRepository lagretVedtakRepository,
                                         DatavarehusTjeneste datavarehusTjeneste,
                                         VedtakTjeneste vedtakTjeneste) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.lagretVedtakRepository = lagretVedtakRepository;
         this.datavarehusTjeneste = datavarehusTjeneste;
         this.vedtakTjeneste = vedtakTjeneste;
@@ -82,11 +82,11 @@ public class DatavarehusAdminRestTjeneste {
             var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
             if (genererVedtaksXmlDvhDto.getFagsakYtelseType() == null
                     || behandling.getFagsakYtelseType().getKode().equals(genererVedtaksXmlDvhDto.getFagsakYtelseType())) {
-                var prosessTaskData = new ProsessTaskData(RegenererVedtaksXmlDatavarehusTask.TASKTYPE);
+                var prosessTaskData = ProsessTaskData.forProsessTask(RegenererVedtaksXmlDatavarehusTask.class);
 
                 prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
                 prosessTaskData.setCallIdFraEksisterende();
-                prosessTaskRepository.lagre(prosessTaskData);
+                taskTjeneste.lagre(prosessTaskData);
                 antBehandlinger++;
             }
         }
@@ -110,11 +110,11 @@ public class DatavarehusAdminRestTjeneste {
 
         for (var behandlingId : behandlinger) {
             var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
-            var prosessTaskData = new ProsessTaskData(RegenererVedtaksXmlDatavarehusTask.TASKTYPE);
+            var prosessTaskData = ProsessTaskData.forProsessTask(RegenererVedtaksXmlDatavarehusTask.class);
 
             prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
             prosessTaskData.setCallIdFraEksisterende();
-            prosessTaskRepository.lagre(prosessTaskData);
+            taskTjeneste.lagre(prosessTaskData);
         }
         LOG.info("Har opprettet nye prosesstask for å genrere vedtaksxml for {} behandlinger", behandlinger.size());
 
@@ -135,10 +135,10 @@ public class DatavarehusAdminRestTjeneste {
         var lagretVedtak = vedtakTjeneste.hentLagreteVedtak(behandling.getId());
 
         if (lagretVedtak != null) {
-            var prosessTaskData = new ProsessTaskData(RegenererVedtaksXmlTask.TASKTYPE);
+            var prosessTaskData = ProsessTaskData.forProsessTask(RegenererVedtaksXmlTask.class);
             prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
             prosessTaskData.setCallIdFraEksisterende();
-            prosessTaskRepository.lagre(prosessTaskData);
+            taskTjeneste.lagre(prosessTaskData);
         } else {
             LOG.warn("Oppgitt behandling {} er ukjent", uuidDto); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -161,11 +161,11 @@ public class DatavarehusAdminRestTjeneste {
         var behandlinger = datavarehusTjeneste.hentVedtakBehandlinger(behandling.getId());
 
         behandlinger.forEach(b -> {
-            var prosessTaskData = new ProsessTaskData(RegenererVedtaksXmlDatavarehusTask.TASKTYPE);
+            var prosessTaskData = ProsessTaskData.forProsessTask(RegenererVedtaksXmlDatavarehusTask.class);
 
             prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
             prosessTaskData.setCallIdFraEksisterende();
-            prosessTaskRepository.lagre(prosessTaskData);
+            taskTjeneste.lagre(prosessTaskData);
             LOG.info("Har opprettet  prosesstask for å regenrere dvh vedtaksxml for {} behandling", uuidDto);
         });
 

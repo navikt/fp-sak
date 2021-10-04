@@ -1,21 +1,18 @@
 package no.nav.foreldrepenger.dokumentbestiller.forlengelsesbrev.tjeneste;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingKandidaterRepository;
-import no.nav.foreldrepenger.dokumentbestiller.forlengelsesbrev.SendForlengelsesbrevTaskProperties;
+import no.nav.foreldrepenger.dokumentbestiller.forlengelsesbrev.task.SendForlengelsesbrevTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.api.TaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class SendForlengelsesbrevTjeneste {
 
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private BehandlingKandidaterRepository behandlingKandidaterRepository;
 
     SendForlengelsesbrevTjeneste() {
@@ -24,9 +21,9 @@ public class SendForlengelsesbrevTjeneste {
 
     @Inject
     public SendForlengelsesbrevTjeneste(BehandlingKandidaterRepository behandlingKandidaterRepository,
-            ProsessTaskRepository prosessTaskRepository) {
+            ProsessTaskTjeneste taskTjeneste) {
         this.behandlingKandidaterRepository = behandlingKandidaterRepository;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
     }
 
     public String sendForlengelsesbrev() {
@@ -40,16 +37,12 @@ public class SendForlengelsesbrevTjeneste {
     }
 
     private String opprettSendForlengelsesbrevTask(Behandling behandling) {
-        var prosessTaskData = new ProsessTaskData(SendForlengelsesbrevTaskProperties.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(SendForlengelsesbrevTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
         prosessTaskData.setPrioritet(100);
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
         return prosessTaskData.getGruppe();
-    }
-
-    public List<TaskStatus> hentStatusForForlengelsesbrevBatchGruppe(String gruppe) {
-        return prosessTaskRepository.finnStatusForTaskIGruppe(SendForlengelsesbrevTaskProperties.TASKTYPE, gruppe);
     }
 }

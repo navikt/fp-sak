@@ -61,7 +61,8 @@ import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderDokumentTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
@@ -72,7 +73,7 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
     @Mock
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     @Mock
     private Behandlingsoppretter behandlingsoppretter;
     @Mock
@@ -103,7 +104,7 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         var enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
         lenient().when(enhetsTjeneste.gyldigEnhetNfpNk(any())).thenReturn(true);
 
-        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, prosessTaskRepository, enhetsTjeneste,
+        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, taskTjeneste, enhetsTjeneste,
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
@@ -204,9 +205,9 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         verify(dokumentmottakerFelles).opprettHistorikk(behandling, mottattDokument);
 
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
-        verify(prosessTaskRepository).lagre(captor.capture());
+        verify(taskTjeneste).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(OpprettOppgaveVurderDokumentTask.TASKTYPE);
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderDokumentTask.class));
     }
 
     @Test
@@ -299,7 +300,7 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         // Assert - verifiser flyt
         verify(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER,
                 behandling, false);
-        verify(prosessTaskRepository).lagre(any(ProsessTaskData.class));
+        verify(taskTjeneste).lagre(any(ProsessTaskData.class));
     }
 
     @Test
@@ -325,7 +326,7 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         // Assert - verifiser flyt
         verify(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER, null,
                 false);
-        verify(prosessTaskRepository).lagre(any(ProsessTaskData.class));
+        verify(taskTjeneste).lagre(any(ProsessTaskData.class));
     }
 
     @Test
@@ -408,9 +409,9 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         verify(dokumentmottaker).håndterAvsluttetTidligereBehandling(mottattDokument, behandling.getFagsak(), null);
 
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
-        verify(prosessTaskRepository).lagre(captor.capture());
+        verify(taskTjeneste).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(StartBehandlingTask.TASKTYPE);
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(StartBehandlingTask.class));
     }
 
     @Test
@@ -471,9 +472,9 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         verify(dokumentmottaker).håndterAvslåttEllerOpphørtBehandling(mottattDokument, behandling.getFagsak(),  behandling, null);
 
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
-        verify(prosessTaskRepository).lagre(captor.capture());
+        verify(taskTjeneste).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(StartBehandlingTask.TASKTYPE);
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(StartBehandlingTask.class));
     }
 
     @Test
@@ -505,9 +506,9 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         verify(dokumentmottaker).håndterAvslåttEllerOpphørtBehandling(mottattDokument, behandling.getFagsak(),  behandling, null);
 
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
-        verify(prosessTaskRepository).lagre(captor.capture());
+        verify(taskTjeneste).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(StartBehandlingTask.TASKTYPE);
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(StartBehandlingTask.class));
     }
 
     @Test

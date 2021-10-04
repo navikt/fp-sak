@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task;
 
 import static no.nav.foreldrepenger.historikk.OppgaveÅrsak.VURDER_KONS_FOR_YTELSE;
-import static no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask.TASKTYPE;
 
 import java.util.Optional;
 
@@ -26,10 +25,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
  * </p>
  */
 @ApplicationScoped
-@ProsessTask(TASKTYPE)
+@ProsessTask("oppgavebehandling.opprettOppgaveVurderKonsekvens")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettOppgaveVurderKonsekvensTask extends GenerellProsessTask {
-    public static final String TASKTYPE = "oppgavebehandling.opprettOppgaveVurderKonsekvens";
+
     public static final String KEY_BEHANDLENDE_ENHET = "behandlendEnhetsId";
     public static final String KEY_BESKRIVELSE = "beskrivelse";
     public static final String KEY_PRIORITET = "prioritet";

@@ -1,20 +1,15 @@
 package no.nav.foreldrepenger.behandling.revurdering.etterkontroll.batch;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.batch.BatchArguments;
-import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollRepository;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.task.AutomatiskEtterkontrollTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
-import no.nav.vedtak.felles.prosesstask.api.TaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 /**
@@ -36,13 +31,13 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 public class AutomatiskEtterkontrollBatchTjeneste implements BatchTjeneste {
 
     private static final String BATCHNAME = "BVL002";
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private EtterkontrollRepository etterkontrollRepository;
 
     @Inject
-    public AutomatiskEtterkontrollBatchTjeneste(ProsessTaskRepository prosessTaskRepository,
+    public AutomatiskEtterkontrollBatchTjeneste(ProsessTaskTjeneste taskTjeneste,
             EtterkontrollRepository etterkontrollRepository) {
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.etterkontrollRepository = etterkontrollRepository;
     }
 
@@ -61,40 +56,17 @@ public class AutomatiskEtterkontrollBatchTjeneste implements BatchTjeneste {
     }
 
     @Override
-    public BatchStatus status(String batchInstanceNumber) {
-        final var gruppe = batchInstanceNumber.substring(batchInstanceNumber.indexOf('-') + 1);
-        final var taskStatuses = prosessTaskRepository.finnStatusForTaskIGruppe(AutomatiskEtterkontrollTask.TASKTYPE, gruppe);
-
-        if (isCompleted(taskStatuses)) {
-            if (isContainingFailures(taskStatuses)) {
-                return BatchStatus.WARNING;
-            }
-            return BatchStatus.OK;
-        }
-        // Is still running
-        return BatchStatus.RUNNING;
-    }
-
-    private boolean isContainingFailures(List<TaskStatus> taskStatuses) {
-        return taskStatuses.stream().anyMatch(it -> it.getStatus() == ProsessTaskStatus.FEILET);
-    }
-
-    private boolean isCompleted(List<TaskStatus> taskStatuses) {
-        return taskStatuses.isEmpty() || taskStatuses.stream().noneMatch(it -> it.getStatus() == ProsessTaskStatus.KLAR);
-    }
-
-    @Override
     public String getBatchName() {
         return BATCHNAME;
     }
 
     private void opprettEtterkontrollTask(Behandling kandidat, String callId) {
-        var prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(kandidat.getFagsakId(), kandidat.getId(), kandidat.getAktørId().getId());
         prosessTaskData.setSekvens("1");
         prosessTaskData.setPrioritet(100);
         prosessTaskData.setCallId(callId);
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 
 }

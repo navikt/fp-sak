@@ -8,24 +8,24 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokumentPersistertEvent;
 import no.nav.foreldrepenger.mottak.publiserer.task.PubliserPersistertDokumentHendelseTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class MottattDokumentPersistertEventObserver {
 
-    private ProsessTaskRepository taskRepository;
+    private ProsessTaskTjeneste taskRepository;
 
     public MottattDokumentPersistertEventObserver() {
     }
 
     @Inject
-    public MottattDokumentPersistertEventObserver(ProsessTaskRepository taskRepository) {
+    public MottattDokumentPersistertEventObserver(ProsessTaskTjeneste taskRepository) {
         this.taskRepository = taskRepository;
     }
 
     public void observerMottattDokumentPersistert(@Observes MottattDokumentPersistertEvent event) {
         if (DokumentTypeId.INNTEKTSMELDING.equals(event.getMottattDokument().getDokumentType())) {
-            final var taskData = new ProsessTaskData(PubliserPersistertDokumentHendelseTask.TASKTYPE);
+            final var taskData = ProsessTaskData.forProsessTask(PubliserPersistertDokumentHendelseTask.class);
             taskData.setBehandling(event.getFagsakId(), event.getBehandlingId(), event.getAktørId().getId());
             taskData.setProperty(PubliserPersistertDokumentHendelseTask.MOTTATT_DOKUMENT_ID_KEY, event.getMottattDokument().getId().toString());
             taskData.setCallIdFraEksisterende();

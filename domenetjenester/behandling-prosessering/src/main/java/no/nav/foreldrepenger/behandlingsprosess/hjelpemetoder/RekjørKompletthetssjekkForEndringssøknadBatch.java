@@ -7,7 +7,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.batch.BatchArguments;
-import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingKandidaterRepository;
@@ -54,12 +53,6 @@ class RekjørKompletthetssjekkForEndringssøknadBatch implements BatchTjeneste {
     private void opprettRekjøringsTask(Behandling behandling, String callId) {
         // Bruk prosesseringtjeneste til passende videre prosess
         return;
-    }
-
-    @Override
-    public BatchStatus status(String batchInstanceNumber) {
-        // Antar her at alt har gått bra siden denne er en synkron jobb.
-        return BatchStatus.OK;
     }
 
     @Override

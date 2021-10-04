@@ -20,6 +20,7 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -41,9 +42,8 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakT
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @CdiDbAwareTest
 public class OpprettNyFørstegangsbehandlingTest {
@@ -59,8 +59,8 @@ public class OpprettNyFørstegangsbehandlingTest {
 
     @Inject
     private KlageRepository klageRepository;
-
-    private ProsessTaskRepository prosessTaskRepository;
+    @Mock
+    private ProsessTaskTjeneste taskTjeneste;
     private SaksbehandlingDokumentmottakTjeneste saksbehandlingDokumentmottakTjeneste;
     private BehandlingsoppretterTjeneste behandlingsoppretterTjeneste;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
@@ -107,10 +107,6 @@ public class OpprettNyFørstegangsbehandlingTest {
 
     @BeforeEach
     public void setup(EntityManager em) {
-        var prosessTaskEventPubliserer = Mockito.mock(ProsessTaskEventPubliserer.class);
-        Mockito.lenient().doNothing().when(prosessTaskEventPubliserer).fireEvent(Mockito.any(ProsessTaskData.class), Mockito.any(), Mockito.any(),
-                Mockito.any(), Mockito.any());
-        prosessTaskRepository = Mockito.spy(new ProsessTaskRepositoryImpl(em, null, prosessTaskEventPubliserer));
         mottatteDokumentTjeneste = mock(MottatteDokumentTjeneste.class);
         lenient().when(mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(any(MottattDokument.class))).thenReturn(MOTTATT_DOKUMENT_ID);
 
@@ -119,7 +115,7 @@ public class OpprettNyFørstegangsbehandlingTest {
     }
 
     private void mockResterende() {
-        saksbehandlingDokumentmottakTjeneste = new SaksbehandlingDokumentmottakTjeneste(prosessTaskRepository, mottatteDokumentTjeneste);
+        saksbehandlingDokumentmottakTjeneste = new SaksbehandlingDokumentmottakTjeneste(taskTjeneste, mottatteDokumentTjeneste);
 
         behandlingsoppretterTjeneste = new BehandlingsoppretterTjeneste(
                 repositoryProvider,
@@ -261,7 +257,7 @@ public class OpprettNyFørstegangsbehandlingTest {
 
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskRepository, times(1)).lagre(captor.capture());
+        verify(taskTjeneste, times(1)).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
         verifiserProsessTaskData(behandling, prosessTaskData, MOTTATT_DOKUMENT_ID, false);
     }
@@ -277,7 +273,7 @@ public class OpprettNyFørstegangsbehandlingTest {
 
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskRepository, times(1)).lagre(captor.capture());
+        verify(taskTjeneste, times(1)).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
         verifiserProsessTaskData(behandling, prosessTaskData, MOTTATT_DOKUMENT_EL_SØKNAD_ID, false);
     }
@@ -293,7 +289,7 @@ public class OpprettNyFørstegangsbehandlingTest {
 
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskRepository, times(1)).lagre(captor.capture());
+        verify(taskTjeneste, times(1)).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
         verifiserProsessTaskData(behandling, prosessTaskData, MOTTATT_DOKUMENT_EL_SØKNAD_ID, true);
     }
@@ -309,7 +305,7 @@ public class OpprettNyFørstegangsbehandlingTest {
 
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskRepository, times(1)).lagre(captor.capture());
+        verify(taskTjeneste, times(1)).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
         verifiserProsessTaskData(behandling, prosessTaskData, MOTTATT_DOKUMENT_IM_ID, true);
     }
@@ -344,7 +340,7 @@ public class OpprettNyFørstegangsbehandlingTest {
 
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskRepository, times(1)).lagre(captor.capture());
+        verify(taskTjeneste, times(1)).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
         verifiserProsessTaskData(behandling, prosessTaskData, MOTTATT_DOKUMENT_ID, false);
     }
@@ -357,7 +353,7 @@ public class OpprettNyFørstegangsbehandlingTest {
 
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskRepository, times(1)).lagre(captor.capture());
+        verify(taskTjeneste, times(1)).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
         verifiserProsessTaskData(behandling, prosessTaskData, MOTTATT_DOKUMENT_EL_SØKNAD_ID, true);
     }
@@ -373,14 +369,14 @@ public class OpprettNyFørstegangsbehandlingTest {
                 .henleggÅpenFørstegangsbehandlingOgOpprettNy(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer()));
 
         // Assert
-        verify(prosessTaskRepository, times(0)).lagre(any(ProsessTaskData.class));
+        verify(taskTjeneste, times(0)).lagre(any(ProsessTaskData.class));
     }
 
     // Verifiserer at den opprettede prosesstasken stemmer overens med
     // MottattDokument-mock
     private void verifiserProsessTaskData(Behandling behandling, ProsessTaskData prosessTaskData, Long ventetDokument, boolean skalhabehandling) {
 
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(HåndterMottattDokumentTask.TASKTYPE);
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(HåndterMottattDokumentTask.class));
         assertThat(prosessTaskData.getFagsakId()).isEqualTo(behandling.getFagsakId());
         if (skalhabehandling) {
             assertThat(prosessTaskData.getBehandlingId()).isEqualTo(behandling.getId().toString());

@@ -45,7 +45,7 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
@@ -57,7 +57,7 @@ public class AutomatiskEtterkontrollTaskTest {
     private BehandlingRepository behandlingRepository;
 
     @Mock
-    private ProsessTaskRepository prosessTaskRepositoryMock;
+    private ProsessTaskTjeneste taskTjenesteMock;
 
     private AutomatiskEtterkontrollTask task;
     @Mock
@@ -86,7 +86,7 @@ public class AutomatiskEtterkontrollTaskTest {
         familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository,
                 familieHendelseTjeneste, tpsFamilieTjenesteMock,
-                prosessTaskRepositoryMock, behandlendeEnhetTjeneste);
+                taskTjenesteMock, behandlendeEnhetTjeneste);
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class)))
                 .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
     }
@@ -98,7 +98,7 @@ public class AutomatiskEtterkontrollTaskTest {
         when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(
                 Collections.emptyList());
 
-        var prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -133,7 +133,7 @@ public class AutomatiskEtterkontrollTaskTest {
         Period.parse("P11W");
         task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository,
                 familieHendelseTjeneste, tpsFamilieTjenesteMock,
-                prosessTaskRepositoryMock, behandlendeEnhetTjeneste);
+                taskTjenesteMock, behandlendeEnhetTjeneste);
     }
 
     @Test
@@ -143,7 +143,7 @@ public class AutomatiskEtterkontrollTaskTest {
         when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(
                 Collections.emptyList());
 
-        var prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -161,7 +161,7 @@ public class AutomatiskEtterkontrollTaskTest {
         var behandling = opprettRevurderingsKandidat(0, 2, true, false, true);
         when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(barn);
 
-        var prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -177,7 +177,7 @@ public class AutomatiskEtterkontrollTaskTest {
         var behandling = opprettRevurderingsKandidat(0, 2, true, false, true);
         when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(barn);
 
-        var prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -194,7 +194,7 @@ public class AutomatiskEtterkontrollTaskTest {
         var behandling = opprettRevurderingsKandidat(0, 1, true, false, true);
         when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(barn);
 
-        var prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -210,7 +210,7 @@ public class AutomatiskEtterkontrollTaskTest {
         var behandling = opprettRevurderingsKandidat(0, 1, true, true, false);
         when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(barn);
 
-        var prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -224,7 +224,7 @@ public class AutomatiskEtterkontrollTaskTest {
     public void skal_opprette_vurder_konsekvens_oppgave_hvis_det_finnes_åpen_førstegangs_behandling() {
         var behandling = opprettRevurderingsKandidat(0, 2, false, false, false);
 
-        var prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 

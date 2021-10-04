@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveSendTilInfotrygdTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class HenleggBehandlingTjeneste {
@@ -33,7 +33,7 @@ public class HenleggBehandlingTjeneste {
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private SøknadRepository søknadRepository;
     private FagsakRepository fagsakRepository;
     private HistorikkRepository historikkRepository;
@@ -47,11 +47,11 @@ public class HenleggBehandlingTjeneste {
     public HenleggBehandlingTjeneste(BehandlingRepositoryProvider repositoryProvider,
             BehandlingskontrollTjeneste behandlingskontrollTjeneste,
             DokumentBestillerTjeneste dokumentBestillerTjeneste,
-            ProsessTaskRepository prosessTaskRepository) {
+            ProsessTaskTjeneste taskTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
@@ -95,10 +95,10 @@ public class HenleggBehandlingTjeneste {
     }
 
     private void opprettOppgaveTilInfotrygd(Behandling behandling) {
-        var data = new ProsessTaskData(OpprettOppgaveSendTilInfotrygdTask.TASKTYPE);
+        var data = ProsessTaskData.forProsessTask(OpprettOppgaveSendTilInfotrygdTask.class);
         data.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         data.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(data);
+        taskTjeneste.lagre(data);
     }
 
     private void håndterHenleggelseUtenOppgitteSøknadsopplysninger(Behandling behandling, BehandlingskontrollKontekst kontekst) {
@@ -111,10 +111,10 @@ public class HenleggBehandlingTjeneste {
     }
 
     private void startTaskForDekøingAvBerørtBehandling(Behandling behandling) {
-        var taskData = new ProsessTaskData(StartBerørtBehandlingTask.TASKTYPE);
+        var taskData = ProsessTaskData.forProsessTask(StartBerørtBehandlingTask.class);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(taskData);
+        taskTjeneste.lagre(taskData);
     }
 
     private void sendHenleggelsesbrev(long behandlingId, UUID behandlingUuid, HistorikkAktør aktør) {

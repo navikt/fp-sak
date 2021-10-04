@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Forretningshendelse;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødHendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødfødselHendelseDto;
@@ -38,8 +39,7 @@ import no.nav.foreldrepenger.mottak.hendelser.håndterer.ForretningshendelseHån
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.ForretningshendelseSaksvelgerProvider;
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class ForretningshendelseMottak {
@@ -61,7 +61,7 @@ public class ForretningshendelseMottak {
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingRevurderingRepository revurderingRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private KøKontroller køKontroller;
     private boolean isProd;
 
@@ -73,14 +73,14 @@ public class ForretningshendelseMottak {
     public ForretningshendelseMottak(ForretningshendelseHåndtererProvider håndtererProvider,
                                      ForretningshendelseSaksvelgerProvider saksvelgerProvider,
                                      BehandlingRepositoryProvider repositoryProvider,
-                                     ProsessTaskRepository prosessTaskRepository,
+                                     ProsessTaskTjeneste taskTjeneste,
                                      KøKontroller køKontroller) {
         this.håndtererProvider = håndtererProvider;
         this.saksvelgerProvider = saksvelgerProvider;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.revurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.køKontroller = køKontroller;
         this.isProd = Environment.current().isProd();
     }
@@ -142,7 +142,7 @@ public class ForretningshendelseMottak {
     }
 
     private void opprettProsesstaskForFagsak(Fagsak fagsak, String hendelseType, BehandlingÅrsakType behandlingÅrsakType) {
-        var taskData = new ProsessTaskData(MottaHendelseFagsakTask.TASKTYPE);
+        var taskData = ProsessTaskData.forProsessTask(MottaHendelseFagsakTask.class);
         taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_HENDELSE_TYPE, hendelseType);
         taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_ÅRSAK_TYPE, behandlingÅrsakType.getKode());
         taskData.setFagsakId(fagsak.getId());
@@ -151,7 +151,7 @@ public class ForretningshendelseMottak {
             // Porsjoner utover neste 7 min
             taskData.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), OPPDRAG_VÅKNER.plusSeconds(LocalDateTime.now().getNano() % 1739)));
         }
-        prosessTaskRepository.lagre(taskData);
+        taskTjeneste.lagre(taskData);
     }
 
     private static List<AktørId> mapToAktørIds(HendelseDto hendelseDto) {

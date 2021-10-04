@@ -20,11 +20,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(HåndterMottattDokumentTask.TASKTYPE)
+@ProsessTask("innhentsaksopplysninger.håndterMottattDokument")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class HåndterMottattDokumentTask extends FagsakProsessTask {
 
-    public static final String TASKTYPE = "innhentsaksopplysninger.håndterMottattDokument";
     public static final String BEHANDLING_ÅRSAK_TYPE_KEY = "arsakType";
     public static final String MOTTATT_DOKUMENT_ID_KEY = "mottattDokumentId";
 

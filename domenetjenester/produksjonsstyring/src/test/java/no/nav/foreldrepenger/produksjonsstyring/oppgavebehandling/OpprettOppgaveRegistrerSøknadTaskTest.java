@@ -28,7 +28,7 @@ public class OpprettOppgaveRegistrerSøknadTaskTest {
     @Test
     public void skal_opprette_oppgave_for_å_registere_søknad() {
         // Arrange
-        var prosessTaskData = new ProsessTaskData(OpprettOppgaveRegistrerSøknadTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(OpprettOppgaveRegistrerSøknadTask.class);
         prosessTaskData.setBehandling(1L, BEHANDLING_ID, "99");
         var behandlingIdCaptor = ArgumentCaptor.forClass(Long.class);
         var årsakCaptor = ArgumentCaptor.forClass(OppgaveÅrsak.class);

@@ -13,11 +13,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.kontroll.v1.KontrollResultatV1;
 
-@ProsessTask(LesKontrollresultatTask.TASKTYPE)
+@ProsessTask("risiko.klassifisering.resultat")
 public class LesKontrollresultatTask implements ProsessTaskHandler {
-    private static final Logger LOG = LoggerFactory.getLogger(LesKontrollresultatTask.class);
 
-    public static final String TASKTYPE = "risiko.klassifisering.resultat";
+    private static final Logger LOG = LoggerFactory.getLogger(LesKontrollresultatTask.class);
 
     private RisikovurderingTjeneste risikovurderingTjeneste;
     private KontrollresultatMapper kontrollresultatMapper;
