@@ -32,6 +32,7 @@
     <properties>
         <java.version>17</java.version>
         <!-- default argLine for surefire-plugin -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <argLine>-Xms256m -Dlog.level.no.nav=WARN -Dfile.encoding=${project.build.sourceEncoding}</argLine>
         <jacoco.skip>true</jacoco.skip> <!-- default skip coverage -->
 
@@ -39,8 +40,6 @@
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
         <jupiter.version>5.7.2</jupiter.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <fp-uttak.version>11.0.6</fp-uttak.version>
         <svp-uttak.version>2.1.2</svp-uttak.version>
         <felles.version>4.0.10</felles.version>
