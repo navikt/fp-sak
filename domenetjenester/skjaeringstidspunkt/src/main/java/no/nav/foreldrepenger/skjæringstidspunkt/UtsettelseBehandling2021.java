@@ -31,7 +31,6 @@ public class UtsettelseBehandling2021 {
 
     @Inject
     public UtsettelseBehandling2021(UtsettelseCore2021 utsettelseCore, BehandlingRepositoryProvider repositoryProvider) {
-        // Pass på å ikke endre dato som skal brukes i produksjon før ting er vedtatt ...
         this.utsettelseCore = utsettelseCore;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
@@ -43,13 +42,6 @@ public class UtsettelseBehandling2021 {
             .or(() -> vedtattFamilieHendelseRelatertFagsak(behandlingId))
             .map(utsettelseCore::kreverSammenhengendeUttak)
             .orElse(UtsettelseCore2021.DEFAULT_KREVER_SAMMENHENGENDE_UTTAK);
-    }
-
-    public boolean usikkertFrittUttak(Long behandlingId) {
-        return familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
-            .or(() -> vedtattFamilieHendelseRelatertFagsak(behandlingId))
-            .map(utsettelseCore::usikkertFrittUttak)
-            .orElse(true);
     }
 
     private Optional<FamilieHendelseGrunnlagEntitet> vedtattFamilieHendelseRelatertFagsak(Long behandlingId) {

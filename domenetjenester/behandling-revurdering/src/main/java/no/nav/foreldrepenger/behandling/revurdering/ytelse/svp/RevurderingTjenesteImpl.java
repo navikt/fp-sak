@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.svp;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -23,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -101,7 +103,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         behandlingskontrollTjeneste.opprettBehandling(kontekst, revurdering);
 
         // Kopier vilkår (samme vilkår vurderes i Revurdering)
-        revurderingTjenesteFelles.kopierVilkårsresultat(origBehandling, revurdering, kontekst);
+        revurderingTjenesteFelles.kopierVilkårsresultat(origBehandling, revurdering, kontekst, Set.of(VilkårType.SVANGERSKAPSPENGERVILKÅR));
 
         // Kopier grunnlagsdata
         this.kopierAlleGrunnlagFraTidligereBehandling(origBehandling, revurdering);

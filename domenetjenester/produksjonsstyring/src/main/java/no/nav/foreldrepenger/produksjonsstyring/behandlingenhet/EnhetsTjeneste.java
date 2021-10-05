@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -103,7 +104,11 @@ public class EnhetsTjeneste {
 
     private OrganisasjonsEnhet tilfeldigEnhet() {
         oppdaterEnhetCache();
-        return alleBehandlendeEnheter.stream().filter(e -> !KLAGE_ENHET.equals(e) && !enhetKode6.equals(e)).findAny().orElseThrow();
+        var kanvelges = alleBehandlendeEnheter.stream().filter(e -> !KLAGE_ENHET.equals(e) && !enhetKode6.equals(e)).toList();
+        if (kanvelges.isEmpty()) {
+            throw new IllegalStateException("Ingen enheter å velge mellom");
+        }
+        return kanvelges.get(LocalDateTime.now().getNano() % kanvelges.size());
     }
 
     Optional<OrganisasjonsEnhet> finnOrganisasjonsEnhet(String enhetId) {
