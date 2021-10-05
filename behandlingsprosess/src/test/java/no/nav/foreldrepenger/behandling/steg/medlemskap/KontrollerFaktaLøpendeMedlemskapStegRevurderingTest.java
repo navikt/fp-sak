@@ -103,7 +103,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     @BeforeEach
     public void setUp() {
         steg = new KontrollerFaktaLøpendeMedlemskapStegRevurdering(utlederTjeneste, provider, vurderMedlemskapTjeneste,
-                skjæringstidspunktTjeneste, flytkontroll, skalKopiereUttakTjeneste, uttakInputTjeneste, null);
+                skjæringstidspunktTjeneste, flytkontroll, skalKopiereUttakTjeneste, uttakInputTjeneste);
     }
 
     @Test

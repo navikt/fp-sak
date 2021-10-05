@@ -320,11 +320,12 @@ public class VilkårResultat extends BaseEntitet {
             return this;
         }
 
-        public Builder kopierVilkårFraAnnenBehandling(Vilkår vilkår, boolean settTilIkkeVurdert) {
+        public Builder kopierVilkårFraAnnenBehandling(Vilkår vilkår, boolean settTilIkkeVurdert, boolean nullstillManuellVurdering) {
             var builder = VilkårBuilder.ny()
                 .medVilkårType(vilkår.getVilkårType())
                 .medUtfallOverstyrt(vilkår.getVilkårUtfallOverstyrt(), vilkår.getAvslagsårsak())
-                .medUtfallManuell(vilkår.getVilkårUtfallManuelt(), vilkår.getAvslagsårsak())
+                .medUtfallManuell(nullstillManuellVurdering ? VilkårUtfallType.UDEFINERT : vilkår.getVilkårUtfallManuelt(),
+                    nullstillManuellVurdering ? Avslagsårsak.UDEFINERT : vilkår.getAvslagsårsak())
                 .medMerknadParametere(vilkår.getMerknadParametere())
                 .medRegelEvaluering(vilkår.getRegelEvaluering())
                 .medRegelInput(vilkår.getRegelInput());

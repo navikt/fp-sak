@@ -291,7 +291,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         var origBehandling = revurdering.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
                 .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
 
-        revurdering = kopierVilkår(origBehandling, revurdering, kontekst);
+        revurdering = kopierVilkårFørStartpunkt(origBehandling, revurdering, kontekst);
         revurdering = kopierUttaksperiodegrense(revurdering, origBehandling);
 
         if (StartpunktType.BEREGNING_FORESLÅ.equals(revurdering.getStartpunkt())) {
@@ -370,7 +370,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         return revurdering;
     }
 
-    private Behandling kopierVilkår(Behandling origBehandling, Behandling revurdering, BehandlingskontrollKontekst kontekst) {
+    private Behandling kopierVilkårFørStartpunkt(Behandling origBehandling, Behandling revurdering, BehandlingskontrollKontekst kontekst) {
         var vilkårResultat = Optional.ofNullable(getBehandlingsresultat(revurdering.getId()))
                 .map(Behandlingsresultat::getVilkårResultat)
                 .orElseThrow(() -> new IllegalStateException("VilkårResultat skal alltid være opprettet ved revurdering"));
@@ -385,7 +385,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         var vilkårFørStartpunkt = originaltBehandlingsresultat.getVilkårResultat().getVilkårene().stream()
                 .filter(vilkår -> vilkårtyperFørStartpunkt.contains(vilkår.getVilkårType()))
                 .collect(Collectors.toSet());
-        kopierVilkår(vilkårBuilder, vilkårFørStartpunkt);
+        kopierVilkårFørStartpunkt(vilkårBuilder, vilkårFørStartpunkt);
         vilkårBuilder.buildFor(revurdering);
 
         var revurderingBehandlingsresultat = Optional.ofNullable(getBehandlingsresultat(revurdering.getId())).orElseThrow();
@@ -398,7 +398,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         return behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElse(null);
     }
 
-    private void kopierVilkår(VilkårResultat.Builder vilkårBuilder, Set<Vilkår> vilkårne) {
-        vilkårne.forEach(vilkår -> vilkårBuilder.kopierVilkårFraAnnenBehandling(vilkår, false));
+    private void kopierVilkårFørStartpunkt(VilkårResultat.Builder vilkårBuilder, Set<Vilkår> vilkårne) {
+        vilkårne.forEach(vilkår -> vilkårBuilder.kopierVilkårFraAnnenBehandling(vilkår, false, false));
     }
 }
