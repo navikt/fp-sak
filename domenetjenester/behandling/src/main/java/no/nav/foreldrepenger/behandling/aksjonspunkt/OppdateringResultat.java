@@ -20,7 +20,8 @@ public class OppdateringResultat {
     private static final String MULTI_ENDRING = "Kan ikke fjerne vilkårtype med resultat som er lagt til i samme transisjon";
 
     private BehandlingStegType nesteSteg;
-    private final List<VilkårOppdateringResultat> vilkårResultatSomSkalLeggesTil = new ArrayList<>();
+    private final List<VilkårType> vilkårTyperNyeIkkeVurdert = new ArrayList<>();
+    private final List<VilkårOppdateringResultat> vilkårUtfallSomSkalLeggesTil = new ArrayList<>();
     private final List<VilkårType> vilkårTyperSomSkalFjernes = new ArrayList<>(); // Eksisterer for å håndtere vilkåropprydding for Omsorg
     private VilkårResultatType vilkårResultatType;
     private OverhoppKontroll overhoppKontroll;
@@ -116,12 +117,16 @@ public class OppdateringResultat {
         return totrinnsKontroll;
     }
 
+    public List<VilkårType> getVilkårTyperNyeIkkeVurdert() {
+        return vilkårTyperNyeIkkeVurdert;
+    }
+
     public List<AksjonspunktResultatMedStatus> getEkstraAksjonspunktResultat() {
         return ekstraAksjonspunktResultat;
     }
 
-    public List<VilkårOppdateringResultat> getVilkårResultatSomSkalLeggesTil() {
-        return vilkårResultatSomSkalLeggesTil;
+    public List<VilkårOppdateringResultat> getVilkårUtfallSomSkalLeggesTil() {
+        return vilkårUtfallSomSkalLeggesTil;
     }
 
     public List<VilkårType> getVilkårTyperSomSkalFjernes() {
@@ -153,35 +158,42 @@ public class OppdateringResultat {
             return this;
         }
 
-        public Builder leggTilVilkårResultat(VilkårType vilkårType, VilkårUtfallType vilkårUtfallType) {
+        public Builder leggTilIkkeVurdertVilkår(VilkårType vilkårType) {
             Objects.requireNonNull(vilkårType);
-            Objects.requireNonNull(vilkårUtfallType);
-            if (VilkårUtfallType.IKKE_OPPFYLT.equals(vilkårUtfallType)) {
-                throw new IllegalArgumentException("Mangler avslagsårsak");
-            }
-            if (resultat.vilkårTyperSomSkalFjernes.stream().anyMatch(type -> type.equals(vilkårType))) {
+            if (resultat.vilkårTyperSomSkalFjernes.contains(vilkårType) ||
+                resultat.vilkårUtfallSomSkalLeggesTil.stream().anyMatch(v -> v.getVilkårType().equals(vilkårType))) {
                 throw new IllegalStateException(MULTI_ENDRING);
             }
-            resultat.vilkårResultatSomSkalLeggesTil.add(new VilkårOppdateringResultat(vilkårType, vilkårUtfallType));
+            resultat.vilkårTyperNyeIkkeVurdert.add(vilkårType);
             return this;
         }
 
-        public Builder leggTilAvslåttVilkårResultat(VilkårType vilkårType, Avslagsårsak avslagsårsak) {
+        public Builder leggTilManueltOppfyltVilkår(VilkårType vilkårType) {
+            Objects.requireNonNull(vilkårType);
+            if (resultat.vilkårTyperNyeIkkeVurdert.contains(vilkårType) || resultat.vilkårTyperSomSkalFjernes.contains(vilkårType)) {
+                throw new IllegalStateException(MULTI_ENDRING);
+            }
+            resultat.vilkårUtfallSomSkalLeggesTil.add(new VilkårOppdateringResultat(vilkårType, VilkårUtfallType.OPPFYLT));
+            return this;
+        }
+
+        public Builder leggTilManueltAvslåttVilkår(VilkårType vilkårType, Avslagsårsak avslagsårsak) {
             Objects.requireNonNull(vilkårType);
             Objects.requireNonNull(avslagsårsak);
             if (Avslagsårsak.UDEFINERT.equals(avslagsårsak)) {
                 throw new IllegalArgumentException("Mangler gyldig avslagsårsak");
             }
-            if (resultat.vilkårTyperSomSkalFjernes.stream().anyMatch(type -> type.equals(vilkårType))) {
+            if (resultat.vilkårTyperNyeIkkeVurdert.contains(vilkårType) || resultat.vilkårTyperSomSkalFjernes.contains(vilkårType)) {
                 throw new IllegalStateException(MULTI_ENDRING);
             }
-            resultat.vilkårResultatSomSkalLeggesTil.add(new VilkårOppdateringResultat(vilkårType, avslagsårsak));
+            resultat.vilkårUtfallSomSkalLeggesTil.add(new VilkårOppdateringResultat(vilkårType, avslagsårsak));
             return this;
         }
 
         public Builder fjernVilkårType(VilkårType vilkårType) {
             Objects.requireNonNull(vilkårType);
-            if (resultat.vilkårResultatSomSkalLeggesTil.stream().anyMatch(v -> v.getVilkårType().equals(vilkårType))) {
+            if (resultat.vilkårTyperNyeIkkeVurdert.contains(vilkårType) ||
+                resultat.vilkårUtfallSomSkalLeggesTil.stream().anyMatch(v -> v.getVilkårType().equals(vilkårType))) {
                 throw new IllegalStateException(MULTI_ENDRING);
             }
             resultat.vilkårTyperSomSkalFjernes.add(vilkårType);
@@ -242,7 +254,7 @@ public class OppdateringResultat {
         }
 
         public OppdateringResultat build() {
-            if (resultat.vilkårResultatSomSkalLeggesTil.stream().map(VilkårOppdateringResultat::getVilkårUtfallType).anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals)) {
+            if (resultat.vilkårUtfallSomSkalLeggesTil.stream().map(VilkårOppdateringResultat::getVilkårUtfallType).anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals)) {
                 resultat.vilkårResultatType = VilkårResultatType.AVSLÅTT;
             }
             return resultat;

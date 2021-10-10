@@ -101,7 +101,7 @@ public class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
     }
 
     private void byggVilkårResultat(VilkårResultat.Builder vilkårBuilder, OppdateringResultat delresultat) {
-        delresultat.getVilkårResultatSomSkalLeggesTil()
+        delresultat.getVilkårUtfallSomSkalLeggesTil()
             .forEach(v -> vilkårBuilder.manueltVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
         delresultat.getVilkårTyperSomSkalFjernes().forEach(vilkårBuilder::fjernVilkår); // TODO: Vilkår burde ryddes på ein annen måte enn dette
         if (delresultat.getVilkårResultatType() != null) {

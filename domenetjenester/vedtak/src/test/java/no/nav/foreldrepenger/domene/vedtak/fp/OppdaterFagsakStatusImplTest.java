@@ -6,11 +6,13 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakStatusEventPubliserer;
@@ -22,6 +24,8 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class OppdaterFagsakStatusImplTest {
 
     @Mock
@@ -33,11 +37,6 @@ public class OppdaterFagsakStatusImplTest {
     @Mock
     private UttakInputTjeneste uttakInputTjeneste;
 
-
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
 
     @Test
     public void utløpt_ytelsesvedtak() {
@@ -61,7 +60,7 @@ public class OppdaterFagsakStatusImplTest {
 
     private boolean erBehandlingDirekteAvsluttbart(BehandlingResultatType behandlingResultatType) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-
+        scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now().minusDays(1));
         var behandlingsresultat = new Behandlingsresultat.Builder().medBehandlingResultatType(behandlingResultatType).build();
         var behandling = scenario.lagMocked();
         behandling.setBehandlingresultat(behandlingsresultat);

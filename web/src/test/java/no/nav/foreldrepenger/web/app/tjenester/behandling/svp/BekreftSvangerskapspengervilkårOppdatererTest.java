@@ -78,7 +78,7 @@ public class BekreftSvangerskapspengervilkårOppdatererTest {
         var resultat = oppdaterer.oppdater(dto, param);
 
         var builder = VilkårResultat.builder();
-        resultat.getVilkårResultatSomSkalLeggesTil()
+        resultat.getVilkårUtfallSomSkalLeggesTil()
             .forEach(v -> builder.manueltVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
 
         assertThat(builder.buildFor(behandling).getVilkårene().get(0).getGjeldendeVilkårUtfall()).isEqualTo(
@@ -98,7 +98,7 @@ public class BekreftSvangerskapspengervilkårOppdatererTest {
         var resultat = oppdaterer.oppdater(dto, param);
 
         var builder = VilkårResultat.builder();
-        resultat.getVilkårResultatSomSkalLeggesTil()
+        resultat.getVilkårUtfallSomSkalLeggesTil()
             .forEach(v -> builder.manueltVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
 
 

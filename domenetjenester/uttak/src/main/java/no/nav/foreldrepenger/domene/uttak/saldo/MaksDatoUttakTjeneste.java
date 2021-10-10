@@ -9,4 +9,8 @@ public interface MaksDatoUttakTjeneste {
 
     Optional<LocalDate> beregnMaksDatoUttak(UttakInput uttakInput);
 
+    default Optional<LocalDate> beregnMaksDatoUttakSakskompleks(UttakInput uttakInput, int restStønadsDager) {
+        return beregnMaksDatoUttak(uttakInput);
+    }
+
 }

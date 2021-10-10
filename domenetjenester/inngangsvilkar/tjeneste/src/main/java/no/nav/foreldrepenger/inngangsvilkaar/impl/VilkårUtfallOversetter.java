@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
-import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.MerknadRuleReasonRef;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelUtfallMerknad;
@@ -97,20 +96,22 @@ public class VilkårUtfallOversetter {
 
     private static VilkårUtfallType getVilkårUtfallType(VilkårType vilkårType, EvaluationSummary summary) {
         // TODO(jol) ta i neste runde av 4570. Virker flaky pga hvisIkke - conditions som returnerer outcome
+        var oldestResult = oldestGetVilkårUtfallType(summary);
         var oldResult = oldGetVilkårUtfallType(summary);
         var alleUtfall = summary.leafEvaluations().stream()
             .filter(e -> e.getOutcome() != null)
             .map(e -> mapEvaluationResultToUtfallType(e.result()))
             .collect(Collectors.toSet());
         if (alleUtfall.size() != 1) {
-            LOG.info("REGELOVERSETTER vilkår {} flere utfall {} oldres = {}", vilkårType, alleUtfall, oldResult);
+            LOG.info("REGELOVERSETTER vilkår {} flere utfall {} oldres = {} oldest = {}", vilkårType, alleUtfall, oldResult, oldestResult);
         } else if (!alleUtfall.contains(oldResult)) {
-            LOG.info("REGELOVERSETTER vilkår {} annet svar {} oldres = {}", vilkårType, alleUtfall, oldResult);
+            LOG.info("REGELOVERSETTER vilkår {} annet svar {} oldres = {} oldest = {}", vilkårType, alleUtfall, oldResult, oldestResult);
         }
-        return oldResult;
+        return oldestResult;
     }
 
-    private static VilkårUtfallType oldGetVilkårUtfallType(EvaluationSummary summary) {
+    // Opprinnelig - obs mange beregnet/ja -> outcome == null
+    private static VilkårUtfallType oldestGetVilkårUtfallType(EvaluationSummary summary) {
         // TODO(jol) ta i neste runde av 4570. Virker flaky pga hvisIkke - conditions som returnerer outcome  -> bruk annen RREF for conditionals
         var leafEvaluations = summary.leafEvaluations();
         for (var ev : leafEvaluations) {
@@ -121,6 +122,17 @@ public class VilkårUtfallOversetter {
         }
 
         throw new IllegalArgumentException("leafEvaluations.isEmpty():" + leafEvaluations);
+    }
+
+    private static VilkårUtfallType oldGetVilkårUtfallType(EvaluationSummary summary) {
+        // TODO(jol) ta i neste runde av 4570. Virker flaky pga hvisIkke - conditions som returnerer outcome  -> bruk annen RREF for conditionals
+        var leafEvaluations = summary.leafEvaluations();
+        for (var ev : leafEvaluations) {
+            if (ev.getOutcome() != null) {
+                return mapEvaluationResultToUtfallType(ev.result());
+            }
+        }
+        return VilkårUtfallType.OPPFYLT;
     }
 
     private static VilkårUtfallType mapEvaluationResultToUtfallType(Resultat res) {

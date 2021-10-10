@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.VurdereYtelseSammeBarnSøkerAksjonspunktDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
@@ -57,7 +56,7 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
             var totrinn = endringsHåndtering(behandlingReferanse, vilkår, dto, finnTekstForFelt(vilkår), param);
             if (dto.getErVilkarOk()) {
                 var resultatBuilder = OppdateringResultat.utenTransisjon();
-                resultatBuilder.leggTilVilkårResultat(vilkår.getVilkårType(), VilkårUtfallType.OPPFYLT);
+                resultatBuilder.leggTilManueltOppfyltVilkår(vilkår.getVilkårType());
                 return resultatBuilder.medTotrinnHvis(totrinn).build();
             } else {
                 var resultatBuilder = OppdateringResultat.utenTransisjon();
@@ -66,7 +65,7 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
 
                 return resultatBuilder
                     .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
-                    .leggTilAvslåttVilkårResultat(vilkår.getVilkårType(), avslagsårsak)
+                    .leggTilManueltAvslåttVilkår(vilkår.getVilkårType(), avslagsårsak)
                     .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                     .build();
             }

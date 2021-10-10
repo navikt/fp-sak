@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -122,21 +121,16 @@ public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
 
             if (familieHendelseGrunnlag.isPresent()) {
 
-                if(avslåttEllerOpphørt && levendeBarnFinnes(familieHendelseGrunnlag)) return true;
+                if (avslåttEllerOpphørt && levendeBarnFinnes(familieHendelseGrunnlag)) return true;
 
-                var fødselsdato = familieHendelseGrunnlag
+                var hendelseDato = familieHendelseGrunnlag
                     .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-                    .flatMap(FamilieHendelseEntitet::getFødselsdato);
-                var omsorgsovertalsesdato = familieHendelseGrunnlag
-                    .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-                    .flatMap(FamilieHendelseEntitet::getAdopsjon)
-                    .map(AdopsjonEntitet::getOmsorgsovertakelseDato);
+                    .map(FamilieHendelseEntitet::getSkjæringstidspunkt);
                 var uttakInput = uttakInputTjeneste.lagInput(sisteYtelsesvedtak.get());
                 var maksDatoUttak = maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
 
                 return erDatoUtløpt(maksDatoUttak, LocalDate.now())
-                    || erDatoUtløpt(fødselsdato, LocalDate.now().minus(foreldelsesfrist))
-                    || erDatoUtløpt(omsorgsovertalsesdato, LocalDate.now().minus(foreldelsesfrist));
+                    || erDatoUtløpt(hendelseDato, LocalDate.now().minus(foreldelsesfrist));
             }
             return false;
         }

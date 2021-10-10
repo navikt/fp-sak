@@ -16,8 +16,11 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.behandling.revurdering.BerørtBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -47,6 +50,8 @@ import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.ytelse.beregning.fp.BeregnFeriepenger;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class BerørtBehandlingKontrollerTest {
 
     private BerørtBehandlingKontroller berørtBehandlingKontroller;
@@ -92,7 +97,6 @@ public class BerørtBehandlingKontrollerTest {
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
 
         repositoryProvider = mock(BehandlingRepositoryProvider.class);
         behandlingProsesseringTjeneste = spy(behandlingProsesseringTjeneste);

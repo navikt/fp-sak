@@ -99,7 +99,7 @@ public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
         var sisteYtelsesvedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId());
 
         if (sisteYtelsesvedtak.isPresent()) {
-            if(erBehandlingResultatAvslåttEllerOpphørt(sisteYtelsesvedtak.get())) return true;
+            if (erBehandlingResultatAvslåttEllerOpphørt(sisteYtelsesvedtak.get())) return true;
             var uttakInput = uttakInputTjeneste.lagInput(sisteYtelsesvedtak.get());
             var maksDatoUttak = maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
             if (maksDatoUttak.isEmpty()) {

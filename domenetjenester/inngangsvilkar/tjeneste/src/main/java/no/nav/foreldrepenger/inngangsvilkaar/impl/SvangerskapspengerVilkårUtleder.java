@@ -9,16 +9,14 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårT
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKERSOPPLYSNINGSPLIKT;
 
 import java.util.List;
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
-@ApplicationScoped
-public class SvangerskapspengerVilkårUtleder implements VilkårUtleder {
+public final class SvangerskapspengerVilkårUtleder  {
 
     private static final List<VilkårType> STANDARDVILKÅR = asList(
         MEDLEMSKAPSVILKÅRET,
@@ -28,16 +26,11 @@ public class SvangerskapspengerVilkårUtleder implements VilkårUtleder {
         BEREGNINGSGRUNNLAGVILKÅR,
         SVANGERSKAPSPENGERVILKÅR);
 
-    public SvangerskapspengerVilkårUtleder() {
-    }
-
-    private static UtledeteVilkår finnVilkår() {
-        return UtledeteVilkår.bareTilhærendeVilkår(STANDARDVILKÅR);
-    }
-
     //TODO(OJR) avklar riktig vilkår
-    @Override
-    public UtledeteVilkår utledVilkår(Behandling behandling, Optional<FamilieHendelseType> hendelseType) {
-        return finnVilkår();
+    public static Set<VilkårType> utledVilkårFor(Behandling behandling) {
+        if (!FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
+            throw new IllegalArgumentException("Ulovlig ytelsetype " + behandling.getFagsakYtelseType() + " ventet SVP");
+        }
+        return STANDARDVILKÅR.stream().collect(Collectors.toUnmodifiableSet());
     }
 }

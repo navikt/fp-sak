@@ -5,11 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakStatusEventPubliserer;
@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 
+@ExtendWith(MockitoExtension.class)
 public class OppdaterFagsakStatusImplTest {
 
     @Mock
@@ -26,11 +27,6 @@ public class OppdaterFagsakStatusImplTest {
     private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
     @Mock
     private UttakInputTjeneste uttakInputTjeneste;
-
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
 
     @Test
     public void har_løpende_ytelsesvedtak_() {

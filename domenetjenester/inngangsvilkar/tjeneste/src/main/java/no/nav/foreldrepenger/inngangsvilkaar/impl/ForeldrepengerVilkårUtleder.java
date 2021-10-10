@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.inngangsvilkaar.impl;
 
-import static java.util.Arrays.asList;
 import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.ADOPSJON;
 import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.FØDSEL;
 import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.OMSORG;
@@ -14,79 +13,51 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårT
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.OPPTJENINGSPERIODEVILKÅR;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.OPPTJENINGSVILKÅRET;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKERSOPPLYSNINGSPLIKT;
-import static no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår.forAvklartRelasjonsvilkårTilBarn;
 import static no.nav.foreldrepenger.inngangsvilkaar.impl.VilkårUtlederFeil.behandlingsmotivKanIkkeUtledes;
 import static no.nav.foreldrepenger.inngangsvilkaar.impl.VilkårUtlederFeil.kunneIkkeUtledeVilkårFor;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
-@ApplicationScoped
-public class ForeldrepengerVilkårUtleder implements VilkårUtleder {
+public final class ForeldrepengerVilkårUtleder  {
 
-    private static final Map<FamilieHendelseType, UtledeteVilkår> BEHANDLINGSMOTIV_TIL_UTLEDETE_VILKÅR;
-    private static  final List<VilkårType> STANDARDVILKÅR = asList(
+    private static final Set<VilkårType> STANDARDVILKÅR = Set.of(
         MEDLEMSKAPSVILKÅRET,
         SØKERSOPPLYSNINGSPLIKT,
         OPPTJENINGSPERIODEVILKÅR,
         OPPTJENINGSVILKÅRET,
         BEREGNINGSGRUNNLAGVILKÅR);
 
-    public ForeldrepengerVilkårUtleder() {
-
+    public static Set<VilkårType> utledVilkårFor(Behandling behandling, Optional<FamilieHendelseType> hendelseType) {
+        if (!FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
+            throw new IllegalArgumentException("Ulovlig ytelsetype " + behandling.getFagsakYtelseType() + " ventet SVP");
+        }
+        var type = hendelseType.orElseThrow(() -> behandlingsmotivKanIkkeUtledes(behandling.getId()));
+        return alleVilkår(finnFamilieHendelseVilkår(behandling, type));
     }
 
-    static {
-        Map<FamilieHendelseType, UtledeteVilkår> map = new HashMap<>();
-        var utledeteAdopsjonsvilkår = forAvklartRelasjonsvilkårTilBarn(ADOPSJONSVILKARET_FORELDREPENGER, STANDARDVILKÅR);
-        var utledeteOmsorgsvilkår = forAvklartRelasjonsvilkårTilBarn(FORELDREANSVARSVILKÅRET_2_LEDD, STANDARDVILKÅR);
-
-        //Fødselsvilkår er avhengig av søker rolle så utledes i finnVilkår.
-        map.put(ADOPSJON, utledeteAdopsjonsvilkår);
-        map.put(OMSORG, utledeteOmsorgsvilkår);
-
-        BEHANDLINGSMOTIV_TIL_UTLEDETE_VILKÅR = Collections.unmodifiableMap(map);
+    private static Set<VilkårType> alleVilkår(VilkårType familieHendelseVilkår) {
+        return Stream.concat(Stream.of(familieHendelseVilkår), STANDARDVILKÅR.stream()).collect(Collectors.toUnmodifiableSet());
     }
 
-    @Override
-    public UtledeteVilkår utledVilkår(Behandling behandling, Optional<FamilieHendelseType> hendelseType) {
-        return finnVilkår(behandling, hendelseType);
-    }
-
-    private static UtledeteVilkår finnVilkår(Behandling behandling, Optional<FamilieHendelseType> hendelseType) {
-        if (hendelseType.isEmpty()) {
-            throw behandlingsmotivKanIkkeUtledes(behandling.getId());
+    private static VilkårType finnFamilieHendelseVilkår(Behandling behandling, FamilieHendelseType hendelseType) {
+        if (ADOPSJON.equals(hendelseType)) {
+            return ADOPSJONSVILKARET_FORELDREPENGER;
+        } else if (OMSORG.equals(hendelseType)) {
+            return FORELDREANSVARSVILKÅRET_2_LEDD;
+        } else if (FØDSEL.equals(hendelseType) || TERMIN.equals(hendelseType)) {
+            var rolle = behandling.getRelasjonsRolleType();
+            return RelasjonsRolleType.FARA.equals(rolle) || RelasjonsRolleType.MEDMOR.equals(rolle) ?
+                FØDSELSVILKÅRET_FAR_MEDMOR : FØDSELSVILKÅRET_MOR;
         }
-
-        var type = hendelseType.get();
-        UtledeteVilkår vilkår = null;
-
-        if (ADOPSJON.equals(type) || OMSORG.equals(type)) {
-            vilkår = BEHANDLINGSMOTIV_TIL_UTLEDETE_VILKÅR.get(type);
-        } else if (FØDSEL.equals(type) || TERMIN.equals(type)) {
-            vilkår = finnFødselsvilkår(behandling.getRelasjonsRolleType());
-        }
-
-        if (vilkår == null) {
-            throw kunneIkkeUtledeVilkårFor(behandling.getId(), type.getNavn());
-        }
-        return vilkår;
-    }
-
-    private static UtledeteVilkår finnFødselsvilkår(RelasjonsRolleType rolle) {
-        if ((RelasjonsRolleType.FARA.equals(rolle)) || (RelasjonsRolleType.MEDMOR.equals(rolle))) {
-            return forAvklartRelasjonsvilkårTilBarn(FØDSELSVILKÅRET_FAR_MEDMOR, STANDARDVILKÅR);
-        }
-        return forAvklartRelasjonsvilkårTilBarn(FØDSELSVILKÅRET_MOR, STANDARDVILKÅR);
+        throw kunneIkkeUtledeVilkårFor(behandling.getId(), hendelseType.getNavn());
     }
 }

@@ -48,15 +48,14 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
 
     private BehandlingRepositoryProvider repositoryProvider;
     private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste;
-    private OmsorghendelseTjeneste omsorghendelseTjeneste;
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
-        var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
-        omsorghendelseTjeneste = new OmsorghendelseTjeneste(familieHendelseTjeneste);
+        familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
     }
 
     @Test
@@ -100,14 +99,14 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
 
     private OppdateringResultat avklarOmsorgOgForeldreansvar(Behandling behandling, AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto) {
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
-        var resultat = new AvklarOmsorgOgForeldreansvarOppdaterer(repositoryProvider, skjæringstidspunktTjeneste, omsorghendelseTjeneste, lagMockHistory())
+        var resultat = new AvklarOmsorgOgForeldreansvarOppdaterer(repositoryProvider, skjæringstidspunktTjeneste, familieHendelseTjeneste, lagMockHistory())
             .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, null, dto));
         byggVilkårResultat(vilkårBuilder, resultat);
         return resultat;
     }
 
     private void byggVilkårResultat(VilkårResultat.Builder vilkårBuilder, OppdateringResultat delresultat) {
-        delresultat.getVilkårResultatSomSkalLeggesTil()
+        delresultat.getVilkårUtfallSomSkalLeggesTil()
             .forEach(v -> vilkårBuilder.manueltVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
         delresultat.getVilkårTyperSomSkalFjernes().forEach(vilkårBuilder::fjernVilkår); // TODO: Vilkår burde ryddes på ein annen måte enn dette
         if (delresultat.getVilkårResultatType() != null) {
@@ -161,6 +160,7 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
         var resultat = avklarOmsorgOgForeldreansvar(behandling, dto);
 
         // Assert
+        assertThat(resultat.getVilkårTyperSomSkalFjernes()).isEmpty();
         assertThat(resultat.getEkstraAksjonspunktResultat().stream().filter(ear -> AksjonspunktStatus.AVBRUTT.equals(ear.aksjonspunktStatus())))
             .anySatisfy(ear -> assertThat(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET).isEqualTo(ear.aksjonspunktResultat().getAksjonspunktDefinisjon()));
 

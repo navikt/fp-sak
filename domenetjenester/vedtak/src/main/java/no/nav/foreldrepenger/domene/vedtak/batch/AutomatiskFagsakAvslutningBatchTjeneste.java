@@ -31,7 +31,7 @@ public class AutomatiskFagsakAvslutningBatchTjeneste implements BatchTjeneste {
 
     @Override
     public String launch(BatchArguments arguments) {
-        final var avsluttFagsakGruppe = automatiskFagsakAvslutningTjeneste.avsluttFagsaker(BATCHNAME, LocalDate.now().minusDays(1));
+        final var avsluttFagsakGruppe = automatiskFagsakAvslutningTjeneste.avsluttFagsaker(BATCHNAME, LocalDate.now());
         return BATCHNAME + "-" + (avsluttFagsakGruppe != null ? avsluttFagsakGruppe : UUID.randomUUID().toString());
     }
 

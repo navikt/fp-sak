@@ -30,14 +30,11 @@ public class MaksDatoUttakTjenesteImpl  implements MaksDatoUttakTjeneste {
     public Optional<LocalDate> beregnMaksDatoUttak(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
 
-        var uttakResultat = svpUttakRepository.hentHvisEksisterer(ref.getBehandlingId());
-        if (uttakResultat.isPresent()) {
-            return finnSisteUttaksdato(uttakResultat.get());
-        }
-        return Optional.empty();
+        return svpUttakRepository.hentHvisEksisterer(ref.getBehandlingId())
+            .flatMap(MaksDatoUttakTjenesteImpl::finnSisteUttaksdato);
     }
 
-    private Optional<LocalDate> finnSisteUttaksdato(SvangerskapspengerUttakResultatEntitet uttakResultat) {
+    private static Optional<LocalDate> finnSisteUttaksdato(SvangerskapspengerUttakResultatEntitet uttakResultat) {
         return uttakResultat.finnSisteInnvilgedeUttaksdatoMedUtbetalingsgrad();
     }
 }

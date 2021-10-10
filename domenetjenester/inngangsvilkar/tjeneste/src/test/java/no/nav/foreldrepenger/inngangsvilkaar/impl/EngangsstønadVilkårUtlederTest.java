@@ -1,17 +1,13 @@
 package no.nav.foreldrepenger.inngangsvilkaar.impl;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD;
-import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD;
-import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.FØDSELSVILKÅRET_MOR;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.MEDLEMSKAPSVILKÅRET;
-import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.OMSORGSVILKÅRET;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKERSOPPLYSNINGSPLIKT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKNADSFRISTVILKÅRET;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -35,12 +31,10 @@ public class EngangsstønadVilkårUtlederTest {
         // Act
         final var familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType);
-        var utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, familieHendelseType);
+        var utledeteVilkår = EngangsstønadVilkårUtleder.utledVilkårFor(behandling, familieHendelseType);
 
         // Assert
-        assertThat(utledeteVilkår.getPotensielleBetingedeVilkårtyper()).containsExactly(FØDSELSVILKÅRET_MOR);
-        assertThat(utledeteVilkår.getBetinget()).isEqualTo(Optional.of(FØDSELSVILKÅRET_MOR));
-        assertThat(utledeteVilkår.getAlleAvklarte()).containsExactly(FØDSELSVILKÅRET_MOR, MEDLEMSKAPSVILKÅRET, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
+        assertThat(utledeteVilkår).contains(FØDSELSVILKÅRET_MOR, MEDLEMSKAPSVILKÅRET, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
     }
 
     @Test
@@ -54,12 +48,10 @@ public class EngangsstønadVilkårUtlederTest {
         // Act
         final var familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType);
-        var utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, familieHendelseType);
+        var utledeteVilkår = EngangsstønadVilkårUtleder.utledVilkårFor(behandling, familieHendelseType);
 
         // Assert
-        assertThat(utledeteVilkår.getPotensielleBetingedeVilkårtyper()).containsExactly(ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
-        assertThat(utledeteVilkår.getBetinget()).isEqualTo(Optional.of(ADOPSJONSVILKÅRET_ENGANGSSTØNAD));
-        assertThat(utledeteVilkår.getAlleAvklarte()).containsExactly(ADOPSJONSVILKÅRET_ENGANGSSTØNAD, MEDLEMSKAPSVILKÅRET, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
+        assertThat(utledeteVilkår).contains(ADOPSJONSVILKÅRET_ENGANGSSTØNAD, MEDLEMSKAPSVILKÅRET, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
     }
 
     @Test
@@ -75,12 +67,10 @@ public class EngangsstønadVilkårUtlederTest {
         // Act
         final var familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType);
-        var utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, familieHendelseType);
+        var utledeteVilkår = EngangsstønadVilkårUtleder.utledVilkårFor(behandling, familieHendelseType);
 
         // Assert
-        assertThat(utledeteVilkår.getPotensielleBetingedeVilkårtyper()).containsExactly(ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
-        assertThat(utledeteVilkår.getBetinget()).isEqualTo(Optional.of(ADOPSJONSVILKÅRET_ENGANGSSTØNAD));
-        assertThat(utledeteVilkår.getAlleAvklarte()).containsExactly(ADOPSJONSVILKÅRET_ENGANGSSTØNAD, MEDLEMSKAPSVILKÅRET, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
+        assertThat(utledeteVilkår).contains(ADOPSJONSVILKÅRET_ENGANGSSTØNAD, MEDLEMSKAPSVILKÅRET, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
     }
 
     @Test
@@ -96,13 +86,10 @@ public class EngangsstønadVilkårUtlederTest {
         // Act
         final var familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType);
-        var utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, familieHendelseType);
+        var utledeteVilkår = EngangsstønadVilkårUtleder.utledVilkårFor(behandling, familieHendelseType);
 
         // Assert
-        assertThat(utledeteVilkår.getPotensielleBetingedeVilkårtyper())
-            .containsExactlyInAnyOrder(OMSORGSVILKÅRET, FORELDREANSVARSVILKÅRET_2_LEDD, FORELDREANSVARSVILKÅRET_4_LEDD);
-        assertThat(utledeteVilkår.getBetinget()).isEqualTo(Optional.empty());
-        assertThat(utledeteVilkår.getAlleAvklarte()).containsExactly(MEDLEMSKAPSVILKÅRET, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
+        assertThat(utledeteVilkår).contains(MEDLEMSKAPSVILKÅRET, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
     }
 
     @Test
@@ -118,12 +105,9 @@ public class EngangsstønadVilkårUtlederTest {
         // Act
         final var familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType);
-        var utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, familieHendelseType);
+        var utledeteVilkår = EngangsstønadVilkårUtleder.utledVilkårFor(behandling, familieHendelseType);
 
         // Assert
-        assertThat(utledeteVilkår.getPotensielleBetingedeVilkårtyper())
-            .containsExactlyInAnyOrder(OMSORGSVILKÅRET, FORELDREANSVARSVILKÅRET_2_LEDD, FORELDREANSVARSVILKÅRET_4_LEDD);
-        assertThat(utledeteVilkår.getBetinget()).isEqualTo(Optional.empty());
-        assertThat(utledeteVilkår.getAlleAvklarte()).containsExactly(MEDLEMSKAPSVILKÅRET, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
+        assertThat(utledeteVilkår).contains(MEDLEMSKAPSVILKÅRET, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
     }
 }

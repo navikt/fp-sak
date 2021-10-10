@@ -10,8 +10,9 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.AvklarFaktaForForeldreansvarAksjonspunktDto;
-import no.nav.foreldrepenger.familiehendelse.omsorg.OmsorghendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 
 @ApplicationScoped
@@ -19,7 +20,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnh
 public class AvklarForeldreansvarOppdaterer implements AksjonspunktOppdaterer<AvklarFaktaForForeldreansvarAksjonspunktDto> {
 
     private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste;
-    private OmsorghendelseTjeneste omsorghendelseTjeneste;
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
 
     AvklarForeldreansvarOppdaterer() {
         // for CDI proxy
@@ -27,8 +28,8 @@ public class AvklarForeldreansvarOppdaterer implements AksjonspunktOppdaterer<Av
 
     @Inject
     public AvklarForeldreansvarOppdaterer(SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste,
-                                                  OmsorghendelseTjeneste omsorghendelseTjeneste) {
-        this.omsorghendelseTjeneste = omsorghendelseTjeneste;
+                                          FamilieHendelseTjeneste familieHendelseTjeneste) {
+        this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
@@ -53,9 +54,13 @@ public class AvklarForeldreansvarOppdaterer implements AksjonspunktOppdaterer<Av
 
     private void oppdaterAksjonspunktGrunnlag(AvklarFaktaForForeldreansvarAksjonspunktDto dto, Behandling behandling) {
 
-        var data = new AvklarForeldreansvarAksjonspunktData(dto.getOmsorgsovertakelseDato(),dto.getForeldreansvarDato());
-
-        omsorghendelseTjeneste.aksjonspunktAvklarForeldreansvar(behandling, data);
+        final var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
+        oppdatertOverstyrtHendelse
+            .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
+                .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
+                .medOmsorgsovertakelseDato(dto.getOmsorgsovertakelseDato())
+                .medForeldreansvarDato(dto.getForeldreansvarDato()));
+        familieHendelseTjeneste.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
     }
 
 }

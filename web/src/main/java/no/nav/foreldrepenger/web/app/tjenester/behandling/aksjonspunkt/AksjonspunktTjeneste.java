@@ -376,7 +376,9 @@ public class AksjonspunktTjeneste {
     }
 
     private void byggVilkårResultat(Builder vilkårResultatBuilder, OppdateringResultat delresultat) {
-        delresultat.getVilkårResultatSomSkalLeggesTil()
+        delresultat.getVilkårTyperNyeIkkeVurdert()
+            .forEach(vilkårResultatBuilder::leggTilVilkårIkkeVurdert);
+        delresultat.getVilkårUtfallSomSkalLeggesTil()
             .forEach(v -> vilkårResultatBuilder.manueltVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
         delresultat.getVilkårTyperSomSkalFjernes().forEach(vilkårResultatBuilder::fjernVilkår); // TODO: Vilkår burde ryddes på ein annen måte enn dette
         if (delresultat.getVilkårResultatType() != null) {

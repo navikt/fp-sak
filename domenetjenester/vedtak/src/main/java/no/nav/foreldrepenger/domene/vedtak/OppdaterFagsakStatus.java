@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.vedtak;
 
 import no.nav.foreldrepenger.behandling.FagsakStatusEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -31,7 +32,7 @@ public abstract class OppdaterFagsakStatus {
 
     public boolean erBehandlingResultatAvslåttEllerOpphørt(Behandling behandling) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
-            .map(resultat -> resultat.isBehandlingsresultatAvslåttOrOpphørt())
-            .orElse(Boolean.FALSE);
+            .filter(Behandlingsresultat::isBehandlingsresultatAvslåttOrOpphørt)
+            .isPresent();
     }
 }

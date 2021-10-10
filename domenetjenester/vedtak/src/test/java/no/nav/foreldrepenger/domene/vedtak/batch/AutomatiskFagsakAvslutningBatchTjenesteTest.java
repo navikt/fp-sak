@@ -49,7 +49,7 @@ public class AutomatiskFagsakAvslutningBatchTjenesteTest {
 
         final var batchId = tjeneste.launch(null);
 
-        Mockito.verify(fagsakAvslutningTjeneste, Mockito.times(1)).avsluttFagsaker("BVL006", LocalDate.now().minusDays(1));
+        Mockito.verify(fagsakAvslutningTjeneste, Mockito.times(1)).avsluttFagsaker("BVL006", LocalDate.now());
         Assertions.assertThat(batchId.substring(0, 6)).isEqualTo("BVL006");
     }
 }
