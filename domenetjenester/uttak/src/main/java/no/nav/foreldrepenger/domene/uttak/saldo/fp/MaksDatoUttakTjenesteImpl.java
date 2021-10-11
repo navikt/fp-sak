@@ -85,12 +85,12 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
     private Optional<LocalDate> finnSisteUttaksdato(Optional<UttakResultatEntitet> uttakResultat,
                                                     Optional<UttakResultatEntitet> uttakResultatAnnenPart) {
         if (uttakResultat.isPresent()) {
-            // TODO (jol) Avklar om dette maker sense. Bør man ikke sjekke om noen erInnvilgetEllerAvslåttMedTrekkdager
+            // Ikke sett sluttdato dersom periode er til manuell vurdering (dvs behandling åpen)
             var erManuellBehandling = uttakResultat.get()
                 .getGjeldendePerioder()
                 .getPerioder()
                 .stream()
-                .anyMatch(UttakResultatPeriodeEntitet::opprinneligSendtTilManuellBehandling);
+                .anyMatch(p -> PeriodeResultatType.MANUELL_BEHANDLING.equals(p.getResultatType()));
 
             if (erManuellBehandling) {
                 return Optional.empty();
