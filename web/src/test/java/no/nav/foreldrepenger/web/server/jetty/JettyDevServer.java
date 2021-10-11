@@ -17,7 +17,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import no.nav.foreldrepenger.web.app.ApplicationConfig;
-import no.nav.foreldrepenger.web.app.JettyTestApplication;
+import no.nav.foreldrepenger.web.app.FrontendApiConfig;
 import no.nav.vedtak.isso.IssoApplication;
 import no.nav.foreldrepenger.konfig.Environment;
 
@@ -85,7 +85,7 @@ public class JettyDevServer extends AbstractJettyServer {
 
     @Override
     protected List<Class<?>> getWebInfClasses() {
-        return List.of(ApplicationConfig.class, JettyTestApplication.class, IssoApplication.class);
+        return List.of(ApplicationConfig.class, FrontendApiConfig.class, IssoApplication.class);
     }
 
     private static void initCryptoStoreConfig() {
