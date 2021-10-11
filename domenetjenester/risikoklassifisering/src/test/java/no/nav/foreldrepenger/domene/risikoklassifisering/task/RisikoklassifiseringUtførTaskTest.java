@@ -7,13 +7,15 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.domene.risikoklassifisering.kafka.config.RisikoklassifiseringKafkaProducer;
 import no.nav.vedtak.felles.prosesstask.api.CommonTaskProperties;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
+@ExtendWith(MockitoExtension.class)
 public class RisikoklassifiseringUtførTaskTest {
 
     private static final Long BEHANDLING_ID = 123342L;
@@ -28,9 +30,7 @@ public class RisikoklassifiseringUtførTaskTest {
 
     @BeforeEach
     public void init(){
-        MockitoAnnotations.initMocks(this);
-        risikoklassifiseringUtførTask
-            = new RisikoklassifiseringUtførTask(kafkaProducer);
+        risikoklassifiseringUtførTask = new RisikoklassifiseringUtførTask(kafkaProducer);
     }
 
     @Test

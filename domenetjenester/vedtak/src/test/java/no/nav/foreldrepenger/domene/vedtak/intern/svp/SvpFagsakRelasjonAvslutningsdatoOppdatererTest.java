@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.vedtak.intern.svp;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -11,8 +10,11 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
@@ -35,13 +37,13 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.svp.MaksDatoUttakTjenesteImpl;
 
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class SvpFagsakRelasjonAvslutningsdatoOppdatererTest {
     private SvpFagsakRelasjonAvslutningsdatoOppdaterer fagsakRelasjonAvslutningsdatoOppdaterer;
 
@@ -63,31 +65,22 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdatererTest {
     private SvangerskapspengerUttakResultatRepository svpUttakRepository;
 
     @Mock
-    private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
-
-    @Mock
     private UttakInputTjeneste uttakInputTjeneste;
-
-    @Mock
-    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
 
     private Fagsak fagsak;
     private Behandling behandling;
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-
         maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(svpUttakRepository);
 
         repositoryProvider = mock(BehandlingRepositoryProvider.class);
-        stønadskontoSaldoTjeneste = spy(stønadskontoSaldoTjeneste);
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
         when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(familieHendelseRepository);
 
-        fagsakRelasjonAvslutningsdatoOppdaterer = new SvpFagsakRelasjonAvslutningsdatoOppdaterer(repositoryProvider, stønadskontoSaldoTjeneste,
-            uttakInputTjeneste, maksDatoUttakTjeneste, fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste);
+        fagsakRelasjonAvslutningsdatoOppdaterer = new SvpFagsakRelasjonAvslutningsdatoOppdaterer(repositoryProvider,
+            uttakInputTjeneste, maksDatoUttakTjeneste, fagsakRelasjonTjeneste);
 
         behandling = lagBehandling();
         fagsak = behandling.getFagsak();

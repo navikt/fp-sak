@@ -1,13 +1,13 @@
-package no.nav.foreldrepenger.domene.vedtak.intern;
+package no.nav.foreldrepenger.domene.vedtak.intern.fp;
 
-import static no.nav.foreldrepenger.domene.vedtak.intern.FagsakRelasjonAvslutningsdatoOppdaterer.KLAGEFRIST_I_UKER_VED_DØD;
+
+import static no.nav.foreldrepenger.domene.vedtak.intern.fp.FpFagsakRelasjonAvslutningsdatoOppdaterer.KLAGEFRIST_I_UKER_VED_DØD;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,13 +15,16 @@ import java.util.Optional;
 import javax.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -47,19 +50,19 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.fp.MaksDatoUttakTjenesteImpl;
-import no.nav.foreldrepenger.domene.vedtak.intern.fp.FpFagsakRelasjonAvslutningsdatoOppdaterer;
+import no.nav.foreldrepenger.domene.vedtak.intern.FagsakRelasjonAvslutningsdatoOppdaterer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
-import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
 import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
 
-public class FagsakRelasjonAvslutningsdatoOppdatererTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+public class FpFagsakRelasjonAvslutningsdatoOppdatererTest {
 
     private FagsakRelasjonAvslutningsdatoOppdaterer fagsakRelasjonAvslutningsdatoOppdaterer;
 
@@ -88,15 +91,11 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
     @Mock
     private UttakInputTjeneste uttakInputTjeneste;
 
-    @Mock
-    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
-
     private Fagsak fagsak;
     private Behandling behandling;
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         when(stønadskontoSaldoTjeneste.finnSaldoUtregning(any(UttakInput.class))).thenReturn(saldoUtregning);
 
         var maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(fpUttakRepository,
@@ -110,14 +109,17 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
         when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(familieHendelseRepository);
 
         fagsakRelasjonAvslutningsdatoOppdaterer = new FpFagsakRelasjonAvslutningsdatoOppdaterer(repositoryProvider,
-            stønadskontoSaldoTjeneste, uttakInputTjeneste, maksDatoUttakTjeneste, fagsakRelasjonTjeneste,
-            foreldrepengerUttakTjeneste);
+            stønadskontoSaldoTjeneste, uttakInputTjeneste, maksDatoUttakTjeneste, fagsakRelasjonTjeneste);
 
         behandling = lagBehandling();
         fagsak = behandling.getFagsak();
+        var stp = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(LocalDate.now())
+            .medFørsteUttaksdato(LocalDate.now())
+            .medKreverSammenhengendeUttak(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
-            new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag()));
+            new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, new ForeldrepengerGrunnlag()));
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
     }
 
@@ -141,7 +143,7 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
             null, Optional.empty(), Optional.empty());
 
         // Assert
-        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, LocalDate.now().plusDays(1), null,
+        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, LocalDate.now().plusDays(11), null,
             Optional.empty(), Optional.empty());
     }
 
@@ -156,7 +158,7 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
             lagBehandlingsresultat(behandling, BehandlingResultatType.AVSLÅTT,
                 KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN));
         when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(
-            lagUttakResultat(LocalDate.now().minusDays(10), LocalDate.now().plusWeeks(45)));
+            lagUttakResultat(LocalDate.now().minusDays(10), LocalDate.now().plusWeeks(12).minusDays(5)));
 
         var familieHendelseGrunnlag = mock(FamilieHendelseGrunnlagEntitet.class);
         var familieHendelse = mock(FamilieHendelseEntitet.class);
@@ -182,7 +184,7 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
         var forventetAvslutning = fødselsdato.plusWeeks(
             StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now()))
             .plusWeeks(KLAGEFRIST_I_UKER_VED_DØD);
-        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, forventetAvslutning, null,
+        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, forventetAvslutning.plusDays(1), null,
             Optional.empty(), Optional.empty());
     }
 
@@ -215,7 +217,6 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
     }
 
     @Test
-    @Disabled
     public void testStønadsdagerIgjen() {
         // Arrange
         var fagsakRelasjon = mock(FagsakRelasjon.class);
@@ -225,7 +226,8 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(
             lagBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT));
 
-        var dato = LocalDate.of(2021, 3, 15);
+        var dato = LocalDate.now();
+        var fødselsDato = dato.minusDays(5);
         var periodeStartDato = dato.minusDays(10);
         var periodeAvsluttetDato = dato.plusDays(10);
         when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(
@@ -233,7 +235,7 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
 
         var familieHendelseGrunnlag = mock(FamilieHendelseGrunnlagEntitet.class);
         var familieHendelse = mock(FamilieHendelseEntitet.class);
-        when(familieHendelse.getFødselsdato()).thenReturn(Optional.of(dato.minusDays(5)));
+        when(familieHendelse.getSkjæringstidspunkt()).thenReturn(fødselsDato);
         when(familieHendelseGrunnlag.getGjeldendeVersjon()).thenReturn(familieHendelse);
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(
             Optional.of(familieHendelseGrunnlag));
@@ -247,10 +249,7 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
         fagsakRelasjonAvslutningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(fagsakRelasjon, fagsak.getId(),
             null, Optional.empty(), Optional.empty());
 
-        var avslutningsdato = VirkedagUtil.tomVirkedag(
-            Virkedager.plusVirkedager(periodeAvsluttetDato.plusDays(1), totalRest))
-            .plusMonths(3)
-            .with(TemporalAdjusters.lastDayOfMonth());
+        var avslutningsdato = fødselsDato.plusYears(3);
         // Assert
         verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, avslutningsdato, null,
             Optional.empty(), Optional.empty());

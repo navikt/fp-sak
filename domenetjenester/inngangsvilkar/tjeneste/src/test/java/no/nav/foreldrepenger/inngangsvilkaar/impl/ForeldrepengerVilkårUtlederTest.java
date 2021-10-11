@@ -10,7 +10,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårT
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -32,12 +31,10 @@ public class ForeldrepengerVilkårUtlederTest {
         // Act
         final var familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType);
-        var utledeteVilkår = new ForeldrepengerVilkårUtleder().utledVilkår(behandling, familieHendelseType);
+        var utledeteVilkår = ForeldrepengerVilkårUtleder.utledVilkårFor(behandling, familieHendelseType);
 
         // Assert
-        assertThat(utledeteVilkår.getPotensielleBetingedeVilkårtyper()).containsExactly(FØDSELSVILKÅRET_FAR_MEDMOR);
-        assertThat(utledeteVilkår.getBetinget()).isEqualTo(Optional.of(FØDSELSVILKÅRET_FAR_MEDMOR));
-        assertThat(utledeteVilkår.getAlleAvklarte()).containsExactly(FØDSELSVILKÅRET_FAR_MEDMOR, MEDLEMSKAPSVILKÅRET, SØKERSOPPLYSNINGSPLIKT, OPPTJENINGSPERIODEVILKÅR, OPPTJENINGSVILKÅRET, BEREGNINGSGRUNNLAGVILKÅR);
+        assertThat(utledeteVilkår).contains(FØDSELSVILKÅRET_FAR_MEDMOR, MEDLEMSKAPSVILKÅRET, SØKERSOPPLYSNINGSPLIKT, OPPTJENINGSPERIODEVILKÅR, OPPTJENINGSVILKÅRET, BEREGNINGSGRUNNLAGVILKÅR);
     }
 
     @Test
@@ -51,12 +48,10 @@ public class ForeldrepengerVilkårUtlederTest {
         // Act
         final var familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType);
-        var utledeteVilkår = new ForeldrepengerVilkårUtleder().utledVilkår(behandling, familieHendelseType);
+        var utledeteVilkår = ForeldrepengerVilkårUtleder.utledVilkårFor(behandling, familieHendelseType);
 
         // Assert
-        assertThat(utledeteVilkår.getPotensielleBetingedeVilkårtyper()).containsExactly(ADOPSJONSVILKARET_FORELDREPENGER);
-        assertThat(utledeteVilkår.getBetinget()).isEqualTo(Optional.of(ADOPSJONSVILKARET_FORELDREPENGER));
-        assertThat(utledeteVilkår.getAlleAvklarte()).containsExactly(ADOPSJONSVILKARET_FORELDREPENGER, MEDLEMSKAPSVILKÅRET, SØKERSOPPLYSNINGSPLIKT, OPPTJENINGSPERIODEVILKÅR, OPPTJENINGSVILKÅRET, BEREGNINGSGRUNNLAGVILKÅR);
+        assertThat(utledeteVilkår).contains(ADOPSJONSVILKARET_FORELDREPENGER, MEDLEMSKAPSVILKÅRET, SØKERSOPPLYSNINGSPLIKT, OPPTJENINGSPERIODEVILKÅR, OPPTJENINGSVILKÅRET, BEREGNINGSGRUNNLAGVILKÅR);
     }
 
 }

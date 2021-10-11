@@ -18,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -82,7 +81,6 @@ public class DokumentmottakerInntektsmeldingTest {
 
     @BeforeEach
     public void oppsett() {
-        MockitoAnnotations.initMocks(this);
 
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, taskTjeneste, behandlendeEnhetTjeneste,
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);

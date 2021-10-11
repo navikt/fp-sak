@@ -65,23 +65,32 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
         return Optional.empty();
     }
 
-    private Optional<UttakResultatEntitet> annenPartUttak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
-        var annenpart = foreldrepengerGrunnlag.getAnnenpart();
+    public Optional<LocalDate> beregnMaksDatoUttakSakskompleks(UttakInput uttakInput, int restStønadsDager) {
+        var ref = uttakInput.getBehandlingReferanse();
+        var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(ref.getBehandlingId());
+        ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
+        Optional<UttakResultatEntitet> annenpartResultat =
+            foreldrepengerGrunnlag == null ? Optional.empty() : annenPartUttak(foreldrepengerGrunnlag);
 
-        if (annenpart.isPresent()) {
-            return fpUttakRepository.hentUttakResultatHvisEksisterer(annenpart.get().gjeldendeVedtakBehandlingId());
-        }
-        return Optional.empty();
+        var sisteUttaksdato = finnSisteUttaksdato(uttakResultat, annenpartResultat);
+
+        return sisteUttaksdato.map(d -> beregnMaksDato(restStønadsDager, d));
+    }
+
+    private Optional<UttakResultatEntitet> annenPartUttak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
+        return foreldrepengerGrunnlag.getAnnenpart()
+            .flatMap(ap -> fpUttakRepository.hentUttakResultatHvisEksisterer(ap.gjeldendeVedtakBehandlingId()));
     }
 
     private Optional<LocalDate> finnSisteUttaksdato(Optional<UttakResultatEntitet> uttakResultat,
                                                     Optional<UttakResultatEntitet> uttakResultatAnnenPart) {
         if (uttakResultat.isPresent()) {
+            // Ikke sett sluttdato dersom periode er til manuell vurdering (dvs behandling åpen)
             var erManuellBehandling = uttakResultat.get()
                 .getGjeldendePerioder()
                 .getPerioder()
                 .stream()
-                .anyMatch(UttakResultatPeriodeEntitet::opprinneligSendtTilManuellBehandling);
+                .anyMatch(p -> PeriodeResultatType.MANUELL_BEHANDLING.equals(p.getResultatType()));
 
             if (erManuellBehandling) {
                 return Optional.empty();
@@ -97,8 +106,8 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
 
         return allePerioder.stream()
             .filter(this::erInnvilgetEllerAvslåttMedTrekkdager)
-            .max(Comparator.comparing(UttakResultatPeriodeEntitet::getTom))
-            .map(UttakResultatPeriodeEntitet::getTom);
+            .map(UttakResultatPeriodeEntitet::getTom)
+            .max(Comparator.naturalOrder());
     }
 
     private boolean erInnvilgetEllerAvslåttMedTrekkdager(UttakResultatPeriodeEntitet periode) {
@@ -118,6 +127,11 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
             tilgjengeligeDager += saldoUtregning.saldo(stønadskonto);
         }
         var maksdato = Virkedager.plusVirkedager(sisteUttaksdato, tilgjengeligeDager);
+        return korrigerBortFraHelg(maksdato);
+    }
+
+    private LocalDate beregnMaksDato(int restdager, LocalDate sisteUttaksdato) {
+        var maksdato = Virkedager.plusVirkedager(sisteUttaksdato, restdager);
         return korrigerBortFraHelg(maksdato);
     }
 

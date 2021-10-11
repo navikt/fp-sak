@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta.svp;
 
-import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -22,9 +22,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.SvangerskapspengerVilkårUtleder;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @BehandlingStegRef(kode = "KOFAK")
@@ -76,7 +76,7 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
 
     private void utledVilkår(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        var utledeteVilkår = new SvangerskapspengerVilkårUtleder().utledVilkår(behandling, Optional.empty());
+        var utledeteVilkår = SvangerskapspengerVilkårUtleder.utledVilkårFor(behandling);
         opprettVilkår(utledeteVilkår, behandling, kontekst.getSkriveLås());
     }
 
@@ -90,15 +90,14 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
         }
     }
 
-    private void opprettVilkår(UtledeteVilkår utledeteVilkår, Behandling behandling, BehandlingLås skriveLås) {
+    private void opprettVilkår(Set<VilkårType> utledeteVilkår, Behandling behandling, BehandlingLås skriveLås) {
         // Opprett Vilkårsresultat med vilkårne som skal vurderes, og sett dem som ikke
         // vurdert
         var behandlingsresultat = getBehandlingsresultat(behandling);
         var vilkårBuilder = behandlingsresultat != null
                 ? VilkårResultat.builderFraEksisterende(behandlingsresultat.getVilkårResultat())
                 : VilkårResultat.builder();
-        utledeteVilkår.getAlleAvklarte()
-                .forEach(vilkårBuilder::leggTilVilkårIkkeVurdert);
+        utledeteVilkår.forEach(vilkårBuilder::leggTilVilkårIkkeVurdert);
         var vilkårResultat = vilkårBuilder.buildFor(behandling);
         behandlingRepository.lagre(vilkårResultat, skriveLås);
     }

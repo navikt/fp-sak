@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.vedtak.exception.FunksjonellException;
 
@@ -39,7 +38,7 @@ public class BekreftSvangerskapspengervilkårOppdaterer implements AksjonspunktO
         if (vilkårOppfylt) {
             //TODO ikke gå til totrinn når innvilgesbrev fungerer
             return OppdateringResultat.utenTransisjon()
-                .leggTilVilkårResultat(VilkårType.SVANGERSKAPSPENGERVILKÅR, VilkårUtfallType.OPPFYLT)
+                .leggTilManueltOppfyltVilkår(VilkårType.SVANGERSKAPSPENGERVILKÅR)
                 .medTotrinn().build();
         } else {
             var avslagsårsak = Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
@@ -47,7 +46,7 @@ public class BekreftSvangerskapspengervilkårOppdaterer implements AksjonspunktO
             return new OppdateringResultat.Builder()
                 .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT)
                 .medTotrinn()
-                .leggTilAvslåttVilkårResultat(VilkårType.SVANGERSKAPSPENGERVILKÅR, avslagsårsak)
+                .leggTilManueltAvslåttVilkår(VilkårType.SVANGERSKAPSPENGERVILKÅR, avslagsårsak)
                 .build();
         }
     }

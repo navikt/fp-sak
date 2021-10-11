@@ -50,12 +50,12 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
         if (VilkårUtfallType.OPPFYLT.equals(nyttUtfall)) {
             sjekkOmVilkåretKanSettesTilOppfylt(param.getBehandlingId());
             return new OppdateringResultat.Builder()
-                .leggTilVilkårResultat(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilManueltOppfyltVilkår(VilkårType.OPPTJENINGSVILKÅRET)
                 .build();
         }
         return OppdateringResultat.utenTransisjon()
             .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
-            .leggTilAvslåttVilkårResultat(VilkårType.OPPTJENINGSVILKÅRET, Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING)
+            .leggTilManueltAvslåttVilkår(VilkårType.OPPTJENINGSVILKÅRET, Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING)
             .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .build();
 
