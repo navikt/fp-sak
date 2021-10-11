@@ -23,7 +23,7 @@ public class EndringerHarBegrunnelseValideringTest {
 
     @Test
     public void okAlleHarBegrunnelse() {
-        var opprinnelig = List.of(periode(null, PeriodeResultatType.IKKE_FASTSATT));
+        var opprinnelig = List.of(periode(null, PeriodeResultatType.MANUELL_BEHANDLING));
         var nyePerioder = List.of(periode("Ny begrunnelse", PeriodeResultatType.INNVILGET));
         var validering = new EndringerHarBegrunnelseValidering(opprinnelig);
         assertDoesNotThrow(() -> validering.utfør(nyePerioder));
@@ -31,7 +31,7 @@ public class EndringerHarBegrunnelseValideringTest {
 
     @Test
     public void feilVedTomBegrunnelse() {
-        var opprinnelig = List.of(periode(null, PeriodeResultatType.IKKE_FASTSATT));
+        var opprinnelig = List.of(periode(null, PeriodeResultatType.MANUELL_BEHANDLING));
         var nyePerioder = List.of(periode("", PeriodeResultatType.INNVILGET));
         var validering = new EndringerHarBegrunnelseValidering(opprinnelig);
         assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));
@@ -39,7 +39,7 @@ public class EndringerHarBegrunnelseValideringTest {
 
     @Test
     public void feilVedNullBegrunnelse() {
-        var opprinnelig = List.of(periode(null, PeriodeResultatType.IKKE_FASTSATT));
+        var opprinnelig = List.of(periode(null, PeriodeResultatType.MANUELL_BEHANDLING));
         var nyePerioder = List.of(periode(null, PeriodeResultatType.INNVILGET));
         var validering = new EndringerHarBegrunnelseValidering(opprinnelig);
         assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));

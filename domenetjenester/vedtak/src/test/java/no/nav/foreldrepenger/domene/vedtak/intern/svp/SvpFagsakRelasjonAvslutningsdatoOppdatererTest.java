@@ -39,15 +39,12 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.svp.MaksDatoUttakTjenesteImpl;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class SvpFagsakRelasjonAvslutningsdatoOppdatererTest {
     private SvpFagsakRelasjonAvslutningsdatoOppdaterer fagsakRelasjonAvslutningsdatoOppdaterer;
-
-    private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
 
     @Mock
     private BehandlingRepositoryProvider repositoryProvider;
@@ -72,7 +69,7 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdatererTest {
 
     @BeforeEach
     public void setUp() {
-        maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(svpUttakRepository);
+        var maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(svpUttakRepository);
 
         repositoryProvider = mock(BehandlingRepositoryProvider.class);
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
@@ -164,6 +161,7 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdatererTest {
                                                                                          Behandlingsresultat br) {
         var periode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
             .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
+            .medPeriodeResultatType(PeriodeResultatType.AVSLÅTT)
             .build();
         var arbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
             .medPeriode(periode)

@@ -45,8 +45,8 @@ public class UttakHistorikkUtilTest {
 
     @Test
     public void skalLageHistorikkInnslagForPeriodeResultatTypeHvisEndring() {
-        var ikkeFastsatt = PeriodeResultatType.IKKE_FASTSATT;
-        var gjeldende = enkeltPeriode(ikkeFastsatt);
+        var manuell = PeriodeResultatType.MANUELL_BEHANDLING;
+        var gjeldende = enkeltPeriode(manuell);
 
         var perioder = nyMedResultatType(PeriodeResultatType.INNVILGET, new ArbeidsgiverLagreDto(ORGNR));
 
@@ -159,10 +159,10 @@ public class UttakHistorikkUtilTest {
 
     @Test
     public void skalLageHistorikkInnslagForPerioderMedPrivatpersonSomArbeidsgiver() {
-        var ikkeFastsatt = PeriodeResultatType.IKKE_FASTSATT;
+        var manuell = PeriodeResultatType.MANUELL_BEHANDLING;
         var arbeidsgiverAktørId = AktørId.dummy();
         var privateperson = Arbeidsgiver.person(arbeidsgiverAktørId);
-        var gjeldende = enkeltPeriode(ikkeFastsatt, privateperson);
+        var gjeldende = enkeltPeriode(manuell, privateperson);
 
         var perioder = nyMedResultatType(PeriodeResultatType.INNVILGET, new ArbeidsgiverLagreDto(arbeidsgiverAktørId));
 

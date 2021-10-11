@@ -24,16 +24,7 @@ public enum PeriodeResultatType implements Kodeverdi {
 
     INNVILGET("INNVILGET", "Innvilget"),
     AVSLÅTT("AVSLÅTT", "Avslått"),
-    IKKE_FASTSATT("IKKE_FASTSATT", "Ikke fastsatt"),
     MANUELL_BEHANDLING("MANUELL_BEHANDLING", "Til manuell behandling"),
-
-    /** @deprecated kan fjernes når beregning har sluttet å bruke. */
-    @Deprecated
-    GYLDIG_UTSETTELSE("GYLDIG_UTSETTELSE", "Gyldig utsettelse"),
-
-    /** @deprecated kan fjernes når beregning har sluttet å bruke. */
-    @Deprecated
-    UGYLDIG_UTSETTELSE("UGYLDIG_UTSETTELSE", "Ugyldig utsettelse"),
     ;
 
     private static final Map<String, PeriodeResultatType> KODER = new LinkedHashMap<>();

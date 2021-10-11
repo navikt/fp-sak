@@ -24,8 +24,8 @@ public class PerioderHarFastsattResultatValideringTest {
     }
 
     @Test
-    public void feilVedPeriodeMedResultatIkkeFastsatt() {
-        var nyePerioder = List.of(periodeMedResultat(PeriodeResultatType.IKKE_FASTSATT));
+    public void feilVedPeriodeMedResultatManuellRevurdering() {
+        var nyePerioder = List.of(periodeMedResultat(PeriodeResultatType.MANUELL_BEHANDLING));
 
         var validering = new PerioderHarFastsattResultatValidering();
         assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));

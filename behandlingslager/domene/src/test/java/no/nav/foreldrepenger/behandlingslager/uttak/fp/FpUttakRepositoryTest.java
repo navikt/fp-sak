@@ -65,16 +65,20 @@ public class FpUttakRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_kunne_endre_opprinnelig_flere_ganger_uten_å_feile_pga_unikhetssjekk_for_aktiv() {
-        var uttakResultat1 = opprettUttakResultatPeriode(PeriodeResultatType.IKKE_FASTSATT, LocalDate.now(), LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
-        var overstyrt1 = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, LocalDate.now(), LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
-        var uttakResultat2 = opprettUttakResultatPeriode(PeriodeResultatType.AVSLÅTT, LocalDate.now(), LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
-        var uttakResultat3 = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, LocalDate.now(), LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
+        var uttakResultat1 = opprettUttakResultatPeriode(PeriodeResultatType.MANUELL_BEHANDLING, LocalDate.now(),
+            LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
+        var overstyrt1 = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, LocalDate.now(),
+            LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
+        var uttakResultat2 = opprettUttakResultatPeriode(PeriodeResultatType.AVSLÅTT, LocalDate.now(),
+            LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
+        var uttakResultat3 = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, LocalDate.now(),
+            LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
 
         //Act
         var behandlingId = lagBehandling();
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingId, uttakResultat1);
         fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandlingId, overstyrt1);
-        assertOpprinneligHarResultatType(PeriodeResultatType.IKKE_FASTSATT, behandlingId);
+        assertOpprinneligHarResultatType(PeriodeResultatType.MANUELL_BEHANDLING, behandlingId);
         assertThat(fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId).get().getOverstyrtPerioder()).isNotNull();
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingId, uttakResultat2);
         assertOpprinneligHarResultatType(PeriodeResultatType.AVSLÅTT, behandlingId);
@@ -121,19 +125,22 @@ public class FpUttakRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void endringAvOverstyrtSkalResultereINyttUttakResultatMedSammeOpprinnelig() {
-        var opprinnelig = opprettUttakResultatPeriode(PeriodeResultatType.IKKE_FASTSATT, LocalDate.now(), LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
-        var overstyrt1 = opprettUttakResultatPeriode(PeriodeResultatType.AVSLÅTT, LocalDate.now(), LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
-        var overstyrt2 = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, LocalDate.now(), LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
+        var opprinnelig = opprettUttakResultatPeriode(PeriodeResultatType.MANUELL_BEHANDLING, LocalDate.now(),
+            LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
+        var overstyrt1 = opprettUttakResultatPeriode(PeriodeResultatType.AVSLÅTT, LocalDate.now(),
+            LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
+        var overstyrt2 = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, LocalDate.now(),
+            LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
         var behandlingId = lagBehandling();
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingId, opprinnelig);
 
         //Act
         fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandlingId, overstyrt1);
         assertOverstyrtHarResultatType(PeriodeResultatType.AVSLÅTT, behandlingId);
-        assertOpprinneligHarResultatType(PeriodeResultatType.IKKE_FASTSATT, behandlingId);
+        assertOpprinneligHarResultatType(PeriodeResultatType.MANUELL_BEHANDLING, behandlingId);
         fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandlingId, overstyrt2);
         assertOverstyrtHarResultatType(PeriodeResultatType.INNVILGET, behandlingId);
-        assertOpprinneligHarResultatType(PeriodeResultatType.IKKE_FASTSATT, behandlingId);
+        assertOpprinneligHarResultatType(PeriodeResultatType.MANUELL_BEHANDLING, behandlingId);
     }
 
     @Test

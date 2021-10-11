@@ -212,7 +212,7 @@ public class UttakPeriodeEndringDtoTjenesteTest {
     public void hent_endring_på_uttak_perioder_med_aksjonspunkt_fastsett_uttakperioder_finn_endret_utakk_resultat_periode() {
 
         // Legg til opprinnelig periode
-        var opprinneligPeriode = opprettUttakResultatPeriode(PeriodeResultatType.IKKE_FASTSATT, dato,
+        var opprinneligPeriode = opprettUttakResultatPeriode(PeriodeResultatType.MANUELL_BEHANDLING, dato,
             dato.plusMonths(1), StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
         var opprinneligFordeling = new UttakResultatPerioderEntitet();
         opprinneligFordeling.leggTilPeriode(opprinneligPeriode);
@@ -245,7 +245,7 @@ public class UttakPeriodeEndringDtoTjenesteTest {
     public void hent_endring_på_uttak_perioder_med_aksjonspunkt_overstyring_av_uttakperioder_finn_lagt_til_utakk_resultat_periode() {
 
         // Legg til opprinnelig periode
-        var opprinneligPeriode = opprettUttakResultatPeriode(PeriodeResultatType.IKKE_FASTSATT, dato,
+        var opprinneligPeriode = opprettUttakResultatPeriode(PeriodeResultatType.MANUELL_BEHANDLING, dato,
             dato.plusMonths(1), StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
         var opprinneligFordeling = new UttakResultatPerioderEntitet();
         opprinneligFordeling.leggTilPeriode(opprinneligPeriode);
