@@ -34,7 +34,7 @@ public class SvangerskapspengerUttakResultatPeriodeEntitet extends BaseEntitet {
 
     @Convert(converter = PeriodeResultatType.KodeverdiConverter.class)
     @Column(name = "periode_resultat_type", nullable = false)
-    private PeriodeResultatType periodeResultatType = PeriodeResultatType.IKKE_FASTSATT;
+    private PeriodeResultatType periodeResultatType;
 
     @Convert(converter = PeriodeIkkeOppfyltÅrsak.KodeverdiConverter.class)
     @Column(name = "periode_resultat_aarsak", nullable = false)
