@@ -388,7 +388,7 @@ public class FagsakRelasjonRepository {
                 "where f.fagsakStatus = :lopende and fr.avsluttningsdato < :datogrense",
             Fagsak.class)
             .setParameter("datogrense", Optional.ofNullable(dato).orElseGet(LocalDate::now))
-            .setParameter("lopende", FagsakStatus.LØPENDE.getKode()); // NOSONAR $NON-NLS-1$
+            .setParameter("lopende", FagsakStatus.LØPENDE); // NOSONAR $NON-NLS-1$
 
         return query.getResultList();
     }
