@@ -19,6 +19,13 @@ import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.domene.iay.modell.AktørInntekt;
+import no.nav.foreldrepenger.domene.iay.modell.AktørYtelse;
+import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
+import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
+import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -177,9 +184,30 @@ public class InntektsmeldingRegisterTjeneste {
         logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "UFILTRERT");
 
         filtrerUtMottatteInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, erEndringssøknad, (a, i) -> i);
-        logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "FILTRERT");
+        var kunAktiveArbeidsforhold = filtrerUtArbeidsgivereUtenInntekSiste10Mnd(påkrevdeInntektsmeldinger, inntektArbeidYtelseGrunnlag, referanse);
+        logInntektsmeldinger(referanse, kunAktiveArbeidsforhold, "FILTRERT");
 
-        return filtrerInntektsmeldingerForYtelse(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
+        return filtrerInntektsmeldingerForYtelse(referanse, inntektArbeidYtelseGrunnlag, kunAktiveArbeidsforhold);
+    }
+
+    private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerUtArbeidsgivereUtenInntekSiste10Mnd(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, BehandlingReferanse referanse) {
+        LocalDate stp = referanse.getUtledetSkjæringstidspunkt();
+        var alleInntekter = inntektArbeidYtelseGrunnlag
+            .flatMap(iayg -> iayg.getAktørInntektFraRegister(referanse.getAktørId()))
+            .map(AktørInntekt::getInntekt)
+            .orElse(Collections.emptyList());
+        var alleYtelser = inntektArbeidYtelseGrunnlag
+            .flatMap(iayg -> iayg.getAktørYtelseFraRegister(referanse.getAktørId()))
+            .map(AktørYtelse::getAlleYtelser)
+            .orElse(Collections.emptyList());
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> kunAktiveArbeidsforhold = new HashMap<>();
+        påkrevdeInntektsmeldinger.forEach((key, value) -> {
+            boolean erAktivt = InaktiveArbeidsforholdUtleder.utled(key, stp, alleYtelser, alleInntekter);
+            if (erAktivt) {
+                kunAktiveArbeidsforhold.put(key, value);
+            }
+        });
+        return kunAktiveArbeidsforhold;
     }
 
     private <V> void filtrerUtMottatteInntektsmeldinger(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger,
