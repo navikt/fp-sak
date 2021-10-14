@@ -29,13 +29,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.mottak.registrerer.DokumentRegistrererTjeneste;
 import no.nav.foreldrepenger.mottak.registrerer.ManuellRegistreringAksjonspunktDto;
 import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.svp.ManuellRegistreringSvangerskapspengerDto;
 import no.nav.foreldrepenger.xmlutils.JaxbHelper;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.xml.soeknad.v3.ObjectFactory;
@@ -69,7 +67,6 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
     @Override
     public OppdateringResultat oppdater(ManuellRegistreringDto dto, AksjonspunktOppdaterParameter param) {
         var behandling = param.getBehandling();
-        oppdaterBehandlingDersomMigrert(behandling, dto);
         var behandlingId = param.getBehandlingId();
         var resultatBuilder = OppdateringResultat.utenTransisjon();
 
@@ -97,23 +94,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
             .ifPresent(ad -> resultatBuilder.medEkstraAksjonspunktResultat(ad, AksjonspunktStatus.OPPRETTET));
 
         lagHistorikkInnslag(behandlingId, HistorikkinnslagType.REGISTRER_PAPIRSØK, dto.getKommentarEndring());
-        if (dto instanceof ManuellRegistreringSvangerskapspengerDto) {
-            var svpDto = (ManuellRegistreringSvangerskapspengerDto) dto;
-            if (svpDto.isMigrertFraInfotrygd()) {
-                lagHistorikkInnslag(behandlingId, HistorikkinnslagType.MIGRERT_FRA_INFOTRYGD, null);
-            }
-        }
         return resultatBuilder.build();
-
-    }
-
-    private void oppdaterBehandlingDersomMigrert(Behandling behandling, ManuellRegistreringDto dto) {
-        if (dto instanceof ManuellRegistreringSvangerskapspengerDto) {
-            var manuellRegistreringSvangerskapspengerDto = (ManuellRegistreringSvangerskapspengerDto) dto;
-            if (manuellRegistreringSvangerskapspengerDto.isMigrertFraInfotrygd()) {
-                behandling.setMigrertKilde(Fagsystem.INFOTRYGD);
-            }
-        }
     }
 
     private DokumentTypeId finnDokumentType(ManuellRegistreringDto dto, BehandlingType behandlingType) {
