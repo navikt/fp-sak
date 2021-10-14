@@ -185,8 +185,8 @@ public class InntektsmeldingRegisterTjeneste {
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerUtArbeidsgivereUtenInntekSiste10Mnd(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, BehandlingReferanse referanse) {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> kunAktiveArbeidsforhold = new HashMap<>();
         påkrevdeInntektsmeldinger.forEach((key, value) -> {
-            boolean erAktivt = InaktiveArbeidsforholdUtleder.erInaktivt(key, inntektArbeidYtelseGrunnlag, referanse);
-            if (erAktivt) {
+            boolean erInaktivt = InaktiveArbeidsforholdUtleder.erInaktivt(key, inntektArbeidYtelseGrunnlag, referanse.getAktørId(), referanse.getUtledetSkjæringstidspunkt());
+            if (!erInaktivt) {
                 kunAktiveArbeidsforhold.put(key, value);
             }
         });

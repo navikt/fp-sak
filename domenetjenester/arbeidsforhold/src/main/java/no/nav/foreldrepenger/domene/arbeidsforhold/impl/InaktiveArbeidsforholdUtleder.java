@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
@@ -15,6 +14,7 @@ import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelse;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,29 +32,31 @@ public class InaktiveArbeidsforholdUtleder {
 
     private static final Logger LOG = LoggerFactory.getLogger(InaktiveArbeidsforholdUtleder.class);
 
-    public static boolean erInaktivt(Arbeidsgiver arbeidsgiverSomSjekkes, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, BehandlingReferanse referanse) {
-        if (erNyoppstartet(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag, referanse)) {
+    public static boolean erInaktivt(Arbeidsgiver arbeidsgiverSomSjekkes, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, AktørId søkerAktørId, LocalDate stp) {
+        if (inntektArbeidYtelseGrunnlag.isEmpty()) {
             return false;
         }
-        if (HarMottattIMFraAG(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag)) {
+        if (erNyoppstartet(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get(), søkerAktørId, stp)) {
             return false;
         }
-        boolean harHattYtelse = harHattYtelseForArbeidsgiver(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag, referanse);
-        boolean harHattInntekt = harHattInntektIPeriode(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag, referanse);
-        return harHattYtelse || harHattInntekt;
+        if (harMottattIMFraAG(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get())) {
+            return false;
+        }
+        if (harHattYtelseForArbeidsgiver(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get(), søkerAktørId, stp)) {
+            return false;
+        }
+        return !harHattInntektIPeriode(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get(), søkerAktørId, stp);
     }
 
-    private static boolean HarMottattIMFraAG(Arbeidsgiver arbeidsgiverSomSjekkes, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag) {
-        return inntektArbeidYtelseGrunnlag
-            .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
+    private static boolean harMottattIMFraAG(Arbeidsgiver arbeidsgiverSomSjekkes, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
+        return inntektArbeidYtelseGrunnlag.getInntektsmeldinger()
             .map(im -> im.getInntektsmeldingerFor(arbeidsgiverSomSjekkes).size() > 0)
             .orElse(false);
     }
 
-    private static boolean harHattYtelseForArbeidsgiver(Arbeidsgiver arbeidsgiver, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, BehandlingReferanse referanse) {
-        var periodeViDefinererSomAkivt = DatoIntervallEntitet.fraOgMedTilOgMed(referanse.getUtledetSkjæringstidspunkt().minusMonths(AKTIVE_MÅNEDER_FØR_STP), referanse.getUtledetSkjæringstidspunkt());
-        Collection<Ytelse> ytelser = inntektArbeidYtelseGrunnlag
-            .flatMap(iayg -> iayg.getAktørYtelseFraRegister(referanse.getAktørId()))
+    private static boolean harHattYtelseForArbeidsgiver(Arbeidsgiver arbeidsgiver, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag, AktørId søkerAktørId, LocalDate stp) {
+        var periodeViDefinererSomAkivt = DatoIntervallEntitet.fraOgMedTilOgMed(stp.minusMonths(AKTIVE_MÅNEDER_FØR_STP), stp);
+        Collection<Ytelse> ytelser = inntektArbeidYtelseGrunnlag.getAktørYtelseFraRegister(søkerAktørId)
             .map(AktørYtelse::getAlleYtelser)
             .orElse(Collections.emptyList());
         return ytelser.stream()
@@ -63,10 +65,9 @@ public class InaktiveArbeidsforholdUtleder {
             .anyMatch(yt -> erYtelseForAG(yt, arbeidsgiver));
     }
 
-    private static boolean harHattInntektIPeriode(Arbeidsgiver arbeidsgiver, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, BehandlingReferanse referanse) {
-        var periodeViDefinererSomAkivt = DatoIntervallEntitet.fraOgMedTilOgMed(referanse.getUtledetSkjæringstidspunkt().minusMonths(AKTIVE_MÅNEDER_FØR_STP), referanse.getUtledetSkjæringstidspunkt());
-        var inntekter = inntektArbeidYtelseGrunnlag
-            .flatMap(iayg -> iayg.getAktørInntektFraRegister(referanse.getAktørId()))
+    private static boolean harHattInntektIPeriode(Arbeidsgiver arbeidsgiver, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag, AktørId søkerAktørId, LocalDate stp) {
+        var periodeViDefinererSomAkivt = DatoIntervallEntitet.fraOgMedTilOgMed(stp.minusMonths(AKTIVE_MÅNEDER_FØR_STP), stp);
+        var inntekter = inntektArbeidYtelseGrunnlag.getAktørInntektFraRegister(søkerAktørId)
             .map(AktørInntekt::getInntekt)
             .orElse(Collections.emptyList());
         return inntekter.stream()
@@ -75,13 +76,12 @@ public class InaktiveArbeidsforholdUtleder {
             .anyMatch(innt -> harInntektIPeriode(innt.getAlleInntektsposter(), periodeViDefinererSomAkivt));
     }
 
-    private static boolean erNyoppstartet(Arbeidsgiver arbeidsgiver, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, BehandlingReferanse referanse) {
-        var alleArbeidsforhold = inntektArbeidYtelseGrunnlag.
-            flatMap(iayg -> iayg.getAktørArbeidFraRegister(referanse.getAktørId()))
+    private static boolean erNyoppstartet(Arbeidsgiver arbeidsgiver, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag, AktørId søkerAktørId, LocalDate stp) {
+        var alleArbeidsforhold = inntektArbeidYtelseGrunnlag.getAktørArbeidFraRegister(søkerAktørId)
             .map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(Collections.emptyList());
         return alleArbeidsforhold.stream()
             .filter(arb -> arb.getArbeidsgiver() != null && arb.getArbeidsgiver().equals(arbeidsgiver))
-            .anyMatch(arb -> erEldreEnnGrense(arb, referanse.getUtledetSkjæringstidspunkt()));
+            .noneMatch(arb -> erEldreEnnGrense(arb, stp));
     }
 
     private static boolean erEldreEnnGrense(Yrkesaktivitet arb, LocalDate stp) {
