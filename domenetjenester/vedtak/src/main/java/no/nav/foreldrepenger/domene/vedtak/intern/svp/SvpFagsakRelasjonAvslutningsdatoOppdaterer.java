@@ -62,7 +62,7 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdaterer implements FagsakRelasjo
 
     private LocalDate hentSisteUttaksdatoForFagsak(Long fagsakId, LocalDate avslutningsdato) {
         return behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).map(behandling -> {
-            var avsluttningsdato = avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(behandling, avslutningsdato);
+            var avsluttningsdato = avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(behandling);
             var uttakInput = uttakInputTjeneste.lagInput(behandling);
             var maxdatoUttak = maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
             return maxdatoUttak.filter(d -> erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, d)).isPresent() ?
@@ -77,12 +77,11 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdaterer implements FagsakRelasjo
         return null;
     }
 
-    private LocalDate avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(Behandling behandling, LocalDate avsluttningsdato) {
+    private LocalDate avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(Behandling behandling) {
 
         var behandlingsresultatAvslåttOrOpphørt = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
             .filter(Behandlingsresultat::isBehandlingsresultatAvslåttOrOpphørt).isPresent();
-        return behandlingsresultatAvslåttOrOpphørt
-            && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, LocalDate.now()) ? LocalDate.now().plusDays(1) : avsluttningsdato;
+        return behandlingsresultatAvslåttOrOpphørt ? LocalDate.now().plusDays(1) : null;
     }
 
     private boolean erAvsluttningsdatoIkkeSattEllerEtter(LocalDate avsluttningsdato, LocalDate nyAvsluttningsdato) {

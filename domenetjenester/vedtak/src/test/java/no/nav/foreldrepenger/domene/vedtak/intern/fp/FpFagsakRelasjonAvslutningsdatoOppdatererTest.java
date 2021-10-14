@@ -115,7 +115,7 @@ public class FpFagsakRelasjonAvslutningsdatoOppdatererTest {
         fagsak = behandling.getFagsak();
         var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(LocalDate.now())
-            .medFørsteUttaksdato(LocalDate.now())
+            .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(LocalDate.now()))
             .medKreverSammenhengendeUttak(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
@@ -133,8 +133,7 @@ public class FpFagsakRelasjonAvslutningsdatoOppdatererTest {
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(
             lagBehandlingsresultat(behandling, BehandlingResultatType.AVSLÅTT,
                 KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN));
-        when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(
-            lagUttakResultat(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)));
+        when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(Optional.empty());
 
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.empty());
 
@@ -143,13 +142,14 @@ public class FpFagsakRelasjonAvslutningsdatoOppdatererTest {
             null, Optional.empty(), Optional.empty());
 
         // Assert
-        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, LocalDate.now().plusDays(11), null,
+        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, LocalDate.now().plusDays(1), null,
             Optional.empty(), Optional.empty());
     }
 
     @Test
     public void testAvsluttningsdatoVedAvslagPgaDød() {
         // Arrange
+        var fødselsdato = LocalDate.now().minusDays(5);
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
@@ -158,11 +158,10 @@ public class FpFagsakRelasjonAvslutningsdatoOppdatererTest {
             lagBehandlingsresultat(behandling, BehandlingResultatType.AVSLÅTT,
                 KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN));
         when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(
-            lagUttakResultat(LocalDate.now().minusDays(10), LocalDate.now().plusWeeks(12).minusDays(5)));
+            lagUttakResultat(fødselsdato.minusDays(5), fødselsdato.plusWeeks(6).minusDays(1)));
 
         var familieHendelseGrunnlag = mock(FamilieHendelseGrunnlagEntitet.class);
         var familieHendelse = mock(FamilieHendelseEntitet.class);
-        var fødselsdato = LocalDate.now().minusDays(5);
         when(familieHendelse.getFødselsdato()).thenReturn(Optional.of(fødselsdato));
         when(familieHendelseGrunnlag.getGjeldendeVersjon()).thenReturn(familieHendelse);
 
@@ -184,7 +183,7 @@ public class FpFagsakRelasjonAvslutningsdatoOppdatererTest {
         var forventetAvslutning = fødselsdato.plusWeeks(
             StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now()))
             .plusWeeks(KLAGEFRIST_I_UKER_VED_DØD);
-        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, forventetAvslutning.plusDays(1), null,
+        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, forventetAvslutning, null,
             Optional.empty(), Optional.empty());
     }
 
