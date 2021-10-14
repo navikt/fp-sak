@@ -76,8 +76,12 @@ public class FpFagsakRelasjonAvslutningsdatoOppdaterer implements FagsakRelasjon
         var avsluttningsdato = avsluttningsdatoFraEksisterendeFagsakRelasjon(fagsakRelasjon);
         var behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
         if (behandling.isPresent()) {
+            var datoDersomBarnDør = avslutningsDatoTilfelleBarnDør(behandling.get());
             avsluttningsdato = avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(behandling.get(), avsluttningsdato);
             avsluttningsdato = finnAvsluttningsdatoForRelaterteBehandlinger(behandling.get(), avsluttningsdato);
+            if (datoDersomBarnDør.isPresent()) {
+                return avsluttningsdato != null && avsluttningsdato.isAfter(datoDersomBarnDør.get()) ? avsluttningsdato : datoDersomBarnDør.get();
+            }
         }
 
         return Optional.ofNullable(avsluttningsdato).orElseGet(() -> LocalDate.now().plusDays(1));
@@ -98,14 +102,14 @@ public class FpFagsakRelasjonAvslutningsdatoOppdaterer implements FagsakRelasjon
             .max(Comparator.naturalOrder());
     }
 
-    private LocalDate avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(Behandling behandling, LocalDate avsluttningsdato) {
-        var sisteDødsdatoMedKvotePlussKlagefrist = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
+    private Optional<LocalDate> avslutningsDatoTilfelleBarnDør(Behandling behandling) {
+        return familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
             .flatMap(FpFagsakRelasjonAvslutningsdatoOppdaterer::sisteDødsdato)
             .map(d -> d.plusWeeks(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now())))
             .map(d -> d.plusWeeks(KLAGEFRIST_I_UKER_VED_DØD));
-        if (sisteDødsdatoMedKvotePlussKlagefrist.isPresent()) {
-            return sisteDødsdatoMedKvotePlussKlagefrist.get();
-        }
+    }
+
+    private LocalDate avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(Behandling behandling, LocalDate avsluttningsdato) {
 
         var behandlingsresultatAvslåttOrOpphørt = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
             .filter(Behandlingsresultat::isBehandlingsresultatAvslåttOrOpphørt).isPresent();
