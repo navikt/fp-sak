@@ -74,13 +74,13 @@ public class SendInformasjonsbrevBatchTjenesteTest {
         Map<String, String> arguments = new HashMap<>();
         arguments.put(SendInformasjonsbrevBatchArguments.FOM_KEY, fom.format(ofPattern(DATE_PATTERN)));
         arguments.put(SendInformasjonsbrevBatchArguments.TOM_KEY, tom.format(ofPattern(DATE_PATTERN)));
-        batchArgs = new SendInformasjonsbrevBatchArguments(arguments);
+        batchArgs = new SendInformasjonsbrevBatchArguments(arguments, 4);
 
         tjenesteOpphold = new SendInformasjonsbrevOppholdBatchTjeneste(repository, taskTjenesteMock);
         Map<String, String> argumentsOpphold = new HashMap<>();
         argumentsOpphold.put(SendInformasjonsbrevBatchArguments.FOM_KEY, fomOpphold.format((ofPattern(DATE_PATTERN))));
         argumentsOpphold.put(SendInformasjonsbrevBatchArguments.TOM_KEY, tomOpphold.format((ofPattern(DATE_PATTERN))));
-        batchArgs = new SendInformasjonsbrevBatchArguments(argumentsOpphold);
+        batchArgs = new SendInformasjonsbrevBatchArguments(argumentsOpphold, 4);
     }
 
     @Test

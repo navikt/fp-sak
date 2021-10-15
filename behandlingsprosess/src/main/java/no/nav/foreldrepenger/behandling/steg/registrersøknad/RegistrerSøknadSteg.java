@@ -140,7 +140,8 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
 
     private BehandleStegResultat resultatVedIngenMottatteDokument(Behandling behandling) {
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_BEHANDLING)
-                || behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_OPPHOLD)) {
+                || behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_OPPHOLD)
+                || behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_PÅMINNELSE)) {
             var kResultat = KompletthetResultat.ikkeOppfylt(LocalDate.now().plus(VENT_PÅ_SØKNAD_PERIODE).atStartOfDay(),
                     Venteårsak.VENT_SØKNAD_SENDT_INFORMASJONSBREV);
             return evaluerSøknadMottattUoppfylt(behandling, kResultat, VENT_PÅ_SØKNAD);
