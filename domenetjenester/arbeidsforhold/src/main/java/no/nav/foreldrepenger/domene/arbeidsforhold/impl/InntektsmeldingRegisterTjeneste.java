@@ -161,7 +161,6 @@ public class InntektsmeldingRegisterTjeneste {
         return filtrerInntektsmeldingerForKompletthetAktive(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
     }
 
-    //
 
     /**
      * Liste av arbeidsforhold per arbeidsgiver (ident) som må sende inntektsmelding
@@ -177,9 +176,21 @@ public class InntektsmeldingRegisterTjeneste {
         logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "UFILTRERT");
 
         filtrerUtMottatteInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, erEndringssøknad, (a, i) -> i);
-        logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "FILTRERT");
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> inntektsmeldingerSomKrevesIYtelse = filtrerInntektsmeldingerForYtelse(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
+        var kunAktiveArbeidsforhold = filtrerUtArbeidsgivereUtenInntekSiste10Mnd(inntektsmeldingerSomKrevesIYtelse, inntektArbeidYtelseGrunnlag, referanse);
+        logInntektsmeldinger(referanse, kunAktiveArbeidsforhold, "FILTRERT");
+        return kunAktiveArbeidsforhold;
+    }
 
-        return filtrerInntektsmeldingerForYtelse(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
+    private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerUtArbeidsgivereUtenInntekSiste10Mnd(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, BehandlingReferanse referanse) {
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> kunAktiveArbeidsforhold = new HashMap<>();
+        påkrevdeInntektsmeldinger.forEach((key, value) -> {
+            boolean erInaktivt = InaktiveArbeidsforholdUtleder.erInaktivt(key, inntektArbeidYtelseGrunnlag, referanse.getAktørId(), referanse.getUtledetSkjæringstidspunkt());
+            if (!erInaktivt) {
+                kunAktiveArbeidsforhold.put(key, value);
+            }
+        });
+        return kunAktiveArbeidsforhold;
     }
 
     private <V> void filtrerUtMottatteInntektsmeldinger(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger,
