@@ -24,6 +24,10 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Tjeneste som skal utlede om en arbeidsgiver er inaktiv eller ikke,
+ * for å filtrere ut unødvendige arbeidsforhold fra å måtte avklares.
+ */
 public class InaktiveArbeidsforholdUtleder {
     private static final Set<String> NØDNUMRE = Set.of("971278420", "971278439", "971248106", "971373032", "871400172");
     private static final Set<RelatertYtelseType> YTELSER_SOM_IKKE_PÅVIRKER_IM = Set.of(RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE, RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, RelatertYtelseType.DAGPENGER, RelatertYtelseType.OMSORGSPENGER);
