@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.vedtak.observer;
 
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Comparator;
@@ -27,6 +28,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -40,6 +44,7 @@ public class VedtattYtelseTjeneste {
     private BehandlingVedtakRepository vedtakRepository;
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BeregningsresultatRepository tilkjentYtelseRepository;
+    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     public VedtattYtelseTjeneste() {
     }
@@ -47,13 +52,15 @@ public class VedtattYtelseTjeneste {
     @Inject
     public VedtattYtelseTjeneste(BehandlingVedtakRepository vedtakRepository,
                                  BeregningsgrunnlagRepository beregningsgrunnlagRepository,
-                                 BeregningsresultatRepository tilkjentYtelseRepository) {
+                                 BeregningsresultatRepository tilkjentYtelseRepository,
+                                 InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.vedtakRepository = vedtakRepository;
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.tilkjentYtelseRepository = tilkjentYtelseRepository;
+        this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
-    public Ytelse genererYtelse(Behandling behandling) {
+    public Ytelse genererYtelse(Behandling behandling, boolean mapArbeidsforhold) {
         final var vedtak = vedtakRepository.hentForBehandling(behandling.getId());
         var berResultat = tilkjentYtelseRepository.hentUtbetBeregningsresultat(behandling.getId());
 
@@ -69,39 +76,31 @@ public class VedtattYtelseTjeneste {
         ytelse.setStatus(map(behandling.getFagsak().getStatus()));
 
         ytelse.setPeriode(utledPeriode(vedtak, berResultat.orElse(null)));
-        ytelse.setAnvist(map(behandling, berResultat.orElse(null)));
+        ytelse.setAnvist(map(behandling, berResultat.orElse(null), mapArbeidsforhold));
         return ytelse;
     }
 
-    private List<Anvisning> map(Behandling behandling, BeregningsresultatEntitet tilkjentYtelse) {
+    private List<Anvisning> map(Behandling behandling, BeregningsresultatEntitet tilkjentYtelse, boolean mapArbeidsforhold) {
         if (tilkjentYtelse == null) {
             return List.of();
         }
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
-            return mapForeldrepenger(tilkjentYtelse);
+            if (mapArbeidsforhold) {
+                List<ArbeidsforholdReferanse> arbeidsforholdReferanser = inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())
+                    .flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon)
+                    .stream()
+                    .flatMap(a -> a.getArbeidsforholdReferanser().stream()).collect(Collectors.toList());
+                return VedtattYtelseForeldrepengerMapper.medArbeidsforhold(arbeidsforholdReferanser)
+                    .mapForeldrepenger(tilkjentYtelse);
+            } else {
+                return VedtattYtelseForeldrepengerMapper.utenArbeidsforhold()
+                    .mapForeldrepenger(tilkjentYtelse);
+            }
         }
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
             return mapSvangerskapspenger(behandling, tilkjentYtelse); // TODO - følg med på TFP-2667 må finne ny metode når Beregning/SVP er skrevet om.
         }
         return List.of();
-    }
-
-    private List<Anvisning> mapForeldrepenger(BeregningsresultatEntitet tilkjent) {
-        return tilkjent.getBeregningsresultatPerioder().stream()
-            .filter(periode -> periode.getDagsats() > 0)
-            .map(this::mapForeldrepengerPeriode)
-            .collect(Collectors.toList());
-    }
-
-    private Anvisning mapForeldrepengerPeriode(BeregningsresultatPeriode periode) {
-        final var anvisning = new Anvisning();
-        final var p = new Periode();
-        p.setFom(periode.getBeregningsresultatPeriodeFom());
-        p.setTom(periode.getBeregningsresultatPeriodeTom());
-        anvisning.setPeriode(p);
-        anvisning.setDagsats(new Desimaltall(new BigDecimal(periode.getDagsatsFraBg())));
-        anvisning.setUtbetalingsgrad(new Desimaltall(periode.getKalkulertUtbetalingsgrad()));
-        return anvisning;
     }
 
     private List<Anvisning> mapSvangerskapspenger(Behandling behandling, BeregningsresultatEntitet tilkjent) {
@@ -149,7 +148,7 @@ public class VedtattYtelseTjeneste {
         var grad = BigDecimal.ZERO.compareTo(avkortet) == 0 ? 0 :
             BigDecimal.TEN.multiply(BigDecimal.TEN).multiply(bgPeriode.getRedusertPrÅr()).divide(avkortet, RoundingMode.HALF_EVEN).longValue();
         var dagsats = BigDecimal.ZERO.compareTo(bgPeriode.getRedusertPrÅr()) == 0 ? 0 :
-             new BigDecimal(bgPeriode.getDagsats()).multiply(avkortet).divide(bgPeriode.getRedusertPrÅr(), RoundingMode.HALF_EVEN).longValue();
+            new BigDecimal(bgPeriode.getDagsats()).multiply(avkortet).divide(bgPeriode.getRedusertPrÅr(), RoundingMode.HALF_EVEN).longValue();
         return new DagsatsUtbgradSVP(dagsats, grad);
     }
 
@@ -212,4 +211,5 @@ public class VedtattYtelseTjeneste {
 
     static record DagsatsUtbgradSVP(long dagsats, long utbetalingsgrad) {
     }
+
 }

@@ -145,7 +145,7 @@ public class VedtakRestTjeneste {
                 .filter(f -> ytelseType.equals(f.getYtelseType()))
                 .map(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()))
                 .flatMap(Optional::stream)
-                .map(b -> (YtelseV1) vedtattYtelseTjeneste.genererYtelse(b))
+                .map(b -> (YtelseV1) vedtattYtelseTjeneste.genererYtelse(b, false))
                 .filter(y -> y.getPeriode().getTom().isAfter(LocalDate.now().minusMonths(12)))
                 .collect(Collectors.toList());
     }
