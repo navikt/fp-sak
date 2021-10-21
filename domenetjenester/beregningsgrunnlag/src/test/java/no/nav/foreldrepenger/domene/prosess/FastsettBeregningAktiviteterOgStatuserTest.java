@@ -24,9 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.abakus.iaygrunnlag.Periode;
-import no.nav.folketrygdloven.kalkulator.adapter.regelmodelltilvl.MapBGSkjæringstidspunktOgStatuserFraRegelTilVL;
 import no.nav.folketrygdloven.kalkulator.adapter.vltilregelmodell.MapBeregningAktiviteterFraVLTilRegelK14;
-import no.nav.folketrygdloven.kalkulator.felles.BeregningsperiodeTjeneste;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.FastsettBeregningsaktiviteterInput;
 import no.nav.folketrygdloven.kalkulator.input.StegProsesseringInput;
@@ -99,8 +97,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         iayTestUtil = new BeregningIAYTestUtil(iayTjeneste);
         fastsettBeregningAktiviteter = new FastsettBeregningAktiviteter(new UnitTestLookupInstanceImpl<>(new MapBeregningAktiviteterFraVLTilRegelK14()));
-        var mapFraRegel = new MapBGSkjæringstidspunktOgStatuserFraRegelTilVL(new UnitTestLookupInstanceImpl<>(new BeregningsperiodeTjeneste()));
-        fastsettSkjæringstidspunktOgStatuser = new FastsettSkjæringstidspunktOgStatuserK14(mapFraRegel);
+        fastsettSkjæringstidspunktOgStatuser = new FastsettSkjæringstidspunktOgStatuserK14();
         repositoryProvider = new RepositoryProvider(entityManager);
     }
 
