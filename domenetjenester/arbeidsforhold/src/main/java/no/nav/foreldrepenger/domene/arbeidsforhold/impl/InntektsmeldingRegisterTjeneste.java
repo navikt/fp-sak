@@ -176,9 +176,10 @@ public class InntektsmeldingRegisterTjeneste {
         logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "UFILTRERT");
 
         filtrerUtMottatteInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, erEndringssøknad, (a, i) -> i);
-        logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "FILTRERT");
-
-        return filtrerInntektsmeldingerForYtelse(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> inntektsmeldingerSomKrevesIYtelse = filtrerInntektsmeldingerForYtelse(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
+        var kunAktiveArbeidsforhold = filtrerUtArbeidsgivereUtenInntekSiste10Mnd(inntektsmeldingerSomKrevesIYtelse, inntektArbeidYtelseGrunnlag, referanse);
+        logInntektsmeldinger(referanse, kunAktiveArbeidsforhold, "FILTRERT");
+        return kunAktiveArbeidsforhold;
     }
 
     // Vent med å ta i bruk denne til vi ikke lenger venter på andel i beregning
