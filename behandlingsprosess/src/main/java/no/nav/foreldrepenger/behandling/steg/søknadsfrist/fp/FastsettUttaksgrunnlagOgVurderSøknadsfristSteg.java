@@ -98,6 +98,10 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
                                     BehandlingStegModell modell,
                                     BehandlingStegType førsteSteg,
                                     BehandlingStegType sisteSteg) {
+        // TODO(jol) bedre grensesnitt for henleggelser TFP-3721
+        if (BehandlingStegType.IVERKSETT_VEDTAK.equals(sisteSteg)) {
+            return;
+        }
         var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
         if (skalKopiereUttakTjeneste.skalKopiereStegResultat(uttakInput)) {
             var ref = uttakInput.getBehandlingReferanse();
