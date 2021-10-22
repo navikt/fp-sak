@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.dokumentbestiller.autopunkt;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.INFOBREV_OPPHOLD;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.INFOBREV_PÅMINNELSE;
 
 import java.time.LocalDate;
 
@@ -44,7 +45,8 @@ public class SendBrevForAutopunkt {
 
     public void sendBrevForSøknadIkkeMottatt(Behandling behandling, Aksjonspunkt ap) {
         var dokumentMalType = DokumentMalType.IKKE_SØKT;
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_BEHANDLING) || behandling.harBehandlingÅrsak(INFOBREV_OPPHOLD)) {
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_BEHANDLING)
+            || behandling.harBehandlingÅrsak(INFOBREV_OPPHOLD) || behandling.harBehandlingÅrsak(INFOBREV_PÅMINNELSE)) {
             dokumentMalType = DokumentMalType.FORELDREPENGER_INFO_TIL_ANNEN_FORELDER;
         }
         if ((DokumentMalType.IKKE_SØKT.equals(dokumentMalType) && !harSendtBrevForMal(behandling.getId(), dokumentMalType) && !harSendtBrevForMal(behandling.getId(), DokumentMalType.INNTEKTSMELDING_FOR_TIDLIG_DOK))

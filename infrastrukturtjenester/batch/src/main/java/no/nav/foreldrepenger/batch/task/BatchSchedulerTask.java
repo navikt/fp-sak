@@ -52,7 +52,8 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
             new BatchConfig(6, 48, AVSTEMMING, "fagomrade=FP, antallDager="),
             new BatchConfig(6, 49, AVSTEMMING, "fagomrade=FPREF, antallDager="),
             new BatchConfig(7, 3, "BVL008", ANT_DAGER), // Infobrev far - 7min spread
-            new BatchConfig(7, 10, "BVL009", ANT_DAGER) // Infobrev opphold far - 3 min spread
+            new BatchConfig(7, 10, "BVL009", ANT_DAGER), // Infobrev opphold far - 3 min spread
+            new BatchConfig(7, 13, "BVL011", ANT_DAGER) // Infobrev far påminnelse - 7min spread
     );
 
     private static final List<BatchConfig> BATCH_OPPSETT_VIRKEDAGER = Arrays.asList(
@@ -62,7 +63,7 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
             new BatchConfig(7, 0, "BVL002", null), // Etterkontroll
             new BatchConfig(7, 2, "BVL003", null), // Forlengelsesbrev må kjøre noe etter Gjenoppta
             new BatchConfig(7, 1, "BVL006", null), // Fagsakavslutning
-            new BatchConfig(7, 15, "BVL007", null), // Oppdatering dagsgamle oppgaver - 24 min spread
+            new BatchConfig(7, 20, "BVL007", null), // Oppdatering dagsgamle oppgaver - 24 min spread
             new BatchConfig(7, 45, BatchRunnerTask.BATCH_NAME_RETRY_TASKS, null) // Siste steg
     );
 
