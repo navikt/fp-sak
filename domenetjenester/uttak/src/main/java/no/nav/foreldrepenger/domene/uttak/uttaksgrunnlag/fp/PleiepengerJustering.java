@@ -54,6 +54,11 @@ final class PleiepengerJustering {
             .toList();
 
         exceptionHvisOverlapp(pleiepengerUtsettelser);
+        if (finnesOverlapp(oppgittePerioder)) {
+            LOG.warn("Finnes overlapp i oppgitte perioder");
+            //Støtter ikke overlapp videre
+            return oppgittePerioder;
+        }
 
         if (!pleiepengerUtsettelser.isEmpty()) {
             LOG.info("Behandlingen har vedtak om pleiepenger. Oppretter utsettelser");
