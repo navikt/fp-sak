@@ -49,7 +49,7 @@
         <fp-kontrakter.version>6.0.4</fp-kontrakter.version>
         <fp-tidsserie.version>2.5.7</fp-tidsserie.version>
         <fp-nare.version>2.1.5</fp-nare.version>
-        <kalkulus.version>1.2.65</kalkulus.version>
+        <kalkulus.version>1.2.66</kalkulus.version>
         <abakus-kontrakt.version>1.3.12</abakus-kontrakt.version>
 
         <swaggercore.version>2.1.11</swaggercore.version>
