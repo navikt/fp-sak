@@ -158,7 +158,7 @@ public class KompletthetsjekkerFelles {
 
     private Optional<LocalDateTime> finnVentefristNårFinnesInntektsmelding(BehandlingReferanse ref, LocalDateTime frist, boolean erSendtBrev,
                                                                            List<Inntektsmelding> inntektsmeldinger, List<ManglendeVedlegg> manglendeInntektsmeldinger) {
-        var manglerFraAktiveArbeidsgivere = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldingerFraGrunnlagForAutopunkt(ref);
+        var manglerFraAktiveArbeidsgivere = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldingerFraGrunnlag(ref);
         if (manglerFraAktiveArbeidsgivere.isEmpty()) {
             LOG.info("ETTERLYS mangler ikke IM fra aktive arbeidsforhold behandlingId {} mottatt {} manglerTotalt {}", ref.getBehandlingId(), inntektsmeldinger.size(), manglendeInntektsmeldinger.size());
             return Optional.empty();
