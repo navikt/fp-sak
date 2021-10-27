@@ -11,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.domene.risikoklassifisering.kafka.config.RisikoklassifiseringKafkaProducer;
+import no.nav.foreldrepenger.domene.risikoklassifisering.kafka.config.RisikoklassifiseringMeldingProducer;
 import no.nav.vedtak.felles.prosesstask.api.CommonTaskProperties;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -24,7 +24,7 @@ public class RisikoklassifiseringUtførTaskTest {
 
 
     @Mock
-    private RisikoklassifiseringKafkaProducer kafkaProducer;
+    private RisikoklassifiseringMeldingProducer kafkaProducer;
 
     private RisikoklassifiseringUtførTask risikoklassifiseringUtførTask;
 
@@ -43,7 +43,7 @@ public class RisikoklassifiseringUtførTaskTest {
 
         prosessTaskData.setProperty(CommonTaskProperties.BEHANDLING_ID, String.valueOf(BEHANDLING_ID));
         risikoklassifiseringUtførTask.doTask(prosessTaskData);
-        verify(kafkaProducer).publiserEvent(konsumentId, "json");
+        verify(kafkaProducer).sendJsonMedNøkkel(konsumentId, "json");
     }
 
 }

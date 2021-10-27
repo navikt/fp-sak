@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.domene.risikoklassifisering.kafka.config.RisikoklassifiseringKafkaProducer;
+import no.nav.foreldrepenger.domene.risikoklassifisering.kafka.config.RisikoklassifiseringMeldingProducer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -21,14 +21,14 @@ public class RisikoklassifiseringUtførTask implements ProsessTaskHandler {
 
     public static final String KONSUMENT_ID = "konsumentId";
 
-    private RisikoklassifiseringKafkaProducer kafkaProducer;
+    private RisikoklassifiseringMeldingProducer kafkaProducer;
 
     RisikoklassifiseringUtførTask() {
         // for CDI proxy
     }
 
     @Inject
-    public RisikoklassifiseringUtførTask(RisikoklassifiseringKafkaProducer kafkaProducer) {
+    public RisikoklassifiseringUtførTask(RisikoklassifiseringMeldingProducer kafkaProducer) {
         this.kafkaProducer = kafkaProducer;
     }
 
@@ -36,7 +36,7 @@ public class RisikoklassifiseringUtførTask implements ProsessTaskHandler {
         try {
             var eventJson = prosessTaskData.getPayloadAsString();
             var konsumentId = prosessTaskData.getPropertyValue(KONSUMENT_ID);
-            kafkaProducer.publiserEvent(konsumentId, eventJson);
+            kafkaProducer.sendJsonMedNøkkel(konsumentId, eventJson);
             LOG.info("Publiser risikoklassifisering på kafka slik at fprisk kan klassifisere behandlingen. konsumentId :{} BehandlingsId: {}",
                 konsumentId, prosessTaskData.getBehandlingId());
         }catch (Exception e){
