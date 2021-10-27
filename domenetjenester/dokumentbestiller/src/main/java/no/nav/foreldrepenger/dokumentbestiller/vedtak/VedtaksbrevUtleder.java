@@ -1,5 +1,11 @@
 package no.nav.foreldrepenger.dokumentbestiller.vedtak;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.MEDHOLD_I_KLAGE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.OPPHEVE_YTELSESVEDTAK;
+
+import java.util.Arrays;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
@@ -11,15 +17,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 
-import java.util.Arrays;
-
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.MEDHOLD_I_KLAGE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.OPPHEVE_YTELSESVEDTAK;
-
 public class VedtaksbrevUtleder {
+
+    private static final Environment ENV = Environment.current();
 
     private VedtaksbrevUtleder() {
     }
@@ -82,7 +85,7 @@ public class VedtaksbrevUtleder {
         }
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             if (behandlingsresultat.isBehandlingsresultatOpphørt()) {
-                return DokumentMalType.OPPHØR_DOK;
+                return DokumentMalType.FORELDREPENGER_OPPHØR_DOK;
             }
             return DokumentMalType.FORELDREPENGER_AVSLAG;
         }
@@ -98,7 +101,7 @@ public class VedtaksbrevUtleder {
         return FagsakYtelseType.FORELDREPENGER.equals(ytelse) ?
             DokumentMalType.FORELDREPENGER_INNVILGELSE : FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) ?
             DokumentMalType.ENGANGSSTØNAD_INNVILGELSE : FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelse) ?
-            DokumentMalType.INNVILGELSE_SVANGERSKAPSPENGER_DOK : null;
+            DokumentMalType.SVANGERSKAPSPENGER_INNVILGELSE_FRITEKST : null;
     }
 
     public static DokumentMalType velgKlagemal(Behandling behandling, KlageRepository klageRepository) {
@@ -109,16 +112,16 @@ public class VedtaksbrevUtleder {
         var klagevurdering = klagevurderingResultat.getKlageVurdering();
 
         if (KlageVurdering.AVVIS_KLAGE.equals(klagevurdering)) {
-            return DokumentMalType.KLAGE_AVVIST;
+            return ENV.isProd() ? DokumentMalType.KLAGE_AVVIST_FRITEKST : DokumentMalType.KLAGE_AVVIST;
         }
         if (Arrays.asList(OPPHEVE_YTELSESVEDTAK, HJEMSENDE_UTEN_Å_OPPHEVE).contains(klagevurdering)) {
-            return DokumentMalType.KLAGE_HJEMSENDT;
+            return ENV.isProd() ? DokumentMalType.KLAGE_HJEMSENDT_FRITEKST : DokumentMalType.KLAGE_HJEMSENDT;
         }
         if (MEDHOLD_I_KLAGE.equals(klagevurdering)) {
-            return DokumentMalType.KLAGE_OMGJØRING;
+            return ENV.isProd() ? DokumentMalType.KLAGE_OMGJORT_FRITEKST : DokumentMalType.KLAGE_OMGJORT;
         }
         if (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(klagevurdering)) {
-            return DokumentMalType.KLAGE_STADFESTET;
+            return ENV.isProd() ? DokumentMalType.KLAGE_STADFESTET_FRITEKST : DokumentMalType.KLAGE_STADFESTET;
         }
 
         return null;
@@ -133,10 +136,10 @@ public class VedtaksbrevUtleder {
         var ankeVurdering = ankeVurderingResultat.getAnkeVurdering();
 
         if (AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(ankeVurdering) || AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV.equals(ankeVurdering)) {
-            return DokumentMalType.ANKEBREV_BESLUTNING_OM_OPPHEVING;
+            return DokumentMalType.ANKE_BESLUTNING_OM_OPPHEVING_FRITEKST;
         }
         if (AnkeVurdering.ANKE_OMGJOER.equals(ankeVurdering)){
-            return DokumentMalType.VEDTAK_OMGJORING_ANKE_DOK;
+            return DokumentMalType.ANKE_VEDTAK_OMGJORING_FRITEKST;
         }
 
         return null;

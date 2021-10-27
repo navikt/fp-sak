@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.brev;
 
-import static no.nav.foreldrepenger.dokumentbestiller.DokumentMalType.INNHENT_DOK;
+import static no.nav.foreldrepenger.dokumentbestiller.DokumentMalType.INNHENTE_OPPLYSNINGER_DOK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -43,7 +43,7 @@ public class BrevRestTjenesteTest {
     public void bestillerDokument() {
         // Arrange
         var behandlingId = 2L;
-        var bestillBrevDto = new BestillBrevDto(behandlingId, UUID.randomUUID(), INNHENT_DOK, "Dette er en fritekst");
+        var bestillBrevDto = new BestillBrevDto(behandlingId, UUID.randomUUID(), INNHENTE_OPPLYSNINGER_DOK, "Dette er en fritekst");
 
         // Act
         brevRestTjeneste.bestillDokument(bestillBrevDto);

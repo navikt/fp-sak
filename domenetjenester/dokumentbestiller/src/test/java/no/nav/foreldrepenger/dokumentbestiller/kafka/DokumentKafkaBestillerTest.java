@@ -64,7 +64,7 @@ public class DokumentKafkaBestillerTest {
     @Test
     public void skal_opprette_historikkinnslag_og_lagre_prosesstask_og_logge_dokumentbestilt() {
         // Arrange
-        var innhentDok = DokumentMalType.INNHENT_DOK;
+        var innhentDok = DokumentMalType.INNHENTE_OPPLYSNINGER_DOK;
         var bestillBrevDto = lagBestillBrevDto(innhentDok, null, null);
         var aktør = HistorikkAktør.SAKSBEHANDLER;
 
@@ -87,7 +87,7 @@ public class DokumentKafkaBestillerTest {
 
     @Test
     public void skal_opprette_historikkinnslag_og_lagre_prosesstask_med_fritekst_og_årsak() {
-        var innhentDok = DokumentMalType.INNHENT_DOK;
+        var innhentDok = DokumentMalType.INNHENTE_OPPLYSNINGER_DOK;
         var fritekst = "FRITEKST";
         var årsak = RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER;
         var bestillBrevDto = lagBestillBrevDto(innhentDok, årsak.getKode(), fritekst);
