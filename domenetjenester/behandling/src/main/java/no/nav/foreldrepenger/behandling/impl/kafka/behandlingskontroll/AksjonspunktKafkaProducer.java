@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.impl.kafka.behandlingskontroll;
 
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -10,16 +9,13 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.KafkaException;
-import org.apache.kafka.common.errors.AuthenticationException;
-import org.apache.kafka.common.errors.AuthorizationException;
-import org.apache.kafka.common.errors.RetriableException;
 import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
@@ -59,22 +55,19 @@ public class AksjonspunktKafkaProducer {
         producer.flush();
     }
 
-    void runProducerWithSingleJson(ProducerRecord<String, String> record) {
+    private void runProducerWithSingleJson(ProducerRecord<String, String> record) {
         try {
-            producer.send(record)
-                    .get();
+            producer.send(record).get();
         } catch (InterruptedException e) {
-            LOG.warn("Uventet feil ved sending til Kafka, topic:" + topic, e);
-            Thread.currentThread().interrupt(); // reinterrupt
-        } catch (ExecutionException e) {
-            LOG.warn("Uventet feil ved sending til Kafka, topic:" + topic, e);
-        } catch (AuthenticationException | AuthorizationException e) {
-            LOG.warn("Feil i pålogging mot Kafka, topic:" + topic, e);
-        } catch (RetriableException e) {
-            LOG.warn("Fikk transient feil mot Kafka, kan prøve igjen, topic:" + topic, e);
-        } catch (KafkaException e) {
-            LOG.warn("Fikk feil mot Kafka, topic:" + topic, e);
+            Thread.currentThread().interrupt();
+            throw kafkaPubliseringException(e);
+        } catch (Exception e) {
+            throw kafkaPubliseringException(e);
         }
+    }
+
+    private IntegrasjonException kafkaPubliseringException(Exception e) {
+        return new IntegrasjonException("FP-HENDELSE-925473", "Uventet feil ved sending til Kafka, topic " + topic, e);
     }
 
     void setUsernameAndPassword(String username, String password, Properties properties) {
@@ -103,7 +96,7 @@ public class AksjonspunktKafkaProducer {
         runProducerWithSingleJson(new ProducerRecord<>(topic, null, nøkkel, json, new RecordHeaders().add(CALLID_NAME, callId.getBytes())));
     }
 
-    private final String getProducerClientId(String topicName) {
+    private String getProducerClientId(String topicName) {
         return "KP-" + topicName;
     }
 }
