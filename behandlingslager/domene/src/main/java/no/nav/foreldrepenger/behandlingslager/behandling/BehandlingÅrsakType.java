@@ -62,6 +62,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     //For automatiske informasjonsbrev
     INFOBREV_BEHANDLING("INFOBREV_BEHANDLING", "Informasjonsbrev uttak"),
     INFOBREV_OPPHOLD("INFOBREV_OPPHOLD", "Informasjonsbrev opphold"),
+    INFOBREV_PÅMINNELSE("INFOBREV_PÅMINNELSE", "Informasjonsbrev påminnelse"),
 
     //For å vurdere opphør av ytelse
     OPPHØR_YTELSE_NYTT_BARN("OPPHØR-NYTT-BARN", "Nytt barn/stønadsperiode"),

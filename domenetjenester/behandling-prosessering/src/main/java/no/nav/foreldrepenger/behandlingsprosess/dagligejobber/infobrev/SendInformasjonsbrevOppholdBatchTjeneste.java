@@ -34,7 +34,7 @@ public class SendInformasjonsbrevOppholdBatchTjeneste implements BatchTjeneste {
 
     @Override
     public SendInformasjonsbrevBatchArguments createArguments(Map<String, String> jobArguments) {
-        return new SendInformasjonsbrevBatchArguments(jobArguments);
+        return new SendInformasjonsbrevBatchArguments(jobArguments, 4);
     }
 
     @Override

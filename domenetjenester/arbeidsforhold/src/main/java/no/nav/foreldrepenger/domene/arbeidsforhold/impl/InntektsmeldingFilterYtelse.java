@@ -7,6 +7,7 @@ import java.util.Set;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public interface InntektsmeldingFilterYtelse {
 
@@ -18,12 +19,7 @@ public interface InntektsmeldingFilterYtelse {
             Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
             Map<Arbeidsgiver, Set<V>> påkrevde);
 
-    <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse,
-            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-            Map<Arbeidsgiver, Set<V>> påkrevde);
-
-    /** Returnerer påkrevde IM etter vurdering av aktive arbeidsforhold. */
-    <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForKompletthetAktive(BehandlingReferanse referanse,
-            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-            Map<Arbeidsgiver, Set<V>> påkrevde);
+    Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse,
+                                                                                            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                                                                            Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde);
 }

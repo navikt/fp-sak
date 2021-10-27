@@ -13,6 +13,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -37,6 +40,8 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 @Transactional
 public class FamiliehendelseRestTjeneste {
 
+    private static final Logger LOG = LoggerFactory.getLogger(FamiliehendelseRestTjeneste.class);
+
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private FamilieHendelseRepository familieHendelseRepository;
@@ -47,17 +52,17 @@ public class FamiliehendelseRestTjeneste {
     private static final String FAMILIEHENDELSE_V2_PART_PATH = "/familiehendelse/v2";
     public static final String FAMILIEHENDELSE_V2_PATH = BASE_PATH + FAMILIEHENDELSE_V2_PART_PATH;
 
-    public FamiliehendelseRestTjeneste() {
-        // for CDI proxy
-    }
-
     @Inject
     public FamiliehendelseRestTjeneste(BehandlingRepository behandlingRepository,
-            BehandlingVedtakRepository behandlingVedtakRepository,
-            FamilieHendelseRepository familieHendelseRepository) {
+                                       BehandlingVedtakRepository behandlingVedtakRepository,
+                                       FamilieHendelseRepository familieHendelseRepository) {
         this.behandlingRepository = behandlingRepository;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
         this.familieHendelseRepository = familieHendelseRepository;
+    }
+
+    FamiliehendelseRestTjeneste() {
+        // for CDI proxy
     }
 
     @GET
@@ -68,11 +73,12 @@ public class FamiliehendelseRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public FamiliehendelseDto getAvklartFamiliehendelseDto(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        LOG.info("Bruker fortsatt v1 tjeneste av familiehendelse");
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
                 .map(BehandlingVedtak::getVedtaksdato);
-        var dtoOpt = FamiliehendelseDataDtoTjeneste.mapFra(behandling, grunnlag, vedtaksdato);
+        var dtoOpt = FamiliehendelseDataDtoTjeneste.mapFra(grunnlag, vedtaksdato);
         return dtoOpt.orElse(null);
     }
 
@@ -88,6 +94,6 @@ public class FamiliehendelseRestTjeneste {
         var grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
                 .map(BehandlingVedtak::getVedtaksdato);
-        return FamiliehendelseDataDtoTjeneste.mapGrunnlagFra(behandling, grunnlag, vedtaksdato);
+        return FamiliehendelseDataDtoTjeneste.mapGrunnlagFra(grunnlag, vedtaksdato);
     }
 }

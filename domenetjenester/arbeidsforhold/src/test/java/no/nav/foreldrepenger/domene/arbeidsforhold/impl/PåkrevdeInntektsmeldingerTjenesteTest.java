@@ -58,7 +58,7 @@ public class PåkrevdeInntektsmeldingerTjenesteTest {
         var ref = InternArbeidsforholdRef.nyRef();
 
         var arbeidsforhold = Map.of(virksomhet, Set.of(ref));
-        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlagForVurdering(any(), anyBoolean())).thenReturn(arbeidsforhold);
+        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), anyBoolean())).thenReturn(arbeidsforhold);
 
         // Act
         påkrevdeInntektsmeldingerTjeneste.leggTilArbeidsforholdHvorPåkrevdeInntektsmeldingMangler(BehandlingReferanse.fra(behandling), result);
@@ -81,7 +81,7 @@ public class PåkrevdeInntektsmeldingerTjenesteTest {
         var ref2 = InternArbeidsforholdRef.nyRef();
 
         var arbeidsforhold = Map.of(virksomhet, Set.of(ref1, ref2));
-        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlagForVurdering(any(), anyBoolean())).thenReturn(arbeidsforhold);
+        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), anyBoolean())).thenReturn(arbeidsforhold);
 
         // Act
         påkrevdeInntektsmeldingerTjeneste.leggTilArbeidsforholdHvorPåkrevdeInntektsmeldingMangler(BehandlingReferanse.fra(behandling), result);
@@ -104,7 +104,7 @@ public class PåkrevdeInntektsmeldingerTjenesteTest {
         var ref2 = InternArbeidsforholdRef.nyRef();
 
         var arbeidsforhold = Map.of(person, Set.of(ref1, ref2));
-        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlagForVurdering(any(), anyBoolean())).thenReturn(arbeidsforhold);
+        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), anyBoolean())).thenReturn(arbeidsforhold);
 
         // Act
         påkrevdeInntektsmeldingerTjeneste.leggTilArbeidsforholdHvorPåkrevdeInntektsmeldingMangler(BehandlingReferanse.fra(behandling), result);

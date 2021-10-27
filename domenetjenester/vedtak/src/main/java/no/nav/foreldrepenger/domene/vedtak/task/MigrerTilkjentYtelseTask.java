@@ -25,8 +25,8 @@ public class MigrerTilkjentYtelseTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(MigrerTilkjentYtelseTask.class);
 
-    private static int ANTALL_PR_RUNDE = 10;
-    private static Duration DELAY_MELLOM_KJØRINGER = Duration.ofSeconds(10);
+    private static final int ANTALL_PR_RUNDE = 10;
+    private static final Duration DELAY_MELLOM_KJØRINGER = Duration.ofSeconds(10);
 
     private TilkjentYtelseMeldingProducer meldingProducer;
     private MigrerBehandlingRepository behandlingRepository;
@@ -47,7 +47,7 @@ public class MigrerTilkjentYtelseTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         var verdi = prosessTaskData.getPropertyValue("behandlingIdTak");
-        Long sisteBehandlingId = verdi == null ? Long.MAX_VALUE : Long.valueOf(verdi);
+        Long sisteBehandlingId = verdi == null ? Long.MAX_VALUE : Long.parseLong(verdi);
 
         var behandlinger = behandlingRepository.hentBehandlingerForMigrering(sisteBehandlingId, ANTALL_PR_RUNDE);
         LOG.info("overfører {} behandlinger", behandlinger.size());

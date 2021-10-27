@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.kafka.config;
 
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -10,23 +9,18 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.KafkaException;
-import org.apache.kafka.common.errors.AuthenticationException;
-import org.apache.kafka.common.errors.AuthorizationException;
-import org.apache.kafka.common.errors.RetriableException;
 import org.apache.kafka.common.serialization.StringSerializer;
 
-import no.nav.vedtak.exception.IntegrasjonException;
-import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.vedtak.exception.IntegrasjonException;
 
 @ApplicationScoped
-class RisikoklassifiseringMeldingProducer  {
+public class RisikoklassifiseringMeldingProducer  {
 
     private Producer<String, String> producer;
     private String topic;
 
-    public RisikoklassifiseringMeldingProducer() {
+    RisikoklassifiseringMeldingProducer() {
         // for CDI proxy
     }
 
@@ -49,28 +43,23 @@ class RisikoklassifiseringMeldingProducer  {
         this.topic = topicName;
     }
 
-    public void flushAndClose() {
-        producer.flush();
-        producer.close();
-    }
-
-    public void flush() {
-        producer.flush();
+    public void sendJsonMedNøkkel(String nøkkel, String json) {
+        runProducerWithSingleJson(new ProducerRecord<>(topic, nøkkel, json));
     }
 
     private void runProducerWithSingleJson(ProducerRecord<String, String> record) {
         try {
-            producer.send(record)
-                .get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new IntegrasjonException("FP-RISK-925469", "Uventet feil ved sending til Kafka, topic: " + topic, e);
-        } catch (AuthenticationException | AuthorizationException e) {
-            throw new ManglerTilgangException("FP-RISK-821005", "Feil i pålogging mot Kafka, topic: " + topic, e);
-        } catch (RetriableException e) {
-            throw new IntegrasjonException("FP-RISK-127608", "Fikk transient feil mot Kafka, kan prøve igjen, topic: " + topic, e);
-        } catch (KafkaException e) {
-            throw new IntegrasjonException("FP-RISK-811208", "Fikk feil mot Kafka, topic: " + topic, e);
+            producer.send(record).get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw kafkaPubliseringException(e);
+        } catch (Exception e) {
+            throw kafkaPubliseringException(e);
         }
+    }
+
+    private IntegrasjonException kafkaPubliseringException(Exception e) {
+        return new IntegrasjonException("FP-HENDELSE-925474", "Uventet feil ved sending til Kafka, topic " + topic, e);
     }
 
     private void setUsernameAndPassword(String username, String password, Properties properties) {
@@ -94,15 +83,7 @@ class RisikoklassifiseringMeldingProducer  {
         }
     }
 
-    public void sendJson(String json) {
-        runProducerWithSingleJson(new ProducerRecord<>(topic, json));
-    }
-
-    public void sendJsonMedNøkkel(String nøkkel, String json) {
-        runProducerWithSingleJson(new ProducerRecord<>(topic, nøkkel, json));
-    }
-
-    private final String getProducerClientId(String topicName) {
+    private String getProducerClientId(String topicName) {
         return "KP-" + topicName;
     }
 }

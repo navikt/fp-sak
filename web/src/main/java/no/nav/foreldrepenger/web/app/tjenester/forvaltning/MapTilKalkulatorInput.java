@@ -22,6 +22,7 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.NaturalYtelseDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.RefusjonDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YrkesaktivitetDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseAnvistDto;
+import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseFordelingDto;
 import no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver;
 import no.nav.folketrygdloven.kalkulator.modell.typer.Beløp;
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
@@ -53,10 +54,13 @@ import no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.UtbetalingDto;
 import no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.UtbetalingsPostDto;
 import no.nav.folketrygdloven.kalkulus.iay.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseDto;
+import no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelserDto;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidsforholdHandlingType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.Arbeidskategori;
+import no.nav.folketrygdloven.kalkulus.kodeverk.InntektPeriodeType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
@@ -138,12 +142,10 @@ class MapTilKalkulatorInput {
         if (ytelsespesifiktGrunnlag == null) {
             return null;
         }
-        if (ytelsespesifiktGrunnlag instanceof SvangerskapspengerGrunnlag) {
-            var svpGrunnlag = (SvangerskapspengerGrunnlag) ytelsespesifiktGrunnlag;
+        if (ytelsespesifiktGrunnlag instanceof SvangerskapspengerGrunnlag svpGrunnlag) {
             return new no.nav.folketrygdloven.kalkulus.beregning.v1.SvangerskapspengerGrunnlag(mapUtbetalingsgradPrAktivitet(svpGrunnlag.getUtbetalingsgradPrAktivitet()));
         }
-        if (ytelsespesifiktGrunnlag instanceof no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag) {
-            var fpGrunnlag = (no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag) ytelsespesifiktGrunnlag;
+        if (ytelsespesifiktGrunnlag instanceof no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag fpGrunnlag) {
             var aktivitetGraderingDto = mapAktivitetGradering(fpGrunnlag.getAktivitetGradering());
             return new ForeldrepengerGrunnlag(BigDecimal.valueOf(fpGrunnlag.getDekningsgrad(null)), fpGrunnlag.isKvalifisererTilBesteberegning(), aktivitetGraderingDto);
         }
@@ -235,7 +237,25 @@ class MapTilKalkulatorInput {
                 mapPeriode(ytelseDto.getPeriode()),
                 ytelseDto.getBehandlingsTema() == null ||
                     ytelseDto.getBehandlingsTema().equals(TemaUnderkategori.UDEFINERT) ? null
-                        : TemaUnderkategori.fraKode(ytelseDto.getBehandlingsTema().getKode()));
+                        : TemaUnderkategori.fraKode(ytelseDto.getBehandlingsTema().getKode()),
+                mapYtelsegrunnlag(ytelseDto).orElse(null));
+    }
+
+    private static Optional<YtelseGrunnlagDto> mapYtelsegrunnlag(no.nav.folketrygdloven.kalkulator.modell.iay.YtelseDto ytelseDto) {
+            return ytelseDto.getYtelseGrunnlag().map(yg -> {
+                List<no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseFordelingDto> ytelsefordelinger = yg.getFordeling().stream()
+                    .map(MapTilKalkulatorInput::mapYtelseFordeling)
+                    .collect(Collectors.toList());
+                return new YtelseGrunnlagDto(Arbeidskategori.fraKode(yg.getArbeidskategori()), ytelsefordelinger);
+            });
+    }
+
+    private static no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseFordelingDto mapYtelseFordeling(YtelseFordelingDto yf) {
+        Aktør ag = mapArbeidsgiver(yf.getArbeidsgiver());
+        var periodeType = yf.getHyppighet() == null
+            ? null
+            :  InntektPeriodeType.fraKode(yf.getHyppighet().getKode());
+        return new no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseFordelingDto(ag, periodeType, yf.getBeløp());
     }
 
     private static Set<no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseAnvistDto> mapYtelseAnvistSet(Collection<YtelseAnvistDto> ytelseAnvist) {

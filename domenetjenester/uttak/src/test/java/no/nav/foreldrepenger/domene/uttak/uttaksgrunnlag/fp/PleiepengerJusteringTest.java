@@ -315,6 +315,34 @@ class PleiepengerJusteringTest {
         assertThat(resultat).isEmpty();
     }
 
+    @Test
+    void skal_ikke_feile_hvis_overlapp_i_oppgitte_perioder() {
+        var aktørId = AktørId.dummy();
+        var ytelseBuilder = pleiepengerFraK9();
+        var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 15),
+            of(2020, 1, 15));
+        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
+            .medAnvistPeriode(pleiepengerInterval)
+            .medUtbetalingsgradProsent(BigDecimal.TEN)
+            .build());
+        var iay = iay(aktørId, ytelseBuilder);
+        var mødrekvote1 = OppgittPeriodeBuilder.ny()
+            .medPeriode(of(2019, 12, 10), of(2020, 4, 1))
+            .medPeriodeType(MØDREKVOTE)
+            .build();
+        var mødrekvote2 = OppgittPeriodeBuilder.ny()
+            .medPeriode(of(2020, 1, 1), of(2020, 5, 5))
+            .medPeriodeType(MØDREKVOTE)
+            .build();
+        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote1, mødrekvote2));
+
+        assertThat(resultat).hasSize(2);
+        assertThat(resultat.get(0).getFom()).isEqualTo(mødrekvote1.getFom());
+        assertThat(resultat.get(0).getPeriodeType()).isEqualTo(MØDREKVOTE);
+        assertThat(resultat.get(1).getFom()).isEqualTo(mødrekvote2.getFom());
+        assertThat(resultat.get(1).getPeriodeType()).isEqualTo(MØDREKVOTE);
+    }
+
     private InntektArbeidYtelseGrunnlag iay(AktørId aktørId, YtelseBuilder ytelseBuilder) {
         return InntektArbeidYtelseGrunnlagBuilder.nytt()
             .medData(InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER)

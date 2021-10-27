@@ -26,6 +26,11 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>registerinnhenting</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>dokumentbestiller</artifactId>
+        </dependency>
         
         <!-- Test dependencies -->
         <dependency>

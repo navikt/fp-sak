@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 public class InformasjonssakRepository {
 
     private static final List<String> INFOBREV_TYPER = List.of(BehandlingÅrsakType.INFOBREV_OPPHOLD.getKode(),
-            BehandlingÅrsakType.INFOBREV_BEHANDLING.getKode());
+            BehandlingÅrsakType.INFOBREV_BEHANDLING.getKode(), BehandlingÅrsakType.INFOBREV_PÅMINNELSE.getKode());
     private static final List<String> INNVILGET_TYPER = List.of(BehandlingResultatType.INNVILGET.getKode(),
             BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(),
             BehandlingResultatType.INGEN_ENDRING.getKode());
@@ -105,7 +105,7 @@ public class InformasjonssakRepository {
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene: - Saker
          * (Foreldrepenger, Mors sak, Ikke Stengt) med avsluttet behandling som har max
          * uttaksdato i gitt intervall - Begrenset til ikke aleneomsorg - Begrenset til
-         * levende barm - Begrenset til at det er oppgitt annen part
+         * levende barn - Begrenset til at det er oppgitt annen part
          */
         var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
                 .collect(Collectors.toList());
@@ -166,14 +166,14 @@ public class InformasjonssakRepository {
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene: - Saker
          * (Foreldrepenger, Mors sak, Ikke Stengt) med avsluttet behandling som har
          * minst en innvilget oppholdsperiode i gitt intervall - Begrenset til ikke
-         * aleneomsorg - Begrenset til levende barm - Begrenset til at det er oppgitt
+         * aleneomsorg - Begrenset til levende barn - Begrenset til at det er oppgitt
          * annen part
          */
         var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
                 .collect(Collectors.toList());
         var query = entityManager.createNativeQuery(QUERY_INFORMASJONSBREV_OPPHOLD);
         query.setParameter("tomdato", tom); //$NON-NLS-1$
-        query.setParameter("fomdato", fom); //$NON-NLS-1$ 7
+        query.setParameter("fomdato", fom); //$NON-NLS-1$
         query.setParameter("uttakinnvilget", PeriodeResultatType.INNVILGET.getKode()); //$NON-NLS-1$
         query.setParameter("foreldrepenger", FagsakYtelseType.FORELDREPENGER.getKode()); //$NON-NLS-1$
         query.setParameter("relrolle", RelasjonsRolleType.MORA.getKode()); //$NON-NLS-1$
@@ -198,6 +198,80 @@ public class InformasjonssakRepository {
                     .medHendelseDato(((Timestamp) resultat[POS_FHDATO]).toLocalDateTime().toLocalDate()) // NOSONAR
                     .medEnhet((String) resultat[POS_ENHETID]) // NOSONAR
                     .medEnhetNavn((String) resultat[POS_ENHETNAVN]); // NOSONAR
+            returnList.add(builder.build());
+        });
+        return returnList;
+    }
+
+    /**
+     * Gir saker på medforelder der barnet ble født innenfor angitt tidsrom, medforelder ikke har søkt, barnet lever,
+     * og ingen av foreldrene har foreldrepengesak på et senere barn.
+     */
+    private static final String QUERY_INFORMASJONSBREV_PÅMINNELSE = """
+        select distinct f_far.id as fagsak_id, a.aktoer_id, b_far.behandlende_enhet, b_far.behandlende_enhet_navn
+          from fagsak f_far
+          join bruker a on a.id = f_far.bruker_id
+          join fagsak_relasjon fr_far on (f_far.id in (fr_far.fagsak_en_id, fr_far.fagsak_to_id) and fr_far.aktiv='J')
+          join stoenadskonto sk on sk.stoenadskontoberegning_id = nvl(fr_far.overstyrt_konto_beregning_id, fr_far.konto_beregning_id)
+          join behandling b_far on b_far.fagsak_id = f_far.id
+        where f_far.ytelse_type = :foreldrepenger
+          and f_far.til_infotrygd = 'N'
+          and f_far.bruker_rolle <> 'MORA'
+          and fr_far.fagsak_to_id is not null
+          and sk.stoenadskontotype = 'FEDREKVOTE'
+          -- Far ikke søkt:
+          and not exists (select * from gr_soeknad where behandling_id in (select id from behandling where fagsak_id = f_far.id))
+          and exists (select f_mor.id, foedsel_dato
+                from fagsak f_mor
+                join behandling b_mor on b_mor.fagsak_id = f_mor.id
+                join behandling_resultat br_mor on (br_mor.behandling_id = b_mor.id and br_mor.behandling_resultat_type in (:restyper))
+                join gr_familie_hendelse grfh on (grfh.behandling_id = b_mor.id and grfh.aktiv = 'J')
+                join (select familie_hendelse_id, min(foedsel_dato) as foedsel_dato
+                      from fh_uidentifisert_barn ub
+                      where ub.doedsdato is null
+                      and ub.foedsel_dato >= to_date('01.10.2021', 'DD.MM.YYYY') and ub.foedsel_dato >= :fomdato and ub.foedsel_dato <= :tomdato
+                      group by familie_hendelse_id) on familie_hendelse_id=grfh.bekreftet_familie_hendelse_id
+                where f_mor.bruker_rolle = 'MORA' and f_mor.id in (fr_far.fagsak_en_id, fr_far.fagsak_to_id) and f_mor.id != f_far.id
+                -- Mors behandling skal være nyeste vedtak:
+                and not exists (select * from behandling b_mor2 join behandling_resultat br_mor2 on br_mor2.behandling_id = b_mor2.id
+                      where b_mor2.fagsak_id = f_mor.id
+                      and br_mor2.behandling_resultat_type in (:seneretyper)
+                      and br_mor2.opprettet_tid > br_mor.opprettet_tid and b_mor2.behandling_status in (:avsluttet))
+                -- Det skal ikke finnes en dødsdato på et nyere familiehendelsegrunnlag (som ikke har vedtak):
+                and not exists (select * from behandling b_mor3
+                      join gr_familie_hendelse grfh2 on (b_mor3.id = grfh2.behandling_id and grfh2.aktiv = 'J')
+                      join fh_uidentifisert_barn ub2 on (ub2.familie_hendelse_id in (grfh2.bekreftet_familie_hendelse_id, grfh2.overstyrt_familie_hendelse_id) and ub2.doedsdato is not null)
+                      where b_mor3.fagsak_id = f_mor.id
+                      and grfh2.opprettet_tid > grfh.opprettet_tid)
+                -- Mor ikke nyere FP-sak:
+                and not exists (select * from fagsak f_mor_2 where f_mor_2.ytelse_type = :foreldrepenger and f_mor_2.bruker_id = f_mor.bruker_id and f_mor_2.id != f_mor.id and f_mor_2.opprettet_tid > f_mor.opprettet_tid))
+          -- Far ikke nyere FP-sak:
+          and not exists (select * from fagsak f_far_2 where f_far_2.ytelse_type = :foreldrepenger and f_far_2.bruker_id = f_far.bruker_id and f_far_2.id != f_far.id and f_far_2.opprettet_tid > f_far.opprettet_tid)
+        """;
+
+    public List<InformasjonssakData> finnSakerDerMedforelderIkkeHarSøktOgBarnetBleFødtInnenforIntervall(LocalDate fom, LocalDate tom) {
+        var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
+            .collect(Collectors.toList());
+        var query = entityManager.createNativeQuery(QUERY_INFORMASJONSBREV_PÅMINNELSE);
+        query.setParameter("fomdato", fom); //$NON-NLS-1$
+        query.setParameter("tomdato", tom); //$NON-NLS-1$
+        query.setParameter("foreldrepenger", FagsakYtelseType.FORELDREPENGER.getKode()); //$NON-NLS-1$
+        query.setParameter("restyper", INNVILGET_TYPER); //$NON-NLS-1$
+        query.setParameter("seneretyper", SENERE_TYPER); //$NON-NLS-1$
+        query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
+        @SuppressWarnings("unchecked")
+        List<Object[]> resultatList = query.getResultList();
+        return toPåminnelseData(resultatList);
+    }
+
+    private List<InformasjonssakData> toPåminnelseData(List<Object[]> resultatList) {
+        List<InformasjonssakData> returnList = new ArrayList<>();
+        resultatList.forEach(resultat -> {
+            var builder = InformasjonssakData.InformasjonssakDataBuilder
+                .ny(((BigDecimal) resultat[0]).longValue()) // NOSONAR
+                .medAktørIdAnnenPart((String) resultat[1]) // NOSONAR
+                .medEnhet((String) resultat[2]) // NOSONAR
+                .medEnhetNavn((String) resultat[3]); // NOSONAR
             returnList.add(builder.build());
         });
         return returnList;
@@ -229,9 +303,9 @@ public class InformasjonssakRepository {
     public List<OverlappData> finnSakerSisteVedtakInnenIntervallMedSisteVedtak(LocalDate fom, LocalDate tom, String saksnummer) {
         /*
          * Plukker saksnummer, siste ytelsebehandling, annenpart og første uttaksdato: -
-         * Saker der det finnes et beregnignsresultat/TY med utbetalt periode - inkusive
+         * Saker der det finnes et beregnignsresultat/TY med utbetalt periode - inklusive
          * noen få opphør fom etter tidligste periode - Første uttaksdato = tidligste
-         * periode, inkusive innvilget utsettelse. - Kan gi noen tilfelle med avslått
+         * periode, inklusive innvilget utsettelse. - Kan gi noen tilfelle med avslått
          * første periode
          */
         var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
@@ -293,9 +367,9 @@ public class InformasjonssakRepository {
     public List<OverlappData> finnSakerSisteVedtakInnenIntervallMedKunUtbetalte(LocalDate fom, LocalDate tom, String saksnummer) {
         /*
          * Plukker saksnummer, siste ytelsebehandling, annenpart og første uttaksdato: -
-         * Saker der det finnes et beregnignsresultat/TY med utbetalt periode - inkusive
+         * Saker der det finnes et beregnignsresultat/TY med utbetalt periode - inklusive
          * noen få opphør fom etter tidligste periode - Første uttaksdato = tidligste
-         * periode, inkusive innvilget utsettelse. - Kan gi noen tilfelle med avslått
+         * periode, inklusive innvilget utsettelse. - Kan gi noen tilfelle med avslått
          * første periode
          */
         var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)

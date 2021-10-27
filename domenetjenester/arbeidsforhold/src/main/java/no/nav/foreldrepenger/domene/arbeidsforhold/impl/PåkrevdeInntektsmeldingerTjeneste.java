@@ -38,7 +38,7 @@ public class PåkrevdeInntektsmeldingerTjeneste {
             Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result) {
         var erEndringssøknad = erEndringssøknad(behandlingReferanse);
         final var manglendeInntektsmeldinger = inntektsmeldingArkivTjeneste
-                .utledManglendeInntektsmeldingerFraGrunnlagForVurdering(behandlingReferanse, erEndringssøknad);
+                .utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, erEndringssøknad);
         if (!erEndringssøknad) {
             for (var entry : manglendeInntektsmeldinger.entrySet()) {
                 LeggTilResultat.leggTil(result, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING, entry.getKey(), entry.getValue());

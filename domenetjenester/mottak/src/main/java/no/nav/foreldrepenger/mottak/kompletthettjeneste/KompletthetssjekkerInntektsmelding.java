@@ -41,12 +41,4 @@ public class KompletthetssjekkerInntektsmelding {
             .map(it -> new ManglendeVedlegg(DokumentTypeId.INNTEKTSMELDING, it.getIdentifikator()))
             .collect(Collectors.toList());
     }
-
-    public List<ManglendeVedlegg> utledManglendeInntektsmeldingerFraGrunnlagForAutopunkt(BehandlingReferanse ref) {
-        return inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlagForAutopunkt(ref, false)
-            .keySet()
-            .stream()
-            .map(it -> new ManglendeVedlegg(DokumentTypeId.INNTEKTSMELDING, it.getIdentifikator()))
-            .collect(Collectors.toList());
-    }
 }

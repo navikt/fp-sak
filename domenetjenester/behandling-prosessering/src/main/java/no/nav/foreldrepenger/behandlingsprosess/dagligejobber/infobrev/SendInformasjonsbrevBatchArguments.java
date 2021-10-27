@@ -18,7 +18,6 @@ public class SendInformasjonsbrevBatchArguments extends BatchArguments {
     static final String DATE_PATTERN = "dd-MM-yyyy";
     private static final String ANTALL_DAGER_KEY = "antallDager";
     private static final Integer MAX_PERIOD = 365;
-    private static final Integer UKER_FRAMOVER = 4;
 
     @BatchArgument(beskrivelse = "Antall dager tilbake i tid det skal genereres rapport for.")
     private Integer antallDager;
@@ -28,8 +27,11 @@ public class SendInformasjonsbrevBatchArguments extends BatchArguments {
     private LocalDate tom;
     private boolean harGenerertDatoer = false;
 
-    SendInformasjonsbrevBatchArguments(Map<String, String> arguments) {
+    private Integer antallUkerFremover;
+
+    SendInformasjonsbrevBatchArguments(Map<String, String> arguments, Integer antallUkerFremover) {
         super(arguments);
+        this.antallUkerFremover = antallUkerFremover;
         if ((antallDager != null) && (tom == null) && (fom == null)) { // NOSONAR
             beregneFomOgTomDato();
             harGenerertDatoer = true;
@@ -59,8 +61,8 @@ public class SendInformasjonsbrevBatchArguments extends BatchArguments {
     }
 
     private void beregneFomOgTomDato() {
-        fom = LocalDate.now().minusDays(antallDager).plusWeeks(UKER_FRAMOVER);
-        tom = LocalDate.now().minusDays(1).plusWeeks(UKER_FRAMOVER);
+        fom = LocalDate.now().minusDays(antallDager).plusWeeks(antallUkerFremover);
+        tom = LocalDate.now().minusDays(1).plusWeeks(antallUkerFremover);
     }
 
     private LocalDate parsedato(String datoString) {
