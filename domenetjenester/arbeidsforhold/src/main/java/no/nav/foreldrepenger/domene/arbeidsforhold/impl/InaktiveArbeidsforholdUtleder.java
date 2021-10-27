@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
@@ -15,12 +16,15 @@ import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelse;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -35,6 +39,18 @@ public class InaktiveArbeidsforholdUtleder {
     private static final int NYOPPSTARTEDE_ARBEIDSFORHOLD_ALDER_I_MND = 4;
 
     private static final Logger LOG = LoggerFactory.getLogger(InaktiveArbeidsforholdUtleder.class);
+
+    public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> finnKunAktive(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, BehandlingReferanse referanse) {
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> kunAktiveArbeidsforhold = new HashMap<>();
+        påkrevdeInntektsmeldinger.forEach((key, value) -> {
+            boolean erInaktivt = erInaktivt(key, inntektArbeidYtelseGrunnlag, referanse.getAktørId(), referanse.getUtledetSkjæringstidspunkt());
+            if (!erInaktivt) {
+                kunAktiveArbeidsforhold.put(key, value);
+            }
+        });
+        return kunAktiveArbeidsforhold;
+    }
+
 
     public static boolean erInaktivt(Arbeidsgiver arbeidsgiverSomSjekkes, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, AktørId søkerAktørId, LocalDate stp) {
         if (inntektArbeidYtelseGrunnlag.isEmpty()) {

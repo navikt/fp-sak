@@ -158,17 +158,12 @@ public class KompletthetsjekkerFelles {
 
     private Optional<LocalDateTime> finnVentefristNårFinnesInntektsmelding(BehandlingReferanse ref, LocalDateTime frist, boolean erSendtBrev,
                                                                            List<Inntektsmelding> inntektsmeldinger, List<ManglendeVedlegg> manglendeInntektsmeldinger) {
-        var manglerFraAktiveArbeidsgivere = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldingerFraGrunnlagForAutopunkt(ref);
-        if (manglerFraAktiveArbeidsgivere.isEmpty()) {
-            LOG.info("ETTERLYS mangler ikke IM fra aktive arbeidsforhold behandlingId {} mottatt {} manglerTotalt {}", ref.getBehandlingId(), inntektsmeldinger.size(), manglendeInntektsmeldinger.size());
-            return Optional.empty();
-        }
         var baseline = frist.minusWeeks(VENTEFRIST_ETTER_ETTERLYSNING_UKER).minusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER);
         var tidligstMottatt = inntektsmeldinger.stream()
             .map(Inntektsmelding::getInnsendingstidspunkt)
             .filter(baseline::isBefore)  // Filtrer ut IM sendt før søknad
             .min(Comparator.naturalOrder()).orElseGet(() -> frist.minusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER));
-        LOG.info("ETTERLYS behandlingId {} erSendtBrev {} manglerIm {} mottattIm {} manglerTot {}", ref.getBehandlingId(), erSendtBrev, manglerFraAktiveArbeidsgivere.size(), inntektsmeldinger.size(), manglendeInntektsmeldinger.size());
+        LOG.info("ETTERLYS behandlingId {} erSendtBrev {} mottattIm {} manglerIm {}", ref.getBehandlingId(), erSendtBrev, inntektsmeldinger.size(), manglendeInntektsmeldinger.size());
 
         // Vent N=3 døgn etter første mottatte IM. Bruk N+1 pga startofday.
         long venteantalldøgn = tidligstMottatt.toLocalDate().getDayOfWeek().getValue() > DayOfWeek.TUESDAY.getValue() ? 6 : 4;

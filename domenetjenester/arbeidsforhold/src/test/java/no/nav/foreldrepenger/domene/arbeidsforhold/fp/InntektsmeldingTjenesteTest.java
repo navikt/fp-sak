@@ -163,7 +163,7 @@ public class InntektsmeldingTjenesteTest {
         LØNNSPOST = BigDecimal.ZERO;
         opprettOppgittOpptjening(behandling);
         opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
-                DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
+                DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA.minusMonths(3), ARBEIDSFORHOLD_TIL),
                 ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
 
         var behandlingReferanse = lagReferanse(behandling);
@@ -433,7 +433,7 @@ public class InntektsmeldingTjenesteTest {
 
     private InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder leggTilInntekt(InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder builder,
             DatoIntervallEntitet periodeInntekt) {
-        var inntektBuilder = builder.getInntektBuilder(InntektsKilde.INNTEKT_OPPTJENING,
+        var inntektBuilder = builder.getInntektBuilder(InntektsKilde.INNTEKT_BEREGNING,
                 new Opptjeningsnøkkel(InternArbeidsforholdRef.nullRef(), arbeidsgiver.getIdentifikator(), null));
 
         var inntektspostBuilder = inntektBuilder.getInntektspostBuilder()
