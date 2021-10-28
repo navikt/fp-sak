@@ -44,23 +44,27 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
 
         var kodeRelasjonMap = OpptjeningAktivitetType.hentTilArbeidTypeRelasjoner();
 
-        var bekreftetOverstyrtPeriode = bekreftedeOpptjeningsaktiviteter.stream()
-                .filter(it -> kanOverstyresOgSkalKunneLagreResultat(behandlingId, aktørId, iayGrunnlag, kodeRelasjonMap, it, skjæringstidspunkt))
-                .collect(Collectors.toList());
+        var ugyldigePerioder = bekreftedeOpptjeningsaktiviteter.stream()
+                .filter(it -> !kanOverstyresOgSkalKunneLagreResultat(behandlingId, aktørId, iayGrunnlag, kodeRelasjonMap, it, skjæringstidspunkt))
+            .collect(Collectors.toList());
 
-        for (var periode : bekreftetOverstyrtPeriode) {
+        if (ugyldigePerioder.size() > 0) {
+            throw new IllegalStateException("Det finnes saksbehandlede perioder som ikke er åpne for saksbehandling. Ugyldige perioder: " + ugyldigePerioder);
+        }
+
+        for (var periode : bekreftedeOpptjeningsaktiviteter) {
             var yrkesaktivitetBuilder = getYrkesaktivitetBuilder(behandlingId, aktørId, iayGrunnlag, overstyrtBuilder, periode,
                     kodeRelasjonMap.get(periode.getAktivitetType()));
             if (periode.getErGodkjent()) {
                 var aktivitetsAvtaleBuilder = yrkesaktivitetBuilder
-                        .getAktivitetsAvtaleBuilder(getOrginalPeriode(periode), true);
+                        .getAktivitetsAvtaleBuilder(getPeriode(periode), true);
 
                 håndterPeriodeForAnnenOpptjening(periode, yrkesaktivitetBuilder, aktivitetsAvtaleBuilder);
                 aktivitetsAvtaleBuilder.medBeskrivelse(periode.getBegrunnelse());
                 yrkesaktivitetBuilder.leggTilAktivitetsAvtale(aktivitetsAvtaleBuilder);
                 overstyrtBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
             } else {
-                yrkesaktivitetBuilder.fjernPeriode(getOrginalPeriode(periode));
+                yrkesaktivitetBuilder.fjernPeriode(getPeriode(periode));
                 if (yrkesaktivitetBuilder.harIngenAvtaler() && yrkesaktivitetBuilder.getErOppdatering()) {
                     // Finnes perioden i builder så skal den fjernes.
                     overstyrtBuilder.fjernYrkesaktivitetHvisFinnes(yrkesaktivitetBuilder);
@@ -149,7 +153,7 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
         return vurderOpptjening.girAksjonspunktForOppgittNæring(behandlingId, aktørId, iayg, skjæringstidspunkt);
     }
 
-    private DatoIntervallEntitet getOrginalPeriode(BekreftOpptjeningPeriodeDto periode) {
+    private DatoIntervallEntitet getPeriode(BekreftOpptjeningPeriodeDto periode) {
         return DatoIntervallEntitet.fraOgMedTilOgMed(periode.getOpptjeningFom(), periode.getOpptjeningTom());
     }
 

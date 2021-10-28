@@ -81,4 +81,16 @@ public class BekreftOpptjeningPeriodeDto {
     public void setArbeidsforholdRef(String arbeidsforholdRef) {
         this.arbeidsforholdRef = arbeidsforholdRef;
     }
+
+    @Override
+    public String toString() {
+        return "BekreftOpptjeningPeriodeDto{" +
+            "aktivitetType=" + aktivitetType +
+            ", opptjeningFom=" + opptjeningFom +
+            ", opptjeningTom=" + opptjeningTom +
+            ", arbeidsforholdRef='" + arbeidsforholdRef + '\'' +
+            ", erGodkjent=" + erGodkjent +
+            ", begrunnelse='" + begrunnelse + '\'' +
+            '}';
+    }
 }
