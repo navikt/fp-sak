@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
@@ -42,6 +43,8 @@ public class VedtattYtelseTjenesteTest {
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     @Mock
     private BeregningsresultatRepository beregningsresultatRepository;
+    @Mock
+    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     LocalDate stp = LocalDate.now().minusMonths(3);
     LocalDate knekk1 = LocalDate.now().minusMonths(2);
@@ -58,9 +61,9 @@ public class VedtattYtelseTjenesteTest {
         when(beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())).thenReturn(Optional.of(br));
         when(behandlingVedtakRepository.hentForBehandling(behandling.getId())).thenReturn(vedtak);
         when(vedtak.getVedtakstidspunkt()).thenReturn(stp.atStartOfDay());
-        var tjeneste = new VedtattYtelseTjeneste(behandlingVedtakRepository, beregningsgrunnlagRepository, beregningsresultatRepository);
+        var tjeneste = new VedtattYtelseTjeneste(behandlingVedtakRepository, beregningsgrunnlagRepository, beregningsresultatRepository, inntektArbeidYtelseTjeneste);
 
-        var ytelse= (YtelseV1)tjeneste.genererYtelse(behandling);
+        var ytelse= (YtelseV1)tjeneste.genererYtelse(behandling, false);
         // Assert
         assertThat(ytelse.getAnvist()).hasSize(3);
         assertThat(ytelse.getAnvist().get(0).getUtbetalingsgrad().getVerdi().longValue()).isEqualTo(20);
