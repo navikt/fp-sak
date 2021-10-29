@@ -80,7 +80,7 @@ public class VedtaksbrevUtlederTest {
         doReturn(true).when(behandlingsresultatMock).isBehandlingsresultatOpphørt();
         doReturn(VedtakResultatType.AVSLAG).when(behandlingVedtakMock).getVedtakResultatType();
         assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
-                ankeRepository)).isEqualTo(DokumentMalType.FORELDREPENGER_OPPHØR_DOK);
+                ankeRepository)).isEqualTo(DokumentMalType.FORELDREPENGER_OPPHØR);
     }
 
     @Test

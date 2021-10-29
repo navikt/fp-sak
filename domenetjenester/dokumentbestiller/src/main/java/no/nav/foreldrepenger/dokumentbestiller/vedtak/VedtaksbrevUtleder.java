@@ -85,7 +85,7 @@ public class VedtaksbrevUtleder {
         }
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             if (behandlingsresultat.isBehandlingsresultatOpphørt()) {
-                return DokumentMalType.FORELDREPENGER_OPPHØR_DOK;
+                return Environment.current().isProd() ? DokumentMalType.FORELDREPENGER_OPPHØR_DOK : DokumentMalType.FORELDREPENGER_OPPHØR;
             }
             return DokumentMalType.FORELDREPENGER_AVSLAG;
         }
