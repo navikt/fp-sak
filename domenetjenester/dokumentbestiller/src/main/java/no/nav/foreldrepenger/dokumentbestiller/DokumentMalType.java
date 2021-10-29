@@ -12,21 +12,12 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum DokumentMalType implements Kodeverdi {
 
-    //Mal hos team dokument
-    INNVILGELSE_FORELDREPENGER_DOK("INNVFP", "Innvilgelsesbrev Foreldrepenger"),
-    OPPHØR_DOK("OPPHOR", "Opphør brev"),
-
     //Fritekstbrev - tekst unntatt header og footer genereres av fpformidling
     FRITEKST_DOK("FRITKS", "Fritekstbrev"),
-    ETTERLYS_INNTEKTSMELDING_DOK("INNLYS", "Etterlys inntektsmelding"),
-    INNVILGELSE_SVANGERSKAPSPENGER_DOK("INNSVP", "Innvilgelsesbrev svangerskapspenger"),
-    ANKEBREV_BESLUTNING_OM_OPPHEVING("ANKEBO", "Ankebrev om beslutning om oppheving"),
-    VEDTAK_OMGJORING_ANKE_DOK("VEDOGA", "Vedtak om omgjøring i ankesak"),
-    KLAGE_STADFESTET("KSTADF", "Vedtak om stadfestelse"),
-    KLAGE_AVVIST("KAVVIS", "Vedtak om avvist klage"),
-    KLAGE_OMGJØRING("KOMGJO", "Vedtak om omgjøring av klage"), // medhold
-    KLAGE_OVERSENDT_KLAGEINSTANS("KOVKLA", "Klage oversendt til klageinstans"),
-    KLAGE_HJEMSENDT("KHJEMS", "Klage hjemsendt/opphevet"),
+    ETTERLYS_INNTEKTSMELDING_FRITEKST("INNLYS", "Etterlys inntektsmelding"),
+    SVANGERSKAPSPENGER_INNVILGELSE_FRITEKST("INNSVP", "Innvilgelsesbrev svangerskapspenger"),
+    ANKE_BESLUTNING_OM_OPPHEVING_FRITEKST("ANKEBO", "Ankebrev om beslutning om oppheving"),
+    ANKE_VEDTAK_OMGJORING_FRITEKST("VEDOGA", "Vedtak om omgjøring i ankesak"),
 
     //Dokgen
     ENGANGSSTØNAD_INNVILGELSE("INNVES", "Innvilget engangsstønad"),
@@ -37,50 +28,69 @@ public enum DokumentMalType implements Kodeverdi {
     INNHENTE_OPPLYSNINGER ("INNOPP", "Innhente opplysninger"),
     VARSEL_OM_REVURDERING("VARREV", "Varsel om revurdering"),
     INFO_OM_HENLEGGELSE("IOHENL", "Behandling henlagt"),
-    IKKE_SØKT("IKKESO", "Ikke mottatt søknad"),
     INNSYN_SVAR( "INNSYN", "Svar på innsynskrav"),
+    IKKE_SØKT("IKKESO", "Ikke mottatt søknad"),
     INGEN_ENDRING("INGEND", "Uendret utfall"),
     FORLENGET_SAKSBEHANDLINGSTID("FORSAK", "Forlenget saksbehandlingstid"),
     FORLENGET_SAKSBEHANDLINGSTID_MEDL("FORMED", "Forlenget saksbehandlingstid - medlemskap"),
     FORLENGET_SAKSBEHANDLINGSTID_TIDLIG("FORTID", "Forlenget saksbehandlingstid - Tidlig søknad"),
+    KLAGE_AVVIST("KGEAVV", "Vedtak om avvist klage"),
+    KLAGE_HJEMSENDT("KGEHJE", "Klage hjemsendt/opphevet"),
+    KLAGE_OMGJORT("KGEOMG", "Vedtak om omgjøring av klage"),
+    KLAGE_OVERSENDT("KGEOVE", "Klage oversendt til klageinstans"),
+    KLAGE_STADFESTET("KGESTA", "Vedtak om stadfestelse"),
 
     // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
     @Deprecated
-    KLAGE_OVERSENDT_KLAGEINSTANS_DOK("KLAGOV", "Overføring til NAV Klageinstans"),
+    ENGANGSSTØNAD_INNVILGELSE_DOK("POSVED", "Positivt vedtaksbrev"),
+    @Deprecated
+    ENGANGSSTØNAD_AVSLAG_DOK("AVSLAG", "Avslagsbrev"),
+    @Deprecated
+    FORELDREPENGER_INNVILGELSE_DOK("INNVFP", "Innvilgelsesbrev Foreldrepenger"),
+    @Deprecated
+    FORELDREPENGER_AVSLAG_DOK("AVSLFP", "Avslagsbrev Foreldrepenger"),
+    @Deprecated
+    FORELDREPENGER_OPPHØR_DOK("OPPHOR", "Opphør brev"),
+    @Deprecated
+    FORELDREPENGER_INFOBREV_TIL_ANNEN_FORELDER_DOK("INAFOR", "Informasjonsbrev til den andre forelderen"),
+    @Deprecated
+    INNHENTE_OPPLYSNINGER_DOK("INNHEN", "Innhent dokumentasjon"),
+    @Deprecated
+    VARSEL_OM_REVURDERING_DOK("REVURD", "Varsel om revurdering"),
+    @Deprecated
+    INFO_OM_HENLEGGELSE_DOK("HENLEG", "Behandling henlagt"),
+    @Deprecated
+    INNSYN_SVAR_DOK("INSSKR", "Svar på innsynskrav"),
+    @Deprecated
+    IKKE_SØKT_DOK("INNTID", "Ikke mottatt søknad"),
+    @Deprecated
+    INGEN_ENDRING_DOK("UENDRE", "Uendret utfall"),
+    @Deprecated
+    FORLENGET_SAKSBEHANDLINGSTID_DOK("FORLEN", "Forlenget saksbehandlingstid"),
+    @Deprecated
+    FORLENGET_SAKSBEHANDLINGSTID_MEDL_DOK("FORLME", "Forlenget saksbehandlingstid - medlemskap"),
+    @Deprecated
+    FORLENGET_SAKSBEHANDLINGSTID_TIDLIG_DOK("FORLTS", "Forlenget saksbehandlingstid - Tidlig søknad"),
     @Deprecated
     KLAGE_AVVIST_DOK("KLAGAV", "Vedtak om avvist klage"),
     @Deprecated
-    KLAGE_YTELSESVEDTAK_OPPHEVET_DOK("KLAGNY", "Vedtak opphevet, sendt til ny behandling"),
+    KLAGE_AVVIST_FRITEKST("KAVVIS", "Vedtak om avvist klage"),
     @Deprecated
-    VEDTAK_MEDHOLD("VEDMED", "Vedtak om medhold"),
+    KLAGE_HJEMSENDT_DOK("KLAGNY", "Vedtak opphevet, sendt til ny behandling"),
     @Deprecated
-    KLAGE_YTELSESVEDTAK_STADFESTET_DOK("KLAGVE", "Vedtak om stadfestelse"),
+    KLAGE_HJEMSENDT_FRITEKST("KHJEMS", "Klage hjemsendt/opphevet"),
     @Deprecated
-    POSITIVT_VEDTAK_DOK("POSVED", "Positivt vedtaksbrev"),
+    KLAGE_OMGJORT_DOK("VEDMED", "Vedtak om medhold"),
     @Deprecated
-    INNTEKTSMELDING_FOR_TIDLIG_DOK("INNTID", "Ikke mottatt søknad"),
+    KLAGE_OMGJORT_FRITEKST("KOMGJO", "Vedtak om omgjøring av klage"),
     @Deprecated
-    AVSLAGSVEDTAK_DOK("AVSLAG", "Avslagsbrev"),
+    KLAGE_OVERSENDT_DOK("KLAGOV", "Overføring til NAV Klageinstans"),
     @Deprecated
-    REVURDERING_DOK("REVURD", "Varsel om revurdering"),
+    KLAGE_OVERSENDT_FRITEKST("KOVKLA", "Klage oversendt til klageinstans"),
     @Deprecated
-    UENDRETUTFALL_DOK("UENDRE", "Uendret utfall"),
+    KLAGE_STADFESTET_DOK("KLAGVE", "Vedtak om stadfestelse"),
     @Deprecated
-    INFO_TIL_ANNEN_FORELDER_DOK("INAFOR", "Informasjonsbrev til den andre forelderen"),
-    @Deprecated
-    INNSYNSKRAV_SVAR("INSSKR", "Svar på innsynskrav"),
-    @Deprecated
-    FORLENGET_DOK("FORLEN", "Forlenget saksbehandlingstid"),
-    @Deprecated
-    FORLENGET_MEDL_DOK("FORLME", "Forlenget saksbehandlingstid - medlemskap"),
-    @Deprecated
-    FORLENGET_TIDLIG_SOK("FORLTS", "Forlenget saksbehandlingstid - Tidlig søknad"),
-    @Deprecated
-    HENLEGG_BEHANDLING_DOK("HENLEG", "Behandling henlagt"),
-    @Deprecated
-    INNHENT_DOK("INNHEN", "Innhent dokumentasjon"),
-    @Deprecated
-    AVSLAG_FORELDREPENGER_DOK("AVSLFP", "Avslagsbrev Foreldrepenger"),
+    KLAGE_STADFESTET_FRITEKST("KSTADF", "Vedtak om stadfestelse"),
     ;
 
     private static final Map<String, DokumentMalType> KODER = new LinkedHashMap<>();

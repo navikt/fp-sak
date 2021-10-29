@@ -138,7 +138,7 @@ public class KompletthetsjekkerFelles {
         if (ventefristEtterlysning.isEmpty())
             return Optional.empty();
         // Gjeldende logikk: Etterlys hvis ingen mottatte
-        var erSendtBrev = erSendtBrev(ref.getBehandlingId(), DokumentMalType.ETTERLYS_INNTEKTSMELDING_DOK);
+        var erSendtBrev = erSendtBrev(ref.getBehandlingId(), DokumentMalType.ETTERLYS_INNTEKTSMELDING_FRITEKST);
         var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, ref.getUtledetSkjæringstidspunkt());
         if (inntektsmeldinger.isEmpty()) {
             if (!erSendtBrev) {
@@ -148,7 +148,7 @@ public class KompletthetsjekkerFelles {
                 if (skalIkkeSendeBrev) {
                     LOG.info("Sender ikke etterlys inntektsmelding brev for sak som er migrert fra Infotrygd. Gjelder behandlingId {}", ref.getBehandlingId());
                 } else {
-                    sendBrev(ref.getBehandlingId(), ref.getBehandlingUuid(), DokumentMalType.ETTERLYS_INNTEKTSMELDING_DOK, null);
+                    sendBrev(ref.getBehandlingId(), ref.getBehandlingUuid(), DokumentMalType.ETTERLYS_INNTEKTSMELDING_FRITEKST, null);
                 }
             }
             return ventefristEtterlysning;

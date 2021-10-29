@@ -1,5 +1,18 @@
 package no.nav.foreldrepenger.dokumentbestiller.vedtak;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
+
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
@@ -13,18 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 public class VedtaksbrevUtlederTest {
@@ -79,7 +80,7 @@ public class VedtaksbrevUtlederTest {
         doReturn(true).when(behandlingsresultatMock).isBehandlingsresultatOpphørt();
         doReturn(VedtakResultatType.AVSLAG).when(behandlingVedtakMock).getVedtakResultatType();
         assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
-                ankeRepository)).isEqualTo(DokumentMalType.OPPHØR_DOK);
+                ankeRepository)).isEqualTo(DokumentMalType.FORELDREPENGER_OPPHØR_DOK);
     }
 
     @Test
@@ -118,19 +119,19 @@ public class VedtaksbrevUtlederTest {
         assertThat(VedtaksbrevUtleder.velgKlagemal(behandling, klageRepository)).isEqualTo(DokumentMalType.KLAGE_HJEMSENDT);
 
         doReturn(KlageVurdering.MEDHOLD_I_KLAGE).when(klageVurderingResultat).getKlageVurdering();
-        assertThat(VedtaksbrevUtleder.velgKlagemal(behandling, klageRepository)).isEqualTo(DokumentMalType.KLAGE_OMGJØRING);
+        assertThat(VedtaksbrevUtleder.velgKlagemal(behandling, klageRepository)).isEqualTo(DokumentMalType.KLAGE_OMGJORT);
     }
     @Test
     public void skal_velge_riktig_ankemal() {
         doReturn(Optional.of(ankeVurderingResultat)).when(ankeRepository).hentAnkeVurderingResultat(any());
 
         doReturn(AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV).when(ankeVurderingResultat).getAnkeVurdering();
-        assertThat(VedtaksbrevUtleder.velgAnkemal(behandling, ankeRepository)).isEqualTo(DokumentMalType.ANKEBREV_BESLUTNING_OM_OPPHEVING);
+        assertThat(VedtaksbrevUtleder.velgAnkemal(behandling, ankeRepository)).isEqualTo(DokumentMalType.ANKE_BESLUTNING_OM_OPPHEVING_FRITEKST);
 
         doReturn(AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE).when(ankeVurderingResultat).getAnkeVurdering();
-        assertThat(VedtaksbrevUtleder.velgAnkemal(behandling, ankeRepository)).isEqualTo(DokumentMalType.ANKEBREV_BESLUTNING_OM_OPPHEVING);
+        assertThat(VedtaksbrevUtleder.velgAnkemal(behandling, ankeRepository)).isEqualTo(DokumentMalType.ANKE_BESLUTNING_OM_OPPHEVING_FRITEKST);
 
         doReturn(AnkeVurdering.ANKE_OMGJOER).when(ankeVurderingResultat).getAnkeVurdering();
-        assertThat(VedtaksbrevUtleder.velgAnkemal(behandling, ankeRepository)).isEqualTo(DokumentMalType.VEDTAK_OMGJORING_ANKE_DOK);
+        assertThat(VedtaksbrevUtleder.velgAnkemal(behandling, ankeRepository)).isEqualTo(DokumentMalType.ANKE_VEDTAK_OMGJORING_FRITEKST);
     }
 }
