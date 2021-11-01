@@ -36,8 +36,9 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
  */
 @ApplicationScoped
 public class RegisterdataEndringshåndterer {
+
     private static final Logger LOG = LoggerFactory.getLogger(RegisterdataEndringshåndterer.class);
-    private RegisterdataInnhenter registerdataInnhenter;
+
     private TemporalAmount oppdatereRegisterdataTidspunkt;
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -46,23 +47,14 @@ public class RegisterdataEndringshåndterer {
     private BehandlingÅrsakTjeneste behandlingÅrsakTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
 
-    RegisterdataEndringshåndterer() {
-        // for CDI proxy
-    }
-
-    /**
-     * @param periode - Periode for hvor ofte registerdata skal oppdateres
-     */
     @Inject
     public RegisterdataEndringshåndterer( BehandlingRepositoryProvider repositoryProvider,
-                                          RegisterdataInnhenter registerdataInnhenter,
                                           @KonfigVerdi(value = "oppdatere.registerdata.tidspunkt", defaultVerdi = "PT10H") String oppdaterRegisterdataEtterPeriode,
                                           Endringskontroller endringskontroller,
                                           EndringsresultatSjekker endringsresultatSjekker,
                                           FamilieHendelseTjeneste familieHendelseTjeneste,
                                           BehandlingÅrsakTjeneste behandlingÅrsakTjeneste) {
 
-        this.registerdataInnhenter = registerdataInnhenter;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.endringskontroller = endringskontroller;
@@ -72,6 +64,10 @@ public class RegisterdataEndringshåndterer {
         if (oppdaterRegisterdataEtterPeriode != null) {
             this.oppdatereRegisterdataTidspunkt = Duration.parse(oppdaterRegisterdataEtterPeriode);
         }
+    }
+
+    RegisterdataEndringshåndterer() {
+        // for CDI proxy
     }
 
     public boolean skalInnhenteRegisteropplysningerPåNytt(Behandling behandling) {

@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -20,9 +19,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
-import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollEventPubliserer;
-import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
@@ -54,8 +50,6 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPubliserer;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
-import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 @ExtendWith(MockitoExtension.class)
 public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
@@ -69,20 +63,11 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     private static final LocalDate FORELDER_FØDSELSDATO = LocalDate.now().minusYears(30);
 
     @Mock
-    private PersoninfoAdapter personinfoAdapter;
-    @Mock
-    private MedlemTjeneste medlemTjeneste;
-    @Mock
-    private AbakusTjeneste abakusTjeneste;
-
-    @Mock
     private Endringskontroller endringskontroller;
     @Mock
     private EndringsresultatSjekker endringsresultatSjekker;
     @Mock
     private BehandlingÅrsakTjeneste behandlingÅrsakTjeneste;
-    @Mock
-    private MedlemskapRepository medlemskapRepository;
     @Mock
     private FamiliehendelseEventPubliserer familiehendelseEventPubliserer;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
@@ -92,24 +77,15 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     private EndringsresultatSnapshot snapshotFør;
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private final BehandlingModellRepository behandlingModellRepository = new BehandlingModellRepository();
-
-    private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
 
     @BeforeEach
     public void before() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        var skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(
-            repositoryProvider, new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
-        var behandlingskontrollServiceProvider = new BehandlingskontrollServiceProvider(
-            getEntityManager(), behandlingModellRepository, BehandlingskontrollEventPubliserer.NULL_EVENT_PUB);
-        opplysningsPeriodeTjeneste = new OpplysningsPeriodeTjeneste(skjæringstidspunktTjeneste,
-            Period.of(1, 0, 0), Period.of(0, 6, 0), Period.of(0, 4, 0),
-            Period.of(1, 0, 0), Period.of(1, 0, 0), Period.of(0, 6, 0));
         when(endringskontroller.erRegisterinnhentingPassert(any())).thenReturn(Boolean.TRUE);
         snapshotFør = EndringsresultatSnapshot.opprett();
 
-        familieHendelseTjeneste = new FamilieHendelseTjeneste(familiehendelseEventPubliserer, repositoryProvider.getFamilieHendelseRepository());
+        familieHendelseTjeneste = new FamilieHendelseTjeneste(familiehendelseEventPubliserer,
+            repositoryProvider.getFamilieHendelseRepository());
     }
 
     @Test
@@ -257,19 +233,9 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
 
     private RegisterdataEndringshåndterer lagRegisterdataEndringshåndterer() {
 
-        RegisterdataInnhenter registerdataInnhenter = new TestRegisterdataInnhenter(
-            personinfoAdapter,
-            medlemTjeneste,
-            repositoryProvider,
-            familieHendelseTjeneste,
-            abakusTjeneste,
-            medlemskapRepository,
-            opplysningsPeriodeTjeneste);
-
         var durationInstance = "PT10H";
         return new RegisterdataEndringshåndterer(
             repositoryProvider,
-            registerdataInnhenter,
             durationInstance,
             endringskontroller,
             endringsresultatSjekker,
@@ -294,7 +260,7 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
             .build();
     }
 
-    private class TestRegisterdataInnhenter extends RegisterdataInnhenter {
+    private static class TestRegisterdataInnhenter extends RegisterdataInnhenter {
 
         TestRegisterdataInnhenter(PersoninfoAdapter personinfoAdapter,
                                   MedlemTjeneste medlemTjeneste,

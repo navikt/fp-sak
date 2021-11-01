@@ -18,11 +18,11 @@ import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjenest
 
 class VarselRevurderingHåndterer {
 
-    private Period defaultVenteFrist;
-    private DokumentBestillerTjeneste dokumentBestillerTjeneste;
-    private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
-    private OppgaveTjeneste oppgaveTjeneste;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private final Period defaultVenteFrist;
+    private final DokumentBestillerTjeneste dokumentBestillerTjeneste;
+    private final OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
+    private final OppgaveTjeneste oppgaveTjeneste;
+    private final BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     VarselRevurderingHåndterer(Period defaultVenteFrist, OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
                                OppgaveTjeneste oppgaveTjeneste,

@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -16,13 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
-import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningInnhenter;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 
 public class RegisterdataInnhenterTest {
 
@@ -158,30 +152,8 @@ public class RegisterdataInnhenterTest {
 
     private RegisterdataEndringshåndterer lagRegisterdataOppdaterer(BehandlingRepositoryProvider repositoryProvider,
                                                                     String durationInstance) {
-
-        var innhenter = lagRegisterdataInnhenter(repositoryProvider);
-
-        var oppdaterer = lagRegisterdataOppdaterer(repositoryProvider, durationInstance, innhenter);
-        return oppdaterer;
-    }
-
-    private RegisterdataEndringshåndterer lagRegisterdataOppdaterer(BehandlingRepositoryProvider repositoryProvider,
-                                                                    String durationInstance, RegisterdataInnhenter innhenter) {
         var endringskontroller = mock(Endringskontroller.class);
         when(endringskontroller.erRegisterinnhentingPassert(any())).thenReturn(Boolean.TRUE);
-        var oppdaterer = new RegisterdataEndringshåndterer(repositoryProvider, innhenter, durationInstance, endringskontroller, null, null, null);
-        return oppdaterer;
-    }
-
-    private RegisterdataInnhenter lagRegisterdataInnhenter(BehandlingRepositoryProvider repositoryProvider) {
-        var skjæringstidspunktTjeneste = mock(SkjæringstidspunktRegisterinnhentingTjeneste.class);
-        var opplysningsPeriodeTjeneste = new OpplysningsPeriodeTjeneste(skjæringstidspunktTjeneste,
-            Period.of(1, 0, 0), Period.of(0, 6, 0), Period.of(0, 4, 0), Period.of(1, 0, 0), Period.of(1, 0, 0), Period.of(0, 6, 0));
-
-        var personinfoAdapter = mock(PersoninfoAdapter.class);
-        var medlemTjeneste = mock(MedlemTjeneste.class);
-
-        return new RegisterdataInnhenter(new PersonopplysningInnhenter(personinfoAdapter), medlemTjeneste, repositoryProvider,
-                null, null, opplysningsPeriodeTjeneste, null);
+        return new RegisterdataEndringshåndterer(repositoryProvider, durationInstance, endringskontroller, null, null, null);
     }
 }

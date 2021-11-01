@@ -12,9 +12,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -52,8 +49,6 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
  **/
 @ApplicationScoped
 public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesseringTjeneste {
-
-    private static final Logger LOG = LoggerFactory.getLogger(BehandlingProsesseringTjenesteImpl.class);
 
     private static final TaskType TASK_START = TaskType.forProsessTask(StartBehandlingTask.class);
     private static final TaskType TASK_FORTSETT = TaskType.forProsessTask(FortsettBehandlingTask.class);
