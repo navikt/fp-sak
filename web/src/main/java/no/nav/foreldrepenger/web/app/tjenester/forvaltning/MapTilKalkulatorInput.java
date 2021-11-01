@@ -255,7 +255,7 @@ class MapTilKalkulatorInput {
         var periodeType = yf.getHyppighet() == null
             ? null
             :  InntektPeriodeType.fraKode(yf.getHyppighet().getKode());
-        return new no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseFordelingDto(ag, periodeType, yf.getBeløp());
+        return new no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseFordelingDto(ag, periodeType, yf.getBeløp(), yf.getErRefusjon());
     }
 
     private static Set<no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseAnvistDto> mapYtelseAnvistSet(Collection<YtelseAnvistDto> ytelseAnvist) {
