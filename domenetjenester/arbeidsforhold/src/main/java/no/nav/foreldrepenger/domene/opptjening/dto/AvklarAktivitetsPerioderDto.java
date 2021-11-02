@@ -15,7 +15,7 @@ public class AvklarAktivitetsPerioderDto extends BekreftetAksjonspunktDto {
 
     @Valid
     @Size(max = 1000)
-    private List<AvklarOpptjeningAktivitetDto> opptjeningAktivitetList;
+    private List<AvklarOpptjeningAktivitetDto> opptjeningsaktiviteter;
 
     @SuppressWarnings("unused") // NOSONAR
     private AvklarAktivitetsPerioderDto() {
@@ -23,13 +23,13 @@ public class AvklarAktivitetsPerioderDto extends BekreftetAksjonspunktDto {
         // For Jackson
     }
 
-    public AvklarAktivitetsPerioderDto(String begrunnelse, List<AvklarOpptjeningAktivitetDto> opptjeningAktivitetList) {
+    public AvklarAktivitetsPerioderDto(String begrunnelse, List<AvklarOpptjeningAktivitetDto> opptjeningsaktiviteter) {
         super(begrunnelse);
-        this.opptjeningAktivitetList = opptjeningAktivitetList;
+        this.opptjeningsaktiviteter = opptjeningsaktiviteter;
     }
 
-    public List<AvklarOpptjeningAktivitetDto> getOpptjeningAktivitetList() {
-        return opptjeningAktivitetList;
+    public List<AvklarOpptjeningAktivitetDto> getOpptjeningsaktiviteter() {
+        return opptjeningsaktiviteter;
     }
 
 }

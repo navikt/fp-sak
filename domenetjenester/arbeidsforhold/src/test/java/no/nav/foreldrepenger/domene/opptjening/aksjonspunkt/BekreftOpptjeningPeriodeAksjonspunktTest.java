@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -94,13 +95,10 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
         dto.setAktivitetType(OpptjeningAktivitetType.ARBEID);
         dto.setArbeidsforholdRef(InternArbeidsforholdRef.nullRef().getReferanse());
         dto.setArbeidsgiverNavn("Ambassade");
-        dto.setArbeidsgiverIdentifikator(KUNSTIG_ORG);
-        dto.setOriginalTom(periode1.getTomDato());
-        dto.setOriginalFom(periode1.getFomDato());
+        dto.setArbeidsgiverReferanse(KUNSTIG_ORG);
         dto.setOpptjeningFom(periode1.getFomDato());
         dto.setOpptjeningTom(periode1.getTomDato());
         dto.setErGodkjent(true);
-        dto.setErEndret(false);
         dto.setBegrunnelse("Ser greit ut");
 
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(iDag).build();
@@ -139,27 +137,19 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
         var periode2 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(2), iDag.minusMonths(1));
         var dto = new BekreftOpptjeningPeriodeDto();
         dto.setAktivitetType(OpptjeningAktivitetType.MILITÆR_ELLER_SIVILTJENESTE);
-        dto.setOriginalTom(periode1.getTomDato());
-        dto.setOriginalFom(periode1.getFomDato());
         dto.setOpptjeningFom(periode2.getFomDato());
         dto.setOpptjeningTom(periode2.getTomDato());
         dto.setErGodkjent(true);
-        dto.setErEndret(true);
         dto.setBegrunnelse("Ser greit ut");
         var dto2 = new BekreftOpptjeningPeriodeDto();
         dto2.setAktivitetType(OpptjeningAktivitetType.ETTERLØNN_SLUTTPAKKE);
         dto2.setOpptjeningFom(periode1_2.getFomDato());
         dto2.setOpptjeningTom(periode1_2.getTomDato());
-        dto2.setOriginalFom(periode1_2.getFomDato());
-        dto2.setOriginalTom(periode1_2.getTomDato());
         dto2.setErGodkjent(false);
         dto2.setBegrunnelse("Ser greit ut");
-        dto2.setArbeidsgiverIdentifikator("test");
         dto2.setArbeidsgiverNavn("test");
         var dto3 = new BekreftOpptjeningPeriodeDto();
         dto3.setAktivitetType(OpptjeningAktivitetType.MILITÆR_ELLER_SIVILTJENESTE);
-        dto3.setOriginalTom(periode1.getTomDato());
-        dto3.setOriginalFom(periode1.getFomDato());
         dto3.setOpptjeningFom(periode1.getFomDato());
         dto3.setOpptjeningTom(periode1.getTomDato());
         dto3.setErGodkjent(true);
@@ -192,24 +182,21 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
         var periode1_2 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(2), iDag.minusMonths(2));
 
         var oppgitt = OppgittOpptjeningBuilder.ny();
-        oppgitt.leggTilEgneNæringer(asList(OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
-                .medPeriode(periode1)));
+        oppgitt.leggTilEgneNæringer(List.of(OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
+            .medPeriode(periode1)));
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgitt);
 
         var dto = new BekreftOpptjeningPeriodeDto();
         dto.setAktivitetType(OpptjeningAktivitetType.NÆRING);
-        dto.setOriginalTom(periode1.getTomDato());
-        dto.setOriginalFom(periode1.getFomDato());
         dto.setOpptjeningFom(periode1_2.getFomDato());
         dto.setOpptjeningTom(periode1_2.getTomDato());
         dto.setErGodkjent(true);
-        dto.setErEndret(true);
         dto.setBegrunnelse("Ser greit ut");
 
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(iDag).build();
 
         // Act
-        bekreftOpptjeningPeriodeAksjonspunkt.oppdater(behandling.getId(), behandling.getAktørId(), asList(dto), skjæringstidspunkt);
+        bekreftOpptjeningPeriodeAksjonspunkt.oppdater(behandling.getId(), behandling.getAktørId(), List.of(dto), skjæringstidspunkt);
         var grunnlag = hentGrunnlag(behandling);
         assertThat(grunnlag.getBekreftetAnnenOpptjening(behandling.getAktørId())).isPresent();
 
