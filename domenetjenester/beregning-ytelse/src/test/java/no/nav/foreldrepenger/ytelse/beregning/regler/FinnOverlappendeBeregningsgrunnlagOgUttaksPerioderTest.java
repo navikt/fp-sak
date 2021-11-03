@@ -525,6 +525,38 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         assertThat(andel.get(1).getDagsatsFraBg()).isEqualTo(dagsatsArbeidsgiver);
     }
 
+    @Test
+    public void skal_regne_overkomp_med_høy_permisjonsprosent_lav_utb_grad() {
+        // Arrange
+        var redBrukersAndelPrÅr = 0;
+        var redRefusjonPrÅr = 325728;
+        var stillingsgrad = BigDecimal.valueOf(80);
+        var nyArbeidstidProsent = 40;
+        var dagsatsBruker = getDagsats(redBrukersAndelPrÅr);
+        var dagsatsArbeidsgiver = getDagsats(redRefusjonPrÅr);
+        var mellomregning = settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad,
+            nyArbeidstidProsent, dagsatsBruker, dagsatsArbeidsgiver, BigDecimal.valueOf(36), true);
+
+        // Act
+        var regel = new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder();
+        var evaluation = regel.evaluate(mellomregning);
+        var sporing = EvaluationSerializer.asJson(evaluation);
+        assertThat(sporing).isNotNull();
+
+        // Assert
+        var forventetDagsatsSøker = 0;
+        var forventetDagsatsAG = 451;
+
+        var andel = mellomregning.getOutput().getBeregningsresultatPerioder().get(0).getBeregningsresultatAndelList();
+        assertThat(andel).hasSize(2);
+        assertThat(andel.get(0).erBrukerMottaker()).isTrue();
+        assertThat(andel.get(0).getDagsats()).isEqualTo(forventetDagsatsSøker);
+        assertThat(andel.get(0).getDagsatsFraBg()).isEqualTo(dagsatsBruker);
+        assertThat(andel.get(1).erBrukerMottaker()).isFalse();
+        assertThat(andel.get(1).getDagsats()).isEqualTo(forventetDagsatsAG);
+        assertThat(andel.get(1).getDagsatsFraBg()).isEqualTo(dagsatsArbeidsgiver);
+    }
+
     private BeregningsresultatRegelmodellMellomregning lagMellomregning(AktivitetStatus aktivitetStatus, BigDecimal stillingsgrad,
             BigDecimal arbeidstidsprosent, BigDecimal utbetalingsgrad, BigDecimal redusertBrukersAndel, boolean erGradering) {
         var fom = LocalDate.now();
@@ -593,16 +625,26 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     private BeregningsresultatRegelmodellMellomregning settOppGraderingScenario(int redBrukersAndelPrÅr, int redRefusjonPrÅr,
             BigDecimal stillingsgrad,
             int nyArbeidstidProsent, long dagsatsBruker, Long dagsatsArbeidsgiver, boolean erGradering) {
+        var utbetalingsgrad = BigDecimal.valueOf(100).subtract(BigDecimal.valueOf(nyArbeidstidProsent));
+        return settOppGraderingScenario(redBrukersAndelPrÅr, redRefusjonPrÅr, stillingsgrad, nyArbeidstidProsent, dagsatsBruker, dagsatsArbeidsgiver, utbetalingsgrad, erGradering);
+    }
+
+    private BeregningsresultatRegelmodellMellomregning settOppGraderingScenario(int redBrukersAndelPrÅr, int redRefusjonPrÅr,
+                                                                                BigDecimal stillingsgrad,
+                                                                                int nyArbeidstidProsent,
+                                                                                long dagsatsBruker,
+                                                                                Long dagsatsArbeidsgiver,
+                                                                                BigDecimal utbGrad,
+                                                                                boolean erGradering) {
         arbeidsforhold = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(orgnr);
         prArbeidsforhold = BeregningsgrunnlagPrArbeidsforhold.builder().medArbeidsforhold(arbeidsforhold)
-                .medRedusertBrukersAndelPrÅr(BigDecimal.valueOf(redBrukersAndelPrÅr))
-                .medRedusertRefusjonPrÅr(BigDecimal.valueOf(redRefusjonPrÅr))
-                .medDagsatsBruker(dagsatsBruker)
-                .medDagsatsArbeidsgiver(dagsatsArbeidsgiver)
-                .build();
-        var utbetalingsgrad = BigDecimal.valueOf(100).subtract(BigDecimal.valueOf(nyArbeidstidProsent));
-        return lagMellomregning(AktivitetStatus.ATFL, stillingsgrad, new BigDecimal(nyArbeidstidProsent), utbetalingsgrad,
-                BigDecimal.valueOf(redBrukersAndelPrÅr), erGradering);
+            .medRedusertBrukersAndelPrÅr(BigDecimal.valueOf(redBrukersAndelPrÅr))
+            .medRedusertRefusjonPrÅr(BigDecimal.valueOf(redRefusjonPrÅr))
+            .medDagsatsBruker(dagsatsBruker)
+            .medDagsatsArbeidsgiver(dagsatsArbeidsgiver)
+            .build();
+        return lagMellomregning(AktivitetStatus.ATFL, stillingsgrad, new BigDecimal(nyArbeidstidProsent), utbGrad,
+            BigDecimal.valueOf(redBrukersAndelPrÅr), erGradering);
     }
 
     private static long getDagsats(int årsbeløp) {

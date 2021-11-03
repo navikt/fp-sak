@@ -213,10 +213,11 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
 
         if (skalGjøreOverkompensasjon(uttakAktivitet)) {
             var permisjonsProsent = finnPermisjonsprosent(uttakAktivitet);
-            var maksimalRefusjon = BigDecimal.ZERO.max(andelArbeidsgiver.multiply(permisjonsProsent));
-            var utbetalingBruker = redusertAndelArb.subtract(maksimalRefusjon).add(redusertAndelBruker);
+            var stillingsRefusjon = BigDecimal.ZERO.max(andelArbeidsgiver.multiply(permisjonsProsent));
+            var overkompensertRefusjon = stillingsRefusjon.min(redusertAndelArb);
+            var utbetalingBruker = redusertAndelArb.subtract(overkompensertRefusjon).add(redusertAndelBruker);
 
-            var dagsatsArbeidsgiver = årsbeløpTilDagsats(maksimalRefusjon);
+            var dagsatsArbeidsgiver = årsbeløpTilDagsats(overkompensertRefusjon);
             var dagsatsBruker = årsbeløpTilDagsats(utbetalingBruker);
 
             // Regelsporing
