@@ -147,7 +147,7 @@ public final class KalkulusTilBGMapper {
         if (!fraKalkulus.getAktivitetStatus().erFrilanser()) {
             return Optional.empty();
         }
-        return faktaAktør.map(FaktaAktørDto::getErNyoppstartetFL);
+        return faktaAktør.map(vurdering -> vurdering.getErNyoppstartetFL().getVurdering());
     }
 
     private static Boolean erNyIarbeidslivet(BeregningsgrunnlagPrStatusOgAndelDto fraKalkulus,
@@ -155,17 +155,17 @@ public final class KalkulusTilBGMapper {
         if (!fraKalkulus.getAktivitetStatus().erSelvstendigNæringsdrivende()) {
             return null;
         }
-        return faktaAktør.map(FaktaAktørDto::getErNyIArbeidslivetSN).orElse(null);
+        return faktaAktør.map(vurdering -> vurdering.getErNyIArbeidslivetSN().getVurdering()).orElse(null);
     }
 
     private static Boolean mapMottarYtelse(BeregningsgrunnlagPrStatusOgAndelDto fraKalkulus,
                                            Optional<FaktaAktørDto> faktaAktør,
                                            Optional<FaktaArbeidsforholdDto> faktaArbeidsforhold) {
         if (fraKalkulus.getAktivitetStatus().erFrilanser()) {
-            return faktaAktør.map(FaktaAktørDto::getHarFLMottattYtelse).orElse(null);
+            return faktaAktør.map(vurdering -> vurdering.getHarFLMottattYtelse().getVurdering()).orElse(null);
         }
         if (fraKalkulus.getAktivitetStatus().erArbeidstaker() && faktaArbeidsforhold.isPresent()) {
-            return faktaArbeidsforhold.get().getHarMottattYtelse();
+            return faktaArbeidsforhold.get().getHarMottattYtelse().getVurdering();
         }
         return null;
     }
@@ -177,9 +177,9 @@ public final class KalkulusTilBGMapper {
         builder.medArbeidsgiver(KalkulusTilIAYMapper.mapArbeidsgiver(fraKalkulus.getArbeidsgiver()));
         builder.medArbeidsperiodeFom(fraKalkulus.getArbeidsperiodeFom());
         faktaArbeidsforhold.map(FaktaArbeidsforholdDto::getHarLønnsendringIBeregningsperioden)
-            .ifPresent(builder::medLønnsendringIBeregningsperioden);
+            .ifPresent(fakta -> builder.medLønnsendringIBeregningsperioden(fakta.getVurdering()));
         faktaArbeidsforhold.map(FaktaArbeidsforholdDto::getErTidsbegrenset)
-            .ifPresent(builder::medTidsbegrensetArbeidsforhold);
+            .ifPresent(fakta -> builder.medTidsbegrensetArbeidsforhold(fakta.getVurdering()));
         builder.medRefusjonskravPrÅr(fraKalkulus.getRefusjonskravPrÅr());
         builder.medSaksbehandletRefusjonPrÅr(fraKalkulus.getSaksbehandletRefusjonPrÅr());
         builder.medFordeltRefusjonPrÅr(fraKalkulus.getFordeltRefusjonPrÅr());
