@@ -52,13 +52,7 @@ jobs:
           echo "Build artifacts"
           echo "TAG=$(mvn help:evaluate --batch-mode --settings .github/.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
         env:
-          GITHUB_PASSWORD: ${{ secrets.GH_ACCESS_TOKEN }} # Må ha PAT pga avhengighet til private repo: legacy-avhengigheter og ft-kalkulus
-
-      - name: Stopper og fjerner oracle image/container
-        if: success()
-        run: |
-          docker stop oracle
-          docker system prune -f
+          GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }} # Må ha PAT pga avhengighet til private repo: legacy-avhengigheter og ft-kalkulus
 
       - name: Bygg, tag og push Docker image
         run: |
