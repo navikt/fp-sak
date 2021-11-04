@@ -87,9 +87,8 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
         if (termindatoEndret || tilretteleggingEndret) {
             var begrunnelse = dto.getBegrunnelse();
-            var erBegrunnelseEndret = param.erBegrunnelseEndret();
             historikkAdapter.tekstBuilder()
-                .medBegrunnelse(begrunnelse, erBegrunnelseEndret)
+                .medBegrunnelse(begrunnelse, param.erBegrunnelseEndret())
                 .medSkjermlenke(SkjermlenkeType.PUNKT_FOR_SVP_INNGANG);
         }
 

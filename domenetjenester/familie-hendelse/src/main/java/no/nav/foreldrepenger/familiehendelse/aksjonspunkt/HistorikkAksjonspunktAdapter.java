@@ -42,10 +42,9 @@ class HistorikkAksjonspunktAdapter {
                 erVilkarOk ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT);
         }
 
-        var erBegrunnelseForAksjonspunktEndret = param.erBegrunnelseEndret();
         var vilkårType = behandling.getVilkårTypeForRelasjonTilBarnet().orElse(null);
         historikkTjenesteAdapter.tekstBuilder()
-            .medBegrunnelse(begrunnelse, erBegrunnelseForAksjonspunktEndret)
+            .medBegrunnelse(begrunnelse, param.erBegrunnelseEndret())
             .medSkjermlenke(getSkjermlenkeType(vilkårType, aksjonspunktDefinisjon));
 
         return erEndret;

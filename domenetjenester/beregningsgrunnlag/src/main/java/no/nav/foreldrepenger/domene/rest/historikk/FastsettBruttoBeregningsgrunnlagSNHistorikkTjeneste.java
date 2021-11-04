@@ -28,8 +28,7 @@ public class FastsettBruttoBeregningsgrunnlagSNHistorikkTjeneste {
         historikkDelBuilder.ferdigstillHistorikkinnslagDel();
         oppdaterVedEndretVerdi(historikkDelBuilder, dto.getBruttoBeregningsgrunnlag());
 
-        var erBegrunnelseEndret = param.erBegrunnelseEndret();
-        historikkDelBuilder.medBegrunnelse(dto.getBegrunnelse(), erBegrunnelseEndret);
+        historikkDelBuilder.medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret());
     }
 
     private void oppdaterVedEndretVerdi(HistorikkInnslagTekstBuilder historikkDelBuilder, Integer bruttoNæringsInntekt) {

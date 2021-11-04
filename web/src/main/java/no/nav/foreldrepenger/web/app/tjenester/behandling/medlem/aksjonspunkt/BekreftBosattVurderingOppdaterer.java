@@ -74,7 +74,7 @@ public class BekreftBosattVurderingOppdaterer implements AksjonspunktOppdaterer<
         var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.ER_SOKER_BOSATT_I_NORGE, originalBosatt, bekreftetBosatt);
 
         historikkAdapter.tekstBuilder()
-            .medBegrunnelse(begrunnelse, Objects.equals(begrunnelse, begrunnelseOrg))
+            .medBegrunnelse(begrunnelse, !Objects.equals(begrunnelse, begrunnelseOrg))
             .medSkjermlenke(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP);
 
         return erEndret;
