@@ -101,22 +101,9 @@ public class YtelseSøknadMapper implements SøknadMapper {
         return dekningsgrad;
     }
 
-    static Fordeling mapFordelingEndringssøknad(ManuellRegistreringEndringsøknadDto registreringDto) {
-        var fordeling = new Fordeling();
-        var perioder = mapFordelingPerioder(registreringDto.getTidsromPermisjon(), registreringDto.getSoker());
-        fordeling.getPerioder().addAll(perioder.stream().filter(Objects::nonNull).collect(Collectors.toList()));
-        return fordeling;
-    }
-
     static Fordeling mapFordeling(ManuellRegistreringForeldrepengerDto registreringDto) {
         var fordeling = new Fordeling();
-
-        if (isNull(registreringDto.getAnnenForelderInformert())) {
-            // setter denne default til true om annenForelderInformert ikke er satt
-            fordeling.setAnnenForelderErInformert(true);
-        } else {
-            fordeling.setAnnenForelderErInformert(registreringDto.getAnnenForelderInformert());
-        }
+        fordeling.setAnnenForelderErInformert(registreringDto.getAnnenForelderInformert());
 
         var perioder = mapFordelingPerioder(registreringDto.getTidsromPermisjon(), registreringDto.getSoker());
         fordeling.getPerioder().addAll(perioder.stream().filter(Objects::nonNull).collect(Collectors.toList()));

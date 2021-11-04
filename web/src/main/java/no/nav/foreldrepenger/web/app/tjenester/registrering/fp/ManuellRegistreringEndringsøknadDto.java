@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.fp;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -10,9 +11,11 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringD
 @JsonTypeName(AksjonspunktKodeDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER_KODE)
 public class ManuellRegistreringEndringsøknadDto extends ManuellRegistreringDto {
 
-
     @Valid
     private TidsromPermisjonDto tidsromPermisjon;
+
+    @NotNull
+    private Boolean annenForelderInformert;
 
     public TidsromPermisjonDto getTidsromPermisjon() {
         return tidsromPermisjon;
@@ -22,5 +25,11 @@ public class ManuellRegistreringEndringsøknadDto extends ManuellRegistreringDto
         this.tidsromPermisjon = tidsromPermisjon;
     }
 
+    public Boolean getAnnenForelderInformert() {
+        return annenForelderInformert;
+    }
 
+    public void setAnnenForelderInformert(Boolean annenForelderInformert) {
+        this.annenForelderInformert = annenForelderInformert;
+    }
 }
