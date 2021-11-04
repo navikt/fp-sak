@@ -26,9 +26,8 @@ public class FastsettBruttoBeregningsgrunnlagSNNyIArbeidslivetHistorikkTjeneste 
     public void lagHistorikk(FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto dto,
                              AksjonspunktOppdaterParameter param) {
         oppdaterVedEndretVerdi(dto.getBruttoBeregningsgrunnlag());
-        var erBegrunnelseEndret = param.erBegrunnelseEndret();
         historikkAdapter.tekstBuilder()
-            .medBegrunnelse(dto.getBegrunnelse(), erBegrunnelseEndret)
+            .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
             .medSkjermlenke(SkjermlenkeType.BEREGNING_FORELDREPENGER);
     }
 

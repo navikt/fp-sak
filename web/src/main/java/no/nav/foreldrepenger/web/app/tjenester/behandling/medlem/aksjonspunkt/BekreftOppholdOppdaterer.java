@@ -65,7 +65,7 @@ public abstract class BekreftOppholdOppdaterer implements AksjonspunktOppdaterer
 
         var begrunnelse = bekreftet.getBegrunnelse();
         historikkAdapter.tekstBuilder()
-            .medBegrunnelse(begrunnelse, Objects.equals(begrunnelse, begrunnelseOrg))
+            .medBegrunnelse(begrunnelse, !Objects.equals(begrunnelse, begrunnelseOrg))
             .medSkjermlenke(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP);
 
         final var adapter = new BekreftOppholdVurderingAksjonspunktDto(bekreftet.getOppholdsrettVurdering(),

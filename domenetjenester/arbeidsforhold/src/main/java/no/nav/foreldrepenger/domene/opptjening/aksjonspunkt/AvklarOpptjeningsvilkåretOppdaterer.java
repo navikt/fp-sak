@@ -77,9 +77,8 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
         historikkAdapter.tekstBuilder()
                 .medEndretFelt(HistorikkEndretFeltType.OPPTJENINGSVILKARET, null, nyVerdi);
 
-        var erBegrunnelseForAksjonspunktEndret = param.erBegrunnelseEndret();
         historikkAdapter.tekstBuilder()
-                .medBegrunnelse(begrunnelse, erBegrunnelseForAksjonspunktEndret)
+                .medBegrunnelse(begrunnelse, param.erBegrunnelseEndret())
                 .medSkjermlenke(SkjermlenkeType.PUNKT_FOR_OPPTJENING);
     }
 }

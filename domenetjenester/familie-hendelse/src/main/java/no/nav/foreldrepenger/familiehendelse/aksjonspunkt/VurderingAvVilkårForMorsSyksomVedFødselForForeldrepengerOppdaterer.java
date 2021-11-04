@@ -61,10 +61,9 @@ public class VurderingAvVilkårForMorsSyksomVedFødselForForeldrepengerOppdatere
     private void lagHistorikkinnslag(VurderingAvVilkårForMorsSyksomVedFødselForForeldrepengerDto dto, AksjonspunktOppdaterParameter param, Boolean original, boolean bekreftet) {
         var tilVerdi = bekreftet ? HistorikkEndretFeltVerdiType.DOKUMENTERT : HistorikkEndretFeltVerdiType.IKKE_DOKUMENTERT;
         var fraVerdi = fraVerdi(original);
-        var erBegrunnelseEndret = param.erBegrunnelseEndret();
         historikkAdapter.tekstBuilder()
             .medEndretFelt(HistorikkEndretFeltType.SYKDOM, fraVerdi, tilVerdi)
-            .medBegrunnelse(dto.getBegrunnelse(), erBegrunnelseEndret)
+            .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
             .medSkjermlenke(SkjermlenkeType.FAKTA_OM_FOEDSEL);
     }
 
