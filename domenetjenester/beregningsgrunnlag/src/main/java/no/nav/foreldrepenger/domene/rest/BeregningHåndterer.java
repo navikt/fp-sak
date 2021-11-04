@@ -9,7 +9,6 @@ import no.nav.folketrygdloven.kalkulator.avklaringsbehov.AvklarAktiviteterHåndt
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.BeregningFaktaOgOverstyringHåndterer;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.FastsettBGTidsbegrensetArbeidsforholdHåndterer;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.FastsettBeregningsgrunnlagATFLHåndterer;
-import no.nav.folketrygdloven.kalkulator.avklaringsbehov.FastsettBruttoBeregningsgrunnlagSNHåndterer;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetHåndterer;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.FordelBeregningsgrunnlagHåndterer;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.VurderVarigEndretNyoppstartetSNHåndterer;
@@ -18,7 +17,6 @@ import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.Beregningsaktivitet
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.FaktaBeregningLagreDto;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.FastsettBGTidsbegrensetArbeidsforholdDto;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.FastsettBeregningsgrunnlagATFLDto;
-import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.FastsettBruttoBeregningsgrunnlagSNDto;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.OverstyrBeregningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.VurderRefusjonBeregningsgrunnlagDto;
@@ -109,15 +107,6 @@ public class BeregningHåndterer {
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
     }
 
-    public void håndterFastsettBeregningsgrunnlagSN(BeregningsgrunnlagInput input,
-                                                    FastsettBruttoBeregningsgrunnlagSNDto dto) {
-        var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(
-            input.getKoblingReferanse().getKoblingId(), input,
-            AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_SELVSTENDIG_NÆRINGSDRIVENDE);
-        var resultat = FastsettBruttoBeregningsgrunnlagSNHåndterer.håndter(håndterBeregningsgrunnlagInput, dto);
-        beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
-    }
-
     public void håndterFordelBeregningsgrunnlag(BeregningsgrunnlagInput input, FordelBeregningsgrunnlagDto dto) {
         var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(
             input.getKoblingReferanse().getKoblingId(), input,
@@ -149,10 +138,7 @@ public class BeregningHåndterer {
             input.getKoblingReferanse().getKoblingId(), input,
             AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE);
         var resultat = VurderVarigEndretNyoppstartetSNHåndterer.håndter(håndterBeregningsgrunnlagInput, dto);
-        //TODO(OJR) hvorfor kan denne gi null????
-        if (resultat != null) {
-            beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
-        }
+        beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
     }
 
     private Long getBehandlingId(BeregningsgrunnlagInput input) {

@@ -99,7 +99,6 @@ public class AksjonspunktKodeDefinisjon {
     public static final String FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD_KODE = "5047";
     public static final String KONTROLLER_AUTOMATISK_BESTEBEREGNING_KODE = "5048";
     public static final String FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET_KODE = "5049";
-    public static final String VURDER_GRADERING_UTEN_BEREGNINGSGRUNNLAG_KODE = "5050";
     public static final String AVKLAR_AKTIVITETER_KODE = "5052";
 
     public static final String MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG_KODE = "5060";
@@ -111,7 +110,6 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String MANUELL_VURDERING_AV_SØKNADSFRIST_KODE = "5043";
 
-    public static final String FASTSETT_BEREGNINGSGRUNNLAG_SELVSTENDIG_NÆRINGSDRIVENDE_KODE = "5042";
     public static final String MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG_KODE = "5061";
 
     public static final String OVERSTYRING_AV_AVKLART_STARTDATO_KODE = "6045";
