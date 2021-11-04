@@ -19,6 +19,8 @@ import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.Beregningsgru
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAggregatDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAktørDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaArbeidsforholdDto;
+import no.nav.folketrygdloven.kalkulator.modell.typer.FaktaVurdering;
+import no.nav.folketrygdloven.kalkulus.kodeverk.FaktaVurderingKilde;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
@@ -157,9 +159,9 @@ public class BehandlingslagerTilKalkulusMapper {
             .map(a -> {
                 var builder = new FaktaArbeidsforholdDto.Builder(IAYMapperTilKalkulus.mapArbeidsgiver(a.getArbeidsgiver().get()),
                     a.getArbeidsforholdRef().map(IAYMapperTilKalkulus::mapArbeidsforholdRef).orElse(InternArbeidsforholdRefDto.nullRef()));
-                a.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getErTidsbegrensetArbeidsforhold).ifPresent(builder::medErTidsbegrenset);
-                a.mottarYtelse().ifPresent(builder::medHarMottattYtelse);
-                a.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::erLønnsendringIBeregningsperioden).ifPresent(builder::medHarLønnsendringIBeregningsperioden);
+                a.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getErTidsbegrensetArbeidsforhold).ifPresent(fakta -> builder.medErTidsbegrenset(new FaktaVurdering(fakta, FaktaVurderingKilde.SAKSBEHANDLER)));
+                a.mottarYtelse().ifPresent(fakta -> builder.medHarMottattYtelse(new FaktaVurdering(fakta, FaktaVurderingKilde.SAKSBEHANDLER)));
+                a.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::erLønnsendringIBeregningsperioden).ifPresent(fakta -> builder.medHarLønnsendringIBeregningsperioden(new FaktaVurdering(fakta, FaktaVurderingKilde.SAKSBEHANDLER)));
                 return builder.manglerFakta() ? null : builder.build();
             })
             .filter(Objects::nonNull)
@@ -185,7 +187,7 @@ public class BehandlingslagerTilKalkulusMapper {
                 .findFirst()
                 .map(BeregningsgrunnlagPrStatusOgAndel::erNyoppstartet)
                 .map(Optional::get)
-                .ifPresent(faktaAktørBuilder::medErNyoppstartetFL);
+                .ifPresent(fakta -> faktaAktørBuilder.medErNyoppstartetFL(new FaktaVurdering(fakta, FaktaVurderingKilde.SAKSBEHANDLER)));
         }
     }
 
@@ -193,7 +195,7 @@ public class BehandlingslagerTilKalkulusMapper {
         var harVurdertBesteberegning = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
         if (harVurdertBesteberegning) {
             var harFastsattBesteberegning = andeler.stream().anyMatch(a -> a.getBesteberegningPrÅr() != null);
-            faktaAktørBuilder.medSkalBesteberegnes(harFastsattBesteberegning);
+            faktaAktørBuilder.medSkalBesteberegnes(new FaktaVurdering(harFastsattBesteberegning, FaktaVurderingKilde.SAKSBEHANDLER));
         }
     }
 
@@ -203,7 +205,7 @@ public class BehandlingslagerTilKalkulusMapper {
             andeler.stream().filter(a -> a.getAktivitetStatus().erSelvstendigNæringsdrivende())
                 .findFirst()
                 .map(BeregningsgrunnlagPrStatusOgAndel::getNyIArbeidslivet)
-                .ifPresent(faktaAktørBuilder::medErNyIArbeidslivetSN);
+                .ifPresent(fakta -> faktaAktørBuilder.medErNyIArbeidslivetSN(new FaktaVurdering(fakta, FaktaVurderingKilde.SAKSBEHANDLER)));
         }
     }
 
@@ -214,7 +216,7 @@ public class BehandlingslagerTilKalkulusMapper {
                 .findFirst()
                 .map(BeregningsgrunnlagPrStatusOgAndel::mottarYtelse)
                 .map(Optional::get)
-                .ifPresent(faktaAktørBuilder::medHarFLMottattYtelse);
+                .ifPresent(fakta -> faktaAktørBuilder.medHarFLMottattYtelse(new FaktaVurdering(fakta, FaktaVurderingKilde.SAKSBEHANDLER)));
         }
     }
 
@@ -222,7 +224,7 @@ public class BehandlingslagerTilKalkulusMapper {
         var harVurdertEtterlønnSluttpakke = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.VURDER_ETTERLØNN_SLUTTPAKKE));
         var harEtterlønnSlutpakke = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.FASTSETT_ETTERLØNN_SLUTTPAKKE));
         if (harVurdertEtterlønnSluttpakke) {
-            faktaAktørBuilder.medMottarEtterlønnSluttpakke(harEtterlønnSlutpakke);
+            faktaAktørBuilder.medMottarEtterlønnSluttpakke(new FaktaVurdering(harEtterlønnSlutpakke, FaktaVurderingKilde.SAKSBEHANDLER));
         }
     }
 
