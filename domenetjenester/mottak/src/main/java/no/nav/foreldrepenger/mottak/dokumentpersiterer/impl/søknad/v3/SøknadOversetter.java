@@ -228,8 +228,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                 søknadRepository.hentSøknad(henlagteBehandlingerEtterInnvilget.get(0).getId()).getSøknadsdato());
         }
 
-        if (wrapper.getOmYtelse() instanceof Endringssoeknad) {
-            final var omYtelse = (Endringssoeknad) wrapper.getOmYtelse();
+        if (wrapper.getOmYtelse() instanceof final Endringssoeknad omYtelse) {
             byggYtelsesSpesifikkeFelterForEndringssøknad(omYtelse, behandling, mottattDato);
         }
         søknadBuilder.medErEndringssøknad(true);
@@ -328,8 +327,9 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                                                               Behandling behandling,
                                                               LocalDate mottattDato) {
         LOG.info("Mottatt dato for endringsøknad for behandling {} {}", mottattDato, behandling.getId());
-        var perioder = omYtelse.getFordeling().getPerioder();
-        var annenForelderErInformert = hentAnnenForelderErInformert(behandling);
+        var fordeling = omYtelse.getFordeling();
+        var perioder = fordeling.getPerioder();
+        var annenForelderErInformert = fordeling.isAnnenForelderErInformert();
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
             .medOppgittFordeling(lagOppgittFordeling(behandling, perioder, annenForelderErInformert, mottattDato));
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
@@ -338,16 +338,14 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     private void byggYtelsesSpesifikkeFelter(SøknadWrapper skjemaWrapper,
                                              Behandling behandling,
                                              SøknadEntitet.Builder søknadBuilder) {
-        if (skjemaWrapper.getOmYtelse() instanceof Foreldrepenger) {
-            var omYtelse = (Foreldrepenger) skjemaWrapper.getOmYtelse();
+        if (skjemaWrapper.getOmYtelse() instanceof Foreldrepenger omYtelse) {
             var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
                 .medOppgittDekningsgrad(oversettDekningsgrad(omYtelse))
                 .medOppgittFordeling(
                     oversettFordeling(behandling, omYtelse, skjemaWrapper.getSkjema().getMottattDato()));
             oversettRettighet(omYtelse).ifPresent(r -> yfBuilder.medOppgittRettighet(r));
             ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
-        } else if (skjemaWrapper.getOmYtelse() instanceof Svangerskapspenger) {
-            var svangerskapspenger = (Svangerskapspenger) skjemaWrapper.getOmYtelse();
+        } else if (skjemaWrapper.getOmYtelse() instanceof Svangerskapspenger svangerskapspenger) {
             oversettOgLagreTilrettelegging(svangerskapspenger, søknadBuilder, behandling);
         }
     }
@@ -473,11 +471,9 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         }
 
         Opptjening opptjening = null;
-        if (skjemaWrapper.getOmYtelse() instanceof Foreldrepenger) {
-            final var omYtelse = (Foreldrepenger) skjemaWrapper.getOmYtelse();
+        if (skjemaWrapper.getOmYtelse() instanceof final Foreldrepenger omYtelse) {
             opptjening = omYtelse.getOpptjening();
-        } else if (skjemaWrapper.getOmYtelse() instanceof Svangerskapspenger) {
-            final var omYtelse = (Svangerskapspenger) skjemaWrapper.getOmYtelse();
+        } else if (skjemaWrapper.getOmYtelse() instanceof final Svangerskapspenger omYtelse) {
             opptjening = omYtelse.getOpptjening();
         }
 
@@ -553,15 +549,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         return perioder.stream().anyMatch(p -> Virkedager.beregnAntallVirkedager(p.getFom(), p.getTom()) > 0);
     }
 
-    private boolean hentAnnenForelderErInformert(Behandling behandling) {
-        //Papirsøknad frontend støtter ikke å sette annenForelderErInformert. Kopierer fra førstegangsbehandling
-        var originalBehandlingId = behandling.getOriginalBehandlingId()
-            .orElseThrow(() -> new IllegalArgumentException("Utviklerfeil: Endringssøknad må ha original behandling"));
-        return ytelsesFordelingRepository.hentAggregat(originalBehandlingId)
-            .getOppgittFordeling()
-            .getErAnnenForelderInformert();
-    }
-
     private OppgittDekningsgradEntitet oversettDekningsgrad(Foreldrepenger omYtelse) {
         var dekingsgrad = omYtelse.getDekningsgrad().getDekningsgrad();
         if (Integer.toString(OppgittDekningsgradEntitet.ÅTTI_PROSENT).equalsIgnoreCase(dekingsgrad.getKode())) {
@@ -577,8 +564,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     private OppgittPeriodeEntitet oversettPeriode(LukketPeriodeMedVedlegg lukketPeriode) {
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(lukketPeriode.getFom(), lukketPeriode.getTom());
-        if (lukketPeriode instanceof Uttaksperiode) {
-            final var periode = (Uttaksperiode) lukketPeriode;
+        if (lukketPeriode instanceof final Uttaksperiode periode) {
             oversettUttakperiode(oppgittPeriodeBuilder, periode);
         } else if (lukketPeriode instanceof Oppholdsperiode) {
             oppgittPeriodeBuilder.medÅrsak(
@@ -589,8 +575,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                 OverføringÅrsak.fraKode(((Overfoeringsperiode) lukketPeriode).getAarsak().getKode()));
             oppgittPeriodeBuilder.medPeriodeType(
                 UttakPeriodeType.fraKode(((Overfoeringsperiode) lukketPeriode).getOverfoeringAv().getKode()));
-        } else if (lukketPeriode instanceof Utsettelsesperiode) {
-            var utsettelsesperiode = (Utsettelsesperiode) lukketPeriode;
+        } else if (lukketPeriode instanceof Utsettelsesperiode utsettelsesperiode) {
             oversettUtsettelsesperiode(oppgittPeriodeBuilder, utsettelsesperiode);
         } else {
             throw new IllegalStateException("Ukjent periodetype.");
@@ -734,8 +719,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     private OppgittOpptjeningBuilder.EgenNæringBuilder mapEgenNæringForType(EgenNaering egenNæring,
                                                                             Virksomhetstyper virksomhettype) {
         var egenNæringBuilder = OppgittOpptjeningBuilder.EgenNæringBuilder.ny();
-        if (egenNæring instanceof NorskOrganisasjon) {
-            var norskOrganisasjon = (NorskOrganisasjon) egenNæring;
+        if (egenNæring instanceof NorskOrganisasjon norskOrganisasjon) {
             var orgNr = norskOrganisasjon.getOrganisasjonsnummer();
             virksomhetTjeneste.hentOrganisasjon(orgNr);
             egenNæringBuilder.medVirksomhet(orgNr);

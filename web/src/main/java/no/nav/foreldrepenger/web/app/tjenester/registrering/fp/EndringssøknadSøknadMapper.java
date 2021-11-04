@@ -53,6 +53,7 @@ public class EndringssøknadSøknadMapper implements SøknadMapper {
         var fordeling = new Fordeling();
         var perioder = mapFordelingPerioder(registreringDto.getTidsromPermisjon(), registreringDto.getSoker());
         fordeling.getPerioder().addAll(perioder.stream().filter(Objects::nonNull).collect(Collectors.toList()));
+        fordeling.setAnnenForelderErInformert(registreringDto.getAnnenForelderInformert());
         return fordeling;
     }
 

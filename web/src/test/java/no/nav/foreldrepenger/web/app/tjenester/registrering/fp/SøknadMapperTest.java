@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -108,50 +107,9 @@ public class SøknadMapperTest {
     @Test
     public void test_mapForeldrepenger() {
         var dto = new ManuellRegistreringForeldrepengerDto();
+        dto.setAnnenForelderInformert(false);
         oppdaterDtoForFødsel(dto, true, LocalDate.now().minusWeeks(3), 1);
         ytelseSøknadMapper.mapSøknad(dto, opprettBruker());
-    }
-
-    @Test
-    public void test_mapEndringssøknad_utenFordeling() {
-        var dto = new ManuellRegistreringEndringsøknadDto();
-        oppdaterDtoForFødsel(dto, true, LocalDate.now(), 1);
-        dto.setTidsromPermisjon(opprettTidsromPermisjonDto(null));
-        var fordeling = YtelseSøknadMapper.mapFordelingEndringssøknad(dto);
-        assertThat(fordeling).isNotNull();
-        assertThat(fordeling.getPerioder()).isEmpty();
-    }
-
-    @Test
-    public void test_mapEndringssøknad_medFordeling() {
-        var fraDato = LocalDate.now();
-        var tomDato = LocalDate.now().plusDays(3);
-        var prosentAndel = BigDecimal.valueOf(15);
-        var permisjonPeriodeDto = opprettPermisjonPeriodeDto(LocalDate.now(), LocalDate.now().plusWeeks(3), MØDREKVOTE,
-            null);
-        var tidsromPermisjonDto = opprettTidsromPermisjonDto(List.of(permisjonPeriodeDto));
-        var dto = new ManuellRegistreringEndringsøknadDto();
-        oppdaterDtoForFødsel(dto, true, LocalDate.now(), 1);
-
-        // Oppretter utsettelseperiode, mapOverfoeringsperiode, mapGraderingsperioder
-        var graderingDto = opprettGraderingDto(fraDato, tomDato, prosentAndel, FEDREKVOTE, false, true, false, null);
-        tidsromPermisjonDto.setGraderingPeriode(Collections.singletonList(graderingDto));
-
-        var utsettelserDto = opprettUtsettelseDto(fraDato, tomDato, FEDREKVOTE, false);
-        tidsromPermisjonDto.setUtsettelsePeriode(Collections.singletonList(utsettelserDto));
-
-        var overføringsperiodeDto = new OverføringsperiodeDto();
-        overføringsperiodeDto.setOverforingArsak(INSTITUSJONSOPPHOLD_ANNEN_FORELDER);
-        overføringsperiodeDto.setPeriodeFom(fraDato);
-        overføringsperiodeDto.setPeriodeTom(tomDato);
-        tidsromPermisjonDto.setOverforingsperioder(List.of(overføringsperiodeDto));
-
-        dto.setTidsromPermisjon(tidsromPermisjonDto);
-        var fordeling = YtelseSøknadMapper.mapFordelingEndringssøknad(dto);
-        assertThat(fordeling).isNotNull();
-        // Forventer å ha en periode for hver av: permisjonPeriode, utsettelseperiode,
-        // Overfoeringsperiode og Graderingsperiode.
-        assertThat(fordeling.getPerioder()).hasSize(4);
     }
 
     @Test
@@ -184,7 +142,7 @@ public class SøknadMapperTest {
     public void test_mapUtsettelsesperiode() {
         var fraDato = LocalDate.now();
         var tomDato = LocalDate.now().plusDays(3);
-        var utsettelserDto = opprettUtsettelseDto(fraDato, tomDato, FELLESPERIODE, true);
+        var utsettelserDto = opprettUtsettelseDto(fraDato, tomDato, FELLESPERIODE);
         var utsettelsesperiode = YtelseSøknadMapper.mapUtsettelsesperiode(utsettelserDto);
         assertThat(utsettelsesperiode).isNotNull();
         assertThat(utsettelsesperiode.getAarsak().getKode()).isEqualTo(UtsettelseÅrsak.FERIE.getKode());
@@ -394,8 +352,8 @@ public class SøknadMapperTest {
         var permisjonPeriodeDto = opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(3), LocalDate.now(),
             FORELDREPENGER_FØR_FØDSEL, null);
         oppdaterDtoForFødsel(manuellRegistreringForeldrepengerDto, true, LocalDate.now(), 1);
-        manuellRegistreringForeldrepengerDto.setTidsromPermisjon(
-            opprettTidsromPermisjonDto(Collections.singletonList(permisjonPeriodeDto)));
+        manuellRegistreringForeldrepengerDto.setTidsromPermisjon(opprettTidsromPermisjonDto(List.of(permisjonPeriodeDto)));
+        manuellRegistreringForeldrepengerDto.setAnnenForelderInformert(true);
         var fordeling = YtelseSøknadMapper.mapFordeling(manuellRegistreringForeldrepengerDto);
         assertThat(fordeling).isNotNull();
         // Forventer å ha mødrekvote periode basert på forventet permisjon før fødsel
@@ -467,8 +425,8 @@ public class SøknadMapperTest {
         permisjonsperioder.add(opprettPermisjonPeriodeDto(fødselsdato, mødrekvoteSlutt, MØDREKVOTE, null));
         var tidsromPermisjonDto = opprettTidsromPermisjonDto(permisjonsperioder);
 
-        var utsettelserDto = opprettUtsettelseDto(mødrekvoteSlutt, mødrekvoteSlutt.plusWeeks(1), MØDREKVOTE, true);
-        tidsromPermisjonDto.setUtsettelsePeriode(Collections.singletonList(utsettelserDto));
+        var utsettelserDto = opprettUtsettelseDto(mødrekvoteSlutt, mødrekvoteSlutt.plusWeeks(1), MØDREKVOTE);
+        tidsromPermisjonDto.setUtsettelsePeriode(List.of(utsettelserDto));
 
         manuellRegistreringForeldrepengerDto.setTidsromPermisjon(tidsromPermisjonDto);
 
@@ -523,26 +481,11 @@ public class SøknadMapperTest {
         var permisjonPeriodeDto = opprettPermisjonPeriodeDto(LocalDate.now(), LocalDate.now().plusWeeks(3), MØDREKVOTE,
             null);
         oppdaterDtoForFødsel(manuellRegistreringForeldrepengerDto, true, LocalDate.now(), 1);
-        manuellRegistreringForeldrepengerDto.setTidsromPermisjon(
-            opprettTidsromPermisjonDto(Collections.singletonList(permisjonPeriodeDto)));
+        manuellRegistreringForeldrepengerDto.setTidsromPermisjon(opprettTidsromPermisjonDto(List.of(permisjonPeriodeDto)));
+        manuellRegistreringForeldrepengerDto.setAnnenForelderInformert(true);
 
         var fordeling = YtelseSøknadMapper.mapFordeling(manuellRegistreringForeldrepengerDto);
         assertThat(fordeling).isNotNull();
-    }
-
-    @Test
-    public void test_mapForeldrepengerMedEgenNæring() {
-        when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(Virksomhet.getBuilder()
-            .medOrgnr(KUNSTIG_ORG)
-            .medNavn("Ukjent Firma")
-            .medRegistrert(LocalDate.now().minusYears(1))
-            .medRegistrert(LocalDate.now().minusYears(1))
-            .build());
-
-        var registreringForeldrepengerDto = new ManuellRegistreringForeldrepengerDto();
-        oppdaterDtoForFødsel(registreringForeldrepengerDto, true, LocalDate.now().minusWeeks(3), 1);
-        registreringForeldrepengerDto.setEgenVirksomhet(opprettEgenVirksomhetDto());
-        ytelseSøknadMapper.mapSøknad(registreringForeldrepengerDto, opprettBruker());
     }
 
     @Test
@@ -597,6 +540,7 @@ public class SøknadMapperTest {
         dto.setTidsromPermisjon(opprettTidsromPermisjonDto(permisjonPerioder));
         dto.setDekningsgrad(DekningsgradDto.HUNDRE);
         dto.setEgenVirksomhet(opprettEgenVirksomhetDto());
+        dto.setAnnenForelderInformert(false);
         var soeknad = ytelseSøknadMapper.mapSøknad(dto, navBruker);
 
         var mottattDokument = new MottattDokument.Builder().medMottattDato(LocalDate.now())
@@ -639,6 +583,7 @@ public class SøknadMapperTest {
         dto.setTidsromPermisjon(opprettTidsromPermisjonDto(permisjonPerioder));
         dto.setDekningsgrad(DekningsgradDto.HUNDRE);
         dto.setEgenVirksomhet(opprettEgenVirksomhetDto());
+        dto.setAnnenForelderInformert(true);
         var soeknad = ytelseSøknadMapper.mapSøknad(dto, navBruker);
 
         var mottattDokument = new MottattDokument.Builder().medMottattDato(LocalDate.now())

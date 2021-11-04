@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.fp;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -18,6 +19,7 @@ public class ManuellRegistreringForeldrepengerDto extends MedInntektArbeidYtelse
     @Valid
     private TidsromPermisjonDto tidsromPermisjon;
 
+    @NotNull
     private Boolean annenForelderInformert;
 
     public DekningsgradDto getDekningsgrad() {

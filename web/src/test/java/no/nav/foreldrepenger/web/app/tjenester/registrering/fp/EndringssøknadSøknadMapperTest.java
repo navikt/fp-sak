@@ -57,6 +57,7 @@ public class EndringssøknadSøknadMapperTest {
     public void skal_treffe_guard_hvis_endringssøknad_sendes_inn_uten_at_det_er_reflektert_i_dokumenttypeid() {
         var navBruker = opprettBruker();
         var manuellRegistreringEndringsøknadDto = new ManuellRegistreringEndringsøknadDto();
+        manuellRegistreringEndringsøknadDto.setAnnenForelderInformert(true);
         oppdaterDtoForFødsel(manuellRegistreringEndringsøknadDto, true, LocalDate.now(), 1);
         var soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringEndringsøknadDto, navBruker);
 
