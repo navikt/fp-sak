@@ -13,6 +13,7 @@ import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAktørDt
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaArbeidsforholdDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagPrStatusDto;
+import no.nav.folketrygdloven.kalkulator.modell.typer.FaktaVurdering;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
@@ -147,7 +148,7 @@ public final class KalkulusTilBGMapper {
         if (!fraKalkulus.getAktivitetStatus().erFrilanser()) {
             return Optional.empty();
         }
-        return faktaAktør.map(vurdering -> vurdering.getErNyoppstartetFL().getVurdering());
+        return faktaAktør.map(vurdering -> mapVurdering(vurdering.getErNyoppstartetFL()));
     }
 
     private static Boolean erNyIarbeidslivet(BeregningsgrunnlagPrStatusOgAndelDto fraKalkulus,
@@ -155,17 +156,17 @@ public final class KalkulusTilBGMapper {
         if (!fraKalkulus.getAktivitetStatus().erSelvstendigNæringsdrivende()) {
             return null;
         }
-        return faktaAktør.map(vurdering -> vurdering.getErNyIArbeidslivetSN().getVurdering()).orElse(null);
+        return faktaAktør.map(vurdering -> mapVurdering(vurdering.getErNyIArbeidslivetSN())).orElse(null);
     }
 
     private static Boolean mapMottarYtelse(BeregningsgrunnlagPrStatusOgAndelDto fraKalkulus,
                                            Optional<FaktaAktørDto> faktaAktør,
                                            Optional<FaktaArbeidsforholdDto> faktaArbeidsforhold) {
         if (fraKalkulus.getAktivitetStatus().erFrilanser()) {
-            return faktaAktør.map(vurdering -> vurdering.getHarFLMottattYtelse().getVurdering()).orElse(null);
+            return faktaAktør.map(vurdering -> mapVurdering(vurdering.getHarFLMottattYtelse())).orElse(null);
         }
         if (fraKalkulus.getAktivitetStatus().erArbeidstaker() && faktaArbeidsforhold.isPresent()) {
-            return faktaArbeidsforhold.get().getHarMottattYtelse().getVurdering();
+            return mapVurdering(faktaArbeidsforhold.get().getHarMottattYtelse());
         }
         return null;
     }
@@ -177,9 +178,9 @@ public final class KalkulusTilBGMapper {
         builder.medArbeidsgiver(KalkulusTilIAYMapper.mapArbeidsgiver(fraKalkulus.getArbeidsgiver()));
         builder.medArbeidsperiodeFom(fraKalkulus.getArbeidsperiodeFom());
         faktaArbeidsforhold.map(FaktaArbeidsforholdDto::getHarLønnsendringIBeregningsperioden)
-            .ifPresent(fakta -> builder.medLønnsendringIBeregningsperioden(fakta.getVurdering()));
+            .ifPresent(fakta -> builder.medLønnsendringIBeregningsperioden(mapVurdering(fakta)));
         faktaArbeidsforhold.map(FaktaArbeidsforholdDto::getErTidsbegrenset)
-            .ifPresent(fakta -> builder.medTidsbegrensetArbeidsforhold(fakta.getVurdering()));
+            .ifPresent(fakta -> builder.medTidsbegrensetArbeidsforhold(mapVurdering(fakta)));
         builder.medRefusjonskravPrÅr(fraKalkulus.getRefusjonskravPrÅr());
         builder.medSaksbehandletRefusjonPrÅr(fraKalkulus.getSaksbehandletRefusjonPrÅr());
         builder.medFordeltRefusjonPrÅr(fraKalkulus.getFordeltRefusjonPrÅr());
@@ -187,5 +188,9 @@ public final class KalkulusTilBGMapper {
         fraKalkulus.getNaturalytelseBortfaltPrÅr().ifPresent(builder::medNaturalytelseBortfaltPrÅr);
         fraKalkulus.getNaturalytelseTilkommetPrÅr().ifPresent(builder::medNaturalytelseTilkommetPrÅr);
         return builder;
+    }
+
+    private static Boolean mapVurdering(FaktaVurdering faktaVurdering) {
+        return faktaVurdering == null ? null : faktaVurdering.getVurdering();
     }
 }
