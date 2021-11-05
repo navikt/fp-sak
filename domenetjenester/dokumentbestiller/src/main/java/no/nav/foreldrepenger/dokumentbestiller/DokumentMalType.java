@@ -1,14 +1,13 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public enum DokumentMalType implements Kodeverdi {
 
@@ -41,6 +40,7 @@ public enum DokumentMalType implements Kodeverdi {
     KLAGE_OMGJORT("KGEOMG", "Vedtak om omgjøring av klage"),
     KLAGE_OVERSENDT("KGEOVE", "Klage oversendt til klageinstans"),
     KLAGE_STADFESTET("KGESTA", "Vedtak om stadfestelse"),
+    SVANGERSKAPSPENGER_OPPHØR("SVPOPP", "Opphør Svangerskapspenger"),
 
     // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
     @Deprecated

@@ -1,11 +1,5 @@
 package no.nav.foreldrepenger.dokumentbestiller.vedtak;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.MEDHOLD_I_KLAGE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.OPPHEVE_YTELSESVEDTAK;
-
-import java.util.Arrays;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -20,6 +14,12 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
+
+import java.util.Arrays;
+
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.MEDHOLD_I_KLAGE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.OPPHEVE_YTELSESVEDTAK;
 
 public class VedtaksbrevUtleder {
 
@@ -80,7 +80,7 @@ public class VedtaksbrevUtleder {
     public static DokumentMalType velgNegativVedtaksmal(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         var fagsakYtelseType = behandling.getFagsakYtelseType();
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
-                return DokumentMalType.ENGANGSSTØNAD_AVSLAG;
+            return DokumentMalType.ENGANGSSTØNAD_AVSLAG;
         }
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             if (behandlingsresultat.isBehandlingsresultatOpphørt()) {
@@ -89,7 +89,9 @@ public class VedtaksbrevUtleder {
             return DokumentMalType.FORELDREPENGER_AVSLAG;
         }
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsakYtelseType)) {
-            return null; //TODO Implementer
+            if (behandlingsresultat.isBehandlingsresultatOpphørt()) {
+                return DokumentMalType.SVANGERSKAPSPENGER_OPPHØR;
+            }
         }
         return null;
     }
