@@ -21,6 +21,9 @@ public class YtelseStørrelse extends BaseEntitet implements IndexKey {
     @ChangeTracked
     private Beløp beløp;
 
+    @ChangeTracked
+    private Boolean erRefusjon;
+
     public YtelseStørrelse() {
         // hibernate
     }
@@ -29,6 +32,7 @@ public class YtelseStørrelse extends BaseEntitet implements IndexKey {
         ytelseStørrelse.getVirksomhet().ifPresent(tidligereVirksomhet -> this.virksomhetOrgnr = tidligereVirksomhet);
         this.beløp = ytelseStørrelse.getBeløp();
         this.hyppighet = ytelseStørrelse.getHyppighet();
+        this.erRefusjon = ytelseStørrelse.getErRefusjon();
     }
 
     @Override
@@ -71,6 +75,14 @@ public class YtelseStørrelse extends BaseEntitet implements IndexKey {
 
     void setHyppighet(InntektPeriodeType hyppighet) {
         this.hyppighet = hyppighet;
+    }
+
+    public Boolean getErRefusjon() {
+        return erRefusjon;
+    }
+
+    public void setErRefusjon(Boolean erRefusjon) {
+        this.erRefusjon = erRefusjon;
     }
 
     @Override

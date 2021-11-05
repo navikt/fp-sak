@@ -32,6 +32,11 @@ public class YtelseStørrelseBuilder {
         return this;
     }
 
+    public YtelseStørrelseBuilder medErRefusjon(Boolean erRefusjon) {
+        this.ytelseStørrelse.setErRefusjon(erRefusjon);
+        return this;
+    }
+
     public YtelseStørrelse build() {
         if (ytelseStørrelse.hasValues()) {
             return ytelseStørrelse;

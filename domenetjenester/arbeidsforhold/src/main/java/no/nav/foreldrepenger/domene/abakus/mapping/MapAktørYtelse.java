@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 public class MapAktørYtelse {
 
     private static final Comparator<YtelseDto> COMP_YTELSE = Comparator
-            .comparing((YtelseDto dto) -> dto.getSaksnummer(), Comparator.nullsLast(Comparator.naturalOrder()))
+            .comparing(YtelseDto::getSaksnummer, Comparator.nullsLast(Comparator.naturalOrder()))
             .thenComparing(dto -> dto.getYtelseType() == null ? null : dto.getYtelseType().getKode(), Comparator.nullsLast(Comparator.naturalOrder()))
             .thenComparing(dto -> dto.getTemaUnderkategori() == null ? null : dto.getTemaUnderkategori().getKode(),
                     Comparator.nullsLast(Comparator.naturalOrder()))
@@ -60,7 +60,7 @@ public class MapAktørYtelse {
             if ((dtos == null) || dtos.isEmpty()) {
                 return Collections.emptyList();
             }
-            return dtos.stream().map(this::mapAktørYtelse).collect(Collectors.toUnmodifiableList());
+            return dtos.stream().map(this::mapAktørYtelse).toList();
         }
 
         private AktørYtelseBuilder mapAktørYtelse(YtelserDto dto) {
@@ -136,6 +136,7 @@ public class MapAktørYtelse {
             var arbeidsgiver = fordeling.getArbeidsgiver();
             return YtelseStørrelseBuilder.ny()
                     .medBeløp(fordeling.getBeløp())
+                    .medErRefusjon(fordeling.getErRefusjon())
                     .medHyppighet(KodeverkMapper.mapInntektPeriodeTypeFraDto(fordeling.getHyppighet()))
                     .medVirksomhet(arbeidsgiver == null ? null : new OrgNummer(arbeidsgiver.getIdent()))
                     .build();
@@ -146,7 +147,7 @@ public class MapAktørYtelse {
     static class MapTilDto {
 
         private List<FordelingDto> mapFordeling(List<YtelseStørrelse> ytelseStørrelse) {
-            return ytelseStørrelse.stream().map(this::tilFordeling).collect(Collectors.toUnmodifiableList());
+            return ytelseStørrelse.stream().map(this::tilFordeling).toList();
         }
 
         private YtelserDto mapTilYtelser(AktørYtelse ay) {
@@ -176,7 +177,7 @@ public class MapAktørYtelse {
             var organisasjon = ytelseStørrelse.getVirksomhet().map(o -> new Organisasjon(o.getId())).orElse(null);
             var inntektPeriodeType = KodeverkMapper.mapInntektPeriodeTypeTilDto(ytelseStørrelse.getHyppighet());
             var beløp = ytelseStørrelse.getBeløp().getVerdi();
-            return new FordelingDto(organisasjon, inntektPeriodeType == null ? no.nav.abakus.iaygrunnlag.kodeverk.InntektPeriodeType.UDEFINERT : inntektPeriodeType, beløp);
+            return new FordelingDto(organisasjon, inntektPeriodeType == null ? no.nav.abakus.iaygrunnlag.kodeverk.InntektPeriodeType.UDEFINERT : inntektPeriodeType, beløp, ytelseStørrelse.getErRefusjon());
         }
 
         private YtelseDto tilYtelse(Ytelse ytelse) {
@@ -190,7 +191,7 @@ public class MapAktørYtelse {
                     .medVedtattTidspunkt(ytelse.getVedtattTidspunkt())
                     .medTemaUnderkategori(temaUnderkategori);
 
-            ytelse.getYtelseGrunnlag().map(this::mapYtelseGrunnlag).ifPresent(gr -> dto.setGrunnlag(gr));
+            ytelse.getYtelseGrunnlag().map(this::mapYtelseGrunnlag).ifPresent(dto::setGrunnlag);
 
             var compAnvisning = Comparator
                     .comparing((AnvisningDto anv) -> anv.getPeriode().getFom(), Comparator.nullsFirst(Comparator.naturalOrder()))

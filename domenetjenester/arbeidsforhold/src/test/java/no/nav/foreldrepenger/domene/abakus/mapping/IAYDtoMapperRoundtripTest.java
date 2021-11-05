@@ -153,7 +153,7 @@ public class IAYDtoMapperRoundtripTest {
                                                                         .medDekningsgradProsent(100)
                                                                         .medInntektsgrunnlagProsent(100)
                                                                         .medGraderingProsent(100)
-                                                                        .medFordeling(List.of(new FordelingDto(org, InntektPeriodeType.DAGLIG, 100))))
+                                                                        .medFordeling(List.of(new FordelingDto(org, InntektPeriodeType.DAGLIG, 100, false))))
                                                         .medAnvisninger(List.of(
                                                                 new AnvisningDto(periode)
                                                                         .medBeløp(100)
