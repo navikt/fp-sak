@@ -159,10 +159,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     REGISTRER_PAPIRSØKNAD_FORELDREPENGER(
             AksjonspunktKodeDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER_KODE, AksjonspunktType.MANUELL, "Registrer papirsøknad foreldrepenger",
             BehandlingStegType.REGISTRER_SØKNAD, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
-    FASTSETT_BEREGNINGSGRUNNLAG_SELVSTENDIG_NÆRINGSDRIVENDE(
-            AksjonspunktKodeDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_SELVSTENDIG_NÆRINGSDRIVENDE_KODE, AksjonspunktType.MANUELL,
-            "Fastsett beregningsgrunnlag for selvstendig næringsdrivende", BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG, VurderingspunktType.UT,
-            VilkårType.BEREGNINGSGRUNNLAGVILKÅR, SkjermlenkeType.BEREGNING_FORELDREPENGER, TOTRINN, EnumSet.of(FP, SVP)),
     MANUELL_VURDERING_AV_SØKNADSFRIST(
             AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av søknadsfrist",
             BehandlingStegType.SØKNADSFRIST_FORELDREPENGER, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.SOEKNADSFRIST, TOTRINN, EnumSet.of(FP, SVP)),
@@ -181,10 +177,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktKodeDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET_KODE, AksjonspunktType.MANUELL,
             "Fastsett beregningsgrunnlag for SN som er ny i arbeidslivet", BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG, VurderingspunktType.UT, UTEN_VILKÅR,
             SkjermlenkeType.BEREGNING_FORELDREPENGER, TOTRINN, EnumSet.of(FP, SVP)),
-    VURDER_GRADERING_UTEN_BEREGNINGSGRUNNLAG(
-            AksjonspunktKodeDefinisjon.VURDER_GRADERING_UTEN_BEREGNINGSGRUNNLAG_KODE, AksjonspunktType.MANUELL,
-            "Vurder gradering på andel uten beregningsgrunnlag",
-            BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.BEREGNING_FORELDREPENGER, TOTRINN, EnumSet.of(FP, SVP)),
     VURDER_PERIODER_MED_OPPTJENING(
             AksjonspunktKodeDefinisjon.VURDER_PERIODER_MED_OPPTJENING_KODE, AksjonspunktType.MANUELL, "Vurder perioder med opptjening",
             BehandlingStegType.VURDER_OPPTJENINGSVILKÅR, VurderingspunktType.INN, VilkårType.OPPTJENINGSVILKÅRET, SkjermlenkeType.FAKTA_FOR_OPPTJENING,
@@ -425,8 +417,12 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     _5022("5022", AksjonspunktType.MANUELL, "Avklar fakta for status på person."),
     @Deprecated
     _5024("5024", AksjonspunktType.MANUELL, "Saksbehandler må avklare hvilke verdier som er gjeldene, det er mismatch mellom register- og lokaldata (UTGÅTT)"),
+    @Deprecated // Håndteres nå sammen med 5039
+    _5042("5042", AksjonspunktType.MANUELL, "Fastsett beregningsgrunnlag for selvstendig næringsdrivende"),
     @Deprecated
     _5045("5045", AksjonspunktType.MANUELL, "Avklar startdato for foreldrepengeperioden"),
+    @Deprecated
+    _5050("5050", AksjonspunktType.MANUELL, "Vurder gradering på andel uten beregningsgrunnlag"),
     @Deprecated
     _5072("5072", AksjonspunktType.MANUELL, "Søker er stortingsrepresentant/administrativt ansatt i Stortinget"),
     @Deprecated
