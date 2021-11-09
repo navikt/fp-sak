@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
-import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 public class KlageVurderingTjeneste {
@@ -162,8 +161,7 @@ public class KlageVurderingTjeneste {
             && !dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT_FRITEKST)
             && !dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT)) {
 
-            DokumentMalType dokumentMalType = Environment.current().isProd() ? DokumentMalType.KLAGE_OVERSENDT_FRITEKST : DokumentMalType.KLAGE_OVERSENDT;
-            var bestillBrevDto = new BestillBrevDto(behandling.getId(), behandling.getUuid(), dokumentMalType);
+            var bestillBrevDto = new BestillBrevDto(behandling.getId(), behandling.getUuid(), DokumentMalType.KLAGE_OVERSENDT);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER, false);
             oppdaterBehandlingMedNyFrist(behandling);
         }
