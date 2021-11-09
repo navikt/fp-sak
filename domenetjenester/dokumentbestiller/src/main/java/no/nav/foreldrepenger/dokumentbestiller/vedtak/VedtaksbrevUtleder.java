@@ -22,8 +22,6 @@ import no.nav.vedtak.exception.TekniskException;
 
 public class VedtaksbrevUtleder {
 
-    private static final Environment ENV = Environment.current();
-
     private VedtaksbrevUtleder() {
     }
 
@@ -112,16 +110,16 @@ public class VedtaksbrevUtleder {
         var klagevurdering = klagevurderingResultat.getKlageVurdering();
 
         if (KlageVurdering.AVVIS_KLAGE.equals(klagevurdering)) {
-            return ENV.isProd() ? DokumentMalType.KLAGE_AVVIST_FRITEKST : DokumentMalType.KLAGE_AVVIST;
+            return DokumentMalType.KLAGE_AVVIST;
         }
         if (Arrays.asList(OPPHEVE_YTELSESVEDTAK, HJEMSENDE_UTEN_Å_OPPHEVE).contains(klagevurdering)) {
-            return ENV.isProd() ? DokumentMalType.KLAGE_HJEMSENDT_FRITEKST : DokumentMalType.KLAGE_HJEMSENDT;
+            return DokumentMalType.KLAGE_HJEMSENDT;
         }
         if (MEDHOLD_I_KLAGE.equals(klagevurdering)) {
-            return ENV.isProd() ? DokumentMalType.KLAGE_OMGJORT_FRITEKST : DokumentMalType.KLAGE_OMGJORT;
+            return DokumentMalType.KLAGE_OMGJORT;
         }
         if (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(klagevurdering)) {
-            return ENV.isProd() ? DokumentMalType.KLAGE_STADFESTET_FRITEKST : DokumentMalType.KLAGE_STADFESTET;
+            return DokumentMalType.KLAGE_STADFESTET;
         }
 
         return null;
