@@ -5,7 +5,7 @@ on:
 env:
   NAMESPACE: teamforeldrepenger
   IMAGE_BASE: ghcr.io/${{ github.repository }}
-  CLUSTER: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 }} # dev-fss eller prod-fss
+  CLUSTER_ARG: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 }} # dev-fss eller prod-fss
 
 jobs:
   promote:
@@ -35,7 +35,7 @@ jobs:
             ref: ${{ steps.issue_comment.outputs.sha }}
                   
       - name: Deploy fpsak til dev
-        if: env.CLUSTER == 'dev-fss' || env.CLUSTER == ''
+        if: env.CLUSTER_ARG == 'dev-fss' || env.CLUSTER_ARG == ''
         uses: nais/deploy/actions/deploy@v1
         env:
           PRINT_PAYLOAD: true
@@ -45,7 +45,7 @@ jobs:
           VARS: .deploy/dev-fss-${{ env.NAMESPACE }}.json
 
       - name: Oppdater kommentar med deployment status ved feil mot dev
-        if: failure() && (env.CLUSTER == 'dev-fss' || env.CLUSTER == '')
+        if: failure() && (env.CLUSTER_ARG == 'dev-fss' || env.CLUSTER_ARG == '')
         uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -59,7 +59,7 @@ jobs:
                             labels: ['deployment-failed','dev-fss-${{ env.NAMESPACE }}']})
 
       - name: Oppdater kommentar med deployment status mot dev
-        if: success() && (env.CLUSTER == 'dev-fss' || env.CLUSTER == '')
+        if: success() && (env.CLUSTER_ARG == 'dev-fss' || env.CLUSTER_ARG == '')
         uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -73,7 +73,7 @@ jobs:
                             labels: ['deployment','dev-fss-${{ env.NAMESPACE }}']})
 
       - name: Deploy fpsak til prod
-        if: env.CLUSTER == 'prod-fss' || env.CLUSTER == ''
+        if: env.CLUSTER_ARG == 'prod-fss' || env.CLUSTER_ARG == ''
         uses: nais/deploy/actions/deploy@v1
         env:
           PRINT_PAYLOAD: true
@@ -83,7 +83,7 @@ jobs:
           VARS: .deploy/prod-fss-${{ env.NAMESPACE }}.json
 
       - name: Oppdater kommentar med deployment status ved feil mot prod
-        if: failure() && (env.CLUSTER == 'prod-fss' || env.CLUSTER == '')
+        if: failure() && (env.CLUSTER_ARG == 'prod-fss' || env.CLUSTER_ARG == '')
         uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -97,7 +97,7 @@ jobs:
                             labels: ['deployment-failed','prod-fss-${{ env.NAMESPACE }}']})
 
       - name: Oppdater kommentar med deployment status mot prod
-        if: success() && (env.CLUSTER == 'prod-fss' || env.CLUSTER == '')
+        if: success() && (env.CLUSTER_ARG == 'prod-fss' || env.CLUSTER_ARG == '')
         uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
