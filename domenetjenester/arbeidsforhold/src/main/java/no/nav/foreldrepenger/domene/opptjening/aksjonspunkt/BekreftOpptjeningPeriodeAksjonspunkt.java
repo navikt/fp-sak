@@ -80,20 +80,13 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
         if (OpptjeningAktivitetType.ANNEN_OPPTJENING.contains(periode.getAktivitetType())
                 || periode.getAktivitetType().equals(OpptjeningAktivitetType.NÆRING)) {
             if (periode.getAktivitetType().equals(OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD)) {
-                settArbeidsgiverInformasjon(periode.getArbeidsgiverNavn(), periode.getArbeidsgiverReferanse(), yrkesaktivitetBuilder);
+                if (periode.getArbeidsgiverNavn() != null) {
+                    yrkesaktivitetBuilder.medArbeidsgiverNavn(periode.getArbeidsgiverNavn());
+                }
             }
             final var aktivitetsPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(periode.getOpptjeningFom(),
                     periode.getOpptjeningTom());
             aktivitetsAvtaleBuilder.medPeriode(aktivitetsPeriode);
-        }
-    }
-
-    private void settArbeidsgiverInformasjon(String arbeidsgiver, String oppdragsgiverOrg, YrkesaktivitetBuilder yrkesaktivitetBuilder) {
-        if (arbeidsgiver != null) {
-            yrkesaktivitetBuilder.medArbeidsgiverNavn(arbeidsgiver);
-        }
-        if (oppdragsgiverOrg != null) {
-            yrkesaktivitetBuilder.medArbeidsgiver(Arbeidsgiver.virksomhet(oppdragsgiverOrg));
         }
     }
 
