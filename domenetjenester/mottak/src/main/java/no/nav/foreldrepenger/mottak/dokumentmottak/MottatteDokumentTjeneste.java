@@ -22,8 +22,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.EndringsSøknadUtsettelseUttak;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
 
 @ApplicationScoped
 public class MottatteDokumentTjeneste {
@@ -59,6 +60,15 @@ public class MottatteDokumentTjeneste {
             @SuppressWarnings("rawtypes") var dokumentWrapper = mottattDokumentPersisterer.xmlTilWrapper(dokument);
             mottattDokumentPersisterer.persisterDokumentinnhold(dokumentWrapper, dokument, behandling, gjelderFra);
         }
+    }
+
+    public EndringsSøknadUtsettelseUttak finnUtsettelseUttakForEndringssøknad(MottattDokument dokument) {
+        if (!dokument.getDokumentType().erEndringsSøknadType() || dokument.getPayloadXml() == null) {
+            return null;
+        }
+        @SuppressWarnings("rawtypes") var dokumentWrapper = mottattDokumentPersisterer.xmlTilWrapper(dokument);
+        return mottattDokumentPersisterer.ekstraherUtsettelseUttak(dokumentWrapper, dokument);
+
     }
 
     public Long lagreMottattDokumentPåFagsak(MottattDokument dokument) {

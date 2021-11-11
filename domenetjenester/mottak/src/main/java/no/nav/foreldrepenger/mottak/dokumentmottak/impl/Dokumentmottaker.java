@@ -19,6 +19,14 @@ public interface Dokumentmottaker {
 
     void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType);
 
+    default boolean utsetterStartdato(MottattDokument mottattDokument, Fagsak fagsak) {
+        return false;
+    }
+
+    default void utsettelseFraStart(MottattDokument mottattDokument, Fagsak fagsak) {
+        throw new IllegalStateException("utsettelseFraStart er ikke implementert");
+    }
+
     @SuppressWarnings("unused")
     default void opprettFraTidligereAvsluttetBehandling(Fagsak fagsak, Long behandlingId, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType, boolean opprettSomKøet) {}
 }

@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.Dependent;
@@ -25,6 +26,7 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlin
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.EndringsSøknadUtsettelseUttak;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderDokumentTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -273,6 +275,32 @@ public class DokumentmottakerFelles {
     private void leggNyBehandlingPåKøOgOpprettHistorikkinnslag(Behandling nyBehandling) {
         opprettKøetHistorikk(nyBehandling, false);
         behandlingsoppretter.settSomKøet(nyBehandling);
+    }
+
+    EndringsSøknadUtsettelseUttak finnUtsettelseUttak(MottattDokument dokument) {
+        return mottatteDokumentTjeneste.finnUtsettelseUttakForEndringssøknad(dokument);
+    }
+
+    void opprettAnnulleringsBehandlinger(MottattDokument dokument, Fagsak fagsak) {
+        var søknadUtsettelseUttak = finnUtsettelseUttak(dokument);
+
+        var revurdering = behandlingsoppretter.opprettRevurderingMultiÅrsak(fagsak, List.of(BehandlingÅrsakType.RE_UTSATT_START, BehandlingÅrsakType.BERØRT_BEHANDLING));
+        mottatteDokumentTjeneste.persisterDokumentinnhold(revurdering, dokument, Optional.empty());
+        opprettHistorikk(revurdering, dokument);
+        opprettTaskForÅStarteBehandling(revurdering);
+
+        // Opprett køet førstegangsbehandling dersom endringssøknad inneholder uttaksperioder
+        if (søknadUtsettelseUttak.uttakFom() != null) {
+            var nyBehandling = behandlingsoppretter.opprettFørstegangsbehandling(fagsak, BehandlingÅrsakType.UDEFINERT, Optional.empty());
+            behandlingsoppretter.kopierAlleGrunnlagFraTidligereBehandlingTilUtsattSøknad(fagsak, revurdering, nyBehandling);
+            var søknadKopi = new MottattDokument.Builder(dokument)
+                .medBehandlingId(nyBehandling.getId())
+                .build();
+            mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(søknadKopi);
+            historikkinnslagTjeneste.opprettHistorikkinnslag(nyBehandling, søknadKopi.getJournalpostId(), false,
+                søknadKopi.getElektroniskRegistrert(), false);
+            leggNyBehandlingPåKøOgOpprettHistorikkinnslag(nyBehandling);
+        }
     }
 
 }

@@ -78,8 +78,9 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         var familiehendelser = familieHendelser(fhaOpt.get());
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var erBerørtBehandling =
-            behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING) && !behandling.harBehandlingÅrsak(
-                BehandlingÅrsakType.REBEREGN_FERIEPENGER);
+            behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING) &&
+                !behandling.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER) &&
+                !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_UTSATT_START);
         var originalBehandling = originalBehandling(behandling);
         var grunnlag = new ForeldrepengerGrunnlag()
             .medErBerørtBehandling(erBerørtBehandling)

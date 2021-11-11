@@ -75,6 +75,11 @@ class DokumentmottakerInntektsmelding extends DokumentmottakerYtelsesesrelatertD
     }
 
     @Override
+    public void håndterUtsattStartdato(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
+        dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument);
+    }
+
+    @Override
     public boolean skalOppretteKøetBehandling(Fagsak fagsak) {
         return true;
     }

@@ -34,6 +34,7 @@ public enum BehandlingResultatType implements Kodeverdi {
     MERGET_OG_HENLAGT("MERGET_OG_HENLAGT", "Mottatt ny søknad"),
     HENLAGT_SØKNAD_MANGLER("HENLAGT_SØKNAD_MANGLER", "Henlagt søknad mangler"),
     FORELDREPENGER_ENDRET("FORELDREPENGER_ENDRET", "Sak er endret"),
+    FORELDREPENGER_SENERE("FORELDREPENGER_SENERE", "Sak er endret"),
     INGEN_ENDRING("INGEN_ENDRING", "Ingen endring"),
     MANGLER_BEREGNINGSREGLER("MANGLER_BEREGNINGSREGLER", "Mangler beregningsregler"),
 
@@ -66,8 +67,7 @@ public enum BehandlingResultatType implements Kodeverdi {
     private static final Set<BehandlingResultatType> KLAGE_KODER = Set.of(KLAGE_MEDHOLD, KLAGE_YTELSESVEDTAK_STADFESTET, KLAGE_YTELSESVEDTAK_OPPHEVET, KLAGE_AVVIST, HJEMSENDE_UTEN_OPPHEVE);
     private static final Set<BehandlingResultatType> ANKE_KODER = Set.of(ANKE_AVVIST, ANKE_OMGJOER, ANKE_OPPHEVE_OG_HJEMSENDE, ANKE_HJEMSENDE_UTEN_OPPHEV, ANKE_YTELSESVEDTAK_STADFESTET);
     private static final Set<BehandlingResultatType> INNSYN_KODER = Set.of(INNSYN_INNVILGET, INNSYN_DELVIS_INNVILGET, INNSYN_AVVIST);
-    private static final Set<BehandlingResultatType> INNVILGET_KODER = Set.of(INNVILGET, FORELDREPENGER_ENDRET);
-    private static final Set<BehandlingResultatType> ALLE_INNVILGET_KODER = Set.of(INNVILGET, FORELDREPENGER_ENDRET, INGEN_ENDRING);
+    private static final Set<BehandlingResultatType> ALLE_INNVILGET_KODER = Set.of(INNVILGET, FORELDREPENGER_ENDRET, FORELDREPENGER_SENERE, INGEN_ENDRING);
 
     private static final Map<AnkeVurdering, BehandlingResultatType> ANKE_RESULTAT = Map.ofEntries(
         Map.entry(AnkeVurdering.ANKE_AVVIS, BehandlingResultatType.ANKE_AVVIST),
@@ -162,10 +162,6 @@ public enum BehandlingResultatType implements Kodeverdi {
 
     public static Set<BehandlingResultatType> getInnsynKoder() {
         return INNSYN_KODER;
-    }
-
-    public static Set<BehandlingResultatType> getInnvilgetKoder() {
-        return INNVILGET_KODER;
     }
 
     public static Set<BehandlingResultatType> getAlleInnvilgetKoder() {

@@ -61,7 +61,7 @@ public class PersonopplysningRepository {
     }
 
 
-    public void kopierGrunnlagFraEksisterendeBehandlingForRevurdering(Long eksisterendeBehandlingId, Long nyBehandlingId) {
+    public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long eksisterendeBehandlingId, Long nyBehandlingId) {
         var eksisterendeGrunnlag = getAktivtGrunnlag(eksisterendeBehandlingId);
 
         final var builder = PersonopplysningGrunnlagBuilder.oppdatere(eksisterendeGrunnlag);

@@ -126,15 +126,22 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandling.harSattStartpunkt()) {
             // Startpunkt kan bare initieres én gang, og det gjøres i dette steget.
-            // Suksessive eksekveringer av stegets aksjonspunktsutledere skjer utenfor
-            // steget
+            // Suksessive eksekveringer av stegets aksjonspunktsutledere skjer utenfor steget
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
+        // Spesialhåndtering for enkelte behandlinger
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
+            var startpunkt = behandling.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER) ||
+                behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_UTSATT_START) ?
+                StartpunktType.TILKJENT_YTELSE : StartpunktType.UTTAKSVILKÅR;
+            behandling.setStartpunkt(startpunkt);
+            kopierResultaterAvhengigAvStartpunkt(behandling, kontekst);
+            return utledStegResultat(startpunkt, List.of());
+        }
+
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
-        if (!behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
-            behandlingÅrsakTjeneste.lagHistorikkForRegisterEndringerMotOriginalBehandling(behandling);
-        }
+        behandlingÅrsakTjeneste.lagHistorikkForRegisterEndringerMotOriginalBehandling(behandling);
 
         var startpunkt = utledStartpunkt(ref, behandling);
         behandling.setStartpunkt(startpunkt);
@@ -142,26 +149,24 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         // Kopier aksjonspunkter
         List<AksjonspunktResultat> aksjonspunktResultater = startpunkt.getRangering() <= StartpunktType.OPPTJENING.getRangering() ?
             tjeneste.utledAksjonspunkterTilHøyreForStartpunkt(ref, startpunkt) : List.of();
-        kopierResultaterAvhengigAvStartpunkt(behandling, ref, kontekst);
+        kopierResultaterAvhengigAvStartpunkt(behandling, kontekst);
 
+        return utledStegResultat(startpunkt, aksjonspunktResultater);
+    }
+
+    private BehandleStegResultat utledStegResultat(StartpunktType startpunkt, List<AksjonspunktResultat> aksjonspunkt) {
         var transisjon = TransisjonIdentifikator
-                .forId(FellesTransisjoner.SPOLFREM_PREFIX + startpunkt.getBehandlingSteg().getKode());
-        return BehandleStegResultat.fremoverførtMedAksjonspunktResultater(transisjon, aksjonspunktResultater);
+            .forId(FellesTransisjoner.SPOLFREM_PREFIX + startpunkt.getBehandlingSteg().getKode());
+        return BehandleStegResultat.fremoverførtMedAksjonspunktResultater(transisjon, aksjonspunkt);
     }
 
     private StartpunktType utledStartpunkt(BehandlingReferanse ref, Behandling revurdering) {
         var startpunkt = DEFAULT_STARTPUNKT; // Gjennomgå hele prosessen - for manuelle, etterkontroller og tidl.avslag
         if (!revurdering.erManueltOpprettet() && !erEtterkontrollRevurdering(revurdering)) {
-            // Automatisk revurdering skal hoppe til utledet startpunkt. Unntaket er
-            // revurdering av avslåtte behandlinger
-            if (revurdering.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
-                startpunkt = revurdering.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER) ? StartpunktType.TILKJENT_YTELSE : StartpunktType.UTTAKSVILKÅR;
-                return startpunkt;
-            }
+            // Automatisk revurdering skal hoppe til utledet startpunkt. Unntaket er revurdering av avslåtte behandlinger
             var orgBehandlingsresultat = getBehandlingsresultat(ref.getOriginalBehandlingId().get());
             if ((orgBehandlingsresultat != null) && !orgBehandlingsresultat.isVilkårAvslått()) {
-                // Revurdering av innvilget behandling. Hvis vilkår er avslått må man tillate
-                // re-evalueres
+                // Revurdering av innvilget behandling. Hvis vilkår er avslått må man tillate re-evalueres
                 startpunkt = startpunktTjeneste.utledStartpunktMotOriginalBehandling(ref);
                 if (startpunkt.equals(StartpunktType.UDEFINERT)) {
                     startpunkt = inneholderEndringssøknadPerioderFørSkjæringstidspunkt(revurdering, ref)
@@ -171,15 +176,13 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             }
         }
 
-        // Undersøk behov for GRegulering. Med mindre vi allerede skal til BEREGNING
-        // eller tidligere steg
+        // Undersøk behov for GRegulering. Med mindre vi allerede skal til BEREGNING eller tidligere steg
         if (startpunkt.getRangering() > StartpunktType.BEREGNING.getRangering()) {
             var greguleringStartpunkt = utledBehovForGRegulering(ref, revurdering);
             startpunkt = startpunkt.getRangering() < greguleringStartpunkt.getRangering() ? startpunkt : greguleringStartpunkt;
         }
 
-        // Startpunkt for revurdering kan kun hoppe fremover; default dersom startpunkt
-        // passert
+        // Startpunkt for revurdering kan kun hoppe fremover; default dersom startpunkt passert
         if (behandlingskontrollTjeneste.erStegPassert(revurdering, startpunkt.getBehandlingSteg())) {
             startpunkt = DEFAULT_STARTPUNKT;
         }
@@ -256,12 +259,10 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     }
 
     /**
-     * Om saken skal G-reguleres kan den enten starte fra start eller foreslå. Dette
-     * avhenger av om man har avklart informasjon i fakta om beregning som avhenger
-     * av størrelsen på G-beløpet. Dette gjelder søkere som har mottatt ytelse for
-     * en aktivitet (arbeidsforhold uten inntektsmelding eller frilans) og der denne
-     * ytelsen har blitt g-regulert. Derfor lar vi alle slike saker starte fra start
-     * av beregning.
+     * Om saken skal G-reguleres kan den enten starte fra start eller foreslå.
+     * Dette avhenger av om man har avklart informasjon i fakta om beregning som avhenger av størrelsen på G-beløpet.
+     * Dette gjelder søkere som har mottatt ytelse for en aktivitet (arbeidsforhold uten inntektsmelding eller frilans) og
+     * der denne ytelsen har blitt g-regulert. Derfor lar vi alle slike saker starte fra start av beregning.
      *
      * @param revurdering Revurdering
      * @return Startpunkt for g-regulering
@@ -287,7 +288,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                 .anyMatch(a -> a.mottarYtelse().orElse(false));
     }
 
-    private void kopierResultaterAvhengigAvStartpunkt(Behandling revurdering, BehandlingReferanse ref, BehandlingskontrollKontekst kontekst) {
+    private void kopierResultaterAvhengigAvStartpunkt(Behandling revurdering, BehandlingskontrollKontekst kontekst) {
         var origBehandling = revurdering.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
                 .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
 
@@ -304,7 +305,11 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         }
 
         if (StartpunktType.TILKJENT_YTELSE.equals(revurdering.getStartpunkt())) {
-            kopierForeldrepengerUttaktjeneste.kopierUttakFraOriginalBehandling(ref);
+            if (revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_UTSATT_START)) {
+                kopierForeldrepengerUttaktjeneste.lagreTomtUttakResultat(revurdering.getId());
+            } else {
+                kopierForeldrepengerUttaktjeneste.kopierUttakFraOriginalBehandling(origBehandling.getId(), revurdering.getId());
+            }
         } else {
             tilbakestillOppgittFordelingBasertPåBehandlingType(revurdering);
         }

@@ -222,7 +222,7 @@ public class FamilieHendelseRepository {
      * @param gammelBehandling behandlingen det opprettes revurdering på
      * @param nyBehandling revurderings behandlingen
      */
-    public void kopierGrunnlagFraEksisterendeBehandlingForRevurdering(Long gammelBehandlingId, Long nyBehandlingId) {
+    public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long gammelBehandlingId, Long nyBehandlingId) {
         final var familieHendelseGrunnlag = getAktivtFamilieHendelseGrunnlag(gammelBehandlingId);
         if (familieHendelseGrunnlag.isPresent()) {
             final var entitet = new FamilieHendelseGrunnlagEntitet(familieHendelseGrunnlag.get());

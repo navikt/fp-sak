@@ -51,7 +51,8 @@ public class SjekkMotEksisterendeOppgaverTjeneste {
         List<AksjonspunktDefinisjon> aksjonspunktliste = new ArrayList<>();
 
         if (oppgaveTjeneste.harÅpneOppgaverAvType(aktørid, Oppgavetyper.VURDER_KONSEKVENS_YTELSE)) {
-            if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER)) {
+            if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER) ||
+                behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_UTSATT_START)) {
                 LOG.info("REBEREGN OPPGAVE fant Vurder Konsekvens for sak {}", behandling.getFagsak().getSaksnummer());
             } else {
                 aksjonspunktliste.add(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK);
@@ -59,7 +60,8 @@ public class SjekkMotEksisterendeOppgaverTjeneste {
             }
         }
         if (oppgaveTjeneste.harÅpneOppgaverAvType(aktørid, Oppgavetyper.VURDER_DOKUMENT_VL)) {
-            if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER)) {
+            if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER) ||
+                behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_UTSATT_START)) {
                 LOG.info("REBEREGN OPPGAVE fant Vurder Dokument for sak {}", behandling.getFagsak().getSaksnummer());
             } else {
                 aksjonspunktliste.add(AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK);

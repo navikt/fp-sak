@@ -224,6 +224,14 @@ public class Behandlingsoppretter {
             .isPresent();
     }
 
+    public boolean erUtsattBehandling(Behandling behandling) {
+        var forrigeResultatUtsatt = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
+            .map(Behandlingsresultat::getBehandlingResultatType)
+            .filter(BehandlingResultatType.FORELDREPENGER_SENERE::equals)
+            .isPresent();
+        return behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(behandling.getFagsakId()).isEmpty() && forrigeResultatUtsatt;
+    }
+
     private void kopierTidligereGrunnlagFraTil(Fagsak fagsak, Behandling behandlingMedSøknad, Behandling nyBehandling) {
         var søknad = søknadRepository.hentSøknad(behandlingMedSøknad.getId());
         if (søknad != null) {
@@ -231,6 +239,11 @@ public class Behandlingsoppretter {
         }
         var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow();
         revurderingTjeneste.kopierAlleGrunnlagFraTidligereBehandling(behandlingMedSøknad, nyBehandling);
+    }
+
+    public void kopierAlleGrunnlagFraTidligereBehandlingTilUtsattSøknad(Fagsak fagsak, Behandling forrige, Behandling nyBehandling) {
+        var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow();
+        revurderingTjeneste.kopierAlleGrunnlagFraTidligereBehandlingTilUtsattSøknad(forrige, nyBehandling);
     }
 
     public Behandling opprettNyFørstegangsbehandlingFraTidligereSøknad(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling behandlingMedSøknad) {

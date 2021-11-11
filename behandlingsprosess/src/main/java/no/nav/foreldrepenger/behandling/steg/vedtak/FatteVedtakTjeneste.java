@@ -43,7 +43,7 @@ public class FatteVedtakTjeneste {
     private static final AksjonspunktDefinisjon VENT_MERKNADER = AksjonspunktDefinisjon.AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER;
 
     private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER_REVURDERING = Set.of(BehandlingResultatType.AVSLÅTT,
-            BehandlingResultatType.INNVILGET,
+            BehandlingResultatType.INNVILGET, BehandlingResultatType.FORELDREPENGER_SENERE,
             BehandlingResultatType.OPPHØR, BehandlingResultatType.FORELDREPENGER_ENDRET, BehandlingResultatType.INGEN_ENDRING);
     private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER = Set.of(BehandlingResultatType.AVSLÅTT, BehandlingResultatType.INNVILGET);
     private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER_KLAGE = Set.of(BehandlingResultatType.KLAGE_AVVIST,

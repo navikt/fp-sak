@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.revurdering.BerørtBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -85,8 +86,8 @@ public class BerørtBehandlingKontroller {
 
         if (sistVedtatteYtelsesbehandlingMedforelder.isPresent()) {
             var avsluttetBehandlingsresultatBruker = behandlingsresultatRepository.hent(behandlingIdBruker);
-            var skalBerørtBehandlingOpprettes = berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(
-                avsluttetBehandlingsresultatBruker, behandlingIdBruker, sistVedtatteYtelsesbehandlingMedforelder.get().getId());
+            var skalBerørtBehandlingOpprettes = !BehandlingResultatType.FORELDREPENGER_SENERE.equals(avsluttetBehandlingsresultatBruker.getBehandlingResultatType()) &&
+                berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(avsluttetBehandlingsresultatBruker, behandlingIdBruker, sistVedtatteYtelsesbehandlingMedforelder.get().getId());
             if (skalBerørtBehandlingOpprettes) {
                 opprettBerørtBehandling(fagsakMedforelder, avsluttetBehandlingsresultatBruker);
             } else {

@@ -1,10 +1,17 @@
 package no.nav.foreldrepenger.behandling.fp;
 
+import java.util.Set;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 
 public class UtledVedtakResultatType {
+
+    private static Set<BehandlingResultatType> INNVILGET_TYPER = Set.of(BehandlingResultatType.INNVILGET,
+        BehandlingResultatType.FORELDREPENGER_ENDRET,
+        BehandlingResultatType.FORELDREPENGER_SENERE);
+
     private UtledVedtakResultatType() {
         // hide public contructor
     }
@@ -19,10 +26,7 @@ public class UtledVedtakResultatType {
         if (BehandlingType.INNSYN.equals(behandlingType)) {
             return VedtakResultatType.VEDTAK_I_INNSYNBEHANDLING;
         }
-        if (BehandlingResultatType.INNVILGET.equals(behandlingResultatType)) {
-            return VedtakResultatType.INNVILGET;
-        }
-        if (BehandlingResultatType.FORELDREPENGER_ENDRET.equals(behandlingResultatType)) {
+        if (INNVILGET_TYPER.contains(behandlingResultatType)) {
             return VedtakResultatType.INNVILGET;
         }
         if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingResultatType)) {

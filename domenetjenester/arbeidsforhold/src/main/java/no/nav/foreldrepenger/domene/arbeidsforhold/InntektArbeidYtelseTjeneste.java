@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
@@ -18,7 +17,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public interface InntektArbeidYtelseTjeneste {
@@ -137,6 +135,9 @@ public interface InntektArbeidYtelseTjeneste {
      * @param tilBehandlingId - Ny behandling
      */
     void kopierGrunnlagFraEksisterendeBehandling(Long fraBehandlingId, Long tilBehandlingId);
+
+    // Kun Oppgitt opptjening og inntektsmeldinger - ikke register eller overstyrt
+    void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long fraBehandlingId, Long tilBehandlingId);
 
     List<Inntektsmelding> hentUnikeInntektsmeldingerForSak(Saksnummer saksnummer);
 

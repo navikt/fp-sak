@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
+import no.nav.foreldrepenger.skjæringstidspunkt.TomtUttakTjeneste;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef
@@ -23,6 +25,7 @@ import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertDokument {
 
     private KøKontroller køKontroller;
+    private TomtUttakTjeneste tomtUttakTjeneste;
 
     @Inject
     public DokumentmottakerEndringssøknad(BehandlingRepositoryProvider repositoryProvider,
@@ -30,13 +33,15 @@ class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertD
                                           Behandlingsoppretter behandlingsoppretter,
                                           Kompletthetskontroller kompletthetskontroller,
                                           KøKontroller køKontroller,
-                                          ForeldrepengerUttakTjeneste fpUttakTjeneste) {
+                                          ForeldrepengerUttakTjeneste fpUttakTjeneste,
+                                          TomtUttakTjeneste tomtUttakTjeneste) {
         super(dokumentmottakerFelles,
             behandlingsoppretter,
             kompletthetskontroller,
             fpUttakTjeneste,
             repositoryProvider);
         this.køKontroller = køKontroller;
+        this.tomtUttakTjeneste = tomtUttakTjeneste;
     }
 
     @Override
@@ -98,6 +103,11 @@ class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertD
     }
 
     @Override
+    public void håndterUtsattStartdato(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
+        dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument);
+    }
+
+    @Override
     public boolean skalOppretteKøetBehandling(Fagsak fagsak) {
         return !behandlingsoppretter.erBehandlingOgFørstegangsbehandlingHenlagt(fagsak);
     }
@@ -111,6 +121,28 @@ class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertD
         } else { //#E10
             dokumentmottakerFelles.opprettKøetRevurdering(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
         }
+    }
+
+    @Override
+    public boolean utsetterStartdato(MottattDokument mottattDokument, Fagsak fagsak) {
+        var søknadUtsettelseUttak = dokumentmottakerFelles.finnUtsettelseUttak(mottattDokument);
+        var eksisterendeStartdatoOpt = tomtUttakTjeneste.startdatoUttakResultatFrittUttak(fagsak);
+        if (søknadUtsettelseUttak == null || søknadUtsettelseUttak.utsettelseFom() == null || eksisterendeStartdatoOpt.isEmpty()) {
+            return false;
+        }
+        var eksisterendeStartdato = eksisterendeStartdatoOpt.orElseThrow();
+        var utsettelseFraStart = !søknadUtsettelseUttak.utsettelseFom().isAfter(eksisterendeStartdato);
+        var utsettelsePeriodeAkseptert = søknadUtsettelseUttak.uttakFom() != null &&
+            (YearMonth.from(søknadUtsettelseUttak.uttakFom()).equals(YearMonth.from(eksisterendeStartdato)) ||
+                søknadUtsettelseUttak.uttakFom().isBefore(eksisterendeStartdato.plusWeeks(2))); // TODO - oppdater ifm TFP-4716
+        return utsettelseFraStart && !utsettelsePeriodeAkseptert;
+    }
+
+    @Override
+    public void utsettelseFraStart(MottattDokument mottattDokument, Fagsak fagsak) {
+        behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId())
+            .forEach(b -> behandlingsoppretter.henleggBehandling(b));
+        dokumentmottakerFelles.opprettAnnulleringsBehandlinger(mottattDokument, fagsak);
     }
 
     private BehandlingÅrsakType getBehandlingÅrsakHvisUdefinert(BehandlingÅrsakType behandlingÅrsakType) {

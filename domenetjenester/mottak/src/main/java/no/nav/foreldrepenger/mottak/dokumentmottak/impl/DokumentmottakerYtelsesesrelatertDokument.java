@@ -59,6 +59,8 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
 
     public abstract void håndterAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument, Fagsak fagsak, Behandling avsluttetBehandling, BehandlingÅrsakType behandlingÅrsakType);
 
+    public abstract void håndterUtsattStartdato(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType);
+
     public abstract boolean skalOppretteKøetBehandling(Fagsak fagsak);
 
     protected abstract void opprettKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling sisteAvsluttetBehandling);
@@ -84,6 +86,8 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
             if (behandlingsoppretter.erAvslåttBehandling(behandling)
                 || behandlingsoppretter.erOpphørtBehandling(behandling)) {
                 håndterAvslåttEllerOpphørtBehandling(mottattDokument, fagsak, behandling, behandlingÅrsakType);
+            } else if (behandlingsoppretter.erUtsattBehandling(behandling)) {
+                håndterUtsattStartdato(mottattDokument, fagsak, behandlingÅrsakType);
             } else {
                 håndterAvsluttetTidligereBehandling(mottattDokument, fagsak, behandlingÅrsakType);
             }

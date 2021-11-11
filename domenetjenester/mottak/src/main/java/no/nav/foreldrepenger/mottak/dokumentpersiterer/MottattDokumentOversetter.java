@@ -10,4 +10,8 @@ import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentWrapp
 public interface MottattDokumentOversetter<T extends MottattDokumentWrapper<?>> {
 
     void trekkUtDataOgPersister(T wrapper, MottattDokument mottattDokument, Behandling behandling, Optional<LocalDate> gjelderFra);
+
+    default EndringsSøknadUtsettelseUttak ekstraherUtsettelseUttakFra(T wrapper, MottattDokument mottattDokument) {
+        return null;
+    }
 }

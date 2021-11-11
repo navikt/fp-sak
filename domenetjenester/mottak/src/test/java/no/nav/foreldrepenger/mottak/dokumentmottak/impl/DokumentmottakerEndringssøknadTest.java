@@ -53,6 +53,7 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.TomtUttakTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
@@ -103,7 +104,7 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
         dokumentmottaker = new DokumentmottakerEndringssøknad(repositoryProvider, dokumentmottakerFelles,
-                behandlingsoppretter, kompletthetskontroller, køKontroller, fpUttakTjeneste);
+                behandlingsoppretter, kompletthetskontroller, køKontroller, fpUttakTjeneste, mock(TomtUttakTjeneste.class));
         dokumentmottaker = Mockito.spy(dokumentmottaker);
     }
 

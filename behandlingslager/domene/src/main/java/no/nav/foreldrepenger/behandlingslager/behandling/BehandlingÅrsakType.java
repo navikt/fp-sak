@@ -32,7 +32,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
 
     RE_OPPLYSNINGER_OM_MEDLEMSKAP("RE-MDL", "Opplysninger medlemskap"),
     RE_OPPLYSNINGER_OM_OPPTJENING("RE-OPTJ", "Opplysninger opptjening"),
-    RE_OPPLYSNINGER_OM_FORDELING("RE-FRDLING", "Opplysninger fordeling"),
+    RE_OPPLYSNINGER_OM_FORDELING("RE-FRDLING", "Opplysninger uttak"),
     RE_OPPLYSNINGER_OM_INNTEKT("RE-INNTK", "Opplysninger inntekt"),
     RE_OPPLYSNINGER_OM_FØDSEL("RE-FØDSEL", "Fødsel"),
     RE_OPPLYSNINGER_OM_DØD("RE-DØD", "Opplysninger død"),
@@ -50,11 +50,12 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     RE_MANGLER_FØDSEL_I_PERIODE("RE-MFIP", "Mangler fødselsreg. u26-29"),
     RE_AVVIK_ANTALL_BARN("RE-AVAB", "Avvik antall barn"),
 
-    // Mottak
+    // Mottak + varianter av berørte behandlinger (tekniske behandlinger)
     RE_ENDRING_FRA_BRUKER("RE-END-FRA-BRUKER", "Søknad"),
     RE_ENDRET_INNTEKTSMELDING("RE-END-INNTEKTSMELD", "Inntektsmelding"),
     BERØRT_BEHANDLING("BERØRT-BEHANDLING", "Berørt behandling"),
     REBEREGN_FERIEPENGER("REBEREGN-FERIEPENGER", "Omfordel feriepenger"),
+    RE_UTSATT_START("RE-UTSATT-START", "Senere startdato"),
 
     // G-regulering
     RE_SATS_REGULERING("RE-SATS-REGULERING", "Regulering grunnbeløp"),

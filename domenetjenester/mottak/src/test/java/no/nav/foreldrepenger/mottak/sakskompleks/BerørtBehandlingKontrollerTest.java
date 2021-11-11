@@ -228,15 +228,17 @@ public class BerørtBehandlingKontrollerTest {
     private void settOppAvsluttetBehandlingBruker() {
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
             Optional.of(fBehandling));
-        when(behandlingsresultatRepository.hentHvisEksisterer(fBehandling.getId())).thenReturn(
-            lagBehandlingsresultatInnvilget(fBehandling));
+        var br = lagBehandlingsresultatInnvilget(fBehandling);
+        when(behandlingsresultatRepository.hentHvisEksisterer(fBehandling.getId())).thenReturn(Optional.of(br));
+        when(behandlingsresultatRepository.hent(fBehandling.getId())).thenReturn(br);
     }
 
     private void settOppAvsluttetBehandlingAnnenpart() {
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMedforelder.getId())).thenReturn(
             Optional.of(fBehandlingMedforelder));
-        when(behandlingsresultatRepository.hentHvisEksisterer(fBehandling.getId())).thenReturn(
-            lagBehandlingsresultatInnvilget(fBehandlingMedforelder));
+        var br = lagBehandlingsresultatInnvilget(fBehandlingMedforelder);
+        when(behandlingsresultatRepository.hentHvisEksisterer(fBehandlingMedforelder.getId())).thenReturn(Optional.of(br));
+        when(behandlingsresultatRepository.hent(fBehandlingMedforelder.getId())).thenReturn(br);
     }
 
     private void settOppKøBruker() {
@@ -285,10 +287,10 @@ public class BerørtBehandlingKontrollerTest {
             .buildFor(behandling));
     }
 
-    private Optional<Behandlingsresultat> lagBehandlingsresultatInnvilget(Behandling behandling) {
-        return Optional.of(Behandlingsresultat.builder()
+    private Behandlingsresultat lagBehandlingsresultatInnvilget(Behandling behandling) {
+        return Behandlingsresultat.builder()
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-            .buildFor(behandling));
+            .buildFor(behandling);
     }
 
 

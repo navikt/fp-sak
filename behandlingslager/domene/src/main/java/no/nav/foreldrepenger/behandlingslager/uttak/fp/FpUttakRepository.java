@@ -38,6 +38,7 @@ public class FpUttakRepository {
 
     public void lagreOpprinneligUttakResultatPerioder(Long behandlingId,
                                                       UttakResultatPerioderEntitet opprinneligPerioder) {
+        // Nullstilling er forventet - fjerner evt overstyring
         lagreUttaksresultat(behandlingId, builder -> builder.nullstill().medOpprinneligPerioder(opprinneligPerioder));
     }
 

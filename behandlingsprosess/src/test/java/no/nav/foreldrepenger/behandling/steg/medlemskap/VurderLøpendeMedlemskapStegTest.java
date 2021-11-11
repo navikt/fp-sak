@@ -188,8 +188,8 @@ public class VurderLøpendeMedlemskapStegTest {
 
         medlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
-        personopplysningRepository.kopierGrunnlagFraEksisterendeBehandlingForRevurdering(behandlingId, revurderingId);
-        familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandlingForRevurdering(behandlingId, revurderingId);
+        personopplysningRepository.kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(behandlingId, revurderingId);
+        familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(behandlingId, revurderingId);
 
         return revudering;
     }

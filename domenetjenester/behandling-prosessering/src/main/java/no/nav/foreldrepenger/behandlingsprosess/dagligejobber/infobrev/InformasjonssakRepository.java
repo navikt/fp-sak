@@ -36,7 +36,7 @@ public class InformasjonssakRepository {
             BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(),
             BehandlingResultatType.INGEN_ENDRING.getKode());
     private static final List<String> SENERE_TYPER = List.of(BehandlingResultatType.INNVILGET.getKode(),
-            BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(),
+            BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(), BehandlingResultatType.FORELDREPENGER_SENERE.getKode(),
             BehandlingResultatType.INGEN_ENDRING.getKode(), BehandlingResultatType.OPPHØR.getKode());
 
     // Query-resultat posisjon
@@ -321,8 +321,8 @@ public class InformasjonssakRepository {
         }
         query.setParameter("foreldrepenger", List.of(FagsakYtelseType.FORELDREPENGER.getKode(), FagsakYtelseType.SVANGERSKAPSPENGER.getKode())); //$NON-NLS-1$
         query.setParameter("restyper", List.of(BehandlingResultatType.INNVILGET.getKode(), BehandlingResultatType.INGEN_ENDRING.getKode(),
-                BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(), BehandlingResultatType.AVSLÅTT.getKode(),
-                BehandlingResultatType.OPPHØR.getKode()));
+                BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(), BehandlingResultatType.FORELDREPENGER_SENERE.getKode(),
+            BehandlingResultatType.AVSLÅTT.getKode(), BehandlingResultatType.OPPHØR.getKode()));
         query.setParameter("innvilgetyper", INNVILGET_TYPER); //$NON-NLS-1$
         query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
         query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode(), BehandlingType.REVURDERING.getKode())); //$NON-NLS-1$
@@ -385,8 +385,8 @@ public class InformasjonssakRepository {
         }
         query.setParameter("foreldrepenger", List.of(FagsakYtelseType.FORELDREPENGER.getKode(), FagsakYtelseType.SVANGERSKAPSPENGER.getKode())); //$NON-NLS-1$
         query.setParameter("restyper", List.of(BehandlingResultatType.INNVILGET.getKode(), BehandlingResultatType.INGEN_ENDRING.getKode(),
-                BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(), BehandlingResultatType.AVSLÅTT.getKode(),
-                BehandlingResultatType.OPPHØR.getKode()));
+            BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(), BehandlingResultatType.FORELDREPENGER_SENERE,
+            BehandlingResultatType.AVSLÅTT.getKode(),  BehandlingResultatType.OPPHØR.getKode()));
         query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
         query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode(), BehandlingType.REVURDERING.getKode())); //$NON-NLS-1$
         @SuppressWarnings("unchecked")
