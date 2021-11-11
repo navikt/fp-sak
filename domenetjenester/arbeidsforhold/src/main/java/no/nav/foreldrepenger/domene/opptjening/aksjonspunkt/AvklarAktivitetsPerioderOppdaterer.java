@@ -147,7 +147,11 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
         var lagretArbeidsgiverId = akt.getArbeidsgiver() == null
             ? null
             : akt.getArbeidsgiver().getIdentifikator();
-        var bekreftetArbeidsgiverId = bekreftetAktivitet.getArbeidsgiverReferanse();
+
+        // For utenlands arbeidsforhold sendes det ned et nummer som brukes kun til identifisering i GUI og som ikke kan brukes til å finne igjen aktivitet backend
+        var bekreftetArbeidsgiverId = OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD.equals(bekreftetAktivitet.getAktivitetType())
+            ? null
+            : bekreftetAktivitet.getArbeidsgiverReferanse();
         var bekreftetArbeidsforholdId = bekreftetAktivitet.getArbeidsforholdRef();
         return Objects.equals(lagretArbeidsforholdId, bekreftetArbeidsforholdId) && Objects.equals(lagretArbeidsgiverId, bekreftetArbeidsgiverId);
     }
