@@ -45,7 +45,7 @@ public class PersonopplysningXmlFelles {
         var beslutningDato = VedtakXmlUtil.lagDateOpplysning(medlemskapPeriodeIn.getBeslutningsdato());
         beslutningDato.ifPresent(medlemskapsPeriode::setBeslutningsdato);
 
-        medlemskapsPeriode.setDekningtype(VedtakXmlUtil.lagKodeverksOpplysning(medlemskapPeriodeIn.getDekningType()));
+        Optional.ofNullable(medlemskapPeriodeIn.getDekningType()).map(VedtakXmlUtil::lagKodeverksOpplysning).ifPresent(medlemskapsPeriode::setDekningtype);
         medlemskapsPeriode.setErMedlem(VedtakXmlUtil.lagBooleanOpplysning(medlemskapPeriodeIn.getErMedlem()));
         medlemskapsPeriode.setLovvalgsland(VedtakXmlUtil.lagKodeverksOpplysning(medlemskapPeriodeIn.getLovvalgLand()));
         medlemskapsPeriode.setMedlemskaptype(VedtakXmlUtil.lagKodeverksOpplysning(medlemskapPeriodeIn.getMedlemskapType()));

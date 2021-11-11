@@ -56,12 +56,12 @@ public class MedlemskapsperiodeKoder {
         result.put("Opphor", MedlemskapDekningType.OPPHOR);                   // Opphør
         result.put("Unntatt", MedlemskapDekningType.UNNTATT);                 // Unntatt
 
-        // Øvrige kodeverdier fra MEDL2 som ikke har avklart mapping
-        result.put("FTL_2-9_2_ledd", MedlemskapDekningType.UDEFINERT);        // Folketrygdloven § 2-9, annet ledd
-        result.put("IKKEPENDEL", MedlemskapDekningType.UDEFINERT);            // Ikke pensjonsdel
-        result.put("IT_DUMMY", MedlemskapDekningType.UDEFINERT);              // Konvertert fra Infotrygd, dekning ukjent
-        result.put("IT_DUMMY_EOS", MedlemskapDekningType.UDEFINERT);          // Konvertert fra Infotrygd, dekning ukjent
-        result.put("PENDEL", MedlemskapDekningType.UDEFINERT);                // Pensjonsdel
+        // Øvrige kodeverdier fra MEDL2 som ikke har avklart mapping - bruker IHT_AVTALE for å lage aksjonspunkt
+        result.put("FTL_2-9_2_ledd", MedlemskapDekningType.IHT_AVTALE);       // Folketrygdloven § 2-9, annet ledd
+        result.put("IKKEPENDEL", MedlemskapDekningType.IHT_AVTALE);           // Ikke pensjonsdel
+        result.put("PENDEL", MedlemskapDekningType.IHT_AVTALE);               // Pensjonsdel
+        result.put("IT_DUMMY", MedlemskapDekningType.IHT_AVTALE);             // Konvertert fra Infotrygd, dekning ukjent
+        result.put("IT_DUMMY_EOS", MedlemskapDekningType.IHT_AVTALE);         // Konvertert fra Infotrygd, dekning ukjent
 
         return Collections.unmodifiableMap(result);
     }
