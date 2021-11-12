@@ -11,6 +11,7 @@ import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.OPP
 import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.VURDERT_REFUSJON;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -232,12 +233,11 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             behandlingId, input, BehandlingStegType.KONTROLLER_FAKTA_BEREGNING);
         var beregningResultatAggregat = beregningsgrunnlagTjeneste.kontrollerFaktaBeregningsgrunnlag(
             faktaOmBeregningInput);
-        var forrigeBekreftetGrunnlag = finnForrigeGrunnlagFraTilstand(input, KOFAKBER_UT);
         var nyttGrunnlag = KalkulusTilBehandlingslagerMapper.mapGrunnlag(
             beregningResultatAggregat.getBeregningsgrunnlagGrunnlag(),
             beregningResultatAggregat.getRegelSporingAggregat());
         var nyttBg = nyttGrunnlag.getBeregningsgrunnlag().orElseThrow(INGEN_BG_EXCEPTION_SUPPLIER);
-        lagreOgKopier(input, beregningResultatAggregat, forrigeBekreftetGrunnlag, nyttBg);
+        lagreOgKopier(input, beregningResultatAggregat, nyttBg);
         return beregningResultatAggregat.getBeregningAvklaringsbehovResultater();
     }
 
@@ -279,13 +279,6 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         return beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
             behandlingReferanse.getKoblingId(), behandlingReferanse.getOriginalKoblingId(), tilstandFraSteg)
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
-    }
-
-    private Optional<BeregningsgrunnlagGrunnlagEntitet> finnForrigeGrunnlagFraTilstand(BeregningsgrunnlagInput input,
-                                                                                       BeregningsgrunnlagTilstand tilstandFraSteg) {
-        var referanse = input.getKoblingReferanse();
-        return beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
-            referanse.getKoblingId(), referanse.getOriginalKoblingId(), tilstandFraSteg);
     }
 
     private void lagreOgKopier(BeregningsgrunnlagInput input,
@@ -342,13 +335,17 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
 
     private void lagreOgKopier(BeregningsgrunnlagInput input,
                                BeregningResultatAggregat beregningResultatAggregat,
-                               Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeBekreftetGrunnlag,
                                BeregningsgrunnlagEntitet nyttBg) {
         var ref = input.getKoblingReferanse();
         var behandlingId = ref.getKoblingId();
+        var forrigeGrunnlagFraSteg = finnForrigeBgFraTilstand(input, OPPDATERT_MED_ANDELER);
+        Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeBekreftetGrunnlag = forrigeGrunnlagFraSteg.isPresent()
+            ? beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlingerEtterTidspunkt(ref.getKoblingId(), ref.getOriginalKoblingId(),
+            forrigeGrunnlagFraSteg.get().getOpprettetTidspunkt(), KOFAKBER_UT)
+            : Optional.empty();
         var kanKopiereFraBekreftet = KopierBeregningsgrunnlag.kanKopiereFraForrigeBekreftetGrunnlag(
             beregningResultatAggregat.getBeregningAvklaringsbehovResultater(), nyttBg,
-            finnForrigeBgFraTilstand(input, OPPDATERT_MED_ANDELER),
+            forrigeGrunnlagFraSteg,
             forrigeBekreftetGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
         beregningsgrunnlagRepository.lagre(behandlingId, nyttBg, OPPDATERT_MED_ANDELER);
         if (kanKopiereFraBekreftet) {
