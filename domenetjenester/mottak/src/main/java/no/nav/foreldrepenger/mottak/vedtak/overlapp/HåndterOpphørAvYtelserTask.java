@@ -21,15 +21,15 @@ public class HåndterOpphørAvYtelserTask extends GenerellProsessTask {
     private HåndterOpphørAvYtelser tjeneste;
     private FagsakRepository fagsakRepository;
 
-    HåndterOpphørAvYtelserTask() {
-        // for CDI proxy
-    }
-
     @Inject
     public HåndterOpphørAvYtelserTask(HåndterOpphørAvYtelser tjeneste, FagsakRepository fagsakRepository) {
         super();
         this.tjeneste = tjeneste;
         this.fagsakRepository = fagsakRepository;
+    }
+
+    HåndterOpphørAvYtelserTask() {
+        // for CDI proxy
     }
 
     @Override

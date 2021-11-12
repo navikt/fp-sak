@@ -45,18 +45,14 @@ public class HåndterOpphørAvYtelser {
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private KøKontroller køKontroller;
 
-    HåndterOpphørAvYtelser() {
-        // CDI
-    }
-
     @Inject
     public HåndterOpphørAvYtelser(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                 @FagsakYtelseTypeRef("FP") RevurderingTjeneste revurderingTjenesteFP,
-                                 @FagsakYtelseTypeRef("SVP") RevurderingTjeneste revurderingTjenesteSVP,
+                                  @FagsakYtelseTypeRef("FP") RevurderingTjeneste revurderingTjenesteFP,
+                                  @FagsakYtelseTypeRef("SVP") RevurderingTjeneste revurderingTjenesteSVP,
                                   ProsessTaskTjeneste taskTjeneste,
-                                 BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
-                                 BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                                 KøKontroller køKontroller) {
+                                  BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
+                                  BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
+                                  KøKontroller køKontroller) {
         this.fagsakLåsRepository = behandlingRepositoryProvider.getFagsakLåsRepository();
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.taskTjeneste = taskTjeneste;
@@ -65,6 +61,10 @@ public class HåndterOpphørAvYtelser {
         this.revurderingTjenesteFP = revurderingTjenesteFP;
         this.revurderingTjenesteSVP = revurderingTjenesteSVP;
         this.køKontroller = køKontroller;
+    }
+
+    HåndterOpphørAvYtelser() {
+        // CDI
     }
 
     void oppdaterEllerOpprettRevurdering(Fagsak fagsak, String beskrivelse, BehandlingÅrsakType årsakType) {

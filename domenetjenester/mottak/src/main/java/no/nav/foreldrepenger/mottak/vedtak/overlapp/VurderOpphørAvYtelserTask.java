@@ -6,7 +6,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -18,13 +17,8 @@ public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
 
     private LoggOverlappEksterneYtelserTjeneste overlappsLoggerTjeneste;
     private BehandlingRepository behandlingRepository;
-    private FagsakRepository fagsakRepository;
 
     private VurderOpphørAvYtelser vurderOpphørAvYtelser;
-
-    VurderOpphørAvYtelserTask() {
-        // for CDI proxy
-    }
 
     @Inject
     public VurderOpphørAvYtelserTask(VurderOpphørAvYtelser vurderOpphørAvYtelser,
@@ -34,7 +28,10 @@ public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
         this.vurderOpphørAvYtelser = vurderOpphørAvYtelser;
         this.overlappsLoggerTjeneste = overlappsLoggerTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.fagsakRepository = repositoryProvider.getFagsakRepository();
+    }
+
+    VurderOpphørAvYtelserTask() {
+        // for CDI proxy
     }
 
     @Override

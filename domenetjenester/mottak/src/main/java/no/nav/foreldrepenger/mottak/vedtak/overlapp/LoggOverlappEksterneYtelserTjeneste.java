@@ -63,6 +63,8 @@ public class LoggOverlappEksterneYtelserTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(LoggOverlappEksterneYtelserTjeneste.class);
     private static final BigDecimal HUNDRE = new BigDecimal(100);
 
+    private static final boolean IS_PROD = Environment.current().isProd();
+
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private BehandlingRepository behandlingRepository;
@@ -73,12 +75,6 @@ public class LoggOverlappEksterneYtelserTjeneste {
     private SpokelseKlient spokelseKlient;
     private OverlappVedtakRepository overlappRepository;
 
-    private boolean isProd;
-
-
-    LoggOverlappEksterneYtelserTjeneste() {
-        // for CDI
-    }
 
     @Inject
     public LoggOverlappEksterneYtelserTjeneste(BeregningsgrunnlagRepository beregningsgrunnlagRepository,
@@ -99,12 +95,17 @@ public class LoggOverlappEksterneYtelserTjeneste {
         this.abakusTjeneste = abakusTjeneste;
         this.spokelseKlient = spokelseKlient;
         this.overlappRepository = overlappRepository;
-        this.isProd = Environment.current().isProd();
+    }
+
+    LoggOverlappEksterneYtelserTjeneste() {
+        // for CDI
     }
 
     public void loggOverlappForVedtakFPSAK(Long behandlingId, Saksnummer saksnummer, AktørId aktørId) {
         try {
-            loggOverlappendeYtelser(behandlingId, saksnummer, aktørId).stream().map(b -> b.medHendelse(OverlappVedtak.HENDELSE_VEDTAK_FOR)).forEach(overlappRepository::lagre);
+            loggOverlappendeYtelser(behandlingId, saksnummer, aktørId).stream()
+                .map(b -> b.medHendelse(OverlappVedtak.HENDELSE_VEDTAK_FOR))
+                .forEach(overlappRepository::lagre);
         } catch (Exception e) {
             LOG.info("Identifisering av overlapp for vedtak i VL feilet ", e);
         }
@@ -112,7 +113,9 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
     public void loggOverlappForAvstemming(String hendelse, Long behandlingId, Saksnummer saksnummer, AktørId aktørId) {
         try {
-            loggOverlappendeYtelser(behandlingId, saksnummer, aktørId).stream().map(b -> b.medHendelse(hendelse)).forEach(overlappRepository::lagre);
+            loggOverlappendeYtelser(behandlingId, saksnummer, aktørId).stream()
+                .map(b -> b.medHendelse(hendelse))
+                .forEach(overlappRepository::lagre);
         } catch (Exception e) {
             LOG.info("Identifisering av overlapp ifm avstemming feilet ", e);
         }
@@ -126,20 +129,30 @@ public class LoggOverlappEksterneYtelserTjeneste {
             .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
             .forEach(b -> {
                 var fpTimeline = getTidslinjeForBehandling(b.getId(), b.getFagsakYtelseType());
-                var overlapp = finnGradertOverlapp(fpTimeline, Fagsystem.K9SAK.getKode(), ytelse.getType().getKode(), ytelse.getSaksnummer(), ytelseTidslinje);
+                var overlapp = finnGradertOverlapp(fpTimeline, Fagsystem.K9SAK.getKode(), ytelse.getType().getKode(),
+                    ytelse.getSaksnummer(), ytelseTidslinje);
                 overlapp.stream()
-                    .map(builder -> builder.medSaksnummer(b.getFagsak().getSaksnummer()).medBehandlingId(b.getId()).medHendelse(OverlappVedtak.HENDELSE_VEDTAK_OMS))
+                    .map(builder -> builder.medSaksnummer(b.getFagsak().getSaksnummer())
+                        .medBehandlingId(b.getId())
+                        .medHendelse(OverlappVedtak.HENDELSE_VEDTAK_OMS))
                     .forEach(overlappRepository::lagre);
 
             });
     }
 
-    private List<OverlappVedtak.Builder> loggOverlappendeYtelser(Long behandlingId, Saksnummer saksnummer, AktørId aktørId) {
+    private List<OverlappVedtak.Builder> loggOverlappendeYtelser(Long behandlingId,
+                                                                 Saksnummer saksnummer,
+                                                                 AktørId aktørId) {
         var ytelseType = behandlingRepository.hentBehandling(behandlingId).getFagsakYtelseType();
         var perioderFpGradert = getTidslinjeForBehandling(behandlingId, ytelseType);
-        if (perioderFpGradert.getLocalDateIntervals().isEmpty())
+        if (perioderFpGradert.getLocalDateIntervals().isEmpty()) {
             return Collections.emptyList();
-        var tidligsteUttakFP = perioderFpGradert.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
+        }
+        var tidligsteUttakFP = perioderFpGradert.getLocalDateIntervals()
+            .stream()
+            .map(LocalDateInterval::getFomDato)
+            .min(Comparator.naturalOrder())
+            .orElse(Tid.TIDENES_ENDE);
 
         var ident = getFnrFraAktørId(aktørId);
         List<OverlappVedtak.Builder> overlappene = new ArrayList<>();
@@ -153,121 +166,164 @@ public class LoggOverlappEksterneYtelserTjeneste {
     }
 
     private LocalDateTimeline<BigDecimal> getTidslinjeForBehandling(Long behandlingId, FagsakYtelseType ytelseType) {
-        if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType))
+        if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
             return getTidslinjeForBehandlingFP(behandlingId);
-        return FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType) ? getTidslinjeForBehandlingSVP(behandlingId) : new LocalDateTimeline<>(Collections.emptyList());
+        }
+        return FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType) ? getTidslinjeForBehandlingSVP(
+            behandlingId) : new LocalDateTimeline<>(Collections.emptyList());
     }
 
     private LocalDateTimeline<BigDecimal> getTidslinjeForBehandlingFP(Long behandlingId) {
         var segments = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
-            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
+            .orElse(Collections.emptyList())
+            .stream()
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
-            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), p.getKalkulertUtbetalingsgrad()))
+            .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(),
+                p.getKalkulertUtbetalingsgrad()))
             .collect(Collectors.toList());
 
-        return new LocalDateTimeline<>(segments, LoggOverlappEksterneYtelserTjeneste::max).compress(this::like, this::kombiner);
+        return new LocalDateTimeline<>(segments, LoggOverlappEksterneYtelserTjeneste::max)
+            .compress(this::like, this::kombiner);
     }
 
     private LocalDateTimeline<BigDecimal> getTidslinjeForBehandlingSVP(Long behandlingId) {
-        var beregningsgrunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandlingId).orElse(null);
+        var beregningsgrunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandlingId)
+            .orElse(null);
         if (beregningsgrunnlag == null) {
             return new LocalDateTimeline<>(Collections.emptyList());
         }
-        var grunnlagUtbetGrad = beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
+        var grunnlagUtbetGrad = beregningsgrunnlag.getBeregningsgrunnlagPerioder()
+            .stream()
             .filter(p -> p.getDagsats() > 0)
-            .map(p -> new LocalDateSegment<>(p.getBeregningsgrunnlagPeriodeFom(), p.getBeregningsgrunnlagPeriodeTom(), beregnGrunnlagUtbetGradSvp(p, beregningsgrunnlag.getGrunnbeløp().getVerdi())))
+            .map(p -> new LocalDateSegment<>(p.getBeregningsgrunnlagPeriodeFom(), p.getBeregningsgrunnlagPeriodeTom(),
+                beregnGrunnlagUtbetGradSvp(p, beregningsgrunnlag.getGrunnbeløp().getVerdi())))
             .collect(Collectors.toList());
         var resultatsegments = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
-            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
+            .orElse(Collections.emptyList())
+            .stream()
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
             .map(p -> finnUtbetalingsgradFor(p, grunnlagUtbetGrad))
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
-        return new LocalDateTimeline<>(resultatsegments, LoggOverlappEksterneYtelserTjeneste::max).compress(this::like, this::kombiner);
+        return new LocalDateTimeline<>(resultatsegments, LoggOverlappEksterneYtelserTjeneste::max)
+            .compress(this::like, this::kombiner);
     }
 
     private BigDecimal beregnGrunnlagUtbetGradSvp(BeregningsgrunnlagPeriode bgPeriode, BigDecimal grunnbeløp) {
         var seksG = new BigDecimal(6).multiply(grunnbeløp);
         var avkortet = bgPeriode.getBruttoPrÅr().compareTo(seksG) > 0 ? seksG : bgPeriode.getBruttoPrÅr();
-        return BigDecimal.ZERO.compareTo(avkortet) == 0 ? BigDecimal.ZERO :
-            BigDecimal.TEN.multiply(BigDecimal.TEN).multiply(bgPeriode.getRedusertPrÅr()).divide(avkortet, RoundingMode.HALF_EVEN);
+        return BigDecimal.ZERO.compareTo(avkortet) == 0 ? BigDecimal.ZERO : BigDecimal.TEN.multiply(BigDecimal.TEN)
+            .multiply(bgPeriode.getRedusertPrÅr())
+            .divide(avkortet, RoundingMode.HALF_EVEN);
     }
 
-    private LocalDateSegment<BigDecimal> finnUtbetalingsgradFor(BeregningsresultatPeriode periode, List<LocalDateSegment<BigDecimal>> grader) {
+    private LocalDateSegment<BigDecimal> finnUtbetalingsgradFor(BeregningsresultatPeriode periode,
+                                                                List<LocalDateSegment<BigDecimal>> grader) {
         return grader.stream()
-            .filter(d -> d.getLocalDateInterval().encloses(periode.getBeregningsresultatPeriodeFom())) // Antar at BR-perioder ikke krysser BG-perioder
+            .filter(d -> d.getLocalDateInterval()
+                .encloses(periode.getBeregningsresultatPeriodeFom())) // Antar at BR-perioder ikke krysser BG-perioder
             .findFirst()
-            .map(v -> new LocalDateSegment<>(periode.getBeregningsresultatPeriodeFom(), periode.getBeregningsresultatPeriodeTom(), v.getValue()))
+            .map(v -> new LocalDateSegment<>(periode.getBeregningsresultatPeriodeFom(),
+                periode.getBeregningsresultatPeriodeTom(), v.getValue()))
             .orElse(null);
     }
 
     private LocalDateTimeline<BigDecimal> lagTidslinjeforYtelseV1(YtelseV1 ytelse) {
-        var graderteSegments = ytelse.getAnvist().stream()
-            .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), utbetalingsgradHundreHvisNull(p.getUtbetalingsgrad())))
+        var graderteSegments = ytelse.getAnvist()
+            .stream()
+            .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(),
+                utbetalingsgradHundreHvisNull(p.getUtbetalingsgrad())))
             .filter(s -> s.getValue().compareTo(BigDecimal.ZERO) > 0)
             .collect(Collectors.toList());
-        return new LocalDateTimeline<>(graderteSegments, LoggOverlappEksterneYtelserTjeneste::max).compress(this::like, this::kombiner);
+        return new LocalDateTimeline<>(graderteSegments, LoggOverlappEksterneYtelserTjeneste::max).compress(this::like,
+            this::kombiner);
     }
 
-    public void vurderOmOverlappInfotrygd(PersonIdent ident, LocalDate førsteUttaksDatoFP, LocalDateTimeline<BigDecimal> perioderFp, List<OverlappVedtak.Builder> overlappene) {
+    public void vurderOmOverlappInfotrygd(PersonIdent ident,
+                                          LocalDate førsteUttaksDatoFP,
+                                          LocalDateTimeline<BigDecimal> perioderFp,
+                                          List<OverlappVedtak.Builder> overlappene) {
         //sjekker om noen av vedtaksperiodene i Infotrygd på sykepenger eller pleiepenger overlapper med perioderFp
-        var infotrygdPSGrunnlag = infotrygdPSGrTjeneste.hentGrunnlag(ident.getIdent(), førsteUttaksDatoFP.minusMonths(1), førsteUttaksDatoFP.plusYears(3));
+        var infotrygdPSGrunnlag = infotrygdPSGrTjeneste.hentGrunnlag(ident.getIdent(),
+            førsteUttaksDatoFP.minusMonths(1), førsteUttaksDatoFP.plusYears(3));
         overlappene.addAll(finnGradertOverlapp(perioderFp, Fagsystem.INFOTRYGD.getKode(), "BS", null,
             finnTidslinjeFraGrunnlagene(infotrygdPSGrunnlag)));
 
-        var infotrygdSPGrunnlag = infotrygdSPGrTjeneste.hentGrunnlag(ident.getIdent(), førsteUttaksDatoFP.minusMonths(1), førsteUttaksDatoFP.plusYears(3));
-        overlappene.addAll(finnGradertOverlapp(perioderFp, Fagsystem.INFOTRYGD.getKode(), YtelseType.SYKEPENGER.getKode(), null,
-            finnTidslinjeFraGrunnlagene(infotrygdSPGrunnlag)));
+        var infotrygdSPGrunnlag = infotrygdSPGrTjeneste.hentGrunnlag(ident.getIdent(),
+            førsteUttaksDatoFP.minusMonths(1), førsteUttaksDatoFP.plusYears(3));
+        overlappene.addAll(
+            finnGradertOverlapp(perioderFp, Fagsystem.INFOTRYGD.getKode(), YtelseType.SYKEPENGER.getKode(), null,
+                finnTidslinjeFraGrunnlagene(infotrygdSPGrunnlag)));
     }
 
-    public void vurderOmOverlappOMS(AktørId aktørId, LocalDate førsteUttaksDatoFP, LocalDateTimeline<BigDecimal> perioderFp, List<OverlappVedtak.Builder> overlappene) {
+    public void vurderOmOverlappOMS(AktørId aktørId,
+                                    LocalDate førsteUttaksDatoFP,
+                                    LocalDateTimeline<BigDecimal> perioderFp,
+                                    List<OverlappVedtak.Builder> overlappene) {
         try {
-            abakusTjeneste.hentVedtakForAktørId(AbakusTjeneste.lagRequestForHentVedtakFom(aktørId, førsteUttaksDatoFP.minusYears(1))).stream()
-                .map(y -> (YtelseV1)y)
+            abakusTjeneste.hentVedtakForAktørId(
+                    AbakusTjeneste.lagRequestForHentVedtakFom(aktørId, førsteUttaksDatoFP.minusYears(1)))
+                .stream()
+                .map(y -> (YtelseV1) y)
                 .filter(y -> Fagsystem.K9SAK.equals(y.getFagsystem()))
                 .forEach(y -> {
                     var ytelseTidslinje = lagTidslinjeforYtelseV1(y);
-                    overlappene.addAll(finnGradertOverlapp(perioderFp, Fagsystem.K9SAK.getKode(), y.getType().getKode(), y.getSaksnummer(), ytelseTidslinje));
+                    overlappene.addAll(finnGradertOverlapp(perioderFp, Fagsystem.K9SAK.getKode(), y.getType().getKode(),
+                        y.getSaksnummer(), ytelseTidslinje));
                 });
         } catch (Exception e) {
-            if (isProd) {
-                throw new TekniskException( "FP-180125", "Tjeneste abakus gir feil", e);
+            if (IS_PROD) {
+                throw new TekniskException("FP-180125", "Tjeneste abakus gir feil", e);
             }
             LOG.info("Noe gikk galt mot abakus", e);
         }
     }
 
-    public void vurderOmOverlappSYK(PersonIdent ident, LocalDateTimeline<BigDecimal> perioderFp, List<OverlappVedtak.Builder> overlappene) {
-        if (isProd) {
-            spokelseKlient.hentGrunnlag(ident.getIdent())
-                .forEach(y -> {
-                    var graderteSegments = y.getUtbetalinger().stream()
-                        .map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), utbetalingsgradHundreHvisNull(p.getGrad())))
-                        .filter(s -> s.getValue().compareTo(BigDecimal.ZERO) > 0)
-                        .collect(Collectors.toList());
-                    var ytelseTidslinje = new LocalDateTimeline<>(graderteSegments, LoggOverlappEksterneYtelserTjeneste::max)
-                        .compress(this::like, this::kombiner);
-                    overlappene.addAll(finnGradertOverlapp(perioderFp, Fagsystem.VLSP.getKode(), YtelseType.SYKEPENGER.getKode(), y.getVedtaksreferanse(), ytelseTidslinje));
-                });
+    public void vurderOmOverlappSYK(PersonIdent ident,
+                                    LocalDateTimeline<BigDecimal> perioderFp,
+                                    List<OverlappVedtak.Builder> overlappene) {
+        if (IS_PROD) {
+            spokelseKlient.hentGrunnlag(ident.getIdent()).forEach(y -> {
+                var graderteSegments = y.getUtbetalinger()
+                    .stream()
+                    .map(
+                        p -> new LocalDateSegment<>(p.getFom(), p.getTom(), utbetalingsgradHundreHvisNull(p.getGrad())))
+                    .filter(s -> s.getValue().compareTo(BigDecimal.ZERO) > 0)
+                    .collect(Collectors.toList());
+                var ytelseTidslinje = new LocalDateTimeline<>(graderteSegments,
+                    LoggOverlappEksterneYtelserTjeneste::max).compress(this::like, this::kombiner);
+                overlappene.addAll(
+                    finnGradertOverlapp(perioderFp, Fagsystem.VLSP.getKode(), YtelseType.SYKEPENGER.getKode(),
+                        y.getVedtaksreferanse(), ytelseTidslinje));
+            });
         }
     }
 
     private BigDecimal utbetalingsgradHundreHvisNull(Desimaltall anvistUtbetalingsprosent) {
-        return anvistUtbetalingsprosent != null && anvistUtbetalingsprosent.getVerdi() != null ? anvistUtbetalingsprosent.getVerdi() : HUNDRE;
+        return anvistUtbetalingsprosent != null
+            && anvistUtbetalingsprosent.getVerdi() != null ? anvistUtbetalingsprosent.getVerdi() : HUNDRE;
     }
 
     private BigDecimal utbetalingsgradHundreHvisNull(BigDecimal anvistUtbetalingsprosent) {
-        return anvistUtbetalingsprosent != null  ? anvistUtbetalingsprosent : HUNDRE;
+        return anvistUtbetalingsprosent != null ? anvistUtbetalingsprosent : HUNDRE;
     }
 
     private List<OverlappVedtak.Builder> finnGradertOverlapp(LocalDateTimeline<BigDecimal> perioderFP,
-                                                             String fagsystem, String ytelseType, String referanse,
+                                                             String fagsystem,
+                                                             String ytelseType,
+                                                             String referanse,
                                                              LocalDateTimeline<BigDecimal> tlGrunnlag) {
-        var filter = perioderFP.intersection(tlGrunnlag, StandardCombinators::sum).filterValue(v -> v.compareTo(HUNDRE) > 0);
+        var filter = perioderFP.intersection(tlGrunnlag, StandardCombinators::sum)
+            .filterValue(v -> v.compareTo(HUNDRE) > 0);
 
-        return filter.getLocalDateIntervals().stream()
+        return filter.getLocalDateIntervals()
+            .stream()
             .map(filter::getSegment)
-            .map(s -> opprettOverlappBuilder(s.getLocalDateInterval(), s.getValue()).medFagsystem(fagsystem).medYtelse(ytelseType).medReferanse(referanse))
+            .map(s -> opprettOverlappBuilder(s.getLocalDateInterval(), s.getValue()).medFagsystem(fagsystem)
+                .medYtelse(ytelseType)
+                .medReferanse(referanse))
             .collect(Collectors.toList());
     }
 
@@ -275,11 +331,13 @@ public class LoggOverlappEksterneYtelserTjeneste {
         var segmenter = grunnlag.stream()
             .map(Grunnlag::getVedtak)
             .flatMap(Collection::stream)
-            .filter(v -> v.getUtbetalingsgrad() > 0)
-            .map(p-> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), new BigDecimal(p.getUtbetalingsgrad())))
+            .filter(v -> v.utbetalingsgrad() > 0)
+            .map(p -> new LocalDateSegment<>(p.periode().fom(), p.periode().tom(),
+                new BigDecimal(p.utbetalingsgrad())))
             .collect(Collectors.toList());
 
-        return new LocalDateTimeline<>(segmenter, LoggOverlappEksterneYtelserTjeneste::max).compress(this::like, this::kombiner);
+        return new LocalDateTimeline<>(segmenter, LoggOverlappEksterneYtelserTjeneste::max).compress(this::like,
+            this::kombiner);
     }
 
     private OverlappVedtak.Builder opprettOverlappBuilder(LocalDateInterval periode, BigDecimal utbetaling) {
@@ -292,24 +350,35 @@ public class LoggOverlappEksterneYtelserTjeneste {
         return personinfoAdapter.hentFnr(aktørId).orElseThrow();
     }
 
-    private static LocalDateSegment<BigDecimal> max(LocalDateInterval dateInterval, LocalDateSegment<BigDecimal> lhs, LocalDateSegment<BigDecimal> rhs) {
-        if (lhs == null && rhs == null)
+    private static LocalDateSegment<BigDecimal> max(LocalDateInterval dateInterval,
+                                                    LocalDateSegment<BigDecimal> lhs,
+                                                    LocalDateSegment<BigDecimal> rhs) {
+        if (lhs == null && rhs == null) {
             return null;
-        if (lhs == null || rhs == null)
+        }
+        if (lhs == null || rhs == null) {
             return new LocalDateSegment<>(dateInterval, lhs == null ? rhs.getValue() : lhs.getValue());
-        return new LocalDateSegment<>(dateInterval, lhs.getValue().compareTo(rhs.getValue()) > 0 ? lhs.getValue() : rhs.getValue());
+        }
+        return new LocalDateSegment<>(dateInterval,
+            lhs.getValue().compareTo(rhs.getValue()) > 0 ? lhs.getValue() : rhs.getValue());
     }
 
     private boolean like(BigDecimal a, BigDecimal b) {
-        if (a == null || b == null) return Objects.equals(a,b);
+        if (a == null || b == null) {
+            return Objects.equals(a, b);
+        }
         return a.compareTo(b) == 0;
     }
 
-    private LocalDateSegment<BigDecimal> kombiner(LocalDateInterval i, LocalDateSegment<BigDecimal> lhs, LocalDateSegment<BigDecimal> rhs) {
-        if (lhs == null)
+    private LocalDateSegment<BigDecimal> kombiner(LocalDateInterval i,
+                                                  LocalDateSegment<BigDecimal> lhs,
+                                                  LocalDateSegment<BigDecimal> rhs) {
+        if (lhs == null) {
             return rhs;
-        if (rhs == null)
+        }
+        if (rhs == null) {
             return lhs;
+        }
         return new LocalDateSegment<>(i, lhs.getValue());
     }
 
