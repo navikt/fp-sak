@@ -1,14 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -16,10 +7,17 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
+
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
@@ -123,7 +121,7 @@ public enum VilkårType implements Kodeverdi {
         Map.of(FagsakYtelseType.SVANGERSKAPSPENGER, "§ 14-4"),
         Avslagsårsak.SØKER_IKKE_GRAVID_KVINNE,
         Avslagsårsak.SØKER_ER_IKKE_I_ARBEID,
-        Avslagsårsak.SØKER_SKULLE_IKKE_SØKT_SVP,
+        Avslagsårsak.SØKER_HAR_MOTTATT_SYKEPENGER,
         Avslagsårsak.ARBEIDSTAKER_HAR_IKKE_DOKUMENTERT_RISIKOFAKTORER,
         Avslagsårsak.ARBEIDSTAKER_KAN_OMPLASSERES,
         Avslagsårsak.SN_FL_HAR_IKKE_DOKUMENTERT_RISIKOFAKTORER,
@@ -152,11 +150,7 @@ public enum VilkårType implements Kodeverdi {
 
     private String kode;
 
-    private VilkårType(String kode) {
-        this.kode = kode;
-    }
-
-    private VilkårType(String kode,
+    VilkårType(String kode,
                       String navn,
                       Map<FagsakYtelseType, String> lovReferanser,
                       Avslagsårsak... avslagsårsaker) {
