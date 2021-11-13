@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp.InngangsvilkårOpptje
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp.OpptjeningsperiodeVilkårTjenesteImpl;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseBehandling2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
@@ -38,7 +39,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
     private BehandlingRepositoryProvider repositoryProvider;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private OpptjeningsperiodeVilkårTjeneste opptjeningsperiodeVilkårTjeneste;
-    private UtsettelseCore2021 utsettelseCore2021;
+    private UtsettelseBehandling2021 utsettelse2021;
 
     @BeforeEach
     void setUp() {
@@ -47,9 +48,9 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
             Period.parse("P1Y"), Period.parse("P6M"));
         var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
             new RelatertBehandlingTjeneste(repositoryProvider));
-        utsettelseCore2021 = new UtsettelseCore2021(null);
+        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(null), repositoryProvider);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
-            stputil, utsettelseCore2021);
+            stputil, utsettelse2021);
         var beregnMorsMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
             new RelatertBehandlingTjeneste(repositoryProvider));
         opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(

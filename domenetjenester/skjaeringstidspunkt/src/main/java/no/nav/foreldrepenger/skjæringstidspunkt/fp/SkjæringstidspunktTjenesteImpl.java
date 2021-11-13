@@ -24,11 +24,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseBehandling2021;
@@ -42,7 +40,6 @@ import no.nav.vedtak.konfig.Tid;
 public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjeneste , SkjæringstidspunktRegisterinnhentingTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(SkjæringstidspunktTjenesteImpl.class);
-    private static final boolean ER_PROD = Environment.current().isProd();
 
     private FamilieHendelseRepository familieGrunnlagRepository;
     private SkjæringstidspunktUtils utlederUtils;
@@ -51,7 +48,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     private OpptjeningRepository opptjeningRepository;
     private SøknadRepository søknadRepository;
     private BehandlingRepository behandlingRepository;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
     private YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste;
     private UtsettelseBehandling2021 utsettelse2021;
 
@@ -65,7 +61,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
                                           SkjæringstidspunktUtils utlederUtils,
                                           UtsettelseBehandling2021 utsettelse2021) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();

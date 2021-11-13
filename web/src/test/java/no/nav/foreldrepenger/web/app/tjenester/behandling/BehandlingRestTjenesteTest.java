@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDok
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
+import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseBehandling2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
@@ -77,7 +77,7 @@ public class BehandlingRestTjenesteTest {
         var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
             new RelatertBehandlingTjeneste(repositoryProvider));
         var skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
-            stputil, mock(UtsettelseCore2021.class));
+            stputil, mock(UtsettelseBehandling2021.class));
         var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste,
             tilbakekrevingRepository, skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste,
             behandlingDokumentRepository, relatertBehandlingTjeneste,
