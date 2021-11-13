@@ -50,7 +50,7 @@ public class BehandlingFlytkontrollTest {
         when(fagsakAnnenPart.getId()).thenReturn(FAGSAK_AP_ID);
         when(behandlingRepository.hentBehandling(BEHANDLING_ID)).thenReturn(behandling);
         when(behandlingBerørt.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)).thenReturn(true);
-        when(behandlingBerørt.harNoenBehandlingÅrsaker(anySet())).thenReturn(true);
+        when(behandlingBerørt.harNoenBehandlingÅrsaker(BehandlingÅrsakType.alleTekniskeÅrsaker())).thenReturn(true);
         flytkontroll = new BehandlingFlytkontroll(behandlingRevurderingRepository, behandlingskontrollTjeneste,
                 behandlingRepository);
     }

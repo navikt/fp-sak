@@ -367,7 +367,7 @@ public class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
         when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(true);
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(berørt));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(List.of(berørt));
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandlingMedforelder.getId());
         // Assert opprett berørt (for medforelder)

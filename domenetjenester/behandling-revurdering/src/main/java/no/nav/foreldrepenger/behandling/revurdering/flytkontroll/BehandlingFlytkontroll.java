@@ -51,7 +51,7 @@ public class BehandlingFlytkontroll {
             return false;
         }
         var finnesBerørt = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(behandling.getFagsak().getId()).stream()
-                .anyMatch(b -> !b.getId().equals(behandling.getId()) && SpesialBehandling.skalIkkeKøes(behandling));
+                .anyMatch(b -> !b.getId().equals(behandling.getId()) && SpesialBehandling.skalIkkeKøes(b));
         var annenpartÅpneBehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(annenpartFagsak.getId());
         var annenPartHarBerørt = annenpartÅpneBehandlinger.stream()
                 .anyMatch(SpesialBehandling::skalIkkeKøes);
