@@ -385,12 +385,11 @@ public class BerørtBehandlingKontrollerTest {
         when(beregnFeriepenger.avvikBeregnetFeriepengerBeregningsresultat(any(), any())).thenReturn(true);
         when(beregningsresultatRepository.hentUtbetBeregningsresultat(any())).thenReturn(Optional.of(new BeregningsresultatEntitet()));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(List.of());
-        when(behandlingsoppretter.opprettRevurderingMultiÅrsak(any(), any())).thenReturn(berørtFeriepenger);
+        when(behandlingsoppretter.opprettRevurdering(any(), eq(BehandlingÅrsakType.REBEREGN_FERIEPENGER))).thenReturn(berørtFeriepenger);
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert opprett berørt (for medforelder)
-        verify(behandlingsoppretter).opprettRevurderingMultiÅrsak(fagsakMedforelder,
-            List.of(BehandlingÅrsakType.BERØRT_BEHANDLING, BehandlingÅrsakType.REBEREGN_FERIEPENGER));
+        verify(behandlingsoppretter).opprettRevurdering(fagsakMedforelder, BehandlingÅrsakType.REBEREGN_FERIEPENGER);
         verify(behandlingProsesseringTjeneste).opprettTasksForStartBehandling(any());
     }
 

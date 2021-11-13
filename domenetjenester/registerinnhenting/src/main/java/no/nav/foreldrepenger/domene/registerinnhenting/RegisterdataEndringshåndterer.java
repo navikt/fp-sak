@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
@@ -72,7 +72,7 @@ public class RegisterdataEndringshåndterer {
 
     public boolean skalInnhenteRegisteropplysningerPåNytt(Behandling behandling) {
         if (!endringskontroller.erRegisterinnhentingPassert(behandling) || erAvslag(behandling)
-            || behandling.erSaksbehandlingAvsluttet() || behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
+            || behandling.erSaksbehandlingAvsluttet() || SpesialBehandling.skalGrunnlagBeholdes(behandling)) {
             return false;
         }
         var midnatt = LocalDate.now().atStartOfDay();

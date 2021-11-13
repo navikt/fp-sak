@@ -18,15 +18,14 @@ public abstract class MottattDokumentWrapper<S> {
 
     @SuppressWarnings("rawtypes")
     public static MottattDokumentWrapper tilXmlWrapper(Object skjema) {
-        if (skjema instanceof Soeknad) {
-            return new SøknadWrapper((Soeknad) skjema);
+        if (skjema instanceof Soeknad soeknad) {
+            return new SøknadWrapper(soeknad);
         }
-        if (skjema instanceof no.seres.xsd.nav.inntektsmelding_m._20180924.InntektsmeldingM) {
-            return new no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.v1.InntektsmeldingWrapper(
-                (no.seres.xsd.nav.inntektsmelding_m._20180924.InntektsmeldingM) skjema);
+        if (skjema instanceof no.seres.xsd.nav.inntektsmelding_m._20180924.InntektsmeldingM im) {
+            return new no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.v1.InntektsmeldingWrapper(im);
         }
-        if (skjema instanceof InntektsmeldingM) {
-            return new InntektsmeldingWrapper((InntektsmeldingM) skjema);
+        if (skjema instanceof InntektsmeldingM im) {
+            return new InntektsmeldingWrapper(im);
         }
         throw MottattDokumentFeil.ukjentSkjemaType(skjema.getClass().getCanonicalName());
     }

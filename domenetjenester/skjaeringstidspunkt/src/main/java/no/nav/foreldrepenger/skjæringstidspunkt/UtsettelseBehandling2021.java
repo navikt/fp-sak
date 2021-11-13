@@ -39,13 +39,20 @@ public class UtsettelseBehandling2021 {
 
     public boolean kreverSammenhengendeUttak(Long behandlingId) {
         return familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
-            .or(() -> vedtattFamilieHendelseRelatertFagsak(behandlingId))
+            .or(() -> vedtattFamilieHendelseRelatertFagsak(behandlingRepository.hentBehandling(behandlingId)))
             .map(utsettelseCore::kreverSammenhengendeUttak)
             .orElse(UtsettelseCore2021.DEFAULT_KREVER_SAMMENHENGENDE_UTTAK);
     }
 
-    private Optional<FamilieHendelseGrunnlagEntitet> vedtattFamilieHendelseRelatertFagsak(Long behandlingId) {
-        var fagsak = behandlingRepository.hentBehandling(behandlingId).getFagsak();
+    public boolean kreverSammenhengendeUttak(Behandling behandling) {
+        return familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .or(() -> vedtattFamilieHendelseRelatertFagsak(behandling))
+            .map(utsettelseCore::kreverSammenhengendeUttak)
+            .orElse(UtsettelseCore2021.DEFAULT_KREVER_SAMMENHENGENDE_UTTAK);
+    }
+
+    private Optional<FamilieHendelseGrunnlagEntitet> vedtattFamilieHendelseRelatertFagsak(Behandling behandling) {
+        var fagsak = behandling.getFagsak();
         return fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak)
             .flatMap(r -> r.getRelatertFagsak(fagsak)).map(Fagsak::getId)
             .flatMap(behandlingRepository::finnSisteAvsluttedeIkkeHenlagteBehandling).map(Behandling::getId)

@@ -214,9 +214,7 @@ public class AksjonspunktRestTjeneste {
     }
 
     private static void validerBetingelserForAksjonspunkt(Behandling behandling, Collection<? extends AksjonspunktKode> aksjonspunktDtoer) {
-        // TODO (FC): skal ikke ha spesfikke pre-conditions inne i denne tjenesten
-        // (sjekk på status FATTER_VEDTAK). Se
-        // om kan håndteres annerledes.
+        // TODO (FC): skal ikke ha spesfikke pre-conditions inne i denne tjenesten (sjekk på status FATTER_VEDTAK). Se om kan håndteres annerledes.
         if (behandling.getStatus().equals(BehandlingStatus.FATTER_VEDTAK) && !erFatteVedtakAkpt(aksjonspunktDtoer)) {
             throw new FunksjonellException("FP-760743",
                 String.format("Det kan ikke akseptere endringer siden totrinnsbehandling er startet og behandlingen med behandlingId: %s er hos beslutter", behandling.getId()),

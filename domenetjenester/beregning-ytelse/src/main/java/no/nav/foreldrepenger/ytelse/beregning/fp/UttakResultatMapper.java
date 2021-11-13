@@ -1,9 +1,13 @@
 package no.nav.foreldrepenger.ytelse.beregning.fp;
 
+import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.ytelse.beregning.UttakResultatRepoMapper;
@@ -29,7 +33,10 @@ public class UttakResultatMapper implements UttakResultatRepoMapper {
     @Override
     public UttakResultat hentOgMapUttakResultat(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var uttakResultat = uttakTjeneste.hentUttak(ref.getBehandlingId());
-        return mapper.mapFra(uttakResultat, input);
+        var uttakResultat = uttakTjeneste.hentUttakHvisEksisterer(ref.getBehandlingId());
+        if (uttakResultat.isEmpty() && !input.harBehandlingÅrsak(BehandlingÅrsakType.RE_UTSATT_START)) {
+            throw new IllegalStateException("Utviklerfeil mangler uttakresultat");
+        }
+        return mapper.mapFra(uttakResultat.map(ForeldrepengerUttak::getGjeldendePerioder).orElse(List.of()), input);
     }
 }

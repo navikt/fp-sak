@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
@@ -86,7 +87,7 @@ public class SendVedtaksbrev {
             return;
         }
 
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER)) {
+        if (SpesialBehandling.erJusterFeriepenger(behandling)) {
             LOG.info("Sender ikke vedtaksbrev for reberegning av feriepenger: {}", behandlingId); //$NON-NLS-1$
             return;
         }

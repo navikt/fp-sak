@@ -15,6 +15,8 @@ import no.nav.foreldrepenger.mottak.dokumentpersiterer.EndringsSøknadUtsettelse
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.MottattDokumentFeil;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.MottattDokumentOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.NamespaceRef;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.EndringUtsettelseUttak;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadWrapper;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.xml.MottattDokumentXmlParser;
 import no.nav.foreldrepenger.mottak.publiserer.publish.MottattDokumentPersistertPubliserer;
 import no.nav.vedtak.exception.TekniskException;
@@ -53,10 +55,9 @@ public class MottattDokumentPersisterer {
     }
 
     @SuppressWarnings("unchecked")
-    public EndringsSøknadUtsettelseUttak ekstraherUtsettelseUttak(MottattDokumentWrapper wrapper,
+    public EndringsSøknadUtsettelseUttak ekstraherUtsettelseUttak(SøknadWrapper wrapper,
                                                                   MottattDokument dokument) {
-        MottattDokumentOversetter dokumentOversetter = getDokumentOversetter(wrapper.getSkjemaType());
-        return dokumentOversetter.ekstraherUtsettelseUttakFra(wrapper, dokument);
+        return EndringUtsettelseUttak.ekstraherUtsettelseUttakFra(wrapper, dokument);
     }
 
     private MottattDokumentOversetter<?> getDokumentOversetter(String namespace) {

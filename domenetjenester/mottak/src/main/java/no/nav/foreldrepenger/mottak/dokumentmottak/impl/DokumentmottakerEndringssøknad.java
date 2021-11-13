@@ -124,7 +124,7 @@ class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertD
     }
 
     @Override
-    public boolean utsetterStartdato(MottattDokument mottattDokument, Fagsak fagsak) {
+    public boolean endringSomUtsetterStartdato(MottattDokument mottattDokument, Fagsak fagsak) {
         var søknadUtsettelseUttak = dokumentmottakerFelles.finnUtsettelseUttak(mottattDokument);
         var eksisterendeStartdatoOpt = tomtUttakTjeneste.startdatoUttakResultatFrittUttak(fagsak);
         if (søknadUtsettelseUttak == null || søknadUtsettelseUttak.utsettelseFom() == null || eksisterendeStartdatoOpt.isEmpty()) {
@@ -139,7 +139,7 @@ class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertD
     }
 
     @Override
-    public void utsettelseFraStart(MottattDokument mottattDokument, Fagsak fagsak) {
+    public void mottaUtsettelseAvStartdato(MottattDokument mottattDokument, Fagsak fagsak) {
         behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId())
             .forEach(b -> behandlingsoppretter.henleggBehandling(b));
         dokumentmottakerFelles.opprettAnnulleringsBehandlinger(mottattDokument, fagsak);

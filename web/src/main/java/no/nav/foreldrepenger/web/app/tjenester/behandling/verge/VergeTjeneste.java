@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -54,7 +55,7 @@ public class VergeTjeneste {
         var harVergeAksjonspunkt = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE);
         var stårIKofakEllerSenereSteg = behandling.harSattStartpunkt();
 
-        if (!stårIKofakEllerSenereSteg || !behandling.erYtelseBehandling()) {
+        if (!stårIKofakEllerSenereSteg || !behandling.erYtelseBehandling() || SpesialBehandling.erSpesialBehandling(behandling)) {
             return new VergeBehandlingsmenyDto(behandlingId, VergeBehandlingsmenyEnum.SKJUL);
         }
         if (!harRegistrertVerge && !harVergeAksjonspunkt) {

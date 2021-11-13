@@ -3,6 +3,9 @@ package no.nav.foreldrepenger.behandling.steg.beregnytelse.fp;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -11,7 +14,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
@@ -20,8 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.AksjonspunktutlederTilbaketrekk;
 import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.KopierUtbetResultatTjeneste;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @BehandlingStegRef(kode = "VURDER_TILBAKETREKK")
 @BehandlingTypeRef("BT-004")
@@ -70,11 +71,10 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
         var aksjonspunkter = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref));
 
         if (aksjonspunkter.isEmpty()) {
-            // I saker som er opprettet pga feriepenger må reberegnes kan det komme tilfeller der vi ikke kan
-            // omfordele igjen pga tilkommede arbeidsforhold, i slike tilfeller må vi sjekke om foreslått
-            // resultat er likt og om det finnes et utbet. resultat vi kan kopiere, og isåfall kopiere dette
+            // I saker som er opprettet pga feriepenger må reberegnes kan det komme tilfeller der vi ikke kan omfordele igjen pga tilkommede arbeidsforhold,
+            // i slike tilfeller må vi sjekke om foreslått resultat er likt og om det finnes et utbet. resultat vi kan kopiere, og isåfall kopiere dette
             // TFP-4279
-            if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER)
+            if (SpesialBehandling.erJusterFeriepenger(behandling)
                 && kopierUtbetResultatTjeneste.kanKopiereForrigeUtbetResultat(ref)) {
                 kopierUtbetResultatTjeneste.kopierOgLagreUtbetBeregningsresultat(ref);
             }

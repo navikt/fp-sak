@@ -70,15 +70,13 @@ public class InnhentDokumentTjeneste {
             DOKUMENTTYPE_TIL_GRUPPE.getOrDefault(dokumentTypeId, DokumentGruppe.VEDLEGG);
 
         var dokumentmottaker = finnMottaker(dokumentGruppe, fagsak.getYtelseType());
-        if (dokumentmottaker.utsetterStartdato(mottattDokument, fagsak)) {
-            dokumentmottaker.utsettelseFraStart(mottattDokument, fagsak);
-            return;
-        }
-        if (skalMottasSomKøet(fagsak)) {
+        if (dokumentmottaker.endringSomUtsetterStartdato(mottattDokument, fagsak)) {
+            dokumentmottaker.mottaUtsettelseAvStartdato(mottattDokument, fagsak);
+        } else if (skalMottasSomKøet(fagsak)) {
             dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, behandlingÅrsakType);
-            return;
+        } else {
+            dokumentmottaker.mottaDokument(mottattDokument, fagsak, behandlingÅrsakType);
         }
-        dokumentmottaker.mottaDokument(mottattDokument, fagsak, behandlingÅrsakType);
     }
 
     public void opprettFraTidligereBehandling(Long behandlingId, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) { //#SXX og #IXX

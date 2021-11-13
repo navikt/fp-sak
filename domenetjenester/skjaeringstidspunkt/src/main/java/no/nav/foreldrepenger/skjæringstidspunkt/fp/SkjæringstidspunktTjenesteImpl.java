@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -32,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseBehandling2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
@@ -53,7 +53,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     private BehandlingRepository behandlingRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste;
-    private UtsettelseCore2021 utsettelse2021;
+    private UtsettelseBehandling2021 utsettelse2021;
 
     SkjæringstidspunktTjenesteImpl() {
         // CDI
@@ -63,7 +63,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     public SkjæringstidspunktTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
                                           YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste,
                                           SkjæringstidspunktUtils utlederUtils,
-                                          UtsettelseCore2021 utsettelse2021) {
+                                          UtsettelseBehandling2021 utsettelse2021) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
@@ -87,7 +87,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     public Skjæringstidspunkt getSkjæringstidspunkter(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        var sammenhengendeUttak = kreverSammenhengendeUttak(behandling);
+        var sammenhengendeUttak = utsettelse2021.kreverSammenhengendeUttak(behandling);
         var førsteUttaksdato = førsteUttaksdag(behandling, sammenhengendeUttak);
         var førsteUttaksdatoFødselsjustert = førsteDatoHensyntattTidligFødsel(behandling, førsteUttaksdato);
 
@@ -228,24 +228,5 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var grunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId());
         return grunnlag.map(g -> UtsettelseCore2021.førsteUttaksDatoForBeregning(behandling.getRelasjonsRolleType(), g, førsteUttaksdato))
             .orElse(førsteUttaksdato);
-    }
-
-    private boolean kreverSammenhengendeUttak(Behandling behandling) {
-        var sammenhengendeUttak = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
-            .or(() -> finnFHSistVedtatteBehandlingKobletFagsak(behandling))
-            .map(utsettelse2021::kreverSammenhengendeUttak).orElse(UtsettelseCore2021.DEFAULT_KREVER_SAMMENHENGENDE_UTTAK);
-        if (!sammenhengendeUttak && ER_PROD) {
-            LOG.info("Prod uten krav om sammenhengende periode - sjekk om korrekt, saksnummer {}", behandling.getFagsak().getSaksnummer());
-        } else if (!sammenhengendeUttak) {
-            LOG.info("Non-prod uten krav om sammenhengende periode, saksnummer {} behandling {}", behandling.getFagsak().getSaksnummer(), behandling.getId());
-        }
-        return sammenhengendeUttak;
-    }
-
-    private Optional<FamilieHendelseGrunnlagEntitet> finnFHSistVedtatteBehandlingKobletFagsak(Behandling behandling) {
-        return fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())
-            .flatMap(fr -> fr.getRelatertFagsak(behandling.getFagsak()))
-            .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()))
-            .flatMap(b -> familieGrunnlagRepository.hentAggregatHvisEksisterer(b.getId()));
     }
 }

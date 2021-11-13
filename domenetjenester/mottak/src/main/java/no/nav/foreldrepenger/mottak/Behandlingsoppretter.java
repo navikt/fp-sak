@@ -108,11 +108,6 @@ public class Behandlingsoppretter {
         return revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, revurderingsÅrsak, behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak));
     }
 
-    public Behandling opprettRevurderingMultiÅrsak(Fagsak fagsak, List<BehandlingÅrsakType> revurderingsÅrsaker) {
-        var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow();
-        return revurderingTjeneste.opprettAutomatiskRevurderingMultiÅrsak(fagsak, revurderingsÅrsaker, behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak));
-    }
-
     public Behandling opprettManuellRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak) {
         var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow();
         return revurderingTjeneste.opprettManuellRevurdering(fagsak, revurderingsÅrsak, behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak));

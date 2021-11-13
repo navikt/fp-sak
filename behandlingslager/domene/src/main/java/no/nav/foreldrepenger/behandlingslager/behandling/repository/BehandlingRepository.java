@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -210,7 +211,7 @@ public class BehandlingRepository {
 
     public boolean harÅpenOrdinærYtelseBehandlingerForFagsakId(Long fagsakId) {
         return hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream()
-                .anyMatch(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING));
+                .anyMatch(SpesialBehandling::erIkkeSpesialBehandling);
     }
 
     public List<Behandling> hentÅpneYtelseBehandlingerForFagsakId(Long fagsakId) {

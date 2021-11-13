@@ -29,8 +29,8 @@ public class RevurderingHistorikk {
         this.historikkRepository = historikkRepository;
     }
 
-    public void opprettHistorikkinnslagOmRevurdering(Behandling behandling, List<BehandlingÅrsakType> revurderingÅrsaker, boolean manueltOpprettet) {
-        if (revurderingÅrsaker.contains(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
+    public void opprettHistorikkinnslagOmRevurdering(Behandling behandling, BehandlingÅrsakType revurderingsÅrsak, boolean manueltOpprettet) {
+        if (BehandlingÅrsakType.alleTekniskeÅrsaker().contains(revurderingsÅrsak)) {
             return;
         }
 
@@ -42,7 +42,7 @@ public class RevurderingHistorikk {
         revurderingsInnslag.setAktør(historikkAktør);
         var historiebygger = new HistorikkInnslagTekstBuilder()
                 .medHendelse(HistorikkinnslagType.REVURD_OPPR)
-                .medBegrunnelse(revurderingÅrsaker.stream().findFirst().orElse(BehandlingÅrsakType.UDEFINERT));
+                .medBegrunnelse(revurderingsÅrsak);
         historiebygger.build(revurderingsInnslag);
 
         historikkRepository.lagre(revurderingsInnslag);

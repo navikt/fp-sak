@@ -10,8 +10,8 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
@@ -60,7 +60,7 @@ public class KompletthetsjekkerRevurderingImpl implements Kompletthetsjekker {
     @Override
     public KompletthetResultat vurderForsendelseKomplett(BehandlingReferanse ref) {
         var behandling = fellesUtil.hentBehandling(ref.getBehandlingId());
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
+        if (SpesialBehandling.skalGrunnlagBeholdes(behandling)) {
             return KompletthetResultat.oppfylt();
         }
 

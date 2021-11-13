@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
@@ -50,6 +51,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
@@ -166,6 +168,10 @@ public class AksjonspunktTjeneste {
 
     public void overstyrAksjonspunkter(Collection<OverstyringAksjonspunktDto> overstyrteAksjonspunkter, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
+        if (SpesialBehandling.kanIkkeOverstyres(behandling)) {
+            throw new FunksjonellException("FP-760744", "Behandlingen kan ikke overstyres og må gjennomføres",
+                "Vurder behov for ordinær revurdering etter at denne behnadlingen er avsluttet");
+        }
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
 
         // Tilbakestill gjeldende steg før fremføring

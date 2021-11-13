@@ -200,7 +200,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
 
     @Test
     public void feriepenge_berørt_hopper_til_tilkjent() {
-        var behandling = opprettRevurdering(List.of(BehandlingÅrsakType.BERØRT_BEHANDLING, BehandlingÅrsakType.REBEREGN_FERIEPENGER));
+        var behandling = opprettRevurdering(BehandlingÅrsakType.REBEREGN_FERIEPENGER);
         var fagsak = behandling.getFagsak();
         // Arrange
         var lås = behandlingRepository.taSkriveLås(behandling);
@@ -351,10 +351,10 @@ public class KontrollerFaktaRevurderingStegImplTest {
     }
 
     private Behandling opprettRevurdering() {
-        return opprettRevurdering(List.of(BehandlingÅrsakType.RE_MANGLER_FØDSEL));
+        return opprettRevurdering(BehandlingÅrsakType.RE_MANGLER_FØDSEL);
     }
 
-    private Behandling opprettRevurdering(List<BehandlingÅrsakType> årsaker) {
+    private Behandling opprettRevurdering(BehandlingÅrsakType årsak) {
         var fødselsdato = LocalDate.now().minusYears(20);
         var aktørId = AktørId.dummy();
 
@@ -422,7 +422,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
                 .medRegisterOpplysninger(personopplysningBuilder.build())
-                .medOriginalBehandling(originalBehandling, årsaker, false);
+                .medOriginalBehandling(originalBehandling, årsak);
         revurderingScenario.medDefaultOppgittTilknytning();
 
         revurderingScenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());

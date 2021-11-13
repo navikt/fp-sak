@@ -35,6 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -130,10 +131,9 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
         // Spesialhåndtering for enkelte behandlinger
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
-            var startpunkt = behandling.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER) ||
-                behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_UTSATT_START) ?
-                StartpunktType.TILKJENT_YTELSE : StartpunktType.UTTAKSVILKÅR;
+        if (SpesialBehandling.erSpesialBehandling(behandling)) {
+            var startpunkt = SpesialBehandling.skalUttakVurderes(behandling) ?
+                StartpunktType.UTTAKSVILKÅR : StartpunktType.TILKJENT_YTELSE;
             behandling.setStartpunkt(startpunkt);
             kopierResultaterAvhengigAvStartpunkt(behandling, kontekst);
             return utledStegResultat(startpunkt, List.of());
@@ -305,7 +305,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         }
 
         if (StartpunktType.TILKJENT_YTELSE.equals(revurdering.getStartpunkt())) {
-            if (revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_UTSATT_START)) {
+            if (SpesialBehandling.erOppsagtUttak(revurdering)) {
                 kopierForeldrepengerUttaktjeneste.lagreTomtUttakResultat(revurdering.getId());
             } else {
                 kopierForeldrepengerUttaktjeneste.kopierUttakFraOriginalBehandling(origBehandling.getId(), revurdering.getId());

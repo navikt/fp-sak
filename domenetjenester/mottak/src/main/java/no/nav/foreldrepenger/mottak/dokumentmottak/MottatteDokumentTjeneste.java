@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.EndringsSøknadUtsettelseUttak;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadWrapper;
 
 @ApplicationScoped
 public class MottatteDokumentTjeneste {
@@ -66,7 +67,7 @@ public class MottatteDokumentTjeneste {
         if (!dokument.getDokumentType().erEndringsSøknadType() || dokument.getPayloadXml() == null) {
             return null;
         }
-        @SuppressWarnings("rawtypes") var dokumentWrapper = mottattDokumentPersisterer.xmlTilWrapper(dokument);
+        var dokumentWrapper = (SøknadWrapper) mottattDokumentPersisterer.xmlTilWrapper(dokument);
         return mottattDokumentPersisterer.ekstraherUtsettelseUttak(dokumentWrapper, dokument);
 
     }

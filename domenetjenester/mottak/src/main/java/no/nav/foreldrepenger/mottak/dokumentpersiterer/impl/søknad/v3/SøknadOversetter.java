@@ -75,7 +75,6 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.OppgittPeriodeTidligstMottattDatoTjeneste;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.EndringsSøknadUtsettelseUttak;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.MottattDokumentOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.NamespaceRef;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
@@ -184,26 +183,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             // DVH oppdatering skal normalt gå gjennom events - dette er en unntaksløsning for å sikre at DVH oppdateres med annen part (som er lagt på DVH-sak)
             datavarehusTjeneste.lagreNedFagsak(behandling.getFagsakId());
         }
-    }
-
-    @Override
-    public EndringsSøknadUtsettelseUttak ekstraherUtsettelseUttakFra(SøknadWrapper wrapper, MottattDokument mottattDokument) {
-        if (!(wrapper.getOmYtelse() instanceof Endringssoeknad) || !erEndring(mottattDokument)) {
-            throw new IllegalArgumentException("Ikke endringssøknad");
-        }
-        final var omYtelse = (Endringssoeknad) wrapper.getOmYtelse();
-        var perioder = omYtelse.getFordeling().getPerioder();
-
-        var utsettelseFom = perioder.stream()
-            .filter(p -> p instanceof Utsettelsesperiode || p instanceof Oppholdsperiode)
-            .map(LukketPeriodeMedVedlegg::getFom)
-            .min(Comparator.naturalOrder()).orElse(null);
-        var uttakFom = perioder.stream()
-            .filter(p -> p instanceof Uttaksperiode || p instanceof Overfoeringsperiode || p instanceof Gradering)
-            .map(LukketPeriodeMedVedlegg::getFom)
-            .min(Comparator.naturalOrder()).orElse(null);
-
-        return new EndringsSøknadUtsettelseUttak(utsettelseFom, uttakFom);
     }
 
     private SøknadEntitet.Builder kopierSøknad(Behandling behandling) {

@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.YtelsesesspesifiktGrunnlagTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
@@ -77,10 +77,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         }
         var familiehendelser = familieHendelser(fhaOpt.get());
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var erBerørtBehandling =
-            behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING) &&
-                !behandling.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER) &&
-                !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_UTSATT_START);
+        var erBerørtBehandling = SpesialBehandling.erBerørtBehandling(behandling) && SpesialBehandling.skalUttakVurderes(behandling);
         var originalBehandling = originalBehandling(behandling);
         var grunnlag = new ForeldrepengerGrunnlag()
             .medErBerørtBehandling(erBerørtBehandling)

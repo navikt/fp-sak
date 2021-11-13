@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.Dependent;
@@ -284,7 +283,7 @@ public class DokumentmottakerFelles {
     void opprettAnnulleringsBehandlinger(MottattDokument dokument, Fagsak fagsak) {
         var søknadUtsettelseUttak = finnUtsettelseUttak(dokument);
 
-        var revurdering = behandlingsoppretter.opprettRevurderingMultiÅrsak(fagsak, List.of(BehandlingÅrsakType.RE_UTSATT_START, BehandlingÅrsakType.BERØRT_BEHANDLING));
+        var revurdering = behandlingsoppretter.opprettRevurdering(fagsak, BehandlingÅrsakType.RE_UTSATT_START);
         mottatteDokumentTjeneste.persisterDokumentinnhold(revurdering, dokument, Optional.empty());
         opprettHistorikk(revurdering, dokument);
         opprettTaskForÅStarteBehandling(revurdering);

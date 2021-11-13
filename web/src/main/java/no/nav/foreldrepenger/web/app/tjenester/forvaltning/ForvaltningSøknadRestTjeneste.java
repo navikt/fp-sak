@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
@@ -65,7 +65,7 @@ public class ForvaltningSøknadRestTjeneste {
     public Response endreTermindato(@BeanParam @Valid SaksnummerTermindatoDto dto) {
         var fagsakId = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).map(Fagsak::getId).orElseThrow();
         var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream()
-                .filter(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING))
+                .filter(SpesialBehandling::erIkkeSpesialBehandling)
                 .findFirst().orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
         var antall = familieHendelseRepository.oppdaterGjeldendeTermindatoForBehandling(behandling.getId(), dto.getTermindato(),
                 dto.getBegrunnelse());
@@ -81,7 +81,7 @@ public class ForvaltningSøknadRestTjeneste {
     public Response manglendeTermindato(@BeanParam @Valid SaksnummerTermindatoDto dto) {
         var fagsakId = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).map(Fagsak::getId).orElseThrow();
         var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream()
-            .filter(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING))
+            .filter(SpesialBehandling::erIkkeSpesialBehandling)
             .findFirst().orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
         var gjeldende = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         if (gjeldende.isEmpty() || gjeldende.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeTerminbekreftelse).isPresent())
@@ -103,7 +103,7 @@ public class ForvaltningSøknadRestTjeneste {
     public Response settNorskIdentAnnenpart(@BeanParam @Valid SaksnummerAnnenpartIdentDto dto) {
         var fagsakId = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).map(Fagsak::getId).orElseThrow();
         var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream()
-                .filter(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING))
+            .filter(SpesialBehandling::erIkkeSpesialBehandling)
                 .findFirst().orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
         var oap = personopplysningRepository.hentPersonopplysninger(behandling.getId()).getOppgittAnnenPart().orElseThrow();
 
@@ -130,8 +130,8 @@ public class ForvaltningSøknadRestTjeneste {
     public Response settUtlandskIdentAnnenpart(@BeanParam @Valid SaksnummerAnnenpartIdentDto dto) {
         var fagsakId = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).map(Fagsak::getId).orElseThrow();
         var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream()
-                .filter(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING))
-                .findFirst().orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
+            .filter(SpesialBehandling::erIkkeSpesialBehandling)
+            .findFirst().orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
         var oap = personopplysningRepository.hentPersonopplysninger(behandling.getId()).getOppgittAnnenPart().orElseThrow();
 
         var eksisterendeAnnenPart = oap.getAktørId();

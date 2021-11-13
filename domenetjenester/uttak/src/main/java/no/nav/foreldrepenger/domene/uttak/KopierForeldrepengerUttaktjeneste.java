@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderRevurderingUtil;
 
 @ApplicationScoped
@@ -37,8 +36,11 @@ public class KopierForeldrepengerUttaktjeneste {
     }
 
     public void lagreTomtUttakResultat(Long behandlingId) {
-        var tomtUttak = new UttakResultatPerioderEntitet();
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingId, tomtUttak);
+        /* TODO: evaluer testresultat og vurdere dette alternativet
+            var tomtUttak = new UttakResultatPerioderEntitet();
+            fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingId, tomtUttak);
+         */
+        fpUttakRepository.deaktivterAktivtResultat(behandlingId);
     }
 
     public void kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(Long originalBehandlingId, Long behandlingId) {

@@ -50,9 +50,11 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     RE_MANGLER_FØDSEL_I_PERIODE("RE-MFIP", "Mangler fødselsreg. u26-29"),
     RE_AVVIK_ANTALL_BARN("RE-AVAB", "Avvik antall barn"),
 
-    // Mottak + varianter av berørte behandlinger (tekniske behandlinger)
+    // Mottak
     RE_ENDRING_FRA_BRUKER("RE-END-FRA-BRUKER", "Søknad"),
     RE_ENDRET_INNTEKTSMELDING("RE-END-INNTEKTSMELD", "Inntektsmelding"),
+
+    // Tekniske behandlinger som skal spesialbehandles i prosessen
     BERØRT_BEHANDLING("BERØRT-BEHANDLING", "Berørt behandling"),
     REBEREGN_FERIEPENGER("REBEREGN-FERIEPENGER", "Omfordel feriepenger"),
     RE_UTSATT_START("RE-UTSATT-START", "Senere startdato"),
@@ -100,6 +102,9 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     ;
 
     public static final String KODEVERK = "BEHANDLING_AARSAK"; //$NON-NLS-1$
+
+    private static final Set<BehandlingÅrsakType> SPESIELLE_BEHANDLINGER = Set.of(BehandlingÅrsakType.BERØRT_BEHANDLING,
+        BehandlingÅrsakType.REBEREGN_FERIEPENGER, BehandlingÅrsakType.RE_UTSATT_START);
 
     private static final Map<String, BehandlingÅrsakType> KODER = new LinkedHashMap<>();
 
@@ -186,5 +191,13 @@ public enum BehandlingÅrsakType implements Kodeverdi {
 
     public static Set<BehandlingÅrsakType> årsakerRelatertTilDød() {
         return Set.of(RE_OPPLYSNINGER_OM_DØD, RE_HENDELSE_DØD_BARN, RE_HENDELSE_DØD_FORELDER, RE_HENDELSE_DØDFØDSEL);
+    }
+
+    public static Set<BehandlingÅrsakType> årsakerForRelatertVedtak() {
+        return Set.of(BERØRT_BEHANDLING, REBEREGN_FERIEPENGER);
+    }
+
+    public static Set<BehandlingÅrsakType> alleTekniskeÅrsaker() {
+        return SPESIELLE_BEHANDLINGER;
     }
 }

@@ -16,9 +16,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -96,7 +96,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         var behandlingsresultatRevurdering = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
         var behandlingsresultatOriginal = finnBehandlingsresultatPåOriginalBehandling(originalBehandling.getId());
 
-        if (revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_UTSATT_START)) {
+        if (SpesialBehandling.erOppsagtUttak(revurdering)) {
             return buildBehandlingsresultat(revurdering, behandlingsresultatRevurdering.orElse(null),
                 BehandlingResultatType.FORELDREPENGER_SENERE, RettenTil.HAR_RETT_TIL_FP,
                 Vedtaksbrev.AUTOMATISK, List.of(KonsekvensForYtelsen.ENDRING_I_UTTAK));

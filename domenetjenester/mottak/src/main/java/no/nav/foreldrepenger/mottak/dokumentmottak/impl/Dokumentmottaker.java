@@ -19,12 +19,12 @@ public interface Dokumentmottaker {
 
     void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType);
 
-    default boolean utsetterStartdato(MottattDokument mottattDokument, Fagsak fagsak) {
+    default boolean endringSomUtsetterStartdato(MottattDokument mottattDokument, Fagsak fagsak) {
         return false;
     }
 
-    default void utsettelseFraStart(MottattDokument mottattDokument, Fagsak fagsak) {
-        throw new IllegalStateException("utsettelseFraStart er ikke implementert");
+    default void mottaUtsettelseAvStartdato(MottattDokument mottattDokument, Fagsak fagsak) {
+        throw new IllegalStateException("Utviklerfeil: Mangler implementasjon");
     }
 
     @SuppressWarnings("unused")
