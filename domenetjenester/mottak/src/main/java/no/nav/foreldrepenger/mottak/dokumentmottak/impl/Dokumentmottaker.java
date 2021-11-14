@@ -24,7 +24,8 @@ public interface Dokumentmottaker {
     }
 
     default void mottaUtsettelseAvStartdato(MottattDokument mottattDokument, Fagsak fagsak) {
-        throw new IllegalStateException("Utviklerfeil: Mangler implementasjon");
+        throw new IllegalStateException(String.format("Utviklerfeil: skal ikke kalles for ytelse %s dokumenttype %s",
+            fagsak.getYtelseType().getKode(), mottattDokument.getDokumentType().getKode()));
     }
 
     @SuppressWarnings("unused")

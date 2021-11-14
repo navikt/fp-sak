@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
@@ -113,6 +114,24 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
         } else {
             var sisteAvsluttetBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElse(null);
             opprettKøetBehandling(mottattDokument, fagsak, behandlingÅrsakType, sisteAvsluttetBehandling);
+        }
+    }
+
+    @Override
+    public boolean endringSomUtsetterStartdato(MottattDokument mottattDokument, Fagsak fagsak) {
+        return FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType()) &&
+            mottattDokument.getDokumentType().erForeldrepengeSøknad() &&
+            dokumentmottakerFelles.endringSomUtsetterStartdato(mottattDokument, fagsak);
+    }
+
+    @Override
+    public void mottaUtsettelseAvStartdato(MottattDokument mottattDokument, Fagsak fagsak) {
+        if (FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType()) &&
+            mottattDokument.getDokumentType().erForeldrepengeSøknad()) {
+            dokumentmottakerFelles.opprettAnnulleringsBehandlinger(mottattDokument, fagsak);
+        } else {
+            throw new IllegalArgumentException(String.format("Utviklerfeil: skal ikke kalles for ytelse %s dokumenttype %s",
+                fagsak.getYtelseType().getKode(), mottattDokument.getDokumentType().getKode()));
         }
     }
 

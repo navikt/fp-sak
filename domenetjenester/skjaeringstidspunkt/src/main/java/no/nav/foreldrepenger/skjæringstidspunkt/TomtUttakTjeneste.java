@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 
 @ApplicationScoped
@@ -33,6 +34,7 @@ public class TomtUttakTjeneste {
 
     public Optional<LocalDate> startdatoUttakResultatFrittUttak(Fagsak fagsak) {
         return behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
+            .filter(b -> FagsakYtelseType.FORELDREPENGER.equals(b.getFagsakYtelseType()))
             .filter(b -> !utsettelseBehandling2021.kreverSammenhengendeUttak(b))
             .map(b -> fpUttakRepository.hentUttakResultat(b.getId()).getGjeldendePerioder())
             .flatMap(ur -> UtsettelseCore2021.finnFørsteDatoFraUttakResultat(ur.getPerioder(), false));

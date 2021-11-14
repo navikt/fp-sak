@@ -118,16 +118,6 @@ class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertD
         }
     }
 
-    @Override
-    public boolean endringSomUtsetterStartdato(MottattDokument mottattDokument, Fagsak fagsak) {
-        return dokumentmottakerFelles.endringSomUtsetterStartdato(mottattDokument, fagsak);
-    }
-
-    @Override
-    public void mottaUtsettelseAvStartdato(MottattDokument mottattDokument, Fagsak fagsak) {
-        dokumentmottakerFelles.opprettAnnulleringsBehandlinger(mottattDokument, fagsak);
-    }
-
     private BehandlingÅrsakType getBehandlingÅrsakHvisUdefinert(BehandlingÅrsakType behandlingÅrsakType) {
         return behandlingÅrsakType == null || BehandlingÅrsakType.UDEFINERT.equals(behandlingÅrsakType) ?
             BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER : behandlingÅrsakType;
