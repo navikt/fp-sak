@@ -233,6 +233,11 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
         return ENDRING_SØKNAD_TYPER.contains(this);
     }
 
+    public boolean erForeldrepengeSøknad() {
+        return Set.of(SØKNAD_FORELDREPENGER_FØDSEL, SØKNAD_FORELDREPENGER_ADOPSJON,
+            FORELDREPENGER_ENDRING_SØKNAD, FLEKSIBELT_UTTAK_FORELDREPENGER).contains(this);
+    }
+
     public boolean erInntektsmelding() {
         return INNTEKTSMELDING.equals(this);
     }

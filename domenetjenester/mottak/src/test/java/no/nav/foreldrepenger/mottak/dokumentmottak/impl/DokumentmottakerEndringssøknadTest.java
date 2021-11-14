@@ -100,11 +100,12 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
         lenient().when(enhetsTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
 
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, taskTjeneste,
-            enhetsTjeneste, historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);
+            enhetsTjeneste, historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter,
+            mock(TomtUttakTjeneste.class));
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
         dokumentmottaker = new DokumentmottakerEndringssøknad(repositoryProvider, dokumentmottakerFelles,
-                behandlingsoppretter, kompletthetskontroller, køKontroller, fpUttakTjeneste, mock(TomtUttakTjeneste.class));
+                behandlingsoppretter, kompletthetskontroller, køKontroller, fpUttakTjeneste);
         dokumentmottaker = Mockito.spy(dokumentmottaker);
     }
 

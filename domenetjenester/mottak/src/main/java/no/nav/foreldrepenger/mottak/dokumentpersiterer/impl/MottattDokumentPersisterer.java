@@ -11,12 +11,9 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.EndringsSøknadUtsettelseUttak;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.MottattDokumentFeil;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.MottattDokumentOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.NamespaceRef;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.EndringUtsettelseUttak;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadWrapper;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.xml.MottattDokumentXmlParser;
 import no.nav.foreldrepenger.mottak.publiserer.publish.MottattDokumentPersistertPubliserer;
 import no.nav.vedtak.exception.TekniskException;
@@ -52,12 +49,6 @@ public class MottattDokumentPersisterer {
     public void persisterDokumentinnhold(MottattDokument dokument, Behandling behandling) {
         var dokumentWrapper = xmlTilWrapper(dokument);
         persisterDokumentinnhold(dokumentWrapper, dokument, behandling, Optional.empty());
-    }
-
-    @SuppressWarnings("unchecked")
-    public EndringsSøknadUtsettelseUttak ekstraherUtsettelseUttak(SøknadWrapper wrapper,
-                                                                  MottattDokument dokument) {
-        return EndringUtsettelseUttak.ekstraherUtsettelseUttakFra(wrapper, dokument);
     }
 
     private MottattDokumentOversetter<?> getDokumentOversetter(String namespace) {

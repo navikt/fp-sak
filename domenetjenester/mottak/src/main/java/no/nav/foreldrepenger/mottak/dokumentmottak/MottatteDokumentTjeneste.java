@@ -23,8 +23,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.EndringsSøknadUtsettelseUttak;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.SøknadUtsettelseUttakDato;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.EndringUtsettelseUttak;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadWrapper;
 
 @ApplicationScoped
@@ -63,12 +64,12 @@ public class MottatteDokumentTjeneste {
         }
     }
 
-    public EndringsSøknadUtsettelseUttak finnUtsettelseUttakForEndringssøknad(MottattDokument dokument) {
-        if (!dokument.getDokumentType().erEndringsSøknadType() || dokument.getPayloadXml() == null) {
+    public SøknadUtsettelseUttakDato finnUtsettelseUttakForSøknad(MottattDokument dokument) {
+        if (!dokument.getDokumentType().erForeldrepengeSøknad() || dokument.getPayloadXml() == null) {
             return null;
         }
         var dokumentWrapper = (SøknadWrapper) mottattDokumentPersisterer.xmlTilWrapper(dokument);
-        return mottattDokumentPersisterer.ekstraherUtsettelseUttak(dokumentWrapper, dokument);
+        return EndringUtsettelseUttak.ekstraherUtsettelseUttakFra(dokumentWrapper);
 
     }
 

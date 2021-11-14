@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.Optional;
 
 import javax.enterprise.context.Dependent;
@@ -25,9 +26,10 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlin
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.EndringsSøknadUtsettelseUttak;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.SøknadUtsettelseUttakDato;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderDokumentTask;
+import no.nav.foreldrepenger.skjæringstidspunkt.TomtUttakTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -35,6 +37,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 public class DokumentmottakerFelles {
 
     private ProsessTaskTjeneste taskTjeneste;
+    private TomtUttakTjeneste tomtUttakTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingRepository behandlingRepository;
     private HistorikkinnslagTjeneste historikkinnslagTjeneste;
@@ -53,8 +56,10 @@ public class DokumentmottakerFelles {
                                   BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                   HistorikkinnslagTjeneste historikkinnslagTjeneste,
                                   MottatteDokumentTjeneste mottatteDokumentTjeneste,
-                                  Behandlingsoppretter behandlingsoppretter) {
+                                  Behandlingsoppretter behandlingsoppretter,
+                                  TomtUttakTjeneste tomtUttakTjeneste) {
         this.taskTjeneste = taskTjeneste;
+        this.tomtUttakTjeneste = tomtUttakTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.historikkinnslagTjeneste = historikkinnslagTjeneste;
@@ -276,12 +281,29 @@ public class DokumentmottakerFelles {
         behandlingsoppretter.settSomKøet(nyBehandling);
     }
 
-    EndringsSøknadUtsettelseUttak finnUtsettelseUttak(MottattDokument dokument) {
-        return mottatteDokumentTjeneste.finnUtsettelseUttakForEndringssøknad(dokument);
+    SøknadUtsettelseUttakDato finnUtsettelseUttak(MottattDokument dokument) {
+        return mottatteDokumentTjeneste.finnUtsettelseUttakForSøknad(dokument);
+    }
+
+    public boolean endringSomUtsetterStartdato(MottattDokument mottattDokument, Fagsak fagsak) {
+        var søknadUtsettelseUttak = finnUtsettelseUttak(mottattDokument);
+        var eksisterendeStartdatoOpt = tomtUttakTjeneste.startdatoUttakResultatFrittUttak(fagsak);
+        if (søknadUtsettelseUttak == null || søknadUtsettelseUttak.utsettelseFom() == null || eksisterendeStartdatoOpt.isEmpty()) {
+            return false;
+        }
+        var eksisterendeStartdato = eksisterendeStartdatoOpt.orElseThrow();
+        var utsettelseFraStart = !søknadUtsettelseUttak.utsettelseFom().isAfter(eksisterendeStartdato);
+        var utsettelsePeriodeAkseptert = søknadUtsettelseUttak.uttakFom() != null &&
+            (YearMonth.from(søknadUtsettelseUttak.uttakFom()).equals(YearMonth.from(eksisterendeStartdato)) ||
+                søknadUtsettelseUttak.uttakFom().isBefore(eksisterendeStartdato.plusWeeks(2))); // TODO - oppdater ifm TFP-4716
+        return utsettelseFraStart && !utsettelsePeriodeAkseptert;
     }
 
     void opprettAnnulleringsBehandlinger(MottattDokument dokument, Fagsak fagsak) {
         var søknadUtsettelseUttak = finnUtsettelseUttak(dokument);
+        // Henlegg alle åpne behandlinger - selv berørte, fordi uttaket skal tømmes
+        behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId())
+            .forEach(b -> behandlingsoppretter.henleggBehandling(b));
 
         var revurdering = behandlingsoppretter.opprettRevurdering(fagsak, BehandlingÅrsakType.RE_UTSATT_START);
         mottatteDokumentTjeneste.persisterDokumentinnhold(revurdering, dokument, Optional.empty());
