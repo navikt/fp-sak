@@ -7,6 +7,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurde
 import java.util.Arrays;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
@@ -62,7 +63,7 @@ public class VedtaksbrevUtleder {
         } else if (erAnkeBehandling(behandlingVedtak)) {
             dokumentMal = velgAnkemal(behandling, ankeRepository);
         } else if (erInnvilget(behandlingVedtak)) {
-            dokumentMal = velgPositivtVedtaksmal(behandling);
+            dokumentMal = velgPositivtVedtaksmal(behandling, behandlingsresultat);
         } else if (erAvlåttEllerOpphørt(behandlingVedtak)) {
             dokumentMal = velgNegativVedtaksmal(behandling, behandlingsresultat);
         }
@@ -93,13 +94,18 @@ public class VedtaksbrevUtleder {
         return null;
     }
 
-    public static DokumentMalType velgPositivtVedtaksmal(Behandling behandling) {
+    public static DokumentMalType velgPositivtVedtaksmal(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         var ytelse = behandling.getFagsakYtelseType();
 
         return FagsakYtelseType.FORELDREPENGER.equals(ytelse) ?
-            DokumentMalType.FORELDREPENGER_INNVILGELSE : FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) ?
+            velgForeldrepengerPositivtVedtaksmal(behandlingsresultat) : FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) ?
             DokumentMalType.ENGANGSSTØNAD_INNVILGELSE : FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelse) ?
             DokumentMalType.SVANGERSKAPSPENGER_INNVILGELSE_FRITEKST : null;
+    }
+
+    private static DokumentMalType velgForeldrepengerPositivtVedtaksmal(Behandlingsresultat behandlingsresultat) {
+        return BehandlingResultatType.FORELDREPENGER_SENERE.equals(behandlingsresultat.getBehandlingResultatType())
+            && !Environment.current().isProd() ? DokumentMalType.FORELDREPENGER_ANNULLERT : DokumentMalType.FORELDREPENGER_INNVILGELSE;
     }
 
     public static DokumentMalType velgKlagemal(Behandling behandling, KlageRepository klageRepository) {
