@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.OpptjeningsperiodeVilkårTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseBehandling2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
@@ -42,7 +43,7 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
     private BehandlingRepositoryProvider repositoryProvider;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private OpptjeningsperiodeVilkårTjeneste opptjeningsperiodeVilkårTjeneste;
-    private UtsettelseCore2021 utsettelseCore2021;
+    private UtsettelseBehandling2021 utsettelse2021;
     @Mock
     private YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste;
     private SkjæringstidspunktUtils stputil = new SkjæringstidspunktUtils(
@@ -58,10 +59,10 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
         var fødselsdato = LocalDate.now().minusMonths(4);
         var morsmaksdato = fødselsdato.plusWeeks(31);
         var førsteUttaksdato = morsmaksdato.plusWeeks(4);
-        utsettelseCore2021 = new UtsettelseCore2021(fødselsdato.plusMonths(1));
+        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(fødselsdato.plusMonths(1)), repositoryProvider);
 
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
-            stputil, utsettelseCore2021);
+            stputil, utsettelse2021);
         opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
             repositoryProvider.getFamilieHendelseRepository(), ytelseMaksdatoTjeneste);
 
@@ -105,10 +106,10 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
         var fødselsdato = LocalDate.now().minusMonths(4);
         var morsmaksdato = fødselsdato.plusWeeks(31);
         var førsteUttaksdato = morsmaksdato.minusWeeks(4);
-        utsettelseCore2021 = new UtsettelseCore2021(fødselsdato.plusMonths(1));
+        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(fødselsdato.plusMonths(1)), repositoryProvider);
 
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
-            stputil, utsettelseCore2021);
+            stputil, utsettelse2021);
         opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
             repositoryProvider.getFamilieHendelseRepository(), ytelseMaksdatoTjeneste);
 
@@ -152,9 +153,9 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
         var fødselsdato = LocalDate.now().minusWeeks(4);
         var morsmaksdato = fødselsdato.plusWeeks(31);
         var førsteUttaksdato = morsmaksdato.plusWeeks(4);
-        utsettelseCore2021 = new UtsettelseCore2021(fødselsdato.minusMonths(1));
+        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(fødselsdato.minusMonths(1)), repositoryProvider);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
-            stputil, utsettelseCore2021);
+            stputil, utsettelse2021);
         opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
             repositoryProvider.getFamilieHendelseRepository(), ytelseMaksdatoTjeneste);
 

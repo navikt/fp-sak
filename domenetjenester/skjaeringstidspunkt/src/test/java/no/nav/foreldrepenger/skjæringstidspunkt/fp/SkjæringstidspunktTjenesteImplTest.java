@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseBehandling2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
 
 public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
@@ -27,12 +28,13 @@ public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest 
     private BehandlingRepositoryProvider repositoryProvider;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private SkjæringstidspunktUtils stputil = new SkjæringstidspunktUtils(Period.parse("P4M"), Period.parse("P1Y"));
-    private UtsettelseCore2021 utsettelseCore2021 = new UtsettelseCore2021(LocalDate.now().minusMonths(1));
+    private UtsettelseBehandling2021 utsettelse2021;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, stputil, utsettelseCore2021);
+        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusMonths(1)), repositoryProvider);
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, stputil, utsettelse2021);
     }
 
     @Test

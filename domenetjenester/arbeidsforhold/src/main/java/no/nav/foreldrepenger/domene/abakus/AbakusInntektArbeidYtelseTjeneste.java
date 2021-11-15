@@ -16,7 +16,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
-import no.nav.abakus.iaygrunnlag.v1.OverstyrtInntektArbeidYtelseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +32,7 @@ import no.nav.abakus.iaygrunnlag.request.KopierGrunnlagRequest;
 import no.nav.abakus.iaygrunnlag.request.OppgittOpptjeningMottattRequest;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagSakSnapshotDto;
+import no.nav.abakus.iaygrunnlag.v1.OverstyrtInntektArbeidYtelseDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -363,6 +363,23 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
                 KodeverkMapper.fraFagsakYtelseType(tilBehandling.getFagsakYtelseType()),
                 new AktørIdPersonident(tilBehandling.getAktørId().getId()),
                 Set.of(Dataset.values()));
+        try {
+            abakusTjeneste.kopierGrunnlag(request);
+        } catch (IOException e) {
+            throw feilVedKallTilAbakus("Lagre mottatte inntektsmeldinger i abakus: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long fraBehandlingId, Long tilBehandlingId) {
+        final var fraBehandling = behandlingRepository.hentBehandling(fraBehandlingId);
+        final var tilBehandling = behandlingRepository.hentBehandling(tilBehandlingId);
+        final var request = new KopierGrunnlagRequest(tilBehandling.getFagsak().getSaksnummer().getVerdi(),
+            tilBehandling.getUuid(),
+            fraBehandling.getUuid(),
+            KodeverkMapper.fraFagsakYtelseType(tilBehandling.getFagsakYtelseType()),
+            new AktørIdPersonident(tilBehandling.getAktørId().getId()),
+            Set.of(Dataset.INNTEKTSMELDING, Dataset.OPPGITT_OPPTJENING));
         try {
             abakusTjeneste.kopierGrunnlag(request);
         } catch (IOException e) {

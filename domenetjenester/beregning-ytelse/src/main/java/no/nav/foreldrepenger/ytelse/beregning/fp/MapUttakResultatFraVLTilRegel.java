@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.ytelse.beregning.fp;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -10,8 +11,8 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.UttakYrkesaktiviteter;
@@ -30,8 +31,8 @@ public class MapUttakResultatFraVLTilRegel {
     public MapUttakResultatFraVLTilRegel() {
     }
 
-    public UttakResultat mapFra(ForeldrepengerUttak uttakResultat, UttakInput input) {
-        var uttakResultatPerioder = uttakResultat.getGjeldendePerioder().stream()
+    public UttakResultat mapFra(List<ForeldrepengerUttakPeriode> perioder, UttakInput input) {
+        var uttakResultatPerioder = perioder.stream()
             .map(periode -> {
                 var uttakAktiviteter = periode.getAktiviteter().stream()
                     .map(aktivitet -> mapAktivitet(input, aktivitet, periode.getFom(), periode.isGraderingInnvilget()))

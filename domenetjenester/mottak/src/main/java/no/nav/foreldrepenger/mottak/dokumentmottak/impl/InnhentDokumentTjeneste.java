@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -50,18 +49,15 @@ public class InnhentDokumentTjeneste {
     private Instance<Dokumentmottaker> mottakere;
 
     private FagsakRepository fagsakRepository;
-    private BehandlingRevurderingRepository revurderingRepository;
 
     private KøKontroller køKontroller;
 
     @Inject
     public InnhentDokumentTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                    @Any Instance<Dokumentmottaker> mottakere,
-                                   BehandlingRevurderingRepository revurderingRepository,
                                    KøKontroller køKontroller) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.mottakere = mottakere;
-        this.revurderingRepository = revurderingRepository;
         this.køKontroller = køKontroller;
     }
 
@@ -74,11 +70,13 @@ public class InnhentDokumentTjeneste {
             DOKUMENTTYPE_TIL_GRUPPE.getOrDefault(dokumentTypeId, DokumentGruppe.VEDLEGG);
 
         var dokumentmottaker = finnMottaker(dokumentGruppe, fagsak.getYtelseType());
-        if (skalMottasSomKøet(fagsak)) {
+        if (dokumentmottaker.endringSomUtsetterStartdato(mottattDokument, fagsak)) {
+            dokumentmottaker.mottaUtsettelseAvStartdato(mottattDokument, fagsak);
+        } else if (skalMottasSomKøet(fagsak)) {
             dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, behandlingÅrsakType);
-            return;
+        } else {
+            dokumentmottaker.mottaDokument(mottattDokument, fagsak, behandlingÅrsakType);
         }
-        dokumentmottaker.mottaDokument(mottattDokument, fagsak, behandlingÅrsakType);
     }
 
     public void opprettFraTidligereBehandling(Long behandlingId, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) { //#SXX og #IXX

@@ -105,7 +105,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
         var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
         if (skalKopiereUttakTjeneste.skalKopiereStegResultat(uttakInput)) {
             var ref = uttakInput.getBehandlingReferanse();
-            kopierForeldrepengerUttaktjeneste.kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(ref);
+            kopierForeldrepengerUttaktjeneste.kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(ref.getOriginalBehandlingId().orElseThrow(), ref.getBehandlingId());
         }
     }
 

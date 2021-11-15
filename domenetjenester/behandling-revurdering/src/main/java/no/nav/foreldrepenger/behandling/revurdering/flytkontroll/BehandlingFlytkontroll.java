@@ -6,7 +6,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -51,10 +51,10 @@ public class BehandlingFlytkontroll {
             return false;
         }
         var finnesBerørt = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(behandling.getFagsak().getId()).stream()
-                .anyMatch(b -> !b.getId().equals(behandling.getId()) && b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING));
+                .anyMatch(b -> !b.getId().equals(behandling.getId()) && SpesialBehandling.skalIkkeKøes(b));
         var annenpartÅpneBehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(annenpartFagsak.getId());
         var annenPartHarBerørt = annenpartÅpneBehandlinger.stream()
-                .anyMatch(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING));
+                .anyMatch(SpesialBehandling::skalIkkeKøes);
         var annenPartAktivUttak = annenpartÅpneBehandlinger.stream()
                 .anyMatch(b -> behandlingskontrollTjeneste.erStegPassert(b, SYNK_STEG));
         // TODO avklare om aktivUttak skal ekskludere behandling.isBehandlingPåVent();
@@ -69,7 +69,7 @@ public class BehandlingFlytkontroll {
             return false;
         }
         var finnesBerørt = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId()).stream()
-                .anyMatch(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING));
+                .anyMatch(SpesialBehandling::skalIkkeKøes);
         var annenPartRevurderingEllerAktivUttak = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(annenpartFagsak.getId()).stream()
                 .anyMatch(b -> b.erRevurdering() || behandlingskontrollTjeneste.erStegPassert(b, SYNK_STEG));
         // TODO avklare om aktivUttak skal ekskludere behandling.isBehandlingPåVent();

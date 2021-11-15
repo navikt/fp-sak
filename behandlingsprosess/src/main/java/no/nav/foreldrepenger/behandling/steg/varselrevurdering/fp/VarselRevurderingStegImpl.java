@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -46,7 +46,7 @@ public class VarselRevurderingStegImpl implements VarselRevurderingSteg {
 
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
+        if (SpesialBehandling.skalGrunnlagBeholdes(behandling)) {
             var transisjon = TransisjonIdentifikator
                     .forId(FellesTransisjoner.SPOLFREM_PREFIX + BehandlingStegType.KONTROLLER_FAKTA.getKode());
             return BehandleStegResultat.fremoverførtMedAksjonspunktResultater(transisjon, Collections.emptyList());

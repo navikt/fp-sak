@@ -235,7 +235,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             }
 
             @Override
-            public void kopierGrunnlagFraEksisterendeBehandlingForRevurdering(Long gammelBehandlingId, Long nyBehandlingId) {
+            public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long gammelBehandlingId, Long nyBehandlingId) {
                 throw new UnsupportedOperationException();
             }
 
@@ -520,7 +520,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
     private final class MockPersonopplysningRepository extends PersonopplysningRepository {
         @Override
-        public void kopierGrunnlagFraEksisterendeBehandlingForRevurdering(Long eksisterendeBehandlingId, Long nyBehandlingId) {
+        public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long eksisterendeBehandlingId, Long nyBehandlingId) {
             final var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
                     Optional.ofNullable(personopplysningMap.getOrDefault(eksisterendeBehandlingId, null)));
 

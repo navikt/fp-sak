@@ -10,6 +10,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
@@ -66,6 +67,10 @@ public class BerørtBehandlingTjeneste {
     public boolean skalBerørtBehandlingOpprettes(Behandlingsresultat brukersGjeldendeBehandlingsresultat,
                                                  Long behandlingId,
                                                  Long behandlingIdAnnenPart) {
+        // Skal ikke lage berørt dersom siste behandling har tømt uttaket.
+        if (BehandlingResultatType.FORELDREPENGER_SENERE.equals(brukersGjeldendeBehandlingsresultat.getBehandlingResultatType())) {
+            return false;
+        }
         //Må sjekke konsekvens pga overlapp med samtidig uttak
         if (brukersGjeldendeBehandlingsresultat.isBehandlingHenlagt() || harKonsekvens(
             brukersGjeldendeBehandlingsresultat, KonsekvensForYtelsen.INGEN_ENDRING)) {

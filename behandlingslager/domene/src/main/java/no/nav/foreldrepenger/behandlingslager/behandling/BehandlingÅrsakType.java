@@ -32,7 +32,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
 
     RE_OPPLYSNINGER_OM_MEDLEMSKAP("RE-MDL", "Opplysninger medlemskap"),
     RE_OPPLYSNINGER_OM_OPPTJENING("RE-OPTJ", "Opplysninger opptjening"),
-    RE_OPPLYSNINGER_OM_FORDELING("RE-FRDLING", "Opplysninger fordeling"),
+    RE_OPPLYSNINGER_OM_FORDELING("RE-FRDLING", "Opplysninger uttak"),
     RE_OPPLYSNINGER_OM_INNTEKT("RE-INNTK", "Opplysninger inntekt"),
     RE_OPPLYSNINGER_OM_FØDSEL("RE-FØDSEL", "Fødsel"),
     RE_OPPLYSNINGER_OM_DØD("RE-DØD", "Opplysninger død"),
@@ -53,8 +53,11 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     // Mottak
     RE_ENDRING_FRA_BRUKER("RE-END-FRA-BRUKER", "Søknad"),
     RE_ENDRET_INNTEKTSMELDING("RE-END-INNTEKTSMELD", "Inntektsmelding"),
+
+    // Tekniske behandlinger som skal spesialbehandles i prosessen
     BERØRT_BEHANDLING("BERØRT-BEHANDLING", "Berørt behandling"),
     REBEREGN_FERIEPENGER("REBEREGN-FERIEPENGER", "Omfordel feriepenger"),
+    RE_UTSATT_START("RE-UTSATT-START", "Senere startdato"),
 
     // G-regulering
     RE_SATS_REGULERING("RE-SATS-REGULERING", "Regulering grunnbeløp"),
@@ -99,6 +102,9 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     ;
 
     public static final String KODEVERK = "BEHANDLING_AARSAK"; //$NON-NLS-1$
+
+    private static final Set<BehandlingÅrsakType> SPESIELLE_BEHANDLINGER = Set.of(BehandlingÅrsakType.BERØRT_BEHANDLING,
+        BehandlingÅrsakType.REBEREGN_FERIEPENGER, BehandlingÅrsakType.RE_UTSATT_START);
 
     private static final Map<String, BehandlingÅrsakType> KODER = new LinkedHashMap<>();
 
@@ -185,5 +191,13 @@ public enum BehandlingÅrsakType implements Kodeverdi {
 
     public static Set<BehandlingÅrsakType> årsakerRelatertTilDød() {
         return Set.of(RE_OPPLYSNINGER_OM_DØD, RE_HENDELSE_DØD_BARN, RE_HENDELSE_DØD_FORELDER, RE_HENDELSE_DØDFØDSEL);
+    }
+
+    public static Set<BehandlingÅrsakType> årsakerForRelatertVedtak() {
+        return Set.of(BERØRT_BEHANDLING, REBEREGN_FERIEPENGER);
+    }
+
+    public static Set<BehandlingÅrsakType> alleTekniskeÅrsaker() {
+        return SPESIELLE_BEHANDLINGER;
     }
 }

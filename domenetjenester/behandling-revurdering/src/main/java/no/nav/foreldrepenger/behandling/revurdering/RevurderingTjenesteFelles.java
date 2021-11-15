@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -59,14 +58,14 @@ public class RevurderingTjenesteFelles {
         this.revurderingHistorikk = new RevurderingHistorikk(repositoryProvider.getHistorikkRepository());
     }
 
-    public Behandling opprettRevurderingsbehandling(List<BehandlingÅrsakType> revurderingÅrsakTyper, Behandling opprinneligBehandling,
+    public Behandling opprettRevurderingsbehandling(BehandlingÅrsakType revurderingsÅrsak, Behandling opprinneligBehandling,
             boolean manueltOpprettet,
             OrganisasjonsEnhet enhet) {
         var behandlingType = BehandlingType.REVURDERING;
-        var revurderingÅrsak = BehandlingÅrsak.builder(revurderingÅrsakTyper)
+        var revurderingÅrsak = BehandlingÅrsak.builder(revurderingsÅrsak)
                 .medOriginalBehandlingId(opprinneligBehandling.getId())
                 .medManueltOpprettet(manueltOpprettet);
-        if (revurderingÅrsakTyper.contains(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
+        if (BehandlingÅrsakType.årsakerForRelatertVedtak().contains(revurderingsÅrsak)) {
             var basis = behandlingRevurderingRepository.finnSisteVedtatteIkkeHenlagteBehandlingForMedforelder(opprinneligBehandling.getFagsak())
                     .orElseThrow(() -> new IllegalStateException(
                             "Berørt behandling må ha en tilhørende avlsuttet behandling for medforelder - skal ikke skje")); // NOSONAR
@@ -78,7 +77,7 @@ public class RevurderingTjenesteFelles {
                 .medBehandlendeEnhet(enhet)
                 .medBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()))
                 .medBehandlingÅrsak(revurderingÅrsak).build();
-        revurderingHistorikk.opprettHistorikkinnslagOmRevurdering(revurdering, revurderingÅrsakTyper, manueltOpprettet);
+        revurderingHistorikk.opprettHistorikkinnslagOmRevurdering(revurdering, revurderingsÅrsak, manueltOpprettet);
         return revurdering;
     }
 

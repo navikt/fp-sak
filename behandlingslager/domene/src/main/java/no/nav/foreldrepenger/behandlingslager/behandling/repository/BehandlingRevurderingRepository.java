@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
@@ -89,7 +90,7 @@ public class BehandlingRevurderingRepository {
     public Optional<Behandling> hentAktivIkkeBerørtEllerSisteYtelsesbehandling(Long fagsakId) {
         // Det kan ligge avsluttet berørt opprettet senere enn åpen behandling
         return finnÅpenogKøetYtelsebehandling(fagsakId).stream()
-            .filter(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING))
+            .filter(SpesialBehandling::erIkkeSpesialBehandling)
             .findFirst()
             .or(() -> hentSisteYtelsesbehandling(fagsakId));
     }
@@ -229,7 +230,7 @@ public class BehandlingRevurderingRepository {
           and futtak.uttakfom >= :fomdato
           and f.id not in ( select beh.fagsak_id from behandling beh
             where beh.behandling_status not in (:avsluttet) and beh.behandling_type in (:ytelse)
-              and beh.id not in (select ba.behandling_id from behandling_arsak ba where behandling_arsak_type=:berort) )
+              and beh.id not in (select ba.behandling_id from behandling_arsak ba where behandling_arsak_type in (:berort)) )
         """;
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering over 6G og det ikke finnes åpen behandling */
@@ -325,7 +326,7 @@ public class BehandlingRevurderingRepository {
             .setParameter(AVSLUTTET_KEY, STATUS_FERDIG)
             .setParameter("fomdato", gjeldendeFom)
             .setParameter("ytelse", YTELSE_TYPER)
-            .setParameter("berort", BehandlingÅrsakType.BERØRT_BEHANDLING.getKode())
+            .setParameter("berort", BehandlingÅrsakType.alleTekniskeÅrsaker().stream().map(BehandlingÅrsakType::getKode).collect(Collectors.toList()))
             .setParameter("grunnbelop", BeregningSatsType.GRUNNBELØP.getKode())
             .setParameter("sokfrist", IkkeOppfyltÅrsak.SØKNADSFRIST.getKode())
             .setParameter("utinnvilg", PeriodeResultatType.INNVILGET.getKode());

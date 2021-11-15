@@ -398,7 +398,7 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         var revurderingId = revudering.getId();
         medlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
-        personopplysningRepository.kopierGrunnlagFraEksisterendeBehandlingForRevurdering(behandlingId, revurderingId);
+        personopplysningRepository.kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(behandlingId, revurderingId);
 
         return revudering;
     }

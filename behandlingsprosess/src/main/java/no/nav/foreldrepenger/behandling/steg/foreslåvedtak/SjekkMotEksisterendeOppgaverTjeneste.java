@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -51,7 +51,7 @@ public class SjekkMotEksisterendeOppgaverTjeneste {
         List<AksjonspunktDefinisjon> aksjonspunktliste = new ArrayList<>();
 
         if (oppgaveTjeneste.harÅpneOppgaverAvType(aktørid, Oppgavetyper.VURDER_KONSEKVENS_YTELSE)) {
-            if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER)) {
+            if (!SpesialBehandling.skalUttakVurderes(behandling)) {
                 LOG.info("REBEREGN OPPGAVE fant Vurder Konsekvens for sak {}", behandling.getFagsak().getSaksnummer());
             } else {
                 aksjonspunktliste.add(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK);
@@ -59,7 +59,7 @@ public class SjekkMotEksisterendeOppgaverTjeneste {
             }
         }
         if (oppgaveTjeneste.harÅpneOppgaverAvType(aktørid, Oppgavetyper.VURDER_DOKUMENT_VL)) {
-            if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER)) {
+            if (!SpesialBehandling.skalUttakVurderes(behandling)) {
                 LOG.info("REBEREGN OPPGAVE fant Vurder Dokument for sak {}", behandling.getFagsak().getSaksnummer());
             } else {
                 aksjonspunktliste.add(AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK);

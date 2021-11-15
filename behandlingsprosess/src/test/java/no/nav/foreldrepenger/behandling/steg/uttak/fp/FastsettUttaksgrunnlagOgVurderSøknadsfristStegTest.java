@@ -57,7 +57,7 @@ import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoFørsteg
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoRevurderingUtlederImpl;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.FastsettUttaksgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
+import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseBehandling2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
 
@@ -82,7 +82,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
         var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(entityManager);
         var skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(behandlingRepositoryProvider,
                 new YtelseMaksdatoTjeneste(behandlingRepositoryProvider, new RelatertBehandlingTjeneste(behandlingRepositoryProvider)),
-                new SkjæringstidspunktUtils(), mock(UtsettelseCore2021.class));
+                new SkjæringstidspunktUtils(), mock(UtsettelseBehandling2021.class));
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(new FpUttakRepository(entityManager));
         var andelGraderingTjeneste = new BeregningUttakTjeneste(uttakTjeneste, ytelsesFordelingRepository);
         iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();

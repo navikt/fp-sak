@@ -6,7 +6,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
@@ -31,19 +30,27 @@ public class KopierForeldrepengerUttaktjeneste {
         //CDI
     }
 
-    public void kopierUttakFraOriginalBehandling(BehandlingReferanse referanse) {
-        kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(referanse);
-        kopierUttaksresultatFraOriginalBehandling(referanse);
+    public void kopierUttakFraOriginalBehandling(Long originalBehandlingId, Long behandlingId) {
+        kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(originalBehandlingId, behandlingId);
+        kopierUttaksresultatFraOriginalBehandling(originalBehandlingId, behandlingId);
     }
 
-    public void kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(BehandlingReferanse ref) {
-        LOG.info("Kopierer yfgrunnlag fra behandling {}, til behandling {}", ref.getOriginalBehandlingId(), ref.getBehandlingId());
-        ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandlingForOverhoppUttak(ref.getOriginalBehandlingId().orElseThrow(), ref.getBehandlingId());
+    public void lagreTomtUttakResultat(Long behandlingId) {
+        /* TODO: evaluer testresultat og vurdere dette alternativet
+            var tomtUttak = new UttakResultatPerioderEntitet();
+            fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingId, tomtUttak);
+         */
+        fpUttakRepository.deaktivterAktivtResultat(behandlingId);
     }
 
-    public void kopierUttaksresultatFraOriginalBehandling(BehandlingReferanse referanse) {
-        fpUttakRepository.hentUttakResultatHvisEksisterer(referanse.getOriginalBehandlingId().orElseThrow())
-            .ifPresent(uttak -> kopierUttaksresultat(referanse.getBehandlingId(), uttak));
+    public void kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(Long originalBehandlingId, Long behandlingId) {
+        LOG.info("Kopierer yfgrunnlag fra behandling {}, til behandling {}", originalBehandlingId, behandlingId);
+        ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandlingForOverhoppUttak(originalBehandlingId, behandlingId);
+    }
+
+    public void kopierUttaksresultatFraOriginalBehandling(Long originalBehandlingId, Long behandlingId) {
+        fpUttakRepository.hentUttakResultatHvisEksisterer(originalBehandlingId)
+            .ifPresent(uttak -> kopierUttaksresultat(behandlingId, uttak));
     }
 
     private void kopierUttaksresultat(Long behandlingId, UttakResultatEntitet uttak) {

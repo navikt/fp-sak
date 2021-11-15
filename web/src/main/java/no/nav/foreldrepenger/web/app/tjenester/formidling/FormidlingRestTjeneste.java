@@ -1,16 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.formidling;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingFormidlingDtoTjeneste;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -24,7 +14,20 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingFormidlingDtoTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.utsattoppstart.StartdatoUtsattDto;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.utsattoppstart.StartdatoUtsattDtoTjeneste;
+import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 
 @Path(FormidlingRestTjeneste.BASE_PATH)
@@ -40,15 +43,20 @@ public class FormidlingRestTjeneste {
     public static final String RESSURSER_PATH = BASE_PATH + RESSURSER_PART_PATH;
     public static final String DOKMAL_INNVFP_PART_PATH = "/dokumentmal/innvfp";
     public static final String DOKMAL_INNVFP_PATH = BASE_PATH + DOKMAL_INNVFP_PART_PATH;
+    public static final String UTSATT_START_PART_PATH = "/utsattstart";
+    public static final String UTSATT_START_PATH = BASE_PATH + UTSATT_START_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
     private BehandlingFormidlingDtoTjeneste behandlingFormidlingDtoTjeneste;
+    private StartdatoUtsattDtoTjeneste startdatoUtsattDtoTjeneste;
 
     @Inject
     public FormidlingRestTjeneste(BehandlingRepository behandlingRepository,
-                                  BehandlingFormidlingDtoTjeneste behandlingFormidlingDtoTjeneste) {
+                                  BehandlingFormidlingDtoTjeneste behandlingFormidlingDtoTjeneste,
+                                  StartdatoUtsattDtoTjeneste startdatoUtsattDtoTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.behandlingFormidlingDtoTjeneste = behandlingFormidlingDtoTjeneste;
+        this.startdatoUtsattDtoTjeneste = startdatoUtsattDtoTjeneste;
     }
 
     public FormidlingRestTjeneste() {
@@ -63,6 +71,20 @@ public class FormidlingRestTjeneste {
         @NotNull @Parameter(description = "UUID for behandlingen") @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
         var behandling = behandlingRepository.hentBehandlingHvisFinnes(behandlingIdDto.getBehandlingUuid());
         var dto = behandling.map(value -> behandlingFormidlingDtoTjeneste.lagDtoForFormidling(value)).orElse(null);
+        var responseBuilder = Response.ok().entity(dto);
+        return responseBuilder.build();
+    }
+
+    @GET
+    @Path(UTSATT_START_PART_PATH)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Operation(description = "Hent informasjon om sak er utsatt fra start og evt ny dato", tags = "formidling")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public Response utsattStartdato(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
+                                        @NotNull @Parameter(description = "UUID for behandlingen") @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
+        var behandling = behandlingRepository.hentBehandlingHvisFinnes(behandlingIdDto.getBehandlingUuid());
+        var dto = behandling.map(value -> startdatoUtsattDtoTjeneste.getInformasjonOmUtsettelseFraStart(value))
+            .orElse(new StartdatoUtsattDto(false, null));
         var responseBuilder = Response.ok().entity(dto);
         return responseBuilder.build();
     }

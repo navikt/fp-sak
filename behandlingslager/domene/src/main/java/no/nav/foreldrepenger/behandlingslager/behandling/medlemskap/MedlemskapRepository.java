@@ -75,7 +75,7 @@ public class MedlemskapRepository {
         oppdaterLås(nyLås);
     }
 
-    public void kopierGrunnlagFraEksisterendeBehandlingForRevurdering(Long eksisterendeBehandlingId, Long nyBehandlingId) {
+    public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long eksisterendeBehandlingId, Long nyBehandlingId) {
         final var nyLås = taLås(nyBehandlingId);
         var eksisterendeGrunnlag = getAktivtBehandlingsgrunnlag(eksisterendeBehandlingId);
 

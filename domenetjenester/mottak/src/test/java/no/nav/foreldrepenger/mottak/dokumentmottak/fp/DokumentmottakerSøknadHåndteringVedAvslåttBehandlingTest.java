@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentmottakerSøknadD
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentmottakerTestsupport;
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.TomtUttakTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 public class DokumentmottakerSøknadHåndteringVedAvslåttBehandlingTest extends DokumentmottakerTestsupport {
@@ -56,7 +57,8 @@ public class DokumentmottakerSøknadHåndteringVedAvslåttBehandlingTest extends
             enhetsTjeneste,
             mockHist,
             mockMD,
-            behandlingsoppretterSpied);
+            behandlingsoppretterSpied,
+            mock(TomtUttakTjeneste.class));
         dokumentmottakerSøknad = new DokumentmottakerSøknadDefault(
             repositoryProvider,
             felles,

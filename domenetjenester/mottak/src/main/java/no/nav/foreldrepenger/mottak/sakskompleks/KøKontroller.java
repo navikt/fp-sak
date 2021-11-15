@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -89,7 +90,7 @@ public class KøKontroller {
     }
 
     public void submitBerørtBehandling(Behandling behandling, Optional<Behandling> åpenBehandling) {
-        if (!behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) throw new IllegalArgumentException("Behandling er ikke berørt");
+        if (!behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.alleTekniskeÅrsaker())) throw new IllegalArgumentException("Behandling er ikke berørt");
         åpenBehandling.ifPresent(b -> behandlingskontrollTjeneste.settBehandlingPåVent(b, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING,
             null, null, Venteårsak.VENT_ÅPEN_BEHANDLING));
         behandlingProsesseringTjeneste.opprettTasksForStartBehandling(behandling);
@@ -184,7 +185,7 @@ public class KøKontroller {
         var åpenBehandling = behandlingRevurderingRepository.finnÅpenYtelsesbehandling(fagsak.getId());
         if (åpenBehandling.isPresent()) {
             // Køes hvis finnes berørt, ellers legg dokument på åpen behandling
-            return åpenBehandling.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)).isPresent();
+            return åpenBehandling.filter(SpesialBehandling::erSpesialBehandling).isPresent();
         }
         return behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId()).isPresent() || flytkontroll.nyRevurderingSkalVente(fagsak);
     }

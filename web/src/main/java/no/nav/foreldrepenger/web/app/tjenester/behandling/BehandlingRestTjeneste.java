@@ -46,6 +46,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
@@ -410,7 +411,7 @@ public class BehandlingRestTjeneste {
             throw new FunksjonellException("FP-722320", "Behandling må tas av vent før den kan åpnes",
                 "Ta behandling av vent");
         }
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
+        if (SpesialBehandling.erSpesialBehandling(behandling)) {
             throw new FunksjonellException("FP-722321", "Behandling er berørt må gjennomføres. BehandlingId=" + behandlingId,
                 "Behandle ferdig berørt og opprett revurdering");
         }
@@ -473,7 +474,7 @@ public class BehandlingRestTjeneste {
             return BehandlingOperasjonerDto.builder(b.getUuid()).medTilGodkjenning(tilgokjenning).build();
         }
         var kanÅpnesForEndring = b.erRevurdering() && !b.isBehandlingPåVent() &&
-            !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING) && !b.erKøet() &&
+            SpesialBehandling.erIkkeSpesialBehandling(b) && !b.erKøet() &&
             !FagsakYtelseType.ENGANGSTØNAD.equals(b.getFagsakYtelseType());
         var totrinnRetur = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(b).stream()
             .anyMatch(tt -> !tt.isGodkjent());
@@ -481,7 +482,7 @@ public class BehandlingRestTjeneste {
             .medTilGodkjenning(false)
             .medFraBeslutter(!b.isBehandlingPåVent() && totrinnRetur)
             .medKanBytteEnhet(!b.erKøet())
-            .medKanHenlegges(true)
+            .medKanHenlegges(SpesialBehandling.kanHenlegges(b))
             .medKanSettesPaVent(!b.isBehandlingPåVent())
             .medKanGjenopptas(b.isBehandlingPåVent() && !b.erKøet())
             .medKanOpnesForEndringer(kanÅpnesForEndring)

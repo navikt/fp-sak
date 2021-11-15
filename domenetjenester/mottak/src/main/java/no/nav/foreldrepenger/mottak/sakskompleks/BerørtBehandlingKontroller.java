@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.sakskompleks;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBegrunnelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -85,8 +85,7 @@ public class BerørtBehandlingKontroller {
 
         if (sistVedtatteYtelsesbehandlingMedforelder.isPresent()) {
             var avsluttetBehandlingsresultatBruker = behandlingsresultatRepository.hent(behandlingIdBruker);
-            var skalBerørtBehandlingOpprettes = berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(
-                avsluttetBehandlingsresultatBruker, behandlingIdBruker, sistVedtatteYtelsesbehandlingMedforelder.get().getId());
+            var skalBerørtBehandlingOpprettes = berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(avsluttetBehandlingsresultatBruker, behandlingIdBruker, sistVedtatteYtelsesbehandlingMedforelder.get().getId());
             if (skalBerørtBehandlingOpprettes) {
                 opprettBerørtBehandling(fagsakMedforelder, avsluttetBehandlingsresultatBruker);
             } else {
@@ -118,9 +117,17 @@ public class BerørtBehandlingKontroller {
 
     private void opprettBerørtBehandling(Fagsak fagsakMedforelder, Behandlingsresultat behandlingsresultatBruker) {
         fagsakLåsRepository.taLås(fagsakMedforelder.getId());
+        var åpenTømUttak = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId()).stream()
+            .anyMatch(SpesialBehandling::erOppsagtUttak);
+        if (åpenTømUttak) {
+            // Holder på å tømme uttaket. Ingen vits med berørt behandling
+            LOG.info("OPPRETT BERØRT finnes allerede åpen behandling som tømmer uttak for sak {}", fagsakMedforelder.getSaksnummer());
+            return;
+        }
         // Hvis det nå allerede skulle være en åpen behandling (ikke i kø) så legg den i kø før oppretting av berørt.
-        var åpenBerørtBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakMedforelder.getId())
-            .filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING));
+        var åpenBerørtBehandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId()).stream()
+            .filter(SpesialBehandling::erBerørtBehandling)
+            .findFirst();
         if (åpenBerørtBehandling.isPresent()) {
             LOG.info("OPPRETT BERØRT finnes allerede åpen berørt for sak {}  behandling {}", fagsakMedforelder.getSaksnummer(), åpenBerørtBehandling.get().getId());
             var origBehandlingId = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMedforelder.getId()).orElseThrow().getId();
@@ -130,6 +137,11 @@ public class BerørtBehandlingKontroller {
                 return;
             }
         }
+        // Stans eventuelle åpne feriepengereberegninger - de håndteres av ny berørt behandling
+        behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId()).stream()
+            .filter(SpesialBehandling::erJusterFeriepenger)
+            .forEach(behandlingsoppretter::henleggBehandling);
+
         var åpenBehandling = behandlingRevurderingRepository.finnÅpenYtelsesbehandling(fagsakMedforelder.getId());
         var berørtBehandling = behandlingsoppretter.opprettRevurdering(fagsakMedforelder, BehandlingÅrsakType.BERØRT_BEHANDLING);
         opprettHistorikkinnslag(berørtBehandling, behandlingsresultatBruker);
@@ -138,8 +150,7 @@ public class BerørtBehandlingKontroller {
 
     private void opprettFerieBerørtBehandling(Fagsak fagsakMedforelder, Behandlingsresultat behandlingsresultatBruker) {
         fagsakLåsRepository.taLås(fagsakMedforelder.getId());
-        var berørtBehandling = behandlingsoppretter.opprettRevurderingMultiÅrsak(fagsakMedforelder,
-            List.of(BehandlingÅrsakType.BERØRT_BEHANDLING, BehandlingÅrsakType.REBEREGN_FERIEPENGER));
+        var berørtBehandling = behandlingsoppretter.opprettRevurdering(fagsakMedforelder, BehandlingÅrsakType.REBEREGN_FERIEPENGER);
         opprettHistorikkinnslag(berørtBehandling, behandlingsresultatBruker);
         køKontroller.submitBerørtBehandling(berørtBehandling, Optional.empty());
     }

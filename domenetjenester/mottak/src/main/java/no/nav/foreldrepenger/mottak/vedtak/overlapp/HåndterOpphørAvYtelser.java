@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -95,7 +96,7 @@ public class HåndterOpphørAvYtelser {
         return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
             .filter(b -> !BehandlingStatus.getFerdigbehandletStatuser().contains(b.getStatus()))
             .filter(b -> !b.harBehandlingÅrsak(årsakType))
-            .filter(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING))
+            .filter(SpesialBehandling::erIkkeSpesialBehandling)
             .orElse(null);
     }
 

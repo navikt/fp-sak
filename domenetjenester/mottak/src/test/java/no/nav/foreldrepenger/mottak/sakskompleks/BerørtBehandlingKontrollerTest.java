@@ -228,15 +228,17 @@ public class BerørtBehandlingKontrollerTest {
     private void settOppAvsluttetBehandlingBruker() {
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
             Optional.of(fBehandling));
-        when(behandlingsresultatRepository.hentHvisEksisterer(fBehandling.getId())).thenReturn(
-            lagBehandlingsresultatInnvilget(fBehandling));
+        var br = lagBehandlingsresultatInnvilget(fBehandling);
+        when(behandlingsresultatRepository.hentHvisEksisterer(fBehandling.getId())).thenReturn(Optional.of(br));
+        when(behandlingsresultatRepository.hent(fBehandling.getId())).thenReturn(br);
     }
 
     private void settOppAvsluttetBehandlingAnnenpart() {
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMedforelder.getId())).thenReturn(
             Optional.of(fBehandlingMedforelder));
-        when(behandlingsresultatRepository.hentHvisEksisterer(fBehandling.getId())).thenReturn(
-            lagBehandlingsresultatInnvilget(fBehandlingMedforelder));
+        var br = lagBehandlingsresultatInnvilget(fBehandlingMedforelder);
+        when(behandlingsresultatRepository.hentHvisEksisterer(fBehandlingMedforelder.getId())).thenReturn(Optional.of(br));
+        when(behandlingsresultatRepository.hent(fBehandlingMedforelder.getId())).thenReturn(br);
     }
 
     private void settOppKøBruker() {
@@ -285,10 +287,10 @@ public class BerørtBehandlingKontrollerTest {
             .buildFor(behandling));
     }
 
-    private Optional<Behandlingsresultat> lagBehandlingsresultatInnvilget(Behandling behandling) {
-        return Optional.of(Behandlingsresultat.builder()
+    private Behandlingsresultat lagBehandlingsresultatInnvilget(Behandling behandling) {
+        return Behandlingsresultat.builder()
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-            .buildFor(behandling));
+            .buildFor(behandling);
     }
 
 
@@ -365,7 +367,7 @@ public class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
         when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(true);
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(berørt));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(List.of(berørt));
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandlingMedforelder.getId());
         // Assert opprett berørt (for medforelder)
@@ -383,12 +385,11 @@ public class BerørtBehandlingKontrollerTest {
         when(beregnFeriepenger.avvikBeregnetFeriepengerBeregningsresultat(any(), any())).thenReturn(true);
         when(beregningsresultatRepository.hentUtbetBeregningsresultat(any())).thenReturn(Optional.of(new BeregningsresultatEntitet()));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(List.of());
-        when(behandlingsoppretter.opprettRevurderingMultiÅrsak(any(), any())).thenReturn(berørtFeriepenger);
+        when(behandlingsoppretter.opprettRevurdering(any(), eq(BehandlingÅrsakType.REBEREGN_FERIEPENGER))).thenReturn(berørtFeriepenger);
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert opprett berørt (for medforelder)
-        verify(behandlingsoppretter).opprettRevurderingMultiÅrsak(fagsakMedforelder,
-            List.of(BehandlingÅrsakType.BERØRT_BEHANDLING, BehandlingÅrsakType.REBEREGN_FERIEPENGER));
+        verify(behandlingsoppretter).opprettRevurdering(fagsakMedforelder, BehandlingÅrsakType.REBEREGN_FERIEPENGER);
         verify(behandlingProsesseringTjeneste).opprettTasksForStartBehandling(any());
     }
 

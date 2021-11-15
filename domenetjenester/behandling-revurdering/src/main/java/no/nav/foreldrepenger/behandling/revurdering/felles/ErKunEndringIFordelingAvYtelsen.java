@@ -30,12 +30,9 @@ class ErKunEndringIFordelingAvYtelsen {
 
     public static Behandlingsresultat fastsett(Behandling revurdering, Behandlingsresultat behandlingsresultat, boolean erVarselOmRevurderingSendt) {
         var vedtaksbrev = utledVedtaksbrev(erVarselOmRevurderingSendt);
-        var behandlingsresultatBuilder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat);
-        behandlingsresultatBuilder.medBehandlingResultatType(BehandlingResultatType.FORELDREPENGER_ENDRET);
-        behandlingsresultatBuilder.medVedtaksbrev(vedtaksbrev);
-        behandlingsresultatBuilder.medRettenTil(RettenTil.HAR_RETT_TIL_FP);
-        behandlingsresultatBuilder.leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN);
-        return behandlingsresultatBuilder.buildFor(revurdering);
+        return RevurderingBehandlingsresultatutlederFelles.buildBehandlingsresultat(revurdering, behandlingsresultat,
+            BehandlingResultatType.FORELDREPENGER_ENDRET, RettenTil.HAR_RETT_TIL_FP,
+            vedtaksbrev, List.of(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN));
     }
 
     private static boolean kontrollerEndringIFordelingAvYtelsen(Optional<BeregningsgrunnlagEntitet> revurderingsGrunnlagOpt,

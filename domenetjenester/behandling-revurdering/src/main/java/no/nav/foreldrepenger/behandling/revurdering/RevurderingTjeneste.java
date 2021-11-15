@@ -19,6 +19,10 @@ public interface RevurderingTjeneste {
 
     void kopierAlleGrunnlagFraTidligereBehandling(Behandling original, Behandling ny);
 
+    default void kopierAlleGrunnlagFraTidligereBehandlingTilUtsattSøknad(Behandling original, Behandling ny) {
+        throw new IllegalStateException("Skal ikke kalles for ytelse type " + ny.getFagsakYtelseType().getKode());
+    }
+
     Boolean kanRevurderingOpprettes(Fagsak fagsak);
 
     boolean erRevurderingMedUendretUtfall(Behandling behandling);

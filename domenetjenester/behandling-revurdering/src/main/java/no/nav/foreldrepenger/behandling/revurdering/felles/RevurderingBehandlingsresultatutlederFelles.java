@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -94,6 +95,13 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
 
         var behandlingsresultatRevurdering = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
         var behandlingsresultatOriginal = finnBehandlingsresultatPåOriginalBehandling(originalBehandling.getId());
+
+        if (SpesialBehandling.erOppsagtUttak(revurdering)) {
+            return buildBehandlingsresultat(revurdering, behandlingsresultatRevurdering.orElse(null),
+                BehandlingResultatType.FORELDREPENGER_SENERE, RettenTil.HAR_RETT_TIL_FP,
+                Vedtaksbrev.AUTOMATISK, List.of(KonsekvensForYtelsen.ENDRING_I_UTTAK));
+        }
+
         if (FastsettBehandlingsresultatVedAvslagPåAvslag.vurder(behandlingsresultatRevurdering,
             behandlingsresultatOriginal, originalBehandling.getType())) {
             /* 2b */
@@ -110,13 +118,10 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         var utfall = medlemTjeneste.utledVilkårUtfall(revurdering);
         if (!utfall.vilkårUtfallType().equals(VilkårUtfallType.OPPFYLT)) {
             var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
-            var behandlingsresultatBuilder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat);
-            behandlingsresultatBuilder.medBehandlingResultatType(BehandlingResultatType.OPPHØR);
-            behandlingsresultatBuilder.medRettenTil(RettenTil.HAR_IKKE_RETT_TIL_FP);
-            behandlingsresultatBuilder.leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER);
-            behandlingsresultatBuilder.medVedtaksbrev(Vedtaksbrev.AUTOMATISK);
             behandlingsresultat.setAvslagsårsak(utfall.avslagsårsak());
-            return behandlingsresultatBuilder.buildFor(revurdering);
+            return buildBehandlingsresultat(revurdering, behandlingsresultat,
+                BehandlingResultatType.OPPHØR, RettenTil.HAR_IKKE_RETT_TIL_FP,
+                Vedtaksbrev.AUTOMATISK, List.of(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER));
         }
 
         var erEndringIUttakFraEndringstidspunkt = uttakresultatOriginalOpt.harUlikUttaksplan(
@@ -246,8 +251,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
             return fastsettForIkkeEtablertYtelse(revurdering, konsekvenserForYtelsen);
         }
 
-        if (!harEtablertYtelse(revurdering, erMinstEnInnvilgetBehandlingUtenPåfølgendeOpphør,
-            uttakresultatFraOriginalBehandling)) {
+        if (!harEtablertYtelse(revurdering, erMinstEnInnvilgetBehandlingUtenPåfølgendeOpphør, uttakresultatFraOriginalBehandling)) {
             return fastsettForIkkeEtablertYtelse(revurdering, konsekvenserForYtelsen);
         }
 
@@ -258,7 +262,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         var vedtaksbrev = utledVedtaksbrev(konsekvenserForYtelsen, erVarselOmRevurderingSendt);
         var behandlingResultatType = utledBehandlingResultatType(konsekvenserForYtelsen);
         return buildBehandlingsresultat(revurdering, behandlingsresultatRepository.hent(revurdering.getId()),
-            behandlingResultatType, konsekvenserForYtelsen, vedtaksbrev);
+            behandlingResultatType, RettenTil.HAR_RETT_TIL_FP, vedtaksbrev, konsekvenserForYtelsen);
     }
 
     private boolean harUttakIkkeOpphørt(UttakResultatHolder uttakResultatHolder,
@@ -279,12 +283,9 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
     private Behandlingsresultat fastsettForIkkeEtablertYtelse(Behandling revurdering,
                                                               List<KonsekvensForYtelsen> konsekvenserForYtelsen) {
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(revurdering.getId()).orElse(null);
-        var behandlingsresultatBuilder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat);
-        konsekvenserForYtelsen.forEach(behandlingsresultatBuilder::leggTilKonsekvensForYtelsen);
-        behandlingsresultatBuilder.medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        behandlingsresultatBuilder.medRettenTil(RettenTil.HAR_RETT_TIL_FP);
-        behandlingsresultatBuilder.medVedtaksbrev(Vedtaksbrev.AUTOMATISK);
-        return behandlingsresultatBuilder.buildFor(revurdering);
+        return buildBehandlingsresultat(revurdering, behandlingsresultat,
+            BehandlingResultatType.INNVILGET, RettenTil.HAR_RETT_TIL_FP,
+            Vedtaksbrev.AUTOMATISK, konsekvenserForYtelsen);
     }
 
     private Vedtaksbrev utledVedtaksbrev(List<KonsekvensForYtelsen> konsekvenserForYtelsen,
@@ -321,14 +322,16 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
     static Behandlingsresultat buildBehandlingsresultat(Behandling revurdering,
                                                         Behandlingsresultat behandlingsresultat,
                                                         BehandlingResultatType behandlingResultatType,
-                                                        List<KonsekvensForYtelsen> konsekvenserForYtelsen,
-                                                        Vedtaksbrev vedtaksbrev) {
+                                                        RettenTil rettenTil,
+                                                        Vedtaksbrev vedtaksbrev,
+                                                        List<KonsekvensForYtelsen> konsekvenserForYtelsen) {
         var behandlingsresultatBuilder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat);
         behandlingsresultatBuilder.medBehandlingResultatType(behandlingResultatType);
         behandlingsresultatBuilder.medVedtaksbrev(vedtaksbrev);
-        behandlingsresultatBuilder.medRettenTil(RettenTil.HAR_RETT_TIL_FP);
+        behandlingsresultatBuilder.medRettenTil(rettenTil);
         konsekvenserForYtelsen.forEach(behandlingsresultatBuilder::leggTilKonsekvensForYtelsen);
         return behandlingsresultatBuilder.buildFor(revurdering);
     }
+
 
 }

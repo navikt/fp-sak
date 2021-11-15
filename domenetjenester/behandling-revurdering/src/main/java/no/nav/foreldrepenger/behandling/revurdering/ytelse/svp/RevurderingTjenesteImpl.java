@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.svp;
 
-import java.util.List;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -76,18 +75,18 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     public Behandling opprettManuellRevurdering(Fagsak fagsak,
                                                 BehandlingÅrsakType revurderingsÅrsak,
                                                 OrganisasjonsEnhet enhet) {
-        return opprettRevurdering(fagsak, List.of(revurderingsÅrsak), true, enhet);
+        return opprettRevurdering(fagsak, revurderingsÅrsak, true, enhet);
     }
 
     @Override
     public Behandling opprettAutomatiskRevurdering(Fagsak fagsak,
                                                    BehandlingÅrsakType revurderingsÅrsak,
                                                    OrganisasjonsEnhet enhet) {
-        return opprettRevurdering(fagsak, List.of(revurderingsÅrsak), false, enhet);
+        return opprettRevurdering(fagsak, revurderingsÅrsak, false, enhet);
     }
 
     private Behandling opprettRevurdering(Fagsak fagsak,
-                                          List<BehandlingÅrsakType> revurderingsÅrsaker,
+                                          BehandlingÅrsakType revurderingsÅrsak,
                                           boolean manueltOpprettet,
                                           OrganisasjonsEnhet enhet) {
         var origBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
@@ -97,7 +96,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         behandlingskontrollTjeneste.initBehandlingskontroll(origBehandling);
 
         // deretter opprett revurdering
-        var revurdering = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingsÅrsaker, origBehandling,
+        var revurdering = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingsÅrsak, origBehandling,
             manueltOpprettet, enhet);
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering);
         behandlingskontrollTjeneste.opprettBehandling(kontekst, revurdering);

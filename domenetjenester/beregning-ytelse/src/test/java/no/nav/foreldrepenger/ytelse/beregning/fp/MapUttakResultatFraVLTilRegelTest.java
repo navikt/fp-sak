@@ -19,9 +19,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
@@ -60,7 +59,7 @@ public class MapUttakResultatFraVLTilRegelTest {
     private static final LocalDate FOM_MØDREKVOTE = TERMIN_DATO;
     private static final LocalDate FOM_FØR_FØDSEL = TERMIN_DATO.minusWeeks(3);
 
-    private ForeldrepengerUttak vlPlan;
+    private List<ForeldrepengerUttakPeriode> vlPlan;
     private Behandling behandling;
     private MapUttakResultatFraVLTilRegel overriddenMapper;
     private MapUttakResultatFraVLTilRegel mapper;
@@ -255,7 +254,7 @@ public class MapUttakResultatFraVLTilRegelTest {
         return uttakResultatPerioder.stream().filter(a -> fom.equals(a.getFom())).findFirst().orElse(null);
     }
 
-    private ForeldrepengerUttak lagUttakResultatPlan() {
+    private List<ForeldrepengerUttakPeriode> lagUttakResultatPlan() {
         var førFødselPeriode = lagUttakResultatPeriode(FOM_FØR_FØDSEL, TOM_FØR_FØDSEL, INNVILGET);
         var mødrekvote = lagUttakResultatPeriode(FOM_MØDREKVOTE, TOM_MØDREKVOTE, INNVILGET);
         var fellesperiode = lagUttakResultatPeriode(FOM_FELLESPERIODE, TOM_FELLESPERIODE, AVSLÅTT);
@@ -266,8 +265,7 @@ public class MapUttakResultatFraVLTilRegelTest {
         perioder.add(mødrekvote);
         perioder.add(fellesperiode);
 
-        var resultat = new ForeldrepengerUttak(perioder);
-        return resultat;
+        return perioder;
     }
 
     private UttakResultatPeriode onlyOne(UttakResultat resultat) {
@@ -275,7 +273,7 @@ public class MapUttakResultatFraVLTilRegelTest {
         return resultat.getUttakResultatPerioder().iterator().next();
     }
 
-    private ForeldrepengerUttak lagUttaksPeriode(BigDecimal prosentArbeid, Utbetalingsgrad prosentUtbetaling) {
+    private List<ForeldrepengerUttakPeriode> lagUttaksPeriode(BigDecimal prosentArbeid, Utbetalingsgrad prosentUtbetaling) {
         var idag = LocalDate.now();
         var uttakAktivtet = new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID,
                 Arbeidsgiver.virksomhet(ARBEIDSFORHOLD_ORGNR), ARBEIDSFORHOLD_ID);
@@ -297,10 +295,10 @@ public class MapUttakResultatFraVLTilRegelTest {
 
         List<ForeldrepengerUttakPeriode> perioder = new ArrayList<>();
         perioder.add(periode);
-        return new ForeldrepengerUttak(perioder);
+        return perioder;
     }
 
-    private ForeldrepengerUttak lagUttaksPeriodeMedMultipleAktiviteter(BigDecimal prosentArbeid, Utbetalingsgrad utbetalingsgrad1,
+    private List<ForeldrepengerUttakPeriode> lagUttaksPeriodeMedMultipleAktiviteter(BigDecimal prosentArbeid, Utbetalingsgrad utbetalingsgrad1,
             Utbetalingsgrad utbetalingsgrad2) {
         var idag = LocalDate.now();
         var uttakAktivtet = new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID,
@@ -332,7 +330,7 @@ public class MapUttakResultatFraVLTilRegelTest {
 
         List<ForeldrepengerUttakPeriode> perioder = new ArrayList<>();
         perioder.add(periode);
-        return new ForeldrepengerUttak(perioder);
+        return perioder;
     }
 
     private ForeldrepengerUttakPeriode lagUttakResultatPeriode(LocalDate fom, LocalDate tom, PeriodeResultatType periodeResultatType) {

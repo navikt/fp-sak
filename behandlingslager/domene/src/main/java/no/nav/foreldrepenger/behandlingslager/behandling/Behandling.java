@@ -321,6 +321,12 @@ public class Behandling extends BaseEntitet {
                 .anyMatch(behandlingÅrsak::equals);
     }
 
+    public boolean harNoenBehandlingÅrsaker(Set<BehandlingÅrsakType> behandlingÅrsaker) {
+        return getBehandlingÅrsaker().stream()
+            .map(BehandlingÅrsak::getBehandlingÅrsakType)
+            .anyMatch(behandlingÅrsaker::contains);
+    }
+
     public Optional<Long> getOriginalBehandlingId() {
         return getBehandlingÅrsaker().stream()
                 .map(BehandlingÅrsak::getOriginalBehandlingId)

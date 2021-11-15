@@ -115,6 +115,15 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     }
 
     @Override
+    public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long fraBehandlingId, Long tilBehandlingId) {
+        var origAggregat = hentInntektArbeidYtelseGrunnlagForBehandling(fraBehandlingId);
+        origAggregat.ifPresent(orig -> {
+            var entitet = new InntektArbeidYtelseGrunnlag(orig);
+            lagreOgFlush(tilBehandlingId, entitet);
+        });
+    }
+
+    @Override
     public List<Inntektsmelding> hentUnikeInntektsmeldingerForSak(Saksnummer saksnummer) {
         return new ArrayList<>(hentInntektsmeldinger(saksnummer).getAlleInntektsmeldinger());
     }
