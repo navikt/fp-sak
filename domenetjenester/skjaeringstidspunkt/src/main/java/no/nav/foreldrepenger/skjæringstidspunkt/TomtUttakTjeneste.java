@@ -36,7 +36,7 @@ public class TomtUttakTjeneste {
         return behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
             .filter(b -> FagsakYtelseType.FORELDREPENGER.equals(b.getFagsakYtelseType()))
             .filter(b -> !utsettelseBehandling2021.kreverSammenhengendeUttak(b))
-            .map(b -> fpUttakRepository.hentUttakResultat(b.getId()).getGjeldendePerioder())
-            .flatMap(ur -> UtsettelseCore2021.finnFørsteDatoFraUttakResultat(ur.getPerioder(), false));
+            .flatMap(b -> fpUttakRepository.hentUttakResultatHvisEksisterer(b.getId()))
+            .flatMap(ur -> UtsettelseCore2021.finnFørsteDatoFraUttakResultat(ur.getGjeldendePerioder().getPerioder(), false));
     }
 }
