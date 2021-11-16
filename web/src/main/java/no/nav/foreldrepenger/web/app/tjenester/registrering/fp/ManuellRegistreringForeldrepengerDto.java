@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.fp;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -19,8 +18,7 @@ public class ManuellRegistreringForeldrepengerDto extends MedInntektArbeidYtelse
     @Valid
     private TidsromPermisjonDto tidsromPermisjon;
 
-    @NotNull
-    private Boolean annenForelderInformert;
+    private boolean annenForelderInformert;
 
     public DekningsgradDto getDekningsgrad() {
         return dekningsgrad;
@@ -38,7 +36,7 @@ public class ManuellRegistreringForeldrepengerDto extends MedInntektArbeidYtelse
         this.tidsromPermisjon = tidsromPermisjon;
     }
 
-    public Boolean getAnnenForelderInformert() {
+    public boolean getAnnenForelderInformert() {
         return annenForelderInformert;
     }
 
