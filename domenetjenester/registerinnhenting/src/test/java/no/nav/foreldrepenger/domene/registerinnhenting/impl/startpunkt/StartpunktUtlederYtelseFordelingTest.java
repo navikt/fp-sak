@@ -77,6 +77,26 @@ public class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest
     }
 
     @Test
+    public void skal_returnere_opplysningplikt_ved_endret_stp_tross_gradering() {
+        // Arrange
+        var originalBehandling = lagFørstegangsBehandling();
+
+        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+
+        lagreEndringssøknad(revurdering);
+        opprettYtelsesFordelingMedGradering(revurdering, AG2, ARBEIDSPROSENT_30);
+
+        var førsteuttaksdato = LocalDate.now();
+        var endretUttaksdato = førsteuttaksdato.plusDays(1);
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteuttaksdato).medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        var revSkjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(endretUttaksdato).medUtledetSkjæringstidspunkt(endretUttaksdato).build();
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
+
+        // Act/Assert
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, revSkjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
+    }
+
+    @Test
     public void skal_returnere_beregning_dersom_søker_gradering_på_andel_uten_dagsats() {
         // Arrange
         var originalBehandling = lagFørstegangsBehandling();
