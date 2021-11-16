@@ -86,8 +86,12 @@ public class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest
         lagreEndringssøknad(revurdering);
         opprettYtelsesFordelingMedGradering(revurdering, AG2, ARBEIDSPROSENT_30);
 
+        var førsteuttaksdato = LocalDate.now();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteuttaksdato).medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
+
         // Act/Assert
-        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering), 1L, 2L)).isEqualTo(BEREGNING);
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(BEREGNING);
     }
 
     @Test
@@ -117,8 +121,12 @@ public class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest
         lagreEndringssøknad(revurdering);
         opprettYtelsesFordelingMedGradering(revurdering, AG2, ARBEIDSPROSENT_30);
 
+        var førsteuttaksdato = LocalDate.now();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteuttaksdato).medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
+
         // Act/Assert
-        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering), 1L, 2L)).isEqualTo(BEREGNING);
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(BEREGNING);
     }
 
     @Test
@@ -130,6 +138,7 @@ public class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest
 
         var førsteuttaksdato = LocalDate.now();
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         lagreEndringssøknad(revurdering);
         opprettYtelsesFordelingMedGradering(revurdering, AG1, ARBEIDSPROSENT_30);
@@ -148,8 +157,12 @@ public class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest
         lagreEndringssøknad(revurdering);
         opprettYtelsesFordelingMedGradering(revurdering, AG1, BigDecimal.valueOf(50));
 
+        var førsteuttaksdato = LocalDate.now();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteuttaksdato).medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
+
         // Act
-        var startpunkt = utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering), 1L, 2L);
+        var startpunkt = utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L);
 
         // Assert
         assertThat(startpunkt).isEqualTo(BEREGNING);
