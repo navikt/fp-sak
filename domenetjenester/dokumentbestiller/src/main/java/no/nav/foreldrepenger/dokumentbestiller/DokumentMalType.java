@@ -25,6 +25,7 @@ public enum DokumentMalType implements Kodeverdi {
     FORELDREPENGER_INNVILGELSE("INVFOR", "Innvilgelsesbrev Foreldrepenger"),
     FORELDREPENGER_AVSLAG("AVSFOR", "Avslagsbrev Foreldrepenger"),
     FORELDREPENGER_OPPHØR("OPPFOR", "Opphør Foreldrepenger"),
+    FORELDREPENGER_ANNULLERT("ANUFOR", "Annullering av Foreldrepenger"),
     FORELDREPENGER_INFO_TIL_ANNEN_FORELDER("INFOAF", "Informasjonsbrev til den andre forelderen"),
     INNHENTE_OPPLYSNINGER ("INNOPP", "Innhente opplysninger"),
     VARSEL_OM_REVURDERING("VARREV", "Varsel om revurdering"),

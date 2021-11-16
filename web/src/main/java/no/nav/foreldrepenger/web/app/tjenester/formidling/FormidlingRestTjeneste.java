@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingFormidlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.utsattoppstart.StartdatoUtsattDto;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.utsattoppstart.StartdatoUtsattDtoTjeneste;
@@ -80,9 +81,9 @@ public class FormidlingRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Hent informasjon om sak er utsatt fra start og evt ny dato", tags = "formidling")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response utsattStartdato(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-                                        @NotNull @Parameter(description = "UUID for behandlingen") @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
-        var behandling = behandlingRepository.hentBehandlingHvisFinnes(behandlingIdDto.getBehandlingUuid());
+    public Response utsattStartdato(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+                                        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        var behandling = behandlingRepository.hentBehandlingHvisFinnes(uuidDto.getBehandlingUuid());
         var dto = behandling.map(value -> startdatoUtsattDtoTjeneste.getInformasjonOmUtsettelseFraStart(value))
             .orElse(new StartdatoUtsattDto(false, null));
         var responseBuilder = Response.ok().entity(dto);

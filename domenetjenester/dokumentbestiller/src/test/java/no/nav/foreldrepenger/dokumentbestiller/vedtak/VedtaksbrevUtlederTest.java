@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
@@ -92,6 +93,14 @@ public class VedtaksbrevUtlederTest {
     }
 
     @Test
+    public void skal_velge_annullert_FP() {
+        doReturn(FagsakYtelseType.FORELDREPENGER).when(behandling).getFagsakYtelseType();
+        doReturn(BehandlingResultatType.FORELDREPENGER_SENERE).when(behandlingsresultatMock).getBehandlingResultatType();
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
+            ankeRepository)).isEqualTo(DokumentMalType.FORELDREPENGER_ANNULLERT);
+    }
+
+    @Test
     public void skal_velge_uendret_utfall() {
         doReturn(true).when(behandlingVedtakMock).isBeslutningsvedtak();
         assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
@@ -121,6 +130,7 @@ public class VedtaksbrevUtlederTest {
         doReturn(KlageVurdering.MEDHOLD_I_KLAGE).when(klageVurderingResultat).getKlageVurdering();
         assertThat(VedtaksbrevUtleder.velgKlagemal(behandling, klageRepository)).isEqualTo(DokumentMalType.KLAGE_OMGJORT);
     }
+
     @Test
     public void skal_velge_riktig_ankemal() {
         doReturn(Optional.of(ankeVurderingResultat)).when(ankeRepository).hentAnkeVurderingResultat(any());
