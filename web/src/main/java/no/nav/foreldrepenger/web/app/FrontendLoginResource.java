@@ -21,7 +21,7 @@ public class FrontendLoginResource {
     @GET
     public Response login(@QueryParam("redirectTo") @DefaultValue("/fpsak/") String redirectTo) {
         if (IS_LOCAL) {
-            return Response.temporaryRedirect(URI.create("http://localhost:9000/")).build();
+            return Response.temporaryRedirect(URI.create("http://localhost:9000/fpsak")).build();
         }
         return doLogin(redirectTo);
     }
