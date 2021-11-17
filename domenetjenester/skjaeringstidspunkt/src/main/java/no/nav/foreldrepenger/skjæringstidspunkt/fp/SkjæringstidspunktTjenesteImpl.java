@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
@@ -138,6 +139,11 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
                     .or(() -> UtsettelseCore2021.finnFørsteDatoFraSøknad(ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getGjeldendeSøknadsperioder), kreverSammenhengendeUttak))
                     .orElseThrow(() -> finnerIkkeStpException(behandling.getId()));
             }
+            // Sjekk utsettelse av startdato og returner da første uttaksdato i ny søknad
+            var utsattStartdato = getUtsattStartdato(kreverSammenhengendeUttak, førsteUttaksdagIForrigeVedtak, oppgittFordeling);
+            if (utsattStartdato.isPresent()) {
+                return utsattStartdato.get();
+            }
             final var skjæringstidspunkt = utledTidligste(førsteØnskedeUttaksdagIBehandling.orElse(Tid.TIDENES_ENDE),
                 førsteUttaksdagIForrigeVedtak.orElse(Tid.TIDENES_ENDE));
             if (skjæringstidspunkt.equals(Tid.TIDENES_ENDE)) {
@@ -223,5 +229,17 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var grunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId());
         return grunnlag.map(g -> UtsettelseCore2021.førsteUttaksDatoForBeregning(behandling.getRelasjonsRolleType(), g, førsteUttaksdato))
             .orElse(førsteUttaksdato);
+    }
+
+    private static Optional<LocalDate> getUtsattStartdato(boolean kreverSammenhengendeUttak, Optional<LocalDate> førsteUttaksdagIForrigeVedtak,
+                                                          Optional<OppgittFordelingEntitet> oppgittFordeling) {
+        final var førsteSøkteUttaksdag = UtsettelseCore2021.finnFørsteDatoFraSøknad(oppgittFordeling, kreverSammenhengendeUttak);
+        final var førsteSøkteUtsettelsedag = UtsettelseCore2021.finnFørsteUtsettelseDatoFraSøknad(oppgittFordeling, kreverSammenhengendeUttak);
+        if (!kreverSammenhengendeUttak && førsteUttaksdagIForrigeVedtak.isPresent()
+            && førsteSøkteUttaksdag.isPresent() && førsteSøkteUtsettelsedag.isPresent() &&
+            !førsteSøkteUtsettelsedag.get().isAfter(førsteUttaksdagIForrigeVedtak.get())) {
+            return førsteSøkteUttaksdag;
+        }
+        return Optional.empty();
     }
 }

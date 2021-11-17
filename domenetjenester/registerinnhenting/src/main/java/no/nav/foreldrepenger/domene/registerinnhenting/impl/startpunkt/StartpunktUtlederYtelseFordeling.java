@@ -51,22 +51,22 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "ikke revurdering el passert kofak", grunnlagId1, grunnlagId2);
             return StartpunktType.UTTAKSVILKÅR;
         }
+        if (erSkjæringsdatoEndret(ref, originalBehandling)) {
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT, "endring i skjæringsdato", grunnlagId1, grunnlagId2);
+            return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
+        }
         if (erStartpunktBeregning(ref)) {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING, "Søkt om gradert periode", grunnlagId1, grunnlagId2);
             return StartpunktType.BEREGNING;
         }
-        if (erSkjæringsdatoUendret(ref, originalBehandling)) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "ingen endring i skjæringsdato", grunnlagId1, grunnlagId2);
-            return StartpunktType.UTTAKSVILKÅR;
-        }
-        FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT, "endring i skjæringsdato", grunnlagId1, grunnlagId2);
-        return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
+        FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "ingen endring i skjæringsdato", grunnlagId1, grunnlagId2);
+        return StartpunktType.UTTAKSVILKÅR;
     }
 
-    private boolean erSkjæringsdatoUendret(BehandlingReferanse ref, Long originalBehandlingId) {
+    private boolean erSkjæringsdatoEndret(BehandlingReferanse ref, Long originalBehandlingId) {
         var nySkjæringsdato = ref.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet().orElse(null);
         var originalSkjæringsdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandlingId).getSkjæringstidspunktHvisUtledet().orElse(null);
-        return Objects.equals(originalSkjæringsdato, nySkjæringsdato);
+        return !Objects.equals(originalSkjæringsdato, nySkjæringsdato);
     }
 
 

@@ -2,13 +2,17 @@ package no.nav.foreldrepenger.skjæringstidspunkt.fp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.YearMonth;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
@@ -17,8 +21,21 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseBehandling2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
@@ -179,6 +196,62 @@ public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest 
         assertThat(stp.getFørsteUttaksdato()).isEqualTo(skjæringstidspunkt.minusWeeks(2));
         assertThat(stp.getFørsteUttaksdatoGrunnbeløp()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunkt));
         assertThat(stp.getUtledetSkjæringstidspunkt()).isEqualTo(skjæringstidspunkt);
+    }
+
+    @Test
+    public void skal_finne_fud_søkt_utsettelse_fra_start() {
+        // Sikre fritt uttak
+        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusMonths(12)), repositoryProvider);
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, stputil, utsettelse2021);
+
+
+        var skjæringstidspunktOriginal = VirkedagUtil.fomVirkedag(YearMonth.from(LocalDate.now()).atEndOfMonth().plusDays(1));
+        var skjæringstidspunktEndring = skjæringstidspunktOriginal.plusWeeks(2);
+
+        var perioder = new UttakResultatPerioderEntitet();
+        var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
+        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
+            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
+            .build();
+        var uttakFar = new UttakResultatPeriodeEntitet.Builder(skjæringstidspunktOriginal,
+            VirkedagUtil.tomVirkedag(skjæringstidspunktOriginal.plusWeeks(6).minusDays(1)))
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .build();
+        UttakResultatPeriodeAktivitetEntitet.builder(uttakFar, arbeidsforhold1)
+            .medTrekkdager(new Trekkdager(30))
+            .medUtbetalingsgrad(new Utbetalingsgrad(100))
+            .medTrekkonto(StønadskontoType.FEDREKVOTE)
+            .medArbeidsprosent(BigDecimal.TEN.multiply(BigDecimal.TEN)).build();
+        perioder.leggTilPeriode(uttakFar);
+
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        scenario.medUttak(perioder);
+        scenario.medSøknadHendelse().medFødselsDato(skjæringstidspunktOriginal.minusMonths(6), 1);
+        scenario.medBekreftetHendelse().medFødselsDato(skjæringstidspunktOriginal.minusMonths(6), 1);
+        var behandling = scenario.lagre(repositoryProvider);
+
+        var oppgittPeriodeBuilder1 = OppgittPeriodeBuilder.ny()
+            .medPeriode(skjæringstidspunktOriginal, VirkedagUtil.tomVirkedag(skjæringstidspunktOriginal.plusWeeks(6).minusDays(1)))
+            .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
+            .medÅrsak(UtsettelseÅrsak.FRI);
+        var oppgittPeriodeBuilder2 = OppgittPeriodeBuilder.ny()
+            .medPeriode(skjæringstidspunktEndring, VirkedagUtil.tomVirkedag(skjæringstidspunktEndring.plusWeeks(6).minusDays(1)))
+            .medPeriodeType(UttakPeriodeType.FEDREKVOTE);
+        var revurderingScenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder1.build(), oppgittPeriodeBuilder2.build()), true));
+        revurderingScenario.medOriginalBehandling(behandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+        revurderingScenario.medSøknadHendelse().medFødselsDato(skjæringstidspunktOriginal.minusMonths(6), 1);
+        revurderingScenario.medBekreftetHendelse().medFødselsDato(skjæringstidspunktOriginal.minusMonths(6), 1);
+
+        var revurdering = revurderingScenario.lagre(repositoryProvider);;
+
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(revurdering.getId());
+        assertThat(stp.getFørsteUttaksdato()).isEqualTo(skjæringstidspunktOriginal.plusWeeks(2));
+        assertThat(stp.getFørsteUttaksdatoGrunnbeløp()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunktOriginal.plusWeeks(2)));
+        assertThat(stp.getUtledetSkjæringstidspunkt()).isEqualTo(skjæringstidspunktOriginal.plusWeeks(2));
     }
 
 

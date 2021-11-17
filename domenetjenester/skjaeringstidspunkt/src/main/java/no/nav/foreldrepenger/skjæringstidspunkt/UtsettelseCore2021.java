@@ -124,6 +124,13 @@ public class UtsettelseCore2021 {
             .min(Comparator.naturalOrder());
     }
 
+    public static Optional<LocalDate> finnFørsteUtsettelseDatoFraSøknad(Optional<OppgittFordelingEntitet> oppgittFordeling, boolean kreverSammenhengendeUttak) {
+        return oppgittFordeling.map(OppgittFordelingEntitet::getOppgittePerioder).orElse(Collections.emptyList()).stream()
+            .filter(p -> !kreverSammenhengendeUttak && !frittUttakErPeriodeMedUttak(p))
+            .map(OppgittPeriodeEntitet::getFom)
+            .min(Comparator.naturalOrder());
+    }
+
     public static Optional<LocalDate> finnSisteDatoFraSøknad(Optional<OppgittFordelingEntitet> oppgittFordeling, boolean kreverSammenhengendeUttak) {
         return oppgittFordeling.map(OppgittFordelingEntitet::getOppgittePerioder).orElse(Collections.emptyList()).stream()
             .filter(p -> kreverSammenhengendeUttak || frittUttakErPeriodeMedUttak(p))
