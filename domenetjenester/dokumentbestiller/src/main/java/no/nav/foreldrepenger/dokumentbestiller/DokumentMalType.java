@@ -26,6 +26,7 @@ public enum DokumentMalType implements Kodeverdi {
     FORELDREPENGER_OPPHØR("OPPFOR", "Opphør Foreldrepenger"),
     FORELDREPENGER_ANNULLERT("ANUFOR", "Annullering av Foreldrepenger"),
     FORELDREPENGER_INFO_TIL_ANNEN_FORELDER("INFOAF", "Informasjonsbrev til den andre forelderen"),
+    SVANGERSKAPSPENGER_OPPHØR("OPPSVP", "Opphør Svangerskapspenger"),
     INNHENTE_OPPLYSNINGER ("INNOPP", "Innhente opplysninger"),
     VARSEL_OM_REVURDERING("VARREV", "Varsel om revurdering"),
     INFO_OM_HENLEGGELSE("IOHENL", "Behandling henlagt"),
@@ -40,7 +41,6 @@ public enum DokumentMalType implements Kodeverdi {
     KLAGE_OMGJORT("KGEOMG", "Vedtak om omgjøring av klage"),
     KLAGE_OVERSENDT("KGEOVE", "Klage oversendt til klageinstans"),
     KLAGE_STADFESTET("KGESTA", "Vedtak om stadfestelse"),
-    SVANGERSKAPSPENGER_OPPHØR("SVPOPP", "Opphør Svangerskapspenger"),
 
     // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
     @Deprecated
