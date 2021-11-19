@@ -15,7 +15,7 @@ public class FastsettMånedsinntektFLDto {
         // For Jackson
     }
 
-    public FastsettMånedsinntektFLDto(Integer maanedsInntekt) { // NOSONAR
+    public FastsettMånedsinntektFLDto(Integer maanedsInntekt) {
         this.maanedsinntekt = maanedsInntekt;
     }
 
