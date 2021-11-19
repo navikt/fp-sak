@@ -16,7 +16,7 @@ public class VurderATogFLiSammeOrganisasjonAndelDto {
     @Max(Integer.MAX_VALUE)
     private Integer arbeidsinntekt;
 
-    VurderATogFLiSammeOrganisasjonAndelDto() { //NOSONAR
+    VurderATogFLiSammeOrganisasjonAndelDto() {
         // For Jackson
     }
 
