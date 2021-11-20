@@ -85,7 +85,8 @@ public class BerørtBehandlingKontroller {
 
         if (sistVedtatteYtelsesbehandlingMedforelder.isPresent()) {
             var avsluttetBehandlingsresultatBruker = behandlingsresultatRepository.hent(behandlingIdBruker);
-            var skalBerørtBehandlingOpprettes = berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(avsluttetBehandlingsresultatBruker, behandlingIdBruker, sistVedtatteYtelsesbehandlingMedforelder.get().getId());
+            var skalBerørtBehandlingOpprettes = berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(avsluttetBehandlingsresultatBruker,
+                behandlingIdBruker, sistVedtatteYtelsesbehandlingMedforelder.get().getId());
             if (skalBerørtBehandlingOpprettes) {
                 opprettBerørtBehandling(fagsakMedforelder, avsluttetBehandlingsresultatBruker);
             } else {
@@ -117,6 +118,8 @@ public class BerørtBehandlingKontroller {
 
     private void opprettBerørtBehandling(Fagsak fagsakMedforelder, Behandlingsresultat behandlingsresultatBruker) {
         fagsakLåsRepository.taLås(fagsakMedforelder.getId());
+        // Låse behandling som potensielt skal settes på vent
+        behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakMedforelder.getId()).ifPresent(behandlingRepository::taSkriveLås);
         var åpenTømUttak = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId()).stream()
             .anyMatch(SpesialBehandling::erOppsagtUttak);
         if (åpenTømUttak) {

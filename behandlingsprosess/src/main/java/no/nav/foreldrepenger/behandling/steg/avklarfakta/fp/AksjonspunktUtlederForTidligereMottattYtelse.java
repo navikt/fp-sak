@@ -61,17 +61,15 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
             return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
         }
 
-        // TODO: Vurder behov for inntektssjekk for å dekke flyttetilfelle. Gjort for ES
-        // i Fundamentet og her
+        // TODO: Vurder behov for inntektssjekk for å dekke flyttetilfelle. Gjort for ES i Fundamentet og her
         return INGEN_AKSJONSPUNKTER;
     }
 
     private Utfall harMottattStønadSiste10Mnd(Saksnummer saksnummer, AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag,
             LocalDate skjæringstidspunkt) {
         var vedtakEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
-        var ytelser = ytelseTjeneste.utledYtelserRelatertTilBehandling(aktørId, grunnlag,
-                Optional.of(RELEVANTE_YTELSE_TYPER));
-        Boolean senerevedtak = ytelser.stream()
+        var ytelser = ytelseTjeneste.utledYtelserRelatertTilBehandling(aktørId, grunnlag, RELEVANTE_YTELSE_TYPER);
+        boolean senerevedtak = ytelser.stream()
                 .filter(y -> (y.getSaksNummer() == null) || !saksnummer.getVerdi().equals(y.getSaksNummer()))
                 .map(TilgrensendeYtelserDto::getPeriodeFraDato)
                 .anyMatch(vedtakEtterDato::isBefore);

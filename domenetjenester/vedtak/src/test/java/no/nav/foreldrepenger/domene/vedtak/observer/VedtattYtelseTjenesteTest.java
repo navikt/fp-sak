@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -18,8 +19,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -45,6 +49,8 @@ public class VedtattYtelseTjenesteTest {
     private BeregningsresultatRepository beregningsresultatRepository;
     @Mock
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    @Mock
+    private FamilieHendelseRepository familieHendelseRepository;
 
     LocalDate stp = LocalDate.now().minusMonths(3);
     LocalDate knekk1 = LocalDate.now().minusMonths(2);
@@ -61,13 +67,38 @@ public class VedtattYtelseTjenesteTest {
         when(beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())).thenReturn(Optional.of(br));
         when(behandlingVedtakRepository.hentForBehandling(behandling.getId())).thenReturn(vedtak);
         when(vedtak.getVedtakstidspunkt()).thenReturn(stp.atStartOfDay());
-        var tjeneste = new VedtattYtelseTjeneste(behandlingVedtakRepository, beregningsgrunnlagRepository, beregningsresultatRepository, inntektArbeidYtelseTjeneste);
+        var tjeneste = new VedtattYtelseTjeneste(behandlingVedtakRepository, beregningsgrunnlagRepository, beregningsresultatRepository, inntektArbeidYtelseTjeneste, familieHendelseRepository);
 
         var ytelse= (YtelseV1)tjeneste.genererYtelse(behandling, false);
         // Assert
         assertThat(ytelse.getAnvist()).hasSize(3);
         assertThat(ytelse.getAnvist().get(0).getUtbetalingsgrad().getVerdi().longValue()).isEqualTo(20);
         assertThat(ytelse.getAnvist().get(2).getUtbetalingsgrad().getVerdi().longValue()).isEqualTo(60);
+    }
+
+    @Test
+    public void skal_lage_es_med_periode_lik_stp() {
+        // Arrange
+        var stp = LocalDate.now().plusDays(40);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        final var terminbekreftelse = scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+            .medTermindato(stp)
+            .medNavnPå("LEGEN LEGESEN")
+            .medUtstedtDato(LocalDate.now().minusDays(7));
+        scenario.medBekreftetHendelse()
+            .medTerminbekreftelse(terminbekreftelse);
+        var behandling = scenario.lagMocked();
+        var rp = scenario.mockBehandlingRepositoryProvider();
+        when(beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())).thenReturn(Optional.empty());
+        when(behandlingVedtakRepository.hentForBehandling(behandling.getId())).thenReturn(vedtak);
+        when(vedtak.getVedtakstidspunkt()).thenReturn(stp.atStartOfDay());
+        var tjeneste = new VedtattYtelseTjeneste(behandlingVedtakRepository, beregningsgrunnlagRepository, beregningsresultatRepository, inntektArbeidYtelseTjeneste, rp.getFamilieHendelseRepository());
+
+        var ytelse= (YtelseV1)tjeneste.genererYtelse(behandling, false);
+        // Assert
+        assertThat(ytelse.getAnvist()).isEmpty();
+        assertThat(ytelse.getPeriode().getFom()).isEqualTo(stp);
+        assertThat(ytelse.getPeriode().getTom()).isEqualTo(stp);
     }
 
     private BeregningsgrunnlagEntitet lagBG() {

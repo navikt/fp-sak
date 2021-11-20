@@ -164,10 +164,10 @@ public class InntektArbeidYtelseDtoMapper {
 
     private List<TilgrensendeYtelserDto> hentRelaterteYtelser(InntektArbeidYtelseGrunnlag grunnlag, AktørId aktørId) {
         // Relaterte yteleser fra InntektArbeidYtelseAggregatet
-        return ytelseTjeneste.utledYtelserRelatertTilBehandling(aktørId, grunnlag, Optional.empty());
+        return ytelseTjeneste.utledYtelserRelatertTilBehandling(aktørId, grunnlag, Set.of());
     }
 
     private List<TilgrensendeYtelserDto> hentRelaterteYtelserAnnenPart(InntektArbeidYtelseGrunnlag grunnlag, AktørId aktørId) {
-        return ytelseTjeneste.utledAnnenPartsYtelserRelatertTilBehandling(aktørId, grunnlag, Optional.empty());
+        return ytelseTjeneste.utledAnnenPartsYtelserRelatertTilBehandling(aktørId, grunnlag, Set.of());
     }
 }

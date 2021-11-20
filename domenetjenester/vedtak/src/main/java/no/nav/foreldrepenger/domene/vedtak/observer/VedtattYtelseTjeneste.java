@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -45,6 +46,7 @@ public class VedtattYtelseTjeneste {
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BeregningsresultatRepository tilkjentYtelseRepository;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    private FamilieHendelseRepository familieHendelseRepository;
 
     public VedtattYtelseTjeneste() {
     }
@@ -53,11 +55,13 @@ public class VedtattYtelseTjeneste {
     public VedtattYtelseTjeneste(BehandlingVedtakRepository vedtakRepository,
                                  BeregningsgrunnlagRepository beregningsgrunnlagRepository,
                                  BeregningsresultatRepository tilkjentYtelseRepository,
-                                 InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
+                                 InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                                 FamilieHendelseRepository familieHendelseRepository) {
         this.vedtakRepository = vedtakRepository;
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.tilkjentYtelseRepository = tilkjentYtelseRepository;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
+        this.familieHendelseRepository = familieHendelseRepository;
     }
 
     public Ytelse genererYtelse(Behandling behandling, boolean mapArbeidsforhold) {
@@ -75,7 +79,7 @@ public class VedtattYtelseTjeneste {
         ytelse.setType(map(behandling.getFagsakYtelseType()));
         ytelse.setStatus(map(behandling.getFagsak().getStatus()));
 
-        ytelse.setPeriode(utledPeriode(vedtak, berResultat.orElse(null)));
+        ytelse.setPeriode(utledPeriode(behandling, vedtak, berResultat.orElse(null)));
         ytelse.setAnvist(map(behandling, berResultat.orElse(null), mapArbeidsforhold));
         return ytelse;
     }
@@ -152,7 +156,7 @@ public class VedtattYtelseTjeneste {
         return new DagsatsUtbgradSVP(dagsats, grad);
     }
 
-    private Periode utledPeriode(BehandlingVedtak vedtak, BeregningsresultatEntitet beregningsresultat) {
+    private Periode utledPeriode(Behandling behandling, BehandlingVedtak vedtak, BeregningsresultatEntitet beregningsresultat) {
         final var periode = new Periode();
         if (beregningsresultat != null) {
             var minFom = beregningsresultat.getBeregningsresultatPerioder().stream()
@@ -173,6 +177,17 @@ public class VedtattYtelseTjeneste {
                 periode.setTom(Tid.TIDENES_ENDE);
             }
             return periode;
+        } else if (familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId()).isPresent()) {
+            try {
+                var stp = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
+                    .map(a -> a.getGjeldendeVersjon().getSkjæringstidspunkt())
+                    .orElse(vedtak.getVedtaksdato());
+                periode.setFom(stp);
+                periode.setTom(stp);
+                return periode;
+            } catch (Exception e) {
+                // papirsøknad elns uten fhdato
+            }
         }
         periode.setFom(vedtak.getVedtaksdato());
         periode.setTom(vedtak.getVedtaksdato());
