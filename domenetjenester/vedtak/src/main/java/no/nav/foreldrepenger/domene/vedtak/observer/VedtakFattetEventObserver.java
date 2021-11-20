@@ -7,8 +7,10 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -17,14 +19,22 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 @ApplicationScoped
 public class VedtakFattetEventObserver {
 
+    private static final Set<VedtakResultatType> SKAL_SENDE_HENDELSE = Set.of(VedtakResultatType.INNVILGET,
+        VedtakResultatType.DELVIS_INNVILGET, VedtakResultatType.OPPHØR);
     private ProsessTaskTjeneste taskRepository;
+    private BehandlingVedtakRepository vedtakRepository;
+    private TilbakekrevingRepository tilbakekrevingRepository;
 
     public VedtakFattetEventObserver() {
     }
 
     @Inject
-    public VedtakFattetEventObserver(ProsessTaskTjeneste taskRepository) {
+    public VedtakFattetEventObserver(ProsessTaskTjeneste taskRepository,
+                                     BehandlingVedtakRepository vedtakRepository,
+                                     TilbakekrevingRepository tilbakekrevingRepository) {
         this.taskRepository = taskRepository;
+        this.vedtakRepository = vedtakRepository;
+        this.tilbakekrevingRepository = tilbakekrevingRepository;
     }
 
     public void observerStegOvergang(@Observes BehandlingVedtakEvent event) {
@@ -36,10 +46,20 @@ public class VedtakFattetEventObserver {
 
     private boolean erBehandlingAvRettType(Behandling behandling, BehandlingVedtak vedtak) {
         if (behandling != null && behandling.erYtelseBehandling()) {
-            final var resultatType = vedtak != null ? vedtak.getVedtakResultatType() : VedtakResultatType.AVSLAG;
-            return Set.of(VedtakResultatType.INNVILGET, VedtakResultatType.DELVIS_INNVILGET, VedtakResultatType.OPPHØR).contains(resultatType);
+            final var resultatType = vedtak != null ? vedtak.getVedtakResultatType() : VedtakResultatType.UDEFINERT;
+            return SKAL_SENDE_HENDELSE.contains(resultatType) ||
+                tilbakekrevingRepository.hent(behandling.getId()).isPresent() ||
+                revurderingAvslåttMedForrigeInnvilget(behandling, resultatType);
         }
         return false;
+    }
+
+    private boolean revurderingAvslåttMedForrigeInnvilget(Behandling behandling, VedtakResultatType vedtakResultatType) {
+        return VedtakResultatType.AVSLAG.equals(vedtakResultatType) && behandling.erRevurdering() &&
+            behandling.getOriginalBehandlingId()
+            .flatMap(b -> vedtakRepository.hentForBehandlingHvisEksisterer(b))
+            .filter(v -> SKAL_SENDE_HENDELSE.contains(v.getVedtakResultatType()))
+            .isPresent();
     }
 
     private void opprettTaskForPubliseringAvVedtak(Long behandlingId) {

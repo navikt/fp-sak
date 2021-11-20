@@ -71,8 +71,7 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
             return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
         }
 
-        // TODO: Fjerne når det ikke lenger finnes mange saker i INFOTRYGD. Denne dekker
-        // flytteproblemet og usynlige saker
+        // TODO: Fjerne når det ikke lenger finnes mange saker i INFOTRYGD. Denne dekker flytteproblemet og usynlige saker
         var filter = new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId)).før(vurderingsTidspunkt);
         if (!filter.isEmpty()) {
             if (harInntekterForeldrepengerSiste10Mnd(filter, skjæringstidspunkt) == JA) {
@@ -90,11 +89,9 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
         return INGEN_AKSJONSPUNKTER;
     }
 
-    private Utfall harMottattStønadSiste10Mnd(Saksnummer saksnummer, AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag,
-            LocalDate skjæringstidspunkt) {
+    private Utfall harMottattStønadSiste10Mnd(Saksnummer saksnummer, AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag, LocalDate skjæringstidspunkt) {
         var vedtakEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
-        var ytelser = ytelseTjeneste.utledYtelserRelatertTilBehandling(aktørId, grunnlag,
-                Optional.of(RELEVANTE_YTELSE_TYPER));
+        var ytelser = ytelseTjeneste.utledYtelserRelatertTilBehandling(aktørId, grunnlag, RELEVANTE_YTELSE_TYPER);
         var senerevedtak = ytelser.stream()
                 .filter(y -> (y.getSaksNummer() == null) || !saksnummer.getVerdi().equals(y.getSaksNummer()))
                 .map(TilgrensendeYtelserDto::getPeriodeFraDato)
@@ -102,11 +99,9 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
         return senerevedtak ? JA : NEI;
     }
 
-    private Utfall harAnnenPartMottattStønadSiste10Mnd(@SuppressWarnings("unused") Saksnummer saksnummer, AktørId aktørId,
-            InntektArbeidYtelseGrunnlag grunnlag, LocalDate skjæringstidspunkt) {
+    private Utfall harAnnenPartMottattStønadSiste10Mnd(@SuppressWarnings("unused") Saksnummer saksnummer, AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag, LocalDate skjæringstidspunkt) {
         var vedtakEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
-        var ytelser = ytelseTjeneste.utledAnnenPartsYtelserRelatertTilBehandling(aktørId, grunnlag,
-                Optional.of(RELEVANTE_YTELSE_TYPER));
+        var ytelser = ytelseTjeneste.utledAnnenPartsYtelserRelatertTilBehandling(aktørId, grunnlag, RELEVANTE_YTELSE_TYPER);
         var senerevedtak = ytelser.stream()
                 .map(y -> y.getPeriodeTilDato() != null ? y.getPeriodeTilDato() : y.getPeriodeFraDato())
                 .anyMatch(vedtakEtterDato::isBefore);
