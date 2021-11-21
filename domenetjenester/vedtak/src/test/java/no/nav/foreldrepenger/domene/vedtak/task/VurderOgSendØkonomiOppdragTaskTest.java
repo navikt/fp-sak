@@ -4,16 +4,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -33,7 +31,6 @@ import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.postcondition.OppdragPostConditionTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 public class VurderOgSendØkonomiOppdragTaskTest {
@@ -105,10 +102,7 @@ public class VurderOgSendØkonomiOppdragTaskTest {
         task.doTask(prosessTaskData);
 
         // Assert oppretter bare prosesstask for å sende tilkjent ytelse
-        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(repo).lagre(captor.capture());
-        Assertions.assertThat(captor.getValue().taskType()).isEqualTo(TaskType.forProsessTask(SendTilkjentYtelseTask.class));
-        verifyNoMoreInteractions(repo);
+        verifyNoInteractions(repo);
 
         verify(prosessTaskData, never()).venterPåHendelse(any());
     }
