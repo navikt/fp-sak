@@ -28,13 +28,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.kontrakter.tilkjentytelse.TilkjentYtelse;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.app.BeregningsresultatTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatEngangsstønadDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatMedUttaksplanDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
-import no.nav.foreldrepenger.økonomistøtte.tilkjentytelse.TilkjentYtelseTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
@@ -51,15 +49,12 @@ public class BeregningsresultatRestTjeneste {
     public static final String ENGANGSTONAD_PATH = BASE_PATH + ENGANGSTONAD_PART_PATH;
     private static final String FORELDREPENGER_PART_PATH = "/foreldrepenger";
     public static final String FORELDREPENGER_PATH = BASE_PATH + FORELDREPENGER_PART_PATH;
-    private static final String TILKJENTYTELSE_PART_PATH = "/tilkjentytelse";
-    public static final String TILKJENTYTELSE_PATH = BASE_PATH + TILKJENTYTELSE_PART_PATH; // NOSONAR TFP-2234
     private static final String HAR_SAMME_RESULTAT_PART_PATH = "/har-samme-resultat";
     public static final String HAR_SAMME_RESULTAT_PATH = BASE_PATH + HAR_SAMME_RESULTAT_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsresultatTjeneste beregningsresultatTjeneste;
-    private TilkjentYtelseTjeneste tilkjentYtelseTjeneste;
 
     public BeregningsresultatRestTjeneste() {
         // CDI
@@ -67,11 +62,10 @@ public class BeregningsresultatRestTjeneste {
 
     @Inject
     public BeregningsresultatRestTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
-            BeregningsresultatTjeneste beregningsresultatMedUttaksplanTjeneste, TilkjentYtelseTjeneste tilkjentYtelseTjeneste) {
+            BeregningsresultatTjeneste beregningsresultatMedUttaksplanTjeneste) {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.beregningsresultatTjeneste = beregningsresultatMedUttaksplanTjeneste;
-        this.tilkjentYtelseTjeneste = tilkjentYtelseTjeneste;
     }
 
     @GET
@@ -92,16 +86,6 @@ public class BeregningsresultatRestTjeneste {
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return beregningsresultatTjeneste.lagBeregningsresultatMedUttaksplan(behandling).orElse(null);
-    }
-
-    @GET
-    @Path(TILKJENTYTELSE_PART_PATH)
-    @Operation(description = "Hent beregningsresultat", summary = ("Brukes av fpoppdrag."), tags = "beregningsresultat")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public TilkjentYtelse hentTilkjentYtelse(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-                                                 @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        return tilkjentYtelseTjeneste.hentilkjentYtelse(behandling.getId());
     }
 
     @GET

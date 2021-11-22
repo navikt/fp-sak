@@ -76,7 +76,6 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
             LOG.info("Ikke aktuelt for behandling: {}", behandlingId); //$NON-NLS-1$
         }
 
-        sendTilkjentYtelse(prosessTaskData, behandlingId);
     }
 
     private void oppdaterProsessTask(ProsessTaskData prosessTaskData) {
@@ -87,16 +86,6 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
 
     private void sendØkonomioppdragTask(ProsessTaskData hovedProsessTask, Long behandlingId) {
         var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(SendØkonomiOppdragTask.class);
-        sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
-        sendØkonomiOppdrag.setCallIdFraEksisterende();
-        sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
-            behandlingId,
-            hovedProsessTask.getAktørId());
-        taskTjeneste.lagre(sendØkonomiOppdrag);
-    }
-
-    private void sendTilkjentYtelse(ProsessTaskData hovedProsessTask, Long behandlingId) {
-        var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(SendTilkjentYtelseTask.class);
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
