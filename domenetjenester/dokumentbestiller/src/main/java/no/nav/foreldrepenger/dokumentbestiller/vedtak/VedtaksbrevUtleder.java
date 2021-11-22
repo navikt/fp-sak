@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 
 public class VedtaksbrevUtleder {
@@ -84,7 +83,7 @@ public class VedtaksbrevUtleder {
         }
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             if (behandlingsresultat.isBehandlingsresultatOpphørt()) {
-                return Environment.current().isProd() ? DokumentMalType.FORELDREPENGER_OPPHØR_DOK : DokumentMalType.FORELDREPENGER_OPPHØR;
+                return DokumentMalType.FORELDREPENGER_OPPHØR;
             }
             return DokumentMalType.FORELDREPENGER_AVSLAG;
         }
