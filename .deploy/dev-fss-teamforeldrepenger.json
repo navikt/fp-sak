@@ -29,7 +29,6 @@
     "SECURITYTOKENSERVICE_URL": "https://sts-q1.preprod.local/SecurityTokenServiceProvider/",
     "BOOTSTRAP_SERVERS": "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
     "BUCKET_URL": "http://s3.nais-rook",
-    "FP_TILKJENTYTELSE_V1_TOPIC_URL": "privat-foreldrepenger-tilkjentytelse-v1-q1",
     "LOADBALANCER_FPSAK_POOLNAME": "nais",
     "LOADBALANCER_FPSAK_CONTEXTROOTS": "fpsak",
     "OIDC_STS_ISSUER_URL": "https://security-token-service.nais.preprod.local",

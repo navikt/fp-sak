@@ -75,7 +75,6 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
         } else {
             LOG.info("Ikke aktuelt for behandling: {}", behandlingId); //$NON-NLS-1$
         }
-
     }
 
     private void oppdaterProsessTask(ProsessTaskData prosessTaskData) {
