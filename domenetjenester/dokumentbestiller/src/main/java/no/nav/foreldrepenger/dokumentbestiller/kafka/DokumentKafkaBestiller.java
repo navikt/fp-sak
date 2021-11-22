@@ -1,10 +1,5 @@
 package no.nav.foreldrepenger.dokumentbestiller.kafka;
 
-import java.util.UUID;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -14,8 +9,13 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.util.UUID;
 
 @ApplicationScoped
 public class DokumentKafkaBestiller {
@@ -55,8 +55,14 @@ public class DokumentKafkaBestiller {
 
     public void bestillBrev(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak årsak, HistorikkAktør aktør) {
         opprettKafkaTask(behandling, dokumentMalType, fritekst, årsak, aktør);
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, dokumentMalType);
-        brevHistorikkinnslag.opprettHistorikkinnslagForBestiltBrevFraKafka(aktør, behandling, dokumentMalType);
+        if (!skalKunBestillesForÅLageJson(dokumentMalType)) {
+            dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, dokumentMalType);
+            brevHistorikkinnslag.opprettHistorikkinnslagForBestiltBrevFraKafka(aktør, behandling, dokumentMalType);
+        }
+    }
+
+    private boolean skalKunBestillesForÅLageJson(DokumentMalType dokumentMalType) {
+        return DokumentMalType.SVANGERSKAPSPENGER_OPPHØR.equals(dokumentMalType) && Environment.current().isProd();
     }
 
     private void opprettKafkaTask(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak årsak, HistorikkAktør aktør) {

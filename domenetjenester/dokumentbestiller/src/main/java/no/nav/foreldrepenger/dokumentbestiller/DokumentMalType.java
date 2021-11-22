@@ -1,14 +1,13 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public enum DokumentMalType implements Kodeverdi {
 
@@ -27,6 +26,7 @@ public enum DokumentMalType implements Kodeverdi {
     FORELDREPENGER_OPPHØR("OPPFOR", "Opphør Foreldrepenger"),
     FORELDREPENGER_ANNULLERT("ANUFOR", "Annullering av Foreldrepenger"),
     FORELDREPENGER_INFO_TIL_ANNEN_FORELDER("INFOAF", "Informasjonsbrev til den andre forelderen"),
+    SVANGERSKAPSPENGER_OPPHØR("OPPSVP", "Opphør Svangerskapspenger"),
     INNHENTE_OPPLYSNINGER ("INNOPP", "Innhente opplysninger"),
     VARSEL_OM_REVURDERING("VARREV", "Varsel om revurdering"),
     INFO_OM_HENLEGGELSE("IOHENL", "Behandling henlagt"),
