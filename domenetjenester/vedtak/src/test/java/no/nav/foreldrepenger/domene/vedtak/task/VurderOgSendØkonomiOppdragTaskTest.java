@@ -48,9 +48,6 @@ public class VurderOgSendØkonomiOppdragTaskTest {
     private ProsessTaskData prosessTaskData;
 
     @Mock
-    private OppdragskontrollTjeneste esOppdragskontrollTjeneste;
-
-    @Mock
     private OppdragskontrollTjeneste nyOppdragskontrollTjeneste;
 
     @Mock
