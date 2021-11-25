@@ -143,8 +143,8 @@ public class VurderOpphørAvYtelser {
         });
         // Sjekker om det finnes overlapp i fpsak
         aktørIdList.forEach(
-            aktørId -> løpendeSakerSomOverlapperUttakPåNySak(aktørId, gjeldendeFagsak, startDatoIVB).forEach(
-                this::opprettTaskForÅHåndtereOpphør));
+            aktørId -> løpendeSakerSomOverlapperUttakPåNySak(aktørId, gjeldendeFagsak, startDatoIVB)
+                .forEach(s -> opprettTaskForÅHåndtereOpphør(s, gjeldendeFagsak)));
     }
 
     private void vurderOpphørAvYtelserForSVP(Fagsak gjeldendeSVPsak, LocalDate startDatoIVB, Long behandlingId) {
@@ -164,13 +164,13 @@ public class VurderOpphørAvYtelser {
 
                         if (startDatoIVB.isBefore(startDatoverlappBeh)) {
                             // Overlapp med løpende foreldrepenger på samme barn - opprettes revurdering på innvilget svp behandling
-                            opprettTaskForÅHåndtereOpphør(gjeldendeSVPsak);
+                            opprettTaskForÅHåndtereOpphør(gjeldendeSVPsak, fagsak);
                             LOG.info("Overlapp SVP: SVP-sak {} overlapper med FP-sak på samme barn {}",
                                 gjeldendeSVPsak.getSaksnummer(), fagsak.getSaksnummer());
 
                         } else if (erFullUtbetalingSistePeriode(fagsak.getId())) {
                             // Overlapp med løpende foreldrepenger og svp for nytt barn - opprettes revurdering på løpende foreldrepenger-sak
-                            opprettTaskForÅHåndtereOpphør(fagsak);
+                            opprettTaskForÅHåndtereOpphør(fagsak, gjeldendeSVPsak);
                             LOG.info("Overlapp SVP: SVP-sak {} overlapper med FP-sak {}",
                                 gjeldendeSVPsak.getSaksnummer(), fagsak.getSaksnummer());
                         } else {
@@ -195,8 +195,8 @@ public class VurderOpphørAvYtelser {
         LOG.info("Overlapp INFOTRYGD på aktør {} for vedtatt sak {}", aktørId, gjeldendeFagsak.getSaksnummer());
     }
 
-    private void opprettTaskForÅHåndtereOpphør(Fagsak sakOpphør) {
-        var beskrivelse = String.format("Overlapp identifisert: Vurder saksnr %s", sakOpphør.getSaksnummer());
+    private void opprettTaskForÅHåndtereOpphør(Fagsak sakOpphør, Fagsak fersktVedtak) {
+        var beskrivelse = String.format("Overlapp identifisert: Vurder saksnr %s vedtak i saksnr %s", sakOpphør.getSaksnummer(), fersktVedtak.getSaksnummer());
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOpphørAvYtelserTask.class);
         prosessTaskData.setFagsakId(sakOpphør.getId());
         prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, beskrivelse);

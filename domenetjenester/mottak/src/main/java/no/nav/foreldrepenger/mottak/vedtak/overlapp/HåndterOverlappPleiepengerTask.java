@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -12,38 +10,29 @@ import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
-/*
- * Task for
- */
 @ApplicationScoped
-@ProsessTask(value = "iverksetteVedtak.håndterOpphørAvYtelser", maxFailedRuns = 1)
+@ProsessTask(value = "iverksetteVedtak.håndterOverlappPleiepenger", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class HåndterOpphørAvYtelserTask extends GenerellProsessTask {
-
-    public static final String BESKRIVELSE_KEY = "beskrivelse";
-    public static final String BEHANDLING_ÅRSAK_KEY = "behandlingAarsak";
+public class HåndterOverlappPleiepengerTask extends GenerellProsessTask {
 
     private HåndterOpphørAvYtelser tjeneste;
     private FagsakRepository fagsakRepository;
 
     @Inject
-    public HåndterOpphørAvYtelserTask(HåndterOpphørAvYtelser tjeneste, FagsakRepository fagsakRepository) {
+    public HåndterOverlappPleiepengerTask(HåndterOpphørAvYtelser tjeneste, FagsakRepository fagsakRepository) {
         super();
         this.tjeneste = tjeneste;
         this.fagsakRepository = fagsakRepository;
     }
 
-    HåndterOpphørAvYtelserTask() {
+    HåndterOverlappPleiepengerTask() {
         // for CDI proxy
     }
 
     @Override
     public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
-        var beskrivelse = Optional.ofNullable(prosessTaskData.getPropertyValue(BESKRIVELSE_KEY))
-            .orElseGet(() -> String.format("Overlapp identifisert: Vurder saksnr %s", fagsak.getSaksnummer()));
-        var behandlingÅrsak = Optional.ofNullable(prosessTaskData.getPropertyValue(BEHANDLING_ÅRSAK_KEY))
-            .map(BehandlingÅrsakType::fraKode).orElse(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
-        tjeneste.oppdaterEllerOpprettRevurdering(fagsak, beskrivelse, behandlingÅrsak);
+        var behandlingÅrsak = BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER;
+        tjeneste.oppdaterEllerOpprettRevurdering(fagsak, null, behandlingÅrsak);
     }
 }

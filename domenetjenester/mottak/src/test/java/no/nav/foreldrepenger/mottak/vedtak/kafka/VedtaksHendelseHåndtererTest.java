@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -64,7 +63,7 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
-import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOpphørAvYtelserTask;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOverlappPleiepengerTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelserTask;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -277,10 +276,9 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         assertThat(prosessTaskDataList.size()).isEqualTo(1);
 
         var task = prosessTaskDataList.get(0);
-        assertThat(task.taskType()).isEqualTo(TaskType.forProsessTask(HåndterOpphørAvYtelserTask.class));
+        assertThat(task.taskType()).isEqualTo(TaskType.forProsessTask(HåndterOverlappPleiepengerTask.class));
         assertThat(task.getAktørId()).isEqualTo(aktørFra(fpBehandling).getVerdi());
         assertThat(task.getFagsakId()).isEqualTo(fpBehandling.getFagsak().getId());
-        assertThat(task.getPropertyValue(HåndterOpphørAvYtelserTask.BEHANDLING_ÅRSAK_KEY)).isEqualTo(BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER.getKode());
     }
 
     @Test

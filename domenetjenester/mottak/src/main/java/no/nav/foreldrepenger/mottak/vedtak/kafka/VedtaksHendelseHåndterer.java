@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -24,19 +23,17 @@ import no.nav.abakus.vedtak.ytelse.Ytelse;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
-import no.nav.foreldrepenger.domene.registerinnhenting.PleipengerOversetter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
-import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOpphørAvYtelserTask;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOverlappPleiepengerTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelserTask;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -112,7 +109,7 @@ public class VedtaksHendelseHåndterer {
             var fagsaker = getFagsakerFor(ytelse);
             var callID = UUID.randomUUID();
             fagsakerMedVedtakOverlapp(ytelse, fagsaker)
-                .forEach(f -> opprettHåndterOverlappTaskPleiepenger(ytelse, f, callID));
+                .forEach(f -> opprettHåndterOverlappTaskPleiepenger(f, callID));
         } else {
             LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getFagsystem(), ytelse.getSaksnummer(), ytelse.getType());
             var fagsaker = getFagsakerFor(ytelse);
@@ -163,25 +160,10 @@ public class VedtaksHendelseHåndterer {
         }
     }
 
-    private void opprettHåndterOverlappTaskPleiepenger(YtelseV1 ytelse, Fagsak f, UUID callID) {
-        var innleggelse = Optional.ofNullable(ytelse.getTilleggsopplysninger())
-            .map(PleipengerOversetter::oversettTilleggsopplysninger)
-            .filter(to -> !to.innleggelsesPerioder().isEmpty())
-            .isPresent();
-
-        var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOpphørAvYtelserTask.class);
+    private void opprettHåndterOverlappTaskPleiepenger(Fagsak f, UUID callID) {
+        var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOverlappPleiepengerTask.class);
         prosessTaskData.setFagsak(f.getId(), f.getAktørId().getId());
         prosessTaskData.setCallId(callID.toString());
-
-        var beskrivelse = String.format("%s %s %s overlapper %s saksnr %s",
-            ytelse.getType().getNavn(),
-            innleggelse ? "(Innlagt) saksnr" : "saksnr",
-            ytelse.getSaksnummer(),
-            f.getYtelseType().getNavn(),
-            f.getSaksnummer().getVerdi());
-
-        prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, beskrivelse);
-        prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BEHANDLING_ÅRSAK_KEY, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER.getKode());
         taskTjeneste.lagre(prosessTaskData);
     }
 
