@@ -122,7 +122,7 @@ public class VurderOpphørAvYtelser {
         aktørIdList.add(gjeldendeFagsak.getAktørId());
 
         List<AktørId> aktørIdListSjekkInfotrygd = new ArrayList<>();
-        if (RelasjonsRolleType.erFar(gjeldendeFagsak.getRelasjonsRolleType())) {
+        if (!RelasjonsRolleType.erMor(gjeldendeFagsak.getRelasjonsRolleType())) {
             aktørIdListSjekkInfotrygd.add(gjeldendeFagsak.getAktørId());
         }
 

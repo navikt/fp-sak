@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
@@ -120,6 +121,7 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
     @Override
     public boolean endringSomUtsetterStartdato(MottattDokument mottattDokument, Fagsak fagsak) {
         return FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType()) &&
+            !RelasjonsRolleType.erMor(fagsak.getRelasjonsRolleType()) &&
             mottattDokument.getDokumentType().erForeldrepengeSøknad() &&
             dokumentmottakerFelles.endringSomUtsetterStartdato(mottattDokument, fagsak);
     }
