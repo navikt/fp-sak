@@ -1,20 +1,20 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum DokumentMalType implements Kodeverdi {
 
     //Fritekstbrev - tekst unntatt header og footer genereres av fpformidling
     FRITEKST_DOK("FRITKS", "Fritekstbrev"),
     ETTERLYS_INNTEKTSMELDING_FRITEKST("INNLYS", "Etterlys inntektsmelding"),
-    SVANGERSKAPSPENGER_INNVILGELSE_FRITEKST("INNSVP", "Innvilgelsesbrev svangerskapspenger"),
     ANKE_BESLUTNING_OM_OPPHEVING_FRITEKST("ANKEBO", "Ankebrev om beslutning om oppheving"),
     ANKE_VEDTAK_OMGJORING_FRITEKST("VEDOGA", "Vedtak om omgjøring i ankesak"),
 
@@ -26,6 +26,7 @@ public enum DokumentMalType implements Kodeverdi {
     FORELDREPENGER_OPPHØR("OPPFOR", "Opphør Foreldrepenger"),
     FORELDREPENGER_ANNULLERT("ANUFOR", "Annullering av Foreldrepenger"),
     FORELDREPENGER_INFO_TIL_ANNEN_FORELDER("INFOAF", "Informasjonsbrev til den andre forelderen"),
+    SVANGERSKAPSPENGER_INNVILGELSE("INVSVP", "Innvilgelsesbrev svangerskapspenger"),
     SVANGERSKAPSPENGER_OPPHØR("OPPSVP", "Opphør Svangerskapspenger"),
     INNHENTE_OPPLYSNINGER ("INNOPP", "Innhente opplysninger"),
     VARSEL_OM_REVURDERING("VARREV", "Varsel om revurdering"),
@@ -55,6 +56,8 @@ public enum DokumentMalType implements Kodeverdi {
     FORELDREPENGER_OPPHØR_DOK("OPPHOR", "Opphør brev"),
     @Deprecated
     FORELDREPENGER_INFOBREV_TIL_ANNEN_FORELDER_DOK("INAFOR", "Informasjonsbrev til den andre forelderen"),
+    @Deprecated
+    SVANGERSKAPSPENGER_INNVILGELSE_FRITEKST("INNSVP", "Innvilgelsesbrev svangerskapspenger"),
     @Deprecated
     INNHENTE_OPPLYSNINGER_DOK("INNHEN", "Innhent dokumentasjon"),
     @Deprecated

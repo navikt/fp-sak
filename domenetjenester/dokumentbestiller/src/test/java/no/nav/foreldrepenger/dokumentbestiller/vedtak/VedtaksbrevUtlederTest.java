@@ -76,6 +76,13 @@ public class VedtaksbrevUtlederTest {
     }
 
     @Test
+    public void skal_velge_positivt_SVP() {
+        doReturn(FagsakYtelseType.SVANGERSKAPSPENGER).when(behandling).getFagsakYtelseType();
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
+                ankeRepository)).isEqualTo(DokumentMalType.SVANGERSKAPSPENGER_INNVILGELSE);
+    }
+
+    @Test
     public void skal_velge_opphør_FP() {
         doReturn(FagsakYtelseType.FORELDREPENGER).when(behandling).getFagsakYtelseType();
         doReturn(true).when(behandlingsresultatMock).isBehandlingsresultatOpphørt();
