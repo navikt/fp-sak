@@ -34,14 +34,16 @@ public class ArbeidOgInntektsmeldingMapper {
     }
 
     public static InntektsmeldingDto mapInntektsmelding(Inntektsmelding im,
-                                                        Collection<ArbeidsforholdReferanse> referanser) {
+                                                        Collection<ArbeidsforholdReferanse> referanser,
+                                                        Optional<InntektsmeldingKontaktinfo> kontaktinfo) {
         return new InntektsmeldingDto(
             fraBeløp(im.getInntektBeløp()),
             fraBeløp(im.getRefusjonBeløpPerMnd()),
             im.getArbeidsgiver().getIdentifikator(),
             finnEksternRef(im.getArbeidsforholdRef(), referanser).orElse(null),
-            null, // TODO les fra XML
-            null, // TODO les fra XML
+            im.getArbeidsforholdRef().getReferanse(),
+            kontaktinfo.map(InntektsmeldingKontaktinfo::kontaktperson).orElse(null),
+            kontaktinfo.map(InntektsmeldingKontaktinfo::telefonnummer).orElse(null),
             im.getMottattDato());
     }
 

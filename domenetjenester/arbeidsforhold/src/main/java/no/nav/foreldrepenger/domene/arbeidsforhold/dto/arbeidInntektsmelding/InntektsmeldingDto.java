@@ -26,6 +26,10 @@ public class InntektsmeldingDto {
     @Valid
     private String eksternArbeidsforholdId;
 
+    @JsonProperty(value = "internArbeidsforholdId")
+    @Valid
+    private String internArbeidsforholdId;
+
     @JsonProperty(value = "kontaktpersonNavn")
     @Valid
     private String kontaktpersonNavn;
@@ -43,6 +47,7 @@ public class InntektsmeldingDto {
                               BigDecimal refusjonPrMnd,
                               String arbeidsgiverIdent,
                               String eksternArbeidsforholdId,
+                              String internArbeidsforholdId,
                               String kontaktpersonNavn,
                               String kontaktpersonNummer,
                               LocalDate motattDato) {
@@ -53,6 +58,7 @@ public class InntektsmeldingDto {
         this.kontaktpersonNavn = kontaktpersonNavn;
         this.kontaktpersonNummer = kontaktpersonNummer;
         this.motattDato = motattDato;
+        this.internArbeidsforholdId = internArbeidsforholdId;
     }
 
     public BigDecimal getInntektPrMnd() {
@@ -77,5 +83,13 @@ public class InntektsmeldingDto {
 
     public String getKontaktpersonNummer() {
         return kontaktpersonNummer;
+    }
+
+    public String getInternArbeidsforholdId() {
+        return internArbeidsforholdId;
+    }
+
+    public LocalDate getMotattDato() {
+        return motattDato;
     }
 }
