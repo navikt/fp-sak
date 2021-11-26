@@ -6,6 +6,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class InntektsmeldingDto {
     @JsonProperty(value = "inntektPrMnd")
@@ -43,6 +44,11 @@ public class InntektsmeldingDto {
     @Valid
     private LocalDate motattDato;
 
+    @JsonProperty(value = "innsendingstidspunkt")
+    @NotNull
+    @Valid
+    private LocalDateTime innsendingstidspunkt;
+
     public InntektsmeldingDto(BigDecimal inntektPrMnd,
                               BigDecimal refusjonPrMnd,
                               String arbeidsgiverIdent,
@@ -50,7 +56,8 @@ public class InntektsmeldingDto {
                               String internArbeidsforholdId,
                               String kontaktpersonNavn,
                               String kontaktpersonNummer,
-                              LocalDate motattDato) {
+                              LocalDate motattDato,
+                              LocalDateTime innsendingstidspunkt) {
         this.inntektPrMnd = inntektPrMnd;
         this.refusjonPrMnd = refusjonPrMnd;
         this.arbeidsgiverIdent = arbeidsgiverIdent;
@@ -59,6 +66,7 @@ public class InntektsmeldingDto {
         this.kontaktpersonNummer = kontaktpersonNummer;
         this.motattDato = motattDato;
         this.internArbeidsforholdId = internArbeidsforholdId;
+        this.innsendingstidspunkt = innsendingstidspunkt;
     }
 
     public BigDecimal getInntektPrMnd() {
@@ -91,5 +99,9 @@ public class InntektsmeldingDto {
 
     public LocalDate getMotattDato() {
         return motattDato;
+    }
+
+    public LocalDateTime getInnsendingstidspunkt() {
+        return innsendingstidspunkt;
     }
 }

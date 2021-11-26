@@ -15,7 +15,8 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.v2.InntektsmeldingWrapper;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.InntektsmeldingKontaktinformasjon;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.KontaktinformasjonIM;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.xml.MottattDokumentXmlParser;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -82,10 +83,12 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
             .collect(Collectors.toList());
     }
 
-    private Optional<InntektsmeldingKontaktinfo> trekkUtKontaktInfo(MottattDokument mottattIM) {
-        var imWrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser.unmarshallXml(mottattIM.getPayloadXml());
-        var kontaktinformasjon = imWrapper.getArbeidsgiver().map(no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsgiver::getKontaktinformasjon);
-        return kontaktinformasjon.map(ki -> new InntektsmeldingKontaktinfo(ki.getKontaktinformasjonNavn(), ki.getTelefonnummer()));
+    private Optional<KontaktinformasjonIM> trekkUtKontaktInfo(MottattDokument mottattIM) {
+        var imWrapper = MottattDokumentXmlParser.unmarshallXml(mottattIM.getPayloadXml());
+        if (imWrapper instanceof InntektsmeldingKontaktinformasjon i) {
+            return Optional.of(i.finnKontaktinformasjon());
+        }
+        return Optional.empty();
     }
 
     private Optional<MottattDokument> finnMotattXML(List<MottattDokument> dokumenter, Inntektsmelding im) {

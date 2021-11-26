@@ -10,6 +10,8 @@ import javax.xml.bind.JAXBElement;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentWrapper;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.InntektsmeldingKontaktinformasjon;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.KontaktinformasjonIM;
 import no.seres.xsd.nav.inntektsmelding_m._201812.InntektsmeldingConstants;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsforhold;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsgiver;
@@ -19,6 +21,7 @@ import no.seres.xsd.nav.inntektsmelding_m._20181211.GjenopptakelseNaturalytelseL
 import no.seres.xsd.nav.inntektsmelding_m._20181211.GraderingIForeldrepenger;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.GraderingIForeldrepengerListe;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.InntektsmeldingM;
+import no.seres.xsd.nav.inntektsmelding_m._20181211.Kontaktinformasjon;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.NaturalytelseDetaljer;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.OpphoerAvNaturalytelseListe;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Periode;
@@ -26,7 +29,7 @@ import no.seres.xsd.nav.inntektsmelding_m._20181211.Refusjon;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.UtsettelseAvForeldrepenger;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.UtsettelseAvForeldrepengerListe;
 
-public class InntektsmeldingWrapper extends MottattDokumentWrapper<InntektsmeldingM> {
+public class InntektsmeldingWrapper extends MottattDokumentWrapper<InntektsmeldingM> implements InntektsmeldingKontaktinformasjon {
 
 
     public InntektsmeldingWrapper(InntektsmeldingM skjema) {
@@ -64,6 +67,14 @@ public class InntektsmeldingWrapper extends MottattDokumentWrapper<Inntektsmeldi
 
     public Optional<Arbeidsgiver> getArbeidsgiver() {
         return Optional.ofNullable(getSkjema().getSkjemainnhold().getArbeidsgiver()).map(JAXBElement::getValue);
+    }
+
+    @Override
+    public KontaktinformasjonIM finnKontaktinformasjon() {
+        var kontaktinfo = Optional.ofNullable(getSkjema().getSkjemainnhold().getArbeidsgiver()).map(JAXBElement::getValue).map(Arbeidsgiver::getKontaktinformasjon);
+        var navn = kontaktinfo.map(Kontaktinformasjon::getKontaktinformasjonNavn).orElse("Kontaktperson ikke oppgitt");
+        var nummer = kontaktinfo.map(Kontaktinformasjon::getTelefonnummer).orElse("Telefonnummer ikke oppgitt");
+        return new KontaktinformasjonIM(navn, nummer);
     }
 
     public Optional<ArbeidsgiverPrivat> getArbeidsgiverPrivat() {

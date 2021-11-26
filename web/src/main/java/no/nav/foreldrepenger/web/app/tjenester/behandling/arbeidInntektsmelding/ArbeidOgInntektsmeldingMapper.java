@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.KontaktinformasjonIM;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -35,16 +36,17 @@ public class ArbeidOgInntektsmeldingMapper {
 
     public static InntektsmeldingDto mapInntektsmelding(Inntektsmelding im,
                                                         Collection<ArbeidsforholdReferanse> referanser,
-                                                        Optional<InntektsmeldingKontaktinfo> kontaktinfo) {
+                                                        Optional<KontaktinformasjonIM> kontaktinfo) {
         return new InntektsmeldingDto(
             fraBeløp(im.getInntektBeløp()),
             fraBeløp(im.getRefusjonBeløpPerMnd()),
             im.getArbeidsgiver().getIdentifikator(),
             finnEksternRef(im.getArbeidsforholdRef(), referanser).orElse(null),
             im.getArbeidsforholdRef().getReferanse(),
-            kontaktinfo.map(InntektsmeldingKontaktinfo::kontaktperson).orElse(null),
-            kontaktinfo.map(InntektsmeldingKontaktinfo::telefonnummer).orElse(null),
-            im.getMottattDato());
+            kontaktinfo.map(KontaktinformasjonIM::kontaktPerson).orElse(null),
+            kontaktinfo.map(KontaktinformasjonIM::kontaktTelefonNummer).orElse(null),
+            im.getMottattDato(),
+            im.getInnsendingstidspunkt());
     }
 
     private static BigDecimal fraBeløp(Beløp beløp) {
