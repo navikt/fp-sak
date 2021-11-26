@@ -4,6 +4,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.ArbeidOgInntektsmeldingDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.ArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.InntektDto;
@@ -32,6 +33,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
 
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private MottatteDokumentRepository mottatteDokumentRepository;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     ArbeidOgInntektsmeldingDtoTjeneste() {
         // CDI
@@ -39,9 +41,11 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
 
     @Inject
     public ArbeidOgInntektsmeldingDtoTjeneste(InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                              MottatteDokumentRepository mottatteDokumentRepository) {
+                                              MottatteDokumentRepository mottatteDokumentRepository,
+                                              InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
     public ArbeidOgInntektsmeldingDto lagDto(BehandlingReferanse referanse) {
@@ -69,9 +73,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
     }
 
     private List<InntektsmeldingDto> mapInntektsmeldinger(InntektArbeidYtelseGrunnlag iayGrunnlag, BehandlingReferanse referanse) {
-        var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
-            .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
-            .orElse(Collections.emptyList());
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(referanse.getAktørId(), referanse.getUtledetSkjæringstidspunkt(), iayGrunnlag);
         var referanser = iayGrunnlag.getArbeidsforholdInformasjon()
             .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser)
             .orElse(Collections.emptyList());
