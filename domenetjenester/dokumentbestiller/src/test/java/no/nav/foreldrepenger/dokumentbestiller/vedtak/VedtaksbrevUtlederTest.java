@@ -115,10 +115,10 @@ public class VedtaksbrevUtlederTest {
     }
 
     @Test
-    public void skal_velge_fritekst() {
+    public void skal_velge_fritekstbrev() {
         doReturn(Vedtaksbrev.FRITEKST).when(behandlingsresultatMock).getVedtaksbrev();
         assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
-                ankeRepository)).isEqualTo(DokumentMalType.FRITEKST_DOK);
+                ankeRepository)).isEqualTo(DokumentMalType.FRITEKSTBREV);
     }
 
     @Test

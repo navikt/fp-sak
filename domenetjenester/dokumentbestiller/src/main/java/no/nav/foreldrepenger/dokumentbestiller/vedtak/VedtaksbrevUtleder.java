@@ -55,7 +55,7 @@ public class VedtaksbrevUtleder {
         DokumentMalType dokumentMal = null;
 
         if (erLagetFritekstBrev(behandlingsresultat)) {
-            dokumentMal = DokumentMalType.FRITEKST_DOK;
+            dokumentMal = Environment.current().isProd() ? DokumentMalType.FRITEKSTBREV_DOK : DokumentMalType.FRITEKSTBREV;
         } else if (erRevurderingMedUendretUtfall(behandlingVedtak)) {
             dokumentMal = DokumentMalType.INGEN_ENDRING;
         } else if (erKlageBehandling(behandlingVedtak)) {

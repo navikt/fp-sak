@@ -13,12 +13,12 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum DokumentMalType implements Kodeverdi {
 
     //Fritekstbrev - tekst unntatt header og footer genereres av fpformidling
-    FRITEKST_DOK("FRITKS", "Fritekstbrev"),
     ETTERLYS_INNTEKTSMELDING_FRITEKST("INNLYS", "Etterlys inntektsmelding"),
     ANKE_BESLUTNING_OM_OPPHEVING_FRITEKST("ANKEBO", "Ankebrev om beslutning om oppheving"),
     ANKE_VEDTAK_OMGJORING_FRITEKST("VEDOGA", "Vedtak om omgjøring i ankesak"),
 
     //Dokgen
+    FRITEKSTBREV("FRITEK", "Fritekstbrev"),
     ENGANGSSTØNAD_INNVILGELSE("INNVES", "Innvilget engangsstønad"),
     ENGANGSSTØNAD_AVSLAG("AVSLES", "Avslag engangsstønad"),
     FORELDREPENGER_INNVILGELSE("INVFOR", "Innvilgelsesbrev Foreldrepenger"),
@@ -44,6 +44,8 @@ public enum DokumentMalType implements Kodeverdi {
     KLAGE_STADFESTET("KGESTA", "Vedtak om stadfestelse"),
 
     // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
+    @Deprecated
+    FRITEKSTBREV_DOK("FRITKS", "Fritekstbrev"),
     @Deprecated
     ENGANGSSTØNAD_INNVILGELSE_DOK("POSVED", "Positivt vedtaksbrev"),
     @Deprecated
