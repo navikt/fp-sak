@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.arbeidsforhold;
 import static java.util.Collections.emptyList;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -65,16 +64,15 @@ public class InntektsmeldingTjeneste {
         return hentInntektsmeldinger(behandlingId, aktørId, skjæringstidspunktForOpptjening);
     }
 
-    private List<Inntektsmelding> hentInntektsmeldinger(Long behandlingId, AktørId aktørId, LocalDate skjæringstidspunktForOpptjening) {
+    public List<Inntektsmelding> hentInntektsmeldinger(Long behandlingId, AktørId aktørId, LocalDate skjæringstidspunktForOpptjening) {
         return iayTjeneste.finnGrunnlag(behandlingId).map(g -> hentInntektsmeldinger(aktørId, skjæringstidspunktForOpptjening, g))
                 .orElse(Collections.emptyList());
     }
 
     public List<Inntektsmelding> hentInntektsmeldinger(AktørId aktørId, LocalDate skjæringstidspunktForOpptjening,
             InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
-            .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).orElse(emptyList())
-            .stream().filter(im -> ferskNok(im, skjæringstidspunktForOpptjening)).collect(Collectors.toList());
+        var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger().map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
+                .orElse(emptyList());
 
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(aktørId));
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
@@ -280,14 +278,5 @@ public class InntektsmeldingTjeneste {
                 .map(iayGrunnlag -> iayGrunnlag.getInntektsmeldinger()
                         .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).orElse(emptyList()))
                 .orElse(emptyList());
-    }
-
-    private boolean ferskNok(Inntektsmelding inntektsmelding, LocalDate skjæringstidspunkt) {
-        var tidligsteDato = skjæringstidspunkt.minusWeeks(4).minusDays(1);
-        var sisteBeregningMåned = YearMonth.from(skjæringstidspunkt.minusMonths(1));
-        var imdato = inntektsmelding.getInnsendingstidspunkt().toLocalDate();
-        return imdato.isAfter(tidligsteDato) ||
-            YearMonth.from(tidligsteDato).equals(YearMonth.from(imdato)) ||
-            sisteBeregningMåned.equals(YearMonth.from(imdato));
     }
 }

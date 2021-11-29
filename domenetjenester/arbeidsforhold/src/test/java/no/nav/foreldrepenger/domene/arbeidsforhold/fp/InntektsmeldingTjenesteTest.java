@@ -342,27 +342,6 @@ public class InntektsmeldingTjenesteTest {
 
     }
 
-    @Test
-    public void skal_ikke_ta_med_eldre_inntektsmelding() {
-        // Arrange
-        var behandling = opprettBehandling();
-        var skjæringstidspunktet = I_DAG.minusDays(1);
-        var ref = lagReferanse(behandling);
-
-        // Act
-        opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
-            DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
-            ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
-
-        lagreInntektsmelding(skjæringstidspunktet.minusMonths(2), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver2);
-        var skalAksepteres = YearMonth.from(skjæringstidspunktet.minusMonths(2)).atEndOfMonth().plusDays(1);
-        lagreInntektsmelding(skalAksepteres, behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver);
-
-        // Assert
-        assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunktet)).hasSize(1);
-
-    }
-
     private boolean erDisjonkteListerAvInntektsmeldinger(List<Inntektsmelding> imsA, List<Inntektsmelding> imsB) {
         return Collections.disjoint(
                 imsA.stream().map(Inntektsmelding::getJournalpostId).collect(Collectors.toList()),
