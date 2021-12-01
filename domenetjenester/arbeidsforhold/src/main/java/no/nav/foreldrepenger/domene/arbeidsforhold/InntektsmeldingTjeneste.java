@@ -266,8 +266,7 @@ public class InntektsmeldingTjeneste {
     }
 
     private List<Inntektsmelding> hentUtAlleInntektsmeldingeneFraBehandlingene(Collection<Long> behandlingIder) {
-        // FIXME (FC) denne burde gått rett på datalagret istd. å iterere over åpne
-        // behandlinger
+        // FIXME (FC) denne burde gått rett på datalagret istd. å iterere over åpne behandlinger
         List<Inntektsmelding> inntektsmeldinger = new ArrayList<>();
         for (var behandlingId : behandlingIder) {
             inntektsmeldinger.addAll(hentAlleInntektsmeldinger(behandlingId));
@@ -283,11 +282,17 @@ public class InntektsmeldingTjeneste {
     }
 
     private boolean ferskNok(Inntektsmelding inntektsmelding, LocalDate skjæringstidspunkt) {
-        var tidligsteDato = skjæringstidspunkt.minusWeeks(4).minusDays(1);
-        var sisteBeregningMåned = YearMonth.from(skjæringstidspunkt.minusMonths(1));
-        var imdato = inntektsmelding.getInnsendingstidspunkt().toLocalDate();
-        return imdato.isAfter(tidligsteDato) ||
-            YearMonth.from(tidligsteDato).equals(YearMonth.from(imdato)) ||
-            sisteBeregningMåned.equals(YearMonth.from(imdato));
+        if (inntektsmelding.getStartDatoPermisjon().isPresent()) {
+            var startdato = inntektsmelding.getStartDatoPermisjon().orElseThrow();
+            return startdato.isAfter(skjæringstidspunkt.minusDays(1)) ||
+                YearMonth.from(startdato).equals(YearMonth.from(skjæringstidspunkt));
+        } else {
+            var tidligsteDato = skjæringstidspunkt.minusWeeks(4).minusDays(1);
+            var sisteBeregningMåned = YearMonth.from(skjæringstidspunkt.minusMonths(1));
+            var imdato = inntektsmelding.getInnsendingstidspunkt().toLocalDate();
+            return imdato.isAfter(tidligsteDato) ||
+                YearMonth.from(tidligsteDato).equals(YearMonth.from(imdato)) ||
+                sisteBeregningMåned.equals(YearMonth.from(imdato));
+        }
     }
 }
