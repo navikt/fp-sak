@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -23,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "BeregningRefusjonOverstyring")
 @Table(name = "BG_REFUSJON_OVERSTYRING")
@@ -50,11 +52,16 @@ public class BeregningRefusjonOverstyringEntitet extends BaseEntitet {
     @OneToMany(mappedBy = "refusjonOverstyring")
     private List<BeregningRefusjonPeriodeEntitet> refusjonPerioder = new ArrayList<>();
 
+    @Convert(converter = BooleanToStringConverter.class)
+    @Column(name = "er_frist_utvidet")
+    private Boolean erFristUtvidet;
+
     public BeregningRefusjonOverstyringEntitet() {
         // Hibernate
     }
 
     public BeregningRefusjonOverstyringEntitet(BeregningRefusjonOverstyringEntitet beregningRefusjonOverstyringEntitet) {
+        this.erFristUtvidet = beregningRefusjonOverstyringEntitet.getErFristUtvidet();
         this.arbeidsgiver = beregningRefusjonOverstyringEntitet.getArbeidsgiver();
         this.førsteMuligeRefusjonFom = beregningRefusjonOverstyringEntitet.getFørsteMuligeRefusjonFom().orElse(null);
         beregningRefusjonOverstyringEntitet.getRefusjonPerioder().stream().map(BeregningRefusjonPeriodeEntitet::new)
@@ -75,6 +82,10 @@ public class BeregningRefusjonOverstyringEntitet extends BaseEntitet {
 
     public List<BeregningRefusjonPeriodeEntitet> getRefusjonPerioder() {
         return refusjonPerioder;
+    }
+
+    public Boolean getErFristUtvidet() {
+        return erFristUtvidet;
     }
 
     void leggTilBeregningRefusjonPeriode(BeregningRefusjonPeriodeEntitet beregningRefusjonPeriodeEntitet) {
@@ -111,6 +122,11 @@ public class BeregningRefusjonOverstyringEntitet extends BaseEntitet {
             return this;
         }
 
+        public BeregningRefusjonOverstyringEntitet.Builder medErFristUtvidet(Boolean erFristUtvidet) {
+            kladd.erFristUtvidet = erFristUtvidet;
+            return this;
+        }
+
 
         public BeregningRefusjonOverstyringEntitet build() {
             kladd.verifiserTilstand();
@@ -120,7 +136,10 @@ public class BeregningRefusjonOverstyringEntitet extends BaseEntitet {
 
     private void verifiserTilstand() {
         Objects.requireNonNull(arbeidsgiver, "arbeidsgiver");
-        if (førsteMuligeRefusjonFom == null && refusjonPerioder.isEmpty()) {
+        if (Boolean.TRUE.equals(erFristUtvidet)) {
+            Objects.requireNonNull(førsteMuligeRefusjonFom, "førsteMuligeRefusjonFom");
+        }
+        if (førsteMuligeRefusjonFom == null && refusjonPerioder.isEmpty() && erFristUtvidet == null) {
             throw new IllegalStateException("Objektet inneholder ingen informasjon om refusjon, ugyldig tilstand");
         }
     }

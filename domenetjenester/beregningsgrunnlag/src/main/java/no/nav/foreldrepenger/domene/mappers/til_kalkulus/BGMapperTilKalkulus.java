@@ -15,6 +15,7 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.Hjemmel;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;
 import no.nav.folketrygdloven.kalkulus.kodeverk.PeriodeÅrsak;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.Utfall;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
@@ -106,7 +107,7 @@ public class BGMapperTilKalkulus {
         builder.medArbeidsforholdRef(IAYMapperTilKalkulus.mapArbeidsforholdRef(fraFpsak.getArbeidsforholdRef()));
         builder.medArbeidsgiver(IAYMapperTilKalkulus.mapArbeidsgiver(fraFpsak.getArbeidsgiver()));
         builder.medArbeidsperiodeFom(fraFpsak.getArbeidsperiodeFom());
-        builder.medRefusjonskravPrÅr(fraFpsak.getRefusjonskravPrÅr());
+        builder.medRefusjonskravPrÅr(fraFpsak.getRefusjonskravPrÅr(), Utfall.UDEFINERT);
         builder.medSaksbehandletRefusjonPrÅr(fraFpsak.getSaksbehandletRefusjonPrÅr());
         builder.medFordeltRefusjonPrÅr(fraFpsak.getFordeltRefusjonPrÅr());
         fraFpsak.getArbeidsperiodeTom().ifPresent(builder::medArbeidsperiodeTom);

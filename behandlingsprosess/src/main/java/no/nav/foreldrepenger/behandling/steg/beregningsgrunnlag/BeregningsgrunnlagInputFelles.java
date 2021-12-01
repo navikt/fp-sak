@@ -13,9 +13,12 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagD
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektsmeldingAggregatDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektsmeldingDto;
+import no.nav.folketrygdloven.kalkulator.modell.iay.KravperioderPrArbeidsforholdDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.KravperioderMapper;
 import no.nav.foreldrepenger.domene.prosess.KalkulusKonfigInjecter;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapBehandlingRef;
@@ -104,15 +107,21 @@ public abstract class BeregningsgrunnlagInputFelles {
             iayGrunnlagDto = iayGrunnlagUtenIMDiff;
         }
 
+        List<KravperioderPrArbeidsforholdDto> kravperioder = mapKravperioder(ref, iayGrunnlag);
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
         var beregningsgrunnlagInput = new BeregningsgrunnlagInput(
                 MapBehandlingRef.mapRef(ref),
                 iayGrunnlagDto,
                 OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter.orElseThrow()),
-                IAYMapperTilKalkulus.mapRefusjonskravDatoer(refusjonskravDatoer),
+                kravperioder,
                 ytelseGrunnlag);
         kalkulusKonfigInjecter.leggTilFeatureToggles(beregningsgrunnlagInput);
         return beregningsgrunnlagInput;
+    }
+
+    private List<KravperioderPrArbeidsforholdDto> mapKravperioder(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger().map(InntektsmeldingAggregat::getAlleInntektsmeldinger).orElse(Collections.emptyList());
+        return KravperioderMapper.map(ref, inntektsmeldinger, iayGrunnlag);
     }
 
     private InntektArbeidYtelseGrunnlagDto settInntektsmeldingDiffPåIAYGrunnlag(InntektArbeidYtelseGrunnlagDto iayGrunnlagDto,
