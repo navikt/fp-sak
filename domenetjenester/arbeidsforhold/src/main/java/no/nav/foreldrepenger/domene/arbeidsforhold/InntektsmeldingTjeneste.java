@@ -282,17 +282,10 @@ public class InntektsmeldingTjeneste {
     }
 
     private boolean ferskNok(Inntektsmelding inntektsmelding, LocalDate skjæringstidspunkt) {
-        if (inntektsmelding.getStartDatoPermisjon().isPresent()) {
-            var startdato = inntektsmelding.getStartDatoPermisjon().orElseThrow();
-            return startdato.isAfter(skjæringstidspunkt.minusDays(1)) ||
-                YearMonth.from(startdato).equals(YearMonth.from(skjæringstidspunkt));
-        } else {
-            var tidligsteDato = skjæringstidspunkt.minusWeeks(4).minusDays(1);
-            var sisteBeregningMåned = YearMonth.from(skjæringstidspunkt.minusMonths(1));
-            var imdato = inntektsmelding.getInnsendingstidspunkt().toLocalDate();
-            return imdato.isAfter(tidligsteDato) ||
-                YearMonth.from(tidligsteDato).equals(YearMonth.from(imdato)) ||
-                sisteBeregningMåned.equals(YearMonth.from(imdato));
-        }
+        // Obligatorisk Startdato innfases fram mot sommer 2022. Unntak er hvis begrunnelseForReduksjonEllerIkkeUtbetalt = IkkeFravær
+        return inntektsmelding.getStartDatoPermisjon().isEmpty() ||
+            inntektsmelding.getStartDatoPermisjon()
+                .filter(s -> s.isAfter(skjæringstidspunkt.minusDays(1)) || YearMonth.from(s).equals(YearMonth.from(skjæringstidspunkt)))
+                .isPresent();
     }
 }
