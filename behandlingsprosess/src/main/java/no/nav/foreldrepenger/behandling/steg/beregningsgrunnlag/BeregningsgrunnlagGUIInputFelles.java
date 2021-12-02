@@ -17,6 +17,8 @@ import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapBehandlingRef;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OpptjeningMapperTilKalkulus;
+import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 import javax.inject.Inject;
@@ -32,16 +34,19 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
 
     @Inject
     public BeregningsgrunnlagGUIInputFelles(BehandlingRepository behandlingRepository,
                                             InntektArbeidYtelseTjeneste iayTjeneste,
                                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                            InntektsmeldingTjeneste inntektsmeldingTjeneste) {
+                                            InntektsmeldingTjeneste inntektsmeldingTjeneste,
+                                            OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste) {
         this.behandlingRepository = Objects.requireNonNull(behandlingRepository, "behandlingRepository");
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+        this.opptjeningForBeregningTjeneste = opptjeningForBeregningTjeneste;
     }
 
     protected BeregningsgrunnlagGUIInputFelles() {
@@ -81,6 +86,7 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
         var iayGrunnlagDtoUtenIMDiff = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, ref.getAktørId());
 
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
+        var opptjeningAktiviteter = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iayGrunnlag);
 
         InntektArbeidYtelseGrunnlagDto iayGrunnlagDto;
         if (!inntektsmeldingDiffDto.isEmpty()) {
@@ -95,6 +101,7 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
             iayGrunnlagDto,
             IAYMapperTilKalkulus.mapRefusjonskravDatoer(refusjonskravDatoer),
             kravperioder,
+            OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter.orElseThrow()),
             ytelseGrunnlag);
 
         // Toggles

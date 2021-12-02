@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
@@ -54,9 +55,10 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
                                               BeregningUttakTjeneste beregningUttakTjeneste,
                                               BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste,
                                               InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                              HentOgLagreBeregningsgrunnlagTjeneste hentOgLagreBeregningsgrunnlagTjeneste) {
+                                              HentOgLagreBeregningsgrunnlagTjeneste hentOgLagreBeregningsgrunnlagTjeneste,
+                                              OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste) {
         super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste,
-                inntektsmeldingTjeneste);
+                inntektsmeldingTjeneste, opptjeningForBeregningTjeneste);
         this.fagsakRelasjonRepository = Objects.requireNonNull(behandlingRepositoryProvider.getFagsakRelasjonRepository(),
                 "fagsakRelasjonRepository");
         this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;
