@@ -15,6 +15,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Set;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -23,6 +24,7 @@ public class DokumentKafkaBestiller {
     private ProsessTaskTjeneste taskTjeneste;
     private BrevHistorikkinnslag brevHistorikkinnslag;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
+    private static Set<DokumentMalType> BESTILLE_JSON_FOR_NYE_BREV = Set.of(DokumentMalType.SVANGERSKAPSPENGER_OPPHØR, DokumentMalType.SVANGERSKAPSPENGER_AVSLAG);
 
     public DokumentKafkaBestiller() {
         //CDI
@@ -39,30 +41,31 @@ public class DokumentKafkaBestiller {
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
     }
 
-    public void bestillBrevFraKafka(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
+    public void bestillBrevFraKafka(BestillBrevDto bestillBrevDto, HistorikkAktør aktør, DokumentMalType bestilleJsonForDokumentMal) {
         RevurderingVarslingÅrsak årsak = null;
         if (bestillBrevDto.getÅrsakskode() != null && !bestillBrevDto.getÅrsakskode().isEmpty()) {
             årsak = RevurderingVarslingÅrsak.fraKode(bestillBrevDto.getÅrsakskode());
         }
         var behandling = bestillBrevDto.getBehandlingUuid() == null ? behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingId())
             : behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid());
-        bestillBrev(behandling, bestillBrevDto.getBrevmalkode(), bestillBrevDto.getFritekst(), årsak, aktør);
+        bestillBrev(behandling, DokumentMalType.fraKode(bestillBrevDto.getBrevmalkode()), bestillBrevDto.getFritekst(), årsak, aktør, bestilleJsonForDokumentMal);
     }
 
-    public void bestillBrev(Behandling behandling, String dokumentMalKode, String fritekst, RevurderingVarslingÅrsak årsak, HistorikkAktør aktør) {
-        bestillBrev(behandling, DokumentMalType.fraKode(dokumentMalKode), fritekst, årsak, aktør);
-    }
-
-    public void bestillBrev(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak årsak, HistorikkAktør aktør) {
+    public void bestillBrev(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak årsak, HistorikkAktør aktør, DokumentMalType bestilleJsonForDokumentMal) {
         opprettKafkaTask(behandling, dokumentMalType, fritekst, årsak, aktør);
+
         if (!skalKunBestillesForÅLageJson(dokumentMalType)) {
             dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, dokumentMalType);
             brevHistorikkinnslag.opprettHistorikkinnslagForBestiltBrevFraKafka(aktør, behandling, dokumentMalType);
         }
+
+        if (bestilleJsonForDokumentMal != null) {
+            opprettKafkaTask(behandling, bestilleJsonForDokumentMal, null, null, aktør);
+        }
     }
 
     private boolean skalKunBestillesForÅLageJson(DokumentMalType dokumentMalType) {
-        return DokumentMalType.SVANGERSKAPSPENGER_OPPHØR.equals(dokumentMalType) && Environment.current().isProd();
+        return BESTILLE_JSON_FOR_NYE_BREV.contains(dokumentMalType) && Environment.current().isProd();
     }
 
     private void opprettKafkaTask(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak årsak, HistorikkAktør aktør) {
@@ -77,5 +80,4 @@ public class DokumentKafkaBestiller {
         prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }
-
 }

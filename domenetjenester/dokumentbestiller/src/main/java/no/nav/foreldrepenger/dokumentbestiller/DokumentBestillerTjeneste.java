@@ -8,6 +8,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.dokumentbestiller.kafka.DokumentKafkaBestiller;
+import no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder;
+import no.nav.foreldrepenger.konfig.Environment;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -51,7 +53,13 @@ public class DokumentBestillerTjeneste {
         var behandling = behandlingRepository.hentBehandling(behandlingsresultat.getBehandlingId());
         var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak,
             klageRepository, ankeRepository);
-        dokumentKafkaBestiller.bestillBrev(behandling, dokumentMal, null, null, HistorikkAktør.VEDTAKSLØSNINGEN);
+
+        //Midlertidig hack for å få generert json for nye brev som i dag er fritekstbrev i produksjon
+        DokumentMalType bestilleJsonForDokumentMal = null;
+        if (Environment.current().isProd() && (DokumentMalType.FRITEKSTBREV.equals(dokumentMal) || DokumentMalType.FRITEKSTBREV_DOK.equals(dokumentMal))) {
+            bestilleJsonForDokumentMal = VedtaksbrevUtleder.bestilleJsonForNyeBrev(behandlingVedtak, behandling, behandlingsresultat);
+        }
+        dokumentKafkaBestiller.bestillBrev(behandling, dokumentMal, null, null, HistorikkAktør.VEDTAKSLØSNINGEN, bestilleJsonForDokumentMal);
     }
 
     public void bestillDokument(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
@@ -65,6 +73,6 @@ public class DokumentBestillerTjeneste {
             brevHistorikkinnslag.opprettHistorikkinnslagForManueltBestiltBrev(aktør, behandling,
                 DokumentMalType.fraKode(bestillBrevDto.getBrevmalkode()));
         }
-        dokumentKafkaBestiller.bestillBrevFraKafka(bestillBrevDto, aktør);
+        dokumentKafkaBestiller.bestillBrevFraKafka(bestillBrevDto, aktør, null);
     }
 }

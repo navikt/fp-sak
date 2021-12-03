@@ -1,18 +1,5 @@
 package no.nav.foreldrepenger.dokumentbestiller.vedtak;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.lenient;
-
-import java.util.Optional;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -27,6 +14,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 public class VedtaksbrevUtlederTest {
@@ -150,5 +149,38 @@ public class VedtaksbrevUtlederTest {
 
         doReturn(AnkeVurdering.ANKE_OMGJOER).when(ankeVurderingResultat).getAnkeVurdering();
         assertThat(VedtaksbrevUtleder.velgAnkemal(behandling, ankeRepository)).isEqualTo(DokumentMalType.ANKE_VEDTAK_OMGJORING_FRITEKST);
+    }
+
+    @Test
+    public void skal_velge_opphør_Svp() {
+        doReturn(FagsakYtelseType.SVANGERSKAPSPENGER).when(behandling).getFagsakYtelseType();
+        doReturn(true).when(behandlingsresultatMock).isBehandlingsresultatOpphørt();
+        doReturn(VedtakResultatType.AVSLAG).when(behandlingVedtakMock).getVedtakResultatType();
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
+            ankeRepository)).isEqualTo(DokumentMalType.SVANGERSKAPSPENGER_OPPHØR);
+    }
+
+    @Test
+    public void skal_velge_avslag_Svp() {
+        doReturn(FagsakYtelseType.SVANGERSKAPSPENGER).when(behandling).getFagsakYtelseType();
+        doReturn(VedtakResultatType.AVSLAG).when(behandlingVedtakMock).getVedtakResultatType();
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
+            ankeRepository)).isEqualTo(DokumentMalType.SVANGERSKAPSPENGER_AVSLAG);
+    }
+
+    @Test
+    public void skal_velge_avslag_svp_og_bestille_json() {
+        doReturn(FagsakYtelseType.SVANGERSKAPSPENGER).when(behandling).getFagsakYtelseType();
+        doReturn(VedtakResultatType.AVSLAG).when(behandlingVedtakMock).getVedtakResultatType();
+
+       DokumentMalType bestilleJson = VedtaksbrevUtleder.bestilleJsonForNyeBrev(behandlingVedtakMock, behandling, behandlingsresultatMock);
+
+        assertThat(bestilleJson).isNotNull();
+        assertThat(bestilleJson).isEqualTo(DokumentMalType.SVANGERSKAPSPENGER_AVSLAG);
+    }
+
+    @Test
+    public void skal_ikke_bestille_json() {
+        assertThat(VedtaksbrevUtleder.bestilleJsonForNyeBrev(behandlingVedtakMock, behandling, behandlingsresultatMock)).isNull();
     }
 }
