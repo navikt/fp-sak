@@ -114,6 +114,7 @@ public final class KalkulusTilBehandlingslagerMapper {
         refusjonOverstyringerFraKalkulus.getRefusjonOverstyringer().forEach(beregningRefusjonOverstyring -> {
             var builder = BeregningRefusjonOverstyringEntitet.builder()
                 .medArbeidsgiver(KalkulusTilIAYMapper.mapArbeidsgiver(beregningRefusjonOverstyring.getArbeidsgiver()))
+                .medErFristUtvidet(beregningRefusjonOverstyring.getErFristUtvidet().orElse(null))
                 .medFørsteMuligeRefusjonFom(beregningRefusjonOverstyring.getFørsteMuligeRefusjonFom().orElse(null));
             beregningRefusjonOverstyring.getRefusjonPerioder()
                 .forEach(periode -> builder.leggTilRefusjonPeriode(mapRefusjonPeriode(periode)));

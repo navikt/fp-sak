@@ -71,7 +71,8 @@ public class BehandlingslagerTilKalkulusMapper {
             var dto = new BeregningRefusjonOverstyringDto(
                 IAYMapperTilKalkulus.mapArbeidsgiver(beregningRefusjonOverstyring.getArbeidsgiver()),
                 beregningRefusjonOverstyring.getFørsteMuligeRefusjonFom().orElse(null),
-                refusjonsperioder);
+                refusjonsperioder,
+                beregningRefusjonOverstyring.getErFristUtvidet());
             dtoBuilder.leggTilOverstyring(dto);
         });
         return dtoBuilder.build();

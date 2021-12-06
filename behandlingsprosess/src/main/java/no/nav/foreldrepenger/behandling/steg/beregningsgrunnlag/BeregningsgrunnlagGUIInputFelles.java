@@ -6,14 +6,19 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagD
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektsmeldingAggregatDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektsmeldingDto;
+import no.nav.folketrygdloven.kalkulator.modell.iay.KravperioderPrArbeidsforholdDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.KravperioderMapper;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapBehandlingRef;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OpptjeningMapperTilKalkulus;
+import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 import javax.inject.Inject;
@@ -29,16 +34,19 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
 
     @Inject
     public BeregningsgrunnlagGUIInputFelles(BehandlingRepository behandlingRepository,
                                             InntektArbeidYtelseTjeneste iayTjeneste,
                                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                            InntektsmeldingTjeneste inntektsmeldingTjeneste) {
+                                            InntektsmeldingTjeneste inntektsmeldingTjeneste,
+                                            OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste) {
         this.behandlingRepository = Objects.requireNonNull(behandlingRepository, "behandlingRepository");
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+        this.opptjeningForBeregningTjeneste = opptjeningForBeregningTjeneste;
     }
 
     protected BeregningsgrunnlagGUIInputFelles() {
@@ -78,6 +86,7 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
         var iayGrunnlagDtoUtenIMDiff = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, ref.getAktørId());
 
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
+        var opptjeningAktiviteter = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iayGrunnlag);
 
         InntektArbeidYtelseGrunnlagDto iayGrunnlagDto;
         if (!inntektsmeldingDiffDto.isEmpty()) {
@@ -86,16 +95,24 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
             iayGrunnlagDto = iayGrunnlagDtoUtenIMDiff;
         }
 
+        List<KravperioderPrArbeidsforholdDto> kravperioder = mapKravperioder(ref, iayGrunnlag);
         var input = new BeregningsgrunnlagGUIInput(
             MapBehandlingRef.mapRef(ref),
             iayGrunnlagDto,
             IAYMapperTilKalkulus.mapRefusjonskravDatoer(refusjonskravDatoer),
+            kravperioder,
+            OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter.orElseThrow()),
             ytelseGrunnlag);
 
         // Toggles
         input.leggTilToggle("visning-inntektsgrunnlag", true);
 
         return Optional.of(input);
+    }
+
+    private List<KravperioderPrArbeidsforholdDto> mapKravperioder(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger().map(InntektsmeldingAggregat::getAlleInntektsmeldinger).orElse(Collections.emptyList());
+        return KravperioderMapper.map(ref, inntektsmeldinger, iayGrunnlag);
     }
 
     private InntektArbeidYtelseGrunnlagDto settInntektsmeldingDiffPåIAYGrunnlag(InntektArbeidYtelseGrunnlagDto iayGrunnlagDto,

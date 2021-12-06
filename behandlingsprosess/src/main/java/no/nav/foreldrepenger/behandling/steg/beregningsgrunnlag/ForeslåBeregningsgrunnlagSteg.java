@@ -62,7 +62,7 @@ public class ForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
                 .collect(Collectors.toList());
 
         if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER)) {
-            boolean skalHaAksjonspunktForVurderDekningsgrad = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(input.getYtelsespesifiktGrunnlag().getDekningsgrad(input.getBeregningsgrunnlag()),
+            boolean skalHaAksjonspunktForVurderDekningsgrad = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(input.getYtelsespesifiktGrunnlag().getDekningsgrad(input.getBeregningsgrunnlag(), null),
                 getBarn(ref.getBehandlingId()));
             if (skalHaAksjonspunktForVurderDekningsgrad) {
                 aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.VURDER_DEKNINGSGRAD));

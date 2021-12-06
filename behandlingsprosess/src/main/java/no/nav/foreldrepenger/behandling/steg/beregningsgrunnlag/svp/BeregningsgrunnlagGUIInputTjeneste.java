@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.domene.mappers.til_kalkulus.TilretteleggingMapperTi
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.svp.BeregnTilrettleggingsperioderTjeneste;
+import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -31,9 +32,10 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
                                               InntektArbeidYtelseTjeneste iayTjeneste,
                                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                               BeregnTilrettleggingsperioderTjeneste tilrettleggingsperioderTjeneste,
-                                              InntektsmeldingTjeneste inntektsmeldingTjeneste) {
+                                              InntektsmeldingTjeneste inntektsmeldingTjeneste,
+                                              OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste) {
         super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste,
-                inntektsmeldingTjeneste);
+                inntektsmeldingTjeneste, opptjeningForBeregningTjeneste);
         this.tilrettleggingsperioderTjeneste = Objects.requireNonNull(tilrettleggingsperioderTjeneste, "tilrettleggingsperioderTjeneste");
     }
 
