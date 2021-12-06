@@ -74,7 +74,7 @@ public class InntektsmeldingTjeneste {
             InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).orElse(emptyList())
-            .stream().filter(im -> ferskNok(im, skjæringstidspunktForOpptjening)).collect(Collectors.toList());
+            .stream().filter(im -> kanInntektsmeldingBrukesForSkjæringstidspunkt(im, skjæringstidspunktForOpptjening)).collect(Collectors.toList());
 
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(aktørId));
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
@@ -281,11 +281,12 @@ public class InntektsmeldingTjeneste {
                 .orElse(emptyList());
     }
 
-    private boolean ferskNok(Inntektsmelding inntektsmelding, LocalDate skjæringstidspunkt) {
+    private boolean kanInntektsmeldingBrukesForSkjæringstidspunkt(Inntektsmelding inntektsmelding, LocalDate skjæringstidspunkt) {
         // Obligatorisk Startdato innfases fram mot sommer 2022. Unntak er hvis begrunnelseForReduksjonEllerIkkeUtbetalt = IkkeFravær
+        // Perioder (samme måned eller 2 uker) som godtas bør matche DokumentmottakerFelles . endringSomUtsetterStartdato()
         return inntektsmelding.getStartDatoPermisjon().isEmpty() ||
             inntektsmelding.getStartDatoPermisjon()
-                .filter(s -> s.isAfter(skjæringstidspunkt.minusDays(1)) || YearMonth.from(s).equals(YearMonth.from(skjæringstidspunkt)))
+                .filter(s -> s.isAfter(skjæringstidspunkt.minusDays(15)) || YearMonth.from(s).equals(YearMonth.from(skjæringstidspunkt)))
                 .isPresent();
     }
 }
