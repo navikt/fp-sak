@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -154,6 +155,9 @@ public class KravperioderMapper {
 
     private static List<RefusjonsperiodeDto> mapRefusjonsperioder(Inntektsmelding im, LocalDate startdatoRefusjon) {
         ArrayList<LocalDateSegment<BigDecimal>> alleSegmenter = new ArrayList<>();
+        if (im.getRefusjonOpphører() != null && im.getRefusjonOpphører().isBefore(startdatoRefusjon)) {
+            return Collections.emptyList();
+        }
         if (!(im.getRefusjonBeløpPerMnd() == null || im.getRefusjonBeløpPerMnd().getVerdi().compareTo(BigDecimal.ZERO) == 0)) {
             alleSegmenter.add(new LocalDateSegment<>(startdatoRefusjon, TIDENES_ENDE, im.getRefusjonBeløpPerMnd().getVerdi()));
         }
