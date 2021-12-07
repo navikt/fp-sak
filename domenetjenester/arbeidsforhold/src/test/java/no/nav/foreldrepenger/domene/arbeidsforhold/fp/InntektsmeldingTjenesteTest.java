@@ -342,6 +342,28 @@ public class InntektsmeldingTjenesteTest {
 
     }
 
+    @Test
+    public void skal_ikke_ta_med_eldre_inntektsmelding() {
+        // Arrange
+        var behandling = opprettBehandling();
+        var skjæringstidspunktet = I_DAG.minusDays(1);
+        var ref = lagReferanse(behandling);
+
+        // Act
+        opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
+            DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
+            ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
+
+        lagreInntektsmelding(skjæringstidspunktet.minusMonths(1).minusWeeks(2), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver, skjæringstidspunktet.minusMonths(1));
+        assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunktet)).isEmpty();
+
+        lagreInntektsmelding(skjæringstidspunktet.minusWeeks(3), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver, skjæringstidspunktet);
+
+        // Assert
+        assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunktet)).hasSize(1);
+
+    }
+
     private boolean erDisjonkteListerAvInntektsmeldinger(List<Inntektsmelding> imsA, List<Inntektsmelding> imsB) {
         return Collections.disjoint(
                 imsA.stream().map(Inntektsmelding::getJournalpostId).collect(Collectors.toList()),
@@ -354,11 +376,16 @@ public class InntektsmeldingTjenesteTest {
     }
 
     private void lagreInntektsmelding(LocalDate mottattDato, Behandling behandling, InternArbeidsforholdRef arbeidsforholdIdIntern,
-            EksternArbeidsforholdRef arbeidsforholdId, BigDecimal beløp, Arbeidsgiver arbeidsgiver) {
+                                      EksternArbeidsforholdRef arbeidsforholdId, BigDecimal beløp, Arbeidsgiver arbeidsgiver) {
+        lagreInntektsmelding(mottattDato, behandling, arbeidsforholdIdIntern, arbeidsforholdId, beløp, arbeidsgiver, I_DAG);
+    }
+
+    private void lagreInntektsmelding(LocalDate mottattDato, Behandling behandling, InternArbeidsforholdRef arbeidsforholdIdIntern,
+            EksternArbeidsforholdRef arbeidsforholdId, BigDecimal beløp, Arbeidsgiver arbeidsgiver, LocalDate startdato) {
         var journalPostId = new JournalpostId(journalpostIdInc.getAndIncrement());
 
         var inntektsmelding = InntektsmeldingBuilder.builder()
-                .medStartDatoPermisjon(I_DAG)
+                .medStartDatoPermisjon(startdato)
                 .medArbeidsgiver(arbeidsgiver)
                 .medBeløp(beløp)
                 .medNærRelasjon(false)

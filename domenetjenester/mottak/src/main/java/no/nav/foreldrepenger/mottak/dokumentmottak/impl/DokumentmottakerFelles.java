@@ -293,9 +293,10 @@ public class DokumentmottakerFelles {
         }
         var eksisterendeStartdato = eksisterendeStartdatoOpt.orElseThrow();
         var utsettelseFraStart = !søknadUtsettelseUttak.utsettelseFom().isAfter(eksisterendeStartdato);
+        // Periodene nedenfor bør matches med InntektsmeldingTjeneste . kanInntektsmeldingBrukesForSkjæringstidspunkt()
         var utsettelsePeriodeAkseptert = søknadUtsettelseUttak.uttakFom() != null &&
             (YearMonth.from(søknadUtsettelseUttak.uttakFom()).equals(YearMonth.from(eksisterendeStartdato)) ||
-                søknadUtsettelseUttak.uttakFom().isBefore(eksisterendeStartdato.plusWeeks(2))); // TODO - oppdater ifm TFP-4716
+                søknadUtsettelseUttak.uttakFom().isBefore(eksisterendeStartdato.plusWeeks(2)));
         return utsettelseFraStart && !utsettelsePeriodeAkseptert;
     }
 

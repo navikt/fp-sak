@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.arbeidsforhold;
 import static java.util.Collections.emptyList;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -64,15 +65,16 @@ public class InntektsmeldingTjeneste {
         return hentInntektsmeldinger(behandlingId, aktørId, skjæringstidspunktForOpptjening);
     }
 
-    public List<Inntektsmelding> hentInntektsmeldinger(Long behandlingId, AktørId aktørId, LocalDate skjæringstidspunktForOpptjening) {
+    private List<Inntektsmelding> hentInntektsmeldinger(Long behandlingId, AktørId aktørId, LocalDate skjæringstidspunktForOpptjening) {
         return iayTjeneste.finnGrunnlag(behandlingId).map(g -> hentInntektsmeldinger(aktørId, skjæringstidspunktForOpptjening, g))
                 .orElse(Collections.emptyList());
     }
 
     public List<Inntektsmelding> hentInntektsmeldinger(AktørId aktørId, LocalDate skjæringstidspunktForOpptjening,
             InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger().map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
-                .orElse(emptyList());
+        var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
+            .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).orElse(emptyList())
+            .stream().filter(im -> kanInntektsmeldingBrukesForSkjæringstidspunkt(im, skjæringstidspunktForOpptjening)).collect(Collectors.toList());
 
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(aktørId));
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
@@ -264,8 +266,7 @@ public class InntektsmeldingTjeneste {
     }
 
     private List<Inntektsmelding> hentUtAlleInntektsmeldingeneFraBehandlingene(Collection<Long> behandlingIder) {
-        // FIXME (FC) denne burde gått rett på datalagret istd. å iterere over åpne
-        // behandlinger
+        // FIXME (FC) denne burde gått rett på datalagret istd. å iterere over åpne behandlinger
         List<Inntektsmelding> inntektsmeldinger = new ArrayList<>();
         for (var behandlingId : behandlingIder) {
             inntektsmeldinger.addAll(hentAlleInntektsmeldinger(behandlingId));
@@ -278,5 +279,14 @@ public class InntektsmeldingTjeneste {
                 .map(iayGrunnlag -> iayGrunnlag.getInntektsmeldinger()
                         .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).orElse(emptyList()))
                 .orElse(emptyList());
+    }
+
+    private boolean kanInntektsmeldingBrukesForSkjæringstidspunkt(Inntektsmelding inntektsmelding, LocalDate skjæringstidspunkt) {
+        // Obligatorisk Startdato innfases fram mot sommer 2022. Unntak er hvis begrunnelseForReduksjonEllerIkkeUtbetalt = IkkeFravær
+        // Perioder (samme måned eller 2 uker) som godtas bør matche DokumentmottakerFelles . endringSomUtsetterStartdato()
+        return inntektsmelding.getStartDatoPermisjon().isEmpty() ||
+            inntektsmelding.getStartDatoPermisjon()
+                .filter(s -> s.isAfter(skjæringstidspunkt.minusDays(15)) || YearMonth.from(s).equals(YearMonth.from(skjæringstidspunkt)))
+                .isPresent();
     }
 }
