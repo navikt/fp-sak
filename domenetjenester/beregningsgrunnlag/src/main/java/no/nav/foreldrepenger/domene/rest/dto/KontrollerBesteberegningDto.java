@@ -7,7 +7,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-@JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_AUTOMATISK_BESTEBEREGNING_KODE)
+@JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AV_BESTEBEREGNING_KODE)
 public class KontrollerBesteberegningDto extends BekreftetAksjonspunktDto {
 
     @Valid

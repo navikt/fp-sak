@@ -11,7 +11,6 @@ import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.OPP
 import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.VURDERT_REFUSJON;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -42,7 +41,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
-import no.nav.foreldrepenger.domene.fp.BesteberegningAvvikskontrollerer;
 import no.nav.foreldrepenger.domene.input.KalkulatorStegProsesseringInputTjeneste;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.BesteberegningMapper;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KalkulusTilBehandlingslagerMapper;
@@ -189,24 +187,10 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             beregningResultatAggregat.getRegelSporingAggregat(),
             beregningResultatAggregat.getBesteberegningVurderingGrunnlag());
 
-        // Avvikskontroll
-        avvikskontrollerBesteberegning(input, nyttBg, behandlingId);
-
         beregningsgrunnlagRepository.lagre(behandlingId, nyttBg, BESTEBEREGNET);
         return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
             beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
     }
-
-    private void avvikskontrollerBesteberegning(BeregningsgrunnlagInput input, BeregningsgrunnlagEntitet nyttBg, Long behandlingId) {
-        Set<BesteberegningMånedsgrunnlagEntitet> seksBesteMnd = nyttBg.getBesteberegninggrunnlag()
-            .map(BesteberegninggrunnlagEntitet::getSeksBesteMåneder)
-            .orElse(Collections.emptySet());
-        Collection<InntektDto> inntekter = input.getIayGrunnlag().getAktørInntektFraRegister()
-            .map(AktørInntektDto::getInntekt).orElse(Collections.emptyList());
-        BesteberegningAvvikskontrollerer.finnArbeidsgivereMedAvvikendeInntekt(behandlingId, nyttBg.getSkjæringstidspunkt(), seksBesteMnd,
-            inntekter);
-    }
-
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat foreslåBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         var behandlingId = input.getKoblingReferanse().getKoblingId();

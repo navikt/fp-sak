@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.domene.modell;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -43,10 +45,14 @@ public class BesteberegninggrunnlagEntitet extends BaseEntitet {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "besteberegninggrunnlag", cascade = CascadeType.PERSIST)
     private Set<BesteberegningMånedsgrunnlagEntitet> seksBesteMåneder = new HashSet<>();
 
+    @Column(name = "avvik_belop")
+    private BigDecimal avvik;
+
     public BesteberegninggrunnlagEntitet(BesteberegninggrunnlagEntitet besteberegninggrunnlagEntitet) {
         besteberegninggrunnlagEntitet.getSeksBesteMåneder().stream()
             .map(BesteberegningMånedsgrunnlagEntitet::new)
             .forEach(this::leggTilMånedsgrunnlag);
+        this.avvik = besteberegninggrunnlagEntitet.getAvvik().orElse(null);
     }
 
     public BesteberegninggrunnlagEntitet() {
@@ -71,6 +77,11 @@ public class BesteberegninggrunnlagEntitet extends BaseEntitet {
 
     void setBeregningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlag) {
         this.beregningsgrunnlag = beregningsgrunnlag;
+    }
+
+    // Det regnes kun ut et avvik for å kontrollere hvis tredje ledd har gitt beste beregning
+    public Optional<BigDecimal> getAvvik() {
+        return Optional.ofNullable(avvik);
     }
 
     private void leggTilMånedsgrunnlag(BesteberegningMånedsgrunnlagEntitet månedsgrunnlagEntitet) {
@@ -109,6 +120,11 @@ public class BesteberegninggrunnlagEntitet extends BaseEntitet {
 
         public Builder leggTilMånedsgrunnlag(BesteberegningMånedsgrunnlagEntitet månedsgrunnlagEntitet) {
             kladd.leggTilMånedsgrunnlag(månedsgrunnlagEntitet);
+            return this;
+        }
+
+        public Builder medAvvik(BigDecimal avvik) {
+            kladd.avvik = avvik;
             return this;
         }
 

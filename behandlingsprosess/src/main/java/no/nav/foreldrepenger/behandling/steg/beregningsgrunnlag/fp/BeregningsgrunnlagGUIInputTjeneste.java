@@ -84,7 +84,7 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
 
     private static BesteberegningVurderingGrunnlag mapTilVurderinsgrunnlag(BesteberegninggrunnlagEntitet besteberegninggrunnlagEntitet) {
         return new BesteberegningVurderingGrunnlag(besteberegninggrunnlagEntitet.getSeksBesteMåneder().stream()
-            .map(BeregningsgrunnlagGUIInputTjeneste::mapTilMånedsgrunnlag).collect(Collectors.toList()));
+            .map(BeregningsgrunnlagGUIInputTjeneste::mapTilMånedsgrunnlag).collect(Collectors.toList()), besteberegninggrunnlagEntitet.getAvvik().orElse(null));
     }
 
     private static BesteberegningMånedGrunnlag mapTilMånedsgrunnlag(BesteberegningMånedsgrunnlagEntitet månedsgrunnlagEntitet) {
