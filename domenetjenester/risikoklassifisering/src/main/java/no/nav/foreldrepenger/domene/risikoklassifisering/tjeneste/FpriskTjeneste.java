@@ -10,9 +10,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
-import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.rest.LagreVurderingRequest;
-import no.nav.foreldrepenger.kontrakter.risk.kodeverk.RisikoklasseType;
-import no.nav.foreldrepenger.kontrakter.risk.v1.LagreRisikovurderingDto;
+import no.nav.foreldrepenger.kontrakter.risk.v1.LagreFaresignalVurderingDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +71,7 @@ public class FpriskTjeneste {
 
     public void sendRisikovurderingTilFprisk(UUID behandlingUuid, FaresignalVurdering faresignalVurdering) {
         Objects.requireNonNull(behandlingUuid, "behandlingUuid");
-        var request = new LagreRisikovurderingDto(behandlingUuid, no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.AVSLAG_FARESIGNAL);
+        var request = new LagreFaresignalVurderingDto(behandlingUuid, mapTilFaresignalKontrakt(faresignalVurdering));
         try {
             oidcRestClient.post(lagreVurderingEndpoint, request);
         } catch (Exception e) {
@@ -81,4 +79,15 @@ public class FpriskTjeneste {
         }
     }
 
+    private no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering mapTilFaresignalKontrakt(FaresignalVurdering faresignalVurdering) {
+        return switch (faresignalVurdering) {
+            case INNVIRKNING -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVIRKNING;
+            case INNVILGET_REDUSERT -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVILGET_REDUSERT;
+            case INNVILGET_UENDRET -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVILGET_UENDRET;
+            case AVSLAG_FARESIGNAL -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.AVSLAG_FARESIGNAL;
+            case AVSLAG_ANNET -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.AVSLAG_ANNET;
+            case INGEN_INNVIRKNING -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INGEN_INNVIRKNING;
+            case UDEFINERT -> throw new IllegalStateException("Kode UDEFINERT er ugyldig vurdering av faresignaler");
+        };
+    }
 }
