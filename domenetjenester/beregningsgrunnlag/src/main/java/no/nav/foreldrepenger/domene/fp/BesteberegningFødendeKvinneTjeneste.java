@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.BesteberegninggrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
@@ -28,6 +29,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,6 +43,8 @@ public class BesteberegningFødendeKvinneTjeneste {
         FamilieHendelseType.TERMIN);
     private static final Set<OpptjeningAktivitetType> GODKJENT_FOR_AUTOMATISK_BEREGNING = Set.of(OpptjeningAktivitetType.ARBEID,
         OpptjeningAktivitetType.SYKEPENGER, OpptjeningAktivitetType.DAGPENGER);
+    // Hvis avvik er likt eller større enn grensen skal det bli manuell kontroll av besteberegningen
+    private static final BigDecimal AVVIKSGRENSE_FOR_MANUELL_KONTROLL = BigDecimal.valueOf(50_000);
 
     private FamilieHendelseRepository familieHendelseRepository;
     private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
@@ -115,11 +119,9 @@ public class BesteberegningFødendeKvinneTjeneste {
 
     private boolean erDagpengerManueltFjernetFraBeregningen(BehandlingReferanse behandlingReferanse) {
         Optional<BeregningsgrunnlagGrunnlagEntitet> bgGrunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId());
-        bgGrunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getRegisterAktiviteter).map(BeregningAktivitetAggregatEntitet::getBeregningAktiviteter).orElse(Collections.emptyList());
         boolean harDPFraRegister = dagpengerLiggerIAktivitet(bgGrunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getRegisterAktiviteter));
         boolean harDPIGjeldendeAggregat = dagpengerLiggerIAktivitet(bgGrunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getGjeldendeAktiviteter));
-        boolean dagpengerErFjernet = harDPFraRegister && !harDPIGjeldendeAggregat;
-        return dagpengerErFjernet;
+        return harDPFraRegister && !harDPIGjeldendeAggregat;
     }
 
     private boolean dagpengerLiggerIAktivitet(Optional<BeregningAktivitetAggregatEntitet> aggregat) {
@@ -192,6 +194,15 @@ public class BesteberegningFødendeKvinneTjeneste {
             .orElse(Collections.emptyList());
         return DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(opptjeningAktiviteter, ytelser,
             skjæringstidspunkt);
+    }
+    public boolean trengerManuellKontrollAvAutomatiskBesteberegning(BehandlingReferanse behandlingReferanse) {
+        var besteberegnetAvvik = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandlingReferanse.getBehandlingId())
+            .flatMap(BeregningsgrunnlagEntitet::getBesteberegninggrunnlag)
+            .flatMap(BesteberegninggrunnlagEntitet::getAvvik);
+        if (besteberegnetAvvik.isEmpty()) {
+            return false;
+        }
+        return besteberegnetAvvik.get().compareTo(AVVIKSGRENSE_FOR_MANUELL_KONTROLL) >= 0;
     }
 
 }
