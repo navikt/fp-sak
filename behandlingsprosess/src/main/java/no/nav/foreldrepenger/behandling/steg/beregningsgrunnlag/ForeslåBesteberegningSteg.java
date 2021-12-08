@@ -61,15 +61,15 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
         if (skalBeregnesAutomatisk(ref, input)) {
             var resultat = beregningsgrunnlagKopierOgLagreTjeneste.foreslåBesteberegning(input);
             var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList());
-            aksjonspunkter.add(opprettKontrollpunkt());
+
+            if (besteberegningFødendeKvinneTjeneste.trengerManuellKontrollAvAutomatiskBesteberegning(ref)) {
+                aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_BESTEBEREGNING));
+            }
+
             return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
         }
 
         return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections.emptyList());
-    }
-
-    private AksjonspunktResultat opprettKontrollpunkt() {
-        return AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.KONTROLLER_AUTOMATISK_BESTEBEREGNING);
     }
 
     private boolean skalBeregnesAutomatisk(BehandlingReferanse ref, BeregningsgrunnlagInput input) {

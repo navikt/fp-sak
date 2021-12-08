@@ -36,6 +36,7 @@ public final class BesteberegningMapper {
             .stream()
             .map(BesteberegningMapper::mapBesteberegningMåned)
             .forEach(builder::leggTilMånedsgrunnlag);
+        builder.medAvvik(besteberegningVurderingGrunnlag.getAvvikFraFørsteLedd());
         return builder.build();
     }
 

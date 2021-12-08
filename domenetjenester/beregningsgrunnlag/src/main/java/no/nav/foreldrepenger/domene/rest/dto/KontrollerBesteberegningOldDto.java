@@ -7,18 +7,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-@JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AV_BESTEBEREGNING_KODE)
-public class KontrollerBesteberegningDto extends BekreftetAksjonspunktDto {
+@JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_AUTOMATISK_BESTEBEREGNING_KODE)
+public class KontrollerBesteberegningOldDto extends BekreftetAksjonspunktDto {
 
     @Valid
     @NotNull
     private Boolean besteberegningErKorrekt;
 
-    KontrollerBesteberegningDto() {
+    KontrollerBesteberegningOldDto() {
         // For Jackson
     }
 
-    public KontrollerBesteberegningDto(String begrunnelse, @Valid @NotNull Boolean besteberegningErKorrekt) {
+    public KontrollerBesteberegningOldDto(String begrunnelse, @Valid @NotNull Boolean besteberegningErKorrekt) {
         super(begrunnelse);
         this.besteberegningErKorrekt = besteberegningErKorrekt;
     }
