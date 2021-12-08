@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.registerinnhenting.ufo;
 
 import java.net.URI;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -49,17 +48,17 @@ public class PesysUføreKlient {
         this.endpoint = endpoint;
     }
 
-    public void hentUføreHistorikk(String fnr) {
+    public void hentUføreHistorikk(String fnr, String saksnummerTilLogging) {
         if (!ER_PROD) return;
         try {
             var request = new URIBuilder(endpoint).build();
             var response = this.oidcRestClient.get(request, this.lagHeader(fnr), HentUforehistorikkResponseDto.class);
-            LOG.info("Innhent UFO: {}", response);
+            LOG.info("Innhent UFO raw: {}", response);
             if (response != null && response.uforehistorikk() != null) {
-                LOG.info("Innhent UFO: perioder {}", response.uforehistorikk().uforeperioder().stream().map(Uføreperiode::new).collect(Collectors.toList()));
+                LOG.info("Innhent UFO saksnummer {} perioder {}", saksnummerTilLogging, response.uforehistorikk().uforeperioder().stream().map(Uføreperiode::new).toList());
             }
         } catch (Exception e) {
-            throw new IllegalArgumentException("Innhent UFO: feilet ", e);
+            throw new IllegalArgumentException("Innhent UFO feilet ", e);
         }
     }
 
