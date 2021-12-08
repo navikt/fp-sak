@@ -1,10 +1,12 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.ufo;
 
+import java.util.Date;
+
 public record UforeperiodeDto(Integer uforegrad,
-                              String uforetidspunkt,
-                              String virk,
+                              Date uforetidspunkt,
+                              Date virk,
                               UforeTypeCtiDto uforetype,
-                              String uforetidspunktTom,
-                              String ufgFom,
-                              String ufgTom) {
+                              Date uforetidspunktTom,
+                              Date ufgFom,
+                              Date ufgTom) {
 }
