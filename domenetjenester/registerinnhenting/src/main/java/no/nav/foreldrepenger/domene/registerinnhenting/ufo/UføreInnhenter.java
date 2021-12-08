@@ -55,7 +55,7 @@ public class UføreInnhenter {
             poRepository.hentOppgittAnnenPartHvisEksisterer(behandling.getId())
                 .map(OppgittAnnenPartEntitet::getAktørId)
                 .flatMap(ap -> personinfoAdapter.hentFnr(ap))
-                .ifPresent(fnr -> pesysUføreKlient.hentUføreHistorikk(fnr.getIdent()));
+                .ifPresent(fnr -> pesysUføreKlient.hentUføreHistorikk(fnr.getIdent(), behandling.getFagsak().getSaksnummer().getVerdi()));
         }
     }
 
