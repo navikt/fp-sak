@@ -275,6 +275,12 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             BehandlingStegType.VURDER_OPPTJENINGSVILKÅR, VurderingspunktType.UT, VilkårType.OPPTJENINGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OPPTJENING,
             TOTRINN, EnumSet.of(FP, SVP)),
 
+    // Midlertidig aksjonspunkt i oppstart av automatisk besteberegning så saksbehandler kan kontrolere disse
+    KONTROLLER_AUTOMATISK_BESTEBEREGNING(
+        AksjonspunktKodeDefinisjon.KONTROLLER_AUTOMATISK_BESTEBEREGNING_KODE, AksjonspunktType.MANUELL, "Kontroller den automatiske besteberegningen",
+        BehandlingStegType.FORESLÅ_BESTEBEREGNING, VurderingspunktType.UT, VilkårType.BEREGNINGSGRUNNLAGVILKÅR, SkjermlenkeType.BESTEBEREGNING,
+        ENTRINN, EnumSet.of(FP)),
+
     MANUELL_KONTROLL_AV_BESTEBEREGNING(
         AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AV_BESTEBEREGNING_KODE, AksjonspunktType.MANUELL, "Kontroller den automatiske besteberegningen",
         BehandlingStegType.FORESLÅ_BESTEBEREGNING, VurderingspunktType.UT, VilkårType.BEREGNINGSGRUNNLAGVILKÅR, SkjermlenkeType.BESTEBEREGNING,
@@ -419,8 +425,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     _5042("5042", AksjonspunktType.MANUELL, "Fastsett beregningsgrunnlag for selvstendig næringsdrivende"),
     @Deprecated
     _5045("5045", AksjonspunktType.MANUELL, "Avklar startdato for foreldrepengeperioden"),
-    @Deprecated // Erstattet av 5062
-    _5048("5048", AksjonspunktType.MANUELL, "Kontroller den automatiske besteberegningen"),
     @Deprecated
     _5050("5050", AksjonspunktType.MANUELL, "Vurder gradering på andel uten beregningsgrunnlag"),
     @Deprecated
