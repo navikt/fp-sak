@@ -84,13 +84,15 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         var sammenhengendeUttak = utsettelse2021.kreverSammenhengendeUttak(behandling);
-        var førsteUttaksdato = førsteUttaksdag(behandling, sammenhengendeUttak);
+        var førsteUttaksdatoOpt = Optional.ofNullable(førsteUttaksdag(behandling, sammenhengendeUttak));
+        var førsteUttaksdato = førsteUttaksdatoOpt.orElseGet(LocalDate::now); // Mangler grunnlag for å angi dato, bruker midlertidig dagens dato pga Dtos etc.
         var førsteUttaksdatoFødselsjustert = førsteDatoHensyntattTidligFødsel(behandling, førsteUttaksdato);
 
         var builder = Skjæringstidspunkt.builder()
             .medKreverSammenhengendeUttak(sammenhengendeUttak)
             .medFørsteUttaksdato(førsteUttaksdato)
-            .medFørsteUttaksdatoGrunnbeløp(førsteUttaksdatoFødselsjustert);
+            .medFørsteUttaksdatoGrunnbeløp(førsteUttaksdatoFødselsjustert)
+            .medFørsteUttaksdatoSøknad(førsteUttaksdatoOpt.orElse(null));
 
         var opptjening = opptjeningRepository.finnOpptjening(behandlingId);
         if (opptjening.filter(Opptjening::erOpptjeningPeriodeVilkårOppfylt).isPresent()) {
@@ -153,8 +155,8 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             return skjæringstidspunkt;
         }
         if (manglerSøknadIFørstegangsbehandling(behandling)) {
-            // Har ikke grunnlag for å avgjøre skjæringstidspunkt enda så gir midlertidig dagens dato. for at DTOer skal fungere.
-            return førsteØnskedeUttaksdagIBehandling.orElse(LocalDate.now());
+            // Har ikke grunnlag for å avgjøre skjæringstidspunkt enda
+            return førsteØnskedeUttaksdagIBehandling.orElse(null);
         }
         return førsteØnskedeUttaksdagIBehandling.orElseThrow(() -> finnerIkkeStpException(behandling.getId()));
     }

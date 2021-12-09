@@ -66,15 +66,16 @@ public class InntektsmeldingTjeneste {
     }
 
     private List<Inntektsmelding> hentInntektsmeldinger(Long behandlingId, AktørId aktørId, LocalDate skjæringstidspunktForOpptjening) {
-        return iayTjeneste.finnGrunnlag(behandlingId).map(g -> hentInntektsmeldinger(aktørId, skjæringstidspunktForOpptjening, g))
+        return iayTjeneste.finnGrunnlag(behandlingId).map(g -> hentInntektsmeldinger(aktørId, skjæringstidspunktForOpptjening, g, true))
                 .orElse(Collections.emptyList());
     }
 
     public List<Inntektsmelding> hentInntektsmeldinger(AktørId aktørId, LocalDate skjæringstidspunktForOpptjening,
-            InntektArbeidYtelseGrunnlag iayGrunnlag) {
+            InntektArbeidYtelseGrunnlag iayGrunnlag, boolean filtrerForStartdato) {
+        var datoFilterDato = Optional.ofNullable(skjæringstidspunktForOpptjening).orElseGet(LocalDate::now);
         var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).orElse(emptyList())
-            .stream().filter(im -> kanInntektsmeldingBrukesForSkjæringstidspunkt(im, skjæringstidspunktForOpptjening)).collect(Collectors.toList());
+            .stream().filter(im -> !filtrerForStartdato || kanInntektsmeldingBrukesForSkjæringstidspunkt(im, skjæringstidspunktForOpptjening)).collect(Collectors.toList());
 
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(aktørId));
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
@@ -83,8 +84,7 @@ public class InntektsmeldingTjeneste {
         if (yrkesaktiviteter.isEmpty()) {
             return inntektsmeldinger;
         }
-        return filtrerVekkInntektsmeldingPåInaktiveArbeidsforhold(filter, yrkesaktiviteter, inntektsmeldinger, skjæringstidspunktForOpptjening,
-                iayGrunnlag.getOppgittOpptjening());
+        return filtrerVekkInntektsmeldingPåInaktiveArbeidsforhold(filter, yrkesaktiviteter, inntektsmeldinger, datoFilterDato, iayGrunnlag.getOppgittOpptjening());
     }
 
     /**
