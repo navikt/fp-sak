@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -23,6 +24,8 @@ import no.nav.pdl.Doedsfall;
 import no.nav.pdl.DoedsfallResponseProjection;
 import no.nav.pdl.Foedsel;
 import no.nav.pdl.FoedselResponseProjection;
+import no.nav.pdl.Folkeregisterpersonstatus;
+import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
 import no.nav.pdl.ForelderBarnRelasjon;
 import no.nav.pdl.ForelderBarnRelasjonResponseProjection;
 import no.nav.pdl.ForelderBarnRelasjonRolle;
@@ -65,6 +68,7 @@ public class FødselTjeneste {
             .filter(b -> ForelderBarnRelasjonRolle.BARN.equals(b.getRelatertPersonsRolle()))
             .map(ForelderBarnRelasjon::getRelatertPersonsIdent)
             .map(this::fraIdent)
+            .filter(Objects::nonNull)
             .forEach(alleBarn::add);
 
         return alleBarn.stream()
@@ -100,8 +104,8 @@ public class FødselTjeneste {
         request.setIdent(barnIdent);
         var projection = new PersonResponseProjection()
                 .foedsel(new FoedselResponseProjection().foedselsdato())
-                .doedsfall(new DoedsfallResponseProjection().doedsdato());
-
+                .doedsfall(new DoedsfallResponseProjection().doedsdato())
+                .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().forenkletStatus().status());
         var barn = pdlKlient.hentPerson(request, projection);
 
         var fødselsdato = barn.getFoedsel().stream()
@@ -112,6 +116,15 @@ public class FødselTjeneste {
                 .map(Doedsfall::getDoedsdato)
                 .filter(Objects::nonNull)
                 .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+        var pdlStatus = barn.getFolkeregisterpersonstatus().stream()
+            .map(Folkeregisterpersonstatus::getStatus)
+            .findFirst().map(PersonstatusType::fraFregPersonstatus).orElse(PersonstatusType.UDEFINERT);
+
+        // Opphørte personer kan mangle fødselsdato mm. Håndtere dette + gi feil hvis fødselsdato mangler i andre tilfelle
+        if (PersonstatusType.UTPE.equals(pdlStatus) && fødselsdato == null) {
+            return null;
+        }
+
         return new FødtBarnInfo.Builder()
                 .medIdent(new PersonIdent(barnIdent))
                 .medFødselsdato(fødselsdato)
