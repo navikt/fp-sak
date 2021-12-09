@@ -46,6 +46,7 @@
     "MQGATEWAY02_HOSTNAME": "b27apvl220.preprod.local",
     "MQGATEWAY02_PORT": "1413",
     "FPRISK_RISIKOKLASSIFISERING_HENT_URL": "http://fprisk/fprisk/api/risikovurdering/hent",
+    "FPRISK_FPRISK_RISIKOKLASSIFISERING_VURDER_URL": "http://fprisk/fprisk/api/risikovurdering/lagreVurdering",
     "FPABAKUS_URL": "http://fpabakus/fpabakus",
     "ABAKUS_CALLBACK_URL": "http://fpsak.teamforeldrepenger/fpsak/api/registerdata/iay/callback",
     "FPFORDEL_BASE_URL": "http://fpfordel/fpfordel",
