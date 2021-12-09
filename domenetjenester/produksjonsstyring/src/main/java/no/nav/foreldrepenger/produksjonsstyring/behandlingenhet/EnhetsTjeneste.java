@@ -11,6 +11,9 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -20,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskre
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.nom.SkjermetPersonKlient;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
@@ -27,6 +31,8 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @ApplicationScoped
 public class EnhetsTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(EnhetsTjeneste.class);
 
     private static final String TEMAGRUPPE = Temagrupper.FAMILIEYTELSER.getOffisiellKode(); // Kodeverk Temagrupper - dekker FOR + OMS
     private static final String TEMA = Tema.FOR.getOffisiellKode(); // Kodeverk Tema
@@ -39,6 +45,7 @@ public class EnhetsTjeneste {
 
     private PersoninfoAdapter personinfoAdapter;
     private Arbeidsfordeling norgRest;
+    private SkjermetPersonKlient skjermetPersonKlient;
 
     private LocalDate sisteInnhenting = LocalDate.MIN;
     private OrganisasjonsEnhet enhetKode6;
@@ -50,9 +57,11 @@ public class EnhetsTjeneste {
 
     @Inject
     public EnhetsTjeneste(PersoninfoAdapter personinfoAdapter,
-                          @Jersey Arbeidsfordeling arbeidsfordelingRestKlient) {
+                          @Jersey Arbeidsfordeling arbeidsfordelingRestKlient,
+                          SkjermetPersonKlient skjermetPersonKlient) {
         this.personinfoAdapter = personinfoAdapter;
         this.norgRest = arbeidsfordelingRestKlient;
+        this.skjermetPersonKlient = skjermetPersonKlient;
     }
 
 
@@ -69,6 +78,8 @@ public class EnhetsTjeneste {
             (geografiskTilknytning.getDiskresjonskode() == null || Diskresjonskode.UDEFINERT.equals(geografiskTilknytning.getDiskresjonskode())))
             return tilfeldigEnhet();
 
+        personinfoAdapter.hentFnr(aktørId).ifPresent(pid -> skjermetPersonKlient.erSkjermet(pid.getIdent()));
+
         return hentEnheterFor(geografiskTilknytning.getTilknytning(), geografiskTilknytning.getDiskresjonskode(), behandlingTema).get(0);
     }
 
@@ -79,6 +90,9 @@ public class EnhetsTjeneste {
         }
         if (harNoenDiskresjonskode6(alleAktører)) {
             return Optional.of(enhetKode6);
+        }
+        if (alleAktører.stream().map(a -> personinfoAdapter.hentFnr(a)).flatMap(Optional::stream).anyMatch(p -> skjermetPersonKlient.erSkjermet(p.getIdent()))) {
+            LOG.info("FPSAK enhettjeneste skjermet person funnet");
         }
         if (finnOrganisasjonsEnhet(enhetId).isEmpty()) {
             return Optional.of(hentEnhetSjekkKunAktør(hovedAktør, behandlingTema));
