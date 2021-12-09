@@ -203,6 +203,11 @@ public class PersoninfoTjeneste {
         var familierelasjoner = mapFamilierelasjoner(person.getForelderBarnRelasjon(), person.getSivilstand());
         var adresser = mapAdresser(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse());
 
+        // Opphørte personer kan mangle fødselsdato mm. Håndtere dette + gi feil hvis fødselsdato mangler i andre tilfelle
+        if (PersonstatusType.UTPE.equals(pdlStatus) && fødselsdato == null) {
+            return null;
+        }
+
         return new Personinfo.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
                 .medNavn(person.getNavn().stream().map(PersoninfoTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse("MANGLER NAVN"))
                 .medFødselsdato(fødselsdato)
