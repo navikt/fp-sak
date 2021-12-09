@@ -64,6 +64,15 @@ public class InntektArbeidYtelseDtoMapper {
         return dto;
     }
 
+    public InntektsmeldingerDto mapInntektsmeldinger(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        if (!FagsakYtelseType.ENGANGSTØNAD.equals(ref.getFagsakYtelseType())) {
+
+            return new InntektsmeldingerDto(lagInntektsmeldingDto(ref, iayGrunnlag));
+        } else {
+            return new InntektsmeldingerDto(List.of());
+        }
+    }
+
     private void mapArbeidsforhold(InntektArbeidYtelseDto dto, BehandlingReferanse ref, UtledArbeidsforholdParametere param,
             InntektArbeidYtelseGrunnlag iayGrunnlag, SakInntektsmeldinger sakInntektsmeldinger) {
         var arbeidsforholdSet = arbeidsforholdAdministrasjonTjeneste.hentArbeidsforholdFerdigUtledet(ref, iayGrunnlag,
@@ -132,7 +141,8 @@ public class InntektArbeidYtelseDtoMapper {
 
     private List<InntektsmeldingDto> lagInntektsmeldingDto(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var dato = ref.getUtledetSkjæringstidspunkt();
-        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref.getAktørId(), dato, iayGrunnlag);
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref.getAktørId(), dato, iayGrunnlag,
+            ref.getSkjæringstidspunkt().getFørsteUttaksdatoSøknad().isPresent());
         return inntektsmeldinger.stream()
                 .map(inntektsmelding -> {
                     var virksomhet = virksomhetTjeneste.finnOrganisasjon(inntektsmelding.getArbeidsgiver().getOrgnr());

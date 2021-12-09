@@ -66,12 +66,14 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     @Override
     public Skjæringstidspunkt getSkjæringstidspunkter(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var førsteUttakSøknad = førsteØnskedeUttaksdag(behandling);
+        var førsteUttakSøknadOpt = Optional.ofNullable(førsteØnskedeUttaksdag(behandling));
+        var førsteUttakSøknad = førsteUttakSøknadOpt.orElseGet(LocalDate::now); // Mangler grunnlag for å angi dato, bruker midlertidig dagens dato pga Dtos etc.
         var skjæringstidspunkt = opptjeningRepository.finnOpptjening(behandlingId).map(o -> o.getTom().plusDays(1)).orElse(førsteUttakSøknad);
 
         return Skjæringstidspunkt.builder()
             .medFørsteUttaksdato(førsteUttakSøknad)
             .medFørsteUttaksdatoGrunnbeløp(førsteUttakSøknad)
+            .medFørsteUttaksdatoSøknad(førsteUttakSøknadOpt.orElse(null))
             .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
             .medSkjæringstidspunktOpptjening(skjæringstidspunkt)
             .medUtledetMedlemsintervall(utledYtelseintervall(behandlingId, førsteUttakSøknad))
@@ -103,8 +105,8 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             return skjæringstidspunkt;
         }
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
-            // Har ikke grunnlag for å avgjøre skjæringstidspunkt enda så gir midlertidig dagens dato. for at DTOer skal fungere.
-            return førsteUttakSøknad.orElse(LocalDate.now());
+            // Har ikke grunnlag for å avgjøre skjæringstidspunkt enda
+            return førsteUttakSøknad.orElse(null);
         }
         return førsteUttakSøknad.orElseThrow(() -> finnerIkkeStpException(behandling.getId()));
     }
