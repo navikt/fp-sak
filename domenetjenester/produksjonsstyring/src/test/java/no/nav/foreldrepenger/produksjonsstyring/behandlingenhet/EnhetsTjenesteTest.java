@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.nom.SkjermetPersonKlient;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
@@ -48,11 +49,13 @@ public class EnhetsTjenesteTest {
     private PersoninfoAdapter personinfoAdapter;
     @Mock
     private Arbeidsfordeling arbeidsfordelingTjeneste;
+    @Mock
+    private SkjermetPersonKlient skjermetPersonKlient;
     private EnhetsTjeneste enhetsTjeneste;
 
     @BeforeEach
     public void oppsett() {
-        enhetsTjeneste = new EnhetsTjeneste(personinfoAdapter, arbeidsfordelingTjeneste);
+        enhetsTjeneste = new EnhetsTjeneste(personinfoAdapter, arbeidsfordelingTjeneste, skjermetPersonKlient);
     }
 
     @Test
