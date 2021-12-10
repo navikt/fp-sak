@@ -241,6 +241,12 @@ class BeregningsgrunnlagDiffSjekker {
             .equals(forrigeArbeidsforhold.erLønnsendringIBeregningsperioden())) {
             return true;
         }
+        if (!Objects.equals(aktivArbeidsforhold.getArbeidsperiodeFom(), forrigeArbeidsforhold.getArbeidsperiodeFom())) {
+            return true;
+        }
+        if (!Objects.equals(aktivArbeidsforhold.getArbeidsperiodeTom(), forrigeArbeidsforhold.getArbeidsperiodeTom())) {
+            return true;
+        }
         return aktivArbeidsforhold.getErTidsbegrensetArbeidsforhold() != null
             && !aktivArbeidsforhold.getErTidsbegrensetArbeidsforhold()
             .equals(forrigeArbeidsforhold.getErTidsbegrensetArbeidsforhold());
