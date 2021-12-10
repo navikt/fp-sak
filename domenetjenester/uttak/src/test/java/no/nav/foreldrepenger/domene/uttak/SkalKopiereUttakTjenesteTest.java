@@ -11,6 +11,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,11 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
+import no.nav.foreldrepenger.domene.uttak.input.Barn;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
+import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
+import no.nav.foreldrepenger.domene.uttak.input.OriginalBehandling;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
@@ -88,6 +94,30 @@ class SkalKopiereUttakTjenesteTest {
         assertThat(tjeneste.skalKopiereStegResultat(uttakInput)).isFalse();
     }
 
+    @Test
+    public void endret_inntektsmelding_skal_ikke_kopiere_hvis_fødsel() {
+        var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOriginalBehandling(originalBehandling, Set.of(RE_ENDRET_INNTEKTSMELDING));
+        var behandling = scenario.lagre(repositoryProvider);
+        var termin = LocalDate.of(2021, 12, 10);
+        var søknadHendelse = FamilieHendelse.forFødsel(termin, null, List.of(new Barn()), 1);
+        var fødselsdato = termin.plusWeeks(1);
+        var bekreftetHendelse = FamilieHendelse.forFødsel(termin, fødselsdato, List.of(new Barn()), 1);
+        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag()
+            .medOriginalBehandling(new OriginalBehandling(originalBehandling.getId(), new FamilieHendelser().medSøknadHendelse(søknadHendelse)))
+            .medFamilieHendelser(new FamilieHendelser()
+                .medSøknadHendelse(søknadHendelse)
+                .medBekreftetHendelse(bekreftetHendelse)
+            );
+        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, ytelsespesifiktGrunnlag)
+            .medBehandlingÅrsaker(Set.of(RE_ENDRET_INNTEKTSMELDING));
+
+        var tjeneste = opprettTjeneste(false);
+
+        assertThat(tjeneste.skalKopiereStegResultat(uttakInput)).isFalse();
+    }
+
     private void settFørsteUttaksdato(LocalDate førsteUttaksdato, BehandlingReferanse behandlingReferanse) {
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         var behandlingId = behandlingReferanse.getBehandlingId();
@@ -131,7 +161,7 @@ class SkalKopiereUttakTjenesteTest {
                 årsaker);
         }
         var behandling = scenario.lagre(repositoryProvider);
-        return new UttakInput(BehandlingReferanse.fra(behandling), null, null)
+        return new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag())
             .medErOpplysningerOmDødEndret(opplysningerOmDødEndret)
             .medBehandlingÅrsaker(årsaker);
     }

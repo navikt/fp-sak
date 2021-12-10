@@ -5,6 +5,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
@@ -45,10 +46,28 @@ public class SkalKopiereUttakTjeneste {
         if (saksbehandlerHarManueltAvklartStartdato(uttakInput)) {
             return false;
         }
+        if (familiehendelseEndret(uttakInput)) {
+            return false;
+        }
         var årsaker = uttakInput.getBehandlingÅrsaker();
         return årsaker.stream()
             .allMatch(å -> å.equals(BehandlingÅrsakType.RE_SATS_REGULERING) || å.equals(
                 BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING));
+    }
+
+    private boolean familiehendelseEndret(UttakInput uttakInput) {
+        ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
+        var originalBehandling = fpGrunnlag.getOriginalBehandling();
+        if (originalBehandling.isEmpty()) {
+            return false;
+        }
+        var familieHendelseDato = fpGrunnlag.getFamilieHendelser()
+            .getGjeldendeFamilieHendelse()
+            .getFamilieHendelseDato();
+        var origFamiliehendelseDato = originalBehandling.get().getFamilieHendelser()
+            .getGjeldendeFamilieHendelse()
+            .getFamilieHendelseDato();
+        return !familieHendelseDato.isEqual(origFamiliehendelseDato);
     }
 
     private boolean saksbehandlerHarManueltAvklartStartdato(UttakInput uttakInput) {
