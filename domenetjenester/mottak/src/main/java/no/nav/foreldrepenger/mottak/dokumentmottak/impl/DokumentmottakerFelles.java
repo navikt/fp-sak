@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -69,12 +68,7 @@ public class DokumentmottakerFelles {
     }
 
     void leggTilBehandlingsårsak(Behandling behandling, BehandlingÅrsakType behandlingÅrsak) {
-        var builder = BehandlingÅrsak.builder(behandlingÅrsak);
-        behandling.getOriginalBehandlingId().ifPresent(builder::medOriginalBehandlingId);
-        builder.buildFor(behandling);
-
-        var behandlingLås = behandlingRepository.taSkriveLås(behandling);
-        behandlingRepository.lagre(behandling, behandlingLås);
+        behandlingsoppretter.leggTilBehandlingsårsak(behandling, behandlingÅrsak);
     }
 
     void opprettTaskForÅStarteBehandling(Behandling behandling) {
