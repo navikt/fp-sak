@@ -69,7 +69,6 @@ class FinnBrukersFeriepengePeriode extends LeafSpecification<BeregningsresultatF
         return switch (dekningsgrad) {
             case DEKNINGSGRAD_100 -> antallDagerFeriepenger;
             case DEKNINGSGRAD_80 -> (int) (antallDagerFeriepenger / dekningsgrad.getVerdi());
-            default -> throw new IllegalArgumentException("Ukjent dekningsgrad [" + dekningsgrad + "].");
         };
     }
 

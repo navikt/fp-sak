@@ -67,7 +67,6 @@ public final class UttakEnumMapper {
             case INNVILGET -> Perioderesultattype.INNVILGET;
             case AVSLÅTT -> Perioderesultattype.AVSLÅTT;
             case MANUELL_BEHANDLING -> Perioderesultattype.MANUELL_BEHANDLING;
-            default -> throw new IllegalStateException("Ukjent type " + periodeResultatType);
         };
     }
 
@@ -90,7 +89,6 @@ public final class UttakEnumMapper {
             case SELVSTENDIG_NÆRINGSDRIVENDE ->  AktivitetIdentifikator.forSelvstendigNæringsdrivende();
             case ANNET -> AktivitetIdentifikator.annenAktivitet();
             case ORDINÆRT_ARBEID -> AktivitetIdentifikator.forArbeid(mapArbeidTypeArbeid(arbeidsgiver), ref.getReferanse());
-            default -> throw new IllegalStateException("Ukjent uttakarbeidtype " + uttakArbeidType);
         };
     }
 
@@ -264,8 +262,6 @@ public final class UttakEnumMapper {
             case HV_OVELSE -> UttakUtsettelseType.HV_OVELSE;
             case NAV_TILTAK -> UttakUtsettelseType.NAV_TILTAK;
             case FRI -> UttakUtsettelseType.FRI;
-            default -> throw new IllegalArgumentException(
-                "Utvikler-feil: Kom ut av regel med perioderesultattype " + utsettelseårsaktype);
         };
     }
 
@@ -274,8 +270,6 @@ public final class UttakEnumMapper {
             case INNVILGET -> PeriodeResultatType.INNVILGET;
             case AVSLÅTT -> PeriodeResultatType.AVSLÅTT;
             case MANUELL_BEHANDLING -> PeriodeResultatType.MANUELL_BEHANDLING;
-            default -> throw new IllegalArgumentException(
-                "Utvikler-feil: Kom ut av regel med perioderesultattype " + perioderesultatType);
         };
     }
 
@@ -290,7 +284,6 @@ public final class UttakEnumMapper {
             case FORELDREPENGER -> StønadskontoType.FORELDREPENGER;
             case FORELDREPENGER_FØR_FØDSEL -> StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
             case FLERBARNSDAGER -> StønadskontoType.FLERBARNSDAGER;
-            default -> throw new IllegalArgumentException("Støtter ikke Stønadskontotype: " + stønadskontotype);
         };
     }
 
@@ -319,7 +312,6 @@ public final class UttakEnumMapper {
         return switch (graderingIkkeInnvilgetÅrsak) {
             case AVSLAG_PGA_SEN_SØKNAD -> GraderingAvslagÅrsak.FOR_SEN_SØKNAD;
             case AVSLAG_PGA_FOR_TIDLIG_GRADERING -> GraderingAvslagÅrsak.GRADERING_FØR_UKE_7;
-            default -> throw new IllegalArgumentException("Støtter graderingårsak " + graderingIkkeInnvilgetÅrsak);
         };
     }
 
@@ -329,7 +321,6 @@ public final class UttakEnumMapper {
             case FRILANS -> UttakArbeidType.FRILANS;
             case ARBEID -> UttakArbeidType.ORDINÆRT_ARBEID;
             case ANNET -> UttakArbeidType.ANNET;
-            default -> throw new IllegalStateException("Ukjent aktivitetstype " + aktivitetType);
         };
     }
 
@@ -361,7 +352,6 @@ public final class UttakEnumMapper {
             case I_AKTIVITET -> PeriodeMedAvklartMorsAktivitet.Resultat.I_AKTIVITET;
             case IKKE_I_AKTIVITET_DOKUMENTERT -> PeriodeMedAvklartMorsAktivitet.Resultat.IKKE_I_AKTIVITET_DOKUMENTERT;
             case IKKE_I_AKTIVITET_IKKE_DOKUMENTERT -> PeriodeMedAvklartMorsAktivitet.Resultat.IKKE_I_AKTIVITET_IKKE_DOKUMENTERT;
-            default -> throw new IllegalStateException("Ukjent type " + avklaring);
         };
     }
 }

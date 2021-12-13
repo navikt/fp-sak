@@ -71,7 +71,6 @@ public class InntektskategoriKlassekodeMapper {
             case FØDSEL -> INNTEKTSKATEGORI_KLASSEKODE_MAP_FØDSEL;
             case ADOPSJON -> INNTEKTSKATEGORI_KLASSEKODE_MAP_ADOPSJON;
             case SVANGERSKAPSPENGER -> INNTEKTSKATEGORI_KLASSEKODE_MAP_SVANGERSKAPSPENGER;
-            default -> throw new IllegalArgumentException("Støtter ikke FamilieYtelseType: " + type);
         };
     }
 }
