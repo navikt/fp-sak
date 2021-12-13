@@ -85,7 +85,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
             .orElse(Collections.emptyList());
         var motatteDokumenter = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(referanse.getFagsakId());
         var alleInntektsmeldingerFraArkiv = dokumentArkivTjeneste.hentAlleDokumenterForVisning(referanse.getSaksnummer()).stream()
-            .filter(dok -> dok.getHovedDokument() != null && dok.getHovedDokument().getDokumentType().erInntektsmelding())
+            .filter(this::gjelderInntektsmelding)
             .collect(Collectors.toList());
         return inntektsmeldinger.stream().map(im -> {
                 var dokumentId = finnDokumentId(im.getJournalpostId(), alleInntektsmeldingerFraArkiv);
@@ -93,6 +93,11 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
                 return ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, referanser, kontaktinfo, dokumentId);
             })
             .collect(Collectors.toList());
+    }
+
+    private boolean gjelderInntektsmelding(ArkivJournalPost dok) {
+        return dok.getHovedDokument() != null && dok.getHovedDokument().getDokumentType() != null &&
+            dok.getHovedDokument().getDokumentType().erInntektsmelding();
     }
 
     private Optional<String> finnDokumentId(JournalpostId journalpostId, List<ArkivJournalPost> alleInntektsmeldingerFraArkiv) {
