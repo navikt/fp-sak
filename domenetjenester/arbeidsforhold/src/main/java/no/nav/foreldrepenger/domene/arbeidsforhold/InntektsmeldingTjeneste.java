@@ -18,6 +18,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.Ambasade;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -30,7 +31,6 @@ import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -62,22 +62,22 @@ public class InntektsmeldingTjeneste {
     public List<Inntektsmelding> hentInntektsmeldinger(BehandlingReferanse ref, LocalDate skjæringstidspunktForOpptjening) {
         var behandlingId = ref.getBehandlingId();
         var aktørId = ref.getAktørId();
-        return hentInntektsmeldinger(behandlingId, aktørId, skjæringstidspunktForOpptjening);
+        return iayTjeneste.finnGrunnlag(ref.getBehandlingId())
+            .map(g -> hentInntektsmeldinger(ref, skjæringstidspunktForOpptjening, g, true))
+            .orElse(Collections.emptyList());
     }
 
-    private List<Inntektsmelding> hentInntektsmeldinger(Long behandlingId, AktørId aktørId, LocalDate skjæringstidspunktForOpptjening) {
-        return iayTjeneste.finnGrunnlag(behandlingId).map(g -> hentInntektsmeldinger(aktørId, skjæringstidspunktForOpptjening, g, true))
-                .orElse(Collections.emptyList());
-    }
-
-    public List<Inntektsmelding> hentInntektsmeldinger(AktørId aktørId, LocalDate skjæringstidspunktForOpptjening,
+    public List<Inntektsmelding> hentInntektsmeldinger(BehandlingReferanse ref, LocalDate skjæringstidspunktForOpptjening,
             InntektArbeidYtelseGrunnlag iayGrunnlag, boolean filtrerForStartdato) {
+        var skalIkkeFiltrereStartdato = !filtrerForStartdato ||
+            !FagsakYtelseType.FORELDREPENGER.equals(ref.getFagsakYtelseType()) ||
+            ref.getSkjæringstidspunkt().kreverSammenhengendeUttak();
         var datoFilterDato = Optional.ofNullable(skjæringstidspunktForOpptjening).orElseGet(LocalDate::now);
         var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).orElse(emptyList())
-            .stream().filter(im -> !filtrerForStartdato || kanInntektsmeldingBrukesForSkjæringstidspunkt(im, skjæringstidspunktForOpptjening)).collect(Collectors.toList());
+            .stream().filter(im -> skalIkkeFiltrereStartdato || kanInntektsmeldingBrukesForSkjæringstidspunkt(im, skjæringstidspunktForOpptjening)).collect(Collectors.toList());
 
-        var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(aktørId));
+        var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(ref.getAktørId()));
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
 
         // kan ikke filtrere når det ikke finnes yrkesaktiviteter

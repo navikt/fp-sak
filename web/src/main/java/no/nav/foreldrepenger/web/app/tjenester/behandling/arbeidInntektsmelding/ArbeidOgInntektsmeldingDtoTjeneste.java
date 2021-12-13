@@ -79,7 +79,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
     }
 
     private List<InntektsmeldingDto> mapInntektsmeldinger(InntektArbeidYtelseGrunnlag iayGrunnlag, BehandlingReferanse referanse) {
-        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(referanse.getAktørId(), referanse.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(referanse, referanse.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
         var referanser = iayGrunnlag.getArbeidsforholdInformasjon()
             .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser)
             .orElse(Collections.emptyList());
