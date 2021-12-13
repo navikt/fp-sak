@@ -82,7 +82,11 @@ public class EnhetsTjeneste {
             return SKJERMET_ENHET;
         } else {
             var geografiskTilknytning = personinfoAdapter.hentGeografiskTilknytning(aktørId);
-            return geografiskTilknytning != null ? hentEnheterFor(geografiskTilknytning, behandlingTema).get(0): tilfeldigEnhet();
+            if (geografiskTilknytning == null) {
+                return tilfeldigEnhet();
+            }
+            var enheter = hentEnheterFor(geografiskTilknytning, behandlingTema);
+            return enheter.isEmpty() ? tilfeldigEnhet() : enheter.get(0);
         }
     }
 
@@ -165,6 +169,7 @@ public class EnhetsTjeneste {
             .medOppgavetype(OPPGAVETYPE)
             .medBehandlingstype(BEHANDLINGTYPE)
             .medBehandlingstema(behandlingTema.getOffisiellKode())
+            .medDiskresjonskode(null)
             .medGeografiskOmraade(geografi)
             .build();
         if (geografi == null) {
@@ -173,7 +178,7 @@ public class EnhetsTjeneste {
             restenhet = norgRest.finnEnhet(request);
         }
         return restenhet.stream()
-            .filter(r -> ENHET_TYPE_NFP.equals(r.enhetType()))
+            .filter(r -> !SPESIALENHETER.contains(r.enhetNr()))
             .map(r -> new OrganisasjonsEnhet(r.enhetNr(), r.enhetNavn()))
             .collect(Collectors.toList());
     }
