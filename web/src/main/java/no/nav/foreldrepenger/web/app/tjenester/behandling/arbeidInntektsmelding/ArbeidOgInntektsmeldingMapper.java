@@ -36,7 +36,8 @@ public class ArbeidOgInntektsmeldingMapper {
 
     public static InntektsmeldingDto mapInntektsmelding(Inntektsmelding im,
                                                         Collection<ArbeidsforholdReferanse> referanser,
-                                                        Optional<KontaktinformasjonIM> kontaktinfo) {
+                                                        Optional<KontaktinformasjonIM> kontaktinfo,
+                                                        Optional<String> dokumentId) {
         return new InntektsmeldingDto(
             fraBeløp(im.getInntektBeløp()),
             fraBeløp(im.getRefusjonBeløpPerMnd()),
@@ -45,6 +46,8 @@ public class ArbeidOgInntektsmeldingMapper {
             im.getArbeidsforholdRef().getReferanse(),
             kontaktinfo.map(KontaktinformasjonIM::kontaktPerson).orElse(null),
             kontaktinfo.map(KontaktinformasjonIM::kontaktTelefonNummer).orElse(null),
+            im.getJournalpostId() != null ? im.getJournalpostId().getVerdi() : null,
+            dokumentId.orElse(null),
             im.getMottattDato(),
             im.getInnsendingstidspunkt());
     }
