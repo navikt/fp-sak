@@ -2,9 +2,12 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.risikoklassifisering;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
+import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.FpriskTjeneste;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +25,11 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class VurderFaresignalerOppdatererUtvidetTest extends EntityManagerAwareTest {
 
     private RisikoklassifiseringRepository risikoklassifiseringRepository;
@@ -33,6 +40,9 @@ public class VurderFaresignalerOppdatererUtvidetTest extends EntityManagerAwareT
 
     private VurderFaresignalerOppdaterer vurderFaresignalerOppdaterer;
 
+    @Mock
+    FpriskTjeneste fpriskTjeneste;
+
     @BeforeEach
     public void setup() {
         var entityManager = getEntityManager();
@@ -42,7 +52,7 @@ public class VurderFaresignalerOppdatererUtvidetTest extends EntityManagerAwareT
         var behandlingRepository = new BehandlingRepository(entityManager);
         risikoklassifiseringRepository = new RisikoklassifiseringRepository(entityManager);
         var risikovurderingTjeneste = new RisikovurderingTjeneste(risikoklassifiseringRepository, behandlingRepository,
-            null, null, null);
+            fpriskTjeneste, null, null);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagre(behandlingRepositoryProvider);
         vurderFaresignalerOppdaterer = new VurderFaresignalerOppdaterer(risikovurderingTjeneste, historikkAdapter);
