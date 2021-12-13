@@ -39,16 +39,20 @@ public class EnhetsTjeneste {
     private static final String OPPGAVETYPE = OppgaveÅrsak.BEHANDLE_SAK.getKode(); // Kodeverk Oppgavetype - NFP , uten spesialenheter
     private static final String ENHET_TYPE_NFP = "FPY"; // NOSONAR Kodeverk EnhetstyperNORG - NFP , uten spesialenheter (alt dropp behtype og filter på denne)
     private static final String BEHANDLINGTYPE = BehandlingType.FØRSTEGANGSSØKNAD.getOffisiellKode(); // Kodeverk Behandlingstype, bruker søknad
-    private static final String NK_ENHET_ID = "4292";
+    private static final String NK_ENHET_ID = "4292"; // Klageinstans
+    private static final String EA_ENHET_ID = "4883"; // Egne ansatte mfl
+    private static final String SF_ENHET_ID = "2103"; // Adressesperre
+    private static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, EA_ENHET_ID, SF_ENHET_ID);
 
     private static final OrganisasjonsEnhet KLAGE_ENHET =  new OrganisasjonsEnhet(NK_ENHET_ID, "NAV Klageinstans Midt-Norge");
+    private static final OrganisasjonsEnhet SKJERMET_ENHET =  new OrganisasjonsEnhet(EA_ENHET_ID, "NAV Familie- og pensjonsytelser Egne ansatte");
+    private static final OrganisasjonsEnhet KODE6_ENHET = new OrganisasjonsEnhet(SF_ENHET_ID, "NAV Vikafossen");
 
     private PersoninfoAdapter personinfoAdapter;
     private Arbeidsfordeling norgRest;
     private SkjermetPersonKlient skjermetPersonKlient;
 
     private LocalDate sisteInnhenting = LocalDate.MIN;
-    private OrganisasjonsEnhet enhetKode6;
     private List<OrganisasjonsEnhet> alleBehandlendeEnheter = new ArrayList<>();
 
     public EnhetsTjeneste() {
@@ -72,27 +76,27 @@ public class EnhetsTjeneste {
 
     OrganisasjonsEnhet hentEnhetSjekkKunAktør(AktørId aktørId, BehandlingTema behandlingTema) {
         oppdaterEnhetCache();
-        var geografiskTilknytning = personinfoAdapter.hentGeografiskTilknytning(aktørId);
-
-        if (geografiskTilknytning.getTilknytning() == null &&
-            (geografiskTilknytning.getDiskresjonskode() == null || Diskresjonskode.UDEFINERT.equals(geografiskTilknytning.getDiskresjonskode())))
-            return tilfeldigEnhet();
-
-        personinfoAdapter.hentFnr(aktørId).ifPresent(pid -> skjermetPersonKlient.erSkjermet(pid.getIdent()));
-
-        return hentEnheterFor(geografiskTilknytning.getTilknytning(), geografiskTilknytning.getDiskresjonskode(), behandlingTema).get(0);
+        if (harNoenDiskresjonskode6(Set.of(aktørId))) {
+            return KODE6_ENHET;
+        } else if (erNoenSkjermetPerson(Set.of(aktørId))) {
+            return SKJERMET_ENHET;
+        } else {
+            var geografiskTilknytning = personinfoAdapter.hentGeografiskTilknytning(aktørId);
+            return geografiskTilknytning != null ? hentEnheterFor(geografiskTilknytning, behandlingTema).get(0): tilfeldigEnhet();
+        }
     }
 
     Optional<OrganisasjonsEnhet> oppdaterEnhetSjekkOppgittePersoner(String enhetId, BehandlingTema behandlingTema, AktørId hovedAktør, Set<AktørId> alleAktører) {
         oppdaterEnhetCache();
-        if (enhetKode6.enhetId().equals(enhetId) || NK_ENHET_ID.equals(enhetId)) {
+        if (SPESIALENHETER.contains(enhetId)) {
             return Optional.empty();
         }
         if (harNoenDiskresjonskode6(alleAktører)) {
-            return Optional.of(enhetKode6);
+            return Optional.of(KODE6_ENHET);
         }
-        if (alleAktører.stream().map(a -> personinfoAdapter.hentFnr(a)).flatMap(Optional::stream).anyMatch(p -> skjermetPersonKlient.erSkjermet(p.getIdent()))) {
+        if (erNoenSkjermetPerson(alleAktører)) {
             LOG.info("FPSAK enhettjeneste skjermet person funnet");
+            return Optional.of(SKJERMET_ENHET);
         }
         if (finnOrganisasjonsEnhet(enhetId).isEmpty()) {
             return Optional.of(hentEnhetSjekkKunAktør(hovedAktør, behandlingTema));
@@ -106,19 +110,27 @@ public class EnhetsTjeneste {
             .anyMatch(Diskresjonskode.KODE6::equals);
     }
 
+    private boolean erNoenSkjermetPerson(Set<AktørId> aktører) {
+        return aktører.stream()
+            .map(a -> personinfoAdapter.hentFnr(a))
+            .flatMap(Optional::stream)
+            .anyMatch(p -> skjermetPersonKlient.erSkjermet(p.getIdent()));
+    }
+
     private void oppdaterEnhetCache() {
         if (sisteInnhenting.isBefore(LocalDate.now())) {
-            enhetKode6 = hentEnheterFor(null, Diskresjonskode.KODE6, BehandlingTema.UDEFINERT).get(0);
             alleBehandlendeEnheter.clear();
-            alleBehandlendeEnheter.addAll(hentEnheterFor(null, Diskresjonskode.UDEFINERT, BehandlingTema.UDEFINERT));
+            alleBehandlendeEnheter.addAll(hentEnheterFor(null, BehandlingTema.UDEFINERT));
+            alleBehandlendeEnheter.add(SKJERMET_ENHET);
             alleBehandlendeEnheter.add(KLAGE_ENHET);
+            alleBehandlendeEnheter.add(KODE6_ENHET);
             sisteInnhenting = LocalDate.now();
         }
     }
 
     private OrganisasjonsEnhet tilfeldigEnhet() {
         oppdaterEnhetCache();
-        var kanvelges = alleBehandlendeEnheter.stream().filter(e -> !KLAGE_ENHET.equals(e) && !enhetKode6.equals(e)).toList();
+        var kanvelges = alleBehandlendeEnheter.stream().filter(e -> !SPESIALENHETER.contains(e.enhetId())).toList();
         if (kanvelges.isEmpty()) {
             throw new IllegalStateException("Ingen enheter å velge mellom");
         }
@@ -132,8 +144,11 @@ public class EnhetsTjeneste {
 
     OrganisasjonsEnhet enhetsPresedens(OrganisasjonsEnhet enhetSak1, OrganisasjonsEnhet enhetSak2) {
         oppdaterEnhetCache();
-        if (enhetKode6.enhetId().equals(enhetSak1.enhetId()) || enhetKode6.enhetId().equals(enhetSak2.enhetId())) {
-            return enhetKode6;
+        if (KODE6_ENHET.enhetId().equals(enhetSak1.enhetId()) || KODE6_ENHET.enhetId().equals(enhetSak2.enhetId())) {
+            return KODE6_ENHET;
+        }
+        if (SKJERMET_ENHET.enhetId().equals(enhetSak1.enhetId()) || SKJERMET_ENHET.enhetId().equals(enhetSak2.enhetId())) {
+            return SKJERMET_ENHET;
         }
         return enhetSak1;
     }
@@ -142,7 +157,7 @@ public class EnhetsTjeneste {
         return KLAGE_ENHET;
     }
 
-    private List<OrganisasjonsEnhet> hentEnheterFor(String geografi, Diskresjonskode diskresjon, BehandlingTema behandlingTema) {
+    private List<OrganisasjonsEnhet> hentEnheterFor(String geografi, BehandlingTema behandlingTema) {
         List<ArbeidsfordelingResponse> restenhet;
         var request = ArbeidsfordelingRequest.ny()
             .medTemagruppe(TEMAGRUPPE)
@@ -150,15 +165,15 @@ public class EnhetsTjeneste {
             .medOppgavetype(OPPGAVETYPE)
             .medBehandlingstype(BEHANDLINGTYPE)
             .medBehandlingstema(behandlingTema.getOffisiellKode())
-            .medDiskresjonskode(diskresjon.getOffisiellKode())
             .medGeografiskOmraade(geografi)
             .build();
-        if (geografi == null && Diskresjonskode.UDEFINERT.equals(diskresjon)) {
+        if (geografi == null) {
             restenhet = norgRest.hentAlleAktiveEnheter(request);
         } else {
             restenhet = norgRest.finnEnhet(request);
         }
         return restenhet.stream()
+            .filter(r -> ENHET_TYPE_NFP.equals(r.enhetType()))
             .map(r -> new OrganisasjonsEnhet(r.enhetNr(), r.enhetNavn()))
             .collect(Collectors.toList());
     }

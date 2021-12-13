@@ -58,6 +58,7 @@
     "KODEVERK_V2_URL": "https://kodeverk.nais.adeo.no/ws/kodeverk/v2",
     "AZURE_HTTP_PROXY": "http://webproxy.nais:8088",
     "SPOKELSE_GRUNNLAG_SCOPES": "api://prod-fss.tbd.spokelse/.default",
-    "SPOKELSE_GRUNNLAG_URL": "http://spokelse.tbd/grunnlag"
+    "SPOKELSE_GRUNNLAG_URL": "http://spokelse.tbd/grunnlag",
+    "SKJERMET_PERSON_RS_URL": "http://skjermede-personer-pip.nom/skjermet"
   }
 }

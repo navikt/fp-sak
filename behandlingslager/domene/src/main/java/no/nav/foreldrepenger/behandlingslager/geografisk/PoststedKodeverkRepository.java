@@ -58,5 +58,6 @@ public class PoststedKodeverkRepository {
         postnummer.setGyldigFom(synkDato);
         postnummer.setPoststednavn("VERSJON" + versjon);
         entityManager.persist(postnummer);
+        entityManager.flush();
     }
 }

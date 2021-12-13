@@ -6,17 +6,14 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.pdl.Adressebeskyttelse;
 import no.nav.pdl.AdressebeskyttelseGradering;
 import no.nav.pdl.AdressebeskyttelseResponseProjection;
 import no.nav.pdl.GeografiskTilknytningResponseProjection;
-import no.nav.pdl.GtType;
 import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
 import no.nav.pdl.HentPersonQueryRequest;
-import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 
 @ApplicationScoped
@@ -35,7 +32,7 @@ public class TilknytningTjeneste {
         this.pdlKlient = pdlKlient;
     }
 
-    public GeografiskTilknytning hentGeografiskTilknytning(AktørId aktørId) {
+    public String hentGeografiskTilknytning(AktørId aktørId) {
 
         var queryGT = new HentGeografiskTilknytningQueryRequest();
         queryGT.setIdent(aktørId.getId());
@@ -44,9 +41,14 @@ public class TilknytningTjeneste {
 
         var geografiskTilknytning = pdlKlient.hentGT(queryGT, projectionGT);
 
-        var diskresjon = hentDiskresjonskode(aktørId);
-        var tilknytning = getTilknytning(geografiskTilknytning);
-        return new GeografiskTilknytning(tilknytning, diskresjon);
+        if (geografiskTilknytning == null || geografiskTilknytning.getGtType() == null)
+            return null;
+        return switch (geografiskTilknytning.getGtType()) {
+            case BYDEL -> geografiskTilknytning.getGtBydel();
+            case KOMMUNE -> geografiskTilknytning.getGtKommune();
+            case UTLAND -> geografiskTilknytning.getGtLand();
+            case UDEFINERT -> null;
+        };
     }
 
     public Diskresjonskode hentDiskresjonskode(AktørId aktørId) {
@@ -57,30 +59,13 @@ public class TilknytningTjeneste {
 
         var person = pdlKlient.hentPerson(query, projection);
 
-        return getDiskresjonskode(person);
-    }
-
-    private Diskresjonskode getDiskresjonskode(Person person) {
         var kode = person.getAdressebeskyttelse().stream()
-                .map(Adressebeskyttelse::getGradering)
-                .filter(g -> !AdressebeskyttelseGradering.UGRADERT.equals(g))
-                .findFirst().orElse(null);
+            .map(Adressebeskyttelse::getGradering)
+            .filter(g -> !AdressebeskyttelseGradering.UGRADERT.equals(g))
+            .findFirst().orElse(null);
         if (AdressebeskyttelseGradering.STRENGT_FORTROLIG.equals(kode) || AdressebeskyttelseGradering.STRENGT_FORTROLIG_UTLAND.equals(kode))
             return Diskresjonskode.KODE6;
         return AdressebeskyttelseGradering.FORTROLIG.equals(kode) ? Diskresjonskode.KODE7 : Diskresjonskode.UDEFINERT;
-    }
-
-    private String getTilknytning(no.nav.pdl.GeografiskTilknytning gt) {
-        if (gt == null || gt.getGtType() == null)
-            return null;
-        var gtType = gt.getGtType();
-        if (GtType.BYDEL.equals(gtType))
-            return gt.getGtBydel();
-        if (GtType.KOMMUNE.equals(gtType))
-            return gt.getGtKommune();
-        if (GtType.UTLAND.equals(gtType))
-            return gt.getGtLand();
-        return null;
     }
 
 }
