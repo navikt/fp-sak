@@ -9,7 +9,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
@@ -60,7 +59,7 @@ public class PersonInfoAdapterMock extends PersoninfoAdapter {
     }
 
     @Override
-    public GeografiskTilknytning hentGeografiskTilknytning(AktørId aktørId) {
+    public String hentGeografiskTilknytning(AktørId aktørId) {
         return null;
     }
 
