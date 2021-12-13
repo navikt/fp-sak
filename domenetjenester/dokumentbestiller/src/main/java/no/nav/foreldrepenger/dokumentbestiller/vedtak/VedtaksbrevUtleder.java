@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 
 public class VedtaksbrevUtleder {
@@ -116,7 +115,7 @@ public class VedtaksbrevUtleder {
         return FagsakYtelseType.FORELDREPENGER.equals(ytelse) ?
             velgForeldrepengerPositivtVedtaksmal(behandlingsresultat) : FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) ?
             DokumentMalType.ENGANGSSTØNAD_INNVILGELSE : FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelse) ?
-            Environment.current().isProd() ? DokumentMalType.SVANGERSKAPSPENGER_INNVILGELSE_FRITEKST : DokumentMalType.SVANGERSKAPSPENGER_INNVILGELSE : null;
+            DokumentMalType.SVANGERSKAPSPENGER_INNVILGELSE : null;
     }
 
     private static DokumentMalType velgForeldrepengerPositivtVedtaksmal(Behandlingsresultat behandlingsresultat) {
