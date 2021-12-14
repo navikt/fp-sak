@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,7 +15,6 @@ import no.nav.foreldrepenger.kontrakter.risk.v1.LagreFaresignalVurderingDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.rest.FaresignalerRequest;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.rest.FaresignalerRespons;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
@@ -27,11 +27,11 @@ public class FpriskTjeneste {
     private static final long CACHE_ELEMENT_LIVE_TIME_MS = TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS);
     private LRUCache<String, FaresignalerRespons> faresignalerCache = new LRUCache<>(1000, CACHE_ELEMENT_LIVE_TIME_MS);
 
-    private static final String ENDPOINT_KEY_HENT = "fprisk.risikoklassifisering.hent.url";
-    private static final String ENDPOINT_KEY_VURDER = "fprisk.risikoklassifisering.vurder.url";
+    private static final String ENDPOINT_FPRISK = "fprisk.url";
 
-    private URI hentEndpoint;
+    private URI fpriskEndpoint;
     private URI lagreVurderingEndpoint;
+    private URI hentRisikoklassifiseringEndpoint;
     private OidcRestClient oidcRestClient;
 
     FpriskTjeneste() {
@@ -39,12 +39,12 @@ public class FpriskTjeneste {
     }
 
     @Inject
-    public FpriskTjeneste(@KonfigVerdi(ENDPOINT_KEY_HENT) URI hentEndpoint,
-                          @KonfigVerdi(ENDPOINT_KEY_VURDER) URI lagreVurderingEndpoint,
+    public FpriskTjeneste(@KonfigVerdi(ENDPOINT_FPRISK) URI fpriskEndpoint,
                           OidcRestClient oidcRestClient) {
         this.oidcRestClient = oidcRestClient;
-        this.hentEndpoint = hentEndpoint;
-        this.lagreVurderingEndpoint = lagreVurderingEndpoint;
+        this.fpriskEndpoint = fpriskEndpoint;
+        this.hentRisikoklassifiseringEndpoint = toUri("api/risikovurdering/hent");
+        this.lagreVurderingEndpoint = toUri("api/risikovurdering/lagreVurdering");
     }
 
     public Optional<FaresignalerRespons> hentFaresignalerForBehandling(UUID behandlingUuid) {
@@ -55,10 +55,9 @@ public class FpriskTjeneste {
             return Optional.of(faresignalerCache.get(uuidString));
         }
 
-        var request = new FaresignalerRequest();
-        request.setKonsumentId(behandlingUuid);
+        var request = new FaresignalerRequest(behandlingUuid);
         try {
-            var respons = oidcRestClient.post(hentEndpoint, request, FaresignalerRespons.class);
+            var respons = oidcRestClient.post(hentRisikoklassifiseringEndpoint, request, FaresignalerRespons.class);
             if (respons != null && respons.getRisikoklasse() != null) {
                 faresignalerCache.put(uuidString, respons);
             }
@@ -90,4 +89,15 @@ public class FpriskTjeneste {
             case UDEFINERT -> throw new IllegalStateException("Kode UDEFINERT er ugyldig vurdering av faresignaler");
         };
     }
+
+    private URI toUri(String path) {
+        var uri = fpriskEndpoint.toString() + path;
+        try {
+            return new URI(uri);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Ugyldig uri: " + uri, e);
+        }
+    }
+
+    private static record FaresignalerRequest(UUID konsumentId){}
 }
