@@ -1,20 +1,19 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum DokumentMalType implements Kodeverdi {
 
     //Fritekstbrev - tekst unntatt header og footer genereres av fpformidling
     ETTERLYS_INNTEKTSMELDING_FRITEKST("INNLYS", "Etterlys inntektsmelding"),
-    ANKE_BESLUTNING_OM_OPPHEVING_FRITEKST("ANKEBO", "Ankebrev om beslutning om oppheving"),
-    ANKE_VEDTAK_OMGJORING_FRITEKST("VEDOGA", "Vedtak om omgjøring i ankesak"),
 
     //Dokgen
     FRITEKSTBREV("FRITEK", "Fritekstbrev"),
@@ -42,6 +41,8 @@ public enum DokumentMalType implements Kodeverdi {
     KLAGE_OMGJORT("KGEOMG", "Vedtak om omgjøring av klage"),
     KLAGE_OVERSENDT("KGEOVE", "Klage oversendt til klageinstans"),
     KLAGE_STADFESTET("KGESTA", "Vedtak om stadfestelse"),
+    ANKE_OMGJORT("ANKOMG", "Vedtak om omgjøring i ankesak"),
+    ANKE_OPPHEVET("ANKOPP", "Ankebrev om beslutning om oppheving"),
 
     // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
     @Deprecated
@@ -98,6 +99,10 @@ public enum DokumentMalType implements Kodeverdi {
     KLAGE_STADFESTET_DOK("KLAGVE", "Vedtak om stadfestelse"),
     @Deprecated
     KLAGE_STADFESTET_FRITEKST("KSTADF", "Vedtak om stadfestelse"),
+    @Deprecated
+    ANKE_OMGJORT_FRITEKST("VEDOGA", "Vedtak om omgjøring i ankesak"),
+    @Deprecated
+    ANKE_OPPHEVET_FRITEKST("ANKEBO", "Ankebrev om beslutning om oppheving"),
     ;
 
     private static final Map<String, DokumentMalType> KODER = new LinkedHashMap<>();

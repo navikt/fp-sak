@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 
 public class VedtaksbrevUtleder {
@@ -155,10 +156,10 @@ public class VedtaksbrevUtleder {
         var ankeVurdering = ankeVurderingResultat.getAnkeVurdering();
 
         if (AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(ankeVurdering) || AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV.equals(ankeVurdering)) {
-            return DokumentMalType.ANKE_BESLUTNING_OM_OPPHEVING_FRITEKST;
+            return Environment.current().isProd() ? DokumentMalType.ANKE_OPPHEVET_FRITEKST : DokumentMalType.ANKE_OPPHEVET;
         }
         if (AnkeVurdering.ANKE_OMGJOER.equals(ankeVurdering)){
-            return DokumentMalType.ANKE_VEDTAK_OMGJORING_FRITEKST;
+            return Environment.current().isProd() ? DokumentMalType.ANKE_OMGJORT_FRITEKST : DokumentMalType.ANKE_OMGJORT;
         }
 
         return null;
