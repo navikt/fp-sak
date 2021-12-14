@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -28,7 +29,7 @@ public class RisikovurderingTjeneste {
 
     private RisikoklassifiseringRepository risikoklassifiseringRepository;
     private BehandlingRepository behandlingRepository;
-    private HentFaresignalerTjeneste hentFaresignalerTjeneste;
+    private FpriskTjeneste fpriskTjeneste;
     private KontrollresultatMapper kontrollresultatMapper;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
@@ -39,12 +40,12 @@ public class RisikovurderingTjeneste {
     @Inject
     public RisikovurderingTjeneste(RisikoklassifiseringRepository risikoklassifiseringRepository,
                                    BehandlingRepository behandlingRepository,
-                                   HentFaresignalerTjeneste hentFaresignalerTjeneste,
+                                   FpriskTjeneste fpriskTjeneste,
                                    KontrollresultatMapper kontrollresultatMapper,
                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.risikoklassifiseringRepository = risikoklassifiseringRepository;
         this.behandlingRepository = behandlingRepository;
-        this.hentFaresignalerTjeneste = hentFaresignalerTjeneste;
+        this.fpriskTjeneste = fpriskTjeneste;
         this.kontrollresultatMapper = kontrollresultatMapper;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }
@@ -114,8 +115,10 @@ public class RisikovurderingTjeneste {
 
     public void lagreVurderingAvFaresignalerForBehandling(Long behandlingId, FaresignalVurdering vurdering) {
         Objects.requireNonNull(behandlingId, "behandlingId");
-
         risikoklassifiseringRepository.lagreVurderingAvFaresignalerForRisikoklassifisering(vurdering, behandlingId);
+        // Send svar til fprisk
+        var behandlingUid = behandlingRepository.hentBehandling(behandlingId).getUuid();
+        fpriskTjeneste.sendRisikovurderingTilFprisk(behandlingUid, vurdering);
     }
 
     private Optional<FaresignalWrapper> lagKontrollresultatIkkeHøyRisiko(RisikoklassifiseringEntitet risikoklassifiseringEntitet) {
@@ -130,7 +133,7 @@ public class RisikovurderingTjeneste {
     }
 
     private Optional<FaresignalWrapper> hentFaresignalerForBehandling(Behandling behandling) {
-        var faresignalerRespons = hentFaresignalerTjeneste.hentFaresignalerForBehandling(behandling.getUuid());
+        var faresignalerRespons = fpriskTjeneste.hentFaresignalerForBehandling(behandling.getUuid());
         if (faresignalerRespons.isEmpty()) {
             return Optional.empty();
         }

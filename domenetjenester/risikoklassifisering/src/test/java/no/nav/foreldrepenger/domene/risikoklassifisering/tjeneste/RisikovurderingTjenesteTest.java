@@ -31,7 +31,7 @@ public class RisikovurderingTjenesteTest {
 
     private final RisikoklassifiseringRepository risikoklassifiseringRepository = mock(RisikoklassifiseringRepository.class);
 
-    private final HentFaresignalerTjeneste hentFaresignalerTjeneste = mock(HentFaresignalerTjeneste.class);
+    private final FpriskTjeneste fpriskTjeneste = mock(FpriskTjeneste.class);
 
     private final KontrollresultatMapper mapper = mock(KontrollresultatMapper.class);
 
@@ -50,7 +50,7 @@ public class RisikovurderingTjenesteTest {
         behandling = scenarioFørstegang.lagMocked();
         risikovurderingTjeneste = new RisikovurderingTjeneste(risikoklassifiseringRepository,
             behandlingRepository,
-            hentFaresignalerTjeneste,
+            fpriskTjeneste,
             mapper, behandlingskontrollTjeneste);
     }
 
@@ -122,7 +122,7 @@ public class RisikovurderingTjenesteTest {
 
         // Assert
         assertThat(faresignalWrapper).isNotPresent();
-        verifyZeroInteractions(hentFaresignalerTjeneste);
+        verifyZeroInteractions(fpriskTjeneste);
     }
 
     @Test
@@ -139,7 +139,7 @@ public class RisikovurderingTjenesteTest {
         assertThat(faresignalWrapper.get().getMedlFaresignaler()).isNull();
         assertThat(faresignalWrapper.get().getIayFaresignaler()).isNull();
         verifyZeroInteractions(mapper);
-        verifyZeroInteractions(hentFaresignalerTjeneste);
+        verifyZeroInteractions(fpriskTjeneste);
     }
 
     @Test
@@ -148,7 +148,7 @@ public class RisikovurderingTjenesteTest {
         var uuid = behandling.getUuid();
         when(risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(anyLong())).thenReturn(Optional.of(lagEntitet(Kontrollresultat.HØY)));
         var respons = new FaresignalerRespons();
-        when(hentFaresignalerTjeneste.hentFaresignalerForBehandling(uuid)).thenReturn(Optional.of(respons));
+        when(fpriskTjeneste.hentFaresignalerForBehandling(uuid)).thenReturn(Optional.of(respons));
         var wrapper = new FaresignalWrapper();
         when(mapper.fraFaresignalRespons(any())).thenReturn(wrapper);
 
@@ -157,7 +157,7 @@ public class RisikovurderingTjenesteTest {
 
         // Assert
         assertThat(faresignalWrapper).isPresent();
-        verify(hentFaresignalerTjeneste).hentFaresignalerForBehandling(uuid);
+        verify(fpriskTjeneste).hentFaresignalerForBehandling(uuid);
         verify(mapper).fraFaresignalRespons(respons);
     }
 
