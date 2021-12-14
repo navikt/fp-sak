@@ -22,7 +22,6 @@ public class KlassekodeUtleder {
                 case FØDSEL -> KodeKlassifik.FPF_REFUSJON_AG;
                 case ADOPSJON -> KodeKlassifik.FPA_REFUSJON_AG;
                 case SVANGERSKAPSPENGER -> KodeKlassifik.SVP_REFUSJON_AG;
-                default -> throw new IllegalArgumentException("Utvikler feil: Opdrag andel har ikke-støttet familie ytelse type: " + familieYtelseType);
             };
         }
         return InntektskategoriKlassekodeMapper.mapTilKlassekode(inntektskategori, familieYtelseType);
@@ -37,7 +36,6 @@ public class KlassekodeUtleder {
             case FØDSEL -> KodeKlassifik.FPF_FERIEPENGER_AG;
             case ADOPSJON -> KodeKlassifik.FPA_FERIEPENGER_AG;
             case SVANGERSKAPSPENGER -> KodeKlassifik.SVP_FERIEPENGER_AG;
-            default -> throw new IllegalArgumentException("Utvikler feil: Ikke-støttet familie ytelse type: " + familieYtelseType);
         };
     }
 

@@ -85,7 +85,6 @@ public class OpptjeningsgrunnlagAdapter {
         return switch (type) {
             case ARBEIDSFORHOLD_ID, ORG_NUMMER -> ReferanseType.ORGNR;
             case AKTØR_ID -> ReferanseType.AKTØRID;
-            default -> null;
         };
     }
 
