@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidInntektsmelding;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.InntektsmeldingDto;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
@@ -26,16 +25,16 @@ class ArbeidOgInntektsmeldingMapperTest {
         var im = lagIM("99999999", internRef, 50000, null);
         var mappetRes = ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im,
             Collections.singletonList(lagRef("99999999", internRef, ekstrernRef)),
-            Optional.of(new KontaktinformasjonIM("John Johnsen", "11111111")));
+            Optional.of(new KontaktinformasjonIM("John Johnsen", "11111111")), Optional.empty());
 
         assertThat(mappetRes).isNotNull();
-        assertThat(mappetRes.getArbeidsgiverIdent()).isEqualTo("99999999");
-        assertThat(mappetRes.getInntektPrMnd().intValue()).isEqualTo(50000);
-        assertThat(mappetRes.getRefusjonPrMnd()).isNull();
-        assertThat(mappetRes.getInternArbeidsforholdId()).isEqualTo(internRef.getReferanse());
-        assertThat(mappetRes.getEksternArbeidsforholdId()).isEqualTo("AB-001");
-        assertThat(mappetRes.getKontaktpersonNavn()).isEqualTo("John Johnsen");
-        assertThat(mappetRes.getKontaktpersonNummer()).isEqualTo("11111111");
+        assertThat(mappetRes.arbeidsgiverIdent()).isEqualTo("99999999");
+        assertThat(mappetRes.inntektPrMnd().intValue()).isEqualTo(50000);
+        assertThat(mappetRes.refusjonPrMnd()).isNull();
+        assertThat(mappetRes.internArbeidsforholdId()).isEqualTo(internRef.getReferanse());
+        assertThat(mappetRes.eksternArbeidsforholdId()).isEqualTo("AB-001");
+        assertThat(mappetRes.kontaktpersonNavn()).isEqualTo("John Johnsen");
+        assertThat(mappetRes.kontaktpersonNummer()).isEqualTo("11111111");
     }
 
     @Test
@@ -45,16 +44,16 @@ class ArbeidOgInntektsmeldingMapperTest {
         var im = lagIM("99999999", internRef, 50000, null);
         var mappetRes = ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im,
             Collections.emptyList(),
-            Optional.empty());
+            Optional.empty(), Optional.empty());
 
         assertThat(mappetRes).isNotNull();
-        assertThat(mappetRes.getArbeidsgiverIdent()).isEqualTo("99999999");
-        assertThat(mappetRes.getInntektPrMnd().intValue()).isEqualTo(50000);
-        assertThat(mappetRes.getRefusjonPrMnd()).isNull();
-        assertThat(mappetRes.getInternArbeidsforholdId()).isEqualTo(internRef.getReferanse());
-        assertThat(mappetRes.getEksternArbeidsforholdId()).isNull();
-        assertThat(mappetRes.getKontaktpersonNavn()).isNull();
-        assertThat(mappetRes.getKontaktpersonNummer()).isNull();
+        assertThat(mappetRes.arbeidsgiverIdent()).isEqualTo("99999999");
+        assertThat(mappetRes.inntektPrMnd().intValue()).isEqualTo(50000);
+        assertThat(mappetRes.refusjonPrMnd()).isNull();
+        assertThat(mappetRes.internArbeidsforholdId()).isEqualTo(internRef.getReferanse());
+        assertThat(mappetRes.eksternArbeidsforholdId()).isNull();
+        assertThat(mappetRes.kontaktpersonNavn()).isNull();
+        assertThat(mappetRes.kontaktpersonNummer()).isNull();
     }
 
     private ArbeidsforholdReferanse lagRef(String orgnr, InternArbeidsforholdRef intern, EksternArbeidsforholdRef ekstern) {
