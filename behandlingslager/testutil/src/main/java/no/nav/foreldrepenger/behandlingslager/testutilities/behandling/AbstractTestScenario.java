@@ -1045,6 +1045,10 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         return (S) this;
     }
 
+    public S medFødselAdopsjonsdato(LocalDate fødselAdopsjonDato) {
+        return medFødselAdopsjonsdato(List.of(fødselAdopsjonDato));
+    }
+
     public Fagsak getFagsak() {
         if (fagsak == null) {
             throw new IllegalStateException("Kan ikke hente Fagsak før denne er bygd");

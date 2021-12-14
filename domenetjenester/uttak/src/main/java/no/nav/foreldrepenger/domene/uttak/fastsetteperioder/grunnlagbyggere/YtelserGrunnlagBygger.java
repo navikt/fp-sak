@@ -51,7 +51,7 @@ public class YtelserGrunnlagBygger {
 
     private List<PleiepengerPeriode> slåSammenLike(List<PleiepengerPeriode> perioder) {
         var segments = perioder.stream()
-            .map(p -> new LocalDateSegment<>(p.getFom(), VirkedagUtil.tomSøndag(p.getTom()), p.isBarnInnlagt()))
+            .map(p -> new LocalDateSegment<>(p.getFom(), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), p.isBarnInnlagt()))
             .collect(Collectors.toList());
         var timeline = new LocalDateTimeline<>(segments);
 

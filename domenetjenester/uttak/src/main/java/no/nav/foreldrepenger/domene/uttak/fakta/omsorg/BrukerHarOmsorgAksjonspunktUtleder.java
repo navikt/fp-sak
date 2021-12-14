@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.uttak.fakta.omsorg;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -21,12 +20,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
+import no.nav.foreldrepenger.domene.uttak.TidsperiodeForbeholdtMor;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.fakta.FaktaUttakAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 /**
  * Aksjonspunkter for Manuell kontroll av om bruker har Omsorg
@@ -37,21 +36,15 @@ public class BrukerHarOmsorgAksjonspunktUtleder implements FaktaUttakAksjonspunk
 
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private PersonopplysningerForUttak personopplysninger;
-    private Period periodeForbeholdtMorEtterFødsel;
 
-    BrukerHarOmsorgAksjonspunktUtleder() {
-    }
-
-    /**
-     * @param periodeForbeholdtMorEtterFødsel - Antall uker forbeholdt for mor etter fødsel.
-     */
     @Inject
     public BrukerHarOmsorgAksjonspunktUtleder(UttakRepositoryProvider repositoryProvider,
-                                              PersonopplysningerForUttak personopplysninger,
-                                              @KonfigVerdi(value = "fp.periode.forbeholdt.mor.etter.fødsel", defaultVerdi = "P6W") Period periodeForbeholdtMorEtterFødsel) {
+                                              PersonopplysningerForUttak personopplysninger) {
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.personopplysninger = personopplysninger;
-        this.periodeForbeholdtMorEtterFødsel = periodeForbeholdtMorEtterFødsel;
+    }
+    BrukerHarOmsorgAksjonspunktUtleder() {
+
     }
 
     @Override
@@ -123,10 +116,9 @@ public class BrukerHarOmsorgAksjonspunktUtleder implements FaktaUttakAksjonspunk
             .orElseThrow(() -> new IllegalArgumentException("Fant ikke familiehendelsedato"));
 
         return sisteSøknadsDato.filter(
-            søknadsDato -> søknadsDato.isAfter(familiehendelseDato.plus(periodeForbeholdtMorEtterFødsel).minusDays(1)))
+            søknadsDato -> søknadsDato.isAfter(TidsperiodeForbeholdtMor.tilOgMed(familiehendelseDato)))
             .map(søknadsDato -> Utfall.JA)
             .orElse(Utfall.NEI);
-
     }
 
     private Optional<LocalDate> finnSisteSøknadsDato(YtelseFordelingAggregat ytelseFordelingAggregat) {
