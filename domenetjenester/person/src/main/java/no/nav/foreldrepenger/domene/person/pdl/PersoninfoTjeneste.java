@@ -579,7 +579,7 @@ public class PersoninfoTjeneste {
         if (HARDKODET_POSTNR.equals(postnummer)) {
             return HARDKODET_POSTSTED;
         }
-        return poststedKodeverkRepository.finnPoststed(postnummer).map(Poststed::getPoststednavn).orElse(HARDKODET_POSTSTED);
+        return poststedKodeverkRepository.finnPoststedReadOnly(postnummer).map(Poststed::getPoststednavn).orElse(HARDKODET_POSTSTED);
     }
 
     // TODO: Sjekk hva som kommer. Vurder Periodisering

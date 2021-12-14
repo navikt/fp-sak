@@ -141,7 +141,7 @@ public class InntektArbeidYtelseDtoMapper {
 
     private List<InntektsmeldingDto> lagInntektsmeldingDto(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var dato = ref.getUtledetSkjæringstidspunkt();
-        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref.getAktørId(), dato, iayGrunnlag,
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, dato, iayGrunnlag,
             ref.getSkjæringstidspunkt().getFørsteUttaksdatoSøknad().isPresent());
         return inntektsmeldinger.stream()
                 .map(inntektsmelding -> {

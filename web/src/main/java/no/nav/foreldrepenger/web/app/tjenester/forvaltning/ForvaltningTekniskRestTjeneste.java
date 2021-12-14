@@ -324,7 +324,7 @@ public class ForvaltningTekniskRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response hentPostnummer() {
-        return Response.ok(postnummerKodeverkRepository.finnPoststed("SYNK")).build();
+        return Response.ok(postnummerKodeverkRepository.finnPoststedReadOnly("SYNK")).build();
     }
 
     @POST

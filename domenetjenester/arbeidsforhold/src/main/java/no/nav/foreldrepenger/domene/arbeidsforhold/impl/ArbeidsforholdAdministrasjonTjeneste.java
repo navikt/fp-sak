@@ -103,7 +103,7 @@ public class ArbeidsforholdAdministrasjonTjeneste {
         var arbeidsgiverSetMap = vurderArbeidsforholdTjeneste.endringerIInntektsmelding(ref, iayGrunnlag,
                 sakInntektsmeldinger, ytelseType);
 
-        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref.getAktørId(), skjæringstidspunkt, iayGrunnlag, true);
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkt, iayGrunnlag, true);
 
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(aktørId));
         var filterFør = filter.før(skjæringstidspunkt);
