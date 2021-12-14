@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -9,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.core.UriBuilder;
 
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.kontrakter.risk.v1.LagreFaresignalVurderingDto;
@@ -29,7 +29,6 @@ public class FpriskTjeneste {
 
     private static final String ENDPOINT_FPRISK = "fprisk.url";
 
-    private URI fpriskEndpoint;
     private URI lagreVurderingEndpoint;
     private URI hentRisikoklassifiseringEndpoint;
     private OidcRestClient oidcRestClient;
@@ -42,9 +41,8 @@ public class FpriskTjeneste {
     public FpriskTjeneste(@KonfigVerdi(ENDPOINT_FPRISK) URI fpriskEndpoint,
                           OidcRestClient oidcRestClient) {
         this.oidcRestClient = oidcRestClient;
-        this.fpriskEndpoint = fpriskEndpoint;
-        this.hentRisikoklassifiseringEndpoint = toUri("api/risikovurdering/hent");
-        this.lagreVurderingEndpoint = toUri("api/risikovurdering/lagreVurdering");
+        this.hentRisikoklassifiseringEndpoint = toUri(fpriskEndpoint, "api/risikovurdering/hent");
+        this.lagreVurderingEndpoint = toUri(fpriskEndpoint, "api/risikovurdering/lagreVurdering");
     }
 
     public Optional<FaresignalerRespons> hentFaresignalerForBehandling(UUID behandlingUuid) {
@@ -90,12 +88,11 @@ public class FpriskTjeneste {
         };
     }
 
-    private URI toUri(String path) {
-        var uri = fpriskEndpoint.toString() + path;
+    private URI toUri(URI endpointURI, String path) {
         try {
-            return new URI(uri);
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("Ugyldig uri: " + uri, e);
+            return UriBuilder.fromUri(endpointURI).path(path).build();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Ugyldig uri: " + endpointURI + path, e);
         }
     }
 
