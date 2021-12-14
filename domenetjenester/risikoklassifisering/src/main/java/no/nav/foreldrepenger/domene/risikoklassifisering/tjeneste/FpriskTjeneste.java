@@ -41,8 +41,8 @@ public class FpriskTjeneste {
     public FpriskTjeneste(@KonfigVerdi(ENDPOINT_FPRISK) URI fpriskEndpoint,
                           OidcRestClient oidcRestClient) {
         this.oidcRestClient = oidcRestClient;
-        this.hentRisikoklassifiseringEndpoint = toUri(fpriskEndpoint, "api/risikovurdering/hent");
-        this.lagreVurderingEndpoint = toUri(fpriskEndpoint, "api/risikovurdering/lagreVurdering");
+        this.hentRisikoklassifiseringEndpoint = toUri(fpriskEndpoint, "/api/risikovurdering/hent");
+        this.lagreVurderingEndpoint = toUri(fpriskEndpoint, "/api/risikovurdering/lagreVurdering");
     }
 
     public Optional<FaresignalerRespons> hentFaresignalerForBehandling(UUID behandlingUuid) {
