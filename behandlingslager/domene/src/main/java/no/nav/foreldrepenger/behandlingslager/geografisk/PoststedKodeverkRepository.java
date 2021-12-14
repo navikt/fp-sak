@@ -33,15 +33,20 @@ public class PoststedKodeverkRepository {
 
     public List<Poststed> hentAllePostnummer() {
         var query = entityManager.createQuery("from Poststed p where poststednummer <> :postnr", Poststed.class)
-                .setParameter("postnr", SYNK_POSTNUMMER)
-                .setHint(QueryHints.HINT_READONLY, "true");
+                .setParameter("postnr", SYNK_POSTNUMMER);
         return query.getResultList();
     }
 
     public Optional<Poststed> finnPoststed(String postnummer) {
         var query = entityManager.createQuery("from Poststed p where poststednummer = :postnr", Poststed.class)
-                .setParameter("postnr", postnummer)
-                .setHint(QueryHints.HINT_READONLY, "true");
+                .setParameter("postnr", postnummer);
+        return HibernateVerktøy.hentUniktResultat(query);
+    }
+
+    public Optional<Poststed> finnPoststedReadOnly(String postnummer) {
+        var query = entityManager.createQuery("from Poststed p where poststednummer = :postnr", Poststed.class)
+            .setParameter("postnr", postnummer)
+            .setHint(QueryHints.HINT_READONLY, "true");
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
@@ -54,10 +59,21 @@ public class PoststedKodeverkRepository {
     }
 
     public void setPostnummerKodeverksDato(String versjon, LocalDate synkDato) {
-        var postnummer = finnPoststed(SYNK_POSTNUMMER).orElseGet(() -> new Poststed(SYNK_POSTNUMMER, versjon, synkDato, Tid.TIDENES_ENDE));
-        postnummer.setGyldigFom(synkDato);
-        postnummer.setPoststednavn("VERSJON" + versjon);
-        entityManager.persist(postnummer);
+        if (finnPoststed(SYNK_POSTNUMMER).isPresent()) {
+            oppdaterPostnummerKodeverkDato("VERSJON" + versjon, synkDato);
+        } else {
+            var postnummer = new Poststed(SYNK_POSTNUMMER, "VERSJON" + versjon, synkDato, Tid.TIDENES_ENDE);
+            entityManager.persist(postnummer);
+        }
         entityManager.flush();
+    }
+
+    private void oppdaterPostnummerKodeverkDato(String versjon, LocalDate synkDato) {
+        entityManager.createNativeQuery(
+                "UPDATE POSTSTED SET gyldigfom = :dato, poststednavn = :nyversjon WHERE poststednummer = :synkid")
+            .setParameter("dato", synkDato)
+            .setParameter("nyversjon", versjon)
+            .setParameter("synkid", SYNK_POSTNUMMER)
+            .executeUpdate(); //$NON-NLS-1$
     }
 }
