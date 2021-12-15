@@ -100,6 +100,10 @@ public class Kompletthetskontroller {
         vurderKompletthetForKøetBehandling(behandling);
     }
 
+    public void oppdaterKompletthetForKøetBehandling(Behandling behandling) {
+        vurderKompletthetForKøetBehandling(behandling);
+    }
+
     private void vurderKompletthetForKøetBehandling(Behandling behandling) {
         var autoPunkter = kompletthetModell.rangerKompletthetsfunksjonerKnyttetTilAutopunkt(behandling.getFagsakYtelseType(), behandling.getType());
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));

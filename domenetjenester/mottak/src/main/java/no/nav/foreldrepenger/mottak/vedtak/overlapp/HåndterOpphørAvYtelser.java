@@ -136,15 +136,12 @@ public class HåndterOpphørAvYtelser {
     }
 
     private void oppdatereBehMedÅrsak(Long behandlingId, BehandlingÅrsakType behandlingÅrsakType) {
-        if (behandlingÅrsakType == null || BehandlingÅrsakType.UDEFINERT.equals(behandlingÅrsakType)) return;
         var lås = behandlingRepository.taSkriveLås(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (!behandling.harBehandlingÅrsak(behandlingÅrsakType)) {
-            var årsakBuilder = BehandlingÅrsak.builder(behandlingÅrsakType);
-            behandling.getOriginalBehandlingId().ifPresent(årsakBuilder::medOriginalBehandlingId);
-            årsakBuilder.buildFor(behandling);
-            behandlingRepository.lagre(behandling, lås);
-        }
+        var årsakBuilder = BehandlingÅrsak.builder(behandlingÅrsakType);
+        behandling.getOriginalBehandlingId().ifPresent(årsakBuilder::medOriginalBehandlingId);
+        årsakBuilder.buildFor(behandling);
+        behandlingRepository.lagre(behandling, lås);
     }
 
     private OrganisasjonsEnhet utledEnhetFraBehandling(Behandling behandling) {
