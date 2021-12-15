@@ -12,9 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum DokumentMalType implements Kodeverdi {
 
-    //Fritekstbrev - tekst unntatt header og footer genereres av fpformidling
-    ETTERLYS_INNTEKTSMELDING_FRITEKST("INNLYS", "Etterlys inntektsmelding"),
-
     //Dokgen
     FRITEKSTBREV("FRITEK", "Fritekstbrev"),
     ENGANGSSTØNAD_INNVILGELSE("INNVES", "Innvilget engangsstønad"),
@@ -43,6 +40,7 @@ public enum DokumentMalType implements Kodeverdi {
     KLAGE_STADFESTET("KGESTA", "Vedtak om stadfestelse"),
     ANKE_OMGJORT("ANKOMG", "Vedtak om omgjøring i ankesak"),
     ANKE_OPPHEVET("ANKOPP", "Ankebrev om beslutning om oppheving"),
+    ETTERLYS_INNTEKTSMELDING("ELYSIN", "Etterlys inntektsmelding"),
 
     // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
     @Deprecated
@@ -103,6 +101,8 @@ public enum DokumentMalType implements Kodeverdi {
     ANKE_OMGJORT_FRITEKST("VEDOGA", "Vedtak om omgjøring i ankesak"),
     @Deprecated
     ANKE_OPPHEVET_FRITEKST("ANKEBO", "Ankebrev om beslutning om oppheving"),
+    @Deprecated
+    ETTERLYS_INNTEKTSMELDING_FRITEKST("INNLYS", "Etterlys inntektsmelding"),
     ;
 
     private static final Map<String, DokumentMalType> KODER = new LinkedHashMap<>();
