@@ -17,6 +17,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -114,11 +115,12 @@ public class VedtakRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public List<Ytelse> vedtakForeldrepengerForBruker(
-            @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid @NotNull AktørParam aktørParam) {
+            @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid @NotNull AktørParam aktørParam,
+            @QueryParam("medArbeidsforhold") @Parameter(description = "medArbeidsforhold") @DefaultValue("false") @Valid Boolean medArbeidsforhold) {
         if (aktørParam.get().isEmpty()) {
             return new ArrayList<>();
         }
-        var ytelser = hentVedtakMedPerioderSiste12M(aktørParam.get().get(), FagsakYtelseType.FORELDREPENGER);
+        var ytelser = hentVedtakMedPerioderSiste12M(aktørParam.get().get(), FagsakYtelseType.FORELDREPENGER, medArbeidsforhold != null && medArbeidsforhold);
         LOG.info("vedtakForeldrepengerForBruker antall {}", ytelser.size());
         return ytelser;
     }
@@ -131,21 +133,22 @@ public class VedtakRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public List<Ytelse> vedtakSvangerskapspengerForBruker(
-            @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid @NotNull AktørParam aktørParam) {
+            @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid @NotNull AktørParam aktørParam,
+            @QueryParam("medArbeidsforhold") @Parameter(description = "medArbeidsforhold") @DefaultValue("false") @Valid Boolean medArbeidsforhold) {
         if (aktørParam.get().isEmpty()) {
             return new ArrayList<>();
         }
-        var ytelser = hentVedtakMedPerioderSiste12M(aktørParam.get().get(), FagsakYtelseType.SVANGERSKAPSPENGER);
+        var ytelser = hentVedtakMedPerioderSiste12M(aktørParam.get().get(), FagsakYtelseType.SVANGERSKAPSPENGER, medArbeidsforhold != null && medArbeidsforhold);
         LOG.info("vedtakSvangerskapspengerForBruker antall {}", ytelser.size());
         return ytelser;
     }
 
-    private List<Ytelse> hentVedtakMedPerioderSiste12M(AktørId aktørId, FagsakYtelseType ytelseType) {
+    private List<Ytelse> hentVedtakMedPerioderSiste12M(AktørId aktørId, FagsakYtelseType ytelseType, boolean mapArbeidsforhold) {
         return fagsakTjeneste.finnFagsakerForAktør(aktørId).stream()
                 .filter(f -> ytelseType.equals(f.getYtelseType()))
                 .map(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()))
                 .flatMap(Optional::stream)
-                .map(b -> (YtelseV1) vedtattYtelseTjeneste.genererYtelse(b, false))
+                .map(b -> (YtelseV1) vedtattYtelseTjeneste.genererYtelse(b, mapArbeidsforhold))
                 .filter(y -> y.getPeriode().getTom().isAfter(LocalDate.now().minusMonths(12)))
                 .collect(Collectors.toList());
     }
