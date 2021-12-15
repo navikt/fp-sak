@@ -49,7 +49,7 @@ public class KontrollresultatMapper {
             throw manglerKontrollresultatkode();
         }
         return new FaresignalWrapper(mapKontrollresultatTilDomene(resultatKontrakt.risikoklasse()),
-            mapFaresignalvurderingTilDomene(resultatKontrakt.faresignalvurdering()),
+            resultatKontrakt.faresignalvurdering() == null ? null : mapFaresignalvurderingTilDomene(resultatKontrakt.faresignalvurdering()),
             mapFaresignalgruppe(resultatKontrakt.medlemskapFaresignalerNonNull()).orElse(null),
             mapFaresignalgruppe(resultatKontrakt.opptjeningFaresignalerNonNull()).orElse(null));
     }
