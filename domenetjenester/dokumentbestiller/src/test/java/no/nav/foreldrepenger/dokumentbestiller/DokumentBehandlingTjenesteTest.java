@@ -148,7 +148,7 @@ public class DokumentBehandlingTjenesteTest {
     public void skal_returnere_false_når_dokument_ikke_er_bestilt() {
         // Arrange
         behandling = scenario.lagre(repositoryProvider);
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.ETTERLYS_INNTEKTSMELDING_FRITEKST);
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.ETTERLYS_INNTEKTSMELDING);
 
         // Act+Assert
         assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENTE_OPPLYSNINGER_DOK)).isFalse();

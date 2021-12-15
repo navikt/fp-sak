@@ -35,6 +35,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingSomIkkeKommer;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerInntektsmelding;
 
 /**
@@ -44,6 +45,8 @@ import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerInnte
  */
 @ApplicationScoped
 public class KompletthetsjekkerFelles {
+
+    private static Environment ENV = Environment.current();
 
     private static final Logger LOG = LoggerFactory.getLogger(KompletthetsjekkerFelles.class);
     /**
@@ -138,7 +141,8 @@ public class KompletthetsjekkerFelles {
         if (ventefristEtterlysning.isEmpty())
             return Optional.empty();
         // Gjeldende logikk: Etterlys hvis ingen mottatte
-        var erSendtBrev = erSendtBrev(ref.getBehandlingId(), DokumentMalType.ETTERLYS_INNTEKTSMELDING_FRITEKST);
+        var erSendtBrev = erSendtBrev(ref.getBehandlingId(), DokumentMalType.ETTERLYS_INNTEKTSMELDING_FRITEKST)
+            || erSendtBrev(ref.getBehandlingId(), DokumentMalType.ETTERLYS_INNTEKTSMELDING);
         var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, ref.getUtledetSkjæringstidspunkt());
         if (inntektsmeldinger.isEmpty()) {
             if (!erSendtBrev) {
@@ -148,7 +152,7 @@ public class KompletthetsjekkerFelles {
                 if (skalIkkeSendeBrev) {
                     LOG.info("Sender ikke etterlys inntektsmelding brev for sak som er migrert fra Infotrygd. Gjelder behandlingId {}", ref.getBehandlingId());
                 } else {
-                    sendBrev(ref.getBehandlingId(), ref.getBehandlingUuid(), DokumentMalType.ETTERLYS_INNTEKTSMELDING_FRITEKST, null);
+                    sendBrev(ref.getBehandlingId(), ref.getBehandlingUuid(), !ENV.isProd() ? DokumentMalType.ETTERLYS_INNTEKTSMELDING : DokumentMalType.ETTERLYS_INNTEKTSMELDING_FRITEKST, null);
                 }
             }
             return ventefristEtterlysning;
