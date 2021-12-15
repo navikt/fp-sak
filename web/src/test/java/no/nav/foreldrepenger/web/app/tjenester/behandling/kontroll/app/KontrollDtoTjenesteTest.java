@@ -45,7 +45,7 @@ public class KontrollDtoTjenesteTest {
 
         // Assert
         assertThat(kontrollresultatDto).isPresent();
-        assertThat(kontrollresultatDto.get().getKontrollresultat()).isEqualTo(Kontrollresultat.IKKE_KLASSIFISERT);
+        assertThat(kontrollresultatDto.get().kontrollresultat()).isEqualTo(Kontrollresultat.IKKE_KLASSIFISERT);
     }
 
     @Test
@@ -59,9 +59,9 @@ public class KontrollDtoTjenesteTest {
 
         // Assert
         assertThat(kontrollresultatDto).isPresent();
-        assertThat(kontrollresultatDto.get().getKontrollresultat()).isEqualTo(Kontrollresultat.IKKE_HØY);
-        assertThat(kontrollresultatDto.get().getMedlFaresignaler()).isNull();
-        assertThat(kontrollresultatDto.get().getIayFaresignaler()).isNull();
+        assertThat(kontrollresultatDto.get().kontrollresultat()).isEqualTo(Kontrollresultat.IKKE_HØY);
+        assertThat(kontrollresultatDto.get().medlFaresignaler()).isNull();
+        assertThat(kontrollresultatDto.get().iayFaresignaler()).isNull();
 
     }
 
@@ -79,11 +79,11 @@ public class KontrollDtoTjenesteTest {
 
         // Assert
         assertThat(kontrollresultatDto).isPresent();
-        assertThat(kontrollresultatDto.get().getKontrollresultat()).isEqualTo(Kontrollresultat.HØY);
-        assertThat(kontrollresultatDto.get().getMedlFaresignaler()).isNotNull();
-        assertThat(kontrollresultatDto.get().getMedlFaresignaler().getFaresignaler()).containsAll(faresignaler);
-        assertThat(kontrollresultatDto.get().getIayFaresignaler()).isNotNull();
-        assertThat(kontrollresultatDto.get().getIayFaresignaler().getFaresignaler()).containsAll(faresignaler);
+        assertThat(kontrollresultatDto.get().kontrollresultat()).isEqualTo(Kontrollresultat.HØY);
+        assertThat(kontrollresultatDto.get().medlFaresignaler()).isNotNull();
+        assertThat(kontrollresultatDto.get().medlFaresignaler().faresignaler()).containsAll(faresignaler);
+        assertThat(kontrollresultatDto.get().iayFaresignaler()).isNotNull();
+        assertThat(kontrollresultatDto.get().iayFaresignaler().faresignaler()).containsAll(faresignaler);
     }
 
     private RisikoklassifiseringEntitet lagEntitet(Kontrollresultat kontrollresultat, FaresignalVurdering faresignalVurdering) {
@@ -94,18 +94,11 @@ public class KontrollDtoTjenesteTest {
     }
 
     private FaresignalWrapper lagFaresignalWrapper(Kontrollresultat kontrollresultat, List<String> faresignaler) {
-        var builder = FaresignalWrapper.builder().medKontrollresultat(kontrollresultat);
-
         if (!faresignaler.isEmpty()) {
-            var iayBuilder = FaresignalGruppeWrapper.builder();
-            var medlBuilder = FaresignalGruppeWrapper.builder();
-            faresignaler.forEach(signal -> {
-                iayBuilder.leggTilFaresignal(signal);
-                medlBuilder.leggTilFaresignal(signal);
-            });
-            builder.medIayFaresignaler(iayBuilder.build());
-            builder.medMedlFaresignaler(medlBuilder.build());
+            var iayBuilder = new FaresignalGruppeWrapper(faresignaler);
+            var medlBuilder = new FaresignalGruppeWrapper(faresignaler);
+            return new FaresignalWrapper(kontrollresultat, null, medlBuilder, iayBuilder);
         }
-        return builder.build();
+        return new FaresignalWrapper(kontrollresultat, null, null, null);
     }
 }

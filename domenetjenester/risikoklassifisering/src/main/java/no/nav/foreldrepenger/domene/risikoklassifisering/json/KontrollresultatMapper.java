@@ -1,16 +1,18 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.json;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalGruppeWrapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.KontrollresultatWrapper;
-import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.rest.FaresignalerRespons;
-import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.rest.Faresignalgruppe;
+import no.nav.foreldrepenger.kontrakter.risk.kodeverk.RisikoklasseType;
+import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.kontroll.v1.KontrollResultatV1;
 
@@ -41,26 +43,22 @@ public class KontrollresultatMapper {
         return kontrollresultat;
     }
 
-    public FaresignalWrapper fraFaresignalRespons(FaresignalerRespons faresignalerRespons) {
-        if (faresignalerRespons.getRisikoklasse() == null) {
+    public FaresignalWrapper fraFaresignalRespons(RisikovurderingResultatDto resultatKontrakt) {
+        if (resultatKontrakt.risikoklasse() == null) {
             // Her ønsker vi ikke akseptere at risikoklasse er null
             throw manglerKontrollresultatkode();
         }
-        return FaresignalWrapper.builder()
-            .medKontrollresultat(finnKontrollresultat(faresignalerRespons.getRisikoklasse()))
-            .medMedlFaresignaler(mapFaresignalgruppe(faresignalerRespons.getMedlFaresignaler()).orElse(null))
-            .medIayFaresignaler(mapFaresignalgruppe(faresignalerRespons.getIayFaresignaler()).orElse(null))
-            .build();
+        return new FaresignalWrapper(mapKontrollresultatTilDomene(resultatKontrakt.risikoklasse()),
+            mapFaresignalvurderingTilDomene(resultatKontrakt.faresignalvurdering()),
+            mapFaresignalgruppe(resultatKontrakt.medlemskapFaresignalerNonNull()).orElse(null),
+            mapFaresignalgruppe(resultatKontrakt.opptjeningFaresignalerNonNull()).orElse(null));
     }
 
-    private Optional<FaresignalGruppeWrapper> mapFaresignalgruppe(Faresignalgruppe faresignalGruppe) {
-        if (faresignalGruppe == null || faresignalGruppe.getFaresignaler().isEmpty()) {
+    private Optional<FaresignalGruppeWrapper> mapFaresignalgruppe(List<String> faresignaler) {
+        if (faresignaler.isEmpty()) {
             return Optional.empty();
         }
-        var builder = FaresignalGruppeWrapper.builder()
-            .medKontrollresultat(finnKontrollresultat(faresignalGruppe.getRisikoklasse()));
-        faresignalGruppe.getFaresignaler().forEach(builder::leggTilFaresignal);
-        return Optional.of(builder.build());
+        return Optional.of(new FaresignalGruppeWrapper(faresignaler));
     }
 
     private static TekniskException manglerKontrollresultatkode() {
@@ -69,5 +67,37 @@ public class KontrollresultatMapper {
 
     private static TekniskException udefinertKontrollresultat() {
         return new TekniskException("FP-42518", "Udefinert kontrollresultat");
+    }
+
+
+    public Kontrollresultat mapKontrollresultatTilDomene(RisikoklasseType kontrakt) {
+        return switch (kontrakt) {
+            case HØY -> Kontrollresultat.HØY;
+            case IKKE_HØY -> Kontrollresultat.IKKE_HØY;
+            case IKKE_KLASSIFISERT -> Kontrollresultat.IKKE_KLASSIFISERT;
+        };
+    }
+
+    public no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering mapFaresignalvurderingTilKontrakt(FaresignalVurdering faresignalVurdering) {
+        return switch (faresignalVurdering) {
+            case INNVIRKNING -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVIRKNING;
+            case INNVILGET_REDUSERT -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVILGET_REDUSERT;
+            case INNVILGET_UENDRET -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVILGET_UENDRET;
+            case AVSLAG_FARESIGNAL -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.AVSLAG_FARESIGNAL;
+            case AVSLAG_ANNET -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.AVSLAG_ANNET;
+            case INGEN_INNVIRKNING -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INGEN_INNVIRKNING;
+            case UDEFINERT -> throw new IllegalStateException("Kode UDEFINERT er ugyldig vurdering av faresignaler");
+        };
+    }
+
+    public FaresignalVurdering mapFaresignalvurderingTilDomene(no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering faresignalVurdering) {
+        return switch (faresignalVurdering) {
+            case INNVIRKNING -> FaresignalVurdering.INNVIRKNING;
+            case INNVILGET_REDUSERT -> FaresignalVurdering.INNVILGET_REDUSERT;
+            case INNVILGET_UENDRET -> FaresignalVurdering.INNVILGET_UENDRET;
+            case AVSLAG_FARESIGNAL -> FaresignalVurdering.AVSLAG_FARESIGNAL;
+            case AVSLAG_ANNET -> FaresignalVurdering.AVSLAG_ANNET;
+            case INGEN_INNVIRKNING -> FaresignalVurdering.INGEN_INNVIRKNING;
+        };
     }
 }

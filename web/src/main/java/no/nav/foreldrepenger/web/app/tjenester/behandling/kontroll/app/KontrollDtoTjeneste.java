@@ -27,37 +27,26 @@ public class KontrollDtoTjeneste {
 
     public Optional<KontrollresultatDto> lagKontrollresultatForBehandling(Behandling behandling) {
         var risikoklassifiseringEntitet = risikovurderingTjeneste.hentRisikoklassifiseringForBehandling(behandling.getId());
-
-        if (!risikoklassifiseringEntitet.isPresent()) {
+        if (risikoklassifiseringEntitet.isEmpty()) {
             return Optional.of(KontrollresultatDto.ikkeKlassifisert());
         }
-
         var entitet = risikoklassifiseringEntitet.get();
-        var dto = new KontrollresultatDto();
-        dto.setKontrollresultat(entitet.getKontrollresultat());
-
         if (entitet.erHøyrisiko()) {
             var faresignalWrapper = risikovurderingTjeneste.finnKontrollresultatForBehandling(behandling);
-            dto.setFaresignalVurdering(entitet.getFaresignalVurdering());
-            faresignalWrapper.ifPresent(en -> {
-                dto.setIayFaresignaler(lagFaresignalDto(en.getIayFaresignaler()));
-                dto.setMedlFaresignaler(lagFaresignalDto(en.getMedlFaresignaler()));
-            });
+            var iayFaresignaler = faresignalWrapper.map(wr -> lagFaresignalDto(wr.iayFaresignaler())).orElse(null);
+            var medlemskapFaresignaler = faresignalWrapper.map(wr -> lagFaresignalDto(wr.medlemskapFaresignaler())).orElse(null);
+            return Optional.of(new KontrollresultatDto(entitet.getKontrollresultat(), iayFaresignaler, medlemskapFaresignaler, entitet.getFaresignalVurdering()));
+        } else {
+            return Optional.of(new KontrollresultatDto(entitet.getKontrollresultat(), null, null, null));
         }
-
-        return Optional.of(dto);
     }
 
     private FaresignalgruppeDto lagFaresignalDto(FaresignalGruppeWrapper faresignalgruppe) {
-        if (faresignalgruppe == null || faresignalgruppe.getFaresignaler().isEmpty()) {
+        if (faresignalgruppe == null || faresignalgruppe.faresignaler().isEmpty()) {
             return null;
         }
 
-        var dto = new FaresignalgruppeDto();
-        dto.setKontrollresultat(faresignalgruppe.getKontrollresultat());
-        dto.setFaresignaler(faresignalgruppe.getFaresignaler());
-
-        return dto;
+        return new FaresignalgruppeDto(faresignalgruppe.faresignaler());
     }
 
 }

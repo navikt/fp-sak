@@ -12,6 +12,8 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 import java.util.UUID;
 
+import no.nav.foreldrepenger.kontrakter.risk.kodeverk.RisikoklasseType;
+import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Risikoklassif
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.RisikoklassifiseringRepository;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.KontrollresultatWrapper;
-import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.rest.FaresignalerRespons;
 
 public class RisikovurderingTjenesteTest {
 
@@ -135,9 +136,9 @@ public class RisikovurderingTjenesteTest {
 
         // Assert
         assertThat(faresignalWrapper).isPresent();
-        assertThat(faresignalWrapper.get().getKontrollresultat()).isEqualTo(Kontrollresultat.IKKE_HØY);
-        assertThat(faresignalWrapper.get().getMedlFaresignaler()).isNull();
-        assertThat(faresignalWrapper.get().getIayFaresignaler()).isNull();
+        assertThat(faresignalWrapper.get().kontrollresultat()).isEqualTo(Kontrollresultat.IKKE_HØY);
+        assertThat(faresignalWrapper.get().medlemskapFaresignaler()).isNull();
+        assertThat(faresignalWrapper.get().iayFaresignaler()).isNull();
         verifyZeroInteractions(mapper);
         verifyZeroInteractions(fpriskTjeneste);
     }
@@ -147,10 +148,9 @@ public class RisikovurderingTjenesteTest {
         // Arrange
         var uuid = behandling.getUuid();
         when(risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(anyLong())).thenReturn(Optional.of(lagEntitet(Kontrollresultat.HØY)));
-        var respons = new FaresignalerRespons();
+        var respons = new RisikovurderingResultatDto(RisikoklasseType.HØY, null, null, null);
         when(fpriskTjeneste.hentFaresignalerForBehandling(uuid)).thenReturn(Optional.of(respons));
-        var wrapper = new FaresignalWrapper();
-        when(mapper.fraFaresignalRespons(any())).thenReturn(wrapper);
+        when(mapper.fraFaresignalRespons(any())).thenReturn(new FaresignalWrapper(Kontrollresultat.HØY, null, null, null));
 
         // Act
         var faresignalWrapper = risikovurderingTjeneste.finnKontrollresultatForBehandling(behandling);

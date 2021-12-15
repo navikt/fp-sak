@@ -1,59 +1,13 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto;
 
-import java.util.Objects;
-
+import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 
-public class FaresignalWrapper {
-    private Kontrollresultat kontrollresultat;
-    private FaresignalGruppeWrapper medlFaresignaler;
-    private FaresignalGruppeWrapper iayFaresignaler;
+import javax.validation.constraints.NotNull;
 
-    public Kontrollresultat getKontrollresultat() {
-        return kontrollresultat;
-    }
+public record FaresignalWrapper(@NotNull Kontrollresultat kontrollresultat,
+                                FaresignalVurdering faresignalVurdering,
+                                FaresignalGruppeWrapper medlemskapFaresignaler,
+                                FaresignalGruppeWrapper iayFaresignaler) {}
 
-    public FaresignalGruppeWrapper getMedlFaresignaler() {
-        return medlFaresignaler;
-    }
 
-    public FaresignalGruppeWrapper getIayFaresignaler() {
-        return iayFaresignaler;
-    }
-
-    private void valider() {
-        Objects.requireNonNull(kontrollresultat);
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        FaresignalWrapper mal;
-
-        private Builder () {
-            mal = new FaresignalWrapper();
-        }
-
-        public Builder medKontrollresultat(Kontrollresultat kontrollresultat) {
-            mal.kontrollresultat = kontrollresultat;
-            return this;
-        }
-
-        public Builder medMedlFaresignaler(FaresignalGruppeWrapper medlFaresignaler) {
-            mal.medlFaresignaler = medlFaresignaler;
-            return this;
-        }
-
-        public Builder medIayFaresignaler(FaresignalGruppeWrapper iayFaresignaler) {
-            mal.iayFaresignaler = iayFaresignaler;
-            return this;
-        }
-
-        public FaresignalWrapper build() {
-            mal.valider();
-            return mal;
-        }
-    }
-}
