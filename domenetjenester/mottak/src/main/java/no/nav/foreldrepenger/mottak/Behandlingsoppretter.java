@@ -167,6 +167,18 @@ public class Behandlingsoppretter {
 
     }
 
+    public void leggTilBehandlingsårsak(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
+        if (behandlingÅrsakType == null || BehandlingÅrsakType.UDEFINERT.equals(behandlingÅrsakType)) return;
+        if (!behandling.harBehandlingÅrsak(behandlingÅrsakType)) {
+            var builder = BehandlingÅrsak.builder(behandlingÅrsakType);
+            behandling.getOriginalBehandlingId().ifPresent(builder::medOriginalBehandlingId);
+            builder.buildFor(behandling);
+
+            var behandlingLås = behandlingRepository.taSkriveLås(behandling);
+            behandlingRepository.lagre(behandling, behandlingLås);
+        }
+    }
+
     private void kopierPapirsøknadVedBehov(Behandling opprinneligBehandling, Behandling nyBehandling) {
         var søknad = mottatteDokumentTjeneste.hentMottatteDokumentFagsak(opprinneligBehandling.getFagsakId()).stream()
             .filter(MottattDokument::erSøknadsDokument)

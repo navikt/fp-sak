@@ -50,6 +50,7 @@ public class ForretningshendelseHåndtererFelles {
     }
 
     public void håndterÅpenBehandling(Behandling åpenBehandling, BehandlingÅrsakType behandlingÅrsakType) {
+        behandlingsoppretter.leggTilBehandlingsårsak(åpenBehandling, behandlingÅrsakType);
         historikkinnslagTjeneste.opprettHistorikkinnslagForBehandlingOppdatertMedNyeOpplysninger(åpenBehandling, behandlingÅrsakType);
         kompletthetskontroller.vurderNyForretningshendelse(åpenBehandling);
     }
