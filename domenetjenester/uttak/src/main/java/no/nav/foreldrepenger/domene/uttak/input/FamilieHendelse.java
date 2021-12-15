@@ -88,4 +88,8 @@ public class FamilieHendelse {
     public boolean erAlleBarnDøde() {
         return getBarna().stream().allMatch(b -> b.getDødsdato().isPresent());
     }
+
+    public boolean gjelderFødsel() {
+        return getFødselsdato().isPresent() || getTermindato().isPresent();
+    }
 }

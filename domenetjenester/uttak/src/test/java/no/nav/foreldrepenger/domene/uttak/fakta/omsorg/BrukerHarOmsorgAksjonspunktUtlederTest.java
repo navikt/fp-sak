@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +35,6 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
 
     private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(3);
     private static final LocalDate FØDSELSDATO = LocalDate.now();
-    private static final Period FORBEHOLDT_MOR_ETTER_FØDSEL = Period.ofWeeks(6);
 
     private static final AktørId GITT_MOR_AKTØR_ID = AktørId.dummy();
     private static final AktørId GITT_FAR_AKTØR_ID = AktørId.dummy();
@@ -50,7 +48,7 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     void setUp() {
         repositoryProvider = new UttakRepositoryStubProvider();
         personopplysninger = mock(PersonopplysningerForUttak.class);
-        aksjonspunktUtleder = new BrukerHarOmsorgAksjonspunktUtleder(repositoryProvider, personopplysninger, FORBEHOLDT_MOR_ETTER_FØDSEL);
+        aksjonspunktUtleder = new BrukerHarOmsorgAksjonspunktUtleder(repositoryProvider, personopplysninger);
     }
 
     @Test

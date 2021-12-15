@@ -136,16 +136,16 @@ public class OpptjeningsperioderTjenesteTest {
                 ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN, virksomhet);
         bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID),
                 VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(10)),
-                VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(2)), RelatertYtelseTilstand.LØPENDE, "12342234", RelatertYtelseType.SYKEPENGER));
+                VirkedagUtil.fredagLørdagTilSøndag(skjæringstidspunkt.minusDays(2)), RelatertYtelseTilstand.LØPENDE, "12342234", RelatertYtelseType.SYKEPENGER));
         bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID),
                 VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(25)),
-                VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(5)), RelatertYtelseTilstand.AVSLUTTET, "1222433", RelatertYtelseType.SYKEPENGER));
+                VirkedagUtil.fredagLørdagTilSøndag(skjæringstidspunkt.minusDays(5)), RelatertYtelseTilstand.AVSLUTTET, "1222433", RelatertYtelseType.SYKEPENGER));
         bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID),
                 VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(30)),
-                VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(21)), RelatertYtelseTilstand.AVSLUTTET, "124234", RelatertYtelseType.SYKEPENGER));
+                VirkedagUtil.fredagLørdagTilSøndag(skjæringstidspunkt.minusDays(21)), RelatertYtelseTilstand.AVSLUTTET, "124234", RelatertYtelseType.SYKEPENGER));
         bekreftet.leggTilAktørYtelse(
                 leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(50)),
-                        VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(40)), RelatertYtelseTilstand.AVSLUTTET, "123253254",
+                        VirkedagUtil.fredagLørdagTilSøndag(skjæringstidspunkt.minusDays(40)), RelatertYtelseTilstand.AVSLUTTET, "123253254",
                         RelatertYtelseType.SYKEPENGER));
 
         iayTjeneste.lagreIayAggregat(behandling.getId(), bekreftet);
@@ -164,7 +164,7 @@ public class OpptjeningsperioderTjenesteTest {
                 .collect(Collectors.toList());
         assertThat(ytelser.get(0).getPeriode().getFomDato()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(50)));
         assertThat(ytelser.get(1).getPeriode().getFomDato()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(30)));
-        assertThat(ytelser.get(1).getPeriode().getTomDato()).isEqualTo(VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(2)));
+        assertThat(ytelser.get(1).getPeriode().getTomDato()).isEqualTo(VirkedagUtil.fredagLørdagTilSøndag(skjæringstidspunkt.minusDays(2)));
 
     }
 
@@ -180,14 +180,14 @@ public class OpptjeningsperioderTjenesteTest {
                 ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN, virksomhet);
         bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID),
                 VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(15)),
-                VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(2)), RelatertYtelseTilstand.LØPENDE, "12342234", RelatertYtelseType.SYKEPENGER));
+                VirkedagUtil.fredagLørdagTilSøndag(skjæringstidspunkt.minusDays(2)), RelatertYtelseTilstand.LØPENDE, "12342234", RelatertYtelseType.SYKEPENGER));
         bekreftet.leggTilAktørYtelse(
                 leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(30)),
-                        VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(15)), RelatertYtelseTilstand.AVSLUTTET, "1222433",
+                        VirkedagUtil.fredagLørdagTilSøndag(skjæringstidspunkt.minusDays(15)), RelatertYtelseTilstand.AVSLUTTET, "1222433",
                         RelatertYtelseType.OMSORGSPENGER));
         bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID),
                 VirkedagUtil.fomVirkedag(skjæringstidspunkt.plusDays(10)),
-                VirkedagUtil.tomSøndag(skjæringstidspunkt.plusDays(21)), RelatertYtelseTilstand.AVSLUTTET, "124234", RelatertYtelseType.SYKEPENGER));
+                VirkedagUtil.fredagLørdagTilSøndag(skjæringstidspunkt.plusDays(21)), RelatertYtelseTilstand.AVSLUTTET, "124234", RelatertYtelseType.SYKEPENGER));
 
         iayTjeneste.lagreIayAggregat(behandling.getId(), bekreftet);
 

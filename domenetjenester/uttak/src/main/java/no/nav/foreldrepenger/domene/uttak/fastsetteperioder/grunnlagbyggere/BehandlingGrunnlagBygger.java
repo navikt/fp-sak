@@ -21,6 +21,6 @@ public class BehandlingGrunnlagBygger {
     }
 
     private static boolean søkerErMor(BehandlingReferanse ref) {
-        return ref.getRelasjonsRolleType().equals(RelasjonsRolleType.MORA);
+        return RelasjonsRolleType.erMor(ref.getRelasjonsRolleType());
     }
 }

@@ -6,6 +6,7 @@ import java.util.Set;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
+import no.nav.foreldrepenger.domene.uttak.TidsperiodeForbeholdtMor;
 import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
 import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
 
@@ -32,15 +33,9 @@ class UtsettelseDokKontrollererFrittUttak implements UtsettelseDokKontrollerer {
 
     private boolean søktPeriodeInnenforTidsperiodeForbeholdtMor(OppgittPeriodeEntitet søknadsperiode) {
         var tidsperiodeForbeholdtMor = new SimpleLocalDateInterval(fomTidsperiodeForbeholdtMor(familiehendelse),
-            tomTidsperiodeForbeholdtMor(familiehendelse));
+            TidsperiodeForbeholdtMor.tilOgMed(familiehendelse));
         var søktTidsperiode = new SimpleLocalDateInterval(søknadsperiode.getFom(), søknadsperiode.getTom());
         return søktTidsperiode.overlapper(tidsperiodeForbeholdtMor);
-    }
-
-    private static LocalDate tomTidsperiodeForbeholdtMor(LocalDate familiehendelse) {
-        return familiehendelse.plusWeeks(
-            StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.UTTAK_MØDREKVOTE_ETTER_FØDSEL_UKER, familiehendelse))
-            .minusDays(1);
     }
 
     private static LocalDate fomTidsperiodeForbeholdtMor(LocalDate familiehendelse) {

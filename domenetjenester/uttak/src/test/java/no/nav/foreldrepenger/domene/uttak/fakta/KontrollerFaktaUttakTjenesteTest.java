@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Collections;
 import java.util.List;
 
@@ -62,7 +61,7 @@ public class KontrollerFaktaUttakTjenesteTest {
         var brukerHarAleneomsorgAksjonspunktUtleder = new BrukerHarAleneomsorgAksjonspunktUtleder(repositoryProvider,
             personopplysninger);
         var brukerHarOmsorgAksjonspunktUtleder = new BrukerHarOmsorgAksjonspunktUtleder(repositoryProvider,
-            personopplysninger, Period.ofWeeks(6));
+            personopplysninger);
         var førsteUttaksdatoAksjonspunktUtleder = new FørsteUttaksdatoAksjonspunktUtleder(repositoryProvider);
         var graderingAktivitetUtenBGAksjonspunktUtleder = new GraderingAktivitetUtenBGAksjonspunktUtleder();
         var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository());
