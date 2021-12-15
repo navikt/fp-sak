@@ -7,7 +7,7 @@ metadata:
     team: teamforeldrepenger
 spec:
   image:  {{image}}
-  port: 8080 
+  port: 8080
   ingresses:
   {{#each ingresses as |url|}}
      - {{url}}
@@ -16,27 +16,27 @@ spec:
     path: /fpsak/internal/health/isAlive
     initialDelay: 30
     timeout: 5
-    periodSeconds: 10    
-    failureThreshold: 27 
-  readiness: 
+    periodSeconds: 10
+    failureThreshold: 27
+  readiness:
     path: /fpsak/internal/health/isReady
     initialDelay: 30
     timeout: 5
     periodSeconds: 10
     failureThreshold: 27
   prometheus:
-    enabled: true 
-    path: /fpsak/internal/metrics/prometheus 
+    enabled: true
+    path: /fpsak/internal/metrics/prometheus
   replicas:
     min: {{minReplicas}}
     max: {{maxReplicas}}
     cpuThresholdPercentage: 80
-  resources: 
+  resources:
     limits:
-      cpu: "4000m" 
+      cpu: "4000m"
       memory: "3072Mi"
-    requests: 
-      cpu: "500m"
+    requests:
+      cpu: "200m"
       memory: "2800Mi" # utregnet fra maxheap + non-heap-usage + litt å gå på. maxheap(2147 MB fra grafana) + non-heap usage (450 MB fra grafana) + litt å gå på (203 MB)
   azure:
     application:
