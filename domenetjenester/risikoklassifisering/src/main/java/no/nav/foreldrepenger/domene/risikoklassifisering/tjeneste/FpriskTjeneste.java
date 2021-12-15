@@ -42,8 +42,6 @@ public class FpriskTjeneste {
 
     public Optional<RisikovurderingResultatDto> hentFaresignalerForBehandling(UUID behandlingUuid) {
         Objects.requireNonNull(behandlingUuid, "behandlingUuid");
-
-        var uuidString = behandlingUuid.toString();
         var request = new HentRisikovurderingDto(behandlingUuid);
         try {
             var respons = oidcRestClient.post(hentRisikoklassifiseringEndpoint, request, RisikovurderingResultatDto.class);
@@ -83,6 +81,4 @@ public class FpriskTjeneste {
             throw new IllegalArgumentException("Ugyldig uri: " + endpointURI + path, e);
         }
     }
-
-    private static record FaresignalerRequest(UUID konsumentId){}
 }
