@@ -40,7 +40,7 @@ public enum DokumentMalType implements Kodeverdi {
     KLAGE_STADFESTET("KGESTA", "Vedtak om stadfestelse"),
     ANKE_OMGJORT("ANKOMG", "Vedtak om omgjøring i ankesak"),
     ANKE_OPPHEVET("ANKOPP", "Ankebrev om beslutning om oppheving"),
-    ETTERLYS_INNTEKTSMELDING("ELYSIN", "Etterlys inntektsmelding"),
+    ETTERLYS_INNTEKTSMELDING("ELYSIM", "Etterlys inntektsmelding"),
 
     // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
     @Deprecated
