@@ -47,6 +47,9 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
             var nyBehandling = dokumentmottakerFelles.oppdatereViaHenleggelse(behandling, mottattDokument, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
             køKontroller.dekøFørsteBehandlingISakskompleks(nyBehandling);
         } else {
+            if (behandling.erRevurdering()) {
+                dokumentmottakerFelles.leggTilBehandlingsårsak(behandling, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+            }
             if (!mottattDokument.getElektroniskRegistrert()) { //#S3a
                 if (kompletthetskontroller.støtterBehandlingstypePapirsøknad(behandling)) {
                     dokumentmottakerFelles.oppdaterMottattDokumentMedBehandling(mottattDokument, behandling.getId());
@@ -71,6 +74,9 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
             }
         } else { //#S10, #S11, #S12 og #S14
             // Oppdater køet behandling med søknad
+            if (køetBehandling.erRevurdering()) {
+                dokumentmottakerFelles.leggTilBehandlingsårsak(køetBehandling, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+            }
             Optional<LocalDate> søknadsdato = Optional.empty();
             kompletthetskontroller.persisterKøetDokumentOgVurderKompletthet(køetBehandling, mottattDokument, søknadsdato);
         }
