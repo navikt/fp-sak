@@ -3,47 +3,11 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.dto;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 
-public class KontrollresultatDto {
-    private Kontrollresultat kontrollresultat;
-    private FaresignalgruppeDto iayFaresignaler;
-    private FaresignalgruppeDto medlFaresignaler;
-    private FaresignalVurdering faresignalVurdering;
-
-    public Kontrollresultat getKontrollresultat() {
-        return kontrollresultat;
-    }
-
-    public void setKontrollresultat(Kontrollresultat kontrollresultat) {
-        this.kontrollresultat = kontrollresultat;
-    }
-
-    public FaresignalgruppeDto getIayFaresignaler() {
-        return iayFaresignaler;
-    }
-
-    public void setIayFaresignaler(FaresignalgruppeDto iayFaresignaler) {
-        this.iayFaresignaler = iayFaresignaler;
-    }
-
-    public FaresignalgruppeDto getMedlFaresignaler() {
-        return medlFaresignaler;
-    }
-
-    public void setMedlFaresignaler(FaresignalgruppeDto medlFaresignaler) {
-        this.medlFaresignaler = medlFaresignaler;
-    }
-
-    public FaresignalVurdering getFaresignalVurdering() {
-        return faresignalVurdering;
-    }
-
-    public void setFaresignalVurdering(FaresignalVurdering faresignalVurdering) {
-        this.faresignalVurdering = faresignalVurdering;
-    }
-
+public record KontrollresultatDto(Kontrollresultat kontrollresultat,
+                                  FaresignalgruppeDto iayFaresignaler,
+                                  FaresignalgruppeDto medlFaresignaler,
+                                  FaresignalVurdering faresignalVurdering) {
     public static KontrollresultatDto ikkeKlassifisert() {
-        var dto = new KontrollresultatDto();
-        dto.setKontrollresultat(Kontrollresultat.IKKE_KLASSIFISERT);
-        return dto;
+        return new KontrollresultatDto(Kontrollresultat.IKKE_KLASSIFISERT, null, null, null);
     }
 }

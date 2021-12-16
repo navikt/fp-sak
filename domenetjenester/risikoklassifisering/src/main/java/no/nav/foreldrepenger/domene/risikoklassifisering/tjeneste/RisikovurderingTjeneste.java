@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -122,10 +121,10 @@ public class RisikovurderingTjeneste {
     }
 
     private Optional<FaresignalWrapper> lagKontrollresultatIkkeHøyRisiko(RisikoklassifiseringEntitet risikoklassifiseringEntitet) {
-        return Optional.of(FaresignalWrapper
-            .builder()
-            .medKontrollresultat(risikoklassifiseringEntitet.getKontrollresultat())
-            .build());
+        return Optional.of(new FaresignalWrapper(risikoklassifiseringEntitet.getKontrollresultat(),
+            null,
+            null,
+            null));
     }
 
     private boolean erHøyRisiko(RisikoklassifiseringEntitet risikoklassifiseringEntitet) {
