@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
@@ -107,7 +108,6 @@ public class FastsettePerioderRegelAdapterTest {
 
     private final LocalDate fødselsdato = LocalDate.of(2018, 6, 22);
     private final LocalDate mottattDato = LocalDate.of(2018, 6, 22);
-    private final LocalDate førsteLovligeUttaksdato = mottattDato.withDayOfMonth(1).minusMonths(3);
 
     private final Konfigurasjon konfigurasjon = StandardKonfigurasjon.KONFIGURASJON;
     private final int uker_før_fødsel_fellesperiode_grense = konfigurasjon.getParameter(
@@ -261,16 +261,30 @@ public class FastsettePerioderRegelAdapterTest {
     private UttakInput lagInput(Behandling behandling,
                                 UttakBeregningsandelTjenesteTestUtil beregningsandelTjeneste,
                                 LocalDate fødselsdato) {
+        return lagInput(behandling, beregningsandelTjeneste, fødselsdato, false);
+    }
+
+    private UttakInput lagInput(Behandling behandling,
+                                UttakBeregningsandelTjenesteTestUtil beregningsandelTjeneste,
+                                LocalDate fødselsdato,
+                                boolean kreverSammenhengendeUttak) {
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         return lagInput(behandling, beregningsandelTjeneste, false,
-            new FamilieHendelser().medBekreftetHendelse(familieHendelse));
+            new FamilieHendelser().medBekreftetHendelse(familieHendelse), kreverSammenhengendeUttak);
     }
 
     private UttakInput lagInput(Behandling behandling,
                                 UttakBeregningsandelTjenesteTestUtil beregningsandelTjeneste,
                                 boolean berørtBehandling,
-                                FamilieHendelser familieHendelser) {
-        var ref = BehandlingReferanse.fra(behandling, førsteLovligeUttaksdato);
+                                FamilieHendelser familieHendelser,
+                                boolean kreverSammenhengendeUttak) {
+        var utledetStp = familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato().minusMonths(3);
+        var stp = Skjæringstidspunkt.builder()
+            .medKreverSammenhengendeUttak(kreverSammenhengendeUttak)
+            //Stp ikke relevant for testene, må bare være fom første søkte periode
+            .medUtledetSkjæringstidspunkt(utledetStp)
+            .build();
+        var ref = BehandlingReferanse.fra(behandling, stp);
         var originalBehandling = behandling.getOriginalBehandlingId().isPresent() ? new OriginalBehandling(
             behandling.getOriginalBehandlingId().get(), null) : null;
         YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag()
@@ -386,7 +400,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         // Act
 
-        var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
+        var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato, true);
         var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         // Assert
         var uttakResultatPerioder = resultat.getPerioder();
@@ -443,7 +457,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         // Act
 
-        var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
+        var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato, true);
         var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         // Assert
         var uttakResultatPerioder = resultat.getPerioder();
@@ -783,7 +797,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
-        var ref = BehandlingReferanse.fra(morBehandlingRevurdering, førsteLovligeUttaksdato);
+        var ref = BehandlingReferanse.fra(morBehandlingRevurdering, fødselsdato);
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medErBerørtBehandling(true)
             .medFamilieHendelser(familieHendelser)
             .medAnnenpart(new Annenpart(false, farBehandling.getId(), fødselsdato.atStartOfDay()))
@@ -889,7 +903,7 @@ public class FastsettePerioderRegelAdapterTest {
         var familieHendelse = FamilieHendelse.forAdopsjonOmsorgsovertakelse(startdato, List.of(new Barn()), 1, null,
             false);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
-        var input = lagInput(behandling, beregningsandelTjeneste, false, familieHendelser);
+        var input = lagInput(behandling, beregningsandelTjeneste, false, familieHendelser, false);
         var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
 
         var uttakResultatPerioder = resultat.getPerioder();
@@ -1485,7 +1499,7 @@ public class FastsettePerioderRegelAdapterTest {
         var beregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
         beregningsandelTjeneste.leggTilOrdinærtArbeid(arbeidsgiver, null);
 
-        var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
+        var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato, true);
         var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
 
         var uttakResultatPerioder = resultat.getPerioder();
@@ -1772,7 +1786,8 @@ public class FastsettePerioderRegelAdapterTest {
 
     private void lagreUttaksperiodegrense(Long behandlingId) {
         var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
-        var grense = new Uttaksperiodegrense.Builder(br).medFørsteLovligeUttaksdag(førsteLovligeUttaksdato)
+        var grense = new Uttaksperiodegrense.Builder(br)
+            .medFørsteLovligeUttaksdag(mottattDato.minusMonths(3))
             .medMottattDato(mottattDato)
             .build();
         repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandlingId, grense);
