@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum DokumentMalType implements Kodeverdi {
 
-    //Dokgen
     FRITEKSTBREV("FRITEK", "Fritekstbrev"),
     ENGANGSSTØNAD_INNVILGELSE("INNVES", "Innvilget engangsstønad"),
     ENGANGSSTØNAD_AVSLAG("AVSLES", "Avslag engangsstønad"),
