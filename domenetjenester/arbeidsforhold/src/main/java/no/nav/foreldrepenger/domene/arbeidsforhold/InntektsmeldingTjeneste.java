@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -37,6 +40,8 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
 public class InntektsmeldingTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingTjeneste.class);
 
     private InntektArbeidYtelseTjeneste iayTjeneste;
 
@@ -282,11 +287,26 @@ public class InntektsmeldingTjeneste {
     }
 
     private boolean kanInntektsmeldingBrukesForSkjæringstidspunkt(Inntektsmelding inntektsmelding, LocalDate skjæringstidspunkt) {
+        var tidligsteDato = skjæringstidspunkt.minusWeeks(4).minusDays(1);
+        var sisteBeregningMåned = YearMonth.from(skjæringstidspunkt.minusMonths(1));
+        var imdato = inntektsmelding.getInnsendingstidspunkt().toLocalDate();
+        var imdatoMåned = YearMonth.from(imdato);
+        var ferskNok = imdato.isAfter(tidligsteDato) ||
+            YearMonth.from(tidligsteDato).equals(imdatoMåned) ||
+            sisteBeregningMåned.equals(imdatoMåned);
+        if (ferskNok) {
+            return true;
+        }
+        // TODO Er denne nødvendig gitt det over? Sjekke logger etter noen uker
         // Obligatorisk Startdato innfases fram mot sommer 2022. Unntak er hvis begrunnelseForReduksjonEllerIkkeUtbetalt = IkkeFravær
         // Perioder (samme måned eller 2 uker) som godtas bør matche DokumentmottakerFelles . endringSomUtsetterStartdato()
-        return inntektsmelding.getStartDatoPermisjon().isEmpty() ||
+        var startdatoBetraktning = inntektsmelding.getStartDatoPermisjon().isEmpty() ||
             inntektsmelding.getStartDatoPermisjon()
                 .filter(s -> s.isAfter(skjæringstidspunkt.minusDays(15)) || YearMonth.from(s).equals(YearMonth.from(skjæringstidspunkt)))
                 .isPresent();
+        if (startdatoBetraktning) {
+            LOG.info("Inntektsmelding: passerte ikke ferskNok, men OK startdatobetraktning");
+        }
+        return startdatoBetraktning;
     }
 }
