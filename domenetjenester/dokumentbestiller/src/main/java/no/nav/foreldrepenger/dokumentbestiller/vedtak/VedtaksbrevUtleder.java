@@ -15,15 +15,12 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.vedtak.exception.TekniskException;
 
 import java.util.Arrays;
-import java.util.Set;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.MEDHOLD_I_KLAGE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.OPPHEVE_YTELSESVEDTAK;
 
 public class VedtaksbrevUtleder {
-
-    private static Set<DokumentMalType> BESTILLE_JSON_FOR_NYE_BREV_MALER = Set.of(DokumentMalType.SVANGERSKAPSPENGER_OPPHØR);
 
     private VedtaksbrevUtleder() {
     }
@@ -79,15 +76,6 @@ public class VedtaksbrevUtleder {
         return vedtak.isBeslutningsvedtak();
     }
 
-    public static DokumentMalType bestilleJsonForNyeBrev(BehandlingVedtak vedtak, Behandling behandling, Behandlingsresultat behandlingsresultat) {
-        DokumentMalType dokumentMalType = erAvlåttEllerOpphørt(vedtak) ? velgNegativVedtaksmal(behandling, behandlingsresultat) : null;
-
-        if (dokumentMalType == null) {
-            return null;
-        }
-
-        return BESTILLE_JSON_FOR_NYE_BREV_MALER.contains(dokumentMalType) ? dokumentMalType : null;
-    }
 
     public static DokumentMalType velgNegativVedtaksmal(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         var fagsakYtelseType = behandling.getFagsakYtelseType();

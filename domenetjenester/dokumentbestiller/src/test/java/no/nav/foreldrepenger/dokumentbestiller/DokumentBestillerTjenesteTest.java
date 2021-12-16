@@ -60,7 +60,7 @@ public class DokumentBestillerTjenesteTest {
         tjeneste.bestillDokument(bestillBrevDto, historikkAktør, false);
 
         // Assert
-        verify(dokumentKafkaBestiller).bestillBrevFraKafka(bestillBrevDto, historikkAktør, null);
+        verify(dokumentKafkaBestiller).bestillBrevFraKafka(bestillBrevDto, historikkAktør);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class DokumentBestillerTjenesteTest {
         tjeneste.bestillDokument(bestillBrevDto, historikkAktør, true);
 
         // Assert
-        verify(dokumentKafkaBestiller).bestillBrevFraKafka(bestillBrevDto, historikkAktør, null);
+        verify(dokumentKafkaBestiller).bestillBrevFraKafka(bestillBrevDto, historikkAktør);
 
         var historikkinnslagCaptor = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkRepositoryMock).lagre(historikkinnslagCaptor.capture());

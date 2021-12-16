@@ -168,20 +168,4 @@ public class VedtaksbrevUtlederTest {
             ankeRepository)).isEqualTo(DokumentMalType.SVANGERSKAPSPENGER_AVSLAG);
     }
 
-    @Test
-    public void skal_velge_avslag_svp_og_bestille_json() {
-        doReturn(FagsakYtelseType.SVANGERSKAPSPENGER).when(behandling).getFagsakYtelseType();
-        doReturn(VedtakResultatType.OPPHØR).when(behandlingVedtakMock).getVedtakResultatType();
-        doReturn(true).when(behandlingsresultatMock).isBehandlingsresultatOpphørt();
-
-       DokumentMalType bestilleJson = VedtaksbrevUtleder.bestilleJsonForNyeBrev(behandlingVedtakMock, behandling, behandlingsresultatMock);
-
-        assertThat(bestilleJson).isNotNull();
-        assertThat(bestilleJson).isEqualTo(DokumentMalType.SVANGERSKAPSPENGER_OPPHØR);
-    }
-
-    @Test
-    public void skal_ikke_bestille_json() {
-        assertThat(VedtaksbrevUtleder.bestilleJsonForNyeBrev(behandlingVedtakMock, behandling, behandlingsresultatMock)).isNull();
-    }
 }
