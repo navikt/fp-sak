@@ -113,7 +113,7 @@ public class DokumentKafkaBestillerTest {
         var bestillBrevDto = lagBestillBrevDto(innhentDok, null, fritekst);
         var aktør = HistorikkAktør.SAKSBEHANDLER;
 
-        dokumentKafkaBestiller.bestillBrevFraKafka(bestillBrevDto, aktør, DokumentMalType.SVANGERSKAPSPENGER_AVSLAG);
+        dokumentKafkaBestiller.bestillBrevFraKafka(bestillBrevDto, aktør, DokumentMalType.SVANGERSKAPSPENGER_OPPHØR);
 
         Mockito.verify(brevHistorikkinnslag, Mockito.times(1)).opprettHistorikkinnslagForBestiltBrevFraKafka(aktør, behandling, innhentDok);
         Mockito.verify(taskTjeneste, Mockito.times(2)).lagre(any(ProsessTaskData.class));

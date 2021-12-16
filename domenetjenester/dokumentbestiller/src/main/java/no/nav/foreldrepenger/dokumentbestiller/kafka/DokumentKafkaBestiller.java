@@ -24,7 +24,7 @@ public class DokumentKafkaBestiller {
     private ProsessTaskTjeneste taskTjeneste;
     private BrevHistorikkinnslag brevHistorikkinnslag;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
-    private static Set<DokumentMalType> BESTILLE_JSON_FOR_NYE_BREV = Set.of(DokumentMalType.SVANGERSKAPSPENGER_OPPHØR, DokumentMalType.SVANGERSKAPSPENGER_AVSLAG);
+    private static Set<DokumentMalType> BESTILLE_JSON_FOR_NYE_BREV = Set.of(DokumentMalType.SVANGERSKAPSPENGER_OPPHØR);
 
     public DokumentKafkaBestiller() {
         //CDI
