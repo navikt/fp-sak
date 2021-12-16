@@ -66,6 +66,7 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
             .medKlageVurdering(dto.getKlageVurdering())
             .medKlageVurderingOmgjør(dto.getKlageVurderingOmgjoer())
             .medKlageMedholdÅrsak(dto.getKlageMedholdArsak())
+            .medKlageHjemmel(dto.getKlageHjemmel())
             .medGodkjentAvMedunderskriver(dto.isErGodkjentAvMedunderskriver())
             .medBegrunnelse(dto.getBegrunnelse())
             .medFritekstTilBrev(dto.getFritekstTilBrev());

@@ -78,7 +78,7 @@ public class KlagevurderingOppdatererTest {
 
         var klageVurdering = KlageVurdering.STADFESTE_YTELSESVEDTAK;
         var dto = new KlageVurderingResultatNfpAksjonspunktDto("begrunnelse bla. bla.",
-                klageVurdering, null, null, LocalDate.now(), "Fritekst til brev", null);
+                klageVurdering, null, null, LocalDate.now(), "Fritekst til brev", null, null);
 
         // Act
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
@@ -132,7 +132,7 @@ public class KlagevurderingOppdatererTest {
 
         var klageVurdering = KlageVurdering.STADFESTE_YTELSESVEDTAK;
         var dto = new KlageVurderingResultatNfpAksjonspunktDto("begrunnelse bla. bla.",
-                klageVurdering, null, null, LocalDate.now(), "Fritekst til brev", null);
+                klageVurdering, null, null, LocalDate.now(), "Fritekst til brev", null, null);
 
         // Act
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
@@ -156,7 +156,7 @@ public class KlagevurderingOppdatererTest {
         var klageVurdering = KlageVurdering.AVVIS_KLAGE;
         var klageAvvistÅrsak = KlageAvvistÅrsak.KLAGET_FOR_SENT;
         var dto = new KlageVurderingResultatNkAksjonspunktDto("begrunnelse for avvist klage NK...",
-                klageVurdering, null, klageAvvistÅrsak, LocalDate.now(), "Fritekst til Brev", null, false);
+                klageVurdering, null, klageAvvistÅrsak, LocalDate.now(), "Fritekst til Brev", null, null,false);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var klageScenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(scenario);
         var klageBehandling = klageScenario.lagre(repositoryProvider, klageRepository);

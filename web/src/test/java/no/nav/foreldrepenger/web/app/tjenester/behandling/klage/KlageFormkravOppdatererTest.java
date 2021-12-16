@@ -159,7 +159,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         var nyTilbakekrevingUUID = UUID.randomUUID();
         var vedtakDato = LocalDate.now().minusDays(1);
         when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(new TilbakekrevingVedtakDto(1L,
-                klageTilbakekrevingDto.getTilbakekrevingVedtakDato(), klageTilbakekrevingDto.getTilbakekrevingBehandlingType()));
+                klageTilbakekrevingDto.tilbakekrevingVedtakDato(), klageTilbakekrevingDto.tilbakekrevingBehandlingType()));
         klageTilbakekrevingDto = new KlageTilbakekrevingDto(nyTilbakekrevingUUID, vedtakDato, TILBAKEKREVING_BEHANDLING_TYPE);
         klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(true, klageTilbakekrevingDto);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
@@ -209,7 +209,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isNotEmpty();
 
         when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(new TilbakekrevingVedtakDto(1L,
-                klageTilbakekrevingDto.getTilbakekrevingVedtakDato(), klageTilbakekrevingDto.getTilbakekrevingBehandlingType()));
+                klageTilbakekrevingDto.tilbakekrevingVedtakDato(), klageTilbakekrevingDto.tilbakekrevingBehandlingType()));
         klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto.KlageFormkravNfpAksjonspunktDto(true, true, true, true,
             null, "test", false, null);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
@@ -252,7 +252,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isNotEmpty();
 
         when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(new TilbakekrevingVedtakDto(1L,
-                klageTilbakekrevingDto.getTilbakekrevingVedtakDato(), klageTilbakekrevingDto.getTilbakekrevingBehandlingType()));
+                klageTilbakekrevingDto.tilbakekrevingVedtakDato(), klageTilbakekrevingDto.tilbakekrevingBehandlingType()));
         klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto.KlageFormkravNfpAksjonspunktDto(true, true, true,
             true, behandling.getUuid(), "test", false, null);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
