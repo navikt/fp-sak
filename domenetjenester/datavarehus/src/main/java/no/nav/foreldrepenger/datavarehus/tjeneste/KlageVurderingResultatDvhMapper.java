@@ -11,6 +11,7 @@ public class KlageVurderingResultatDvhMapper {
             .medKlageBehandlingId(klageVurderingResultat.getKlageResultat().getKlageBehandlingId())
             .medKlageVurdering(klageVurderingResultat.getKlageVurdering().getKode())
             .medKlageVurderingOmgjør(klageVurderingResultat.getKlageVurderingOmgjør().getKode())
+            .medKlageHjemmel(klageVurderingResultat.getKlageHjemmel().getKode())
             .medKlageVurdertAv(klageVurderingResultat.getKlageVurdertAv().getKode())
             .medOpprettetTidspunkt(klageVurderingResultat.getOpprettetTidspunkt())
             .build();

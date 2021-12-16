@@ -240,6 +240,7 @@ public class KlageVurderingResultat extends BaseEntitet {
             + "klageVurdering=" + getKlageVurdering() + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "klageVurderingOmgjør" + getKlageVurderingOmgjør() + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "klageMedholdÅrsak=" + getKlageMedholdÅrsak() + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "klageHjemmel=" + getKlageHjemmel() + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "begrunnelse=" + begrunnelse + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "fritekstTilBrev=" + fritekstTilBrev + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + ">"; //$NON-NLS-1$

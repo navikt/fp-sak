@@ -46,6 +46,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
@@ -331,6 +332,7 @@ public class DatavarehusTjenesteImplTest {
             .medKlageMedholdÅrsak(KlageMedholdÅrsak.NYE_OPPLYSNINGER)
             .medKlageVurdering(KlageVurdering.MEDHOLD_I_KLAGE)
             .medKlageVurderingOmgjør(KlageVurderingOmgjør.GUNST_MEDHOLD_I_KLAGE)
+            .medKlageHjemmel(KlageHjemmel.UTSETTELSE)
             .medKlageVurdertAv(KlageVurdertAv.NFP);
 
         var klageVurderingResultat = klageVurderingResultatBuilder.build();
@@ -349,6 +351,7 @@ public class DatavarehusTjenesteImplTest {
         assertThat(captor.getValue().getKlageMedholdÅrsak()).isEqualTo(klageVurderingResultat.getKlageMedholdÅrsak().getKode());
         assertThat(captor.getValue().getKlageVurdering()).isEqualTo(klageVurderingResultat.getKlageVurdering().getKode());
         assertThat(captor.getValue().getKlageVurderingOmgjør()).isEqualTo(klageVurderingResultat.getKlageVurderingOmgjør().getKode());
+        assertThat(captor.getValue().getKlageHjemmel()).isEqualTo(klageVurderingResultat.getKlageHjemmel().getKode());
         assertThat(captor.getValue().getKlageVurdertAv()).isEqualTo(klageVurderingResultat.getKlageVurdertAv().getKode());
     }
 

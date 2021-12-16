@@ -34,6 +34,9 @@ public class KlageVurderingResultatDvh extends DvhBaseEntitet {
     @Column(name = "klage_vurdering_omgjoer")
     private String klageVurderingOmgjør;
 
+    @Column(name = "klage_hjemmel")
+    private String klageHjemmel;
+
     @Column(name = "opprettet_tid", nullable = false, updatable = false)
     private LocalDateTime opprettetTidspunkt;
 
@@ -64,6 +67,10 @@ public class KlageVurderingResultatDvh extends DvhBaseEntitet {
         return klageVurderingOmgjør;
     }
 
+    public String getKlageHjemmel() {
+        return klageHjemmel;
+    }
+
     public LocalDateTime getOpprettetTidspunkt() {
         return opprettetTidspunkt;
     }
@@ -79,12 +86,13 @@ public class KlageVurderingResultatDvh extends DvhBaseEntitet {
             Objects.equals(klageVurdering, that.klageVurdering) &&
             Objects.equals(klageMedholdÅrsak, that.klageMedholdÅrsak) &&
             Objects.equals(klageVurderingOmgjør, that.klageVurderingOmgjør) &&
+            Objects.equals(klageHjemmel, that.klageHjemmel) &&
             Objects.equals(opprettetTidspunkt, that.opprettetTidspunkt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), klageBehandlingId, klageVurdertAv, klageVurdering, klageMedholdÅrsak, klageVurderingOmgjør, opprettetTidspunkt);
+        return Objects.hash(super.hashCode(), klageBehandlingId, klageVurdertAv, klageVurdering, klageMedholdÅrsak, klageVurderingOmgjør, klageHjemmel, opprettetTidspunkt);
     }
 
     public static Builder builder() {
@@ -116,6 +124,11 @@ public class KlageVurderingResultatDvh extends DvhBaseEntitet {
 
         public Builder medKlageVurderingOmgjør(String klageVurderingOmgjør) {
             klageVurderingResultatDvh.klageVurderingOmgjør = klageVurderingOmgjør;
+            return this;
+        }
+
+        public Builder medKlageHjemmel(String klageHjemmel) {
+            klageVurderingResultatDvh.klageHjemmel = klageHjemmel;
             return this;
         }
 
