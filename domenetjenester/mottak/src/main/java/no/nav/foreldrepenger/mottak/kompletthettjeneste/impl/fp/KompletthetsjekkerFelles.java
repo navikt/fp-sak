@@ -152,7 +152,7 @@ public class KompletthetsjekkerFelles {
                 if (skalIkkeSendeBrev) {
                     LOG.info("Sender ikke etterlys inntektsmelding brev for sak som er migrert fra Infotrygd. Gjelder behandlingId {}", ref.getBehandlingId());
                 } else {
-                    sendBrev(ref.getBehandlingId(), ref.getBehandlingUuid(), !ENV.isProd() ? DokumentMalType.ETTERLYS_INNTEKTSMELDING : DokumentMalType.ETTERLYS_INNTEKTSMELDING_FRITEKST, null);
+                    sendBrev(ref.getBehandlingId(), ref.getBehandlingUuid(), DokumentMalType.ETTERLYS_INNTEKTSMELDING, null);
                 }
             }
             return ventefristEtterlysning;
