@@ -43,8 +43,7 @@ public class LesKontrollresultatTask implements ProsessTaskHandler {
     }
 
     private void evaluerKontrollresultat(KontrollResultatV1 kontraktResultat) {
-        var resultatWrapper = kontrollresultatMapper.fraKontrakt(kontraktResultat);
-        risikovurderingTjeneste.lagreKontrollresultat(resultatWrapper);
+        LOG.info("Prøver å løse task risiko.klassifisering.resultat etter at lesing fra kafka er avviklet");
     }
 
 

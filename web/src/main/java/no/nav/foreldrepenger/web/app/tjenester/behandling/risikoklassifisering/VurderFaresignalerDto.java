@@ -7,36 +7,26 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 @JsonTypeName(AksjonspunktKodeDefinisjon.VURDER_FARESIGNALER_KODE)
 public class VurderFaresignalerDto extends BekreftetAksjonspunktDto {
 
-    private Boolean harInnvirketBehandlingen;
+    @NotNull
+    @Valid
     private FaresignalVurdering faresignalVurdering;
 
     VurderFaresignalerDto() {
         // For Jackson
     }
 
-    public VurderFaresignalerDto(String begrunnelse, Boolean harInnvirketBehandlingen, FaresignalVurdering faresignalVurdering) {
+    public VurderFaresignalerDto(String begrunnelse, FaresignalVurdering faresignalVurdering) {
         super(begrunnelse);
-        this.harInnvirketBehandlingen = harInnvirketBehandlingen;
         this.faresignalVurdering = faresignalVurdering;
-    }
-
-
-    public Boolean getHarInnvirketBehandlingen() {
-        return harInnvirketBehandlingen;
-    }
-
-    public void setHarInnvirketBehandlingen(Boolean harInnvirketBehandlingen) {
-        this.harInnvirketBehandlingen = harInnvirketBehandlingen;
     }
 
     public FaresignalVurdering getFaresignalVurdering() {
         return faresignalVurdering;
-    }
-
-    public void setFaresignalVurdering(FaresignalVurdering faresignalVurdering) {
-        this.faresignalVurdering = faresignalVurdering;
     }
 }

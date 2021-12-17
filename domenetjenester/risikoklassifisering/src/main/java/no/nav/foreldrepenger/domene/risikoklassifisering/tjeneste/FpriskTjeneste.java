@@ -3,13 +3,11 @@ package no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste;
 import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriBuilder;
 
-import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.kontrakter.risk.v1.HentRisikovurderingDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.LagreFaresignalVurderingDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
@@ -40,9 +38,8 @@ public class FpriskTjeneste {
         this.lagreVurderingEndpoint = toUri(fpriskEndpoint, "/api/risikovurdering/lagreVurdering");
     }
 
-    public Optional<RisikovurderingResultatDto> hentFaresignalerForBehandling(UUID behandlingUuid) {
-        Objects.requireNonNull(behandlingUuid, "behandlingUuid");
-        var request = new HentRisikovurderingDto(behandlingUuid);
+    public Optional<RisikovurderingResultatDto> hentFaresignalerForBehandling(HentRisikovurderingDto request) {
+        Objects.requireNonNull(request, "request");
         try {
             var respons = oidcRestClient.post(hentRisikoklassifiseringEndpoint, request, RisikovurderingResultatDto.class);
             return Optional.ofNullable(respons);
@@ -52,26 +49,13 @@ public class FpriskTjeneste {
         }
     }
 
-    public void sendRisikovurderingTilFprisk(UUID behandlingUuid, FaresignalVurdering faresignalVurdering) {
-        Objects.requireNonNull(behandlingUuid, "behandlingUuid");
-        var request = new LagreFaresignalVurderingDto(behandlingUuid, mapTilFaresignalKontrakt(faresignalVurdering));
+    public void sendRisikovurderingTilFprisk(LagreFaresignalVurderingDto request) {
+        Objects.requireNonNull(request, "behandlingUuid");
         try {
             oidcRestClient.post(lagreVurderingEndpoint, request);
         } catch (Exception e) {
             LOG.warn("Klarte ikke lagre risikovurdering i fprisk", e);
         }
-    }
-
-    private no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering mapTilFaresignalKontrakt(FaresignalVurdering faresignalVurdering) {
-        return switch (faresignalVurdering) {
-            case INNVIRKNING -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVIRKNING;
-            case INNVILGET_REDUSERT -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVILGET_REDUSERT;
-            case INNVILGET_UENDRET -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVILGET_UENDRET;
-            case AVSLAG_FARESIGNAL -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.AVSLAG_FARESIGNAL;
-            case AVSLAG_ANNET -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.AVSLAG_ANNET;
-            case INGEN_INNVIRKNING -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INGEN_INNVIRKNING;
-            case UDEFINERT -> throw new IllegalStateException("Kode UDEFINERT er ugyldig vurdering av faresignaler");
-        };
     }
 
     private URI toUri(URI endpointURI, String path) {

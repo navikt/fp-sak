@@ -14,71 +14,14 @@ import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.Kontrollre
 import no.nav.foreldrepenger.kontrakter.risk.kodeverk.RisikoklasseType;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.kontroll.v1.KontrollResultatV1;
 
-@ApplicationScoped
 public class KontrollresultatMapper {
 
-    @Inject
-    public KontrollresultatMapper() {
+    private KontrollresultatMapper() {
+        // Skjuler default
     }
 
-    public KontrollresultatWrapper fraKontrakt(KontrollResultatV1 kontraktResultat) {
-        if (kontraktResultat.getKontrollResultatkode() == null || kontraktResultat.getKontrollResultatkode().getKode() == null) {
-            throw manglerKontrollresultatkode();
-        }
-        var kode = kontraktResultat.getKontrollResultatkode().getKode();
-        var kontrollresultat = finnKontrollresultat(kode);
-        return new KontrollresultatWrapper(kontraktResultat.getBehandlingUuid(), kontrollresultat);
-    }
-
-    private Kontrollresultat finnKontrollresultat(String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var kontrollresultat = Kontrollresultat.fraKode(kode);
-        if (kontrollresultat == null || Kontrollresultat.UDEFINERT.equals(kontrollresultat)) {
-            throw udefinertKontrollresultat();
-        }
-        return kontrollresultat;
-    }
-
-    public FaresignalWrapper fraFaresignalRespons(RisikovurderingResultatDto resultatKontrakt) {
-        if (resultatKontrakt.risikoklasse() == null) {
-            // Her ønsker vi ikke akseptere at risikoklasse er null
-            throw manglerKontrollresultatkode();
-        }
-        return new FaresignalWrapper(mapKontrollresultatTilDomene(resultatKontrakt.risikoklasse()),
-            resultatKontrakt.faresignalvurdering() == null ? null : mapFaresignalvurderingTilDomene(resultatKontrakt.faresignalvurdering()),
-            mapFaresignalgruppe(resultatKontrakt.medlemskapFaresignalerNonNull()).orElse(null),
-            mapFaresignalgruppe(resultatKontrakt.opptjeningFaresignalerNonNull()).orElse(null));
-    }
-
-    private Optional<FaresignalGruppeWrapper> mapFaresignalgruppe(List<String> faresignaler) {
-        if (faresignaler.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(new FaresignalGruppeWrapper(faresignaler));
-    }
-
-    private static TekniskException manglerKontrollresultatkode() {
-        return new TekniskException("FP-42517", "Mangler kontrollresultatkode på kontrollresultat");
-    }
-
-    private static TekniskException udefinertKontrollresultat() {
-        return new TekniskException("FP-42518", "Udefinert kontrollresultat");
-    }
-
-
-    public Kontrollresultat mapKontrollresultatTilDomene(RisikoklasseType kontrakt) {
-        return switch (kontrakt) {
-            case HØY -> Kontrollresultat.HØY;
-            case IKKE_HØY -> Kontrollresultat.IKKE_HØY;
-            case IKKE_KLASSIFISERT -> Kontrollresultat.IKKE_KLASSIFISERT;
-        };
-    }
-
-    public no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering mapFaresignalvurderingTilKontrakt(FaresignalVurdering faresignalVurdering) {
+    public static no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering mapFaresignalvurderingTilKontrakt(FaresignalVurdering faresignalVurdering) {
         return switch (faresignalVurdering) {
             case INNVIRKNING -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVIRKNING;
             case INNVILGET_REDUSERT -> no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVILGET_REDUSERT;
@@ -90,7 +33,7 @@ public class KontrollresultatMapper {
         };
     }
 
-    public FaresignalVurdering mapFaresignalvurderingTilDomene(no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering faresignalVurdering) {
+    public static FaresignalVurdering mapFaresignalvurderingTilDomene(no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering faresignalVurdering) {
         return switch (faresignalVurdering) {
             case INNVIRKNING -> FaresignalVurdering.INNVIRKNING;
             case INNVILGET_REDUSERT -> FaresignalVurdering.INNVILGET_REDUSERT;
@@ -98,6 +41,36 @@ public class KontrollresultatMapper {
             case AVSLAG_FARESIGNAL -> FaresignalVurdering.AVSLAG_FARESIGNAL;
             case AVSLAG_ANNET -> FaresignalVurdering.AVSLAG_ANNET;
             case INGEN_INNVIRKNING -> FaresignalVurdering.INGEN_INNVIRKNING;
+        };
+    }
+
+    public static FaresignalWrapper fraFaresignalRespons(RisikovurderingResultatDto resultatKontrakt) {
+        if (resultatKontrakt.risikoklasse() == null) {
+            // Her ønsker vi ikke akseptere at risikoklasse er null
+            throw manglerKontrollresultatkode();
+        }
+        return new FaresignalWrapper(mapKontrollresultatTilDomene(resultatKontrakt.risikoklasse()),
+            resultatKontrakt.faresignalvurdering() == null ? null : mapFaresignalvurderingTilDomene(resultatKontrakt.faresignalvurdering()),
+            mapFaresignalgruppe(resultatKontrakt.medlemskapFaresignalerNonNull()).orElse(null),
+            mapFaresignalgruppe(resultatKontrakt.opptjeningFaresignalerNonNull()).orElse(null));
+    }
+
+    private static Optional<FaresignalGruppeWrapper> mapFaresignalgruppe(List<String> faresignaler) {
+        if (faresignaler.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(new FaresignalGruppeWrapper(faresignaler));
+    }
+
+    private static TekniskException manglerKontrollresultatkode() {
+        return new TekniskException("FP-42517", "Mangler kontrollresultatkode på kontrollresultat");
+    }
+
+    private static Kontrollresultat mapKontrollresultatTilDomene(RisikoklasseType kontrakt) {
+        return switch (kontrakt) {
+            case HØY -> Kontrollresultat.HØY;
+            case IKKE_HØY -> Kontrollresultat.IKKE_HØY;
+            case IKKE_KLASSIFISERT -> Kontrollresultat.IKKE_KLASSIFISERT;
         };
     }
 }

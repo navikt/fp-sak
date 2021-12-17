@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -34,8 +35,6 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 public class KontrollRestTjeneste {
 
     static final String BASE_PATH = "/behandling";
-    private static final String KONTROLLRESULTAT_PART_PATH = "/kontrollresultat";
-    public static final String KONTROLLRESULTAT_PATH = BASE_PATH + KONTROLLRESULTAT_PART_PATH; // NOSONAR TFP-2234
     private static final String KONTROLLRESULTAT_V2_PART_PATH = "/kontrollresultat/resultat";
     public static final String KONTROLLRESULTAT_V2_PATH = BASE_PATH + KONTROLLRESULTAT_V2_PART_PATH;
 
@@ -53,18 +52,6 @@ public class KontrollRestTjeneste {
     }
 
     @GET
-    @Path(KONTROLLRESULTAT_PART_PATH)
-    @Operation(description = "Hent kontrollresultatet for en behandling", tags = "kontroll", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = KontrollresultatDto.class)))
-    })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public KontrollresultatDto hentKontrollresultat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        return kontrollDtoTjeneste.lagKontrollresultatForBehandling(behandling).orElse(null);
-    }
-
-    @GET
     @Operation(description = "Hent kontrollresultatet for en behandling", tags = "kontroll", responses = {
             @ApiResponse(responseCode = "200", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = KontrollresultatDto.class)))
     })
@@ -73,7 +60,8 @@ public class KontrollRestTjeneste {
     public KontrollresultatDto hentKontrollresultatV2(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        return kontrollDtoTjeneste.lagKontrollresultatForBehandling(behandling).orElse(null);
+        var referanse = BehandlingReferanse.fra(behandling);
+        return kontrollDtoTjeneste.lagKontrollresultatForBehandling(referanse).orElse(null);
     }
 
 }
