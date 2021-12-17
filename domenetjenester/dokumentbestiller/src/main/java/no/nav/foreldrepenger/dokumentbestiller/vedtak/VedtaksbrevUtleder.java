@@ -1,12 +1,5 @@
 package no.nav.foreldrepenger.dokumentbestiller.vedtak;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.MEDHOLD_I_KLAGE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.OPPHEVE_YTELSESVEDTAK;
-
-import java.util.Arrays;
-import java.util.Set;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -21,9 +14,13 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.vedtak.exception.TekniskException;
 
-public class VedtaksbrevUtleder {
+import java.util.Arrays;
 
-    private static Set<DokumentMalType> BESTILLE_JSON_FOR_NYE_BREV_MALER = Set.of(DokumentMalType.SVANGERSKAPSPENGER_OPPHØR, DokumentMalType.SVANGERSKAPSPENGER_AVSLAG);
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.MEDHOLD_I_KLAGE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.OPPHEVE_YTELSESVEDTAK;
+
+public class VedtaksbrevUtleder {
 
     private VedtaksbrevUtleder() {
     }
@@ -79,15 +76,6 @@ public class VedtaksbrevUtleder {
         return vedtak.isBeslutningsvedtak();
     }
 
-    public static DokumentMalType bestilleJsonForNyeBrev(BehandlingVedtak vedtak, Behandling behandling, Behandlingsresultat behandlingsresultat) {
-        DokumentMalType dokumentMalType = erAvlåttEllerOpphørt(vedtak) ? velgNegativVedtaksmal(behandling, behandlingsresultat) : null;
-
-        if (dokumentMalType == null) {
-            return null;
-        }
-
-        return BESTILLE_JSON_FOR_NYE_BREV_MALER.contains(dokumentMalType) ? dokumentMalType : null;
-    }
 
     public static DokumentMalType velgNegativVedtaksmal(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         var fagsakYtelseType = behandling.getFagsakYtelseType();

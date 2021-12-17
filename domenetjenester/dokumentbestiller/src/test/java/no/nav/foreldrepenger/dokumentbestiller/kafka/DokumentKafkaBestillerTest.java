@@ -23,7 +23,6 @@ import org.mockito.Mockito;
 import javax.persistence.EntityManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -69,7 +68,7 @@ public class DokumentKafkaBestillerTest {
         var aktør = HistorikkAktør.SAKSBEHANDLER;
 
         // Act
-        dokumentKafkaBestiller.bestillBrevFraKafka(bestillBrevDto, aktør,null);
+        dokumentKafkaBestiller.bestillBrevFraKafka(bestillBrevDto, aktør);
 
         // Assert
         Mockito.verify(brevHistorikkinnslag, Mockito.times(1)).opprettHistorikkinnslagForBestiltBrevFraKafka(aktør, behandling, innhentDok);
@@ -93,7 +92,7 @@ public class DokumentKafkaBestillerTest {
         var bestillBrevDto = lagBestillBrevDto(innhentDok, årsak.getKode(), fritekst);
         var aktør = HistorikkAktør.SAKSBEHANDLER;
 
-        dokumentKafkaBestiller.bestillBrevFraKafka(bestillBrevDto, aktør, null);
+        dokumentKafkaBestiller.bestillBrevFraKafka(bestillBrevDto, aktør);
         Mockito.verify(brevHistorikkinnslag, Mockito.times(1)).opprettHistorikkinnslagForBestiltBrevFraKafka(aktør, behandling, innhentDok);
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste).lagre(captor.capture());
@@ -104,19 +103,6 @@ public class DokumentKafkaBestillerTest {
             assertThat(taskData.getPropertyValue(DokumentBestillerKafkaTask.DOKUMENT_MAL_TYPE)).isEqualTo(innhentDok.getKode());
             assertThat(StandardJsonConfig.fromJson(taskData.getPayloadAsString(), String.class)).isEqualTo(fritekst);
         });
-    }
-
-    @Test
-    public void skal_opprette_2_kafkaTasks() {
-        var innhentDok = DokumentMalType.FRITEKSTBREV;
-        var fritekst = "FRITEKST";
-        var bestillBrevDto = lagBestillBrevDto(innhentDok, null, fritekst);
-        var aktør = HistorikkAktør.SAKSBEHANDLER;
-
-        dokumentKafkaBestiller.bestillBrevFraKafka(bestillBrevDto, aktør, DokumentMalType.SVANGERSKAPSPENGER_AVSLAG);
-
-        Mockito.verify(brevHistorikkinnslag, Mockito.times(1)).opprettHistorikkinnslagForBestiltBrevFraKafka(aktør, behandling, innhentDok);
-        Mockito.verify(taskTjeneste, Mockito.times(2)).lagre(any(ProsessTaskData.class));
     }
 
     private BestillBrevDto lagBestillBrevDto(DokumentMalType dokumentMalType, String arsakskode, String fritekst) {
