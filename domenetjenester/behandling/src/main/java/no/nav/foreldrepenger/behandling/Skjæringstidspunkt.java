@@ -17,7 +17,7 @@ public class Skjæringstidspunkt {
     private LocalDate førsteUttaksdatoGrunnbeløp;
     private LocalDate førsteUttaksdatoSøknad;
     private LocalDateInterval utledetMedlemsintervall;
-    private boolean kreverSammenhengendeUttak = true; // Beholdes inntil lovendring avklart
+    private boolean kreverSammenhengendeUttak;
 
     private Skjæringstidspunkt() {
         // hide constructor
@@ -55,16 +55,6 @@ public class Skjæringstidspunkt {
         Objects.requireNonNull(skjæringstidspunktOpptjening,
                 "Utvikler-feil: skjæringstidspunktOpptjening er ikke satt. Sørg for at det er satt ifht. anvendelse");
         return skjæringstidspunktOpptjening;
-    }
-
-    /**
-     * Skjæringstidspunkt for beregning er definert som dagen etter siste dag med
-     * godkjente aktiviteter.
-     */
-    public LocalDate getSkjæringstidspunktBeregning() {
-        Objects.requireNonNull(skjæringstidspunktBeregning,
-                "Utvikler-feil: skjæringstidspunktBeregning er ikke satt. Sørg for at det er satt ifht. anvendelse");
-        return skjæringstidspunktBeregning;
     }
 
     /**
