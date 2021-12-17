@@ -14,11 +14,32 @@ import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.Kontrollre
 import no.nav.foreldrepenger.kontrakter.risk.kodeverk.RisikoklasseType;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.kontroll.v1.KontrollResultatV1;
 
 public class KontrollresultatMapper {
 
     private KontrollresultatMapper() {
         // Skjuler default
+    }
+
+    public static KontrollresultatWrapper fraKontrakt(KontrollResultatV1 kontraktResultat) {
+        if (kontraktResultat.getKontrollResultatkode() == null || kontraktResultat.getKontrollResultatkode().getKode() == null) {
+            throw manglerKontrollresultatkode();
+        }
+        var kode = kontraktResultat.getKontrollResultatkode().getKode();
+        var kontrollresultat = finnKontrollresultat(kode);
+        return new KontrollresultatWrapper(kontraktResultat.getBehandlingUuid(), kontrollresultat);
+    }
+
+    private static Kontrollresultat finnKontrollresultat(String kode) {
+        if (kode == null) {
+            return null;
+        }
+        var kontrollresultat = Kontrollresultat.fraKode(kode);
+        if (kontrollresultat == null || Kontrollresultat.UDEFINERT.equals(kontrollresultat)) {
+            throw udefinertKontrollresultat();
+        }
+        return kontrollresultat;
     }
 
     public static no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering mapFaresignalvurderingTilKontrakt(FaresignalVurdering faresignalVurdering) {
@@ -60,6 +81,10 @@ public class KontrollresultatMapper {
             return Optional.empty();
         }
         return Optional.of(new FaresignalGruppeWrapper(faresignaler));
+    }
+
+    private static TekniskException udefinertKontrollresultat() {
+        return new TekniskException("FP-42518", "Udefinert kontrollresultat");
     }
 
     private static TekniskException manglerKontrollresultatkode() {
