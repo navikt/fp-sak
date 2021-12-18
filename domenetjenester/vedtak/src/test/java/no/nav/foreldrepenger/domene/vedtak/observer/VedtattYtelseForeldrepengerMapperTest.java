@@ -53,7 +53,7 @@ class VedtattYtelseForeldrepengerMapperTest {
             .build(periode);
 
         List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(arbeidsforholdReferanse);
-        List<Anvisning> anvisninger = VedtattYtelseForeldrepengerMapper.medArbeidsforhold(arbeidsforholdReferanser)
+        List<Anvisning> anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
             .mapForeldrepenger(resultat);
 
         assertThat(anvisninger.size()).isEqualTo(1);
@@ -93,7 +93,7 @@ class VedtattYtelseForeldrepengerMapperTest {
         fullRefusjon(arbeidsgiver2, periode, arbeidsforholdRef2, dagsats2);
 
         List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(arbeidsforholdReferanse1, arbeidsforholdReferanse2);
-        List<Anvisning> anvisninger = VedtattYtelseForeldrepengerMapper.medArbeidsforhold(arbeidsforholdReferanser)
+        List<Anvisning> anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
             .mapForeldrepenger(resultat);
 
         assertThat(anvisninger.size()).isEqualTo(1);
@@ -138,7 +138,7 @@ class VedtattYtelseForeldrepengerMapperTest {
         fullRefusjon(arbeidsgiver, periode, arbeidsforholdRef, dagsats);
 
         List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(arbeidsforholdReferanse);
-        List<Anvisning> anvisninger = VedtattYtelseForeldrepengerMapper.medArbeidsforhold(arbeidsforholdReferanser)
+        List<Anvisning> anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
             .mapForeldrepenger(resultat);
 
         assertThat(anvisninger.size()).isEqualTo(1);
@@ -170,7 +170,7 @@ class VedtattYtelseForeldrepengerMapperTest {
         fullRefusjon(arbeidsgiver, periode, arbeidsforholdRef, dagsats);
 
         var arbeidsforholdReferanser = new ArrayList<ArbeidsforholdReferanse>();
-        List<Anvisning> anvisninger = VedtattYtelseForeldrepengerMapper.medArbeidsforhold(arbeidsforholdReferanser)
+        List<Anvisning> anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
             .mapForeldrepenger(resultat);
 
         assertThat(anvisninger.size()).isEqualTo(1);
@@ -209,7 +209,7 @@ class VedtattYtelseForeldrepengerMapperTest {
             .build(periode);
 
         var arbeidsforholdReferanser = new ArrayList<ArbeidsforholdReferanse>();
-        List<Anvisning> anvisninger = VedtattYtelseForeldrepengerMapper.medArbeidsforhold(arbeidsforholdReferanser)
+        List<Anvisning> anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
             .mapForeldrepenger(resultat);
 
         assertThat(anvisninger.size()).isEqualTo(1);

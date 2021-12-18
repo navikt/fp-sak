@@ -5,7 +5,6 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -71,9 +69,11 @@ public class VedtattYtelseTjenesteTest {
 
         var ytelse= (YtelseV1)tjeneste.genererYtelse(behandling, false);
         // Assert
-        assertThat(ytelse.getAnvist()).hasSize(3);
+        assertThat(ytelse.getAnvist()).hasSize(4);
         assertThat(ytelse.getAnvist().get(0).getUtbetalingsgrad().getVerdi().longValue()).isEqualTo(20);
-        assertThat(ytelse.getAnvist().get(2).getUtbetalingsgrad().getVerdi().longValue()).isEqualTo(60);
+        assertThat(ytelse.getAnvist().get(1).getUtbetalingsgrad().getVerdi().longValue()).isEqualTo(20);
+        assertThat(ytelse.getAnvist().get(2).getUtbetalingsgrad().getVerdi().longValue()).isEqualTo(40);
+        assertThat(ytelse.getAnvist().get(3).getUtbetalingsgrad().getVerdi().longValue()).isEqualTo(60);
     }
 
     @Test
