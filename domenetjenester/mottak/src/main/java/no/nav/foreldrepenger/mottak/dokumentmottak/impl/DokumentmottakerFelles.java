@@ -297,7 +297,7 @@ public class DokumentmottakerFelles {
     void opprettAnnulleringsBehandlinger(MottattDokument dokument, Fagsak fagsak) {
         var søknadUtsettelseUttak = finnUtsettelseUttak(dokument);
         // Henlegg alle åpne behandlinger - selv berørte, fordi uttaket skal tømmes
-        behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId())
+        behandlingRepository.hentÅpneYtelseBehandlingerForFagsakIdForUpdate(fagsak.getId())
             .forEach(b -> behandlingsoppretter.henleggBehandling(b));
 
         var revurdering = behandlingsoppretter.opprettRevurdering(fagsak, BehandlingÅrsakType.RE_UTSATT_START);
