@@ -37,7 +37,7 @@ spec:
       memory: "3072Mi"
     requests:
       cpu: "50m"
-      memory: "2800Mi" # utregnet fra maxheap + non-heap-usage + litt å gå på. maxheap(2147 MB fra grafana) + non-heap usage (450 MB fra grafana) + litt å gå på (203 MB)
+      memory: "2048Mi"
   azure:
     application:
       enabled: true
