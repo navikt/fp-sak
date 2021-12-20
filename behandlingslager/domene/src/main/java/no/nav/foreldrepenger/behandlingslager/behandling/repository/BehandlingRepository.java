@@ -215,6 +215,14 @@ public class BehandlingRepository {
     }
 
     public List<Behandling> hentÅpneYtelseBehandlingerForFagsakId(Long fagsakId) {
+        return hentÅpneYtelseBehandlingerForFagsakIdInternal(fagsakId, true);
+    }
+
+    public List<Behandling> hentÅpneYtelseBehandlingerForFagsakIdForUpdate(Long fagsakId) {
+        return hentÅpneYtelseBehandlingerForFagsakIdInternal(fagsakId, false);
+    }
+
+    private List<Behandling> hentÅpneYtelseBehandlingerForFagsakIdInternal(Long fagsakId, boolean readonly) {
         Objects.requireNonNull(fagsakId, FAGSAK_ID); // $NON-NLS-1$
 
         var query = entityManager.createQuery(
@@ -226,7 +234,9 @@ public class BehandlingRepository {
         query.setParameter(FAGSAK_ID, fagsakId); // $NON-NLS-1$
         query.setParameter("status", BehandlingStatus.getFerdigbehandletStatuser()); //$NON-NLS-1$
         query.setParameter("ytelseTyper", BehandlingType.getYtelseBehandlingTyper()); //$NON-NLS-1$
-        query.setHint(QueryHints.HINT_READONLY, "true"); //$NON-NLS-1$
+        if (readonly) {
+            query.setHint(QueryHints.HINT_READONLY, "true"); //$NON-NLS-1$
+        }
         return query.getResultList();
     }
 
