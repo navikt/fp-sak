@@ -147,7 +147,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             BehandlingStegType.KLAGE_NK,
             VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.KLAGE_BEH_NK, TOTRINN, EnumSet.of(ES, FP, SVP)),
     VURDER_INNSYN(AksjonspunktKodeDefinisjon.VURDER_INNSYN_KODE,
-            AksjonspunktType.MANUELL, "Vurder innsyn", BehandlingStegType.VURDER_INNSYN, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP)),
+            AksjonspunktType.MANUELL, "Vurder innsyn", BehandlingStegType.VURDER_INNSYN, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
     FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS(
             AksjonspunktKodeDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS_KODE, AksjonspunktType.MANUELL,
             "Fastsette beregningsgrunnlag for arbeidstaker/frilanser skjønnsmessig", BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG,
@@ -299,10 +299,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             SkjermlenkeType.PUNKT_FOR_SVANGERSKAPSPENGER, ENTRINN, EnumSet.of(SVP)),
     MANUELL_VURDERING_AV_ANKE(AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_ANKE_KODE,
             AksjonspunktType.MANUELL, "Manuell vurdering av anke", BehandlingStegType.ANKE, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.ANKE_VURDERING,
-            TOTRINN, EnumSet.of(ES, FP)),
+            TOTRINN, EnumSet.of(ES, FP, SVP)),
     MANUELL_VURDERING_AV_ANKE_MERKNADER(
             AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_ANKE_MERKNADER_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av anke merknader",
-            BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.ANKE_MERKNADER, TOTRINN, EnumSet.of(ES, FP)),
+            BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.ANKE_MERKNADER, TOTRINN, EnumSet.of(ES, FP, SVP)),
     VURDER_FARESIGNALER(AksjonspunktKodeDefinisjon.VURDER_FARESIGNALER_KODE,
             AksjonspunktType.MANUELL, "Vurder Faresignaler", BehandlingStegType.VURDER_FARESIGNALER, VurderingspunktType.UT, UTEN_VILKÅR,
             SkjermlenkeType.VURDER_FARESIGNALER, TOTRINN, EnumSet.of(ES, FP, SVP)),
