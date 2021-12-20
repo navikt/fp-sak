@@ -21,29 +21,32 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
 
-class VedtattYtelseForeldrepengerMapper {
+class VedtattYtelseMapper {
 
     private List<ArbeidsforholdReferanse> arbeidsforholdReferanser = new ArrayList<>();
     private final boolean skalMappeArbeidsforhold;
 
-    private VedtattYtelseForeldrepengerMapper(List<ArbeidsforholdReferanse> arbeidsforholdReferanser) {
+    private VedtattYtelseMapper(List<ArbeidsforholdReferanse> arbeidsforholdReferanser) {
         this.arbeidsforholdReferanser = arbeidsforholdReferanser;
         this.skalMappeArbeidsforhold = true;
     }
 
-    private VedtattYtelseForeldrepengerMapper(boolean skalMappeArbeidsforhold) {
+    private VedtattYtelseMapper(boolean skalMappeArbeidsforhold) {
         this.skalMappeArbeidsforhold = skalMappeArbeidsforhold;
     }
 
-    static VedtattYtelseForeldrepengerMapper medArbeidsforhold(List<ArbeidsforholdReferanse> arbeidsforholdReferanser) {
-        return new VedtattYtelseForeldrepengerMapper(arbeidsforholdReferanser);
+    static VedtattYtelseMapper medArbeidsforhold(List<ArbeidsforholdReferanse> arbeidsforholdReferanser) {
+        return new VedtattYtelseMapper(arbeidsforholdReferanser);
     }
 
-    static VedtattYtelseForeldrepengerMapper utenArbeidsforhold() {
-        return new VedtattYtelseForeldrepengerMapper(false);
+    static VedtattYtelseMapper utenArbeidsforhold() {
+        return new VedtattYtelseMapper(false);
     }
 
     List<Anvisning> mapForeldrepenger(BeregningsresultatEntitet tilkjent) {
@@ -54,13 +57,54 @@ class VedtattYtelseForeldrepengerMapper {
     }
 
     private Anvisning mapForeldrepengerPeriode(BeregningsresultatPeriode periode) {
+        return mapPeriode(periode, periode.getDagsatsFraBg(), periode.getKalkulertUtbetalingsgrad());
+    }
+
+    List<Anvisning> mapSvangerskapspenger(BeregningsresultatEntitet tilkjent, BeregningsgrunnlagEntitet beregningsgrunnlag) {
+        var grunnlagSatsUtbetGrad = beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
+            .filter(p -> p.getDagsats() > 0)
+            .map(p -> new LocalDateSegment<>(p.getBeregningsgrunnlagPeriodeFom(), p.getBeregningsgrunnlagPeriodeTom(), beregnGrunnlagSatsUtbetGradSvp(p, beregningsgrunnlag.getGrunnbeløp().getVerdi())))
+            .collect(Collectors.toList());
+        return tilkjent.getBeregningsresultatPerioder().stream()
+            .filter(p -> p.getDagsats() > 0)
+            .map(p -> mapSvangerskapspengerPeriode(p, grunnlagSatsUtbetGrad))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+    }
+
+    private Anvisning mapSvangerskapspengerPeriode(BeregningsresultatPeriode periode, List<LocalDateSegment<DagsatsUtbgradSVP>> dagsatsGrader) {
+        var utledetDagsatsGrad = finnKombinertDagsatsUtbetaling(periode, dagsatsGrader);
+        var dagsats = utledetDagsatsGrad != null ? utledetDagsatsGrad.dagsats() : periode.getDagsatsFraBg();
+        var utbetalingsgrad = utledetDagsatsGrad != null ? new BigDecimal(utledetDagsatsGrad.utbetalingsgrad()) : periode.getKalkulertUtbetalingsgrad();
+        return mapPeriode(periode, dagsats, utbetalingsgrad);
+    }
+
+    private static DagsatsUtbgradSVP finnKombinertDagsatsUtbetaling(BeregningsresultatPeriode periode, List<LocalDateSegment<DagsatsUtbgradSVP>> dagsatsGrader) {
+        return dagsatsGrader.stream()
+            .filter(d -> d.getLocalDateInterval().encloses(periode.getBeregningsresultatPeriodeFom())) // Antar at BR-perioder ikke krysser BG-perioder
+            .findFirst()
+            .map(LocalDateSegment::getValue)
+            .orElse(null);
+    }
+
+    private static DagsatsUtbgradSVP beregnGrunnlagSatsUtbetGradSvp(BeregningsgrunnlagPeriode bgPeriode, BigDecimal grunnbeløp) {
+        var seksG = new BigDecimal(6).multiply(grunnbeløp);
+        var avkortet = bgPeriode.getBruttoPrÅr().compareTo(seksG) > 0 ? seksG : bgPeriode.getBruttoPrÅr();
+        var grad = BigDecimal.ZERO.compareTo(avkortet) == 0 ? 0 :
+            BigDecimal.TEN.multiply(BigDecimal.TEN).multiply(bgPeriode.getRedusertPrÅr()).divide(avkortet, RoundingMode.HALF_EVEN).longValue();
+        var dagsats = BigDecimal.ZERO.compareTo(bgPeriode.getRedusertPrÅr()) == 0 ? 0 :
+            new BigDecimal(bgPeriode.getDagsats()).multiply(avkortet).divide(bgPeriode.getRedusertPrÅr(), RoundingMode.HALF_EVEN).longValue();
+        return new DagsatsUtbgradSVP(dagsats, grad);
+    }
+
+    private Anvisning mapPeriode(BeregningsresultatPeriode periode, long dagsats, BigDecimal utbetalingsgrad) {
         final var anvisning = new Anvisning();
         final var p = new Periode();
         p.setFom(periode.getBeregningsresultatPeriodeFom());
         p.setTom(periode.getBeregningsresultatPeriodeTom());
         anvisning.setPeriode(p);
-        anvisning.setDagsats(new Desimaltall(new BigDecimal(periode.getDagsatsFraBg())));
-        anvisning.setUtbetalingsgrad(new Desimaltall(periode.getKalkulertUtbetalingsgrad()));
+        anvisning.setDagsats(new Desimaltall(new BigDecimal(dagsats)));
+        anvisning.setUtbetalingsgrad(new Desimaltall(utbetalingsgrad));
         anvisning.setAndeler(skalMappeArbeidsforhold ? mapAndeler(periode.getBeregningsresultatAndelList()) : Collections.emptyList());
         return anvisning;
     }
@@ -76,12 +120,12 @@ class VedtattYtelseForeldrepengerMapper {
 
     private AnvistAndel mapTilAnvistAndel(Map.Entry<AnvistAndelNøkkel, List<BeregningsresultatAndel>> e) {
         return new AnvistAndel(
-            mapAktør(e.getKey().getArbeidsgiver()),
-            finnEksternReferanse(e.getKey().getArbeidsforholdRef()),
+            mapAktør(e.getKey().arbeidsgiver()),
+            finnEksternReferanse(e.getKey().arbeidsforholdRef()),
             new Desimaltall(finnTotalBeløp(e.getValue())),
             finnUtbetalingsgrad(e.getValue()),
             new Desimaltall(finnRefusjonsgrad(e.getValue())),
-            no.nav.abakus.iaygrunnlag.kodeverk.Inntektskategori.fraKode(e.getKey().getInntektskategori().getKode())
+            no.nav.abakus.iaygrunnlag.kodeverk.Inntektskategori.fraKode(e.getKey().inntektskategori().getKode())
         );
     }
 
@@ -137,64 +181,33 @@ class VedtattYtelseForeldrepengerMapper {
         return new AktørIdPersonident(arbeidsgiver.getIdentifikator());
     }
 
-    private static class AnvistAndelNøkkel implements Comparable<AnvistAndelNøkkel> {
-        private final Arbeidsgiver arbeidsgiver;
-        private final InternArbeidsforholdRef arbeidsforholdRef;
-        private final Inntektskategori inntektskategori;
-
-        public AnvistAndelNøkkel(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef, Inntektskategori inntektskategori) {
-            this.arbeidsgiver = arbeidsgiver;
-            this.arbeidsforholdRef = arbeidsforholdRef;
-            this.inntektskategori = inntektskategori;
-        }
-
-        public Arbeidsgiver getArbeidsgiver() {
-            return arbeidsgiver;
-        }
-
-        public InternArbeidsforholdRef getArbeidsforholdRef() {
-            return arbeidsforholdRef;
-        }
-
-        public Inntektskategori getInntektskategori() {
-            return inntektskategori;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            AnvistAndelNøkkel that = (AnvistAndelNøkkel) o;
-            return Objects.equals(arbeidsgiver, that.arbeidsgiver) && Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef) && inntektskategori == that.inntektskategori;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(arbeidsgiver, arbeidsforholdRef, inntektskategori);
-        }
-
+    private static record AnvistAndelNøkkel(Arbeidsgiver arbeidsgiver,
+                                            InternArbeidsforholdRef arbeidsforholdRef,
+                                            Inntektskategori inntektskategori) implements Comparable<AnvistAndelNøkkel> {
         @Override
         public int compareTo(AnvistAndelNøkkel o) {
             if (this.equals(o)) {
                 return 0;
             }
-            boolean arbeidsgiverErLik = Objects.equals(this.arbeidsgiver, o.getArbeidsgiver());
+            boolean arbeidsgiverErLik = Objects.equals(this.arbeidsgiver, o.arbeidsgiver());
             if (arbeidsgiverErLik) {
-                boolean arbeidsforholdRefErLik = Objects.equals(this.arbeidsforholdRef, o.getArbeidsforholdRef());
+                boolean arbeidsforholdRefErLik = Objects.equals(this.arbeidsforholdRef, o.arbeidsforholdRef());
                 if (arbeidsforholdRefErLik) {
-                    return this.getInntektskategori().compareTo(o.getInntektskategori());
+                    return this.inntektskategori().compareTo(o.inntektskategori());
                 }
-                if (this.arbeidsforholdRef.getReferanse() != null && o.getArbeidsforholdRef().getReferanse() != null) {
-                    return this.arbeidsforholdRef.getReferanse().compareTo(o.getArbeidsforholdRef().getReferanse());
+                if (this.arbeidsforholdRef.getReferanse() != null && o.arbeidsforholdRef().getReferanse() != null) {
+                    return this.arbeidsforholdRef.getReferanse().compareTo(o.arbeidsforholdRef().getReferanse());
                 }
                 return this.arbeidsforholdRef.getReferanse() != null ? 1 : -1;
             }
-            if (this.getArbeidsgiver() != null && o.getArbeidsgiver() != null) {
-                return this.getArbeidsgiver().getIdentifikator().compareTo(o.getArbeidsgiver().getIdentifikator());
+            if (this.arbeidsgiver() != null && o.arbeidsgiver() != null) {
+                return this.arbeidsgiver().getIdentifikator().compareTo(o.arbeidsgiver().getIdentifikator());
             }
             return this.arbeidsgiver != null ? 1 : -1;
         }
     }
 
+    private static record DagsatsUtbgradSVP(long dagsats, long utbetalingsgrad) {
+    }
 
 }

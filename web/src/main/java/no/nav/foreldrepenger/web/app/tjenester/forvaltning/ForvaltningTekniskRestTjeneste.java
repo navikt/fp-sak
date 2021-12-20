@@ -6,6 +6,8 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Function;
 
@@ -34,22 +36,21 @@ import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsessTaskRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.PoststedKodeverkRepository;
-import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
+import no.nav.foreldrepenger.domene.vedtak.observer.RestRePubliserVedtattYtelseHendelseTask;
 import no.nav.foreldrepenger.poststed.PostnummerSynkroniseringTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BehandlingAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
+import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -67,8 +68,7 @@ public class ForvaltningTekniskRestTjeneste {
     private OppgaveTjeneste oppgaveTjeneste;
     private PoststedKodeverkRepository postnummerKodeverkRepository;
     private PostnummerSynkroniseringTjeneste postnummerTjeneste;
-    private DatavarehusTjeneste datavarehusTjeneste;
-    private AnkeVurderingTjeneste ankeVurderingTjeneste;
+    private ProsessTaskTjeneste taskTjeneste;
     private FagsakProsessTaskRepository fagsakProsessTaskRepository;
 
     public ForvaltningTekniskRestTjeneste() {
@@ -81,7 +81,7 @@ public class ForvaltningTekniskRestTjeneste {
             OppgaveTjeneste oppgaveTjeneste,
             PoststedKodeverkRepository postnummerKodeverkRepository,
             PostnummerSynkroniseringTjeneste postnummerTjeneste,
-            DatavarehusTjeneste datavarehusTjeneste,
+            ProsessTaskTjeneste taskTjeneste,
             AnkeVurderingTjeneste ankeVurderingTjeneste,
             BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -89,8 +89,7 @@ public class ForvaltningTekniskRestTjeneste {
         this.oppgaveTjeneste = oppgaveTjeneste;
         this.postnummerKodeverkRepository = postnummerKodeverkRepository;
         this.postnummerTjeneste = postnummerTjeneste;
-        this.datavarehusTjeneste = datavarehusTjeneste;
-        this.ankeVurderingTjeneste = ankeVurderingTjeneste;
+        this.taskTjeneste = taskTjeneste;
         this.fagsakProsessTaskRepository = fagsakProsessTaskRepository;
     }
 
@@ -284,22 +283,47 @@ public class ForvaltningTekniskRestTjeneste {
     }
 
     @POST
-    @Path("/populer-anke-tr-dvh")
+    @Path("/re-lagre-vedtak-fattet")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @Operation(description = "Hente og lagre kodeverk Postnummer", tags = "FORVALTNING-teknisk")
+    @Operation(description = "Lagre vedtatt ytelse inklusive ", tags = "FORVALTNING-teknisk")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response runOncePopulerAnkeDvhMedTR(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+    public Response relagreVedtakTilAbakusViaRest(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         var b = getBehandling(dto);
-        if (BehandlingType.ANKE.equals(b.getType()) && b.erSaksbehandlingAvsluttet()) {
-            datavarehusTjeneste.oppdaterHvisKlageEllerAnke(b.getId(), b.getAksjonspunkter());
-        } else if (BehandlingType.ANKE.equals(b.getType()) && !b.erSaksbehandlingAvsluttet()) {
-            var avr = ankeVurderingTjeneste.hentAnkeVurderingResultat(b).orElseThrow();
-            ankeVurderingTjeneste.oppdaterBekreftetMerknaderAksjonspunkt(b, avr.getErMerknaderMottatt(), avr.getMerknaderFraBruker(),
-                AnkeVurdering.UDEFINERT, AnkeVurderingOmgjør.UDEFINERT, AnkeOmgjørÅrsak.UDEFINERT);
+        final var taskData = ProsessTaskData.forProsessTask(RestRePubliserVedtattYtelseHendelseTask.class);
+        taskData.setProperty(RestRePubliserVedtattYtelseHendelseTask.KEY, b.getId().toString());
+        taskData.setCallIdFraEksisterende();
+        taskTjeneste.lagre(taskData);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/re-lagre-alle-vedtak-fattet")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Lagre vedtatt ytelse inklusive ", tags = "FORVALTNING-teknisk")
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public Response relagreAlleVedtakTilAbakusViaRest() {
+        var fom = LocalDate.of(2018,10,1);
+        var tom = LocalDate.now().plusDays(1);
+        var spread = 3599;
+        var baseline = LocalDateTime.now();
+        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
+        var callId = MDCOperations.getCallId();
+        int suffix = 1;
+        for (var betweendays = fom; !betweendays.isAfter(tom); betweendays = betweendays.plusDays(1)) {
+            var prosessTaskData = ProsessTaskData.forProsessTask(ReLagreVedtakDagTask.class);
+            prosessTaskData.setProperty(ReLagreVedtakDagTask.LOG_FOM_KEY, betweendays.toString());
+            prosessTaskData.setProperty(ReLagreVedtakDagTask.LOG_TOM_KEY, betweendays.toString());
+            prosessTaskData.setNesteKjøringEtter(baseline.plusSeconds(LocalDateTime.now().getNano() % spread));
+            prosessTaskData.setCallId(callId + "_" + suffix);
+            prosessTaskData.setPrioritet(50);
+            taskTjeneste.lagre(prosessTaskData);
+            suffix++;
         }
-        postnummerTjeneste.synkroniserPostnummer();
+
         return Response.ok().build();
     }
 

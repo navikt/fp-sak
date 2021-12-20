@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.domene.vedtak.observer;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -8,47 +11,45 @@ import javax.inject.Inject;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import no.nav.abakus.vedtak.ytelse.Ytelse;
-import no.nav.folketrygdloven.kalkulator.JsonMapper;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask("vedtak.publiserHendelse")
+@ProsessTask("vedtak.restPubliserHendelse")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
+public class RestRePubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
 
     public static final String KEY = "vedtattBehandlingId";
+    private static final LocalDate Y2020 = LocalDate.of(2020,12,31);
 
     private BehandlingRepository behandlingRepository;
+    private BeregningsresultatRepository tilkjentYtelseRepository;
     private VedtattYtelseTjeneste vedtakTjeneste;
-    private HendelseProducer producer;
+    private AbakusTjeneste abakusTjeneste;
     private Validator validator;
 
-    PubliserVedtattYtelseHendelseTask() {
+    RestRePubliserVedtattYtelseHendelseTask() {
         // for CDI proxy
     }
 
     @Inject
-    public PubliserVedtattYtelseHendelseTask(BehandlingRepositoryProvider repositoryProvider,
-                                             VedtattYtelseTjeneste vedtakTjeneste,
-                                             @KonfigVerdi("kafka.fattevedtak.topic") String topicName,
-                                             @KonfigVerdi("bootstrap.servers") String bootstrapServers,
-                                             @KonfigVerdi("schema.registry.url") String schemaRegistryUrl,
-                                             @KonfigVerdi("systembruker.username") String username,
-                                             @KonfigVerdi("systembruker.password") String password) {
+    public RestRePubliserVedtattYtelseHendelseTask(BehandlingRepositoryProvider repositoryProvider,
+                                                   VedtattYtelseTjeneste vedtakTjeneste,
+                                                   AbakusTjeneste abakusTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.tilkjentYtelseRepository = repositoryProvider.getBeregningsresultatRepository();
         this.vedtakTjeneste = vedtakTjeneste;
-        this.producer = new HendelseProducer(topicName, bootstrapServers, schemaRegistryUrl, username, password);
+        this.abakusTjeneste = abakusTjeneste;
 
         @SuppressWarnings("resource") var factory = Validation.buildDefaultValidatorFactory();
         // hibernate validator implementations er thread-safe, trenger ikke close
@@ -58,16 +59,21 @@ public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         Optional.ofNullable(prosessTaskData.getPropertyValue(KEY))
-            .filter(s -> !s.isEmpty())
             .map(Long::parseLong)
             .flatMap(behandlingRepository::finnUnikBehandlingForBehandlingId)
+            .filter(this::harUtbetaling2021)
             .ifPresent(b -> {
-                final var payload = generatePayload(b);
-                producer.sendJson(payload);
+                final var ytelse = generatePayload(b);
+                try {
+                    abakusTjeneste.lagreYtelse(ytelse);
+                } catch (IOException e) {
+                    throw new TekniskException("FP-19049g", "Kunne ikke lagre vedtak.", e);
+                }
+
             });
     }
 
-    private String generatePayload(Behandling behandling) {
+    private Ytelse generatePayload(Behandling behandling) {
         var ytelse = vedtakTjeneste.genererYtelse(behandling, true);
 
         var violations = validator.validate(ytelse);
@@ -79,14 +85,14 @@ public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
                 .collect(Collectors.toList());
             throw new IllegalArgumentException("Vedtatt-ytelse valideringsfeil \n " + allErrors);
         }
-        return toJson(ytelse);
+        return ytelse;
     }
 
-    private String toJson(Ytelse ytelse) {
-        try {
-            return JsonMapper.toJson(ytelse);
-        } catch (JsonProcessingException e) {
-            throw new TekniskException("FP-190495", "Kunne ikke serialisere til json.", e);
-        }
+    private boolean harUtbetaling2021(Behandling behandling) {
+        return tilkjentYtelseRepository.hentUtbetBeregningsresultat(behandling.getId())
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+            .filter(p -> p.getDagsats() > 0)
+            .anyMatch(p -> p.getBeregningsresultatPeriodeTom().isAfter(Y2020));
     }
+
 }

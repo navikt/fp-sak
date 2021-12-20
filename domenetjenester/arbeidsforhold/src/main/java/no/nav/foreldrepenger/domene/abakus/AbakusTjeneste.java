@@ -11,7 +11,6 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.abakus.iaygrunnlag.v1.OverstyrtInntektArbeidYtelseDto;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -43,12 +42,13 @@ import no.nav.abakus.iaygrunnlag.request.KopierGrunnlagRequest;
 import no.nav.abakus.iaygrunnlag.request.OppgittOpptjeningMottattRequest;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagSakSnapshotDto;
+import no.nav.abakus.iaygrunnlag.v1.OverstyrtInntektArbeidYtelseDto;
 import no.nav.abakus.vedtak.ytelse.Ytelse;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.ObjectReaderResponseHandler;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class AbakusTjeneste {
@@ -77,6 +77,7 @@ public class AbakusTjeneste {
     private URI endpointInntektsmeldingerDiff;
     private URI endpointYtelser;
     private URI endpointOverstyring;
+    private URI endpointLagreYtelse;
 
     AbakusTjeneste() {
         // for CDI
@@ -100,6 +101,7 @@ public class AbakusTjeneste {
         this.endpointRefusjonskravdatoer = toUri("/api/iay/inntektsmeldinger/v1/hentRefusjonskravDatoer");
         this.endpointInntektsmeldingerDiff = toUri("/api/iay/inntektsmeldinger/v1/hentDiff");
         this.endpointYtelser = toUri("/api/ytelse/v1/hentVedtakForAktoer");
+        this.endpointLagreYtelse = toUri("/api/ytelse/v1/vedtatt");
         this.endpointOverstyring = toUri("/api/iay/grunnlag/v1/overstyrt");
     }
 
@@ -353,6 +355,28 @@ public class AbakusTjeneste {
                 var feilmelding = "Feilet med å kopiere grunnlag fra (behandlingUUID=" + request.getGammelReferanse() + ") til (behandlingUUID="
                         + request.getNyReferanse() + ") i Abakus: " + httpPost.getURI()
                         + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
+
+                if (responseCode == HttpStatus.SC_BAD_REQUEST) {
+                    throw feilKallTilAbakus(feilmelding);
+                }
+                throw feilVedKallTilAbakus(feilmelding);
+            }
+        }
+    }
+
+    public void lagreYtelse(Ytelse request) throws IOException {
+        var json = iayJsonWriter.writeValueAsString(request);
+
+        var httpPost = new HttpPost(endpointLagreYtelse);
+        httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
+
+        try (var httpResponse = oidcRestClient.execute(httpPost)) {
+            var responseCode = httpResponse.getStatusLine().getStatusCode();
+            if (responseCode != HttpStatus.SC_OK) {
+                var responseBody = EntityUtils.toString(httpResponse.getEntity());
+                var feilmelding = "Kunne ikke lagre vedtak for sak: " + request.getSaksnummer() + " til abakus: "
+                    + httpPost.getURI()
+                    + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
 
                 if (responseCode == HttpStatus.SC_BAD_REQUEST) {
                     throw feilKallTilAbakus(feilmelding);
