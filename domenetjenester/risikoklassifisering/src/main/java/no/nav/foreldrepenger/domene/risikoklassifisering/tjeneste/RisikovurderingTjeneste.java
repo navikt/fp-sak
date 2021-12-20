@@ -121,6 +121,7 @@ public class RisikovurderingTjeneste {
 
     public void lagreVurderingAvFaresignalerForBehandling(BehandlingReferanse referanse, FaresignalVurdering vurdering) {
         Objects.requireNonNull(referanse, "referanse");
+        risikoklassifiseringRepository.lagreVurderingAvFaresignalerForRisikoklassifisering(vurdering, referanse.getBehandlingId());
         // Send svar til fprisk
         var request = new LagreFaresignalVurderingDto(referanse.getBehandlingUuid(), KontrollresultatMapper.mapFaresignalvurderingTilKontrakt(vurdering));
         fpriskTjeneste.sendRisikovurderingTilFprisk(request);
