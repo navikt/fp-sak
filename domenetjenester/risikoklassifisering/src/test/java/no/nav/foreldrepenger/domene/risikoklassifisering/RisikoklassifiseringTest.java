@@ -101,7 +101,7 @@ public class RisikoklassifiseringTest {
     @Test
     public void skal_ikke_opprette_prosess_task_hvis_behandling_allrede_har_klassifisert() throws IOException {
         var behandling = getBehandling();
-        when(risikovurderingTjeneste.behandlingHarBlittRisikoklassifisert(behandling.getId())).thenReturn(true);
+        when(risikovurderingTjeneste.behandlingHarBlittRisikoklassifisert(behandling)).thenReturn(true);
         var task = risikoklassifisering.opprettPotensiellTaskProsesstask(behandling);
         assertThat(task).isEmpty();
     }

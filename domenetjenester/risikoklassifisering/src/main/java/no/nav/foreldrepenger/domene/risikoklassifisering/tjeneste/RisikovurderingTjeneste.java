@@ -6,31 +6,34 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.RisikoklassifiseringRepository;
+import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.KontrollresultatWrapper;
+import no.nav.foreldrepenger.kontrakter.risk.v1.HentRisikovurderingDto;
+import no.nav.foreldrepenger.kontrakter.risk.v1.LagreFaresignalVurderingDto;
+
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.RisikoklassifiseringEntitet;
-import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.RisikoklassifiseringRepository;
 import no.nav.foreldrepenger.domene.risikoklassifisering.json.KontrollresultatMapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
-import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.KontrollresultatWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class RisikovurderingTjeneste {
-
     private static final Logger LOG = LoggerFactory.getLogger(RisikovurderingTjeneste.class);
 
     private RisikoklassifiseringRepository risikoklassifiseringRepository;
     private BehandlingRepository behandlingRepository;
     private FpriskTjeneste fpriskTjeneste;
-    private KontrollresultatMapper kontrollresultatMapper;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+
 
     public RisikovurderingTjeneste() {
         // CDI
@@ -40,19 +43,22 @@ public class RisikovurderingTjeneste {
     public RisikovurderingTjeneste(RisikoklassifiseringRepository risikoklassifiseringRepository,
                                    BehandlingRepository behandlingRepository,
                                    FpriskTjeneste fpriskTjeneste,
-                                   KontrollresultatMapper kontrollresultatMapper,
                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.risikoklassifiseringRepository = risikoklassifiseringRepository;
         this.behandlingRepository = behandlingRepository;
         this.fpriskTjeneste = fpriskTjeneste;
-        this.kontrollresultatMapper = kontrollresultatMapper;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }
 
-    public boolean behandlingHarBlittRisikoklassifisert(Long behandlingId) {
-        return risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(behandlingId).isPresent();
+    public boolean behandlingHarBlittRisikoklassifisert(BehandlingReferanse referanse) {
+        var resultat = hentFaresignalerForBehandling(referanse);
+        return resultat.map(res -> !res.kontrollresultat().equals(Kontrollresultat.IKKE_KLASSIFISERT)).orElse(false);
     }
 
+    /**
+     *
+     * @deprecated kan fjernes når risikosaker er migrert
+     */
     public void lagreKontrollresultat(KontrollresultatWrapper resultatWrapper) {
         var behandling = behandlingRepository.hentBehandlingHvisFinnes(resultatWrapper.getBehandlingUuid());
         behandling.ifPresent(beh -> {
@@ -91,54 +97,64 @@ public class RisikovurderingTjeneste {
             .filter(v -> !FaresignalVurdering.UDEFINERT.equals(v)).isPresent();
     }
 
-    public Optional<RisikoklassifiseringEntitet> hentRisikoklassifiseringForBehandling(Long behandlingId) {
+
+    public Optional<FaresignalWrapper> hentRisikoklassifisering(BehandlingReferanse referanse) {
+        // Tidlig return for å spare oss unødige restkall og db oppslag, kun førstegangsbehandlinger blir klassifisert.
+        if (!referanse.getBehandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
+            return Optional.empty();
+        }
+
+        var klassifiseringFraRiskOpt = hentFaresignalerForBehandling(referanse);
+
+        // Må gjøres frem til faresignalvurderinger i fpsak er migrert til fprisk
+        if (klassifiseringFraRiskOpt.filter(res -> res.kontrollresultat().equals(Kontrollresultat.HØY) && res.faresignalVurdering() == null).isPresent()) {
+            return Optional.of(leggPåFaresignalvurderingFraFpsak(klassifiseringFraRiskOpt.get(), referanse));
+        }
+
+        return klassifiseringFraRiskOpt;
+    }
+
+    public boolean skalVurdereFaresignaler(BehandlingReferanse referanse) {
+        Objects.requireNonNull(referanse, "referanse");
+        var wrapper = hentRisikoklassifisering(referanse);
+        return wrapper.map(this::erHøyRisiko).orElse(false);
+    }
+
+    public void lagreVurderingAvFaresignalerForBehandling(BehandlingReferanse referanse, FaresignalVurdering vurdering) {
+        Objects.requireNonNull(referanse, "referanse");
+        risikoklassifiseringRepository.lagreVurderingAvFaresignalerForRisikoklassifisering(vurdering, referanse.getBehandlingId());
+        // Send svar til fprisk
+        var request = new LagreFaresignalVurderingDto(referanse.getBehandlingUuid(), KontrollresultatMapper.mapFaresignalvurderingTilKontrakt(vurdering));
+        fpriskTjeneste.sendRisikovurderingTilFprisk(request);
+    }
+
+    private FaresignalWrapper leggPåFaresignalvurderingFraFpsak(FaresignalWrapper resultatFraFprisk, BehandlingReferanse ref) {
+        var klassifiseringFraFpsakOpt = hentRisikoklassifiseringFraFpsak(ref.getBehandlingId());
+        if (klassifiseringFraFpsakOpt.filter(kl -> kl.getFaresignalVurdering() != null).isEmpty()) {
+            return resultatFraFprisk;
+        }
+        return new FaresignalWrapper(resultatFraFprisk.kontrollresultat(),
+            klassifiseringFraFpsakOpt.get().getFaresignalVurdering(),
+            resultatFraFprisk.medlemskapFaresignaler(),
+            resultatFraFprisk.iayFaresignaler());
+    }
+
+    private Optional<RisikoklassifiseringEntitet> hentRisikoklassifiseringFraFpsak(Long behandlingId) {
         return risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(behandlingId);
     }
 
-    public Optional<FaresignalWrapper> finnKontrollresultatForBehandling(Behandling behandling) {
-        var resultat = risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(behandling.getId());
-        if (resultat.isPresent()) {
-            if (erHøyRisiko(resultat.get())) {
-                return hentFaresignalerForBehandling(behandling);
-            }
-            return lagKontrollresultatIkkeHøyRisiko(resultat.get());
-        }
-        return Optional.empty();
+    private boolean erHøyRisiko(FaresignalWrapper wrapper) {
+        return Objects.equals(wrapper.kontrollresultat(), Kontrollresultat.HØY);
     }
 
-    public boolean skalVurdereFaresignaler(Long behandlingId) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
-        var resultat = risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(behandlingId);
-        return resultat.map(this::erHøyRisiko).orElse(false);
-    }
-
-    public void lagreVurderingAvFaresignalerForBehandling(Long behandlingId, FaresignalVurdering vurdering) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
-        risikoklassifiseringRepository.lagreVurderingAvFaresignalerForRisikoklassifisering(vurdering, behandlingId);
-        // Send svar til fprisk
-        var behandlingUid = behandlingRepository.hentBehandling(behandlingId).getUuid();
-        fpriskTjeneste.sendRisikovurderingTilFprisk(behandlingUid, vurdering);
-    }
-
-    private Optional<FaresignalWrapper> lagKontrollresultatIkkeHøyRisiko(RisikoklassifiseringEntitet risikoklassifiseringEntitet) {
-        return Optional.of(new FaresignalWrapper(risikoklassifiseringEntitet.getKontrollresultat(),
-            null,
-            null,
-            null));
-    }
-
-    private boolean erHøyRisiko(RisikoklassifiseringEntitet risikoklassifiseringEntitet) {
-        return Objects.equals(risikoklassifiseringEntitet.getKontrollresultat(), Kontrollresultat.HØY);
-    }
-
-    private Optional<FaresignalWrapper> hentFaresignalerForBehandling(Behandling behandling) {
-        var faresignalerRespons = fpriskTjeneste.hentFaresignalerForBehandling(behandling.getUuid());
+    private Optional<FaresignalWrapper> hentFaresignalerForBehandling(BehandlingReferanse ref) {
+        var request = new HentRisikovurderingDto(ref.getBehandlingUuid());
+        var faresignalerRespons = fpriskTjeneste.hentFaresignalerForBehandling(request);
         if (faresignalerRespons.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.ofNullable(kontrollresultatMapper.fraFaresignalRespons(faresignalerRespons.get()));
+        return Optional.of(KontrollresultatMapper.fraFaresignalRespons(faresignalerRespons.get()));
     }
-
 
     private void lagre(KontrollresultatWrapper resultatWrapper, Behandling beh) {
         var entitet = RisikoklassifiseringEntitet.builder()
@@ -146,4 +162,5 @@ public class RisikovurderingTjeneste {
             .buildFor(beh.getId());
         risikoklassifiseringRepository.lagreRisikoklassifisering(entitet, beh.getId());
     }
+
 }

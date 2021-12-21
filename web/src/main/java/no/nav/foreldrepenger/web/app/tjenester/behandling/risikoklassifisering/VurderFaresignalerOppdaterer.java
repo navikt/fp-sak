@@ -5,12 +5,14 @@ import java.util.Objects;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
@@ -23,6 +25,7 @@ public class VurderFaresignalerOppdaterer implements AksjonspunktOppdaterer<Vurd
 
     private HistorikkTjenesteAdapter historikkAdapter;
     private RisikovurderingTjeneste risikovurderingTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     VurderFaresignalerOppdaterer() {
         // for CDI proxy
@@ -30,34 +33,27 @@ public class VurderFaresignalerOppdaterer implements AksjonspunktOppdaterer<Vurd
 
     @Inject
     public VurderFaresignalerOppdaterer(RisikovurderingTjeneste risikovurderingTjeneste,
-                                        HistorikkTjenesteAdapter historikkAdapter) {
+                                        HistorikkTjenesteAdapter historikkAdapter,
+                                        BehandlingRepository behandlingRepository) {
         this.historikkAdapter = historikkAdapter;
         this.risikovurderingTjeneste = risikovurderingTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
     public OppdateringResultat oppdater(VurderFaresignalerDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
-        var risikoklassifiseringEntitet = risikovurderingTjeneste.hentRisikoklassifiseringForBehandling(behandlingId)
-            .filter(rk -> Kontrollresultat.HØY.equals(rk.getKontrollresultat()))
-            .orElseThrow(() -> new IllegalStateException("Skal ikke kunne vurdere faresignaler for behandling med id " + behandlingId));
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var referanse = BehandlingReferanse.fra(behandling);
 
-        var originalFaresignalVurdering = risikoklassifiseringEntitet.getFaresignalVurdering();
+        var risikoklassifisering = risikovurderingTjeneste.hentRisikoklassifisering(referanse)
+            .filter(rk -> Kontrollresultat.HØY.equals(rk.kontrollresultat()))
+            .orElseThrow(() -> new IllegalStateException("Skal ikke kunne vurdere faresignaler for behandling med id " + referanse.getBehandlingId()));
 
-        if (dto.getHarInnvirketBehandlingen() == null && dto.getFaresignalVurdering() == null) {
-            throw new IllegalStateException("Har ikke mottatt vurdering av faresignaler for behandling med id " + behandlingId);
-        }
+        var originalFaresignalVurdering = risikoklassifisering.faresignalVurdering();
 
-        if (dto.getFaresignalVurdering() != null && !FaresignalVurdering.UDEFINERT.equals(dto.getFaresignalVurdering())) {
-            risikovurderingTjeneste.lagreVurderingAvFaresignalerForBehandling(behandlingId, dto.getFaresignalVurdering());
-            lagHistorikkInnslag(dto, dto.getFaresignalVurdering(), originalFaresignalVurdering, param);
-        } else if (dto.getHarInnvirketBehandlingen()) {
-            risikovurderingTjeneste.lagreVurderingAvFaresignalerForBehandling(behandlingId, FaresignalVurdering.INNVIRKNING);
-            lagHistorikkInnslag(dto, FaresignalVurdering.INNVIRKNING, originalFaresignalVurdering, param);
-        } else {
-            risikovurderingTjeneste.lagreVurderingAvFaresignalerForBehandling(behandlingId, FaresignalVurdering.INGEN_INNVIRKNING);
-            lagHistorikkInnslag(dto, FaresignalVurdering.INGEN_INNVIRKNING, originalFaresignalVurdering, param);
-        }
+        risikovurderingTjeneste.lagreVurderingAvFaresignalerForBehandling(referanse, dto.getFaresignalVurdering());
+        lagHistorikkInnslag(dto, dto.getFaresignalVurdering(), originalFaresignalVurdering, param);
 
         return OppdateringResultat.utenOveropp();
     }

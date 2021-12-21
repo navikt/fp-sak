@@ -8,6 +8,8 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.FpriskTjeneste;
+import no.nav.foreldrepenger.kontrakter.risk.kodeverk.RisikoklasseType;
+import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -51,17 +53,18 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
                 behandlingRepositoryProvider.getBehandlingRepository());
         var behandlingRepository = new BehandlingRepository(entityManager);
         risikoklassifiseringRepository = new RisikoklassifiseringRepository(entityManager);
-        var risikovurderingTjeneste = new RisikovurderingTjeneste(risikoklassifiseringRepository, behandlingRepository,
-            fpriskTjeneste, null, null);
+        var risikovurderingTjeneste = new RisikovurderingTjeneste(risikoklassifiseringRepository,
+            behandlingRepository, fpriskTjeneste, null);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagre(behandlingRepositoryProvider);
-        vurderFaresignalerOppdaterer = new VurderFaresignalerOppdaterer(risikovurderingTjeneste, historikkAdapter);
+        vurderFaresignalerOppdaterer = new VurderFaresignalerOppdaterer(risikovurderingTjeneste, historikkAdapter, behandlingRepository);
     }
 
     @Test
     public void skal_oppdatere_korrekt_ved_ingen_innvirkning() {
         // Arrange
-        var dto = new VurderFaresignalerDto("Dustemikkel", false, FaresignalVurdering.INGEN_INNVIRKNING);
+        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.of(lagRespons(RisikoklasseType.HØY, no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INGEN_INNVIRKNING)));
+        var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.INGEN_INNVIRKNING);
         risikoklassifiseringRepository.lagreRisikoklassifisering(
             lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.UDEFINERT), behandling.getId());
 
@@ -80,7 +83,8 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_oppdatere_korrekt_ved_har_hatt_innvirkning() {
         // Arrange
-        var dto = new VurderFaresignalerDto("Dustemikkel", true, FaresignalVurdering.AVSLAG_FARESIGNAL);
+        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.of(lagRespons(RisikoklasseType.HØY, no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.AVSLAG_FARESIGNAL)));
+        var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.AVSLAG_FARESIGNAL);
         risikoklassifiseringRepository.lagreRisikoklassifisering(
             lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.UDEFINERT), behandling.getId());
 
@@ -99,7 +103,8 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_lage_korrekt_historikkinnslag_når_det_ikke_finnes_tidligere_vurdering() {
         // Arrange
-        var dto = new VurderFaresignalerDto("Dustemikkel", true, FaresignalVurdering.INNVILGET_UENDRET);
+        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.of(lagRespons(RisikoklasseType.HØY, no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVIRKNING)));
+        var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.INNVILGET_UENDRET);
         risikoklassifiseringRepository.lagreRisikoklassifisering(
             lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.UDEFINERT), behandling.getId());
 
@@ -127,7 +132,8 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_lage_korrekt_historikkinnslag_når_det_finnes_tidligere_vurdering_ingen_innvirkning() {
         // Arrange
-        var dto = new VurderFaresignalerDto("Dustemikkel", true, FaresignalVurdering.INNVILGET_REDUSERT);
+        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.of(lagRespons(RisikoklasseType.HØY, no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVIRKNING)));
+        var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.INNVILGET_REDUSERT);
         risikoklassifiseringRepository.lagreRisikoklassifisering(
             lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.INGEN_INNVIRKNING), behandling.getId());
 
@@ -156,7 +162,8 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_lage_korrekt_historikkinnslag_når_det_finnes_tidligere_vurdering_innvirkning() {
         // Arrange
-        var dto = new VurderFaresignalerDto("Dustemikkel", false, FaresignalVurdering.INGEN_INNVIRKNING);
+        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.of(lagRespons(RisikoklasseType.HØY, no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVIRKNING)));
+        var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.INGEN_INNVIRKNING);
         risikoklassifiseringRepository.lagreRisikoklassifisering(
             lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.INNVIRKNING), behandling.getId());
 
@@ -185,7 +192,8 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_feile_om_det_ikke_finnes_en_risikoklassifisering_for_behandlingen() {
         // Arrange
-        var dto = new VurderFaresignalerDto("Dustemikkel", true, FaresignalVurdering.AVSLAG_FARESIGNAL);
+        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.empty());
+        var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.AVSLAG_FARESIGNAL);
 
         // Act
         assertThrows(IllegalStateException.class, () -> vurderFaresignalerOppdaterer.oppdater(dto,
@@ -198,6 +206,10 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
             .medKontrollresultat(kontrollresultat)
             .medFaresignalVurdering(faresignalVurdering)
             .buildFor(behandling.getId());
+    }
+
+    private RisikovurderingResultatDto lagRespons(RisikoklasseType klasse, no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering faresignalVurdering) {
+        return new RisikovurderingResultatDto(klasse, null, null, null);
     }
 
 }

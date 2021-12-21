@@ -5,17 +5,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
-import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.RisikoklassifiseringEntitet;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalGruppeWrapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
@@ -28,20 +28,23 @@ public class KontrollDtoTjenesteTest {
 
     private Behandling behandling;
 
+    private BehandlingReferanse referanse;
+
     @BeforeEach
     public void setup() {
         var scenarioKlage = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenarioKlage.lagMocked();
+        referanse = BehandlingReferanse.fra(behandling);
         kontrollDtoTjeneste = new KontrollDtoTjeneste(risikovurderingTjeneste);
     }
 
     @Test
     public void skal_teste_at_dto_lages_korrekt_når_resultatet_mangler() {
         // Arrange
-        when(risikovurderingTjeneste.finnKontrollresultatForBehandling(behandling)).thenReturn(Optional.empty());
+        when(risikovurderingTjeneste.hentRisikoklassifisering(referanse)).thenReturn(Optional.empty());
 
         // Act
-        var kontrollresultatDto = kontrollDtoTjeneste.lagKontrollresultatForBehandling(behandling);
+        var kontrollresultatDto = kontrollDtoTjeneste.lagKontrollresultatForBehandling(referanse);
 
         // Assert
         assertThat(kontrollresultatDto).isPresent();
@@ -51,11 +54,11 @@ public class KontrollDtoTjenesteTest {
     @Test
     public void skal_teste_at_dto_lages_korrekt_når_resultatet_viser_ikke_høy() {
         // Arrange
-        when(risikovurderingTjeneste.hentRisikoklassifiseringForBehandling(behandling.getId()))
-                .thenReturn(Optional.of(lagEntitet(Kontrollresultat.IKKE_HØY, FaresignalVurdering.UDEFINERT)));
+        when(risikovurderingTjeneste.hentRisikoklassifisering(referanse))
+                .thenReturn(Optional.of(lagFaresignalWrapper(Kontrollresultat.IKKE_HØY, Collections.emptyList())));
 
         // Act
-        var kontrollresultatDto = kontrollDtoTjeneste.lagKontrollresultatForBehandling(behandling);
+        var kontrollresultatDto = kontrollDtoTjeneste.lagKontrollresultatForBehandling(referanse);
 
         // Assert
         assertThat(kontrollresultatDto).isPresent();
@@ -69,13 +72,11 @@ public class KontrollDtoTjenesteTest {
     public void skal_teste_at_dto_lages_korrekt_når_resultatet_viser_høy() {
         // Arrange
         var faresignaler = Arrays.asList("Grunn en", "Grunn to", "Grunn tre", "Grunn 4", "Grunn 5");
-        when(risikovurderingTjeneste.finnKontrollresultatForBehandling(behandling))
+        when(risikovurderingTjeneste.hentRisikoklassifisering(referanse))
                 .thenReturn(Optional.of(lagFaresignalWrapper(Kontrollresultat.HØY, faresignaler)));
-        when(risikovurderingTjeneste.hentRisikoklassifiseringForBehandling(behandling.getId()))
-                .thenReturn(Optional.of(lagEntitet(Kontrollresultat.HØY, FaresignalVurdering.UDEFINERT)));
 
         // Act
-        var kontrollresultatDto = kontrollDtoTjeneste.lagKontrollresultatForBehandling(behandling);
+        var kontrollresultatDto = kontrollDtoTjeneste.lagKontrollresultatForBehandling(referanse);
 
         // Assert
         assertThat(kontrollresultatDto).isPresent();
@@ -84,13 +85,6 @@ public class KontrollDtoTjenesteTest {
         assertThat(kontrollresultatDto.get().medlFaresignaler().faresignaler()).containsAll(faresignaler);
         assertThat(kontrollresultatDto.get().iayFaresignaler()).isNotNull();
         assertThat(kontrollresultatDto.get().iayFaresignaler().faresignaler()).containsAll(faresignaler);
-    }
-
-    private RisikoklassifiseringEntitet lagEntitet(Kontrollresultat kontrollresultat, FaresignalVurdering faresignalVurdering) {
-        return RisikoklassifiseringEntitet.builder()
-                .medFaresignalVurdering(faresignalVurdering)
-                .medKontrollresultat(kontrollresultat)
-                .buildFor(behandling.getId());
     }
 
     private FaresignalWrapper lagFaresignalWrapper(Kontrollresultat kontrollresultat, List<String> faresignaler) {

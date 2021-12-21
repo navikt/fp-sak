@@ -19,16 +19,13 @@ public class LesKontrollresultatTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(LesKontrollresultatTask.class);
 
     private RisikovurderingTjeneste risikovurderingTjeneste;
-    private KontrollresultatMapper kontrollresultatMapper;
 
     public LesKontrollresultatTask() {
     }
 
     @Inject
-    public LesKontrollresultatTask(RisikovurderingTjeneste risikovurderingTjeneste,
-                                   KontrollresultatMapper kontrollresultatMapper) {
+    public LesKontrollresultatTask(RisikovurderingTjeneste risikovurderingTjeneste) {
         this.risikovurderingTjeneste = risikovurderingTjeneste;
-        this.kontrollresultatMapper = kontrollresultatMapper;
     }
 
     @Override
@@ -43,7 +40,7 @@ public class LesKontrollresultatTask implements ProsessTaskHandler {
     }
 
     private void evaluerKontrollresultat(KontrollResultatV1 kontraktResultat) {
-        var resultatWrapper = kontrollresultatMapper.fraKontrakt(kontraktResultat);
+        var resultatWrapper = KontrollresultatMapper.fraKontrakt(kontraktResultat);
         risikovurderingTjeneste.lagreKontrollresultat(resultatWrapper);
     }
 

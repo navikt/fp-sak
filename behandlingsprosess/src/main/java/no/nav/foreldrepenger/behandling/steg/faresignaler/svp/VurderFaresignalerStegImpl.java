@@ -7,6 +7,7 @@ import no.nav.foreldrepenger.behandling.steg.faresignaler.VurderFaresignalerSteg
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 
 @BehandlingStegRef(kode = "VURDER_FARESIGNALER")
@@ -20,7 +21,8 @@ public class VurderFaresignalerStegImpl extends VurderFaresignalerStegFelles {
     }
 
     @Inject
-    public VurderFaresignalerStegImpl(RisikovurderingTjeneste risikovurderingTjeneste) {
-        super(risikovurderingTjeneste);
+    public VurderFaresignalerStegImpl(RisikovurderingTjeneste risikovurderingTjeneste,
+                                      BehandlingRepository behandlingRepository) {
+        super(risikovurderingTjeneste, behandlingRepository);
     }
 }

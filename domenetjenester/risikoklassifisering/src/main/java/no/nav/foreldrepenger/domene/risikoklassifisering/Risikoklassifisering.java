@@ -70,7 +70,7 @@ public class Risikoklassifisering {
 
     Optional<ProsessTaskData> opprettPotensiellTaskProsesstask(BehandlingReferanse ref) throws IOException {
         var behandlingId = ref.getBehandlingId();
-        if (risikovurderingTjeneste.behandlingHarBlittRisikoklassifisert(behandlingId)) {
+        if (risikovurderingTjeneste.behandlingHarBlittRisikoklassifisert(ref)) {
             LOG.info("behandling = {} Har Blitt Risikoklassifisert", behandlingId);
             return Optional.empty();
         }

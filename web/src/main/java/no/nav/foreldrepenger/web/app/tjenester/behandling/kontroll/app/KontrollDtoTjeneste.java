@@ -5,7 +5,8 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalGruppeWrapper;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.dto.FaresignalgruppeDto;
@@ -25,19 +26,18 @@ public class KontrollDtoTjeneste {
         this.risikovurderingTjeneste = risikovurderingTjeneste;
     }
 
-    public Optional<KontrollresultatDto> lagKontrollresultatForBehandling(Behandling behandling) {
-        var risikoklassifiseringEntitet = risikovurderingTjeneste.hentRisikoklassifiseringForBehandling(behandling.getId());
-        if (risikoklassifiseringEntitet.isEmpty()) {
+    public Optional<KontrollresultatDto> lagKontrollresultatForBehandling(BehandlingReferanse referanse) {
+        var wrapperOpt = risikovurderingTjeneste.hentRisikoklassifisering(referanse);
+        if (wrapperOpt.isEmpty()) {
             return Optional.of(KontrollresultatDto.ikkeKlassifisert());
         }
-        var entitet = risikoklassifiseringEntitet.get();
-        if (entitet.erHøyrisiko()) {
-            var faresignalWrapper = risikovurderingTjeneste.finnKontrollresultatForBehandling(behandling);
-            var iayFaresignaler = faresignalWrapper.map(wr -> lagFaresignalDto(wr.iayFaresignaler())).orElse(null);
-            var medlemskapFaresignaler = faresignalWrapper.map(wr -> lagFaresignalDto(wr.medlemskapFaresignaler())).orElse(null);
-            return Optional.of(new KontrollresultatDto(entitet.getKontrollresultat(), iayFaresignaler, medlemskapFaresignaler, entitet.getFaresignalVurdering()));
+        var wrapper = wrapperOpt.get();
+        if (Kontrollresultat.HØY.equals(wrapper.kontrollresultat())) {
+            var iayFaresignaler = lagFaresignalDto(wrapper.iayFaresignaler());
+            var medlemskapFaresignaler = lagFaresignalDto(wrapper.medlemskapFaresignaler());
+            return Optional.of(new KontrollresultatDto(wrapper.kontrollresultat(), iayFaresignaler, medlemskapFaresignaler, wrapper.faresignalVurdering()));
         } else {
-            return Optional.of(new KontrollresultatDto(entitet.getKontrollresultat(), null, null, null));
+            return Optional.of(new KontrollresultatDto(wrapper.kontrollresultat(), null, null, null));
         }
     }
 
