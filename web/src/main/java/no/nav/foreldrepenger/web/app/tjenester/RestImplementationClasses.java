@@ -48,6 +48,7 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningBeregningR
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningFagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOppdragRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOpptjeningRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningRiskRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningStegRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningSøknadRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTekniskRestTjeneste;
@@ -132,6 +133,7 @@ public class RestImplementationClasses {
         classes.add(DatavarehusAdminRestTjeneste.class);
         classes.add(ForvaltningFagsakRestTjeneste.class);
         classes.add(ForvaltningTekniskRestTjeneste.class);
+        classes.add(ForvaltningRiskRestTjeneste.class);
         classes.add(ForvaltningUttrekkRestTjeneste.class);
         classes.add(ForvaltningOppdragRestTjeneste.class);
         classes.add(ForvaltningOpptjeningRestTjeneste.class);
