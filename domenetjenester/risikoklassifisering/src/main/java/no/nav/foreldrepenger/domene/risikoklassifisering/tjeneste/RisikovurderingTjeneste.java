@@ -51,7 +51,8 @@ public class RisikovurderingTjeneste {
     }
 
     public boolean behandlingHarBlittRisikoklassifisert(BehandlingReferanse referanse) {
-        return hentFaresignalerForBehandling(referanse).isPresent();
+        var resultat = hentFaresignalerForBehandling(referanse);
+        return resultat.map(res -> !res.kontrollresultat().equals(Kontrollresultat.IKKE_KLASSIFISERT)).orElse(false);
     }
 
     /**
