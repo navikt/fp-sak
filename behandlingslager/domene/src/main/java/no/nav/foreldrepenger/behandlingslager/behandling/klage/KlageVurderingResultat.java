@@ -44,6 +44,10 @@ public class KlageVurderingResultat extends BaseEntitet {
     @Column(name = "klage_vurdering_omgjoer", nullable = false)
     private KlageVurderingOmgjør klageVurderingOmgjør = KlageVurderingOmgjør.UDEFINERT;
 
+    @Convert(converter = KlageHjemmel.KodeverdiConverter.class)
+    @Column(name = "klage_hjemmel", nullable = false)
+    private KlageHjemmel klageHjemmel = KlageHjemmel.UDEFINERT;
+
     @Column(name = "begrunnelse")
     private String begrunnelse;
 
@@ -64,6 +68,7 @@ public class KlageVurderingResultat extends BaseEntitet {
         this.klageVurdering = entitet.klageVurdering;
         this.klageMedholdÅrsak = entitet.klageMedholdÅrsak;
         this.klageVurderingOmgjør = entitet.klageVurderingOmgjør;
+        this.klageHjemmel = entitet.klageHjemmel;
         this.begrunnelse = entitet.begrunnelse;
         this.fritekstTilBrev = entitet.fritekstTilBrev;
         this.godkjentAvMedunderskriver = entitet.godkjentAvMedunderskriver;
@@ -87,6 +92,10 @@ public class KlageVurderingResultat extends BaseEntitet {
 
     public KlageVurderingOmgjør getKlageVurderingOmgjør() {
         return klageVurderingOmgjør;
+    }
+
+    public KlageHjemmel getKlageHjemmel() {
+        return klageHjemmel;
     }
 
     public String getBegrunnelse() {
@@ -113,6 +122,10 @@ public class KlageVurderingResultat extends BaseEntitet {
         godkjentAvMedunderskriver = godkjent;
     }
 
+    public void setKlageHjemmel(KlageHjemmel klageHjemmel) {
+        this.klageHjemmel = klageHjemmel;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -131,12 +144,13 @@ public class KlageVurderingResultat extends BaseEntitet {
             klageVurdering == that.klageVurdering &&
             klageMedholdÅrsak == that.klageMedholdÅrsak &&
             klageVurderingOmgjør == that.klageVurderingOmgjør &&
+            klageHjemmel == that.klageHjemmel &&
             Objects.equals(begrunnelse, that.begrunnelse);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(klageResultat, klageVurdertAv, klageVurdering, klageMedholdÅrsak, klageVurderingOmgjør, begrunnelse, fritekstTilBrev, godkjentAvMedunderskriver);
+        return Objects.hash(klageResultat, klageVurdertAv, klageVurdering, klageMedholdÅrsak, klageVurderingOmgjør, klageHjemmel, begrunnelse, fritekstTilBrev, godkjentAvMedunderskriver);
     }
 
     public static Builder builder() {
@@ -175,6 +189,11 @@ public class KlageVurderingResultat extends BaseEntitet {
 
         public Builder medKlageVurderingOmgjør(KlageVurderingOmgjør klageVurderingOmgjør) {
             klageVurderingResultatMal.klageVurderingOmgjør = klageVurderingOmgjør == null ? KlageVurderingOmgjør.UDEFINERT : klageVurderingOmgjør;
+            return this;
+        }
+
+        public Builder medKlageHjemmel(KlageHjemmel klageHjemmel) {
+            klageVurderingResultatMal.klageHjemmel = klageHjemmel == null ? KlageHjemmel.UDEFINERT : klageHjemmel;
             return this;
         }
 
@@ -221,6 +240,7 @@ public class KlageVurderingResultat extends BaseEntitet {
             + "klageVurdering=" + getKlageVurdering() + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "klageVurderingOmgjør" + getKlageVurderingOmgjør() + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "klageMedholdÅrsak=" + getKlageMedholdÅrsak() + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "klageHjemmel=" + getKlageHjemmel() + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "begrunnelse=" + begrunnelse + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "fritekstTilBrev=" + fritekstTilBrev + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + ">"; //$NON-NLS-1$

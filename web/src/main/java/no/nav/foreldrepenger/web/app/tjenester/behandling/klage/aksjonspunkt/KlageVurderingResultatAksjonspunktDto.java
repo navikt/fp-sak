@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
@@ -46,6 +47,10 @@ public abstract class KlageVurderingResultatAksjonspunktDto extends BekreftetAks
     @JsonProperty("klageVurderingOmgjoer")
     private KlageVurderingOmgjør klageVurderingOmgjoer;
 
+    @ValidKodeverk
+    @JsonProperty("klageHjemmel")
+    private KlageHjemmel klageHjemmel;
+
     @Valid
     @JsonProperty("vedtaksdatoPaklagdBehandling")
     private LocalDate vedtaksdatoPaklagdBehandling;
@@ -63,13 +68,15 @@ public abstract class KlageVurderingResultatAksjonspunktDto extends BekreftetAks
             KlageMedholdÅrsak klageMedholdArsak,
             KlageAvvistÅrsak klageAvvistArsak,
             LocalDate vedtaksdatoPaklagdBehandling,
-            String fritekstTilBrev, KlageVurderingOmgjør klageVurderingOmgjoer, boolean erGodkjentAvMedunderskriver) {
+            String fritekstTilBrev, KlageVurderingOmgjør klageVurderingOmgjoer,
+            KlageHjemmel klageHjemmel, boolean erGodkjentAvMedunderskriver) {
         super(begrunnelse);
         this.klageVurdering = klageVurdering;
         this.fritekstTilBrev = fritekstTilBrev;
         this.klageAvvistArsak = klageAvvistArsak;
         this.klageMedholdArsak = klageMedholdArsak;
         this.klageVurderingOmgjoer = klageVurderingOmgjoer;
+        this.klageHjemmel = klageHjemmel;
         this.vedtaksdatoPaklagdBehandling = vedtaksdatoPaklagdBehandling;
         this.erGodkjentAvMedunderskriver = erGodkjentAvMedunderskriver;
     }
@@ -94,6 +101,10 @@ public abstract class KlageVurderingResultatAksjonspunktDto extends BekreftetAks
         return klageVurderingOmgjoer;
     }
 
+    public KlageHjemmel getKlageHjemmel() {
+        return klageHjemmel;
+    }
+
     public LocalDate getVedtaksdatoPaklagdBehandling() {
         return vedtaksdatoPaklagdBehandling;
     }
@@ -112,8 +123,10 @@ public abstract class KlageVurderingResultatAksjonspunktDto extends BekreftetAks
 
         public KlageVurderingResultatNfpAksjonspunktDto(String begrunnelse, KlageVurdering klageVurdering,
                                                         KlageMedholdÅrsak klageMedholdÅrsak, KlageAvvistÅrsak klageAvvistÅrsak,
-                                                        LocalDate vedtaksdatoPaklagdBehandling, String fritekstTilBrev, KlageVurderingOmgjør klageVurderingOmgjoer) {
-            super(begrunnelse, klageVurdering, klageMedholdÅrsak, klageAvvistÅrsak, vedtaksdatoPaklagdBehandling, fritekstTilBrev, klageVurderingOmgjoer, false);
+                                                        LocalDate vedtaksdatoPaklagdBehandling, String fritekstTilBrev,
+                                                        KlageVurderingOmgjør klageVurderingOmgjoer,
+                                                        KlageHjemmel klageHjemmel) {
+            super(begrunnelse, klageVurdering, klageMedholdÅrsak, klageAvvistÅrsak, vedtaksdatoPaklagdBehandling, fritekstTilBrev, klageVurderingOmgjoer, klageHjemmel, false);
         }
 
     }
@@ -129,8 +142,8 @@ public abstract class KlageVurderingResultatAksjonspunktDto extends BekreftetAks
         public KlageVurderingResultatNkAksjonspunktDto(String begrunnelse, KlageVurdering klageVurdering,
                                                        KlageMedholdÅrsak klageMedholdÅrsak, KlageAvvistÅrsak klageAvvistÅrsak,
                                                        LocalDate vedtaksdatoPaklagdBehandling, String fritekstTilBrev, KlageVurderingOmgjør klageVurderingOmgjoer,
-                                                       boolean erGodkjentAvMedunderskriver) {
-            super(begrunnelse, klageVurdering, klageMedholdÅrsak, klageAvvistÅrsak, vedtaksdatoPaklagdBehandling, fritekstTilBrev, klageVurderingOmgjoer, erGodkjentAvMedunderskriver);
+                                                       KlageHjemmel klageHjemmel, boolean erGodkjentAvMedunderskriver) {
+            super(begrunnelse, klageVurdering, klageMedholdÅrsak, klageAvvistÅrsak, vedtaksdatoPaklagdBehandling, fritekstTilBrev, klageVurderingOmgjoer, klageHjemmel, erGodkjentAvMedunderskriver);
         }
 
     }

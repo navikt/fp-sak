@@ -1,0 +1,7 @@
+-- klage hjemmel
+alter table KLAGE_VURDERING_RESULTAT ADD KLAGE_HJEMMEL VARCHAR2(100 CHAR);
+
+comment on column KLAGE_VURDERING_RESULTAT.KLAGE_HJEMMEL IS 'Klage gjelder lovhjemmel';
+
+update KLAGE_VURDERING_RESULTAT set KLAGE_HJEMMEL = '-' where KLAGE_HJEMMEL is null;
+

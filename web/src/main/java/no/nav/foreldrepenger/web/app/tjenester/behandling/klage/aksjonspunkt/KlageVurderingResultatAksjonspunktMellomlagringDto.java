@@ -11,6 +11,7 @@ import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
@@ -51,6 +52,10 @@ public class KlageVurderingResultatAksjonspunktMellomlagringDto {
     @JsonProperty("klageVurderingOmgjoer")
     private KlageVurderingOmgjør klageVurderingOmgjoer;
 
+    @ValidKodeverk
+    @JsonProperty("klageHjemmel")
+    private KlageHjemmel klageHjemmel;
+
     public KlageVurderingResultatAksjonspunktMellomlagringDto() {
         // For Jackson
     }
@@ -61,7 +66,8 @@ public class KlageVurderingResultatAksjonspunktMellomlagringDto {
                                                               KlageVurdering klageVurdering,
                                                               KlageMedholdÅrsak klageMedholdArsak,
                                                               String fritekstTilBrev,
-                                                              KlageVurderingOmgjør klageVurderingOmgjoer) {
+                                                              KlageVurderingOmgjør klageVurderingOmgjoer,
+                                                              KlageHjemmel klageHjemmel) {
         this.kode = kode;
         this.behandlingUuid = behandlingUuid;
         this.begrunnelse = begrunnelse;
@@ -70,6 +76,7 @@ public class KlageVurderingResultatAksjonspunktMellomlagringDto {
         this.fritekstTilBrev = fritekstTilBrev;
         this.klageMedholdArsak = klageMedholdArsak;
         this.klageVurderingOmgjoer = klageVurderingOmgjoer;
+        this.klageHjemmel = klageHjemmel;
     }
 
     public KlageVurdering getKlageVurdering() {
@@ -90,6 +97,10 @@ public class KlageVurderingResultatAksjonspunktMellomlagringDto {
 
     public KlageVurderingOmgjør getKlageVurderingOmgjoer() {
         return klageVurderingOmgjoer;
+    }
+
+    public KlageHjemmel getKlageHjemmel() {
+        return klageHjemmel;
     }
 
     public String getKode() {
