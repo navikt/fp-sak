@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -124,8 +126,24 @@ public class RisikovurderingTjeneste {
         Objects.requireNonNull(referanse, "referanse");
         risikoklassifiseringRepository.lagreVurderingAvFaresignalerForRisikoklassifisering(vurdering, referanse.getBehandlingId());
         // Send svar til fprisk
+        sendVurderingTilFprisk(referanse, vurdering);
+    }
+
+    private void sendVurderingTilFprisk(BehandlingReferanse referanse, FaresignalVurdering vurdering) {
         var request = new LagreFaresignalVurderingDto(referanse.getBehandlingUuid(), KontrollresultatMapper.mapFaresignalvurderingTilKontrakt(vurdering));
         fpriskTjeneste.sendRisikovurderingTilFprisk(request);
+    }
+
+    public void migrerFaresignalvurderingTilFprisk(BehandlingReferanse behandlingReferanse) {
+        var entitet = hentRisikoklassifiseringFraFpsak(behandlingReferanse.getBehandlingId());
+        var faresignalVurdering = entitet.map(RisikoklassifiseringEntitet::getFaresignalVurdering)
+            .orElseThrow(() -> new IllegalStateException("Har ingen faresignalvurdering å migrere!"));
+        sendVurderingTilFprisk(behandlingReferanse, faresignalVurdering);
+    }
+
+    public List<Long> finnBehandlingIderForMigrering() {
+        var klassifiseringer = risikoklassifiseringRepository.finnKlassifiseringerForMigrering();
+        return klassifiseringer.stream().map(RisikoklassifiseringEntitet::getBehandlingId).collect(Collectors.toList());
     }
 
     private FaresignalWrapper leggPåFaresignalvurderingFraFpsak(FaresignalWrapper resultatFraFprisk, BehandlingReferanse ref) {
