@@ -340,6 +340,18 @@ public class ForvaltningTekniskRestTjeneste {
         return Response.ok().build();
     }
 
+    @POST
+    @Path("/test-postnummer")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Hente og lagre kodeverk Postnummer", tags = "FORVALTNING-teknisk")
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public Response restPostnummer() {
+        boolean resultat = !postnummerTjeneste.testRestPostnummer();
+        return Response.ok(resultat).build();
+    }
+
     @GET
     @Path("/hent-postnummer")
     @Consumes(APPLICATION_JSON)

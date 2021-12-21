@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.poststed;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.core.UriBuilder;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
@@ -26,11 +28,17 @@ import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.HentKodeverkRequest;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.HentKodeverkResponse;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.kodeverk.KodeverkConsumer;
+import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 
 @ApplicationScoped
 public class KodeverkTjeneste {
 
+    private static final String KODEVERK_URL = "http://kodeverk.org/";
+    private static final String BOKMÅL = "nb";
+
     private KodeverkConsumer kodeverkConsumer;
+    private OidcRestClient restClient;
+
 
     private static final String NORSK_BOKMÅL = "nb";
 
@@ -39,8 +47,9 @@ public class KodeverkTjeneste {
     }
 
     @Inject
-    public KodeverkTjeneste(KodeverkConsumer kodeverkConsumer) {
+    public KodeverkTjeneste(KodeverkConsumer kodeverkConsumer, OidcRestClient restClient) {
         this.kodeverkConsumer = kodeverkConsumer;
+        this.restClient = restClient;
     }
 
     public Optional<KodeverkInfo> hentGjeldendeKodeverk(String kodeverk) {
@@ -51,6 +60,24 @@ public class KodeverkTjeneste {
             return Optional.ofNullable(oversettFraKodeverkListe(response, kodeverk));
         }
         return Optional.empty();
+    }
+
+    public Map<String, KodeverkBetydning> hentKodeverkBetydninger(String kodeverk) {
+        var request = UriBuilder.fromUri(KODEVERK_URL)
+            .path("/api/v1/kodeverk").path(kodeverk).path("/koder/betydninger")
+            .queryParam("spraak", BOKMÅL)
+            .build();
+        var response = restClient.get(request, KodeverkBetydninger.class);
+
+        Map<String, KodeverkBetydning> resultatMap = new LinkedHashMap<>();
+        if (response != null) {
+            response.betydninger().entrySet().forEach(entry -> {
+                var ferskest = entry.getValue().stream().max(Comparator.comparing(KodeInnslag::gyldigFra));
+                ferskest.ifPresent(f -> resultatMap.put(entry.getKey(), new KodeverkBetydning(f.gyldigFra(), f.gyldigTil(), f.beskrivelser().get(BOKMÅL).term())));
+            });
+        }
+        return resultatMap;
+
     }
 
     private static KodeverkInfo oversettFraKodeverkListe(FinnKodeverkListeResponse response, String kodeverk) {
@@ -132,4 +159,10 @@ public class KodeverkTjeneste {
         }
         return xmlGregorianCalendar.toGregorianCalendar().toZonedDateTime().toLocalDate();
     }
+
+    private static record TermTekst(String term) {}
+    private static record KodeInnslag(LocalDate gyldigFra, LocalDate gyldigTil, Map<String, TermTekst> beskrivelser) {}
+    private static record KodeverkBetydninger(Map<String, List<KodeInnslag>> betydninger) {}
+
+    public static record KodeverkBetydning(LocalDate gyldigFra, LocalDate gyldigTil, String term) {}
 }
