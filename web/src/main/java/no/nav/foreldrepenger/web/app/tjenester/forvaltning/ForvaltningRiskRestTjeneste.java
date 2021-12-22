@@ -1,12 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.risikoklassifisering.task.MigrerFaresignalvurderingTask;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
@@ -18,11 +20,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import javax.ws.rs.BeanParam;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.util.function.Function;
@@ -59,9 +62,9 @@ public class ForvaltningRiskRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Tasker er opprettet.")
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response migrerAlleVurderinger(){
+    public Response migrerEnVurdering(){
         var alleSakerSomMåMigreres = risikovurderingTjeneste.finnBehandlingIderForMigrering();
-        var spread = 7200; // Sprer kjøring over to timer
+        var spread = 1800; // Sprer kjøring over 30 minutter
         var baseline = LocalDateTime.now();
         alleSakerSomMåMigreres.forEach(behandlingId -> lagreTask(behandlingId, baseline.plusSeconds(LocalDateTime.now().getNano() % spread)));
         return Response.ok().build();
@@ -86,10 +89,9 @@ public class ForvaltningRiskRestTjeneste {
         @ApiResponse(responseCode = "200", description = "Tasken er opprettet.")
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response migrerAlleVurderinger(
-        @TilpassetAbacAttributt(supplierClass = ForvaltningRiskRestTjeneste.AbacDataSupplier.class)
-        @BeanParam @Valid ForvaltningBehandlingIdDto behandlingIdDto) {
-        var behandlingId = behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid()).getId();
+    public Response migrerEnVurdering(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+    @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        var behandlingId = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid()).getId();
         lagreTask(behandlingId, LocalDateTime.now());
         return Response.ok().build();
     }
