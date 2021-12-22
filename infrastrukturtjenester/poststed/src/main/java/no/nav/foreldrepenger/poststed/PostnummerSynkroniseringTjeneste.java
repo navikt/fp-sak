@@ -49,6 +49,23 @@ public class PostnummerSynkroniseringTjeneste {
         }
     }
 
+    public boolean testRestPostnummer() {
+        LOG.info("Tester kodeverk rest: {}", KODEVERK_POSTNUMMER); // NOSONAR
+
+        var betydninger = kodeverkTjeneste.hentKodeverkBetydninger(KODEVERK_POSTNUMMER);
+        var eksisterendeMap = poststedKodeverkRepository.hentAllePostnummer().stream()
+            .collect(Collectors.toMap(Poststed::getPoststednummer, p -> p));
+        betydninger.forEach((k, v) -> {
+            if (eksisterendeMap.get(k) == null) {
+                LOG.info("Nytt Postnummer {} med innhold {}", k, v);
+            } else {
+                LOG.info("Postnummer {} er {} likt", k, erLike(v, eksisterendeMap.get(k)) ? "" : "ikke");
+            }
+        });
+        return betydninger.entrySet().stream()
+            .anyMatch(e -> (eksisterendeMap.get(e.getKey()) == null || !erLike(e.getValue(), eksisterendeMap.get(e.getKey()))));
+    }
+
     private void lagreNyVersjon(KodeverkInfo pnrInfo) {
         var eksisterendeMap = poststedKodeverkRepository.hentAllePostnummer().stream()
                 .collect(Collectors.toMap(Poststed::getPoststednummer, p -> p));
@@ -83,6 +100,12 @@ public class PostnummerSynkroniseringTjeneste {
         return Objects.equals(kodeverkKode.getGyldigFom(), postnummer.getGyldigFom())
                 && Objects.equals(kodeverkKode.getGyldigTom(), postnummer.getGyldigTom())
                 && Objects.equals(kodeverkKode.getNavn(), postnummer.getPoststednavn());
+    }
+
+    private static boolean erLike(KodeverkTjeneste.KodeverkBetydning kodeverkKode, Poststed postnummer) {
+        return Objects.equals(kodeverkKode.gyldigFra(), postnummer.getGyldigFom())
+            && Objects.equals(kodeverkKode.gyldigTil(), postnummer.getGyldigTom())
+            && Objects.equals(kodeverkKode.term(), postnummer.getPoststednavn());
     }
 
 }
