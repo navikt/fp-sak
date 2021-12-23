@@ -52,7 +52,7 @@
         <kalkulus.version>1.2.88</kalkulus.version>
         <abakus-kontrakt.version>1.3.23</abakus-kontrakt.version>
 
-        <swaggercore.version>2.1.11</swaggercore.version>
+        <swaggercore.version>2.1.12</swaggercore.version>
         <flyway.version>4.2.0</flyway.version>
         <!-- Hold samme som i felles -->
         <cxf.version>3.4.5</cxf.version>
