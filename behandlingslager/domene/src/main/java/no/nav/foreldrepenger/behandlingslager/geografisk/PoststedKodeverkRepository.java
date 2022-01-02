@@ -12,7 +12,6 @@ import javax.persistence.EntityManager;
 import org.hibernate.jpa.QueryHints;
 
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 public class PoststedKodeverkRepository {
@@ -32,15 +31,8 @@ public class PoststedKodeverkRepository {
     }
 
     public List<Poststed> hentAllePostnummer() {
-        var query = entityManager.createQuery("from Poststed p where poststednummer <> :postnr", Poststed.class)
-                .setParameter("postnr", SYNK_POSTNUMMER);
+        var query = entityManager.createQuery("from Poststed p", Poststed.class);
         return query.getResultList();
-    }
-
-    public Optional<Poststed> finnPoststed(String postnummer) {
-        var query = entityManager.createQuery("from Poststed p where poststednummer = :postnr", Poststed.class)
-                .setParameter("postnr", postnummer);
-        return HibernateVerktøy.hentUniktResultat(query);
     }
 
     public Optional<Poststed> finnPoststedReadOnly(String postnummer) {
@@ -54,26 +46,13 @@ public class PoststedKodeverkRepository {
         entityManager.persist(postnummer);
     }
 
-    public LocalDate getPostnummerKodeverksDato() {
-        return finnPoststed(SYNK_POSTNUMMER).map(Poststed::getGyldigFom).orElse(Tid.TIDENES_BEGYNNELSE);
-    }
-
-    public void setPostnummerKodeverksDato(String versjon, LocalDate synkDato) {
-        if (finnPoststed(SYNK_POSTNUMMER).isPresent()) {
-            oppdaterPostnummerKodeverkDato("VERSJON" + versjon, synkDato);
-        } else {
-            var postnummer = new Poststed(SYNK_POSTNUMMER, "VERSJON" + versjon, synkDato, Tid.TIDENES_ENDE);
-            entityManager.persist(postnummer);
-        }
-        entityManager.flush();
-    }
-
-    private void oppdaterPostnummerKodeverkDato(String versjon, LocalDate synkDato) {
+    public void oppdaterPostnummer(Poststed postnummer, String poststed, LocalDate gyldigFom, LocalDate gyldigTom) {
         entityManager.createNativeQuery(
-                "UPDATE POSTSTED SET gyldigfom = :dato, poststednavn = :nyversjon WHERE poststednummer = :synkid")
-            .setParameter("dato", synkDato)
-            .setParameter("nyversjon", versjon)
-            .setParameter("synkid", SYNK_POSTNUMMER)
+                "UPDATE POSTSTED SET gyldigfom = :fom , gyldigtom = :tom , poststednavn = :sted WHERE poststednummer = :postnr ")
+            .setParameter("postnr", postnummer.getPoststednummer())
+            .setParameter("fom", gyldigFom)
+            .setParameter("tom", gyldigTom)
+            .setParameter("sted", poststed)
             .executeUpdate(); //$NON-NLS-1$
     }
 }

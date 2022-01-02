@@ -6,8 +6,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Function;
 
@@ -18,7 +16,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -50,7 +47,6 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehand
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
-import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -299,36 +295,6 @@ public class ForvaltningTekniskRestTjeneste {
     }
 
     @POST
-    @Path("/re-lagre-alle-vedtak-fattet")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Lagre vedtatt ytelse inklusive ", tags = "FORVALTNING-teknisk")
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response relagreAlleVedtakTilAbakusViaRest() {
-        var fom = LocalDate.of(2018,10,1);
-        var tom = LocalDate.now().plusDays(1);
-        var spread = 3599;
-        var baseline = LocalDateTime.now();
-        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
-        var callId = MDCOperations.getCallId();
-        int suffix = 1;
-        for (var betweendays = fom; !betweendays.isAfter(tom); betweendays = betweendays.plusDays(1)) {
-            var prosessTaskData = ProsessTaskData.forProsessTask(ReLagreVedtakDagTask.class);
-            prosessTaskData.setProperty(ReLagreVedtakDagTask.LOG_FOM_KEY, betweendays.toString());
-            prosessTaskData.setProperty(ReLagreVedtakDagTask.LOG_TOM_KEY, betweendays.toString());
-            prosessTaskData.setNesteKjøringEtter(baseline.plusSeconds(LocalDateTime.now().getNano() % spread));
-            prosessTaskData.setCallId(callId + "_" + suffix);
-            prosessTaskData.setPrioritet(50);
-            taskTjeneste.lagre(prosessTaskData);
-            suffix++;
-        }
-
-        return Response.ok().build();
-    }
-
-
-    @POST
     @Path("/synk-postnummer")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
@@ -338,29 +304,6 @@ public class ForvaltningTekniskRestTjeneste {
     public Response synkPostnummer() {
         postnummerTjeneste.synkroniserPostnummer();
         return Response.ok().build();
-    }
-
-    @POST
-    @Path("/test-postnummer")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Hente og lagre kodeverk Postnummer", tags = "FORVALTNING-teknisk")
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response restPostnummer() {
-        boolean resultat = !postnummerTjeneste.testRestPostnummer();
-        return Response.ok(resultat).build();
-    }
-
-    @GET
-    @Path("/hent-postnummer")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Hente lokale Postnummer", tags = "FORVALTNING-teknisk")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response hentPostnummer() {
-        return Response.ok(postnummerKodeverkRepository.finnPoststedReadOnly("SYNK")).build();
     }
 
     @POST

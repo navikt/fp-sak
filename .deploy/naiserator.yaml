@@ -37,7 +37,7 @@ spec:
       memory: "3072Mi"
     requests:
       cpu: "100m"
-      memory: "2304Mi"
+      memory: "2816Mi"
   azure:
     application:
       enabled: true

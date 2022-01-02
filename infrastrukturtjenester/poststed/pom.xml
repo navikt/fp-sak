@@ -27,10 +27,6 @@
         <!-- Integrasjontjenester avhengigheter -->
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>kodeverk-klient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>felles-integrasjon-rest-klient</artifactId>
             <exclusions>
                 <exclusion>
