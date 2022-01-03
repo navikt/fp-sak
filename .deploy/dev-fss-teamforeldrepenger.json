@@ -58,7 +58,7 @@
     "ARBEIDSFORDELING_RS_URL": "http://norg2.default/norg2/api/v1/arbeidsfordeling/enheter",
     "PDL_BASE_URL" : "http://pdl-api.pdl/graphql",
     "SAF_BASE_URL" : "http://saf-q1.teamdokumenthandtering",
-    "KODEVERK_V2_URL": "https://kodeverk.nais.preprod.local/ws/kodeverk/v2",
+    "KODEVERK_BASE_URL": "http://kodeverk.org",
     "SKJERMET_PERSON_RS_URL": "http://skjermede-personer-pip.nom/skjermet"
   }
 }

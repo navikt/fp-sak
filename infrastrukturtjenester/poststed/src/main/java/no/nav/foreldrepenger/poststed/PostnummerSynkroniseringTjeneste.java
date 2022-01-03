@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.poststed;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -18,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.PoststedKodeverkReposit
 public class PostnummerSynkroniseringTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(PostnummerSynkroniseringTjeneste.class);
-
     private static final String KODEVERK_POSTNUMMER = "Postnummer";
 
     private PoststedKodeverkRepository poststedKodeverkRepository;
@@ -36,21 +34,7 @@ public class PostnummerSynkroniseringTjeneste {
     }
 
     public void synkroniserPostnummer() {
-        LOG.info("Synkroniserer kodeverk: {}", KODEVERK_POSTNUMMER); // NOSONAR
-
-        var kodeverksDato = poststedKodeverkRepository.getPostnummerKodeverksDato();
-
-        var pnrInfo = kodeverkTjeneste.hentGjeldendeKodeverk(KODEVERK_POSTNUMMER).orElseThrow();
-        if (pnrInfo.getVersjonDato().isAfter(kodeverksDato)) {
-            lagreNyVersjon(pnrInfo);
-            LOG.info("Nye Postnummer lagret: versjon {} med dato {}", pnrInfo.getVersjon(), pnrInfo.getVersjonDato());
-        } else {
-            LOG.info("Har allerede Postnummer: versjon {} med dato {}", pnrInfo.getVersjon(), pnrInfo.getVersjonDato());
-        }
-    }
-
-    public boolean testRestPostnummer() {
-        LOG.info("Tester kodeverk rest: {}", KODEVERK_POSTNUMMER); // NOSONAR
+        LOG.info("Synkroniserer Postnummer");
 
         var betydninger = kodeverkTjeneste.hentKodeverkBetydninger(KODEVERK_POSTNUMMER);
         var eksisterendeMap = poststedKodeverkRepository.hentAllePostnummer().stream()
@@ -58,54 +42,12 @@ public class PostnummerSynkroniseringTjeneste {
         betydninger.forEach((k, v) -> {
             if (eksisterendeMap.get(k) == null) {
                 LOG.info("Nytt Postnummer {} med innhold {}", k, v);
-            } else {
-                LOG.info("Postnummer {} er {} likt", k, erLike(v, eksisterendeMap.get(k)) ? "" : "ikke");
+                var nytt = new Poststed(k, v.term(), v.gyldigFra(), v.gyldigTil());
+                poststedKodeverkRepository.lagrePostnummer(nytt);
+            } else if (!Objects.equals(v.term(), eksisterendeMap.get(k).getPoststednavn())) {
+                LOG.info("Endret Postnummer {} med innhold {}", k, v);
+                poststedKodeverkRepository.oppdaterPostnummer(eksisterendeMap.get(k), v.term(), v.gyldigFra(), v.gyldigTil());
             }
         });
-        return betydninger.entrySet().stream()
-            .anyMatch(e -> (eksisterendeMap.get(e.getKey()) == null || !erLike(e.getValue(), eksisterendeMap.get(e.getKey()))));
     }
-
-    private void lagreNyVersjon(KodeverkInfo pnrInfo) {
-        var eksisterendeMap = poststedKodeverkRepository.hentAllePostnummer().stream()
-                .collect(Collectors.toMap(Poststed::getPoststednummer, p -> p));
-        var masterKoderMap = kodeverkTjeneste.hentKodeverk(KODEVERK_POSTNUMMER, pnrInfo.getVersjon());
-        masterKoderMap.forEach((key, value) -> synkroniserNyEllerEksisterendeKode(eksisterendeMap, value));
-        poststedKodeverkRepository.setPostnummerKodeverksDato(pnrInfo.getVersjon(), pnrInfo.getVersjonDato());
-    }
-
-    private void synkroniserNyEllerEksisterendeKode(Map<String, Poststed> eksisterendeKoderMap, KodeverkKode masterKode) {
-        if (eksisterendeKoderMap.containsKey(masterKode.getKode())) {
-            synkroniserEksisterendeKode(masterKode, eksisterendeKoderMap.get(masterKode.getKode()));
-        } else {
-            synkroniserNyKode(masterKode);
-        }
-    }
-
-    private void synkroniserNyKode(KodeverkKode kodeverkKode) {
-        var nytt = new Poststed(kodeverkKode.getKode(), kodeverkKode.getNavn(), kodeverkKode.getGyldigFom(), kodeverkKode.getGyldigTom());
-        poststedKodeverkRepository.lagrePostnummer(nytt);
-    }
-
-    private void synkroniserEksisterendeKode(KodeverkKode kodeverkKode, Poststed postnummer) {
-        if (!erLike(kodeverkKode, postnummer)) {
-            postnummer.setPoststednavn(kodeverkKode.getNavn());
-            postnummer.setGyldigFom(kodeverkKode.getGyldigFom());
-            postnummer.setGyldigTom(kodeverkKode.getGyldigTom());
-            poststedKodeverkRepository.lagrePostnummer(postnummer);
-        }
-    }
-
-    private static boolean erLike(KodeverkKode kodeverkKode, Poststed postnummer) {
-        return Objects.equals(kodeverkKode.getGyldigFom(), postnummer.getGyldigFom())
-                && Objects.equals(kodeverkKode.getGyldigTom(), postnummer.getGyldigTom())
-                && Objects.equals(kodeverkKode.getNavn(), postnummer.getPoststednavn());
-    }
-
-    private static boolean erLike(KodeverkTjeneste.KodeverkBetydning kodeverkKode, Poststed postnummer) {
-        return Objects.equals(kodeverkKode.gyldigFra(), postnummer.getGyldigFom())
-            && Objects.equals(kodeverkKode.gyldigTil(), postnummer.getGyldigTom())
-            && Objects.equals(kodeverkKode.term(), postnummer.getPoststednavn());
-    }
-
 }

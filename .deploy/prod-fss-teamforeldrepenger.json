@@ -55,7 +55,7 @@
     "ARBEIDSFORDELING_RS_URL": "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter",
     "PDL_BASE_URL" : "http://pdl-api.pdl/graphql",
     "SAF_BASE_URL" : "http://saf.teamdokumenthandtering",
-    "KODEVERK_V2_URL": "https://kodeverk.nais.adeo.no/ws/kodeverk/v2",
+    "KODEVERK_BASE_URL": "http://kodeverk.org",
     "AZURE_HTTP_PROXY": "http://webproxy.nais:8088",
     "SPOKELSE_GRUNNLAG_SCOPES": "api://prod-fss.tbd.spokelse/.default",
     "SPOKELSE_GRUNNLAG_URL": "http://spokelse.tbd/grunnlag",
