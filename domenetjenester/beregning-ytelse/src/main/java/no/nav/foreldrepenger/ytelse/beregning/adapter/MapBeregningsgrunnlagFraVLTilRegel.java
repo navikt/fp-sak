@@ -75,7 +75,7 @@ public class MapBeregningsgrunnlagFraVLTilRegel {
         return BeregningsgrunnlagPrStatus.builder()
             .medAktivitetStatus(regelAktivitetStatus)
             .medRedusertBrukersAndelPrÅr(vlBGPStatus.getRedusertBrukersAndelPrÅr())
-            .medInntektskategori(InntektskategoriMapper.fraVLTilRegel(vlBGPStatus.getInntektskategori()))
+            .medInntektskategori(InntektskategoriMapper.fraVLTilRegel(vlBGPStatus.getGjeldendeInntektskategori()))
             .build();
     }
 
@@ -90,7 +90,7 @@ public class MapBeregningsgrunnlagFraVLTilRegel {
                     .medArbeidsforhold(ArbeidsforholdMapper.mapArbeidsforholdFraBeregningsgrunnlag(vlBGPStatus))
                     .medRedusertRefusjonPrÅr(vlBGPStatus.getRedusertRefusjonPrÅr())
                     .medRedusertBrukersAndelPrÅr(vlBGPStatus.getRedusertBrukersAndelPrÅr())
-                    .medInntektskategori(InntektskategoriMapper.fraVLTilRegel(vlBGPStatus.getInntektskategori()))
+                    .medInntektskategori(InntektskategoriMapper.fraVLTilRegel(vlBGPStatus.getGjeldendeInntektskategori()))
                     .build();
                 regelBGPStatusATFL.medArbeidsforhold(regelArbeidsforhold);
             }

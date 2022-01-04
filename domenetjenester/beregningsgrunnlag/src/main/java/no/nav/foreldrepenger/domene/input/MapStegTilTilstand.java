@@ -17,6 +17,7 @@ public final class MapStegTilTilstand {
             BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER);
         STEG_TILSTAND.put(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG, BeregningsgrunnlagTilstand.FORESLÅTT);
         STEG_TILSTAND.put(BehandlingStegType.FORESLÅ_BESTEBEREGNING, BeregningsgrunnlagTilstand.BESTEBEREGNET);
+        STEG_TILSTAND.put(BehandlingStegType.VURDER_VILKAR_BERGRUNN, BeregningsgrunnlagTilstand.VURDERT_VILKÅR);
         STEG_TILSTAND.put(BehandlingStegType.VURDER_REF_BERGRUNN, BeregningsgrunnlagTilstand.VURDERT_REFUSJON);
         STEG_TILSTAND.put(BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG,
             BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING);

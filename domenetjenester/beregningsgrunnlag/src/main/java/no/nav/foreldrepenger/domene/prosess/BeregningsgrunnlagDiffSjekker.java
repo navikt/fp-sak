@@ -196,7 +196,7 @@ class BeregningsgrunnlagDiffSjekker {
         if (aktivArbeidsforhold.isPresent() && forrigeArbeidsforhold.isPresent()) {
             return aktivArbeidsforholdFørerTilDiff(aktivArbeidsforhold.get(), forrigeArbeidsforhold.get());
         }
-        if (!aktivAndel.getInntektskategori().equals(forrigeAndel.getInntektskategori())) {
+        if (!aktivAndel.getGjeldendeInntektskategori().equals(forrigeAndel.getGjeldendeInntektskategori())) {
             return true;
         }
         if (!erLike(aktivAndel.getBruttoPrÅr(), forrigeAndel.getBruttoPrÅr())) {

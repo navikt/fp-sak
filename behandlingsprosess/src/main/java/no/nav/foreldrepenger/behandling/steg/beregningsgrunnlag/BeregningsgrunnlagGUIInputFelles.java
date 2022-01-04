@@ -79,7 +79,6 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
      * Optional.empty().
      */
     private Optional<BeregningsgrunnlagGUIInput> lagInput(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var refusjonskravDatoer = inntektsmeldingTjeneste.hentAlleRefusjonskravDatoerForFagsak(ref.getSaksnummer());
         var inntektsmeldingDiff = inntektsmeldingTjeneste.hentInntektsmeldingDiffFraOriginalbehandling(ref);
         var inntektsmeldingDiffDto = inntektsmeldingDiff.stream().map(IAYMapperTilKalkulus::mapInntektsmeldingDto)
                 .collect(Collectors.toList());
@@ -99,7 +98,6 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
         var input = new BeregningsgrunnlagGUIInput(
             MapBehandlingRef.mapRef(ref),
             iayGrunnlagDto,
-            IAYMapperTilKalkulus.mapRefusjonskravDatoer(refusjonskravDatoer),
             kravperioder,
             mappetOpptjening,
             ytelseGrunnlag);

@@ -93,13 +93,9 @@ public class BeregningDtoTjeneste {
             .map(input::medBeregningsgrunnlagGrunnlagFraFaktaOmBeregning)
             .orElse(input);
 
-        var inputMedRefBG = refBG.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag)
-            .map(inputMedBGKofakber::medBeregningsgrunnlagGrunnlagFraVurderRefusjon)
-            .orElse(inputMedBGKofakber);
-
         return fordeltBG.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag)
-            .map(inputMedRefBG::medBeregningsgrunnlagGrunnlagFraFordel)
-            .orElse(inputMedRefBG);
+            .map(inputMedBGKofakber::medBeregningsgrunnlagGrunnlagFraFordel)
+            .orElse(inputMedBGKofakber);
     }
 
 }
