@@ -163,6 +163,8 @@ public class VedtaksHendelseHåndterer {
     private void opprettHåndterOverlappTaskPleiepenger(Fagsak f, UUID callID) {
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOverlappPleiepengerTask.class);
         prosessTaskData.setFagsak(f.getId(), f.getAktørId().getId());
+        // Gi abakus tid til å konsumere samme hendelse så det finnes et grunnlag å hente opp.
+        prosessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusMinutes(10));
         prosessTaskData.setCallId(callID.toString());
         taskTjeneste.lagre(prosessTaskData);
     }

@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.mottak.dokumentmottak.impl.Kompletthetskontroller;
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
@@ -45,6 +46,7 @@ public class HåndterOpphørAvYtelser {
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private KøKontroller køKontroller;
+    private Kompletthetskontroller kompletthetskontroller;
 
     @Inject
     public HåndterOpphørAvYtelser(BehandlingRepositoryProvider behandlingRepositoryProvider,
@@ -53,7 +55,7 @@ public class HåndterOpphørAvYtelser {
                                   ProsessTaskTjeneste taskTjeneste,
                                   BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                   BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                                  KøKontroller køKontroller) {
+                                  KøKontroller køKontroller, Kompletthetskontroller kompletthetskontroller) {
         this.fagsakLåsRepository = behandlingRepositoryProvider.getFagsakLåsRepository();
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.taskTjeneste = taskTjeneste;
@@ -62,6 +64,7 @@ public class HåndterOpphørAvYtelser {
         this.revurderingTjenesteFP = revurderingTjenesteFP;
         this.revurderingTjenesteSVP = revurderingTjenesteSVP;
         this.køKontroller = køKontroller;
+        this.kompletthetskontroller = kompletthetskontroller;
     }
 
     HåndterOpphørAvYtelser() {
@@ -71,9 +74,10 @@ public class HåndterOpphørAvYtelser {
     void oppdaterEllerOpprettRevurdering(Fagsak fagsak, String beskrivelse, BehandlingÅrsakType årsakType) {
         var eksisterendeBehandling = finnÅpenOrdinærYtelsesbehandlingUtenÅrsakType(fagsak, årsakType);
 
-        if (eksisterendeBehandling != null) {
+        if (eksisterendeBehandling != null && !eksisterendeBehandling.erStatusFerdigbehandlet()) {
             opprettVurderKonsekvens(eksisterendeBehandling, beskrivelse);
             oppdatereBehMedÅrsak(eksisterendeBehandling.getId(), årsakType);
+            kompletthetskontroller.vurderNyForretningshendelse(eksisterendeBehandling);
         } else {
             behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId())
                 .filter(b -> !b.harBehandlingÅrsak(årsakType))

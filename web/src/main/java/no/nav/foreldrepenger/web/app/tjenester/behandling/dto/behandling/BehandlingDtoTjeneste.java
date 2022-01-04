@@ -350,6 +350,7 @@ public class BehandlingDtoTjeneste {
 
         dto.leggTil(get(InntektArbeidYtelseRestTjeneste.INNTEKT_ARBEID_YTELSE_PATH, "inntekt-arbeid-ytelse", uuidDto));
         dto.leggTil(get(InntektArbeidYtelseRestTjeneste.ARBEIDSGIVERE_OPPLYSNINGER_PATH, "arbeidsgivere-oversikt", uuidDto));
+        dto.leggTil(get(InntektArbeidYtelseRestTjeneste.ALLE_INNTEKTSMELDINGER_PATH, "inntektsmeldinger", uuidDto));
 
         if (opptjeningIUtlandDokStatusTjeneste.hentStatus(behandling.getId()).isPresent()) {
             dto.leggTil(get(OpptjeningRestTjeneste.UTLAND_DOK_STATUS_PATH, "utland-dok-status", uuidDto));
