@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.behandlingslager.risikoklassifisering;
 
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -11,6 +13,7 @@ import javax.persistence.EntityManager;
 
 @ApplicationScoped
 public class RisikoklassifiseringRepository {
+    private static final LocalDateTime FØRSTE_VURDERING_LAGRET_I_FPRISK_TIDSPUNKT = LocalDateTime.of(2021, 12, 14, 20,28);
 
     private EntityManager entityManager;
 
@@ -38,6 +41,18 @@ public class RisikoklassifiseringRepository {
             .buildFor(gammelEntitet.getBehandlingId());
 
         lagre(nyEntitet);
+    }
+
+    public List<RisikoklassifiseringEntitet> finnKlassifiseringerForMigrering() {
+        var query = entityManager.createQuery("from RisikoklassifiseringEntitet " +
+            "where erAktiv = :erAktiv " +
+            "and faresignalVurdering is not null " +
+            "and faresignalVurdering != :udefinert " +
+            "and opprettetTidspunkt < :førsteMigrerteSak", RisikoklassifiseringEntitet.class);
+        query.setParameter("førsteMigrerteSak", FØRSTE_VURDERING_LAGRET_I_FPRISK_TIDSPUNKT);
+        query.setParameter("udefinert", FaresignalVurdering.UDEFINERT);
+        query.setParameter("erAktiv", true);
+        return query.getResultList();
     }
 
 
