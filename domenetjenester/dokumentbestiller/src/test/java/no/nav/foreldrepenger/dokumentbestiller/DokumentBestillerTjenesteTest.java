@@ -1,5 +1,14 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -10,14 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.dokumentbestiller.kafka.DokumentKafkaBestiller;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class DokumentBestillerTjenesteTest {
@@ -52,7 +53,7 @@ public class DokumentBestillerTjenesteTest {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         settOpp(scenario);
 
-        var dokumentMalTypeInput = DokumentMalType.INNHENTE_OPPLYSNINGER_DOK;
+        var dokumentMalTypeInput = DokumentMalType.INNHENTE_OPPLYSNINGER;
         var historikkAktør = HistorikkAktør.SAKSBEHANDLER;
         var bestillBrevDto = new BestillBrevDto(behandling.getId(), behandling.getUuid(), dokumentMalTypeInput, "fritekst");
 
@@ -69,7 +70,7 @@ public class DokumentBestillerTjenesteTest {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         settOpp(scenario);
 
-        var dokumentMalTypeInput = DokumentMalType.INNHENTE_OPPLYSNINGER_DOK;
+        var dokumentMalTypeInput = DokumentMalType.INNHENTE_OPPLYSNINGER;
         var historikkAktør = HistorikkAktør.SAKSBEHANDLER;
         var bestillBrevDto = new BestillBrevDto(behandling.getId(), behandling.getUuid(), dokumentMalTypeInput, "fritekst");
 

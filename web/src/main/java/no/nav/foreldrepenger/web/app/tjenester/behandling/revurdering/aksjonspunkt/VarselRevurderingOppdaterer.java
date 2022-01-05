@@ -64,8 +64,7 @@ public class VarselRevurderingOppdaterer implements AksjonspunktOppdaterer<Varse
     }
 
     private Boolean harSendtVarselOmRevurdering(Behandling behandling) {
-        return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING_DOK)
-            || dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING);
+        return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING);
     }
 
 }
