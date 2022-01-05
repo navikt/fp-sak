@@ -118,6 +118,8 @@ public class Kompletthetskontroller {
 
     public void vurderNyForretningshendelse(Behandling behandling) {
         if (kompletthetModell.erKompletthetssjekkPassert(behandling.getId())) {
+            // Sikre oppdatering dersom behandling står i FatteVedtak eller registerdata er innhentet samme dag.
+            behandlingProsesseringTjeneste.tvingInnhentingRegisteropplysninger(behandling);
             behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
         }
     }

@@ -43,6 +43,7 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesser
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.mottak.dokumentmottak.impl.Kompletthetskontroller;
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
@@ -89,7 +90,7 @@ public class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
         fagsakRepository = new FagsakRepository(entityManager);
         håndterOpphørAvYtelser = new HåndterOpphørAvYtelser(repositoryProvider, revurderingTjenesteMockFP,
             revurderingTjenesteMockSVP, taskTjeneste, behandlendeEnhetTjeneste, behandlingProsesseringTjenesteMock,
-            mock(KøKontroller.class));
+            mock(KøKontroller.class), mock(Kompletthetskontroller.class));
     }
 
     @Test
