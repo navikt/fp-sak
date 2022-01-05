@@ -1,5 +1,18 @@
 package no.nav.foreldrepenger.dokumentbestiller.kafka;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import javax.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -14,18 +27,6 @@ import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-
-import javax.persistence.EntityManager;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @CdiDbAwareTest
 public class DokumentKafkaBestillerTest {
@@ -63,7 +64,7 @@ public class DokumentKafkaBestillerTest {
     @Test
     public void skal_opprette_historikkinnslag_og_lagre_prosesstask_og_logge_dokumentbestilt() {
         // Arrange
-        var innhentDok = DokumentMalType.INNHENTE_OPPLYSNINGER_DOK;
+        var innhentDok = DokumentMalType.INNHENTE_OPPLYSNINGER;
         var bestillBrevDto = lagBestillBrevDto(innhentDok, null, null);
         var aktør = HistorikkAktør.SAKSBEHANDLER;
 
@@ -86,7 +87,7 @@ public class DokumentKafkaBestillerTest {
 
     @Test
     public void skal_opprette_historikkinnslag_og_lagre_prosesstask_med_fritekst_og_årsak() {
-        var innhentDok = DokumentMalType.INNHENTE_OPPLYSNINGER_DOK;
+        var innhentDok = DokumentMalType.INNHENTE_OPPLYSNINGER;
         var fritekst = "FRITEKST";
         var årsak = RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER;
         var bestillBrevDto = lagBestillBrevDto(innhentDok, årsak.getKode(), fritekst);

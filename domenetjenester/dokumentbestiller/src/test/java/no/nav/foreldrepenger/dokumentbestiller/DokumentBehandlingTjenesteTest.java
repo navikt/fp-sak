@@ -125,23 +125,23 @@ public class DokumentBehandlingTjenesteTest {
         behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENTE_OPPLYSNINGER_DOK);
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENTE_OPPLYSNINGER);
 
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         assertThat(behandlingDokument).isPresent();
         assertThat(behandlingDokument.get().getBestilteDokumenter()).hasSize(1);
-        assertThat(behandlingDokument.get().getBestilteDokumenter().get(0).getDokumentMalType()).isEqualTo(DokumentMalType.INNHENTE_OPPLYSNINGER_DOK.getKode());
+        assertThat(behandlingDokument.get().getBestilteDokumenter().get(0).getDokumentMalType()).isEqualTo(DokumentMalType.INNHENTE_OPPLYSNINGER.getKode());
     }
 
     @Test
     public void skal_returnere_true_når_dokument_er_bestilt() {
         // Arrange
         behandling = scenario.lagre(repositoryProvider);
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENTE_OPPLYSNINGER_DOK);
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENTE_OPPLYSNINGER);
 
         // Act+Assert
-        assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENTE_OPPLYSNINGER_DOK)).isTrue();
+        assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENTE_OPPLYSNINGER)).isTrue();
     }
 
     @Test
@@ -151,7 +151,7 @@ public class DokumentBehandlingTjenesteTest {
         dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.ETTERLYS_INNTEKTSMELDING);
 
         // Act+Assert
-        assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENTE_OPPLYSNINGER_DOK)).isFalse();
+        assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENTE_OPPLYSNINGER)).isFalse();
     }
 
     @Test
