@@ -89,6 +89,9 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
     @Column(name = "fordelt_pr_aar")
     private BigDecimal fordeltPrÅr;
 
+    @Column(name = "manuelt_fordelt_pr_aar")
+    private BigDecimal manueltFordeltPrÅr;
+
     @Column(name = "maksimal_refusjon_pr_aar")
     private BigDecimal maksimalRefusjonPrÅr;
 
@@ -142,6 +145,14 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
     @Column(name="inntektskategori", nullable = false)
     private Inntektskategori inntektskategori = Inntektskategori.UDEFINERT;
 
+    @Convert(converter=Inntektskategori.KodeverdiConverter.class)
+    @Column(name="inntektskategori_manuell_fordeling")
+    private Inntektskategori inntektskategoriManuellFordeling;
+
+    @Convert(converter=Inntektskategori.KodeverdiConverter.class)
+    @Column(name="inntektskategori_fordeling")
+    private Inntektskategori inntektskategoriAutomatiskFordeling;
+
     @Convert(converter=AndelKilde.KodeverdiConverter.class)
     @Column(name="kilde", nullable = false)
     private AndelKilde kilde = AndelKilde.PROSESS_START;
@@ -173,7 +184,10 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
         this.dagsatsBruker = beregningsgrunnlagPrStatusOgAndel.getDagsatsBruker();
         this.fastsattAvSaksbehandler = beregningsgrunnlagPrStatusOgAndel.getFastsattAvSaksbehandler();
         this.fordeltPrÅr = beregningsgrunnlagPrStatusOgAndel.getFordeltPrÅr();
+        this.manueltFordeltPrÅr = beregningsgrunnlagPrStatusOgAndel.getManueltFordeltPrÅr();
         this.inntektskategori = beregningsgrunnlagPrStatusOgAndel.getInntektskategori();
+        this.inntektskategoriAutomatiskFordeling = beregningsgrunnlagPrStatusOgAndel.getInntektskategoriAutomatiskFordeling();
+        this.inntektskategoriManuellFordeling = beregningsgrunnlagPrStatusOgAndel.getInntektskategoriManuellFordeling();
         this.kilde = beregningsgrunnlagPrStatusOgAndel.getKilde();
         this.maksimalRefusjonPrÅr = beregningsgrunnlagPrStatusOgAndel.getMaksimalRefusjonPrÅr();
         this.nyIArbeidslivet = beregningsgrunnlagPrStatusOgAndel.getNyIArbeidslivet();
@@ -286,6 +300,10 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
         return fordeltPrÅr;
     }
 
+    public BigDecimal getManueltFordeltPrÅr() {
+        return manueltFordeltPrÅr;
+    }
+
     public BigDecimal getMaksimalRefusjonPrÅr() {
         return maksimalRefusjonPrÅr;
     }
@@ -315,6 +333,24 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
     }
 
     public Inntektskategori getInntektskategori() {
+        return inntektskategori;
+    }
+
+    public Inntektskategori getInntektskategoriManuellFordeling() {
+        return inntektskategoriManuellFordeling;
+    }
+
+    public Inntektskategori getInntektskategoriAutomatiskFordeling() {
+        return inntektskategoriAutomatiskFordeling;
+    }
+
+    // Rekkefølge er viktig
+    public Inntektskategori getGjeldendeInntektskategori() {
+        if (inntektskategoriManuellFordeling != null) {
+            return inntektskategoriManuellFordeling;
+        } else if (inntektskategoriAutomatiskFordeling != null) {
+            return inntektskategoriAutomatiskFordeling;
+        }
         return inntektskategori;
     }
 
@@ -564,6 +600,17 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
             return this;
         }
 
+        public Builder medManueltFordeltPrÅr(BigDecimal manueltFordeltPrÅr) {
+            verifiserKanModifisere();
+            kladd.manueltFordeltPrÅr = manueltFordeltPrÅr;
+            if (manueltFordeltPrÅr != null) {
+                kladd.bruttoPrÅr = manueltFordeltPrÅr;
+                if (kladd.getBeregningsgrunnlagPeriode() != null) {
+                    kladd.beregningsgrunnlagPeriode.updateBruttoPrÅr();
+                }
+            }
+            return this;
+        }
 
         public Builder medAvkortetPrÅr(BigDecimal avkortetPrÅr) {
             verifiserKanModifisere();
@@ -690,6 +737,18 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
         public Builder medInntektskategori(Inntektskategori inntektskategori) {
             verifiserKanModifisere();
             kladd.inntektskategori = inntektskategori;
+            return this;
+        }
+
+        public Builder medInntektskategoriManuellFordeling(Inntektskategori inntektskategoriManuellFordeling) {
+            verifiserKanModifisere();
+            kladd.inntektskategoriManuellFordeling = inntektskategoriManuellFordeling;
+            return this;
+        }
+
+        public Builder medInntektskategoriAutomatiskFordeling(Inntektskategori inntektskategoriAutomatiskFordeling) {
+            verifiserKanModifisere();
+            kladd.inntektskategoriAutomatiskFordeling = inntektskategoriAutomatiskFordeling;
             return this;
         }
 

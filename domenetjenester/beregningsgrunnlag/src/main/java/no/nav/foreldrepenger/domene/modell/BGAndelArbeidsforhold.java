@@ -57,6 +57,9 @@ public class BGAndelArbeidsforhold extends BaseEntitet {
     @Column(name = "fordelt_refusjon_pr_aar")
     private BigDecimal fordeltRefusjonPrÅr;
 
+    @Column(name = "manuelt_fordelt_refusjon_pr_aar")
+    private BigDecimal manueltFordeltRefusjonPrÅr;
+
     @Column(name = "naturalytelse_bortfalt_pr_aar")
     private BigDecimal naturalytelseBortfaltPrÅr;
 
@@ -89,6 +92,7 @@ public class BGAndelArbeidsforhold extends BaseEntitet {
         this.refusjonskravPrÅr = bgAndelArbeidsforhold.refusjonskravPrÅr;
         this.saksbehandletRefusjonPrÅr = bgAndelArbeidsforhold.saksbehandletRefusjonPrÅr;
         this.naturalytelseTilkommetPrÅr = bgAndelArbeidsforhold.naturalytelseTilkommetPrÅr;
+        this.manueltFordeltRefusjonPrÅr = bgAndelArbeidsforhold.manueltFordeltRefusjonPrÅr;
     }
 
     public BGAndelArbeidsforhold() {
@@ -153,17 +157,25 @@ public class BGAndelArbeidsforhold extends BaseEntitet {
         return fordeltRefusjonPrÅr;
     }
 
+    public BigDecimal getManueltFordeltRefusjonPrÅr() {
+        return manueltFordeltRefusjonPrÅr;
+    }
+
     void setBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel beregningsgrunnlagPrStatusOgAndel) {
         this.beregningsgrunnlagPrStatusOgAndel = beregningsgrunnlagPrStatusOgAndel;
     }
 
     /**
      * Refusjonskrav settes på forskjellige steder i beregning dersom aksjonspunkt oppstår.
-     * Først settes refusjonskravPrÅr, deretter saksbehandletRefusjonPrÅr og til slutt fordeltRefusjonPrÅr.
+     * Først settes refusjonskravPrÅr, deretter saksbehandletRefusjonPrÅr,
+     * deretter fordeltRefusjonPrÅr og til slutt manueltFordeltRefusjonPrÅr.
      * Det er det sist avklarte beløpet som til en hver tid skal være gjeldende.
      * @return returnerer det refusjonsbeløpet som skal være gjeldende
      */
     public BigDecimal getGjeldendeRefusjon() {
+        if (manueltFordeltRefusjonPrÅr != null) {
+            return manueltFordeltRefusjonPrÅr;
+        }
         if (fordeltRefusjonPrÅr != null) {
             return fordeltRefusjonPrÅr;
         }
@@ -261,6 +273,11 @@ public class BGAndelArbeidsforhold extends BaseEntitet {
 
         public Builder medFordeltRefusjonPrÅr(BigDecimal fordeltRefusjonPrÅr) {
             bgAndelArbeidsforhold.fordeltRefusjonPrÅr = fordeltRefusjonPrÅr;
+            return this;
+        }
+
+        public Builder medManueltFordeltRefusjonPrÅr(BigDecimal manueltFordeltRefusjonPrÅr) {
+            bgAndelArbeidsforhold.manueltFordeltRefusjonPrÅr = manueltFordeltRefusjonPrÅr;
             return this;
         }
 

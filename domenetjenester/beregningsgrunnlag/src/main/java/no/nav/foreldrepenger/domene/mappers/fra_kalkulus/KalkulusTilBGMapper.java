@@ -14,6 +14,7 @@ import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaArbeidsf
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagPrStatusDto;
 import no.nav.folketrygdloven.kalkulator.modell.typer.FaktaVurdering;
+import no.nav.folketrygdloven.kalkulator.modell.typer.Refusjon;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
@@ -112,6 +113,7 @@ public final class KalkulusTilBGMapper {
             .medFastsattAvSaksbehandler(fraKalkulus.getFastsattAvSaksbehandler())
             .medOverstyrtPrÅr(fraKalkulus.getOverstyrtPrÅr())
             .medFordeltPrÅr(fraKalkulus.getFordeltPrÅr())
+            .medManueltFordeltPrÅr(fraKalkulus.getManueltFordeltPrÅr())
             .medRedusertPrÅr(fraKalkulus.getRedusertPrÅr())
             .medRedusertBrukersAndelPrÅr(fraKalkulus.getRedusertBrukersAndelPrÅr())
             .medMaksimalRefusjonPrÅr(fraKalkulus.getMaksimalRefusjonPrÅr())
@@ -119,8 +121,16 @@ public final class KalkulusTilBGMapper {
             .medÅrsbeløpFraTilstøtendeYtelse(fraKalkulus.getÅrsbeløpFraTilstøtendeYtelse()
                 == null ? null : fraKalkulus.getÅrsbeløpFraTilstøtendeYtelse().getVerdi())
             .medNyIArbeidslivet(erNyIarbeidslivet(fraKalkulus, faktaAktør))
-            .medInntektskategori(fraKalkulus.getInntektskategori() == null ? null : Inntektskategori.fraKode(
-                fraKalkulus.getInntektskategori().getKode()))
+            .medInntektskategori(inntektskategoriErSatt(fraKalkulus) && fraKalkulus.getFastsattInntektskategori().getInntektskategori() !=  null
+                ? Inntektskategori.fraKode(fraKalkulus.getFastsattInntektskategori().getInntektskategori().getKode())
+                : null)
+            .medInntektskategoriManuellFordeling(inntektskategoriErSatt(fraKalkulus) && fraKalkulus.getFastsattInntektskategori().getInntektskategoriManuellFordeling() !=  null
+                ? Inntektskategori.fraKode(fraKalkulus.getFastsattInntektskategori().getInntektskategoriManuellFordeling().getKode())
+                : null)
+            .medInntektskategoriAutomatiskFordeling(inntektskategoriErSatt(fraKalkulus) && fraKalkulus.getFastsattInntektskategori().getInntektskategoriAutomatiskFordeling() !=  null
+                ? Inntektskategori.fraKode(fraKalkulus.getFastsattInntektskategori().getInntektskategoriAutomatiskFordeling().getKode())
+                : null)
+
             .medKilde(AndelKilde.fraKode(fraKalkulus.getKilde().getKode()))
             .medOrginalDagsatsFraTilstøtendeYtelse(fraKalkulus.getOrginalDagsatsFraTilstøtendeYtelse());
 
@@ -141,6 +151,10 @@ public final class KalkulusTilBGMapper {
         builder.medMottarYtelse(mapMottarYtelse(fraKalkulus, faktaAktør, faktaArbeidsforhold),
             AktivitetStatus.fraKode(fraKalkulus.getAktivitetStatus().getKode()));
         return builder;
+    }
+
+    private static boolean inntektskategoriErSatt(BeregningsgrunnlagPrStatusOgAndelDto fraKalkulus) {
+        return fraKalkulus.getFastsattInntektskategori() != null;
     }
 
     private static Optional<Boolean> erNyoppstartetFL(BeregningsgrunnlagPrStatusOgAndelDto fraKalkulus,
@@ -184,6 +198,7 @@ public final class KalkulusTilBGMapper {
         builder.medRefusjonskravPrÅr(fraKalkulus.getRefusjonskravPrÅr());
         builder.medSaksbehandletRefusjonPrÅr(fraKalkulus.getSaksbehandletRefusjonPrÅr());
         builder.medFordeltRefusjonPrÅr(fraKalkulus.getFordeltRefusjonPrÅr());
+        fraKalkulus.getRefusjon().ifPresent(ref -> builder.medManueltFordeltRefusjonPrÅr(ref.getManueltFordeltRefusjonPrÅr()));
         fraKalkulus.getArbeidsperiodeTom().ifPresent(builder::medArbeidsperiodeTom);
         fraKalkulus.getNaturalytelseBortfaltPrÅr().ifPresent(builder::medNaturalytelseBortfaltPrÅr);
         fraKalkulus.getNaturalytelseTilkommetPrÅr().ifPresent(builder::medNaturalytelseTilkommetPrÅr);

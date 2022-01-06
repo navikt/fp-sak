@@ -80,12 +80,15 @@ public class BGMapperTilKalkulus {
             .medFastsattAvSaksbehandler(fraFpsak.getFastsattAvSaksbehandler())
             .medOverstyrtPrÅr(fraFpsak.getOverstyrtPrÅr())
             .medFordeltPrÅr(fraFpsak.getFordeltPrÅr())
+            .medManueltFordeltPrÅr(fraFpsak.getManueltFordeltPrÅr())
             .medRedusertPrÅr(fraFpsak.getRedusertPrÅr())
             .medRedusertBrukersAndelPrÅr(fraFpsak.getRedusertBrukersAndelPrÅr())
             .medMaksimalRefusjonPrÅr(fraFpsak.getMaksimalRefusjonPrÅr())
             .medRedusertRefusjonPrÅr(fraFpsak.getRedusertRefusjonPrÅr())
             .medÅrsbeløpFraTilstøtendeYtelse(fraFpsak.getÅrsbeløpFraTilstøtendeYtelse() == null ? null : fraFpsak.getÅrsbeløpFraTilstøtendeYtelse().getVerdi())
             .medInntektskategori(fraFpsak.getInntektskategori() == null ? null : Inntektskategori.fraKode(fraFpsak.getInntektskategori().getKode()))
+            .medInntektskategoriAutomatiskFordeling(fraFpsak.getInntektskategoriAutomatiskFordeling() == null ? null : Inntektskategori.fraKode(fraFpsak.getInntektskategoriAutomatiskFordeling().getKode()))
+            .medInntektskategoriManuellFordeling(fraFpsak.getInntektskategoriManuellFordeling() == null ? null : Inntektskategori.fraKode(fraFpsak.getInntektskategoriManuellFordeling().getKode()))
             .medKilde(AndelKilde.fraKode(fraFpsak.getKilde().getKode()))
             .medOrginalDagsatsFraTilstøtendeYtelse(fraFpsak.getOrginalDagsatsFraTilstøtendeYtelse());
 
@@ -110,6 +113,7 @@ public class BGMapperTilKalkulus {
         builder.medRefusjonskravPrÅr(fraFpsak.getRefusjonskravPrÅr(), Utfall.UDEFINERT);
         builder.medSaksbehandletRefusjonPrÅr(fraFpsak.getSaksbehandletRefusjonPrÅr());
         builder.medFordeltRefusjonPrÅr(fraFpsak.getFordeltRefusjonPrÅr());
+        builder.medManueltFordeltRefusjonPrÅr(fraFpsak.getManueltFordeltRefusjonPrÅr());
         fraFpsak.getArbeidsperiodeTom().ifPresent(builder::medArbeidsperiodeTom);
         fraFpsak.getNaturalytelseBortfaltPrÅr().ifPresent(builder::medNaturalytelseBortfaltPrÅr);
         fraFpsak.getNaturalytelseTilkommetPrÅr().ifPresent(builder::medNaturalytelseTilkommetPrÅr);

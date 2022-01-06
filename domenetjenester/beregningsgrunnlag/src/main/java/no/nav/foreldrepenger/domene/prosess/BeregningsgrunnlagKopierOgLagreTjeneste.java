@@ -9,14 +9,13 @@ import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.KOF
 import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER;
 import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING;
 import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.VURDERT_REFUSJON;
+import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.VURDERT_VILKÅR;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -28,9 +27,8 @@ import no.nav.folketrygdloven.kalkulator.input.FaktaOmBeregningInput;
 import no.nav.folketrygdloven.kalkulator.input.FordelBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.ForeslåBesteberegningInput;
+import no.nav.folketrygdloven.kalkulator.input.VurderRefusjonBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
-import no.nav.folketrygdloven.kalkulator.modell.iay.AktørInntektDto;
-import no.nav.folketrygdloven.kalkulator.modell.iay.InntektDto;
 import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;
 import no.nav.folketrygdloven.kalkulator.output.BeregningResultatAggregat;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingAggregat;
@@ -49,8 +47,6 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
-import no.nav.foreldrepenger.domene.modell.BesteberegningMånedsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BesteberegninggrunnlagEntitet;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 
 /**
@@ -114,13 +110,27 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat vurderRefusjonBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         var behandlingId = input.getKoblingReferanse().getKoblingId();
         var beregningResultatAggregat = beregningsgrunnlagTjeneste.vurderRefusjonskravForBeregninggrunnlag(
-            kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(behandlingId, input,
+            (VurderRefusjonBeregningsgrunnlagInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(behandlingId, input,
                 BehandlingStegType.VURDER_REF_BERGRUNN));
         var nyttGrunnlag = KalkulusTilBehandlingslagerMapper.mapGrunnlag(
             beregningResultatAggregat.getBeregningsgrunnlagGrunnlag(),
             beregningResultatAggregat.getRegelSporingAggregat());
         beregningsgrunnlagRepository.lagre(input.getKoblingReferanse().getKoblingId(),
             BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag), VURDERT_REFUSJON);
+        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
+            beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
+    }
+
+    public BeregningsgrunnlagVilkårOgAkjonspunktResultat vurderVilkårBeregningsgrunnlag(BeregningsgrunnlagInput input) {
+        var behandlingId = input.getKoblingReferanse().getKoblingId();
+        var beregningResultatAggregat = beregningsgrunnlagTjeneste.vurderBeregningsgrunnlagvilkår(
+            kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(behandlingId, input,
+                BehandlingStegType.VURDER_VILKAR_BERGRUNN));
+        var nyttGrunnlag = KalkulusTilBehandlingslagerMapper.mapGrunnlag(
+            beregningResultatAggregat.getBeregningsgrunnlagGrunnlag(),
+            beregningResultatAggregat.getRegelSporingAggregat());
+        beregningsgrunnlagRepository.lagre(input.getKoblingReferanse().getKoblingId(),
+            BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag), VURDERT_VILKÅR);
         var beregningsgrunnlagVilkårOgAkjonspunktResultat = new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
             beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
         beregningsgrunnlagVilkårOgAkjonspunktResultat.setVilkårOppfylt(getVilkårResultat(beregningResultatAggregat),

@@ -23,6 +23,7 @@ import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.ForeslåBesteberegningInput;
 import no.nav.folketrygdloven.kalkulator.input.FullføreBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.StegProsesseringInput;
+import no.nav.folketrygdloven.kalkulator.input.VurderBeregningsgrunnlagvilkårInput;
 import no.nav.folketrygdloven.kalkulator.input.VurderRefusjonBeregningsgrunnlagInput;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -105,6 +106,10 @@ public class KalkulatorStegProsesseringInputTjeneste {
         if (stegType.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG)) {
             return lagInputForeslå(stegProsesseringInput);
         }
+        if (stegType.equals(BehandlingStegType.VURDER_VILKAR_BERGRUNN)) {
+            Optional<BeregningsgrunnlagGrunnlagEntitet> førsteFastsatteGrunnlagEntitet = finnFørsteFastsatteGrunnlagEtterEndringAvGrunnbeløp(behandling.getId());
+            return lagInputVurderVilkår(stegProsesseringInput, førsteFastsatteGrunnlagEntitet);
+        }
         if (stegType.equals(BehandlingStegType.VURDER_REF_BERGRUNN)) {
             return lagInputVurderRefusjon(stegProsesseringInput, behandling);
         }
@@ -119,6 +124,19 @@ public class KalkulatorStegProsesseringInputTjeneste {
             return lagInputFullføre(stegProsesseringInput, førsteFastsatteGrunnlagEntitet);
         }
         return stegProsesseringInput;
+    }
+
+    private VurderBeregningsgrunnlagvilkårInput lagInputVurderVilkår(StegProsesseringInput stegProsesseringInput,
+                                                                     Optional<BeregningsgrunnlagGrunnlagEntitet> førsteFastsatteGrunnlagEntitet) {
+        var vurderVilkårInput = new VurderBeregningsgrunnlagvilkårInput(stegProsesseringInput);
+        if (førsteFastsatteGrunnlagEntitet.isPresent()) {
+            vurderVilkårInput = førsteFastsatteGrunnlagEntitet.get().getBeregningsgrunnlag()
+                .map(BeregningsgrunnlagEntitet::getGrunnbeløp)
+                .map(Beløp::getVerdi)
+                .map(vurderVilkårInput::medUregulertGrunnbeløp)
+                .orElse(vurderVilkårInput);
+        }
+        return vurderVilkårInput;
     }
 
     private StegProsesseringInput lagInputVurderRefusjon(StegProsesseringInput stegProsesseringInput,

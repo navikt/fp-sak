@@ -49,7 +49,7 @@
         <fp-kontrakter.version>6.1.1</fp-kontrakter.version>
         <fp-tidsserie.version>2.5.7</fp-tidsserie.version>
         <fp-nare.version>2.1.5</fp-nare.version>
-        <kalkulus.version>1.2.88</kalkulus.version>
+        <kalkulus.version>1.3.8</kalkulus.version>
         <abakus-kontrakt.version>1.3.23</abakus-kontrakt.version>
 
         <swaggercore.version>2.1.11</swaggercore.version>
@@ -102,12 +102,12 @@
 
             <dependency>
                 <groupId>no.nav.folketrygdloven.kalkulus</groupId>
-                <artifactId>kalkulator</artifactId>
+                <artifactId>kalkulus-kalkulator</artifactId>
                 <version>${kalkulus.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.folketrygdloven.kalkulus</groupId>
-                <artifactId>kontrakt</artifactId>
+                <artifactId>kalkulus-kontrakt</artifactId>
                 <version>${kalkulus.version}</version>
             </dependency>
 
