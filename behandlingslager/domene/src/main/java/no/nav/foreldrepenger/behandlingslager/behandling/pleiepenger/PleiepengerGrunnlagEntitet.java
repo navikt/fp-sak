@@ -52,10 +52,6 @@ public class PleiepengerGrunnlagEntitet extends BaseEntitet {
         return behandlingId;
     }
 
-    void setBehandlingId(Long behandlingId) {
-        this.behandlingId = behandlingId;
-    }
-
     public Optional<PleiepengerPerioderEntitet> getPerioderMedInnleggelse() {
         return Optional.ofNullable(perioderMedInnleggelse);
     }
@@ -66,6 +62,10 @@ public class PleiepengerGrunnlagEntitet extends BaseEntitet {
 
     public void deaktiver() {
         this.aktiv = false;
+    }
+
+    public void reaktiver() {
+        this.aktiv = true;
     }
 
     @Override
@@ -100,6 +100,11 @@ public class PleiepengerGrunnlagEntitet extends BaseEntitet {
 
         public static Builder oppdatere(Optional<PleiepengerGrunnlagEntitet> kladd) {
             return kladd.map(Builder::oppdatere).orElseGet(Builder::nytt);
+        }
+
+        public Builder medBehandlingId(Long behandlingId) {
+            this.kladd.behandlingId = behandlingId;
+            return this;
         }
 
         public Builder medInnleggelsePerioder(PleiepengerPerioderEntitet.Builder perioder) {
