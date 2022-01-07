@@ -1,8 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger;
 
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -29,15 +33,13 @@ public class PleiepengerRepository {
 
         var aktivtGrunnlag = hentGrunnlag(behandlingId);
         var nyttGrunnlag = PleiepengerGrunnlagEntitet.Builder.oppdatere(aktivtGrunnlag)
+            .medBehandlingId(behandlingId)
             .medInnleggelsePerioder(builder);
 
-        lagreGrunnlag(behandlingId, aktivtGrunnlag, nyttGrunnlag);
+        lagreGrunnlag(aktivtGrunnlag, nyttGrunnlag.build());
     }
 
-    private void lagreGrunnlag(Long behandlingId, Optional<PleiepengerGrunnlagEntitet> aktivtGrunnlag, PleiepengerGrunnlagEntitet.Builder builder) {
-        var nyttGrunnlag = builder.build();
-        nyttGrunnlag.setBehandlingId(behandlingId);
-
+    private void lagreGrunnlag(Optional<PleiepengerGrunnlagEntitet> aktivtGrunnlag, PleiepengerGrunnlagEntitet nyttGrunnlag) {
         if (!Objects.equals(aktivtGrunnlag.orElse(null), nyttGrunnlag)) {
             aktivtGrunnlag.ifPresent(eksisterendeGrunnlag -> {
                 eksisterendeGrunnlag.deaktiver();
@@ -57,20 +59,40 @@ public class PleiepengerRepository {
     public Optional<PleiepengerGrunnlagEntitet> hentGrunnlag(Long behandlingId) {
         final var query = entityManager.createQuery(
             "FROM PleiepengerGrunnlag p WHERE p.behandlingId = :behandlingId AND p.aktiv = true",
-                    PleiepengerGrunnlagEntitet.class);
-
-        query.setParameter("behandlingId", behandlingId);
+                    PleiepengerGrunnlagEntitet.class)
+            .setParameter("behandlingId", behandlingId);
 
         return HibernateVerktøy.hentUniktResultat(query);
     }
+
+    public void reaktiverDerSisteGrunnlagErPassiv() {
+        final var query = entityManager.createQuery(
+                "FROM PleiepengerGrunnlag p ",
+                PleiepengerGrunnlagEntitet.class);
+
+        query.getResultList().stream()
+            .collect(Collectors.groupingBy(PleiepengerGrunnlagEntitet::getBehandlingId))
+            .forEach((key, value) -> {
+                if (value.stream().noneMatch(PleiepengerGrunnlagEntitet::isAktiv)) {
+                    var last = value.stream().max(Comparator.comparing(PleiepengerGrunnlagEntitet::getOpprettetTidspunkt));
+                    last.ifPresent(gpe -> {
+                        gpe.reaktiver();
+                        entityManager.persist(gpe);
+                    });
+            }
+        });
+    }
+
+
 
     public void kopierGrunnlagFraEksisterendeBehandling(Long orginalBehandlingId, Long nyBehandlingId) {
         var eksisterendeGrunnlag = hentGrunnlag(orginalBehandlingId);
         var innleggelser = eksisterendeGrunnlag.flatMap(PleiepengerGrunnlagEntitet::getPerioderMedInnleggelse)
             .map(PleiepengerPerioderEntitet::getInnleggelser).orElse(List.of());
         if (!innleggelser.isEmpty()) {
-            var nyttGrunnlag = PleiepengerGrunnlagEntitet.Builder.oppdatere(eksisterendeGrunnlag);
-            lagreGrunnlag(nyBehandlingId, eksisterendeGrunnlag, nyttGrunnlag);
+            var nyttGrunnlag = PleiepengerGrunnlagEntitet.Builder.oppdatere(eksisterendeGrunnlag)
+                .medBehandlingId(nyBehandlingId);
+            lagreGrunnlag(Optional.empty(), nyttGrunnlag.build());
         }
     }
 
