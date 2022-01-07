@@ -58,6 +58,7 @@ public class BesteberegningYtelsegrunnlagMapper {
     public static Optional<Ytelsegrunnlag> mapFpsakYtelseTilYtelsegrunnlag(BeregningsresultatEntitet resultat,
                                                                            no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType ytelseType) {
         List<Ytelseperiode> ytelseperioder = resultat.getBeregningsresultatPerioder().stream()
+            .filter(periode -> periode.getDagsats() > 0)
             .map(BesteberegningYtelsegrunnlagMapper::mapPeriode)
             .collect(Collectors.toList());
         return ytelseperioder.isEmpty()
