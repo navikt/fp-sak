@@ -1,12 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger;
 
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -64,26 +60,6 @@ public class PleiepengerRepository {
 
         return HibernateVerktøy.hentUniktResultat(query);
     }
-
-    public void reaktiverDerSisteGrunnlagErPassiv() {
-        final var query = entityManager.createQuery(
-                "FROM PleiepengerGrunnlag p ",
-                PleiepengerGrunnlagEntitet.class);
-
-        query.getResultList().stream()
-            .collect(Collectors.groupingBy(PleiepengerGrunnlagEntitet::getBehandlingId))
-            .forEach((key, value) -> {
-                if (value.stream().noneMatch(PleiepengerGrunnlagEntitet::isAktiv)) {
-                    var last = value.stream().max(Comparator.comparing(PleiepengerGrunnlagEntitet::getOpprettetTidspunkt));
-                    last.ifPresent(gpe -> {
-                        gpe.reaktiver();
-                        entityManager.persist(gpe);
-                    });
-            }
-        });
-    }
-
-
 
     public void kopierGrunnlagFraEksisterendeBehandling(Long orginalBehandlingId, Long nyBehandlingId) {
         var eksisterendeGrunnlag = hentGrunnlag(orginalBehandlingId);

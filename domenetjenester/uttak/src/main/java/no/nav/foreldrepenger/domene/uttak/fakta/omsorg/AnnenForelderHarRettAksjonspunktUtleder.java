@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.fakta.FaktaUttakAksjonspunktUtleder;
+import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 
@@ -64,11 +65,9 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
             !oppgittAleneomsorg(ytelseFordelingAggregat) &&
             !annenForelderHarUttakMedUtbetaling(annenpartsGjeldendeUttaksplan)) {
             ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
-            if (fpGrunnlag.getAnnenpart().isPresent()) {
-                var harAnnennartInnvilgetES = fpGrunnlag.getAnnenpart().get().innvilgetES();
-                return harAnnennartInnvilgetES ? List.of() : aksjonspunkt();
-            }
-            return aksjonspunkt();
+            var harAnnennartInnvilgetES = fpGrunnlag.getAnnenpart().filter(Annenpart::innvilgetES).isPresent();
+            var erUavklartAnnenpartUførhet = false; // TODO: koble inn når klar fpGrunnlag.getUføretrygdGrunnlag().filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd).isPresent();
+            return harAnnennartInnvilgetES && !erUavklartAnnenpartUførhet ? List.of() : aksjonspunkt();
         }
 
         if (oppgittHarAnnenForeldreRett(ytelseFordelingAggregat) &&

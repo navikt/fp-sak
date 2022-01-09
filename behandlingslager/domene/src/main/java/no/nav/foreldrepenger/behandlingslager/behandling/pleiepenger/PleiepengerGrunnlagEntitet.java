@@ -64,10 +64,6 @@ public class PleiepengerGrunnlagEntitet extends BaseEntitet {
         this.aktiv = false;
     }
 
-    public void reaktiver() {
-        this.aktiv = true;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

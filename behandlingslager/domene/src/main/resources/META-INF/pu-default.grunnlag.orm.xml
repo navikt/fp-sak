@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm
+      http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd" version="2.1">
+
+    <sequence-generator name="SEQ_GR_PLEIEPENGER" allocation-size="50" sequence-name="SEQ_GR_PLEIEPENGER" />
+    <sequence-generator name="SEQ_PSB_PERIODER" allocation-size="50" sequence-name="SEQ_PSB_PERIODER" />
+    <sequence-generator name="SEQ_PSB_INNLAGT_PERIODE" allocation-size="50" sequence-name="SEQ_PSB_INNLAGT_PERIODE" />
+
+    <sequence-generator name="SEQ_GR_UFORETRYGD" allocation-size="50" sequence-name="SEQ_GR_UFORETRYGD" />
+
+    <!-- Andre grunnlag -->
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerGrunnlagEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerPerioderEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet"/>
+
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet"/>
+
+
+</entity-mappings>

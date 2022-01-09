@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -98,23 +97,19 @@ public class FaktaUttakToTrinnsTjeneste {
     /**
      * sett totrinns ved avklar annen forelder har ikke rett endring
      */
-    public boolean oppdaterToTrinnskontrollVedEndringerAnnenforelderHarRett(AvklarAnnenforelderHarRettDto dto, Behandling behandling){
+    public boolean oppdaterToTrinnskontrollVedEndringerAnnenforelderHarRett(AvklarAnnenforelderHarRettDto dto, Long behandlingId){
 
-        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
-        var rettAvkaring = ytelseFordelingAggregat.getAnnenForelderRettAvklaring();
-        var harAnnenForeldreRettSokVersjon = ytelseFordelingAggregat
-            .getOppgittRettighet().getHarAnnenForeldreRett();
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
+        var rettAvklaring = ytelseFordelingAggregat.getAnnenForelderRettAvklaring();
+        var harAnnenForeldreRettSokVersjon = ytelseFordelingAggregat.getOppgittRettighet().getHarAnnenForeldreRett();
 
-        Boolean harAnnenForeldreRettBekreftetVersjon = null;
-        if (rettAvkaring.isPresent()) {
-            harAnnenForeldreRettBekreftetVersjon = rettAvkaring.get();
-        }
+        Boolean harAnnenForeldreRettBekreftetVersjon = rettAvklaring.orElse(null);
 
         var avkreftetBrukersOpplysinger = erEndretBekreftetVersjonEllerAvkreftetBrukersOpplysinger(harAnnenForeldreRettSokVersjon, dto.getAnnenforelderHarRett());
         var erEndretBekreftetVersjon = erEndretBekreftetVersjonEllerAvkreftetBrukersOpplysinger(harAnnenForeldreRettBekreftetVersjon, dto.getAnnenforelderHarRett());
 
 
-        return setToTrinns(rettAvkaring, erEndretBekreftetVersjon, avkreftetBrukersOpplysinger);
+        return setToTrinns(rettAvklaring, erEndretBekreftetVersjon, avkreftetBrukersOpplysinger);
     }
 
     private boolean erEndretBekreftetVersjonEllerAvkreftetBrukersOpplysinger(Object original, Object bekreftet) {

@@ -42,6 +42,11 @@ public class OppgittRettighetEntitet extends BaseEntitet {
     @ChangeTracked
     private Boolean harAleneomsorgForBarnet;
 
+    @Convert(converter = BooleanToStringConverter.class)
+    @Column(name = "mor_uforetrygd")
+    @ChangeTracked
+    private Boolean morMottarUføretrygd;
+
     OppgittRettighetEntitet() {
     }
 
@@ -49,6 +54,14 @@ public class OppgittRettighetEntitet extends BaseEntitet {
         this.harAnnenForeldreRett = harAnnenForeldreRett;
         this.harOmsorgForBarnetIHelePerioden = harOmsorgForBarnetIHelePerioden;
         this.harAleneomsorgForBarnet = harAleneomsorgForBarnet;
+        this.morMottarUføretrygd = Boolean.FALSE;
+    }
+
+    public OppgittRettighetEntitet(Boolean harAnnenForeldreRett, Boolean harOmsorgForBarnetIHelePerioden, Boolean harAleneomsorgForBarnet, Boolean morMottarUføretrygd) {
+        this.harAnnenForeldreRett = harAnnenForeldreRett;
+        this.harOmsorgForBarnetIHelePerioden = harOmsorgForBarnetIHelePerioden;
+        this.harAleneomsorgForBarnet = harAleneomsorgForBarnet;
+        this.morMottarUføretrygd = morMottarUføretrygd;
     }
 
     public Boolean getHarAleneomsorgForBarnet() {
@@ -63,6 +76,10 @@ public class OppgittRettighetEntitet extends BaseEntitet {
         return harOmsorgForBarnetIHelePerioden;
     }
 
+    public boolean getMorMottarUføretrygd() {
+        return morMottarUføretrygd != null && morMottarUføretrygd;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -70,12 +87,13 @@ public class OppgittRettighetEntitet extends BaseEntitet {
         var that = (OppgittRettighetEntitet) o;
         return Objects.equals(harAnnenForeldreRett, that.harAnnenForeldreRett) &&
             Objects.equals(harOmsorgForBarnetIHelePerioden, that.harOmsorgForBarnetIHelePerioden) &&
-            Objects.equals(harAleneomsorgForBarnet, that.harAleneomsorgForBarnet);
+            Objects.equals(harAleneomsorgForBarnet, that.harAleneomsorgForBarnet) &&
+            Objects.equals(morMottarUføretrygd, that.morMottarUføretrygd);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(harAnnenForeldreRett, harOmsorgForBarnetIHelePerioden, harAleneomsorgForBarnet);
+        return Objects.hash(harAnnenForeldreRett, harOmsorgForBarnetIHelePerioden, harAleneomsorgForBarnet, morMottarUføretrygd);
     }
 
     @Override
@@ -85,6 +103,7 @@ public class OppgittRettighetEntitet extends BaseEntitet {
             ", harAnnenForeldreRett=" + harAnnenForeldreRett +
             ", harOmsorgForBarnetIHelePerioden=" + harOmsorgForBarnetIHelePerioden +
             ", harAleneomsorgForBarnet=" + harAleneomsorgForBarnet +
+            ", morUføretrygd=" + morMottarUføretrygd +
             '}';
     }
 }

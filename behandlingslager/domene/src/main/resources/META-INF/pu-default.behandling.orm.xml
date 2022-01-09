@@ -14,6 +14,7 @@
 	<sequence-generator name="SEQ_VILKAR" allocation-size="50" sequence-name="SEQ_VILKAR" />
 
 	<sequence-generator name="SEQ_MOTTATT_DOKUMENT" allocation-size="50" sequence-name="SEQ_MOTTATT_DOKUMENT" />
+	<sequence-generator name="SEQ_MOTTATT_VEDTAK" allocation-size="50" sequence-name="SEQ_MOTTATT_VEDTAK" />
 	
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.Behandling" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand" />
@@ -23,6 +24,7 @@
 
 	<!-- Hendelser -->
 	<entity class="no.nav.foreldrepenger.behandlingslager.hendelser.MottattHendelse" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.hendelser.MottattVedtak" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument" />
 
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt" />

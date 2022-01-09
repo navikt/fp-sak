@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
@@ -97,14 +98,14 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         // Act
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         new AvklarAnnenforelderHarRettOppdaterer(kontrollerOppgittFordelingTjeneste, faktaUttakHistorikkTjeneste,
-            faktaUttakToTrinnsTjeneste).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+            faktaUttakToTrinnsTjeneste, mock(UføretrygdRepository.class)).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().getAnnenforelderHarRett()).isNotNull();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().getAnnenforelderHarRett()).isTrue();
+        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRett()).isNotNull();
+        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRett()).isTrue();
         assertThat(
-            ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().getAnnenforelderHarRettPerioder()).isNotNull();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().getAnnenforelderHarRettPerioder()).hasSize(
+            ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRettPerioder()).isNotNull();
+        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRettPerioder()).hasSize(
             1);
         assertThat(ytelseFordelingDtoOpt.get().getEndringsdato()).isEqualTo(LocalDate.now().minusDays(20));
         assertThat(ytelseFordelingDtoOpt.get().getGjeldendeDekningsgrad()).isEqualTo(100);
@@ -112,7 +113,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     private YtelseFordelingDtoTjeneste tjeneste() {
         return new YtelseFordelingDtoTjeneste(ytelseFordelingTjeneste, repositoryProvider.getFagsakRelasjonRepository(),
-            førsteUttaksdatoTjeneste);
+            repositoryProvider.getUføretrygdRepository(), førsteUttaksdatoTjeneste);
     }
 
     private Behandling opprettBehandling(AksjonspunktDefinisjon aksjonspunktDefinisjon) {

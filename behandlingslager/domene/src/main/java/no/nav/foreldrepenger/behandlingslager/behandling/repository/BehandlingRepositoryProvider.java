@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
@@ -47,6 +48,7 @@ public class BehandlingRepositoryProvider {
     private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private PleiepengerRepository pleiepengerRepository;
+    private UføretrygdRepository uføretrygdRepository;
     private HistorikkRepository historikkRepository;
     private SøknadRepository søknadRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -95,6 +97,7 @@ public class BehandlingRepositoryProvider {
         this.opptjeningRepository = new OpptjeningRepository(entityManager, this.behandlingRepository);
         this.personopplysningRepository = new PersonopplysningRepository(entityManager);
         this.pleiepengerRepository = new PleiepengerRepository(entityManager);
+        this.uføretrygdRepository = new UføretrygdRepository(entityManager);
         this.søknadRepository = new SøknadRepository(entityManager, this.behandlingRepository);
         this.fpUttakRepository = new FpUttakRepository(entityManager);
         this.uttaksperiodegrenseRepository = new UttaksperiodegrenseRepository(entityManager);
@@ -155,6 +158,10 @@ public class BehandlingRepositoryProvider {
 
     public PleiepengerRepository getPleiepengerRepository() {
         return pleiepengerRepository;
+    }
+
+    public UføretrygdRepository getUføretrygdRepository() {
+        return uføretrygdRepository;
     }
 
     public HistorikkRepository getHistorikkRepository() {

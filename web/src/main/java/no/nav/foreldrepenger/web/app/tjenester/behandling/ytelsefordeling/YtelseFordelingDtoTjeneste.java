@@ -6,7 +6,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -17,6 +20,7 @@ public class YtelseFordelingDtoTjeneste {
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private UføretrygdRepository uføretrygdRepository;
     private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste;
 
     YtelseFordelingDtoTjeneste() {
@@ -25,10 +29,12 @@ public class YtelseFordelingDtoTjeneste {
 
     @Inject
     public YtelseFordelingDtoTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                          FagsakRelasjonRepository fagsakRelasjonRepository,
-                                          FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste) {
+                                      FagsakRelasjonRepository fagsakRelasjonRepository,
+                                      UføretrygdRepository uføretrygdRepository,
+                                      FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
+        this.uføretrygdRepository = uføretrygdRepository;
         this.førsteUttaksdatoTjeneste = førsteUttaksdatoTjeneste;
     }
 
@@ -67,17 +73,22 @@ public class YtelseFordelingDtoTjeneste {
     }
 
     private void lagAnnenforelderHarRettDto(Behandling behandling, Optional<PerioderAnnenforelderHarRettEntitet> perioderAnnenforelderHarRett, YtelseFordelingDto.Builder dtoBuilder) {
-        var annenforelderHarRettDto = new AnnenforelderHarRettDto();
-        var aksjonspunkt = behandling.getAksjonspunkter().stream()
+        var begrunnelse = behandling.getAksjonspunkter().stream()
             .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT))
-            .findFirst();
-        aksjonspunkt.ifPresent(akspkt -> annenforelderHarRettDto.setBegrunnelse(akspkt.getBegrunnelse()));
+            .map(Aksjonspunkt::getBegrunnelse)
+            .findFirst().orElse(null);
+        var avklareUføretrygd = uføretrygdRepository.hentGrunnlag(behandling.getId())
+            .filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd)
+            .isPresent();
         if (perioderAnnenforelderHarRett.isPresent()) {
             var periodeAnnenforelderHarRett = perioderAnnenforelderHarRett.get().getPerioder();
-            annenforelderHarRettDto.setAnnenforelderHarRett(!periodeAnnenforelderHarRett.isEmpty());
-            annenforelderHarRettDto.setAnnenforelderHarRettPerioder(PeriodeKonverter.mapAnnenforelderHarRettPerioder(periodeAnnenforelderHarRett));
+            var annenforelderHarRettDto = new AnnenforelderHarRettDto(begrunnelse, !periodeAnnenforelderHarRett.isEmpty(),
+                PeriodeKonverter.mapAnnenforelderHarRettPerioder(periodeAnnenforelderHarRett), avklareUføretrygd);
+            dtoBuilder.medAnnenforelderHarRett(annenforelderHarRettDto);
+        } else {
+            dtoBuilder.medAnnenforelderHarRett(new AnnenforelderHarRettDto(begrunnelse, null, null, avklareUføretrygd));
         }
-        dtoBuilder.medAnnenforelderHarRett(annenforelderHarRettDto);
+
     }
 
 }

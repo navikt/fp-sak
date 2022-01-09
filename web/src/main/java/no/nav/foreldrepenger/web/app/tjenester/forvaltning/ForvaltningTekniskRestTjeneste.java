@@ -29,13 +29,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsessTaskRepository;
@@ -62,7 +60,6 @@ public class ForvaltningTekniskRestTjeneste {
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private OppgaveTjeneste oppgaveTjeneste;
-    private PleiepengerRepository pleiepengerRepository;
     private PostnummerSynkroniseringTjeneste postnummerTjeneste;
     private ProsessTaskTjeneste taskTjeneste;
     private FagsakProsessTaskRepository fagsakProsessTaskRepository;
@@ -77,12 +74,10 @@ public class ForvaltningTekniskRestTjeneste {
             OppgaveTjeneste oppgaveTjeneste,
             PostnummerSynkroniseringTjeneste postnummerTjeneste,
             ProsessTaskTjeneste taskTjeneste,
-            AnkeVurderingTjeneste ankeVurderingTjeneste,
             BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.oppgaveTjeneste = oppgaveTjeneste;
-        this.pleiepengerRepository = repositoryProvider.getPleiepengerRepository();
         this.postnummerTjeneste = postnummerTjeneste;
         this.taskTjeneste = taskTjeneste;
         this.fagsakProsessTaskRepository = fagsakProsessTaskRepository;
@@ -314,37 +309,6 @@ public class ForvaltningTekniskRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response fjernFagsakProsesstaskAvsluttetBehandling() {
         fagsakProsessTaskRepository.fjernForAvsluttedeBehandlinger();
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/oppdater-psb-grunnlag")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Oppdater PSB grunnlag", tags = "FORVALTNING-teknisk")
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response oppdatertPSBGrunnlag() {
-        pleiepengerRepository.reaktiverDerSisteGrunnlagErPassiv();
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/kopier-psb-grunnlag")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Kopier PSB-grunnlag", tags = "FORVALTNING-teknisk", responses = {
-        @ApiResponse(responseCode = "200", description = "Oppgave satt til ferdig."),
-        @ApiResponse(responseCode = "400", description = "Fant ikke aktuell oppgave."),
-        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response kopierPSB(@BeanParam @Valid ForvaltningBehandlingIdDto behandlingIdDto) {
-        var behandling = behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
-        behandling.getBehandlingÅrsaker().stream().filter(ba -> ba.getOriginalBehandlingId() != null)
-            .findFirst().ifPresent(ba -> {
-                pleiepengerRepository.kopierGrunnlagFraEksisterendeBehandling(ba.getOriginalBehandlingId(), behandling.getId());
-            });
         return Response.ok().build();
     }
 

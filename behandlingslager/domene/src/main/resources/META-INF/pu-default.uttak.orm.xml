@@ -16,8 +16,8 @@
     <sequence-generator name="SEQ_UTTAK_RES_PER_SOKNAD" allocation-size="50" sequence-name="SEQ_UTTAK_RES_PER_SOKNAD" />
 
     <sequence-generator name="SEQ_SVP_UTTAK_RESULTAT" allocation-size="50" sequence-name="SEQ_SVP_UTTAK_RESULTAT" />
-    <sequence-generator name="SEQ_SVP_UTTAK_RESULTAT_ARBEIDSFORHOLD" allocation-size="50" sequence-name="SEQ_SVP_UTTAK_RESULTAT_ARBEIDSFORHOLD" />
-    <sequence-generator name="SEQ_SVP_UTTAK_RESULTAT_PERIODE" allocation-size="50" sequence-name="SEQ_SVP_UTTAK_RESULTAT_PERIODE" />
+    <sequence-generator name="SEQ_SVP_UTTAK_ARBEIDSFORHOLD" allocation-size="50" sequence-name="SEQ_SVP_UTTAK_ARBEIDSFORHOLD" />
+    <sequence-generator name="SEQ_SVP_UTTAK_PERIODE" allocation-size="50" sequence-name="SEQ_SVP_UTTAK_PERIODE" />
 
     <sequence-generator name="SEQ_GR_YTELSES_FORDELING" allocation-size="50" sequence-name="SEQ_GR_YTELSES_FORDELING"/>
     <sequence-generator name="SEQ_YF_FORDELING" allocation-size="50" sequence-name="SEQ_YF_FORDELING"/>
@@ -27,6 +27,8 @@
     <sequence-generator name="SEQ_SO_DEKNINGSGRAD" allocation-size="50" sequence-name="SEQ_SO_DEKNINGSGRAD"/>
     <sequence-generator name="SEQ_YF_DOKUMENTASJON_PERIODE" allocation-size="50" sequence-name="SEQ_YF_DOKUMENTASJON_PERIODE"/>
     <sequence-generator name="SEQ_YF_DOKUMENTASJON_PERIODER" allocation-size="50" sequence-name="SEQ_YF_DOKUMENTASJON_PERIODER"/>
+    <sequence-generator name="SEQ_YF_AKTIVITETSKRAV_PERIODE" allocation-size="50" sequence-name="SEQ_YF_AKTIVITETSKRAV_PERIODE"/>
+    <sequence-generator name="SEQ_YF_AKTIVITETSKRAV_PERIODER" allocation-size="50" sequence-name="SEQ_YF_AKTIVITETSKRAV_PERIODER"/>
 
     <!-- Uttak av FP -->
     <entity class="no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet"/>

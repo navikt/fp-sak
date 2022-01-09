@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.math.BigDecimal;
@@ -101,6 +100,7 @@ import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Opptjening;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.UtenlandskArbeidsforhold;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.UtenlandskOrganisasjon;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Innsendingstype;
+import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.MorsAktivitetsTyper;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Omsorgsovertakelseaarsaker;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Virksomhetstyper;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsforhold;
@@ -253,18 +253,18 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         lagreAnnenPart(wrapper, behandling);
         byggYtelsesSpesifikkeFelter(wrapper, behandling, søknadBuilder);
         byggOpptjeningsspesifikkeFelter(wrapper, behandlingId);
-        if (wrapper.getOmYtelse() instanceof Svangerskapspenger) {
-            byggFamilieHendelseForSvangerskap((Svangerskapspenger) wrapper.getOmYtelse(), hendelseBuilder);
+        if (wrapper.getOmYtelse() instanceof Svangerskapspenger svangerskapspenger) {
+            byggFamilieHendelseForSvangerskap(svangerskapspenger, hendelseBuilder);
         } else {
             var soekersRelasjonTilBarnet = getSoekersRelasjonTilBarnet(wrapper);
-            if (soekersRelasjonTilBarnet instanceof Foedsel) {
-                byggFødselsrelaterteFelter((Foedsel) soekersRelasjonTilBarnet, hendelseBuilder);
-            } else if (soekersRelasjonTilBarnet instanceof Termin) {
-                byggTerminrelaterteFelter((Termin) soekersRelasjonTilBarnet, hendelseBuilder);
-            } else if (soekersRelasjonTilBarnet instanceof Adopsjon) {
-                byggAdopsjonsrelaterteFelter((Adopsjon) soekersRelasjonTilBarnet, hendelseBuilder);
-            } else if (soekersRelasjonTilBarnet instanceof Omsorgsovertakelse) {
-                byggOmsorgsovertakelsesrelaterteFelter((Omsorgsovertakelse) soekersRelasjonTilBarnet, hendelseBuilder,
+            if (soekersRelasjonTilBarnet instanceof Foedsel foedsel) {
+                byggFødselsrelaterteFelter(foedsel, hendelseBuilder);
+            } else if (soekersRelasjonTilBarnet instanceof Termin termin) {
+                byggTerminrelaterteFelter(termin, hendelseBuilder);
+            } else if (soekersRelasjonTilBarnet instanceof Adopsjon adopsjon) {
+                byggAdopsjonsrelaterteFelter(adopsjon, hendelseBuilder);
+            } else if (soekersRelasjonTilBarnet instanceof Omsorgsovertakelse omsorgsovertakelse) {
+                byggOmsorgsovertakelsesrelaterteFelter(omsorgsovertakelse, hendelseBuilder,
                     søknadBuilder);
             }
         }
@@ -428,17 +428,16 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
     private void oversettArbeidsforhold(SvpTilretteleggingEntitet.Builder builder, Arbeidsforhold arbeidsforhold) {
 
-        if (arbeidsforhold instanceof no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver) {
+        if (arbeidsforhold instanceof no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver arbeidsgiverType) {
             builder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
             Arbeidsgiver arbeidsgiver;
 
-            if (arbeidsforhold instanceof no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Virksomhet) {
-                var orgnr = ((no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Virksomhet) arbeidsforhold).getIdentifikator();
+            if (arbeidsforhold instanceof no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Virksomhet virksomhetType) {
+                var orgnr = virksomhetType.getIdentifikator();
                 virksomhetTjeneste.hentOrganisasjon(orgnr);
                 arbeidsgiver = Arbeidsgiver.virksomhet(orgnr);
             } else {
-                var arbeidsgiverIdent = new PersonIdent(
-                    ((no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver) arbeidsforhold).getIdentifikator());
+                var arbeidsgiverIdent = new PersonIdent(arbeidsgiverType.getIdentifikator());
                 var aktørIdArbeidsgiver = personinfoAdapter.hentAktørForFnr(arbeidsgiverIdent);
                 if (aktørIdArbeidsgiver.isEmpty()) {
                     throw new TekniskException("FP-545381",
@@ -447,17 +446,15 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                 arbeidsgiver = Arbeidsgiver.person(aktørIdArbeidsgiver.get());
             }
             builder.medArbeidsgiver(arbeidsgiver);
-        } else if (arbeidsforhold instanceof Frilanser) {
+        } else if (arbeidsforhold instanceof Frilanser frilanser) {
             builder.medArbeidType(ArbeidType.FRILANSER);
-            builder.medOpplysningerOmRisikofaktorer(((Frilanser) arbeidsforhold).getOpplysningerOmRisikofaktorer());
+            builder.medOpplysningerOmRisikofaktorer(frilanser.getOpplysningerOmRisikofaktorer());
             builder.medOpplysningerOmTilretteleggingstiltak(
                 ((Frilanser) arbeidsforhold).getOpplysningerOmTilretteleggingstiltak());
-        } else if (arbeidsforhold instanceof SelvstendigNæringsdrivende) {
+        } else if (arbeidsforhold instanceof SelvstendigNæringsdrivende selvstendig) {
             builder.medArbeidType(ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE);
-            builder.medOpplysningerOmTilretteleggingstiltak(
-                ((SelvstendigNæringsdrivende) arbeidsforhold).getOpplysningerOmTilretteleggingstiltak());
-            builder.medOpplysningerOmRisikofaktorer(
-                ((SelvstendigNæringsdrivende) arbeidsforhold).getOpplysningerOmRisikofaktorer());
+            builder.medOpplysningerOmTilretteleggingstiltak(selvstendig.getOpplysningerOmTilretteleggingstiltak());
+            builder.medOpplysningerOmRisikofaktorer(selvstendig.getOpplysningerOmRisikofaktorer());
         } else {
             throw new TekniskException("FP-187531", "Ukjent type arbeidsforhold i svangerskapspengesøknad");
         }
@@ -486,12 +483,21 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
 
     private Optional<OppgittRettighetEntitet> oversettRettighet(Foreldrepenger omYtelse) {
-        var rettigheter = omYtelse.getRettigheter();
-        if (!isNull(rettigheter)) {
-            return Optional.of(new OppgittRettighetEntitet(rettigheter.isHarAnnenForelderRett(),
-                rettigheter.isHarOmsorgForBarnetIPeriodene(), rettigheter.isHarAleneomsorgForBarnet()));
-        }
-        return Optional.empty();
+        return Optional.ofNullable(omYtelse.getRettigheter())
+            .map(rettigheter -> new OppgittRettighetEntitet(rettigheter.isHarAnnenForelderRett(),
+                    rettigheter.isHarOmsorgForBarnetIPeriodene(), rettigheter.isHarAleneomsorgForBarnet(),
+                    harOppgittUføreEllerPerioderMedAktivitetUføre(omYtelse, rettigheter.isHarMorUforetrygd())));
+    }
+
+    // TODO: Avklare med AP om dette er rett måte å serve rettighet??? Info må uansett sjekke oppgitt fordeling for eldre tilfelle (med mindre vi kjører DB-oppdatering)
+    private static boolean harOppgittUføreEllerPerioderMedAktivitetUføre(Foreldrepenger omYtelse, Boolean oppgittUføre) {
+        return (oppgittUføre != null && oppgittUføre) || omYtelse.getFordeling().getPerioder().stream()
+            .anyMatch(p -> (p instanceof Uttaksperiode uttak && erPeriodeMedAktivitetUføre(uttak.getMorsAktivitetIPerioden())) ||
+                (p instanceof Utsettelsesperiode utsettelse && erPeriodeMedAktivitetUføre(utsettelse.getMorsAktivitetIPerioden())));
+    }
+
+    private static boolean erPeriodeMedAktivitetUføre(MorsAktivitetsTyper morsAktivitet) {
+        return morsAktivitet != null && MorsAktivitet.UFØRE.getKode().equals(morsAktivitet.getKode());
     }
 
     private OppgittFordelingEntitet oversettFordeling(Behandling behandling,
@@ -566,13 +572,13 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             .medPeriode(lukketPeriode.getFom(), lukketPeriode.getTom());
         if (lukketPeriode instanceof final Uttaksperiode periode) {
             oversettUttakperiode(oppgittPeriodeBuilder, periode);
-        } else if (lukketPeriode instanceof Oppholdsperiode) {
+        } else if (lukketPeriode instanceof Oppholdsperiode oppholdsperiode) {
             oppgittPeriodeBuilder.medÅrsak(
-                OppholdÅrsak.fraKode(((Oppholdsperiode) lukketPeriode).getAarsak().getKode()));
+                OppholdÅrsak.fraKode(oppholdsperiode.getAarsak().getKode()));
             oppgittPeriodeBuilder.medPeriodeType(UttakPeriodeType.fraKode(UttakPeriodeType.ANNET.getKode()));
-        } else if (lukketPeriode instanceof Overfoeringsperiode) {
+        } else if (lukketPeriode instanceof Overfoeringsperiode overfoeringsperiode) {
             oppgittPeriodeBuilder.medÅrsak(
-                OverføringÅrsak.fraKode(((Overfoeringsperiode) lukketPeriode).getAarsak().getKode()));
+                OverføringÅrsak.fraKode(overfoeringsperiode.getAarsak().getKode()));
             oppgittPeriodeBuilder.medPeriodeType(
                 UttakPeriodeType.fraKode(((Overfoeringsperiode) lukketPeriode).getOverfoeringAv().getKode()));
         } else if (lukketPeriode instanceof Utsettelsesperiode utsettelsesperiode) {
@@ -606,8 +612,8 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             oppgittPeriodeBuilder.medSamtidigUttak(true);
             oppgittPeriodeBuilder.medSamtidigUttaksprosent(
                 new SamtidigUttaksprosent(periode.getSamtidigUttakProsent()));
-        } else if (periode instanceof Gradering) {
-            oversettGradering(oppgittPeriodeBuilder, (Gradering) periode);
+        } else if (periode instanceof Gradering gradering) {
+            oversettGradering(oppgittPeriodeBuilder, gradering);
         }
         if (periode.getMorsAktivitetIPerioden() != null && !periode.getMorsAktivitetIPerioden().getKode().isEmpty()) {
             oppgittPeriodeBuilder.medMorsAktivitet(
@@ -829,12 +835,12 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         var oppgittTilknytningBuilder = new MedlemskapOppgittTilknytningEntitet.Builder().medOppholdNå(true)
             .medOppgittDato(forsendelseMottatt);
 
-        if (omYtelse instanceof Engangsstønad) {
-            medlemskap = ((Engangsstønad) omYtelse).getMedlemskap();
-        } else if (omYtelse instanceof Foreldrepenger) {
-            medlemskap = ((Foreldrepenger) omYtelse).getMedlemskap();
-        } else if (omYtelse instanceof Svangerskapspenger) {
-            medlemskap = ((Svangerskapspenger) omYtelse).getMedlemskap();
+        if (omYtelse instanceof Engangsstønad engangsstønad) {
+            medlemskap = engangsstønad.getMedlemskap();
+        } else if (omYtelse instanceof Foreldrepenger foreldrepenger) {
+            medlemskap = foreldrepenger.getMedlemskap();
+        } else if (omYtelse instanceof Svangerskapspenger svangerskapspenger) {
+            medlemskap = svangerskapspenger.getMedlemskap();
         } else {
             throw new IllegalStateException("Ytelsestype er ikke støttet");
         }
@@ -883,10 +889,10 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     private SoekersRelasjonTilBarnet getSoekersRelasjonTilBarnet(SøknadWrapper skjema) {
         SoekersRelasjonTilBarnet relasjonTilBarnet = null;
         var omYtelse = skjema.getOmYtelse();
-        if (omYtelse instanceof Foreldrepenger) {
-            relasjonTilBarnet = ((Foreldrepenger) omYtelse).getRelasjonTilBarnet();
-        } else if (omYtelse instanceof Engangsstønad) {
-            relasjonTilBarnet = ((Engangsstønad) omYtelse).getSoekersRelasjonTilBarnet();
+        if (omYtelse instanceof Foreldrepenger foreldrepenger) {
+            relasjonTilBarnet = foreldrepenger.getRelasjonTilBarnet();
+        } else if (omYtelse instanceof Engangsstønad engangsstønad) {
+            relasjonTilBarnet = engangsstønad.getSoekersRelasjonTilBarnet();
         }
 
         Objects.requireNonNull(relasjonTilBarnet, "Relasjon til barnet må være oppgitt");
