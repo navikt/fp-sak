@@ -60,7 +60,7 @@ comment on column MOTTATT_VEDTAK.FAGSYSTEM is 'Eksternt fagsystem som har fattet
 comment on column MOTTATT_VEDTAK.YTELSE is 'Ytelse for mottatt vedtak';
 comment on column MOTTATT_VEDTAK.REFERANSE is 'Referanse UUID el til mottatt vedtak';
 
-create index IDX_OVERLAPP_VEDTAK_01 on MOTTATT_VEDTAK (REFERANSE);
+create index IDX_MOTTATT_VEDTAK_01 on MOTTATT_VEDTAK (REFERANSE);
 
 -- div rydding
 DROP SEQUENCE SEQ_ADOPSJON_BARN;
