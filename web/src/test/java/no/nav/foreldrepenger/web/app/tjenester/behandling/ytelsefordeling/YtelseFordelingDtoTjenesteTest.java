@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,8 +47,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
     private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
-    private final ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste = mock(
-        ArbeidsgiverHistorikkinnslag.class);
+    private final ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste = mock(ArbeidsgiverHistorikkinnslag.class);
     private BehandlingRepositoryProvider repositoryProvider;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private FaktaUttakToTrinnsTjeneste faktaUttakToTrinnsTjeneste;
@@ -67,8 +67,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         kontrollerOppgittFordelingTjeneste = new KontrollerOppgittFordelingTjeneste(ytelseFordelingTjeneste,
             repositoryProvider, førsteUttaksdatoTjeneste);
         fordelingRepository = new YtelsesFordelingRepository(entityManager);
-        when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(
-            InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(InntektArbeidYtelseGrunnlagBuilder.nytt().build());
         faktaUttakHistorikkTjeneste = new FaktaUttakHistorikkTjeneste(lagMockHistory(),
             arbeidsgiverHistorikkinnslagTjeneste, ytelseFordelingTjeneste, inntektArbeidYtelseTjeneste);
     }
@@ -95,18 +94,18 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
     public void teste_lag_ytelsefordeling_dto_med_annenforelder_har_rett_perioder() {
         var behandling = opprettBehandling(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT);
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
+        var uforeRepoMock = mock(UføretrygdRepository.class);
+        when(uforeRepoMock.hentGrunnlag(anyLong())).thenReturn(Optional.empty());
         // Act
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         new AvklarAnnenforelderHarRettOppdaterer(kontrollerOppgittFordelingTjeneste, faktaUttakHistorikkTjeneste,
-            faktaUttakToTrinnsTjeneste, mock(UføretrygdRepository.class)).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+            faktaUttakToTrinnsTjeneste, uforeRepoMock).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull();
         assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRett()).isNotNull();
         assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRett()).isTrue();
-        assertThat(
-            ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRettPerioder()).isNotNull();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRettPerioder()).hasSize(
-            1);
+        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRettPerioder()).isNotNull();
+        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRettPerioder()).hasSize(1);
         assertThat(ytelseFordelingDtoOpt.get().getEndringsdato()).isEqualTo(LocalDate.now().minusDays(20));
         assertThat(ytelseFordelingDtoOpt.get().getGjeldendeDekningsgrad()).isEqualTo(100);
     }

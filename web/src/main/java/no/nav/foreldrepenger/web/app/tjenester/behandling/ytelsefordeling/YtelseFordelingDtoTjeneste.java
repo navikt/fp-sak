@@ -75,8 +75,7 @@ public class YtelseFordelingDtoTjeneste {
     private void lagAnnenforelderHarRettDto(Behandling behandling, Optional<PerioderAnnenforelderHarRettEntitet> perioderAnnenforelderHarRett, YtelseFordelingDto.Builder dtoBuilder) {
         var begrunnelse = behandling.getAksjonspunkter().stream()
             .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT))
-            .map(Aksjonspunkt::getBegrunnelse)
-            .findFirst().orElse(null);
+            .findFirst().map(Aksjonspunkt::getBegrunnelse).orElse(null);
         var avklareUføretrygd = uføretrygdRepository.hentGrunnlag(behandling.getId())
             .filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd)
             .isPresent();
