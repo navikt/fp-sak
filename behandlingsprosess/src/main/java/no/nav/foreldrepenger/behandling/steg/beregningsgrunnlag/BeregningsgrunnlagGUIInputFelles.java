@@ -101,10 +101,6 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
             kravperioder,
             mappetOpptjening,
             ytelseGrunnlag);
-
-        // Toggles
-        input.leggTilToggle("visning-inntektsgrunnlag", true);
-
         return Optional.of(input);
     }
 
