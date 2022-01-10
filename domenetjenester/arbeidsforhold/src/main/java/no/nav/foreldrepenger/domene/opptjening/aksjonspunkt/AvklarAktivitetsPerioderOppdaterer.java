@@ -148,12 +148,22 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
             ? null
             : akt.getArbeidsgiver().getIdentifikator();
 
-        // For utenlands arbeidsforhold sendes det ned et nummer som brukes kun til identifisering i GUI og som ikke kan brukes til å finne igjen aktivitet backend
-        var bekreftetArbeidsgiverId = OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD.equals(bekreftetAktivitet.getAktivitetType())
-            ? null
-            : bekreftetAktivitet.getArbeidsgiverReferanse();
         var bekreftetArbeidsforholdId = bekreftetAktivitet.getArbeidsforholdRef();
+
+        // I tilfeller med opptjening i utlandet kan det mangle et en identifikator for arbeidsgiver i lagret entitet,
+        // men den vil være satt i GUI for å gjøre det mulig å matche aktivitet med beskrivende navn.
+        // Må derfor sjekke om det er tilfellet her.
+        if (lagretArbeidsgiverId == null && ikkeGyldigArbeidsgiverReferanse(bekreftetAktivitet)) {
+            return Objects.equals(lagretArbeidsforholdId, bekreftetArbeidsforholdId);
+
+        }
+        var bekreftetArbeidsgiverId = bekreftetAktivitet.getArbeidsgiverReferanse();
         return Objects.equals(lagretArbeidsforholdId, bekreftetArbeidsforholdId) && Objects.equals(lagretArbeidsgiverId, bekreftetArbeidsgiverId);
+    }
+
+    private boolean ikkeGyldigArbeidsgiverReferanse(BekreftOpptjeningPeriodeDto bekreftetAktivitet) {
+        return bekreftetAktivitet.getArbeidsgiverReferanse() == null || (!OrgNummer.erGyldigOrgnr(bekreftetAktivitet.getArbeidsgiverReferanse()) &&
+            !AktørId.erGyldigAktørId(bekreftetAktivitet.getArbeidsgiverReferanse()));
     }
 
     private void byggHistorikkinnslag(BekreftOpptjeningPeriodeDto bekreftetAktivitet, Long behandlingId, String fraVerdi, String tilVerdi) {
