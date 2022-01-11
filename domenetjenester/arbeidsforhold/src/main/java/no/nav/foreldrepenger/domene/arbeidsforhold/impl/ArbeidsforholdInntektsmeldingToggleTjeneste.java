@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
-import no.nav.foreldrepenger.konfig.Environment;
-
 public class ArbeidsforholdInntektsmeldingToggleTjeneste {
 
     private ArbeidsforholdInntektsmeldingToggleTjeneste() {
@@ -9,6 +7,8 @@ public class ArbeidsforholdInntektsmeldingToggleTjeneste {
     }
 
     public static boolean erTogglePå() {
-        return !Environment.current().isProd();
+        // Skrur toggle helt av i starten for å ikke trenge endringer i autotest før vi er trygge på at dette er løsningen vi går for
+        return false;
+//        return !Environment.current().isProd();
     }
 }
