@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
@@ -36,6 +37,7 @@ public class ForeldrepengerUttakPeriode {
     private boolean manueltBehandlet;
     private LocalDate mottattDato;
     private LocalDate tidligstMottattDato;
+    private MorsAktivitet morsAktivitet;
 
     private ForeldrepengerUttakPeriode() {
 
@@ -71,7 +73,8 @@ public class ForeldrepengerUttakPeriode {
             && Objects.equals(periode.isFlerbarnsdager(), isFlerbarnsdager())
             && Objects.equals(periode.getUtsettelseType(), getUtsettelseType())
             && Objects.equals(periode.getOverføringÅrsak(), getOverføringÅrsak())
-            && Objects.equals(periode.getOppholdÅrsak(), getOppholdÅrsak());
+            && Objects.equals(periode.getOppholdÅrsak(), getOppholdÅrsak())
+            && Objects.equals(periode.getMorsAktivitet(), getMorsAktivitet());
     }
 
     public LocalDateInterval getTidsperiode() {
@@ -201,6 +204,10 @@ public class ForeldrepengerUttakPeriode {
         return !OppholdÅrsak.UDEFINERT.equals(getOppholdÅrsak());
     }
 
+    public MorsAktivitet getMorsAktivitet() {
+        return morsAktivitet;
+    }
+
     @Override
     public String toString() {
         return "ForeldrepengerUttakPeriode{" +
@@ -221,6 +228,7 @@ public class ForeldrepengerUttakPeriode {
             ", manueltBehandlet=" + manueltBehandlet +
             ", mottattDato=" + mottattDato +
             ", tidligstMottattDato=" + tidligstMottattDato +
+            ", morsAktivitet=" + morsAktivitet +
             '}';
     }
 
@@ -328,6 +336,11 @@ public class ForeldrepengerUttakPeriode {
 
         public Builder medTidligstMottattDato(LocalDate tidligstMottattDato) {
             kladd.tidligstMottattDato = tidligstMottattDato;
+            return this;
+        }
+
+        public Builder medMorsAktivitet(MorsAktivitet morsAktivitet) {
+            kladd.morsAktivitet = morsAktivitet;
             return this;
         }
 

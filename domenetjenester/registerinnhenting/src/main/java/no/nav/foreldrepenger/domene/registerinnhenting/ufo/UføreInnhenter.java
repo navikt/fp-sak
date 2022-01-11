@@ -23,12 +23,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
@@ -37,7 +36,7 @@ public class UføreInnhenter {
     private UføretrygdRepository uføretrygdRepository;
     private YtelsesFordelingRepository yfRepository;
     private PersonopplysningRepository poRepository;
-    private FpUttakRepository uttakRepository;
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
     private PersoninfoAdapter personinfoAdapter;
     private PesysUføreKlient pesysUføreKlient;
 
@@ -49,13 +48,13 @@ public class UføreInnhenter {
     public UføreInnhenter(UføretrygdRepository uføretrygdRepository,
                           YtelsesFordelingRepository yfRepository,
                           PersonopplysningRepository poRepository,
-                          FpUttakRepository uttakRepository,
+                          ForeldrepengerUttakTjeneste uttakTjeneste,
                           PersoninfoAdapter personinfoAdapter,
                           PesysUføreKlient pesysUføreKlient) {
         this.uføretrygdRepository = uføretrygdRepository;
         this.yfRepository = yfRepository;
         this.poRepository = poRepository;
-        this.uttakRepository = uttakRepository;
+        this.uttakTjeneste = uttakTjeneste;
         this.personinfoAdapter = personinfoAdapter;
         this.pesysUføreKlient = pesysUføreKlient;
     }
@@ -91,13 +90,11 @@ public class UføreInnhenter {
         }
     }
 
-    private void innhentOgLagre(Behandling behandling, AktørId annenpart, LocalDate startDato) {
-        var uføreperiode = poRepository.hentOppgittAnnenPartHvisEksisterer(behandling.getId())
-            .map(OppgittAnnenPartEntitet::getAktørId)
-            .flatMap(ap -> personinfoAdapter.hentFnr(ap))
+    private void innhentOgLagre(Behandling behandling, AktørId annenpartAktørId, LocalDate startDato) {
+        var uføreperiode = personinfoAdapter.hentFnr(annenpartAktørId)
             .flatMap(fnr -> pesysUføreKlient.hentUføreHistorikk(fnr.getIdent(), startDato, behandling.getFagsak().getSaksnummer().getVerdi()));
-        // TODO (JOL): Slå på lagring av tilfellse der vi ikke finner
-        uføreperiode.ifPresent(uføre -> uføretrygdRepository.lagreUføreGrunnlagRegisterVersjon(behandling.getId(), annenpart, true, uføre.uforetidspunkt(), uføre.virkningsdato()));
+        // TODO (JOL): Slå på lagring av tilfellse der vi ikke finner data i Pesys + trigge avklaring i aksjonspunkt
+        uføreperiode.ifPresent(uføre -> uføretrygdRepository.lagreUføreGrunnlagRegisterVersjon(behandling.getId(), annenpartAktørId, true, uføre.uforetidspunkt(), uføre.virkningsdato()));
     }
 
     private LocalDate førsteUttaksdag(Behandling behandling, Optional<YtelseFordelingAggregat> ytelseFordeling) {
@@ -114,20 +111,18 @@ public class UføreInnhenter {
 
     private Optional<LocalDate> finnFørsteDatoIUttakResultat(Behandling behandling) {
         if (!BehandlingType.REVURDERING.equals(behandling.getType())) return Optional.empty();
-        return uttakRepository.hentUttakResultatHvisEksisterer(originalBehandling(behandling))
-            .map(UttakResultatEntitet::getGjeldendePerioder)
-            .map(UttakResultatPerioderEntitet::getPerioder).orElse(List.of()).stream()
-            .map(UttakResultatPeriodeEntitet::getFom)
+        return uttakTjeneste.hentUttakHvisEksisterer(originalBehandling(behandling))
+            .map(ForeldrepengerUttak::getGjeldendePerioder).orElse(List.of()).stream()
+            .map(ForeldrepengerUttakPeriode::getFom)
             .min(Comparator.naturalOrder());
     }
 
     private boolean uttakResultatMedInnvilgetUføre(Behandling behandling) {
         return BehandlingType.REVURDERING.equals(behandling.getType()) &&
-            uttakRepository.hentUttakResultatHvisEksisterer(originalBehandling(behandling))
-            .map(UttakResultatEntitet::getGjeldendePerioder)
-            .map(UttakResultatPerioderEntitet::getPerioder).orElse(List.of()).stream()
-            .filter(UttakResultatPeriodeEntitet::isInnvilget)
-            .anyMatch(p -> p.getPeriodeSøknad().filter(s -> MorsAktivitet.UFØRE.equals(s.getMorsAktivitet())).isPresent());
+            uttakTjeneste.hentUttakHvisEksisterer(originalBehandling(behandling))
+            .map(ForeldrepengerUttak::getGjeldendePerioder).orElse(List.of()).stream()
+            .filter(ForeldrepengerUttakPeriode::isInnvilget)
+            .anyMatch(p -> MorsAktivitet.UFØRE.equals(p.getMorsAktivitet()));
     }
 
     private Long originalBehandling(Behandling behandling) {
