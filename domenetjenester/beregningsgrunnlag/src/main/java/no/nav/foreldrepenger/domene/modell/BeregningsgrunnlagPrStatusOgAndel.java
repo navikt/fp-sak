@@ -823,9 +823,6 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
 
         private void verifiserAndelsnr() {
             Set<Long> andelsnrIBruk = new HashSet<>();
-            if (kladd.beregningsgrunnlagPeriode == null) {
-                throw new IllegalStateException("FEIL");
-            }
             kladd.beregningsgrunnlagPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
             .map(BeregningsgrunnlagPrStatusOgAndel::getAndelsnr)
             .forEach(andelsnr -> {
