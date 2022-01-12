@@ -478,6 +478,8 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
         var other = (BeregningsgrunnlagPrStatusOgAndel) obj;
         return Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus())
                 && Objects.equals(this.getInntektskategori(), other.getInntektskategori())
+                && Objects.equals(this.getInntektskategoriAutomatiskFordeling(), other.getInntektskategoriAutomatiskFordeling())
+                && Objects.equals(this.getInntektskategoriManuellFordeling(), other.getInntektskategoriManuellFordeling())
                 && Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver),
                     other.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver))
                 && Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef),
@@ -821,6 +823,9 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
 
         private void verifiserAndelsnr() {
             Set<Long> andelsnrIBruk = new HashSet<>();
+            if (kladd.beregningsgrunnlagPeriode == null) {
+                throw new IllegalStateException("FEIL");
+            }
             kladd.beregningsgrunnlagPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
             .map(BeregningsgrunnlagPrStatusOgAndel::getAndelsnr)
             .forEach(andelsnr -> {
