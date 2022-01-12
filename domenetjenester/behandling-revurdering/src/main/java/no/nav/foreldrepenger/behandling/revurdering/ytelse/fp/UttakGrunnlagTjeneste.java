@@ -22,6 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
@@ -46,6 +48,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private SøknadRepository søknadRepository;
     private PleiepengerRepository pleiepengerRepository;
+    private UføretrygdRepository uføretrygdRepository;
 
     @Inject
     public UttakGrunnlagTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
@@ -58,6 +61,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.søknadRepository = behandlingRepositoryProvider.getSøknadRepository();
         this.pleiepengerRepository = behandlingRepositoryProvider.getPleiepengerRepository();
+        this.uføretrygdRepository = behandlingRepositoryProvider.getUføretrygdRepository();
     }
 
     UttakGrunnlagTjeneste() {
@@ -83,7 +87,8 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
             .medErBerørtBehandling(erBerørtBehandling)
             .medFamilieHendelser(familiehendelser)
             .medOriginalBehandling(originalBehandling.orElse(null))
-            .medPleiepengerGrunnlag(pleiepengerGrunnlag(ref).orElse(null));
+            .medPleiepengerGrunnlag(pleiepengerGrunnlag(ref).orElse(null))
+            .medUføretrygdGrunnlag(uføretrygdGrunnlag(ref).orElse(null));
         if (fagsakRelasjon.isPresent()) {
             var annenpart = annenpart(fagsakRelasjon.get(), familiehendelser, behandling);
             grunnlag = grunnlag.medAnnenpart(annenpart.orElse(null));
@@ -93,6 +98,10 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
 
     private Optional<PleiepengerGrunnlagEntitet> pleiepengerGrunnlag(BehandlingReferanse ref) {
         return pleiepengerRepository.hentGrunnlag(ref.getBehandlingId());
+    }
+
+    private Optional<UføretrygdGrunnlagEntitet> uføretrygdGrunnlag(BehandlingReferanse ref) {
+        return uføretrygdRepository.hentGrunnlag(ref.getBehandlingId());
     }
 
     private Optional<Annenpart> annenpart(FagsakRelasjon fagsakRelasjon,

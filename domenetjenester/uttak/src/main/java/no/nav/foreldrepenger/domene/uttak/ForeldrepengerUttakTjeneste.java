@@ -6,10 +6,12 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
@@ -65,9 +67,10 @@ public class ForeldrepengerUttakTjeneste {
             .medGraderingAvslagÅrsak(entitet.getGraderingAvslagÅrsak())
             .medSamtidigUttaksprosent(entitet.getSamtidigUttaksprosent())
             .medManuellBehandlingÅrsak(entitet.getManuellBehandlingÅrsak())
-            .medSøktKonto(entitet.getPeriodeSøknad().map(se -> se.getUttakPeriodeType()).orElse(null))
+            .medSøktKonto(entitet.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getUttakPeriodeType).orElse(null))
             .medMottattDato(mottattDato)
             .medTidligstMottattDato(entitet.getPeriodeSøknad().map(se -> se.getTidligstMottattDato().orElse(mottattDato)).orElse(null))
+            .medMorsAktivitet(entitet.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMorsAktivitet).orElse(MorsAktivitet.UDEFINERT))
             .medOpprinneligSendtTilManuellBehandling(entitet.opprinneligSendtTilManuellBehandling())
             .medManueltBehandlet(entitet.isManueltBehandlet());
         return periodeBuilder.build();

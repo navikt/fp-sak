@@ -63,8 +63,8 @@ public class KontrollerOppgittFordelingTjeneste {
     /**
      * Brukes i bekreft aksjonspunkt avklar annen forelder har rett
      */
-    public void avklarAnnenforelderHarIkkeRett(AvklarAnnenforelderHarRettDto dto, Behandling behandling) {
-        ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandling.getId(), dto.getAnnenforelderHarRett());
+    public void avklarAnnenforelderHarIkkeRett(AvklarAnnenforelderHarRettDto dto, Long behandlingId) {
+        ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandlingId, dto.getAnnenforelderHarRett());
     }
 
     public void bekreftOppgittePerioder(List<BekreftetOppgittPeriodeDto> bekreftedePerioder, Behandling behandling) {

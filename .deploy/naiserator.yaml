@@ -36,8 +36,8 @@ spec:
       cpu: "4000m"
       memory: "3072Mi"
     requests:
-      cpu: "100m"
-      memory: "2816Mi"
+      cpu: "128m"
+      memory: "2688Mi"
   azure:
     application:
       enabled: true

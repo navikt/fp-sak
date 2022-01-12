@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -46,6 +47,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     private PersonopplysningRepository personopplysningRepository;
     private MedlemskapRepository medlemskapRepository;
     private PleiepengerRepository pleiepengerRepository;
+    private UføretrygdRepository uføretrygdRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private OpptjeningIUtlandDokStatusRepository opptjeningIUtlandDokStatusRepository;
     private RevurderingTjenesteFelles revurderingTjenesteFelles;
@@ -74,6 +76,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.medlemskapRepository = repositoryProvider.getMedlemskapRepository();
         this.pleiepengerRepository = repositoryProvider.getPleiepengerRepository();
+        this.uføretrygdRepository = repositoryProvider.getUføretrygdRepository();
         this.opptjeningIUtlandDokStatusRepository = repositoryProvider.getOpptjeningIUtlandDokStatusRepository();
         this.revurderingEndring = revurderingEndring;
         this.revurderingTjenesteFelles = revurderingTjenesteFelles;
@@ -132,6 +135,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         personopplysningRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         medlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         pleiepengerRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
+        uføretrygdRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
 
         if (BehandlingType.REVURDERING.equals(ny.getType())) {
             ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
@@ -163,6 +167,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(originalBehandlingId, nyBehandlingId);
         personopplysningRepository.kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(originalBehandlingId, nyBehandlingId);
         medlemskapRepository.kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(originalBehandlingId, nyBehandlingId);
+        uføretrygdRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
 
         // Nytt til post-annullering
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(originalBehandlingId);

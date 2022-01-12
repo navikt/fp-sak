@@ -46,11 +46,11 @@
         <prosesstask.version>3.0.6</prosesstask.version>
         <ukelonn.felles.version>2.0.22</ukelonn.felles.version>
 
-        <fp-kontrakter.version>6.1.2</fp-kontrakter.version>
+        <fp-kontrakter.version>6.1.3</fp-kontrakter.version>
         <fp-tidsserie.version>2.5.7</fp-tidsserie.version>
         <fp-nare.version>2.1.5</fp-nare.version>
         <kalkulus.version>1.4.1</kalkulus.version>
-        <abakus-kontrakt.version>1.3.25</abakus-kontrakt.version>
+        <abakus-kontrakt.version>1.3.26</abakus-kontrakt.version>
 
         <swaggercore.version>2.1.12</swaggercore.version>
         <flyway.version>4.2.0</flyway.version>
@@ -757,7 +757,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.2.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

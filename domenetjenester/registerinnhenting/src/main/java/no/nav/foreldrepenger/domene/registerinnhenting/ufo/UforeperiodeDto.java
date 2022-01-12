@@ -6,7 +6,6 @@ public record UforeperiodeDto(Integer uforegrad,
                               Date uforetidspunkt,
                               Date virk,
                               UforeTypeCtiDto uforetype,
-                              Date uforetidspunktTom,
                               Date ufgFom,
                               Date ufgTom) {
 }

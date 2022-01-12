@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.uttak.input;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 
 public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
 
@@ -11,6 +12,7 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     private OriginalBehandling originalBehandling;
     private Annenpart annenpart;
     private PleiepengerGrunnlagEntitet pleiepengerGrunnlag;
+    private UføretrygdGrunnlagEntitet uføretrygdGrunnlag;
 
     public ForeldrepengerGrunnlag() {
 
@@ -22,6 +24,7 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
         originalBehandling = foreldrepengerGrunnlag.originalBehandling;
         annenpart = foreldrepengerGrunnlag.annenpart;
         pleiepengerGrunnlag = foreldrepengerGrunnlag.pleiepengerGrunnlag;
+        uføretrygdGrunnlag = foreldrepengerGrunnlag.uføretrygdGrunnlag;
     }
 
     public boolean isBerørtBehandling() {
@@ -42,6 +45,10 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
 
     public Optional<PleiepengerGrunnlagEntitet> getPleiepengerGrunnlag() {
         return Optional.ofNullable(pleiepengerGrunnlag);
+    }
+
+    public Optional<UføretrygdGrunnlagEntitet> getUføretrygdGrunnlag() {
+        return Optional.ofNullable(uføretrygdGrunnlag);
     }
 
     public ForeldrepengerGrunnlag medErBerørtBehandling(boolean berørtBehandling) {
@@ -71,6 +78,12 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     public ForeldrepengerGrunnlag medPleiepengerGrunnlag(PleiepengerGrunnlagEntitet pleiepengerGrunnlag) {
         var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
         nyttGrunnlag.pleiepengerGrunnlag = pleiepengerGrunnlag;
+        return nyttGrunnlag;
+    }
+
+    public ForeldrepengerGrunnlag medUføretrygdGrunnlag(UføretrygdGrunnlagEntitet uføretrygdGrunnlag) {
+        var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
+        nyttGrunnlag.uføretrygdGrunnlag = uføretrygdGrunnlag;
         return nyttGrunnlag;
     }
 }

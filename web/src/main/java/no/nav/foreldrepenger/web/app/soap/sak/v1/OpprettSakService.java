@@ -120,7 +120,7 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
                 journalpostYtelseType = FagsakYtelseType.SVANGERSKAPSPENGER;
             }
         }
-        LOG.info("FPSAK vurdering FPFORDEL ytelsedok {} vs ytelseoppgitt {}", journalpostYtelseType, behandlingTema.getFagsakYtelseType());
+        LOG.info("FPSAK vurdering ytelsedok {} vs ytelseoppgitt {}", journalpostYtelseType, behandlingTema.getFagsakYtelseType());
         if (!behandlingTema.getFagsakYtelseType().equals(journalpostYtelseType)) {
             throw new FunksjonellException("FP-785356", "Dokument og valgt ytelsetype i uoverenstemmelse",
                 "Velg ytelsetype som samstemmer med dokument");

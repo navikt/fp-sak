@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -114,7 +115,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
 
     private AvklarAnnenforelderHarRettOppdaterer oppdaterer() {
         return new AvklarAnnenforelderHarRettOppdaterer(kontrollerOppgittFordelingTjeneste, faktaUttakHistorikkTjeneste,
-            faktaUttakToTrinnsTjeneste);
+            faktaUttakToTrinnsTjeneste, mock(UføretrygdRepository.class));
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {

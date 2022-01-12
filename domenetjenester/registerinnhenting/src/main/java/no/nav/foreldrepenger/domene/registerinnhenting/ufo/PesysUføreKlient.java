@@ -1,13 +1,16 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.ufo;
 
 import java.net.URI;
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.http.Header;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,12 +30,14 @@ public class PesysUføreKlient {
 
     private static final Logger LOG = LoggerFactory.getLogger(PesysUføreKlient.class);
 
-    private static final String ENDPOINT_KEY = "pesys.ufo.rs.url";
+    private static final String ENDPOINT_KEY = "ufore.rs.url";
     private static final String DEFAULT_URI = "http://pensjon-pen.pensjondeployer/pen/api/sak/uforehistorikk";
+
+    private static final Set<UforeTypeCode> UFØRE_TYPER = Set.of(UforeTypeCode.UFORE, UforeTypeCode.UF_M_YRKE);
 
     private static final String HEADER_FNR = "fnr";
 
-    private static final boolean ER_PROD = Environment.current().isProd();
+    private static final boolean SKAL_KALLE = Environment.current().isProd() || Environment.current().isDev();
 
 
     private SystemStsRestClient oidcRestClient;
@@ -48,18 +53,24 @@ public class PesysUføreKlient {
         this.endpoint = endpoint;
     }
 
-    public void hentUføreHistorikk(String fnr, String saksnummerTilLogging) {
-        if (!ER_PROD) return;
-        try {
-            var request = new URIBuilder(endpoint).build();
-            var response = this.oidcRestClient.get(request, this.lagHeader(fnr), HentUforehistorikkResponseDto.class);
-            LOG.info("Innhent UFO raw: {}", response);
-            if (response != null && response.uforehistorikk() != null) {
-                LOG.info("Innhent UFO saksnummer {} perioder {}", saksnummerTilLogging, response.uforehistorikk().uforeperioder().stream().map(Uføreperiode::new).toList());
-            }
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Innhent UFO feilet ", e);
+    public Optional<Uføreperiode> hentUføreHistorikk(String fnr, LocalDate startDato, String saksnummerTilLogging) {
+        if (!SKAL_KALLE) return Optional.empty();
+
+        var response = this.oidcRestClient.get(endpoint, this.lagHeader(fnr), HentUforehistorikkResponseDto.class);
+
+        var uføreperiode = Optional.ofNullable(response).map(HentUforehistorikkResponseDto::uforehistorikk)
+            .map(UforehistorikkDto::uforeperioder).orElse(List.of()).stream()
+            .filter(u -> u.uforetype() != null && UFØRE_TYPER.contains(u.uforetype().code()))
+            .filter(u -> u.uforegrad() != null && u.uforegrad() > 0)
+            .map(Uføreperiode::new)
+            .filter(u -> u.ufgTom() == null || u.ufgTom().isAfter(startDato))
+            .max(Comparator.comparing(Uføreperiode::virkningsdato));
+
+        if (uføreperiode.isEmpty()) {
+            LOG.warn("Kjære loggleser: gjer produkteigar merksam på sak {} - finn ikkje uføretrygd. Pesys svarar {}", saksnummerTilLogging, response);
         }
+
+        return uføreperiode;
     }
 
     private Set<Header> lagHeader(String fnr) {

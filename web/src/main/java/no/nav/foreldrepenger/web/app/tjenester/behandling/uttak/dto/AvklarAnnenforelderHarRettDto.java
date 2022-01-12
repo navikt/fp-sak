@@ -13,6 +13,8 @@ public class AvklarAnnenforelderHarRettDto extends BekreftetAksjonspunktDto {
     @NotNull
     private Boolean annenforelderHarRett;
 
+    private Boolean annenforelderMottarUføretrygd;
+
     AvklarAnnenforelderHarRettDto() {
         // For Jackson
     }
@@ -30,4 +32,11 @@ public class AvklarAnnenforelderHarRettDto extends BekreftetAksjonspunktDto {
         return annenforelderHarRett;
     }
 
+    public Boolean getAnnenforelderMottarUføretrygd() {
+        return annenforelderMottarUføretrygd;
+    }
+
+    public void setAnnenforelderMottarUføretrygd(Boolean annenforelderMottarUføretrygd) {
+        this.annenforelderMottarUføretrygd = annenforelderMottarUføretrygd;
+    }
 }
