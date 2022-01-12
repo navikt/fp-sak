@@ -73,8 +73,7 @@ public class ForeldrepengerUttakPeriode {
             && Objects.equals(periode.isFlerbarnsdager(), isFlerbarnsdager())
             && Objects.equals(periode.getUtsettelseType(), getUtsettelseType())
             && Objects.equals(periode.getOverføringÅrsak(), getOverføringÅrsak())
-            && Objects.equals(periode.getOppholdÅrsak(), getOppholdÅrsak())
-            && Objects.equals(periode.getMorsAktivitet(), getMorsAktivitet());
+            && Objects.equals(periode.getOppholdÅrsak(), getOppholdÅrsak());
     }
 
     public LocalDateInterval getTidsperiode() {
