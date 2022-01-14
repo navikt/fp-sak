@@ -7,5 +7,6 @@ import no.nav.foreldrepenger.familiehendelse.rest.PeriodeDto;
 public record AnnenforelderHarRettDto(String begrunnelse,
                                       Boolean annenforelderHarRett,
                                       List<PeriodeDto> annenforelderHarRettPerioder,
+                                      Boolean annenforelderMottarUføretrygd,
                                       boolean avklarAnnenforelderMottarUføretrygd) {
 }

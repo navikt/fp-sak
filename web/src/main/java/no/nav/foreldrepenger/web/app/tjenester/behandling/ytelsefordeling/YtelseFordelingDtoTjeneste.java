@@ -79,13 +79,15 @@ public class YtelseFordelingDtoTjeneste {
         var avklareUføretrygd = uføretrygdRepository.hentGrunnlag(behandling.getId())
             .filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd)
             .isPresent();
+        var avklartMottarUføretrygd = uføretrygdRepository.hentGrunnlag(behandling.getId())
+            .map(UføretrygdGrunnlagEntitet::getUføretrygdOverstyrt).orElse(null);
         if (perioderAnnenforelderHarRett.isPresent()) {
             var periodeAnnenforelderHarRett = perioderAnnenforelderHarRett.get().getPerioder();
             var annenforelderHarRettDto = new AnnenforelderHarRettDto(begrunnelse, !periodeAnnenforelderHarRett.isEmpty(),
-                PeriodeKonverter.mapAnnenforelderHarRettPerioder(periodeAnnenforelderHarRett), avklareUføretrygd);
+                PeriodeKonverter.mapAnnenforelderHarRettPerioder(periodeAnnenforelderHarRett), avklartMottarUføretrygd, avklareUføretrygd);
             dtoBuilder.medAnnenforelderHarRett(annenforelderHarRettDto);
         } else {
-            dtoBuilder.medAnnenforelderHarRett(new AnnenforelderHarRettDto(begrunnelse, null, null, avklareUføretrygd));
+            dtoBuilder.medAnnenforelderHarRett(new AnnenforelderHarRettDto(begrunnelse, null, null, avklartMottarUføretrygd, avklareUføretrygd));
         }
 
     }
