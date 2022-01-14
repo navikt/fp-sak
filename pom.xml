@@ -41,7 +41,7 @@
         <changelist>-SNAPSHOT</changelist>
         <jupiter.version>5.7.2</jupiter.version>
         <fp-uttak.version>11.0.11</fp-uttak.version>
-        <svp-uttak.version>2.1.2</svp-uttak.version>
+        <svp-uttak.version>2.2.0</svp-uttak.version>
         <felles.version>4.0.11</felles.version>
         <prosesstask.version>3.0.6</prosesstask.version>
         <ukelonn.felles.version>2.0.22</ukelonn.felles.version>
@@ -757,7 +757,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>3.2.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -786,7 +786,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
+                    <version>3.9.0</version>
                     <configuration>
                         <parameters>true</parameters>
                         <source>${java.version}</source>
