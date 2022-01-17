@@ -55,7 +55,7 @@
         <swaggercore.version>2.1.12</swaggercore.version>
         <flyway.version>4.2.0</flyway.version>
         <!-- Hold samme som i felles -->
-        <cxf.version>3.4.5</cxf.version>
+        <cxf.version>3.5.0</cxf.version>
     </properties>
 
     <prerequisites>
@@ -68,6 +68,15 @@
         dependency (bruk composition over arv) da de overstyrer andre scope definisjoner. Sett det heller der det brukes. -->
     <dependencyManagement>
         <dependencies>
+            <!-- Overstyre felles -->
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-bom</artifactId>
+                <version>10.0.7</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+
             <!-- Felles biblioteker - Importerte avhengigheter -->
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
