@@ -47,12 +47,13 @@ public final class Databaseskjemainitialisering {
 
     private static void migrer(DBProperties dbProperties) {
         LOG.info("Migrerer {}", dbProperties.schema());
-        var flyway = new Flyway();
-        flyway.setBaselineOnMigrate(true);
-        flyway.setDataSource(dbProperties.dataSource());
-        flyway.setTable("schema_version");
-        flyway.setLocations(dbProperties.scriptLocation());
-        flyway.setCleanOnValidationError(true);
+        var flyway = Flyway.configure()
+            .dataSource(dbProperties.dataSource())
+            .locations(dbProperties.scriptLocation())
+            .baselineOnMigrate(true)
+            .table("schema_version")
+            .cleanOnValidationError(true)
+            .load();
         if (!ENV.isLocal()) {
             throw new IllegalStateException("Forventer at denne migreringen bare kjøres lokalt");
         }
