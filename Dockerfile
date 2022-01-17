@@ -9,6 +9,9 @@ ENV TZ=Europe/Oslo
 RUN mkdir /app/lib
 RUN mkdir /app/conf
 
+# Config
+COPY web/target/classes/jetty/jaspi-conf.xml /app/conf/
+
 # Application Container (Jetty)
 COPY web/target/app.jar /app/
 COPY web/target/lib/*.jar /app/lib/
