@@ -68,11 +68,6 @@ public class JettyDevServer extends AbstractJettyServer {
         var https = createHttpConfiguration();
         https.addCustomizer(new SecureRequestCustomizer());
 
-        var sslConnector = new ServerConnector(server,
-                new SslConnectionFactory(new SslContextFactory.Server(), "http/1.1"),
-                new HttpConnectionFactory(https));
-        sslConnector.setPort(8443);
-        connectors.add(sslConnector);
         return connectors;
     }
 

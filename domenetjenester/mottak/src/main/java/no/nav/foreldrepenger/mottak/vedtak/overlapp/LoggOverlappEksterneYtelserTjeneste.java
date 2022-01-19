@@ -38,17 +38,17 @@ import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdPSGrunnlag;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSPGrunnlag;
-import no.nav.foreldrepenger.mottak.vedtak.spokelse.SpokelseKlient;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
+import no.nav.vedtak.felles.integrasjon.spokelse.Spøkelse;
 import no.nav.vedtak.konfig.Tid;
-import no.nav.foreldrepenger.konfig.Environment;
 
 /*
 Når Foreldrepenger-sak, enten førstegang eller revurdering, innvilges sjekker vi for overlapp med pleiepenger eller sykepenger i Infortrygd på personen.
@@ -72,7 +72,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
     private InfotrygdPSGrunnlag infotrygdPSGrTjeneste;
     private InfotrygdSPGrunnlag infotrygdSPGrTjeneste;
     private AbakusTjeneste abakusTjeneste;
-    private SpokelseKlient spokelseKlient;
+    private Spøkelse spøkelse;
     private OverlappVedtakRepository overlappRepository;
 
 
@@ -83,7 +83,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
                                                InfotrygdPSGrunnlag infotrygdPSGrTjeneste,
                                                InfotrygdSPGrunnlag infotrygdSPGrTjeneste,
                                                AbakusTjeneste abakusTjeneste,
-                                               SpokelseKlient spokelseKlient,
+                                               Spøkelse spøkelse,
                                                OverlappVedtakRepository overlappRepository,
                                                BehandlingRepository behandlingRepository) {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
@@ -93,7 +93,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
         this.infotrygdPSGrTjeneste = infotrygdPSGrTjeneste;
         this.infotrygdSPGrTjeneste = infotrygdSPGrTjeneste;
         this.abakusTjeneste = abakusTjeneste;
-        this.spokelseKlient = spokelseKlient;
+        this.spøkelse = spøkelse;
         this.overlappRepository = overlappRepository;
     }
 
@@ -285,18 +285,18 @@ public class LoggOverlappEksterneYtelserTjeneste {
                                     LocalDateTimeline<BigDecimal> perioderFp,
                                     List<OverlappVedtak.Builder> overlappene) {
         if (IS_PROD) {
-            spokelseKlient.hentGrunnlag(ident.getIdent()).forEach(y -> {
-                var graderteSegments = y.getUtbetalinger()
+            spøkelse.hentGrunnlag(ident.getIdent()).forEach(y -> {
+                var graderteSegments = y.utbetalingerNonNull()
                     .stream()
                     .map(
-                        p -> new LocalDateSegment<>(p.getFom(), p.getTom(), utbetalingsgradHundreHvisNull(p.getGrad())))
+                        p -> new LocalDateSegment<>(p.fom(), p.tom(), utbetalingsgradHundreHvisNull(p.gradScale2())))
                     .filter(s -> s.getValue().compareTo(BigDecimal.ZERO) > 0)
                     .collect(Collectors.toList());
                 var ytelseTidslinje = new LocalDateTimeline<>(graderteSegments,
                     LoggOverlappEksterneYtelserTjeneste::max).compress(this::like, this::kombiner);
                 overlappene.addAll(
                     finnGradertOverlapp(perioderFp, Fagsystem.VLSP.getKode(), YtelseType.SYKEPENGER.getKode(),
-                        y.getVedtaksreferanse(), ytelseTidslinje));
+                        y.vedtaksreferanse(), ytelseTidslinje));
             });
         }
     }

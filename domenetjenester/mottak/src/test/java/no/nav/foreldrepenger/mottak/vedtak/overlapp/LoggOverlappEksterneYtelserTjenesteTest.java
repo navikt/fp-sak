@@ -45,12 +45,12 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdPSGrunnlag;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSPGrunnlag;
-import no.nav.foreldrepenger.mottak.vedtak.spokelse.SpokelseKlient;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Periode;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Tema;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.TemaKode;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Vedtak;
+import no.nav.vedtak.felles.integrasjon.spokelse.Spøkelse;
 
 @ExtendWith(MockitoExtension.class)
 @Execution(ExecutionMode.SAME_THREAD)
@@ -81,7 +81,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
         beregningsresultatRepository = new BeregningsresultatRepository(getEntityManager());
         overlappendeInfotrygdYtelseTjeneste = new LoggOverlappEksterneYtelserTjeneste(null,
             beregningsresultatRepository, personinfoAdapter, infotrygdPSGrTjenesteMock, infotrygdSPGrTjenesteMock,
-            mock(AbakusTjeneste.class), mock(SpokelseKlient.class), overlappRepository, behandlingRepository);
+            mock(AbakusTjeneste.class), mock(Spøkelse.class), overlappRepository, behandlingRepository);
         førsteUttaksdatoFp = LocalDate.now().minusMonths(4).minusWeeks(2);
         førsteUttaksdatoFp = VirkedagUtil.fomVirkedag(førsteUttaksdatoFp);
 
