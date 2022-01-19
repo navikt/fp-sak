@@ -13,9 +13,8 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.message.BasicHeader;
 
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig;
-import no.nav.vedtak.felles.integrasjon.rest.SystemStsRestClient;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.vedtak.felles.integrasjon.rest.StsSystemRestKlient;
 
 /*
  * Dokumentasjon Tjeneste for å hente digital kontaktinformasjon (mobil, epost, sdp og språkkode)
@@ -30,16 +29,16 @@ public class DkifSpråkKlient {
 
     public static final String HEADER_NAV_PERSONIDENT = "Nav-Personidenter";
 
-    private SystemStsRestClient oidcRestClient;
+    private StsSystemRestKlient oidcRestClient;
     private URI endpoint;
 
     public DkifSpråkKlient() {
     }
 
     @Inject
-    public DkifSpråkKlient(StsAccessTokenConfig config,
+    public DkifSpråkKlient(StsSystemRestKlient oidcRestClient,
                            @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
-        this.oidcRestClient = new SystemStsRestClient(config);
+        this.oidcRestClient = oidcRestClient;
         this.endpoint = endpoint;
     }
 
