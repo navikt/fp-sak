@@ -16,9 +16,9 @@ import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,17 +34,17 @@ public class BesteberegningYtelsegrunnlagMapper {
         // Skjuler default konstruktør
     }
 
-    public static List<Saksnummer> saksnummerSomMåHentesFraFpsak(LocalDate førsteDatoDerYtelseKanBliMedIBB, YtelseFilter ytelseFilter) {
+    public static List<Saksnummer> saksnummerSomMåHentesFraFpsak(DatoIntervallEntitet periodeYtelserKanVæreRelevantForBB, YtelseFilter ytelseFilter) {
         Collection<Ytelse> ytelserFraFpsak = ytelseFilter.filter(y -> FPSAK_YTELSER.contains(y.getRelatertYtelseType()))
             .filter(y -> y.getKilde().equals(Fagsystem.FPSAK))
-            .filter(y -> !y.getPeriode().getTomDato().isBefore(førsteDatoDerYtelseKanBliMedIBB))
+            .filter(y -> y.getPeriode().overlapper(periodeYtelserKanVæreRelevantForBB))
             .getFiltrertYtelser();
         return ytelserFraFpsak.stream().map(Ytelse::getSaksnummer).collect(Collectors.toList());
     }
 
-    public static Optional<Ytelsegrunnlag> mapSykepengerTilYtelegrunnlag(LocalDate førsteDatoDerYtelseKanBliMedIBB, YtelseFilter ytelseFilter) {
+    public static Optional<Ytelsegrunnlag> mapSykepengerTilYtelegrunnlag(DatoIntervallEntitet periodeYtelserKanVæreRelevantForBB, YtelseFilter ytelseFilter) {
         Collection<Ytelse> sykepengegrunnlag = ytelseFilter.filter(y -> y.getRelatertYtelseType().equals(RelatertYtelseType.SYKEPENGER))
-            .filter(y -> !y.getPeriode().getTomDato().isBefore(førsteDatoDerYtelseKanBliMedIBB))
+            .filter(y -> y.getPeriode().overlapper(periodeYtelserKanVæreRelevantForBB))
             .getFiltrertYtelser();
         List<Ytelseperiode> sykepengeperioder = sykepengegrunnlag.stream()
             .map(BesteberegningYtelsegrunnlagMapper::mapTilYtelsegrunnlag)

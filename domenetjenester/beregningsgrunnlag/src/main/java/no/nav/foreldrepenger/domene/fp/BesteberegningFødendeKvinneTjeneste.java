@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.domene.modell.BesteberegninggrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -139,14 +140,15 @@ public class BesteberegningFødendeKvinneTjeneste {
     public List<Ytelsegrunnlag> lagBesteberegningYtelseinput(BehandlingReferanse behandlingReferanse) {
         InntektArbeidYtelseGrunnlag iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId());
         YtelseFilter ytelseFilter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(behandlingReferanse.getAktørId()));
-        Optional<LocalDate> førsteMuligeDatoForYtelseIBBGrunnlag = behandlingReferanse.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet().map(stp -> stp.minusMonths(12));
-        if (førsteMuligeDatoForYtelseIBBGrunnlag.isEmpty()) {
+        Optional<DatoIntervallEntitet> periodeYtelserKanVæreRelevantForBB = behandlingReferanse.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet()
+            .map(stp -> DatoIntervallEntitet.fraOgMedTilOgMed(stp.minusMonths(12), stp));
+        if (periodeYtelserKanVæreRelevantForBB.isEmpty()) {
             return Collections.emptyList();
         }
         List<Ytelsegrunnlag> grunnlag = new ArrayList<>();
-        BesteberegningYtelsegrunnlagMapper.mapSykepengerTilYtelegrunnlag(førsteMuligeDatoForYtelseIBBGrunnlag.get(), ytelseFilter)
+        BesteberegningYtelsegrunnlagMapper.mapSykepengerTilYtelegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter)
             .ifPresent(grunnlag::add);
-        List<Saksnummer> saksnumreSomMåHentesFraFpsak = BesteberegningYtelsegrunnlagMapper.saksnummerSomMåHentesFraFpsak(førsteMuligeDatoForYtelseIBBGrunnlag.get(), ytelseFilter);
+        List<Saksnummer> saksnumreSomMåHentesFraFpsak = BesteberegningYtelsegrunnlagMapper.saksnummerSomMåHentesFraFpsak(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter);
         grunnlag.addAll(hentOgMapFpsakYtelser(saksnumreSomMåHentesFraFpsak));
         return grunnlag;
     }
