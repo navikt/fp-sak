@@ -17,8 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig;
-import no.nav.vedtak.felles.integrasjon.rest.SystemStsRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.StsSystemRestKlient;
 
 /*
  * Dokumentasjon Tjeneste for å hente informasjon om brukers uførehistorikk
@@ -40,16 +39,16 @@ public class PesysUføreKlient {
     private static final boolean SKAL_KALLE = Environment.current().isProd() || Environment.current().isDev();
 
 
-    private SystemStsRestClient oidcRestClient;
+    private StsSystemRestKlient oidcRestClient;
     private URI endpoint;
 
     public PesysUføreKlient() {
     }
 
     @Inject
-    public PesysUføreKlient(StsAccessTokenConfig config,
+    public PesysUføreKlient(StsSystemRestKlient oidcRestClient,
                             @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
-        this.oidcRestClient = new SystemStsRestClient(config);
+        this.oidcRestClient = oidcRestClient;
         this.endpoint = endpoint;
     }
 

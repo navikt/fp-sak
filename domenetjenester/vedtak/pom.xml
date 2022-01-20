@@ -91,17 +91,6 @@
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>behandlingsprosess-vedtak-v2</artifactId>
         </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>infotrygd-grunnlag-klient</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.minidev</groupId>
-                    <artifactId>json-smart</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
 
        <!-- Test avhengigheter -->
        <dependency>

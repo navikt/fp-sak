@@ -7,7 +7,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import javax.inject.Inject;
@@ -267,7 +267,7 @@ public class DokumentmottakerVedleggTest {
 
         // Assert
         verify(dokumentmottakerFelles).opprettTaskForÅVurdereDokument(klageBehandling.getFagsak(), klageBehandling, mottattDokument);
-        verifyZeroInteractions(mottatteDokumentTjeneste);
+        verifyNoInteractions(mottatteDokumentTjeneste);
 
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(klageBehandling, mottattDokument);
