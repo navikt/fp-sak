@@ -27,11 +27,6 @@ public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, ÅrsakskodeMedLovrefe
 
     INGEN("-", "Ikke definert", null),
 
-    _4072("4072", "§14-9 sjuende ledd: Barnet er dødt", "{\"fagsakYtelseType\": {\"SVP\": {\"lovreferanse\": \"14-9\"}}}"),
-    _4071("4071", "§14-10: Bruker er død", "{\"fagsakYtelseType\": {\"fagsakYtelseType\": SVP\": {\"lovreferanse\": \"14-10\"}}}"),
-    _4087("4087", "§14-2: Opphør medlemskap", "{\"fagsakYtelseType\": {\"fagsakYtelseType\": SVP\": {\"lovreferanse\": \"14-2\"}}}"),
-    _4098("4098", "§14-5: Foreldreansvarsvilkåret er ikke oppfylt", "{\"fagsakYtelseType\": {\"SVP\": {\"lovreferanse\": \"14-5\"}}}"),
-    _4099("4099", "§14-6: Opptjeningsvilkåret er ikke oppfylt", "{\"fagsakYtelseType\": {\"SVP\": {\"lovreferanse\": \"14-6\"}}}"),
     _8304("8304", "Bruker er død", null),
     _8305("8305", "Barnet er dødt", null),
     _8306("8306", "Bruker er ikke medlem", null),
@@ -39,6 +34,7 @@ public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, ÅrsakskodeMedLovrefe
     _8309("8309", "Perioden er ikke før fødsel", null),
     _8310("8310", "Perioden må slutte senest tre uker før termin", null),
     _8311("8311", "Perioden er samtidig som en ferie", null),
+    _8312("8312", "Perioden er etter startdato foreldrepenger", null),
     _8313("8313", "Perioden er etter et opphold i ytelsen", null),
 
     ;
