@@ -14,12 +14,14 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 public class HistorikkinnslagDelDto {
 
     private Kodeverdi begrunnelse;
+    private String begrunnelsetekst;
     private String begrunnelseFritekst;
     private HistorikkinnslagHendelseDto hendelse;
     private List<HistorikkinnslagOpplysningDto> opplysninger;
     private HistorikkinnslagSoeknadsperiodeDto soeknadsperiode;
     private SkjermlenkeType skjermlenke;
     private Kodeverdi aarsak;
+    private String årsaktekst;
     private HistorikkInnslagTemaDto tema;
     private HistorikkInnslagGjeldendeFraDto gjeldendeFra;
     private String resultat;
@@ -39,8 +41,11 @@ public class HistorikkinnslagDelDto {
         historikkinnslagDel.getBegrunnelseFelt().ifPresent(begrunnelse -> dto.setBegrunnelse(finnÅrsakKodeListe(begrunnelse).orElse(null)));
         if (dto.getBegrunnelse() == null) {
             historikkinnslagDel.getBegrunnelse().ifPresent(dto::setBegrunnelseFritekst);
+        } else {
+            dto.setBegrunnelsetekst(dto.getBegrunnelse().getNavn());
         }
         historikkinnslagDel.getAarsakFelt().ifPresent(aarsak -> dto.setAarsak(finnÅrsakKodeListe(aarsak).orElse(null)));
+        Optional.ofNullable(dto.getAarsak()).ifPresent(k -> dto.setÅrsaktekst(k.getNavn()));
         historikkinnslagDel.getTema().ifPresent(felt -> dto.setTema(HistorikkInnslagTemaDto.mapFra(felt)));
         historikkinnslagDel.getGjeldendeFraFelt().ifPresent(felt -> {
             if ((felt.getNavn() != null) && (felt.getNavnVerdi() != null) && (felt.getTilVerdi() != null)) {
@@ -201,4 +206,23 @@ public class HistorikkinnslagDelDto {
         this.aksjonspunkter = aksjonspunkter;
     }
 
+    public String getBegrunnelsetekst() {
+        return begrunnelsetekst;
+    }
+
+    public void setBegrunnelsetekst(String begrunnelsetekst) {
+        this.begrunnelsetekst = begrunnelsetekst;
+    }
+
+    public String getÅrsaktekst() {
+        return årsaktekst;
+    }
+
+    public void setÅrsaktekst(String årsaktekst) {
+        this.årsaktekst = årsaktekst;
+    }
+
+    public void setGjeldendeFra(HistorikkInnslagGjeldendeFraDto gjeldendeFra) {
+        this.gjeldendeFra = gjeldendeFra;
+    }
 }

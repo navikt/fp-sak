@@ -2,6 +2,9 @@ package no.nav.foreldrepenger.behandlingslager.kodeverk;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
@@ -23,9 +26,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 @Deprecated(since = "2020-09-17")
 public class TempAvledeKode {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TempAvledeKode.class);
+
     @SuppressWarnings("rawtypes")
     public static String getVerdi(Class<? extends Enum> enumCls, Object node, String key) {
-        // TODO logge hvilke enum so sendes inn på gammelt format og hvor hen
         String kode;
         if (node instanceof String) {
             kode = (String) node;
@@ -39,6 +43,19 @@ public class TempAvledeKode {
             } else {
                 throw new IllegalArgumentException("Støtter ikke node av type: " + node.getClass() + " for enum:" + enumCls.getName());
             }
+            String kodeverk = "uspesifisert";
+            try {
+                if (node instanceof JsonNode) {
+                    kodeverk = ((JsonNode) node).get("kodeverk").asText();
+                } else if (node instanceof TextNode) {
+                    kodeverk = ((TextNode) node).asText();
+                } else if (node instanceof Map) {
+                    kodeverk = (String) ((Map) node).get("kodeverk");
+                }
+            } catch (Exception e) {
+                LOG.info("KODEVERK-OBJEKT: tempavledekode kalt uten at det finnes kodeverk - kode {}", kode);
+            }
+            LOG.info("KODEVERK-OBJEKT: mottok kodeverdiobjekt som ikke var String - kode {} fra kodeverk {} ", kode, kodeverk);
         }
         return kode;
     }
