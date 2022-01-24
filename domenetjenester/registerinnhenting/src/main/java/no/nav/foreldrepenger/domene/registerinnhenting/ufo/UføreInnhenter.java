@@ -92,7 +92,7 @@ public class UføreInnhenter {
 
     private void innhentOgLagre(Behandling behandling, AktørId annenpartAktørId, LocalDate startDato) {
         var uføreperiode = personinfoAdapter.hentFnr(annenpartAktørId)
-            .flatMap(fnr -> pesysUføreKlient.hentUføreHistorikk(fnr.getIdent(), startDato, behandling.getFagsak().getSaksnummer().getVerdi()));
+            .flatMap(fnr -> pesysUføreKlient.hentUføreHistorikk(fnr.getIdent(), startDato));
         uføretrygdRepository.lagreUføreGrunnlagRegisterVersjon(behandling.getId(), annenpartAktørId, uføreperiode.isPresent(),
             uføreperiode.map(Uføreperiode::uforetidspunkt).orElse(null), uføreperiode.map(Uføreperiode::virkningsdato).orElse(null));
     }

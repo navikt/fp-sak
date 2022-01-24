@@ -52,7 +52,7 @@ public class PesysUføreKlient {
         this.endpoint = endpoint;
     }
 
-    public Optional<Uføreperiode> hentUføreHistorikk(String fnr, LocalDate startDato, String saksnummerTilLogging) {
+    public Optional<Uføreperiode> hentUføreHistorikk(String fnr, LocalDate startDato) {
         if (!SKAL_KALLE) return Optional.empty();
 
         var response = this.oidcRestClient.get(endpoint, this.lagHeader(fnr), HentUforehistorikkResponseDto.class);
