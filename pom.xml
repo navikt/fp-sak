@@ -46,14 +46,14 @@
         <prosesstask.version>3.1.6</prosesstask.version>
         <ukelonn.felles.version>2.0.22</ukelonn.felles.version>
 
-        <fp-kontrakter.version>6.1.3</fp-kontrakter.version>
+        <fp-kontrakter.version>6.1.4</fp-kontrakter.version>
         <fp-tidsserie.version>2.5.7</fp-tidsserie.version>
         <fp-nare.version>2.1.5</fp-nare.version>
         <kalkulus.version>1.5.1</kalkulus.version>
         <abakus-kontrakt.version>1.3.26</abakus-kontrakt.version>
 
         <swaggercore.version>2.1.12</swaggercore.version>
-        <flyway.version>8.4.1</flyway.version>
+        <flyway.version>8.4.2</flyway.version>
     </properties>
 
     <prerequisites>
@@ -527,12 +527,12 @@
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-streams</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0</version>
             </dependency>
 
             <!-- SoB -->
@@ -581,7 +581,7 @@
             <dependency>
                 <groupId>com.fasterxml.woodstox</groupId>
                 <artifactId>woodstox-core</artifactId>
-                <version>6.2.7</version>
+                <version>6.2.8</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
@@ -727,7 +727,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>versions-maven-plugin</artifactId>
-                    <version>2.8.1</version>
+                    <version>2.9.0</version>
                     <configuration>
                         <outputFile>outdated-dependencies.txt</outputFile>
                         <rulesUri>file:///${session.executionRootDirectory}/build/maven/maven-version-rules.xml
