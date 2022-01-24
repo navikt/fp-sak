@@ -65,10 +65,6 @@ public class PesysUføreKlient {
             .filter(u -> u.ufgTom() == null || u.ufgTom().isAfter(startDato))
             .max(Comparator.comparing(Uføreperiode::virkningsdato));
 
-        if (uføreperiode.isEmpty()) {
-            LOG.warn("Kjære loggleser: gjer produkteigar merksam på sak {} - finn ikkje uføretrygd. Pesys svarar {}", saksnummerTilLogging, response);
-        }
-
         return uføreperiode;
     }
 
