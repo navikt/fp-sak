@@ -5,6 +5,9 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -18,16 +21,21 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt.AvklarAnnenforelderHarRettOppdaterer;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenforelderHarRettDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.FørsteUttaksdatoTjenesteImpl;
 
 public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
@@ -41,6 +49,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
     private FaktaUttakHistorikkTjeneste faktaUttakHistorikkTjeneste;
     private FaktaUttakToTrinnsTjeneste faktaUttakToTrinnsTjeneste;
     private KontrollerOppgittFordelingTjeneste kontrollerOppgittFordelingTjeneste;
+    private UføretrygdRepository uføretrygdRepository = mock(UføretrygdRepository.class);
 
     @BeforeEach
     public void setUp() {
@@ -74,6 +83,10 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
         AvklarFaktaTestUtil.opprettBehandlingGrunnlag(getEntityManager(), behandling.getId());
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
+        when(uføretrygdRepository.hentGrunnlag(anyLong())).thenReturn(Optional.of(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+            .medBehandlingId(behandling.getId()).medAktørIdUføretrygdet(AktørId.dummy())
+                .medRegisterUføretrygd(false, null, null).build()));
+        dto.setAnnenforelderMottarUføretrygd(Boolean.TRUE);
 
         oppdaterer().oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         var historikkinnslag = new Historikkinnslag();
@@ -89,6 +102,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
             assertThat(rett.getFraVerdi()).isNull();
             assertThat(rett.getTilVerdi()).isEqualTo(HistorikkEndretFeltVerdiType.ANNEN_FORELDER_HAR_RETT.getKode());
         });
+        assertThat(del.getEndretFelt(HistorikkEndretFeltType.MOR_MOTTAR_UFØRETRYGD)).isNotEmpty();
         assertThat(del.getSkjermlenke()).hasValueSatisfying(
             skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK.getKode()));
         assertThat(del.getBegrunnelse()).hasValueSatisfying(
@@ -113,9 +127,40 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
     }
 
+    @Test
+    public void skal_sette_totrinns_ved_bekreft_uføre() {
+        //Scenario med avklar fakta annen forelder har ikke rett
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        scenario.medSøknad();
+        scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
+        var rettighet = new OppgittRettighetEntitet(false, true, false);
+        scenario.medOppgittRettighet(rettighet);
+        scenario.leggTilAksjonspunkt(AKSONSPUNKT_DEF, BehandlingStegType.VURDER_UTTAK);
+        var behandling = scenario.lagre(repositoryProvider);
+
+        AvklarFaktaTestUtil.opprettBehandlingGrunnlag(getEntityManager(), behandling.getId());
+        var dto = new AvklarAnnenforelderHarRettDto("Har rett");
+        dto.setAnnenforelderHarRett(false);
+        dto.setAnnenforelderMottarUføretrygd(true);  //skal ikke påvirker her
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon()).get();
+
+        var resultat = oppdaterer().oppdater(dto,
+            new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        //assert
+        assertThat(resultat.kreverTotrinnsKontroll()).isFalse();
+
+        when(uføretrygdRepository.hentGrunnlag(anyLong())).thenReturn(Optional.of(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+            .medBehandlingId(behandling.getId()).medAktørIdUføretrygdet(AktørId.dummy())
+            .medRegisterUføretrygd(false, null, null).build()));
+        var resultat1 = oppdaterer().oppdater(dto,
+            new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        //assert
+        assertThat(resultat1.kreverTotrinnsKontroll()).isTrue();
+    }
+
     private AvklarAnnenforelderHarRettOppdaterer oppdaterer() {
         return new AvklarAnnenforelderHarRettOppdaterer(kontrollerOppgittFordelingTjeneste, faktaUttakHistorikkTjeneste,
-            faktaUttakToTrinnsTjeneste, mock(UføretrygdRepository.class));
+            faktaUttakToTrinnsTjeneste, uføretrygdRepository);
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {

@@ -177,7 +177,7 @@ public class UføretrygdGrunnlagEntitet extends BaseEntitet {
         }
 
         public Builder medOverstyrtUføretrygd(boolean erUføretrygdet) {
-            this.kladd.uføretrygdRegister = erUføretrygdet;
+            this.kladd.uføretrygdOverstyrt = erUføretrygdet;
             return this;
         }
 

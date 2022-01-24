@@ -469,7 +469,8 @@ public class FaktaUttakHistorikkTjeneste {
     /**
      * Historikkinnslag for avklar annen forelder har ikke rett
      */
-    public void byggHistorikkinnslagForAvklarAnnenforelderHarIkkeRett(AvklarAnnenforelderHarRettDto annenforelderHarIkkeRettDto, AksjonspunktOppdaterParameter param) {
+    public void byggHistorikkinnslagForAvklarAnnenforelderHarIkkeRett(AvklarAnnenforelderHarRettDto annenforelderHarIkkeRettDto, AksjonspunktOppdaterParameter param,
+                                                                      boolean endretVurderingAvMorsUføretrygd, Boolean tidligereVurderingAvUføretrygd) {
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(param.getBehandlingId());
         var rettAvklaring = ytelseFordelingAggregat.getAnnenForelderRettAvklaring();
         Boolean harAnnenForeldreRettBekreftetVersjon = null;
@@ -480,6 +481,10 @@ public class FaktaUttakHistorikkTjeneste {
         historikkApplikasjonTjeneste.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.RETT_TIL_FORELDREPENGER,
             konvertBooleanTilVerdiForAnnenforelderHarRett(harAnnenForeldreRettBekreftetVersjon),
             konvertBooleanTilVerdiForAnnenforelderHarRett(annenforelderHarIkkeRettDto.getAnnenforelderHarRett()));
+        if (endretVurderingAvMorsUføretrygd) {
+            historikkApplikasjonTjeneste.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.MOR_MOTTAR_UFØRETRYGD,
+                tidligereVurderingAvUføretrygd, annenforelderHarIkkeRettDto.getAnnenforelderMottarUføretrygd());
+        }
 
         historikkApplikasjonTjeneste.tekstBuilder()
             .medBegrunnelse(annenforelderHarIkkeRettDto.getBegrunnelse(), param.erBegrunnelseEndret())

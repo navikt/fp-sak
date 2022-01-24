@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt;
 
+import java.util.Objects;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -40,8 +42,11 @@ public class AvklarAnnenforelderHarRettOppdaterer implements AksjonspunktOppdate
 
     @Override
     public OppdateringResultat oppdater(AvklarAnnenforelderHarRettDto dto, AksjonspunktOppdaterParameter param) {
-        var totrinn = faktaUttakToTrinnsTjeneste.oppdaterToTrinnskontrollVedEndringerAnnenforelderHarRett(dto, param.getBehandlingId());
-        faktaUttakHistorikkTjeneste.byggHistorikkinnslagForAvklarAnnenforelderHarIkkeRett(dto, param);
+        var tidligereVurderingAvMorsUføretrygd = tidligereVurderingAvMorsUføretrygd(param);
+        var endretVurderingAvMorsUføretrygd = endretVurderingAvMorsUføretrygd(dto, param, tidligereVurderingAvMorsUføretrygd);
+        var totrinn = endretVurderingAvMorsUføretrygd ||
+            faktaUttakToTrinnsTjeneste.oppdaterToTrinnskontrollVedEndringerAnnenforelderHarRett(dto, param.getBehandlingId());
+        faktaUttakHistorikkTjeneste.byggHistorikkinnslagForAvklarAnnenforelderHarIkkeRett(dto, param, endretVurderingAvMorsUføretrygd, tidligereVurderingAvMorsUføretrygd);
         kontrollerOppgittFordelingTjeneste.avklarAnnenforelderHarIkkeRett(dto, param.getBehandlingId());
         oppdaterUføretrygdVedBehov(dto, param);
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
@@ -55,6 +60,16 @@ public class AvklarAnnenforelderHarRettOppdaterer implements AksjonspunktOppdate
                 .ifPresent(g -> uføretrygdRepository.lagreUføreGrunnlagOverstyrtVersjon(g.getBehandlingId(), dto.getAnnenforelderMottarUføretrygd()));
 
         }
+    }
+
+    private boolean endretVurderingAvMorsUføretrygd(AvklarAnnenforelderHarRettDto dto, AksjonspunktOppdaterParameter param, Boolean tidligereVurdering) {
+        return dto.getAnnenforelderMottarUføretrygd() != null && uføretrygdRepository.hentGrunnlag(param.getBehandlingId()).isPresent()
+            && !Objects.equals(tidligereVurdering, dto.getAnnenforelderMottarUføretrygd());
+    }
+
+    private Boolean tidligereVurderingAvMorsUføretrygd(AksjonspunktOppdaterParameter param) {
+        return uføretrygdRepository.hentGrunnlag(param.getBehandlingId())
+                .map(UføretrygdGrunnlagEntitet::getUføretrygdOverstyrt).orElse(null);
     }
 
 }

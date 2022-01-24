@@ -125,6 +125,7 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     ER_SÆRLIGE_GRUNNER_TIL_REDUKSJON("ER_SÆRLIGE_GRUNNER_TIL_REDUKSJON", "Er det særlige grunner til reduksjon"),
     FASTSETT_VIDERE_BEHANDLING("FASTSETT_VIDERE_BEHANDLING", "Fastsett videre behandling"),
     RETT_TIL_FORELDREPENGER("RETT_TIL_FORELDREPENGER", "Rett til foreldrepenger"),
+    MOR_MOTTAR_UFØRETRYGD("MOR_MOTTAR_UFØRETRYGD", "Mor mottar uføretrygd"),
     VURDER_GRADERING_PÅ_ANDEL_UTEN_BG("VURDER_GRADERING_PÅ_ANDEL_UTEN_BG", "Vurder om søker har gradering på en andel uten beregningsgrunnlag"),
     DEKNINGSGRAD("DEKNINGSGRAD", "Dekningsgrad"),
     TILBAKETREKK("TILBAKETREKK", "Tilbaketrekk"),
