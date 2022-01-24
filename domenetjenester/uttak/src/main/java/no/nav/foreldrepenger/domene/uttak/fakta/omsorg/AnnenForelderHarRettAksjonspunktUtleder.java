@@ -67,8 +67,10 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
             !annenForelderHarUttakMedUtbetaling(annenpartsGjeldendeUttaksplan)) {
             ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
             var harAnnennartInnvilgetES = fpGrunnlag.getAnnenpart().filter(Annenpart::innvilgetES).isPresent();
-            var erUavklartAnnenpartUførhet = fpGrunnlag.getUføretrygdGrunnlag().filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd).isPresent();
-            return harAnnennartInnvilgetES && !erUavklartAnnenpartUførhet ? List.of() : aksjonspunkt();
+            var måAvklareMorUfør = fpGrunnlag.getUføretrygdGrunnlag()
+                .filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd)
+                .isPresent();
+            return !harAnnennartInnvilgetES || måAvklareMorUfør ? aksjonspunkt() : List.of();
         }
 
         if (oppgittHarAnnenForeldreRett(ytelseFordelingAggregat) &&

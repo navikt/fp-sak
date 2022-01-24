@@ -61,9 +61,9 @@ public class KontoerGrunnlagBygger {
         var morHarUføretrygd = foreldrepengerGrunnlag.getUføretrygdGrunnlag()
             .filter(UføretrygdGrunnlagEntitet::annenForelderMottarUføretrygd)
             .isPresent();
-        var erIkkeMor = !RelasjonsRolleType.MORA.equals(ref.getRelasjonsRolleType());
+        var erMor = RelasjonsRolleType.MORA.equals(ref.getRelasjonsRolleType());
         var erForeldrepenger = stønadskontoer.stream().map(Stønadskonto::getStønadskontoType).anyMatch(StønadskontoType.FORELDREPENGER::equals);
-        if (morHarUføretrygd && erIkkeMor && erForeldrepenger) {
+        if (morHarUføretrygd && !erMor && erForeldrepenger) {
             var dekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(ref.getSaksnummer()).getGjeldendeDekningsgrad();
             return Dekningsgrad._80.equals(dekningsgrad) ? MINSTEDAGER_80_PROSENT : MINSTEDAGER_100_PROSENT;
         }
