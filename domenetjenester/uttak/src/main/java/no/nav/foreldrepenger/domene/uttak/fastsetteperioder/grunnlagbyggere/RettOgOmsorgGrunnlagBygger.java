@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
@@ -44,6 +45,7 @@ public class RettOgOmsorgGrunnlagBygger {
                 .aleneomsorg(aleneomsorg(ytelseFordelingAggregat))
                 .farHarRett(farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
                 .morHarRett(morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
+                .morUføretrygd(morUføretrygd(uttakInput))
                 .samtykke(samtykke(ytelseFordelingAggregat));
     }
 
@@ -80,6 +82,13 @@ public class RettOgOmsorgGrunnlagBygger {
             return UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartsUttaksplan);
         }
         throw new IllegalStateException("Uventet foreldrerolletype " + relasjonsRolleType);
+    }
+
+    private boolean morUføretrygd(UttakInput uttakInput) {
+        ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
+        return fpGrunnlag.getUføretrygdGrunnlag()
+            .filter(UføretrygdGrunnlagEntitet::annenForelderMottarUføretrygd)
+            .isPresent();
     }
 
     private boolean samtykke(YtelseFordelingAggregat ytelseFordelingAggregat) {

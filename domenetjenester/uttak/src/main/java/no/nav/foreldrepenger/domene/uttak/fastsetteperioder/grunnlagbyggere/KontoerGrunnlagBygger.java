@@ -7,16 +7,23 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
+import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Konto;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Kontoer;
 
 @ApplicationScoped
 public class KontoerGrunnlagBygger {
 
+    private static final int MINSTEDAGER_100_PROSENT = 75;
+    private static final int MINSTEDAGER_80_PROSENT = 95;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
 
     @Inject
@@ -28,9 +35,10 @@ public class KontoerGrunnlagBygger {
         //CDI
     }
 
-    public Kontoer.Builder byggGrunnlag(BehandlingReferanse ref) {
+    public Kontoer.Builder byggGrunnlag(BehandlingReferanse ref, ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
         var stønadskontoer = hentStønadskontoer(ref);
         return new Kontoer.Builder()
+            .minsterettDager(minsterettDager(ref, foreldrepengerGrunnlag, stønadskontoer))
             .kontoList(stønadskontoer.stream().map(this::map).collect(Collectors.toList()));
     }
 
@@ -44,5 +52,21 @@ public class KontoerGrunnlagBygger {
         return fagsakRelasjonRepository.finnRelasjonFor(ref.getSaksnummer()).getGjeldendeStønadskontoberegning()
             .orElseThrow(() -> new IllegalArgumentException("Behandling mangler stønadskontoer"))
             .getStønadskontoer();
+    }
+
+    /*
+     * TFP-4846 legge inn regler for minsterett i stønadskontoutregningen
+     */
+    private int minsterettDager(BehandlingReferanse ref, ForeldrepengerGrunnlag foreldrepengerGrunnlag, Set<Stønadskonto> stønadskontoer) {
+        var morHarUføretrygd = foreldrepengerGrunnlag.getUføretrygdGrunnlag()
+            .filter(UføretrygdGrunnlagEntitet::annenForelderMottarUføretrygd)
+            .isPresent();
+        var erIkkeMor = !RelasjonsRolleType.MORA.equals(ref.getRelasjonsRolleType());
+        var erForeldrepenger = stønadskontoer.stream().map(Stønadskonto::getStønadskontoType).anyMatch(StønadskontoType.FORELDREPENGER::equals);
+        if (morHarUføretrygd && erIkkeMor && erForeldrepenger) {
+            var dekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(ref.getSaksnummer()).getGjeldendeDekningsgrad();
+            return Dekningsgrad._80.equals(dekningsgrad) ? MINSTEDAGER_80_PROSENT : MINSTEDAGER_100_PROSENT;
+        }
+        return 0;
     }
 }
