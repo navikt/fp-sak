@@ -1,5 +1,31 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.YtelseType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
+import java.time.Period;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon.ENTRINN;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon.FORBLI;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon.TILBAKE;
@@ -11,34 +37,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skje
 import static no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.YtelseType.ES;
 import static no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.YtelseType.FP;
 import static no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.YtelseType.SVP;
-
-import java.time.Period;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.YtelseType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 /**
  * Definerer mulige Aksjonspunkter inkludert hvilket Vurderingspunkt de må løses i.
@@ -277,6 +275,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktKodeDefinisjon.VURDER_OPPTJENINGSVILKÅRET_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av opptjeningsvilkår",
             BehandlingStegType.VURDER_OPPTJENINGSVILKÅR, VurderingspunktType.UT, VilkårType.OPPTJENINGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OPPTJENING,
             TOTRINN, EnumSet.of(FP, SVP)),
+    VURDER_PERMISJON_UTEN_SLUTTDATO(
+            AksjonspunktKodeDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO_KODE, AksjonspunktType.MANUELL,"Vurder arbeidsforhold med permisjon uten sluttdato",
+            BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD,
+            ENTRINN, EnumSet.of(FP, SVP)),
 
     // Midlertidig aksjonspunkt i oppstart av automatisk besteberegning så saksbehandler kan kontrolere disse
     KONTROLLER_AUTOMATISK_BESTEBEREGNING(

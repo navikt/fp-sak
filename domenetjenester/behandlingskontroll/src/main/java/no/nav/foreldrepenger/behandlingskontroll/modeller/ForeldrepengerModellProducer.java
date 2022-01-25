@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.behandlingskontroll.modeller;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -10,6 +7,9 @@ import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellImpl;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 
 @ApplicationScoped
 public class ForeldrepengerModellProducer {
@@ -39,6 +39,7 @@ public class ForeldrepengerModellProducer {
             BehandlingStegType.VURDER_OPPTJENING_FAKTA,
             BehandlingStegType.VURDER_OPPTJENINGSVILKÅR,
             BehandlingStegType.VURDER_SAMLET,
+            BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON,
             BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING,
             BehandlingStegType.KONTROLLER_FAKTA_BEREGNING,
             BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG,

@@ -1,19 +1,20 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.AA_REGISTER_TYPER;
-import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
+import no.nav.foreldrepenger.domene.arbeidsforhold.dto.PermisjonDto;
+import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.PermisjonDto;
-import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
-import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
-import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.AA_REGISTER_TYPER;
+import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
 
 final class UtledPermisjonSomFørerTilAksjonspunkt {
 
@@ -32,16 +33,27 @@ final class UtledPermisjonSomFørerTilAksjonspunkt {
     }
 
     static List<PermisjonDto> utled(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate stp) {
-        return yrkesaktiviteter.stream()
-                .filter(ya -> AA_REGISTER_TYPER.contains(ya.getArbeidType()))
-                .filter(ya -> harAnsettelsesPerioderSomInkludererStp(filter, stp, ya))
-                .map(Yrkesaktivitet::getPermisjon)
-                .flatMap(Collection::stream)
-                .filter(UtledPermisjonSomFørerTilAksjonspunkt::har100ProsentPermisjonEllerMer)
-                .filter(p -> fomErFørStp(stp, p) && tomErLikEllerEtterStp(stp, p))
-                .filter(p -> !PERMISJONTYPER_SOM_ER_URELEVANT_FOR_5080.contains(p.getPermisjonsbeskrivelseType()))
+        return hentRelevantePermisjoner(filter, yrkesaktiviteter, stp)
                 .map(UtledPermisjonSomFørerTilAksjonspunkt::byggPermisjonDto)
                 .collect(Collectors.toList());
+    }
+
+    static List<PermisjonDto> utledPermisjonUtenSluttdato(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate stp) {
+        return hentRelevantePermisjoner(filter, yrkesaktiviteter, stp)
+            .filter(p-> p.getTilOgMed() == null || TIDENES_ENDE.equals(p.getTilOgMed()))
+            .map(UtledPermisjonSomFørerTilAksjonspunkt::byggPermisjonDto)
+            .collect(Collectors.toList());
+    }
+
+    private static Stream<Permisjon> hentRelevantePermisjoner(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate stp) {
+        return yrkesaktiviteter.stream()
+            .filter(ya -> AA_REGISTER_TYPER.contains(ya.getArbeidType()))
+            .filter(ya -> harAnsettelsesPerioderSomInkludererStp(filter, stp, ya))
+            .map(Yrkesaktivitet::getPermisjon)
+            .flatMap(Collection::stream)
+            .filter(UtledPermisjonSomFørerTilAksjonspunkt::har100ProsentPermisjonEllerMer)
+            .filter(p -> fomErFørStp(stp, p) && tomErLikEllerEtterStp(stp, p))
+            .filter(p -> !PERMISJONTYPER_SOM_ER_URELEVANT_FOR_5080.contains(p.getPermisjonsbeskrivelseType()));
     }
 
     private static boolean fomErFørStp(LocalDate stp, Permisjon p) {
