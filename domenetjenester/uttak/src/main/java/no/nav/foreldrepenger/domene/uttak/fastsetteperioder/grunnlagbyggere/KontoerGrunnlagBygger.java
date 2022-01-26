@@ -35,10 +35,25 @@ public class KontoerGrunnlagBygger {
         //CDI
     }
 
+    /*
+     * Ved siden av kontoer kan grunnlaget inneholde enten utenAktivitetskravDager eller minsterettDager, men ikke begge
+     *
+     * utenAktivitetskravDager
+     * - gir mulighet til å innvilge perioder selv om aktivitetskravet ikke er oppfylt
+     * - vil ikke påvirke stønadsperioden dvs må tas ut fortløpende. Ingen utsettelse uten at aktivitetskrav oppfylt
+     * - Skal alltid brukes på tilfelle som krever sammenhengende uttak
+     * - TFP-4842 tillat at avslått aktivitetskrav kan innvilges fra utenAktivitetskravDager
+     *
+     * minsterettDager
+     * - gir mulighet til å innvilge perioder selv om aktivitetskravet ikke er oppfylt
+     * - automatiske trekk pga manglende søkt, avslag mv vil ikke påvirke minsterett
+     * - kan utsettes og  utvide stønadsperioden
+     * - TBD når kan denne brukes framfor utenAktivitetskravDager
+     */
     public Kontoer.Builder byggGrunnlag(BehandlingReferanse ref, ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
         var stønadskontoer = hentStønadskontoer(ref);
         return new Kontoer.Builder()
-            .minsterettDager(minsterettDager(ref, foreldrepengerGrunnlag, stønadskontoer))
+            .utenAktivitetskravDager(minsterettDager(ref, foreldrepengerGrunnlag, stønadskontoer))
             .kontoList(stønadskontoer.stream().map(this::map).collect(Collectors.toList()));
     }
 
