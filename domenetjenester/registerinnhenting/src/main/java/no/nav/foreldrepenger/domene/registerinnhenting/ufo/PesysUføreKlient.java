@@ -52,7 +52,7 @@ public class PesysUføreKlient {
         this.endpoint = endpoint;
     }
 
-    public Optional<Uføreperiode> hentUføreHistorikk(String fnr, LocalDate startDato, String saksnummerTilLogging) {
+    public Optional<Uføreperiode> hentUføreHistorikk(String fnr, LocalDate startDato) {
         if (!SKAL_KALLE) return Optional.empty();
 
         var response = this.oidcRestClient.get(endpoint, this.lagHeader(fnr), HentUforehistorikkResponseDto.class);
@@ -64,10 +64,6 @@ public class PesysUføreKlient {
             .map(Uføreperiode::new)
             .filter(u -> u.ufgTom() == null || u.ufgTom().isAfter(startDato))
             .max(Comparator.comparing(Uføreperiode::virkningsdato));
-
-        if (uføreperiode.isEmpty()) {
-            LOG.warn("Kjære loggleser: gjer produkteigar merksam på sak {} - finn ikkje uføretrygd. Pesys svarar {}", saksnummerTilLogging, response);
-        }
 
         return uføreperiode;
     }

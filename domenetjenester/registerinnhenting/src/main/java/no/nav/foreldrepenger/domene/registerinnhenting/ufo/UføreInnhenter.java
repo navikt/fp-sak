@@ -92,9 +92,9 @@ public class UføreInnhenter {
 
     private void innhentOgLagre(Behandling behandling, AktørId annenpartAktørId, LocalDate startDato) {
         var uføreperiode = personinfoAdapter.hentFnr(annenpartAktørId)
-            .flatMap(fnr -> pesysUføreKlient.hentUføreHistorikk(fnr.getIdent(), startDato, behandling.getFagsak().getSaksnummer().getVerdi()));
-        // TODO (JOL): Slå på lagring av tilfellse der vi ikke finner data i Pesys + trigge avklaring i aksjonspunkt
-        uføreperiode.ifPresent(uføre -> uføretrygdRepository.lagreUføreGrunnlagRegisterVersjon(behandling.getId(), annenpartAktørId, true, uføre.uforetidspunkt(), uføre.virkningsdato()));
+            .flatMap(fnr -> pesysUføreKlient.hentUføreHistorikk(fnr.getIdent(), startDato));
+        uføretrygdRepository.lagreUføreGrunnlagRegisterVersjon(behandling.getId(), annenpartAktørId, uføreperiode.isPresent(),
+            uføreperiode.map(Uføreperiode::uforetidspunkt).orElse(null), uføreperiode.map(Uføreperiode::virkningsdato).orElse(null));
     }
 
     private LocalDate førsteUttaksdag(Behandling behandling, Optional<YtelseFordelingAggregat> ytelseFordeling) {

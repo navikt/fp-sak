@@ -27,6 +27,7 @@ public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, ÅrsakskodeMedLovrefe
 
     INGEN("-", "Ikke definert", null),
 
+    // Se også Arbeidsforhold ikke oppfylt - der brukes 8301-8303 + 8312
     _8304("8304", "Bruker er død", null),
     _8305("8305", "Barnet er dødt", null),
     _8306("8306", "Bruker er ikke medlem", null),
@@ -34,8 +35,8 @@ public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, ÅrsakskodeMedLovrefe
     _8309("8309", "Perioden er ikke før fødsel", null),
     _8310("8310", "Perioden må slutte senest tre uker før termin", null),
     _8311("8311", "Perioden er samtidig som en ferie", null),
-    _8312("8312", "Perioden er etter startdato foreldrepenger", null),
     _8313("8313", "Perioden er etter et opphold i ytelsen", null),
+    _8314("8314", "Perioden er etter startdato foreldrepenger", null),
 
     ;
 

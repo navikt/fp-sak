@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
@@ -66,8 +67,10 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
             !annenForelderHarUttakMedUtbetaling(annenpartsGjeldendeUttaksplan)) {
             ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
             var harAnnennartInnvilgetES = fpGrunnlag.getAnnenpart().filter(Annenpart::innvilgetES).isPresent();
-            var erUavklartAnnenpartUførhet = false; // TODO: koble inn når klar fpGrunnlag.getUføretrygdGrunnlag().filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd).isPresent();
-            return harAnnennartInnvilgetES && !erUavklartAnnenpartUførhet ? List.of() : aksjonspunkt();
+            var måAvklareMorUfør = fpGrunnlag.getUføretrygdGrunnlag()
+                .filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd)
+                .isPresent();
+            return !harAnnennartInnvilgetES || måAvklareMorUfør ? aksjonspunkt() : List.of();
         }
 
         if (oppgittHarAnnenForeldreRett(ytelseFordelingAggregat) &&
