@@ -26,8 +26,7 @@ import no.nav.foreldrepenger.web.app.IndexClasses;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 import no.nav.foreldrepenger.ytelse.beregning.rest.VurderTilbaketrekkDto;
 
-@Provider
-public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
+public class JacksonForKodeMap {
 
     private final ObjectMapper objectMapper;
 
@@ -35,11 +34,11 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
      * Default instance for Jax-rs application. Genererer ikke navn som del av
      * output for kodeverk.
      */
-    public JacksonJsonConfig() {
+    public JacksonForKodeMap() {
         this(false);
     }
 
-    public JacksonJsonConfig(boolean serialiserKodelisteNavn) {
+    public JacksonForKodeMap(boolean serialiserKodelisteNavn) {
         objectMapper = createObjectMapper(createModule(serialiserKodelisteNavn));
     }
 
@@ -83,13 +82,12 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
     private static SimpleModule createModule(boolean serialiserKodelisteNavn) {
         var module = new SimpleModule("VL-REST", new Version(1, 0, 0, null, null, null));
 
-        //addSerializers(module, serialiserKodelisteNavn);
+        addSerializers(module, serialiserKodelisteNavn);
 
         return module;
     }
 
     private static void addSerializers(SimpleModule module, boolean serialiserKodelisteNavn) {
-        module.addSerializer(new UttakSerializer(serialiserKodelisteNavn));
         //module.addSerializer(new KodeverdiMedNavnSerializer(serialiserKodelisteNavn));
         module.addSerializer(new KodelisteSerializer(serialiserKodelisteNavn));
     }
@@ -108,9 +106,5 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
         return objectMapper;
     }
 
-    @Override
-    public ObjectMapper getContext(Class<?> type) {
-        return objectMapper;
-    }
 
 }

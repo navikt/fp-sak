@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.web.app.jackson.JacksonForKodeMap;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.app.HentKodeverkTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -43,7 +44,7 @@ public class KodeverkRestTjeneste {
 
     private HentKodeverkTjeneste hentKodeverkTjeneste; // NOSONAR
 
-    private final JacksonJsonConfig jsonMapper = new JacksonJsonConfig(true); // generere kodeverk med navn
+    private final JacksonForKodeMap jsonMapper = new JacksonForKodeMap(true); // generere kodeverk med navn
 
     private final ObjectMapper objectMapper = jsonMapper.getObjectMapper();
 

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 /**
  * Enkel serialisering av KodeverkTabell klasser, uten at disse trenger @JsonIgnore eller lignende. Deserialisering går
@@ -32,14 +33,15 @@ public class KodelisteSerializer extends StdSerializer<BasisKodeverdi> {
         jgen.writeStartObject();
 
         jgen.writeStringField("kode", value.getKode());
-        
+
         if (serialiserKodelisteNavn) {
             jgen.writeStringField("navn", value.getNavn());
         }
-        
+
         jgen.writeStringField("kodeverk", value.getKodeverk());
 
         jgen.writeEndObject();
     }
+
 
 }
