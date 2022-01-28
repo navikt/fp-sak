@@ -1,13 +1,10 @@
-package no.nav.foreldrepenger.web.app.jackson;
+package no.nav.foreldrepenger.web.app.tjenester.kodeverk.app;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.ws.rs.ext.ContextResolver;
-import javax.ws.rs.ext.Provider;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.core.Version;
@@ -35,11 +32,7 @@ public class JacksonForKodeMap {
      * output for kodeverk.
      */
     public JacksonForKodeMap() {
-        this(false);
-    }
-
-    public JacksonForKodeMap(boolean serialiserKodelisteNavn) {
-        objectMapper = createObjectMapper(createModule(serialiserKodelisteNavn));
+        objectMapper = createObjectMapper(createModule());
     }
 
     private static ObjectMapper createObjectMapper(SimpleModule simpleModule) {
@@ -79,17 +72,16 @@ public class JacksonForKodeMap {
         return om;
     }
 
-    private static SimpleModule createModule(boolean serialiserKodelisteNavn) {
+    private static SimpleModule createModule() {
         var module = new SimpleModule("VL-REST", new Version(1, 0, 0, null, null, null));
 
-        addSerializers(module, serialiserKodelisteNavn);
+        addSerializers(module);
 
         return module;
     }
 
-    private static void addSerializers(SimpleModule module, boolean serialiserKodelisteNavn) {
-        //module.addSerializer(new KodeverdiMedNavnSerializer(serialiserKodelisteNavn));
-        module.addSerializer(new KodelisteSerializer(serialiserKodelisteNavn));
+    private static void addSerializers(SimpleModule module) {
+        module.addSerializer(new KodeverdiSerializer());
     }
 
     /**

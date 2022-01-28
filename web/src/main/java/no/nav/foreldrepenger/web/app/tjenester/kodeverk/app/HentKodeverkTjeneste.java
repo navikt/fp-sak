@@ -65,7 +65,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
@@ -197,7 +196,7 @@ public class HentKodeverkTjeneste {
         this.enhetsTjeneste = enhetsTjeneste;
     }
 
-    public Map<String, Collection<? extends BasisKodeverdi>> hentGruppertKodeliste() {
+    public Map<String, Collection<? extends Kodeverdi>> hentGruppertKodeliste() {
 
         return new LinkedHashMap<>(KODEVERDIER_SOM_BRUKES_PÅ_KLIENT);
     }

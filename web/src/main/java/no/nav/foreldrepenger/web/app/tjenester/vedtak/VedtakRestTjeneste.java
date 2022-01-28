@@ -59,7 +59,8 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 @Path(VedtakRestTjeneste.BASE_PATH)
 @ApplicationScoped
-public class VedtakRestTjeneste {
+public class
+VedtakRestTjeneste {
 
     static final String BASE_PATH = "/vedtak";
     private static final String HENT_VEDTAKSDOKUMENT_PART_PATH = "/hent-vedtaksdokument";
