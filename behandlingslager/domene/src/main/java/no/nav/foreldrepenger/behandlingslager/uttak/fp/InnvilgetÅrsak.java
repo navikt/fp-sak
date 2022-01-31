@@ -39,6 +39,7 @@ import no.nav.vedtak.konfig.Tid;
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum InnvilgetÅrsak implements PeriodeResultatÅrsak {
 
+    UKJENT("-", "Ikke definert", null, null),
     UTTAK_OPPFYLT("2001", "§14-6: Uttak er oppfylt", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-6\"}}}", of(UTTAK), null, null, LocalDate.of(2001, 1, 1), null),
     FELLESPERIODE_ELLER_FORELDREPENGER("2002", "§14-9: Innvilget fellesperiode/foreldrepenger", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-9\"}}}", of(UTTAK), of(FELLESPERIODE, FORELDREPENGER)),
     KVOTE_ELLER_OVERFØRT_KVOTE("2003", "§14-12: Innvilget uttak av kvote", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-12\"}}}", of(UTTAK), of(MØDREKVOTE, FEDREKVOTE)),
@@ -77,7 +78,6 @@ public enum InnvilgetÅrsak implements PeriodeResultatÅrsak {
     FORELDREPENGER_REDUSERT_GRAD_PGA_SAMTIDIG_UTTAK("2038", "§14-10 sjette ledd: Samtidig uttak", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10\"}}}", of(UTTAK)),
     ;
 
-    public static PeriodeResultatÅrsak UKJENT = PeriodeResultatÅrsak.UKJENT;
     private static final Map<String, InnvilgetÅrsak> KODER = new LinkedHashMap<>();
 
     public static final String KODEVERK = "INNVILGET_AARSAK";
