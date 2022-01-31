@@ -13,8 +13,6 @@ import javax.validation.constraints.Size;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
@@ -41,14 +39,9 @@ public class UttakResultatPeriodeLagreDto {
     @ValidKodeverk
     private PeriodeResultatType periodeResultatType;
 
+    @NotNull
     @ValidKodeverk
     private PeriodeResultatÅrsak periodeResultatÅrsak;
-
-    @ValidKodeverk
-    private InnvilgetÅrsak innvilgetÅrsak;
-
-    @ValidKodeverk
-    private IkkeOppfyltÅrsak ikkeOppfyltÅrsak;
 
     @NotNull
     @ValidKodeverk
@@ -101,22 +94,7 @@ public class UttakResultatPeriodeLagreDto {
     }
 
     public PeriodeResultatÅrsak getPeriodeResultatÅrsak() {
-        if (innvilgetÅrsak != null && !PeriodeResultatÅrsak.UKJENT.equals(innvilgetÅrsak)) {
-            return innvilgetÅrsak;
-        }
-        if (ikkeOppfyltÅrsak != null && !PeriodeResultatÅrsak.UKJENT.equals(ikkeOppfyltÅrsak)) {
-            return ikkeOppfyltÅrsak;
-        }
         return periodeResultatÅrsak == null ? PeriodeResultatÅrsak.UKJENT : periodeResultatÅrsak;
-    }
-
-
-    public InnvilgetÅrsak getInnvilgetÅrsak() {
-        return innvilgetÅrsak;
-    }
-
-    public IkkeOppfyltÅrsak getIkkeOppfyltÅrsak() {
-        return ikkeOppfyltÅrsak;
     }
 
     public OppholdÅrsak getOppholdÅrsak() {
@@ -172,8 +150,6 @@ public class UttakResultatPeriodeLagreDto {
 
         public Builder medPeriodeResultatÅrsak(PeriodeResultatÅrsak årsak) {
             kladd.periodeResultatÅrsak = årsak;
-            kladd.innvilgetÅrsak = årsak instanceof InnvilgetÅrsak i ? i : null;
-            kladd.ikkeOppfyltÅrsak = årsak instanceof IkkeOppfyltÅrsak o ? o : null;
             return this;
         }
 

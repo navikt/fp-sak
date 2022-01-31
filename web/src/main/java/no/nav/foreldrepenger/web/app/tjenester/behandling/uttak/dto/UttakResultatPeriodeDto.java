@@ -11,8 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
@@ -26,8 +24,6 @@ public class UttakResultatPeriodeDto {
     private PeriodeResultatType periodeResultatType;
     private String begrunnelse;
     private PeriodeResultatÅrsak periodeResultatÅrsak;
-    private InnvilgetÅrsak innvilgetÅrsak;
-    private IkkeOppfyltÅrsak ikkeOppfyltÅrsak;
     private ManuellBehandlingÅrsak manuellBehandlingÅrsak;
     private GraderingAvslagÅrsak graderingAvslagÅrsak;
     private boolean flerbarnsdager;
@@ -45,21 +41,7 @@ public class UttakResultatPeriodeDto {
     }
 
     public PeriodeResultatÅrsak getPeriodeResultatÅrsak() {
-        if (innvilgetÅrsak != null && !PeriodeResultatÅrsak.UKJENT.equals(innvilgetÅrsak)) {
-            return innvilgetÅrsak;
-        }
-        if (ikkeOppfyltÅrsak != null && !PeriodeResultatÅrsak.UKJENT.equals(ikkeOppfyltÅrsak)) {
-            return ikkeOppfyltÅrsak;
-        }
         return periodeResultatÅrsak;
-    }
-
-    public InnvilgetÅrsak getInnvilgetÅrsak() {
-        return innvilgetÅrsak;
-    }
-
-    public IkkeOppfyltÅrsak getIkkeOppfyltÅrsak() {
-        return ikkeOppfyltÅrsak;
     }
 
     public GraderingAvslagÅrsak getGraderingAvslagÅrsak() {
@@ -127,18 +109,12 @@ public class UttakResultatPeriodeDto {
         return oppholdÅrsak;
     }
 
-    @JsonProperty("periodeResultatÅrsakLovhjemmel") // FPFORMIDLING
+    @JsonProperty("periodeResultatÅrsakLovhjemmel")
     public String getPeriodeResultatÅrsakLovhjemmel() {
-        if (innvilgetÅrsak != null && !PeriodeResultatÅrsak.UKJENT.equals(innvilgetÅrsak)) {
-            return innvilgetÅrsak.getLovHjemmelData();
-        }
-        if (ikkeOppfyltÅrsak != null && !PeriodeResultatÅrsak.UKJENT.equals(ikkeOppfyltÅrsak)) {
-            return ikkeOppfyltÅrsak.getLovHjemmelData();
-        }
         return periodeResultatÅrsak == null ? null : periodeResultatÅrsak.getLovHjemmelData();
     }
 
-    @JsonProperty("graderingsAvslagÅrsakLovhjemmel")  // FPFORMIDLING
+    @JsonProperty("graderingsAvslagÅrsakLovhjemmel")
     public String getGraderingsAvslagÅrsakLovhjemmel() {
         return graderingAvslagÅrsak == null ? null : graderingAvslagÅrsak.getLovHjemmelData();
     }
@@ -163,8 +139,6 @@ public class UttakResultatPeriodeDto {
 
         public Builder medPeriodeResultatÅrsak(PeriodeResultatÅrsak årsak) {
             kladd.periodeResultatÅrsak = årsak;
-            kladd.innvilgetÅrsak = årsak instanceof InnvilgetÅrsak i ? i : InnvilgetÅrsak.UKJENT;
-            kladd.ikkeOppfyltÅrsak = årsak instanceof IkkeOppfyltÅrsak o ? o : IkkeOppfyltÅrsak.UKJENT;
             return this;
         }
 
@@ -236,8 +210,6 @@ public class UttakResultatPeriodeDto {
         public UttakResultatPeriodeDto build() {
             Objects.requireNonNull(kladd.periodeResultatType, "periodeResultatType");
             Objects.requireNonNull(kladd.periodeResultatÅrsak, "periodeResultatÅrsak");
-            Objects.requireNonNull(kladd.innvilgetÅrsak, "innvilgetÅrsak");
-            Objects.requireNonNull(kladd.ikkeOppfyltÅrsak, "ikkeOppfyltÅrsak");
             Objects.requireNonNull(kladd.fom, "fom");
             Objects.requireNonNull(kladd.tom, "tom");
             return kladd;
