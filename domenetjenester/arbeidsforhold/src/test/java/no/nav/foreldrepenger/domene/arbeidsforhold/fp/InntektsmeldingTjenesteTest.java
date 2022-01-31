@@ -80,7 +80,7 @@ public class InntektsmeldingTjenesteTest {
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
     private static final EksternArbeidsforholdRef ARBEIDSFORHOLD_ID_EKSTERN = EksternArbeidsforholdRef.ref("1");
     private static final AktørId AKTØRID = AktørId.dummy();
-    private static final LocalDate I_DAG = LocalDate.now();
+    private static final LocalDate I_DAG = LocalDate.of(2022,1,27);
     private static final LocalDate ARBEIDSFORHOLD_FRA = I_DAG.minusMonths(3);
     private static final LocalDate ARBEIDSFORHOLD_TIL = I_DAG.plusMonths(2);
     private static BigDecimal LØNNSPOST = BigDecimal.TEN;
@@ -354,7 +354,7 @@ public class InntektsmeldingTjenesteTest {
             DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
             ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
 
-        lagreInntektsmelding(skjæringstidspunktet.minusMonths(1).minusWeeks(4), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver, skjæringstidspunktet.minusMonths(1));
+        lagreInntektsmelding(skjæringstidspunktet.minusMonths(1).minusWeeks(5), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver, skjæringstidspunktet.minusMonths(1));
         assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunktet)).isEmpty();
 
         lagreInntektsmelding(skjæringstidspunktet.minusWeeks(3), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver, skjæringstidspunktet);
