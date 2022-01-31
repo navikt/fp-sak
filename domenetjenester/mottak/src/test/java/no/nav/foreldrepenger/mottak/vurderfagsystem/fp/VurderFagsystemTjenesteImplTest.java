@@ -95,7 +95,7 @@ public class VurderFagsystemTjenesteImplTest {
         var familieTjeneste = new FamilieHendelseTjeneste(null, grunnlagRepository);
         fellesUtils = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjenesteMock, null, null);
         fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository(), null);
-        tjenesteFP = new VurderFagsystemTjenesteImpl(fellesUtils, repositoryProvider);
+        tjenesteFP = new VurderFagsystemTjenesteImpl(fellesUtils);
     }
 
     @Test

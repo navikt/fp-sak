@@ -312,16 +312,34 @@ public class VurderFagsystemFellesUtils {
      * Logikk: bruk saken med mindre det allerede ligger IM med helt annen startdato der ift innkommende søknad/im
      */
     private boolean kanFagsakUtenGrunnlagBrukesForDokument(VurderFagsystem vurderFagsystem, Behandling sisteBehandling) {
+        var innkommendeReferanseDato = getReferanseDatoFraInnkommendeForVurdering(vurderFagsystem);
+        var alleInntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsakInkludertInaktive(sisteBehandling.getFagsak().getSaksnummer());
+        if (alleInntektsmeldinger.isEmpty()) {
+            // Unngå gjenbruk av flere år gamle saker
+            var behandlingRefDato = Optional.ofNullable(sisteBehandling.getAvsluttetDato()).map(LocalDateTime::toLocalDate).orElseGet(LocalDate::now);
+            return behandlingRefDato.isAfter(innkommendeReferanseDato.minus(PERIODE_FOR_MULIGE_SAKER_IM));
+        }
         if (vurderFagsystem.getStartDatoForeldrepengerInntektsmelding().isPresent()) {
             var oppgittFørsteDag = vurderFagsystem.getStartDatoForeldrepengerInntektsmelding().get(); // NOSONAR
-            var alleInntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsakInkludertInaktive(sisteBehandling.getFagsak().getSaksnummer());
-            if (alleInntektsmeldinger.isEmpty()) {
-                return true;
-            }
             return alleInntektsmeldinger.values().stream().flatMap(Collection::stream).map(Inntektsmelding::getStartDatoPermisjon).flatMap(Optional::stream)
                 .anyMatch(d -> oppgittFørsteDag.minus(MAKS_AVVIK_DAGER_IM_INPUT).isBefore(d) && oppgittFørsteDag.plus(MAKS_AVVIK_DAGER_IM_INPUT).isAfter(d));
+        } else {
+            return alleInntektsmeldinger.values().stream()
+                .flatMap(Collection::stream)
+                .anyMatch(i -> i.getStartDatoPermisjon().orElseGet(() -> i.getInnsendingstidspunkt().toLocalDate()).isAfter(innkommendeReferanseDato.minus(PERIODE_FOR_MULIGE_SAKER_IM)));
         }
-        return true;
+    }
+
+    private LocalDate getReferanseDatoFraInnkommendeForVurdering(VurderFagsystem vurderFagsystem) {
+        if (vurderFagsystem.getStartDatoForeldrepengerInntektsmelding().isPresent()) {
+            return vurderFagsystem.getStartDatoForeldrepengerInntektsmelding().get();
+        }
+        var idag = LocalDate.now();
+        var referansedato = vurderFagsystem.getBarnFodselsdato()
+            .or(vurderFagsystem::getBarnTermindato)
+            .or(vurderFagsystem::getOmsorgsovertakelsedato)
+            .orElse(idag);
+        return  idag.isBefore(referansedato) ? idag : referansedato;
     }
 
     public Optional<BehandlendeFagsystem> standardUstrukturertDokumentVurdering(List<Fagsak> sakerTilVurdering) {
@@ -364,6 +382,23 @@ public class VurderFagsystemFellesUtils {
                 .filter(b -> behandlingVedtakRepository.hentForBehandling(b.getId()).getVedtakstidspunkt().isAfter(LocalDateTime.now().minusYears(2)))
                 .collect(Collectors.toList());
         }
+
+        var sakerMedKjenteNyereKlager = sakerTilVurdering.stream()
+            .flatMap(f -> behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(f.getId(), BehandlingType.KLAGE).stream())
+            .filter(Objects::nonNull)
+            .filter(b -> b.getAvsluttetDato() == null || b.getAvsluttetDato().isAfter(LocalDateTime.now().minusYears(2)))
+            .map(b -> b.getFagsak().getSaksnummer())
+            .collect(Collectors.toSet());
+
+        // Først sjekk om det finnes saker med diffus klagehistorikk
+        if (sakerMedKjenteNyereKlager.size() > 1) {
+            LOG.info("VFS-KLAGE flere klager i VL saksnummer {}", sakerMedKjenteNyereKlager);
+            return Optional.empty();
+        } else if (sakerMedKjenteNyereKlager.size() == 1 && (behandlinger.isEmpty() || behandlinger.stream().noneMatch(b -> sakerMedKjenteNyereKlager.contains(b.getFagsak().getSaksnummer())))) {
+            LOG.info("VFS-KLAGE eldre klage i VL saksnummer {}", sakerMedKjenteNyereKlager);
+            return Optional.empty();
+        }
+
         if (behandlinger.isEmpty() && sakerTilVurdering.isEmpty()) {
             LOG.info("VFS-KLAGE ingen saker i VL");
         } else if (behandlinger.isEmpty()) {
