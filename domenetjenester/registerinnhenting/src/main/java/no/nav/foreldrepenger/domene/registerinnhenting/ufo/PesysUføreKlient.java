@@ -15,7 +15,6 @@ import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.felles.integrasjon.rest.StsSystemRestKlient;
 
@@ -36,9 +35,6 @@ public class PesysUføreKlient {
 
     private static final String HEADER_FNR = "fnr";
 
-    private static final boolean SKAL_KALLE = Environment.current().isProd() || Environment.current().isDev();
-
-
     private StsSystemRestKlient oidcRestClient;
     private URI endpoint;
 
@@ -53,10 +49,7 @@ public class PesysUføreKlient {
     }
 
     public Optional<Uføreperiode> hentUføreHistorikk(String fnr, LocalDate startDato) {
-        if (!SKAL_KALLE) return Optional.empty();
-
         var response = this.oidcRestClient.get(endpoint, this.lagHeader(fnr), HentUforehistorikkResponseDto.class);
-
         var uføreperiode = Optional.ofNullable(response).map(HentUforehistorikkResponseDto::uforehistorikk)
             .map(UforehistorikkDto::uforeperioder).orElse(List.of()).stream()
             .filter(u -> u.uforetype() != null && UFØRE_TYPER.contains(u.uforetype().code()))
