@@ -163,8 +163,8 @@ public class UttakResultatPeriodeDto {
 
         public Builder medPeriodeResultatÅrsak(PeriodeResultatÅrsak årsak) {
             kladd.periodeResultatÅrsak = årsak;
-            kladd.innvilgetÅrsak = årsak instanceof InnvilgetÅrsak i ? i : (InnvilgetÅrsak) InnvilgetÅrsak.UKJENT;
-            kladd.ikkeOppfyltÅrsak = årsak instanceof IkkeOppfyltÅrsak o ? o : (IkkeOppfyltÅrsak) IkkeOppfyltÅrsak.UKJENT;
+            kladd.innvilgetÅrsak = årsak instanceof InnvilgetÅrsak i ? i : InnvilgetÅrsak.UKJENT;
+            kladd.ikkeOppfyltÅrsak = årsak instanceof IkkeOppfyltÅrsak o ? o : IkkeOppfyltÅrsak.UKJENT;
             return this;
         }
 
