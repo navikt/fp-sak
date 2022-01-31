@@ -2,11 +2,8 @@ package no.nav.foreldrepenger.mottak.vurderfagsystem.fp;
 
 import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING;
 import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING;
-import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeSystem.VURDER_INFOTRYGD;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -18,10 +15,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesUtils;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemTjeneste;
@@ -32,7 +26,6 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(VurderFagsystemTjenesteImpl.class);
 
-    private FagsakRepository fagsakRepository;
     private VurderFagsystemFellesUtils fellesUtils;
 
     public VurderFagsystemTjenesteImpl() {
@@ -40,10 +33,8 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
     }
 
     @Inject
-    public VurderFagsystemTjenesteImpl(VurderFagsystemFellesUtils utils,
-                                         BehandlingRepositoryProvider repositoryProvider) {
+    public VurderFagsystemTjenesteImpl(VurderFagsystemFellesUtils utils) {
         this.fellesUtils = utils;
-        this.fagsakRepository = repositoryProvider.getFagsakRepository();
     }
 
     @Override
@@ -88,7 +79,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
-        return skalVurdereInfotrygdForAnnenPart(vurderFagsystem) ? new BehandlendeFagsystem(VURDER_INFOTRYGD) : new BehandlendeFagsystem(VEDTAKSLØSNING);
+        return new BehandlendeFagsystem(VEDTAKSLØSNING);
     }
 
     @Override
@@ -102,7 +93,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         var kompatibleFagsaker = fellesUtils.filtrerSakerForBehandlingTema(sakerGittYtelseType, vurderFagsystem.getBehandlingTema());
 
         if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && vurderFagsystem.getDokumentTypeId().erSøknadType() && kompatibleFagsaker.isEmpty()) {
-            return skalVurdereInfotrygdForAnnenPart(vurderFagsystem) ? new BehandlendeFagsystem(VURDER_INFOTRYGD) : new BehandlendeFagsystem(VEDTAKSLØSNING);
+            return new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
 
         if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && (DokumentTypeId.UDEFINERT.equals(vurderFagsystem.getDokumentTypeId()) || !vurderFagsystem.getDokumentTypeId().erEndringsSøknadType())) {
@@ -116,14 +107,5 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             LOG.info("VurderFagsystem FP ustrukturert vurdert til manuell behandling b for {}", vurderFagsystem.getAktørId());
         }
         return vurdering;
-    }
-
-    private boolean harAnnenPartSakVL(VurderFagsystem vurderFagsystem) {
-        return vurderFagsystem.getAnnenPart().map(fagsakRepository::hentForBruker).orElse(Collections.emptyList()).stream()
-            .anyMatch(s -> Set.of(FagsakYtelseType.ENGANGSTØNAD, FagsakYtelseType.FORELDREPENGER).contains(s.getYtelseType()) && !s.getSkalTilInfotrygd());
-    }
-
-    private boolean skalVurdereInfotrygdForAnnenPart(VurderFagsystem vurderFagsystem) {
-        return vurderFagsystem.getAnnenPart().isPresent() && !harAnnenPartSakVL(vurderFagsystem);
     }
 }
