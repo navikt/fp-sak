@@ -747,7 +747,7 @@ public class FastsettePerioderRegelAdapterTest {
         var farUttakresultat = new UttakResultatPerioderEntitet();
         var farPeriode = new UttakResultatPeriodeEntitet.Builder(
             morUtsettelseFørstegangs.getFom(), morUtsettelseFørstegangs.getTom()).medResultatType(
-            PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTTAK_OPPFYLT).build();
+            PeriodeResultatType.INNVILGET, InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER).build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(farPeriode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(
             StønadskontoType.FEDREKVOTE)

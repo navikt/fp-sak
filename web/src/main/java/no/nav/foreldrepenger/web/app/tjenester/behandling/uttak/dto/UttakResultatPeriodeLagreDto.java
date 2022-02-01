@@ -13,7 +13,10 @@ import javax.validation.constraints.Size;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeUtfallÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
@@ -39,9 +42,11 @@ public class UttakResultatPeriodeLagreDto {
     @ValidKodeverk
     private PeriodeResultatType periodeResultatType;
 
-    @NotNull
     @ValidKodeverk
     private PeriodeResultatÅrsak periodeResultatÅrsak;
+
+    @ValidKodeverk
+    private PeriodeUtfallÅrsak periodeUtfallÅrsak;
 
     @NotNull
     @ValidKodeverk
@@ -97,6 +102,10 @@ public class UttakResultatPeriodeLagreDto {
         return periodeResultatÅrsak == null ? PeriodeResultatÅrsak.UKJENT : periodeResultatÅrsak;
     }
 
+    public PeriodeUtfallÅrsak getPeriodeUtfallÅrsak() {
+        return periodeUtfallÅrsak == null ? PeriodeUtfallÅrsak.UKJENT : periodeUtfallÅrsak;
+    }
+
     public OppholdÅrsak getOppholdÅrsak() {
         return oppholdÅrsak == null ? OppholdÅrsak.UDEFINERT : oppholdÅrsak;
     }
@@ -122,6 +131,19 @@ public class UttakResultatPeriodeLagreDto {
 
     public LocalDate getMottattDato() {
         return mottattDato;
+    }
+
+    public static PeriodeResultatÅrsak utledPerioderesultatÅrsak(UttakResultatPeriodeLagreDto dto) {
+        if (dto.getPeriodeUtfallÅrsak() != null && !PeriodeUtfallÅrsak.UKJENT.equals(dto.getPeriodeUtfallÅrsak())) {
+            if (InnvilgetÅrsak.kodeMap().get(dto.getPeriodeUtfallÅrsak().getKode()) != null) {
+                return InnvilgetÅrsak.kodeMap().get(dto.getPeriodeUtfallÅrsak().getKode());
+            } else if (IkkeOppfyltÅrsak.kodeMap().get(dto.getPeriodeUtfallÅrsak().getKode()) != null) {
+                return IkkeOppfyltÅrsak.kodeMap().get(dto.getPeriodeUtfallÅrsak().getKode());
+            } else {
+                throw new IllegalArgumentException("Utviklerfeil - finner ikke koden fra periodeUfallÅrsak");
+            }
+        }
+        return dto.getPeriodeResultatÅrsak();
     }
 
     public static class Builder {
@@ -150,6 +172,12 @@ public class UttakResultatPeriodeLagreDto {
 
         public Builder medPeriodeResultatÅrsak(PeriodeResultatÅrsak årsak) {
             kladd.periodeResultatÅrsak = årsak;
+            kladd.periodeUtfallÅrsak = årsak != null ? PeriodeUtfallÅrsak.fraKode(årsak.getKode()) : null;
+            return this;
+        }
+
+        public Builder medPeriodeUtfallÅrsak(PeriodeUtfallÅrsak årsak) {
+            kladd.periodeUtfallÅrsak = årsak;
             return this;
         }
 

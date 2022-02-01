@@ -98,7 +98,7 @@ public class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
 
     private UttakResultatPeriodeEntitet lagInnvilgetUttakPeriode(LocalDate fom, LocalDate tom) {
         return new UttakResultatPeriodeEntitet.Builder(fom, tom)
-                .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTTAK_OPPFYLT).build();
+                .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER).build();
     }
 
     private UttakResultatPeriodeEntitet lagOpphørtPeriode(LocalDate fom, LocalDate tom) {

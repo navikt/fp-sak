@@ -108,7 +108,7 @@ public class AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtlederTest {
         var scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
         var uttakMor = new UttakResultatPerioderEntitet();
         var morUttakPeriode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 3, 28),
-            LocalDate.of(2019, 3, 28)).medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTTAK_OPPFYLT)
+            LocalDate.of(2019, 3, 28)).medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER)
             .build();
         var morUttakAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(
             morUttakPeriode,

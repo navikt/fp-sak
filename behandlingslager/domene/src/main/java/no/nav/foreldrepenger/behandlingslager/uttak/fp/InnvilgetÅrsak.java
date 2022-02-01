@@ -1,7 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
-import static java.util.Set.*;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.LovEndring.*;
+import static java.util.Set.of;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.LovEndring.FRITT_UTTAK;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.LovEndring.KREVER_SAMMENHENGENDE_UTTAK;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FEDREKVOTE;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FELLESPERIODE;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FORELDREPENGER;
@@ -39,7 +40,6 @@ import no.nav.vedtak.konfig.Tid;
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum InnvilgetÅrsak implements PeriodeResultatÅrsak {
 
-    UTTAK_OPPFYLT("2001", "§14-6: Uttak er oppfylt", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-6\"}}}", of(UTTAK), null, null, LocalDate.of(2001, 1, 1), null),
     FELLESPERIODE_ELLER_FORELDREPENGER("2002", "§14-9: Innvilget fellesperiode/foreldrepenger", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-9\"}}}", of(UTTAK), of(FELLESPERIODE, FORELDREPENGER)),
     KVOTE_ELLER_OVERFØRT_KVOTE("2003", "§14-12: Innvilget uttak av kvote", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-12\"}}}", of(UTTAK), of(MØDREKVOTE, FEDREKVOTE)),
     FORELDREPENGER_KUN_FAR_HAR_RETT("2004", "§14-14, jf. §14-13 : Innvilget foreldrepenger, kun far har rett", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-14,14-13\"}}}", of(UTTAK), of(FORELDREPENGER)),
