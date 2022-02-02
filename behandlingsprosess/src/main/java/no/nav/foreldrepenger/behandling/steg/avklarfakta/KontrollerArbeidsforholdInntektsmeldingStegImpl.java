@@ -43,7 +43,7 @@ class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbei
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         if (!ArbeidsforholdInntektsmeldingToggleTjeneste.erTogglePå()) {
-            BehandleStegResultat.utførtUtenAksjonspunkter();
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
