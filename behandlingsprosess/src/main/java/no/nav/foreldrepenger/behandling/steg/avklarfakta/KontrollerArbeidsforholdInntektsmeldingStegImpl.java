@@ -1,12 +1,8 @@
-package no.nav.foreldrepenger.behandling.steg.avklarfakta.svp;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+package no.nav.foreldrepenger.behandling.steg.avklarfakta;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
-import no.nav.foreldrepenger.behandling.steg.avklarfakta.AksjonspunktUtlederForVurderArbeidsforhold;
-import no.nav.foreldrepenger.behandling.steg.avklarfakta.KontrollerArbeidsforholdSteg;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
@@ -16,24 +12,29 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdInntektsmeldingToggleTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
-@BehandlingStegRef(kode = "KOARB")
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+
+@BehandlingStegRef(kode = "KO_ARB_IM")
 @BehandlingTypeRef
-@FagsakYtelseTypeRef("SVP")
+@FagsakYtelseTypeRef("*")
 @ApplicationScoped
-public class KontrollerArbeidsforholdStegImpl implements KontrollerArbeidsforholdSteg {
+class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbeidsforholdInntektsmeldingSteg {
 
     private BehandlingRepository behandlingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private AksjonspunktUtlederForVurderArbeidsforhold utleder;
+    private AksjonspunktUtlederForArbeidsforholdInntektsmelding utleder;
 
-    public KontrollerArbeidsforholdStegImpl() {
+    KontrollerArbeidsforholdInntektsmeldingStegImpl() {
         // for CDI proxy
     }
 
     @Inject
-    public KontrollerArbeidsforholdStegImpl(BehandlingRepository behandlingRepository,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            AksjonspunktUtlederForVurderArbeidsforhold utleder) {
+    KontrollerArbeidsforholdInntektsmeldingStegImpl(BehandlingRepository behandlingRepository,
+                                                    SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                                    AksjonspunktUtlederForArbeidsforholdInntektsmelding utleder) {
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.utleder = utleder;
@@ -41,14 +42,14 @@ public class KontrollerArbeidsforholdStegImpl implements KontrollerArbeidsforhol
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        if (ArbeidsforholdInntektsmeldingToggleTjeneste.erTogglePå()) {
-            return BehandleStegResultat.utførtUtenAksjonspunkter();
+        if (!ArbeidsforholdInntektsmeldingToggleTjeneste.erTogglePå()) {
+            BehandleStegResultat.utførtUtenAksjonspunkter();
         }
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
-        var aksjonspunktResultat = utleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref));
-        return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunktResultat);
+        List<AksjonspunktResultat> aksjonspuntker = new ArrayList<>(utleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref)));
+        return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspuntker);
     }
 }

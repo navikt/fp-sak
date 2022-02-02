@@ -89,7 +89,6 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     @Override
     public boolean erForsendelsesgrunnlagKomplett(BehandlingReferanse ref) {
         var manglendeVedlegg = kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(ref);
-        manglendeVedlegg.addAll(kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldingerFraGrunnlag(ref));
         return manglendeVedlegg.isEmpty();
     }
 
