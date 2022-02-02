@@ -106,11 +106,12 @@ public class VurderFagsystemFellesUtils {
         return !behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId()).isEmpty();
     }
 
-    private boolean harÅpenKlageEllerAnkeBehandlingKlageinstans(Fagsak fagsak) {
+    private boolean harÅpenEllerNyligAvsluttetKlageEllerAnkeBehandlingKlageinstans(Fagsak fagsak) {
         var klageinstansEnhet = BehandlendeEnhetTjeneste.getKlageInstans().enhetId();
-        return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
+        return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId()).stream()
+            .filter(b -> BehandlingType.KLAGE.equals(b.getType()) || BehandlingType.ANKE.equals(b.getType()))
             .filter(b -> klageinstansEnhet.equals(b.getBehandlendeEnhet()))
-            .anyMatch(b -> BehandlingType.KLAGE.equals(b.getType()) || BehandlingType.ANKE.equals(b.getType()));
+            .anyMatch(b -> !b.erAvsluttet() || b.getAvsluttetDato().isAfter(LocalDateTime.now().minusMonths(2)));
     }
 
     private List<Fagsak> harSakMedAvslagGrunnetManglendeDok(List<Fagsak> saker) {
@@ -359,8 +360,7 @@ public class VurderFagsystemFellesUtils {
 
     public Optional<BehandlendeFagsystem> klageinstansUstrukturertDokumentVurdering(List<Fagsak> sakerTilVurdering) {
         var åpneFagsaker = sakerTilVurdering.stream()
-            .filter(Fagsak::erÅpen)
-            .filter(this::harÅpenKlageEllerAnkeBehandlingKlageinstans)
+            .filter(this::harÅpenEllerNyligAvsluttetKlageEllerAnkeBehandlingKlageinstans)
             .collect(Collectors.toList());
         return åpneFagsaker.size() != 1 ? Optional.empty() :
             Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(åpneFagsaker.get(0).getSaksnummer()));

@@ -39,7 +39,7 @@ public final class UttakPerioderMapper {
         return new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(new LocalDateInterval(dtoPeriode.getFom(), dtoPeriode.getTom()))
             .medResultatType(dtoPeriode.getPeriodeResultatType())
-            .medResultatÅrsak(dtoPeriode.getPeriodeResultatÅrsak())
+            .medResultatÅrsak(UttakResultatPeriodeLagreDto.utledPerioderesultatÅrsak(dtoPeriode))
             .medBegrunnelse(dtoPeriode.getBegrunnelse())
             .medSamtidigUttak(dtoPeriode.isSamtidigUttak())
             .medSamtidigUttaksprosent(dtoPeriode.getSamtidigUttaksprosent())

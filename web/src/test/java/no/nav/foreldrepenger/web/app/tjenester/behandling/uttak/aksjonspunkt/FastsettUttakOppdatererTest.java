@@ -82,7 +82,7 @@ public class FastsettUttakOppdatererTest {
                 .build();
         var aktiviteter = List.of(aktivitetLagreDto);
         var periodeResultatType = PeriodeResultatType.INNVILGET;
-        PeriodeResultatÅrsak periodeResultatÅrsak = InnvilgetÅrsak.UTTAK_OPPFYLT;
+        PeriodeResultatÅrsak periodeResultatÅrsak = InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER;
         var stønadskontoType = StønadskontoType.FORELDREPENGER;
         var begrunnelse = "Dette er begrunnelsen";
         var periode1 = new UttakResultatPeriodeLagreDto.Builder()

@@ -540,7 +540,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         var fomOpprinneligUttak = FØDSELSDATO;
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(fomOpprinneligUttak,
             fomOpprinneligUttak.plusWeeks(1)).medResultatType(PeriodeResultatType.INNVILGET,
-            InnvilgetÅrsak.UTTAK_OPPFYLT).build();
+            InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER).build();
         var uttakAktivitet1 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(
             UttakArbeidType.FRILANS).build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(opprinneligPeriode, uttakAktivitet1).medArbeidsprosent(
@@ -571,7 +571,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         var fomOpprinneligUttak = FØDSELSDATO;
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(fomOpprinneligUttak,
             fomOpprinneligUttak.plusWeeks(1)).medResultatType(PeriodeResultatType.INNVILGET,
-            InnvilgetÅrsak.UTTAK_OPPFYLT).build();
+            InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER).build();
         var uttakAktivitet1 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(
             UttakArbeidType.FRILANS).build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(opprinneligPeriode, uttakAktivitet1).medArbeidsprosent(
@@ -599,7 +599,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         var fomOpprinneligUttak = FØDSELSDATO;
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(fomOpprinneligUttak,
             fomOpprinneligUttak.plusWeeks(1)).medResultatType(PeriodeResultatType.INNVILGET,
-            InnvilgetÅrsak.UTTAK_OPPFYLT).build();
+            InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER).build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
         var uttakAktivitet1 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(
             UttakArbeidType.ORDINÆRT_ARBEID).medArbeidsforhold(arbeidsgiver, null).build();

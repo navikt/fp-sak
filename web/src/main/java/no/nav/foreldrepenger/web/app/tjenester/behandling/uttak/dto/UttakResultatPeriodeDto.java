@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeUtfallÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 
@@ -24,6 +25,7 @@ public class UttakResultatPeriodeDto {
     private PeriodeResultatType periodeResultatType;
     private String begrunnelse;
     private PeriodeResultatÅrsak periodeResultatÅrsak;
+    private PeriodeUtfallÅrsak periodeUtfallÅrsak;
     private ManuellBehandlingÅrsak manuellBehandlingÅrsak;
     private GraderingAvslagÅrsak graderingAvslagÅrsak;
     private boolean flerbarnsdager;
@@ -42,6 +44,10 @@ public class UttakResultatPeriodeDto {
 
     public PeriodeResultatÅrsak getPeriodeResultatÅrsak() {
         return periodeResultatÅrsak;
+    }
+
+    public PeriodeUtfallÅrsak getPeriodeUtfallÅrsak() {
+        return periodeUtfallÅrsak;
     }
 
     public GraderingAvslagÅrsak getGraderingAvslagÅrsak() {
@@ -111,6 +117,9 @@ public class UttakResultatPeriodeDto {
 
     @JsonProperty("periodeResultatÅrsakLovhjemmel")
     public String getPeriodeResultatÅrsakLovhjemmel() {
+        if (periodeUtfallÅrsak != null) {
+            return periodeResultatÅrsak.getLovHjemmelData();
+        }
         return periodeResultatÅrsak == null ? null : periodeResultatÅrsak.getLovHjemmelData();
     }
 
@@ -139,6 +148,12 @@ public class UttakResultatPeriodeDto {
 
         public Builder medPeriodeResultatÅrsak(PeriodeResultatÅrsak årsak) {
             kladd.periodeResultatÅrsak = årsak;
+            kladd.periodeUtfallÅrsak = årsak != null ? PeriodeUtfallÅrsak.fraKode(årsak.getKode()) : null;
+            return this;
+        }
+
+        public Builder medPeriodeUtfallÅrsak(PeriodeUtfallÅrsak årsak) {
+            kladd.periodeUtfallÅrsak = årsak;
             return this;
         }
 

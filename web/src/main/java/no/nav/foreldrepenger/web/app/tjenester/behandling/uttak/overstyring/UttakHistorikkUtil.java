@@ -202,7 +202,7 @@ public final class UttakHistorikkUtil {
         var tilUtbetalingsgrad = nyAktivitet.getUtbetalingsgrad().decimalValue();
         builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_PROSENT_UTBETALING, fraUtbetalingsgrad, tilUtbetalingsgrad);
         builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_ÅRSAK, gjeldendePeriode.getResultatÅrsak(),
-            nyPeriode.getPeriodeResultatÅrsak());
+                UttakResultatPeriodeLagreDto.utledPerioderesultatÅrsak(nyPeriode));
         builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_TREKKDAGER_FLERBARN_KVOTE, gjeldendePeriode.isFlerbarnsdager(), nyPeriode.isFlerbarnsdager());
         builder.medEndretFelt(HistorikkEndretFeltType.UTTAK_SAMTIDIG_UTTAK, gjeldendePeriode.isSamtidigUttak(), nyPeriode.isSamtidigUttak());
         var fraVerdiSamtidigUttaksprosent = gjeldendePeriode.getSamtidigUttaksprosent() == null ? null : gjeldendePeriode.getSamtidigUttaksprosent().decimalValue();
