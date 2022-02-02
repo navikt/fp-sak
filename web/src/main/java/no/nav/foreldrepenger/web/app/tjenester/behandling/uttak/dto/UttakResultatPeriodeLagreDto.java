@@ -135,9 +135,9 @@ public class UttakResultatPeriodeLagreDto {
 
     public static PeriodeResultatÅrsak utledPerioderesultatÅrsak(UttakResultatPeriodeLagreDto dto) {
         if (dto.getPeriodeUtfallÅrsak() != null && !PeriodeUtfallÅrsak.UKJENT.equals(dto.getPeriodeUtfallÅrsak())) {
-            if (InnvilgetÅrsak.kodeMap().get(dto.getPeriodeUtfallÅrsak().getKode()) != null) {
+            if (InnvilgetÅrsak.kodeMap().containsKey(dto.getPeriodeUtfallÅrsak().getKode())) {
                 return InnvilgetÅrsak.kodeMap().get(dto.getPeriodeUtfallÅrsak().getKode());
-            } else if (IkkeOppfyltÅrsak.kodeMap().get(dto.getPeriodeUtfallÅrsak().getKode()) != null) {
+            } else if (IkkeOppfyltÅrsak.kodeMap().containsKey(dto.getPeriodeUtfallÅrsak().getKode())) {
                 return IkkeOppfyltÅrsak.kodeMap().get(dto.getPeriodeUtfallÅrsak().getKode());
             } else {
                 throw new IllegalArgumentException("Utviklerfeil - finner ikke koden fra periodeUfallÅrsak");
