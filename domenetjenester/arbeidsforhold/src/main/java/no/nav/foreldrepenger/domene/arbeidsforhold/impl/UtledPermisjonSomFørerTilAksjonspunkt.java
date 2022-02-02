@@ -1,10 +1,7 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.PermisjonDto;
-import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
-import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
-import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.AA_REGISTER_TYPER;
+import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -13,8 +10,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.AA_REGISTER_TYPER;
-import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
+import no.nav.foreldrepenger.domene.arbeidsforhold.dto.PermisjonDto;
+import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 
 final class UtledPermisjonSomFørerTilAksjonspunkt {
 
@@ -38,7 +38,7 @@ final class UtledPermisjonSomFørerTilAksjonspunkt {
                 .collect(Collectors.toList());
     }
 
-    static List<PermisjonDto> utledPermisjonUtenSluttdato(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate stp) {
+    static List<PermisjonDto> utledArbForholdMedPermisjonUtenSluttdato(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate stp) {
         return hentRelevantePermisjoner(filter, yrkesaktiviteter, stp)
             .filter(p-> p.getTilOgMed() == null || TIDENES_ENDE.equals(p.getTilOgMed()))
             .map(UtledPermisjonSomFørerTilAksjonspunkt::byggPermisjonDto)

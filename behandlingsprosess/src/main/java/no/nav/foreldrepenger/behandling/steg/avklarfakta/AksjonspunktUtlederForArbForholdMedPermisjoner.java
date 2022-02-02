@@ -1,25 +1,21 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta;
 
+import static java.util.Collections.emptyList;
+import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettListeForAksjonspunkt;
+import static no.nav.foreldrepenger.domene.arbeidsforhold.impl.VurderPermisjonTjeneste.utledArbForholdMedPermisjonUtenSluttdato;
+
+import java.util.List;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static java.util.Collections.emptyList;
-import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettListeForAksjonspunkt;
-import static no.nav.foreldrepenger.domene.arbeidsforhold.impl.VurderPermisjonTjeneste.hentArbForholdMedPermisjonUtenSluttdato;
 
 @ApplicationScoped
 public class AksjonspunktUtlederForArbForholdMedPermisjoner implements AksjonspunktUtleder {
@@ -45,9 +41,10 @@ public class AksjonspunktUtlederForArbForholdMedPermisjoner implements Aksjonspu
         if (SpesialBehandling.skalGrunnlagBeholdes(behandling)) {
             return INGEN_AKSJONSPUNKTER;
         }
-        var iayGrunnlag = iayTjeneste.finnGrunnlag(param.getBehandlingId());
-        if (iayGrunnlag.isPresent()) {
-            var arbForholdMedPermisjonUtenSluttdato = hentArbeidsforholdMedPermisjonUtenSluttdato(param, iayGrunnlag.get());
+        var iayGrunnlag = iayTjeneste.finnGrunnlag(param.getBehandlingId()).orElse(null);
+        if (iayGrunnlag != null) {
+
+            var arbForholdMedPermisjonUtenSluttdato = utledArbForholdMedPermisjonUtenSluttdato(param.getRef(),iayGrunnlag);
 
             if (!arbForholdMedPermisjonUtenSluttdato.isEmpty()) {
                 return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO);
@@ -55,11 +52,5 @@ public class AksjonspunktUtlederForArbForholdMedPermisjoner implements Aksjonspu
         }
         return INGEN_AKSJONSPUNKTER;
     }
-
-    private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> hentArbeidsforholdMedPermisjonUtenSluttdato(AksjonspunktUtlederInput param,
-                                                                                                        InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        return hentArbForholdMedPermisjonUtenSluttdato(param.getRef(), iayGrunnlag);
-    }
-
 }
 

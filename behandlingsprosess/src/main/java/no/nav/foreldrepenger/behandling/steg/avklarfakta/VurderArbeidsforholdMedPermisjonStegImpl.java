@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -8,14 +11,12 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 @BehandlingStegRef(kode = "VURDER_ARB_FORHOLD_PERMISJON")
 @BehandlingTypeRef
-@FagsakYtelseTypeRef("*")
+@FagsakYtelseTypeRef()
 @ApplicationScoped
 public class VurderArbeidsforholdMedPermisjonStegImpl implements VurderArbeidsforholdMedPermisjonSteg {
 
@@ -38,6 +39,9 @@ public class VurderArbeidsforholdMedPermisjonStegImpl implements VurderArbeidsfo
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
+        if (Environment.current().isProd()) {
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
+        }
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);

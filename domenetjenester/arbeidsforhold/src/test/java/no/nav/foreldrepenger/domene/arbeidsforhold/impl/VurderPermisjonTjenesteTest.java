@@ -470,6 +470,64 @@ public class VurderPermisjonTjenesteTest {
 
     }
 
+    @Test
+    public void skal_returnere_ingen_arbeidsforhold_når_permisjonen_har_sluttdato() {
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingReferanse = lagReferanse(behandling);
+
+        var arbeidsgiver = Arbeidsgiver.virksomhet("1");
+        var ref = InternArbeidsforholdRef.nyRef();
+
+        var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa = lagAktivitetsAvtaleBuilder(yaBuilder, SKJÆRINGSTIDSPUNKT.minusYears(1), TIDENES_ENDE);
+        var permisjon_1 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.minusDays(1));
+
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
+                arbeidsgiver, ref, List.of(permisjon_1));
+
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
+                List.of(yrkesaktivitet_1));
+
+        var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+
+        var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
+
+        // Act
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbForholdMedPermUtenSluttdato = VurderPermisjonTjeneste.utledArbForholdMedPermisjonUtenSluttdato(behandlingReferanse, grunnlag);
+
+        assertThat(arbForholdMedPermUtenSluttdato).isEmpty();
+    }
+
+    @Test
+    public void skal_returnere_arbeidsforhold_når_permisjonen_har_sluttdato() {
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingReferanse = lagReferanse(behandling);
+
+        var arbeidsgiver = Arbeidsgiver.virksomhet("1");
+        var ref = InternArbeidsforholdRef.nyRef();
+
+        var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa = lagAktivitetsAvtaleBuilder(yaBuilder, SKJÆRINGSTIDSPUNKT.minusYears(1), TIDENES_ENDE);
+        var permisjon_1 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(2), TIDENES_ENDE);
+
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
+                arbeidsgiver, ref, List.of(permisjon_1));
+
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
+                List.of(yrkesaktivitet_1));
+
+        var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+
+        var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
+
+        // Act
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbForholdMedPermUtenSluttdato = VurderPermisjonTjeneste.utledArbForholdMedPermisjonUtenSluttdato(behandlingReferanse, grunnlag);
+
+        assertThat(arbForholdMedPermUtenSluttdato).hasSize(1);
+    }
+
     private InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder lagAktørArbeidBuilder(Behandling behandling,
             List<YrkesaktivitetBuilder> yrkesaktiviteter) {
         var aktørArbeidBuilder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder

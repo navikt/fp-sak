@@ -1,5 +1,12 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.PermisjonDto;
@@ -11,13 +18,6 @@ import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
 public final class VurderPermisjonTjeneste {
 
@@ -53,8 +53,8 @@ public final class VurderPermisjonTjeneste {
         }
     }
 
-    public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> hentArbForholdMedPermisjonUtenSluttdato(BehandlingReferanse behandlingReferanse,
-                                                                                                   InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledArbForholdMedPermisjonUtenSluttdato(BehandlingReferanse behandlingReferanse,
+                                                                                                           InntektArbeidYtelseGrunnlag iayGrunnlag) {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbForholdMedPermUtenSluttdato = new HashMap<>();
 
         var stp = behandlingReferanse.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
@@ -63,7 +63,7 @@ public final class VurderPermisjonTjeneste {
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(aktørId)).før(stp);
 
         for (var ya : filter.getYrkesaktiviteter()) {
-            Collection<PermisjonDto> utledetPermisjoner = UtledPermisjonSomFørerTilAksjonspunkt.utledPermisjonUtenSluttdato(filter, List.of(ya), stp);
+            Collection<PermisjonDto> utledetPermisjoner = UtledPermisjonSomFørerTilAksjonspunkt.utledArbForholdMedPermisjonUtenSluttdato(filter, List.of(ya), stp);
             if (utledetPermisjoner.isEmpty()) {
                 continue;
             }
