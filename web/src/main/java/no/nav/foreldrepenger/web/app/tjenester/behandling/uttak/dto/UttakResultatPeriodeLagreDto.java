@@ -134,6 +134,9 @@ public class UttakResultatPeriodeLagreDto {
     }
 
     public static PeriodeResultatÅrsak utledPerioderesultatÅrsak(UttakResultatPeriodeLagreDto dto) {
+        // Vent med denne. Frontend sender ned getPeriodeUtfallÅrsak = den som ble sendt opp - uten at den røres i koden.
+        // Når frontend oppdaterer  begge felt ta den tilbake
+        /*
         if (dto.getPeriodeUtfallÅrsak() != null && !PeriodeUtfallÅrsak.UKJENT.equals(dto.getPeriodeUtfallÅrsak())) {
             if (InnvilgetÅrsak.kodeMap().containsKey(dto.getPeriodeUtfallÅrsak().getKode())) {
                 return InnvilgetÅrsak.kodeMap().get(dto.getPeriodeUtfallÅrsak().getKode());
@@ -143,6 +146,7 @@ public class UttakResultatPeriodeLagreDto {
                 throw new IllegalArgumentException("Utviklerfeil - finner ikke koden fra periodeUfallÅrsak");
             }
         }
+        */
         return dto.getPeriodeResultatÅrsak();
     }
 
