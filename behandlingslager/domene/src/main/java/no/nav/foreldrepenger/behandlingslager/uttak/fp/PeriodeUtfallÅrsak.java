@@ -326,7 +326,9 @@ public enum PeriodeUtfallÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse
             jgen.writeStringField("kode", value.getKode());
             jgen.writeStringField("navn", value.getNavn());
             jgen.writeStringField("kodeverk", value.getKodeverk());
-            jgen.writeStringField("utfallType", value.utfallType.name());
+            if (value.utfallType != null) {
+                jgen.writeStringField("utfallType", value.utfallType.name());
+            }
             writeArray(jgen, value.getGyldigForLovendringer(), "gyldigForLovendringer");
             writeArray(jgen, value.getUttakTyper(), "uttakTyper");
             writeArray(jgen, value.getValgbarForKonto(), "valgbarForKonto");
