@@ -311,7 +311,7 @@ public enum PeriodeUtfallÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse
      * Enkel serialisering av KodeverkTabell klass PeriodeResultatÅrsak, uten at disse trenger @JsonIgnore eller lignende. Deserialisering går
      * av seg selv normalt (får null for andre felter).
      */
-    class PeriodeUtfallÅrsakSerializer extends StdSerializer<PeriodeUtfallÅrsak> {
+    public static class PeriodeUtfallÅrsakSerializer extends StdSerializer<PeriodeUtfallÅrsak> {
 
 
         public PeriodeUtfallÅrsakSerializer() {
