@@ -5,6 +5,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -45,6 +46,10 @@ public class ArbeidsforholdValg extends BaseEntitet {
     @Embedded
     private InternArbeidsforholdRef arbeidsforholdRef;
 
+    @Convert(converter = BooleanToStringConverter.class)
+    @Column(name = "aktiv", nullable = false)
+    private boolean aktiv = true;
+
     protected ArbeidsforholdValg() {
         // Hibernate
     }
@@ -54,6 +59,11 @@ public class ArbeidsforholdValg extends BaseEntitet {
         this.arbeidsgiverIdent = kopi.arbeidsgiverIdent;
         this.arbeidsforholdRef = kopi.arbeidsforholdRef;
         this.begrunnelse = kopi.begrunnelse;
+        this.aktiv = kopi.aktiv;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public ArbeidsforholdKomplettVurderingType getVurdering() {
@@ -75,8 +85,16 @@ public class ArbeidsforholdValg extends BaseEntitet {
         return arbeidsforholdRef == null ? InternArbeidsforholdRef.nullRef() : arbeidsforholdRef;
     }
 
+    public boolean erAktiv() {
+        return aktiv;
+    }
+
     void setBehandlingId(Long behandlingId) {
         this.behandlingId = Objects.requireNonNull(behandlingId, "behandlingId");
+    }
+
+    void setAktiv(boolean aktiv) {
+        this.aktiv = aktiv;
     }
 
     void setBegrunnelse(String begrunnelse) {

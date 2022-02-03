@@ -54,6 +54,36 @@ class ArbeidsforholdValgRepositoryTest {
     }
 
     @Test
+    public void skal_kunne_slette_valg_gjort() {
+        // Arrange
+        var behandling = opprettBehandling();
+        var vurdering = ArbeidsforholdValg.builder()
+                .medVurdering(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING)
+                .medArbeidsgiver("999999999")
+                .medBegrunnelse("Dette er en begrunnelse")
+                .build();
+
+        // Act
+        arbeidsforholdValgRepository.lagre(vurdering, behandling.getId());
+        var valg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandling.getId());
+
+        // Assert
+        assertThat(valg).isNotNull();
+        assertThat(valg).hasSize(1);
+        var vurderingEntitet = valg.get(0);
+        assertThat(vurderingEntitet.getVurdering()).isEqualTo(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING);
+        assertThat(vurderingEntitet.getBegrunnelse()).isEqualTo("Dette er en begrunnelse");
+        assertThat(vurderingEntitet.getArbeidsgiver().getIdentifikator()).isEqualTo("999999999");
+
+        // Act 2
+        arbeidsforholdValgRepository.fjernValg(vurdering);
+        var nyeValg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandling.getId());
+
+        assertThat(nyeValg).isEmpty();
+    }
+
+
+    @Test
     public void lagre_flere_vurderinger_på_samme_grunnlag() {
         // Arrange
         var behandling = opprettBehandling();
