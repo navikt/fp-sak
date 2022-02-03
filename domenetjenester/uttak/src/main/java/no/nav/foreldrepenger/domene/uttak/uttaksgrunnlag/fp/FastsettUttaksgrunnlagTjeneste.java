@@ -52,12 +52,12 @@ public class FastsettUttaksgrunnlagTjeneste {
             endringsdato = endringsdatoRevurdering;
         } else {
             endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(input.getBehandlingReferanse().getBehandlingId(),
-                justertFordeling.getOppgittePerioder());
+                    justertFordeling.getOppgittePerioder());
         }
         var avklarteUttakDatoer = avklarteDatoerMedEndringsdato(behandlingId, endringsdato);
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
-            .medJustertFordeling(justertFordeling)
-            .medAvklarteDatoer(avklarteUttakDatoer);
+                .medJustertFordeling(justertFordeling)
+                .medAvklarteDatoer(avklarteUttakDatoer);
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
     }
 
@@ -73,7 +73,8 @@ public class FastsettUttaksgrunnlagTjeneste {
                 throw new IllegalArgumentException("Utvikler-feil: ved revurdering skal det alltid finnes en original behandling");
             }
             if (behandlingHarUttaksresultat(originalBehandlingId.get())) {
-                justertePerioder = kopierVedtaksperioderFomEndringsdato(justertePerioder, endringsdatoRevurdering, originalBehandlingId.get());
+                justertePerioder = kopierVedtaksperioderFomEndringsdato(justertePerioder, endringsdatoRevurdering,
+                        originalBehandlingId.get());
             } else {
                 justertePerioder = oppgittePerioderFraForrigeBehandling(originalBehandlingId.get());
             }
@@ -83,20 +84,27 @@ public class FastsettUttaksgrunnlagTjeneste {
         if (fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel()) {
             justertePerioder = justerFordelingEtterFamilieHendelse(fpGrunnlag, justertePerioder);
         }
-        justertePerioder = fjernOppholdsperioderLiggendeTilSlutt(justertePerioder);
+        if (ref.getSkjæringstidspunkt().kreverSammenhengendeUttak()) {
+            justertePerioder = fjernOppholdsperioderLiggendeTilSlutt(justertePerioder);
+        } else {
+            justertePerioder = fjernOppholdsperioder(justertePerioder);
+        }
         justertePerioder = leggTilUtsettelserForPleiepenger(input, justertePerioder);
         return new OppgittFordelingEntitet(kopier(justertePerioder), fordeling.getErAnnenForelderInformert());
     }
 
+    private List<OppgittPeriodeEntitet> fjernOppholdsperioder(List<OppgittPeriodeEntitet> perioder) {
+        return perioder.stream().filter(p -> !p.isOpphold()).toList();
+    }
+
     private List<OppgittPeriodeEntitet> leggTilUtsettelserForPleiepenger(UttakInput input, List<OppgittPeriodeEntitet> perioder) {
-        return PleiepengerJustering.juster(input.getBehandlingReferanse().getAktørId(), input.getIayGrunnlag(),
-            perioder);
+        return PleiepengerJustering.juster(input.getBehandlingReferanse().getAktørId(), input.getIayGrunnlag(), perioder);
     }
 
     private List<OppgittPeriodeEntitet> fjernOppholdsperioderLiggendeTilSlutt(List<OppgittPeriodeEntitet> perioder) {
         var sortertePerioder = perioder.stream()
-            .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
-            .collect(Collectors.toList());
+                .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
+                .collect(Collectors.toList());
 
         while (!sortertePerioder.isEmpty() && sortertePerioder.get(sortertePerioder.size() - 1).isOpphold()) {
             sortertePerioder.remove(sortertePerioder.size() - 1);
@@ -114,12 +122,11 @@ public class FastsettUttaksgrunnlagTjeneste {
         return null;
     }
 
-    private List<OppgittPeriodeEntitet> justerFordelingEtterFamilieHendelse(ForeldrepengerGrunnlag fpGrunnlag, List<OppgittPeriodeEntitet> oppgittePerioder) {
+    private List<OppgittPeriodeEntitet> justerFordelingEtterFamilieHendelse(ForeldrepengerGrunnlag fpGrunnlag,
+                                                                            List<OppgittPeriodeEntitet> oppgittePerioder) {
         var familiehendelser = finnFamiliehendelser(fpGrunnlag);
-        return justerFordelingTjeneste.justerForFamiliehendelse(
-            oppgittePerioder,
-            familiehendelser.søknad().orElse(null),
-            familiehendelser.gjeldende());
+        return justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familiehendelser.søknad().orElse(null),
+                familiehendelser.gjeldende());
     }
 
     private List<OppgittPeriodeEntitet> oppgittePerioderFraForrigeBehandling(Long forrigeBehandling) {
@@ -137,18 +144,25 @@ public class FastsettUttaksgrunnlagTjeneste {
         return builder.medOpprinneligEndringsdato(endringsdato).build();
     }
 
-    private List<OppgittPeriodeEntitet> kopierVedtaksperioderFomEndringsdato(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate endringsdato, Long forrigeBehandling) {
+    private List<OppgittPeriodeEntitet> kopierVedtaksperioderFomEndringsdato(List<OppgittPeriodeEntitet> oppgittePerioder,
+                                                                             LocalDate endringsdato,
+                                                                             Long forrigeBehandling) {
         //Kopier vedtaksperioder fom endringsdato.
         var uttakResultatEntitet = fpUttakRepository.hentUttakResultat(forrigeBehandling);
         return vedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, oppgittePerioder, endringsdato);
     }
 
-    private static record FHSøknadGjeldende(Optional<LocalDate> søknad, LocalDate gjeldende) {}
+    private static record FHSøknadGjeldende(Optional<LocalDate> søknad, LocalDate gjeldende) {
+    }
 
     private FHSøknadGjeldende finnFamiliehendelser(ForeldrepengerGrunnlag fpGrunnlag) {
         var gjeldendeFødselsdato = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
         if (fpGrunnlag.getOriginalBehandling().isPresent()) {
-            var fødselsdatoForrigeBehandling = fpGrunnlag.getOriginalBehandling().get().getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
+            var fødselsdatoForrigeBehandling = fpGrunnlag.getOriginalBehandling()
+                    .get()
+                    .getFamilieHendelser()
+                    .getGjeldendeFamilieHendelse()
+                    .getFamilieHendelseDato();
             return new FHSøknadGjeldende(Optional.ofNullable(fødselsdatoForrigeBehandling), gjeldendeFødselsdato);
         }
         var søknadVersjon = fpGrunnlag.getFamilieHendelser().getSøknadFamilieHendelse();
@@ -165,8 +179,6 @@ public class FastsettUttaksgrunnlagTjeneste {
     }
 
     private List<OppgittPeriodeEntitet> kopier(List<OppgittPeriodeEntitet> perioder) {
-        return perioder.stream()
-            .map(p -> OppgittPeriodeBuilder.fraEksisterende(p).build())
-            .collect(Collectors.toList());
+        return perioder.stream().map(p -> OppgittPeriodeBuilder.fraEksisterende(p).build()).collect(Collectors.toList());
     }
 }
