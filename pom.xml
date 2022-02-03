@@ -42,8 +42,8 @@
         <jupiter.version>5.7.2</jupiter.version>
         <fp-uttak.version>11.2.0</fp-uttak.version>
         <svp-uttak.version>2.2.0</svp-uttak.version>
-        <felles.version>4.1.16</felles.version>
-        <prosesstask.version>3.1.6</prosesstask.version>
+        <felles.version>4.1.17</felles.version>
+        <prosesstask.version>3.1.7</prosesstask.version>
         <ukelonn.felles.version>2.0.23</ukelonn.felles.version>
 
         <fp-kontrakter.version>6.1.4</fp-kontrakter.version>

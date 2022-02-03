@@ -11,7 +11,6 @@ import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakType.UTSETTELSE;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakType.UTTAK;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -27,16 +26,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ÅrsakskodeMedLovreferanse;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
-@JsonSerialize(using= PeriodeUtfallÅrsak.PeriodeUtfallÅrsakSerializer.class)
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum PeriodeUtfallÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
@@ -307,51 +302,12 @@ public enum PeriodeUtfallÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse
             DEN_ANDRE_PART_HAR_OVERLAPPENDE_UTTAKSPERIODER_SOM_ER_INNVILGET_UTSETTELSE);
     }
 
-    /**
-     * Enkel serialisering av KodeverkTabell klass PeriodeResultatÅrsak, uten at disse trenger @JsonIgnore eller lignende. Deserialisering går
-     * av seg selv normalt (får null for andre felter).
-     */
-    public static class PeriodeUtfallÅrsakSerializer extends StdSerializer<PeriodeUtfallÅrsak> {
-
-
-        public PeriodeUtfallÅrsakSerializer() {
-            super(PeriodeUtfallÅrsak.class);
-        }
-
-        @Override
-        public void serialize(PeriodeUtfallÅrsak value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-
-            jgen.writeStartObject();
-
-            jgen.writeStringField("kode", value.getKode());
-            jgen.writeStringField("navn", value.getNavn());
-            jgen.writeStringField("kodeverk", value.getKodeverk());
-            if (value.utfallType != null) {
-                jgen.writeStringField("utfallType", value.utfallType.name());
-            }
-            writeArray(jgen, value.getGyldigForLovendringer(), "gyldigForLovendringer");
-            writeArray(jgen, value.getUttakTyper(), "uttakTyper");
-            writeArray(jgen, value.getValgbarForKonto(), "valgbarForKonto");
-            jgen.writeEndObject();
-        }
-
-        private void writeArray(JsonGenerator jgen, Set<?> set, String fieldName) throws IOException {
-            jgen.writeFieldName(fieldName);
-            jgen.writeStartArray();
-            for (Object item : set) {
-                jgen.writeString(item.toString());
-            }
-            jgen.writeEndArray();
-        }
-
-    }
-
-    enum LovEndring {
+    public enum LovEndring {
         KREVER_SAMMENHENGENDE_UTTAK,
         FRITT_UTTAK
     }
 
-    enum UtfallType {
+    public enum UtfallType {
         INNVILGET,
         AVSLÅTT
     }

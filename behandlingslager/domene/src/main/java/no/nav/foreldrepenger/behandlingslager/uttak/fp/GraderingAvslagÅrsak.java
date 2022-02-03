@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
-import java.io.IOException;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -16,16 +14,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
-import no.nav.vedtak.konfig.Tid;
 
-@JsonSerialize(using=GraderingAvslagÅrsakSerializer.class)
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum GraderingAvslagÅrsak implements Kodeverdi {
@@ -107,14 +99,6 @@ public enum GraderingAvslagÅrsak implements Kodeverdi {
         return kode;
     }
 
-    public LocalDate getGyldigFraOgMed() {
-        return LocalDate.of(2001, 01, 01);
-    }
-
-    public LocalDate getGyldigTilOgMed() {
-        return Tid.TIDENES_ENDE;
-    }
-
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<GraderingAvslagÅrsak, String> {
         @Override
@@ -126,32 +110,6 @@ public enum GraderingAvslagÅrsak implements Kodeverdi {
         public GraderingAvslagÅrsak convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
         }
-    }
-
-    /**
-     * Enkel serialisering av KodeverkTabell klass GraderingAvslagÅrsak, uten at disse trenger @JsonIgnore eller lignende. Deserialisering går
-     * av seg selv normalt (får null for andre felter).
-     */
-    public static class GraderingAvslagÅrsakSerializer extends StdSerializer<GraderingAvslagÅrsak> {
-
-        public GraderingAvslagÅrsakSerializer() {
-            super(GraderingAvslagÅrsak.class);
-        }
-
-        @Override
-        public void serialize(GraderingAvslagÅrsak value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-
-            jgen.writeStartObject();
-
-            jgen.writeStringField("kode", value.getKode());
-            jgen.writeStringField("navn", value.getNavn());
-            jgen.writeStringField("kodeverk", value.getKodeverk());
-            jgen.writeStringField("gyldigFom", value.getGyldigFraOgMed().toString());
-            jgen.writeStringField("gyldigTom", value.getGyldigTilOgMed().toString());
-
-            jgen.writeEndObject();
-        }
-
     }
 
 }
