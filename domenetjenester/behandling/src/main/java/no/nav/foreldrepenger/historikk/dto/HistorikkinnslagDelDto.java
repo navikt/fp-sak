@@ -13,14 +13,12 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 public class HistorikkinnslagDelDto {
 
-    private Kodeverdi begrunnelse;
     private String begrunnelsetekst;
     private String begrunnelseFritekst;
     private HistorikkinnslagHendelseDto hendelse;
     private List<HistorikkinnslagOpplysningDto> opplysninger;
     private HistorikkinnslagSoeknadsperiodeDto soeknadsperiode;
     private SkjermlenkeType skjermlenke;
-    private Kodeverdi aarsak;
     private String årsaktekst;
     private HistorikkInnslagTemaDto tema;
     private HistorikkInnslagGjeldendeFraDto gjeldendeFra;
@@ -38,14 +36,16 @@ public class HistorikkinnslagDelDto {
 
     private static HistorikkinnslagDelDto mapFra(HistorikkinnslagDel historikkinnslagDel) {
         var dto = new HistorikkinnslagDelDto();
-        historikkinnslagDel.getBegrunnelseFelt().ifPresent(begrunnelse -> dto.setBegrunnelse(finnÅrsakKodeListe(begrunnelse).orElse(null)));
-        if (dto.getBegrunnelse() == null) {
+        var begrunnelseKodeverdi = historikkinnslagDel.getBegrunnelseFelt().flatMap(HistorikkinnslagDelDto::finnÅrsakKodeListe);
+        if (begrunnelseKodeverdi.isEmpty()) {
             historikkinnslagDel.getBegrunnelse().ifPresent(dto::setBegrunnelseFritekst);
         } else {
-            dto.setBegrunnelsetekst(dto.getBegrunnelse().getNavn());
+            dto.setBegrunnelsetekst(begrunnelseKodeverdi.get().getNavn());
         }
-        historikkinnslagDel.getAarsakFelt().ifPresent(aarsak -> dto.setAarsak(finnÅrsakKodeListe(aarsak).orElse(null)));
-        Optional.ofNullable(dto.getAarsak()).ifPresent(k -> dto.setÅrsaktekst(k.getNavn()));
+        historikkinnslagDel.getAarsakFelt()
+                .flatMap(HistorikkinnslagDelDto::finnÅrsakKodeListe)
+                .map(Kodeverdi::getNavn)
+                .ifPresent(dto::setÅrsaktekst);
         historikkinnslagDel.getTema().ifPresent(felt -> dto.setTema(HistorikkInnslagTemaDto.mapFra(felt)));
         historikkinnslagDel.getGjeldendeFraFelt().ifPresent(felt -> {
             if ((felt.getNavn() != null) && (felt.getNavnVerdi() != null) && (felt.getTilVerdi() != null)) {
@@ -96,14 +96,6 @@ public class HistorikkinnslagDelDto {
         return Optional.ofNullable(kodeverdiMap.get(aarsakVerdi));
     }
 
-    public Kodeverdi getBegrunnelse() {
-        return begrunnelse;
-    }
-
-    public void setBegrunnelse(Kodeverdi begrunnelse) {
-        this.begrunnelse = begrunnelse;
-    }
-
     public String getBegrunnelseFritekst() {
         return begrunnelseFritekst;
     }
@@ -126,14 +118,6 @@ public class HistorikkinnslagDelDto {
 
     public void setSkjermlenke(SkjermlenkeType skjermlenke) {
         this.skjermlenke = skjermlenke;
-    }
-
-    public Kodeverdi getAarsak() {
-        return aarsak;
-    }
-
-    public void setAarsak(Kodeverdi aarsak) {
-        this.aarsak = aarsak;
     }
 
     public HistorikkInnslagTemaDto getTema() {

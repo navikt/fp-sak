@@ -10,11 +10,12 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeUtfallÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
@@ -22,6 +23,8 @@ import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
 public class UttakResultatPeriodeLagreDto {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UttakResultatPeriodeLagreDto.class);
 
     @NotNull
     private LocalDate fom;
@@ -134,6 +137,17 @@ public class UttakResultatPeriodeLagreDto {
     }
 
     public static PeriodeResultatÅrsak utledPerioderesultatÅrsak(UttakResultatPeriodeLagreDto dto) {
+        if (dto.getPeriodeResultatÅrsak() == null && dto.periodeUtfallÅrsak == null) {
+            LOG.info("UTTAK UTFALL begge null");
+        } else if (dto.getPeriodeResultatÅrsak() == null) {
+            LOG.info("UTTAK UTFALL årsak null utfall {}", dto.getPeriodeUtfallÅrsak().getKode());
+        } else if (dto.getPeriodeUtfallÅrsak() == null) {
+            LOG.info("UTTAK UTFALL årsak {} utfall null", dto.getPeriodeResultatÅrsak().getKode());
+        } else if (!dto.getPeriodeUtfallÅrsak().getKode().equals(dto.getPeriodeResultatÅrsak().getKode())) {
+            LOG.info("UTTAK UTFALL ULIKT årsak {} utfall {}", dto.getPeriodeResultatÅrsak().getKode(), dto.getPeriodeResultatÅrsak().getKode());
+        } else {
+            LOG.info("UTTAK UTFALL lik kode");
+        }
         // Vent med denne. Frontend sender ned getPeriodeUtfallÅrsak = den som ble sendt opp - uten at den røres i koden.
         // Når frontend oppdaterer  begge felt ta den tilbake
         /*
@@ -143,7 +157,7 @@ public class UttakResultatPeriodeLagreDto {
             } else if (IkkeOppfyltÅrsak.kodeMap().containsKey(dto.getPeriodeUtfallÅrsak().getKode())) {
                 return IkkeOppfyltÅrsak.kodeMap().get(dto.getPeriodeUtfallÅrsak().getKode());
             } else {
-                throw new IllegalArgumentException("Utviklerfeil - finner ikke koden fra periodeUfallÅrsak");
+                throw new IllegalArgumentException("Utviklerfeil - finner ikke koden fra periodeUtfallÅrsak");
             }
         }
         */
