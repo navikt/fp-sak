@@ -65,7 +65,10 @@ public class FamilieHendelseTjeneste {
     }
 
     public List<LocalDateInterval> forventetFødselsIntervaller(BehandlingReferanse ref) {
-        var behandlingId = ref.getBehandlingId();
+        return forventetFødselsIntervaller(ref.getBehandlingId());
+    }
+
+    public List<LocalDateInterval> forventetFødselsIntervaller(Long behandlingId) {
         final var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
         return utledPerioderForRegisterinnhenting(familieHendelseGrunnlag);
     }
