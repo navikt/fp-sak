@@ -101,6 +101,7 @@ public class StønadsperioderInnhenter {
         var aktuellFamilieHendelseDato = familieHendelseTjeneste.finnAggregat(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .map(FamilieHendelseEntitet::getSkjæringstidspunkt).orElse(Tid.TIDENES_ENDE);
+        // OBS - følge med på denne for tilfelle av fedre som kan søke uttak for B1 etter at mor har fått B2
         var brukStartdato = aktuellAntattFørstedag.isBefore(aktuellFamilieHendelseDato) ? aktuellAntattFørstedag : aktuellFamilieHendelseDato;
         var aktuellFamilieHendelseIntervaller = familieHendelseTjeneste.forventetFødselsIntervaller(behandling.getId());
         var egenSak = new MuligSak(behandling.getFagsakYtelseType(), behandling.getFagsak().getSaksnummer(), SaksForhold.EGEN_SAK,
