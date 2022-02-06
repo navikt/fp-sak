@@ -12,8 +12,6 @@ import javax.inject.Inject;
 
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.felles.integrasjon.rest.StsSystemRestKlient;
@@ -25,8 +23,6 @@ import no.nav.vedtak.felles.integrasjon.rest.StsSystemRestKlient;
 
 @ApplicationScoped
 public class PesysUføreKlient {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PesysUføreKlient.class);
 
     private static final String ENDPOINT_KEY = "ufore.rs.url";
     private static final String DEFAULT_URI = "http://pensjon-pen.pensjondeployer/pen/api/sak/uforehistorikk";

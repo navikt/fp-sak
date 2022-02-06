@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.sakskompleks;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -141,7 +140,7 @@ public class KobleSakerTjeneste {
 
     private List<Fagsak> finnMuligeFagsakerForKobling(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag, AktørId annenPart, Set<AktørId> andreForeldreForBarn) {
         // Finner saker der bruker fra behandling er oppgitt som annen part
-        Set<Long> fagsakerSomRefererer = new HashSet<>(personopplysningRepository.fagsakerMedOppgittAnnenPart(behandling.getAktørId()));
+        List<Fagsak> fagsakerSomRefererer = new ArrayList<>(personopplysningRepository.fagsakerMedOppgittAnnenPart(behandling.getAktørId()));
         // Henter fagsaker for oppgitt annen part og for foreldre til brukers barn i aktuelt kull
         List<Fagsak> aktuelleFagsaker = new ArrayList<>(fagsakRepository.hentForBrukerMulti(andreForeldreForBarn));
         if (annenPart != null && !andreForeldreForBarn.contains(annenPart)) {
@@ -149,8 +148,7 @@ public class KobleSakerTjeneste {
         }
         var fagsakerAndreForeldre = aktuelleFagsaker.stream().map(Fagsak::getId).collect(Collectors.toSet());
         fagsakerSomRefererer.stream()
-            .filter(fid -> !fagsakerAndreForeldre.contains(fid))
-            .map(fagsakRepository::finnEksaktFagsak)
+            .filter(fid -> !fagsakerAndreForeldre.contains(fid.getId()))
             .forEach(aktuelleFagsaker::add);
         // Finner ukoblete saker, siste behandling og filtrerer på innkommende sak sitt FH-grunnlag
         var ytelseType = behandling.getFagsakYtelseType();
