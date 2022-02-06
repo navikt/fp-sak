@@ -10,7 +10,7 @@ public class JettyWebKonfigurasjon {
 
     // Hvis du føler for å omstrukturere Jetty-klassene så sørg for at CPHolder
     // blir kalt så tidlig som mulig i oppstarten av Jetty og helst kun en gang ....
-    // Cookies: bruker "/" når
+    // Cookies: bruker path "/" når man instansierer CPH uten å angi cookiepath
     public JettyWebKonfigurasjon() {
         ContextPathHolder.instance(CONTEXT_PATH);
     }
