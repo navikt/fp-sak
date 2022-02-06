@@ -140,11 +140,11 @@ public class UttakResultatPeriodeLagreDto {
         if (dto.getPeriodeResultatÅrsak() == null && dto.periodeUtfallÅrsak == null) {
             LOG.info("UTTAK UTFALL begge null");
         } else if (dto.getPeriodeResultatÅrsak() == null) {
-            LOG.info("UTTAK UTFALL årsak null utfall {}", dto.getPeriodeUtfallÅrsak().getKode());
+            LOG.info("UTTAK UTFALL ULIKT periode null utfall {}", dto.getPeriodeUtfallÅrsak().getKode());
         } else if (dto.getPeriodeUtfallÅrsak() == null) {
-            LOG.info("UTTAK UTFALL årsak {} utfall null", dto.getPeriodeResultatÅrsak().getKode());
+            LOG.info("UTTAK UTFALL ULIKT periode {} utfall null", dto.getPeriodeResultatÅrsak().getKode());
         } else if (!dto.getPeriodeUtfallÅrsak().getKode().equals(dto.getPeriodeResultatÅrsak().getKode())) {
-            LOG.info("UTTAK UTFALL ULIKT årsak {} utfall {}", dto.getPeriodeResultatÅrsak().getKode(), dto.getPeriodeResultatÅrsak().getKode());
+            LOG.info("UTTAK UTFALL ULIKT periode {} utfall {}", dto.getPeriodeResultatÅrsak().getKode(), dto.getPeriodeUtfallÅrsak().getKode());
         } else {
             LOG.info("UTTAK UTFALL lik kode");
         }

@@ -8,18 +8,14 @@ import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.web.app.ApplicationConfig;
 import no.nav.foreldrepenger.web.app.FrontendApiConfig;
 import no.nav.vedtak.isso.IssoApplication;
-import no.nav.foreldrepenger.konfig.Environment;
 
 public class JettyDevServer extends AbstractJettyServer {
 

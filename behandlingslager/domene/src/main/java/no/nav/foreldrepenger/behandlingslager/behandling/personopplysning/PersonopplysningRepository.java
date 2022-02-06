@@ -1,10 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,6 +13,7 @@ import org.hibernate.jpa.QueryHints;
 
 import no.nav.foreldrepenger.behandlingslager.TraverseEntityGraphFactory;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffEntity;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
@@ -243,15 +242,14 @@ public class PersonopplysningRepository {
         return resultat;
     }
 
-    public List<Long> fagsakerMedOppgittAnnenPart(AktørId annenPart) {
-        var aktørQuery = entityManager.createNativeQuery("select distinct b.FAGSAK_ID from BEHANDLING b"
-            + " join GR_PERSONOPPLYSNING gr on gr.BEHANDLING_ID=b.ID"
-            + " join SO_ANNEN_PART ap on gr.SO_ANNEN_PART_ID=ap.ID"
-            + " where ap.aktoer_id = :aktoerId and gr.AKTIV='J'")
+    public List<Fagsak> fagsakerMedOppgittAnnenPart(AktørId annenPart) {
+        var aktørQuery = entityManager.createQuery("select distinct f from Fagsak f "
+                + " inner join Behandling b on b.fagsak=f "
+                + " join PersonopplysningGrunnlagEntitet gr on gr.behandlingId=b.id "
+                + " join SøknadAnnenPart ap on gr.søknadAnnenPart=ap "
+                + " where ap.aktørId = :aktoerId and gr.aktiv='J'", Fagsak.class)
             .setParameter("aktoerId", annenPart); // NOSONAR
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = aktørQuery.getResultList();
-        return resultatList.stream().map(row -> ((BigDecimal) row[0]).longValue()).collect(Collectors.toList()); // NOSONAR
+        return aktørQuery.getResultList();
     }
 
     public PersonopplysningGrunnlagEntitet hentFørsteVersjonAvPersonopplysninger(Long behandlingId) {
