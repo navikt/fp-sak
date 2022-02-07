@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,8 +26,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.fp.SykemeldingVentTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
+import no.nav.foreldrepenger.domene.prosess.KalkulusTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @FagsakYtelseTypeRef
@@ -40,6 +42,8 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste;
     private SykemeldingVentTjeneste sykemeldingVentTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private KalkulusTjeneste kalkulusTjeneste;
+    private boolean isProd;
 
     protected FastsettBeregningsaktiviteterSteg() {
         // for CDI proxy
@@ -50,12 +54,15 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
                                              BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                                              BeregningsgrunnlagInputProvider inputTjenesteProvider,
                                              SykemeldingVentTjeneste sykemeldingVentTjeneste,
-                                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                             KalkulusTjeneste kalkulusTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.beregningsgrunnlagInputTjeneste = Objects.requireNonNull(inputTjenesteProvider, "inputTjenestene");
         this.sykemeldingVentTjeneste = sykemeldingVentTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.kalkulusTjeneste = kalkulusTjeneste;
+        this.isProd = no.nav.foreldrepenger.konfig.Environment.current().isProd();
     }
 
     @Override
@@ -63,19 +70,23 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandling);
-        var aksjonspunktResultater = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
+        List<BeregningAvklaringsbehovResultat> aksjonspunktResultater;
+        if (isProd) {
+            aksjonspunktResultater = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
+        } else {
+            aksjonspunktResultater = kalkulusTjeneste.beregn(BehandlingReferanse.fra(behandling), BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING).getAksjonspunkter();
+        }
         var ventPåSykemeldingAksjonspunkt = skalVentePåSykemelding(behandling);
         if (aksjonspunktResultater == null) {
             return BehandleStegResultat.fremoverført(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT);
         }
         // Hvis det ikke allerede er utledet ventepunkt og vi har ventepunkt for sykemelding
         if (aksjonspunktResultater.stream().noneMatch(BeregningAvklaringsbehovResultat::harFrist) && ventPåSykemeldingAksjonspunkt.isPresent()) {
-            return BehandleStegResultat
-                .utførtMedAksjonspunktResultater(Collections.singletonList(ventPåSykemeldingAksjonspunkt.get()));
+            return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections.singletonList(ventPåSykemeldingAksjonspunkt.get()));
         }
         // hent på nytt i tilfelle lagret og flushet
-        return BehandleStegResultat
-                .utførtMedAksjonspunktResultater(aksjonspunktResultater.stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList()));
+        return BehandleStegResultat.utførtMedAksjonspunktResultater(
+            aksjonspunktResultater.stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList()));
     }
 
     private Optional<AksjonspunktResultat> skalVentePåSykemelding(Behandling behandling) {
@@ -85,15 +96,15 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         if (ventefrist.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(AksjonspunktResultat.opprettForAksjonspunktMedFrist(
-            AksjonspunktDefinisjon.AUTO_VENT_PÅ_SYKEMELDING,
-            Venteårsak.VENT_MANGLENDE_SYKEMELDING,
-            LocalDateTime.of(ventefrist.get(), LocalDateTime.now().toLocalTime())));
+        return Optional.of(AksjonspunktResultat.opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.AUTO_VENT_PÅ_SYKEMELDING,
+            Venteårsak.VENT_MANGLENDE_SYKEMELDING, LocalDateTime.of(ventefrist.get(), LocalDateTime.now().toLocalTime())));
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
-            BehandlingStegType fraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType tilSteg,
+                                   BehandlingStegType fraSteg) {
         if (BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING.equals(tilSteg)) {
             beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).gjenopprettFastsattBeregningAktivitetBeregningsgrunnlag();
         } else {
