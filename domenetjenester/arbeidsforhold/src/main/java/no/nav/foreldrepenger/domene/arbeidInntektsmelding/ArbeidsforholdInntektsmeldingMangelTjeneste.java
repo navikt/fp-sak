@@ -55,9 +55,9 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         var arbeidsforholdMedMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse);
         var eksisterendeValg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandlingReferanse.getBehandlingId());
         var valgSomMåRyddesBort = ArbeidsforholdInntektsmeldingRyddeTjeneste.valgSomMåRyddesBort(dto, eksisterendeValg);
-        if (valgSomMåRyddesBort.isPresent()) {
-            // TODO  Rydd bort valget
-        }
+
+        valgSomMåRyddesBort.ifPresent(arbeidsforholdValg -> arbeidsforholdValgRepository.fjernValg(arbeidsforholdValg));
+
         var informasjonBuilder = arbeidsforholdTjeneste.opprettBuilderFor(behandlingReferanse.getBehandlingId());
         ArbeidsforholdInformasjonBuilder oppdatertBuilder = ArbeidsforholdInntektsmeldingMangelMapper.mapManueltArbeidsforhold(dto, arbeidsforholdMedMangler, informasjonBuilder);
         arbeidsforholdTjeneste.lagreOverstyring(behandlingReferanse.getBehandlingId(), behandlingReferanse.getAktørId(), oppdatertBuilder);

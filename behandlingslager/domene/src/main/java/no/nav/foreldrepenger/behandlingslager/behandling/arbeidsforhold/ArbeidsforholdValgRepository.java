@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold;
 
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -27,8 +26,9 @@ public class ArbeidsforholdValgRepository {
 
     public List<ArbeidsforholdValg> hentArbeidsforholdValgForBehandling(Long behandlingId) {
         final var query = entityManager.createQuery("FROM ArbeidsforholdValg arb " + // NOSONAR //$NON-NLS-1$
-                "WHERE arb.behandlingId = :behandlingId ", ArbeidsforholdValg.class);
+                "WHERE arb.behandlingId = :behandlingId AND arb.aktiv = :aktiv", ArbeidsforholdValg.class);
         query.setParameter("behandlingId", behandlingId); // NOSONAR //$NON-NLS-1$
+        query.setParameter("aktiv", true); // NOSONAR //$NON-NLS-1$
         return query.getResultList();
     }
 
@@ -43,6 +43,15 @@ public class ArbeidsforholdValgRepository {
             nyttNotat.setBehandlingId(behandlingId);
             lagre(nyttNotat);
         }
+    }
+
+    public void fjernValg(ArbeidsforholdValg arbeidsforholdValg) {
+        if (arbeidsforholdValg.getId() == null || !arbeidsforholdValg.erAktiv()) {
+            throw new IllegalStateException("FEIL: Valg som skal deaktiveres må ha "
+                    + "id og være aktive. Valg som ble forsøkt deaktivert: " + arbeidsforholdValg);
+        }
+        arbeidsforholdValg.setAktiv(false);
+        lagre(arbeidsforholdValg);
     }
 
     private Optional<ArbeidsforholdValg> hentNøyaktigNotatForBehandling(Long behandlingId, String arbeidsgiverIdent) {

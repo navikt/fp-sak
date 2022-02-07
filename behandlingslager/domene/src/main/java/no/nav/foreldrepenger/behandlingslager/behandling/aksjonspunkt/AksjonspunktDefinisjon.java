@@ -251,7 +251,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD, ENTRINN, EnumSet.of(FP, SVP)),
     VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING(AksjonspunktKodeDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING_KODE,
         AksjonspunktType.MANUELL, "Avklar mangler rundt arbeidsforhold og inntektsmelding", BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING, VurderingspunktType.UT, UTEN_VILKÅR,
-        SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD, ENTRINN, EnumSet.of(FP, SVP)),
+        SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_INNTEKTSMELDING, ENTRINN, EnumSet.of(FP, SVP)),
     AVKLAR_FØRSTE_UTTAKSDATO(AksjonspunktKodeDefinisjon.AVKLAR_FØRSTE_UTTAKSDATO_KODE,
             AksjonspunktType.MANUELL, "Avklar første uttaksdato", BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.INN, UTEN_VILKÅR,
             SkjermlenkeType.FAKTA_OM_UTTAK, ENTRINN, EnumSet.of(FP, SVP)),
