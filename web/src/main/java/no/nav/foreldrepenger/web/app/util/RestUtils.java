@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.foreldrepenger.web.app.ApplicationConfig;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
-import no.nav.foreldrepenger.web.server.jetty.JettyWebKonfigurasjon;
+import no.nav.vedtak.sikkerhet.ContextPathHolder;
 
 public class RestUtils {
 
@@ -46,7 +46,7 @@ public class RestUtils {
     }
 
     public static String getApiPath() {
-        var contextPath = JettyWebKonfigurasjon.CONTEXT_PATH;
+        var contextPath = ContextPathHolder.instance().getContextPath();
         var apiUri = ApplicationConfig.API_URI;
         return contextPath + apiUri;
     }
