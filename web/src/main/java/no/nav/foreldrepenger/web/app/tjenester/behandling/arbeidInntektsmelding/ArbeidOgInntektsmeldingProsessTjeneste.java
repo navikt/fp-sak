@@ -51,7 +51,8 @@ public class ArbeidOgInntektsmeldingProsessTjeneste {
 
         behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
         behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING );
-        behandlingsprosessTjeneste.asynkKjørProsess(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING));
     }
 
     public void tillTilbakeOgOpprettAksjonspunkt(BehandlingIdVersjonDto dto) {
@@ -64,7 +65,6 @@ public class ArbeidOgInntektsmeldingProsessTjeneste {
         behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING));
         behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling,
                 BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
-        behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 
     private void validerAtOperasjonErLovlig(Behandling behandling, boolean aksjonspunktSkalOpprettes) {
