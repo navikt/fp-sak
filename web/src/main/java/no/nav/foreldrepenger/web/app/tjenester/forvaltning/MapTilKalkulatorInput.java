@@ -41,7 +41,7 @@ import no.nav.folketrygdloven.kalkulus.beregning.v1.KravperioderPrArbeidsforhold
 import no.nav.folketrygdloven.kalkulus.beregning.v1.PeriodeMedUtbetalingsgradDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.PerioderForKrav;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.Refusjonsperiode;
-import no.nav.folketrygdloven.kalkulus.beregning.v1.UtbetalingsgradArbeidsforholdDto;
+import no.nav.folketrygdloven.kalkulus.beregning.v1.AktivitetDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.UtbetalingsgradPrAktivitetDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.YtelsespesifiktGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Aktør;
@@ -197,9 +197,9 @@ class MapTilKalkulatorInput {
                 periodeMedUtbetalingsgradDto.getUtbetalingsgrad());
     }
 
-    private static UtbetalingsgradArbeidsforholdDto mapArbeidsforholdDto(no.nav.folketrygdloven.kalkulator.modell.svp.UtbetalingsgradArbeidsforholdDto utbetalingsgradArbeidsforhold) {
+    private static AktivitetDto mapArbeidsforholdDto(no.nav.folketrygdloven.kalkulator.modell.svp.AktivitetDto utbetalingsgradArbeidsforhold) {
         return utbetalingsgradArbeidsforhold == null ? null
-            : new UtbetalingsgradArbeidsforholdDto(
+            : new AktivitetDto(
                 utbetalingsgradArbeidsforhold.getArbeidsgiver().map(MapTilKalkulatorInput::mapArbeidsgiver).orElse(null),
                 mapAbakusReferanse(utbetalingsgradArbeidsforhold.getInternArbeidsforholdRef()),
                 utbetalingsgradArbeidsforhold.getUttakArbeidType() == null ? null : new UttakArbeidType(utbetalingsgradArbeidsforhold.getUttakArbeidType().getKode()));

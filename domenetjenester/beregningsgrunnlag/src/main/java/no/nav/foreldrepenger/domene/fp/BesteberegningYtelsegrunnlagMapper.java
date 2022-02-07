@@ -6,6 +6,7 @@ import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelseperiode;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -74,7 +75,9 @@ public class BesteberegningYtelsegrunnlagMapper {
     }
 
     private static Ytelseandel mapAndel(BeregningsresultatAndel a) {
-        return new Ytelseandel(AktivitetStatus.fraKode(a.getAktivitetStatus().getKode()), Long.valueOf(a.getDagsats()));
+        return new Ytelseandel(AktivitetStatus.fraKode(a.getAktivitetStatus().getKode()),
+            Inntektskategori.fraKode(a.getInntektskategori().getKode()),
+            (long) a.getDagsats());
     }
 
 

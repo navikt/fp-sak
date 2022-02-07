@@ -32,50 +32,19 @@ public class BeregningDtoTjeneste {
 
     public Optional<BeregningsgrunnlagDto> lagBeregningsgrunnlagDto(BeregningsgrunnlagGUIInput input) {
         var ref = input.getKoblingReferanse();
-        var beregningsgrunnlagGrunnlagEntitet = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
-            ref.getKoblingId());
+        var beregningsgrunnlagGrunnlagEntitet = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(ref.getKoblingId());
         if (beregningsgrunnlagGrunnlagEntitet.isEmpty()) {
             return Optional.empty();
         }
-        var orginaltGrunnlag = ref.getOriginalKoblingId()
-            .flatMap(id -> beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(id));
-        var inputMedBeregningsgrunnlag = settBeregningsgrunnlagPåInput(input,
-            beregningsgrunnlagGrunnlagEntitet.get(), orginaltGrunnlag);
+        var orginaltGrunnlag = ref.getOriginalKoblingId().flatMap(id -> beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(id));
+        var inputMedBeregningsgrunnlag = settBeregningsgrunnlagPåInput(input, beregningsgrunnlagGrunnlagEntitet.get(), orginaltGrunnlag);
         return Optional.of(beregningsgrunnlagDtoTjeneste.lagBeregningsgrunnlagDto(inputMedBeregningsgrunnlag));
     }
 
     private BeregningsgrunnlagGUIInput settBeregningsgrunnlagPåInput(BeregningsgrunnlagGUIInput input,
                                                                      BeregningsgrunnlagGrunnlagEntitet beregningsgrunnlagGrunnlagEntitet,
                                                                      Optional<BeregningsgrunnlagGrunnlagEntitet> orginaltGrunnlag) {
-        var bgRestDto = BehandlingslagerTilKalkulusMapper.mapGrunnlag(
-            beregningsgrunnlagGrunnlagEntitet);
-        var inputMedBg = input.medBeregningsgrunnlagGrunnlag(bgRestDto);
-        var aktivTilstand = beregningsgrunnlagGrunnlagEntitet.getBeregningsgrunnlagTilstand();
-        if (orginaltGrunnlag.isPresent() && orginaltGrunnlag.get().getBeregningsgrunnlag().isPresent()) {
-            // Trenger ikke inntektsmeldinger på orginalt grunnlag
-            var orginaltBG = BehandlingslagerTilKalkulusMapper.mapGrunnlag(
-                orginaltGrunnlag.get());
-            var inputMedOrginaltBG = inputMedBg.medBeregningsgrunnlagGrunnlagFraForrigeBehandling(
-                orginaltBG);
-            return leggTilTilstandgrunnlag(inputMedOrginaltBG, aktivTilstand);
-        }
-        return leggTilTilstandgrunnlag(inputMedBg, aktivTilstand);
+        var bgRestDto = BehandlingslagerTilKalkulusMapper.mapGrunnlag(beregningsgrunnlagGrunnlagEntitet);
+        return input.medBeregningsgrunnlagGrunnlag(bgRestDto);
     }
-
-    private BeregningsgrunnlagGUIInput leggTilTilstandgrunnlag(BeregningsgrunnlagGUIInput input,
-                                                               BeregningsgrunnlagTilstand aktivTilstand) {
-        var ref = input.getKoblingReferanse();
-        Optional<BeregningsgrunnlagGrunnlagEntitet> fordeltBG = Optional.empty();
-
-        // Fordeling
-        if (!aktivTilstand.erFør(BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING)) {
-            fordeltBG = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(ref.getKoblingId(),
-                BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING);
-        }
-
-        return fordeltBG.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag)
-            .map(input::medBeregningsgrunnlagGrunnlagFraFordel)
-            .orElse(input);
-    }
-
 }
