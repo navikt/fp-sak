@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonAutoDetect(getterVisibility=Visibility.NONE, setterVisibility=Visibility.NONE, fieldVisibility=Visibility.ANY)
-@JsonTypeName(AksjonspunktKodeDefinisjon. MANUELL_MARKERING_AV_UTLAND_SAKSTYPE_KODE)
+@JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE_KODE)
 public class OverstyringUtenlandssakMarkeringDto extends OverstyringAksjonspunktDto {
 
 
