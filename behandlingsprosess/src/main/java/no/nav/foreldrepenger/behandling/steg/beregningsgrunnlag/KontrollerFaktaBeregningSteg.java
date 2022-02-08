@@ -15,9 +15,9 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.opptjening.FrilansAvvikLoggTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
+import no.nav.foreldrepenger.domene.prosess.KalkulusTjeneste;
 
 @FagsakYtelseTypeRef
 @BehandlingStegRef(kode = "KOFAKBER")
@@ -25,10 +25,13 @@ import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjene
 @ApplicationScoped
 public class KontrollerFaktaBeregningSteg implements BeregningsgrunnlagSteg {
 
+    private boolean skalKalleKalkulus;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
     private FrilansAvvikLoggTjeneste frilansAvvikLoggTjeneste;
+    private KalkulusTjeneste kalkulusTjeneste;
+    private BeregningTjeneste beregningTjeneste;
 
     protected KontrollerFaktaBeregningSteg() {
         // for CDI proxy
@@ -38,36 +41,39 @@ public class KontrollerFaktaBeregningSteg implements BeregningsgrunnlagSteg {
     public KontrollerFaktaBeregningSteg(BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                                         BehandlingRepository behandlingRepository,
                                         BeregningsgrunnlagInputProvider inputTjenesteProvider,
-                                        FrilansAvvikLoggTjeneste frilansAvvikLoggTjeneste) {
+                                        FrilansAvvikLoggTjeneste frilansAvvikLoggTjeneste,
+                                        KalkulusTjeneste kalkulusTjeneste,
+                                        BeregningTjeneste beregningTjeneste) {
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
         this.frilansAvvikLoggTjeneste = frilansAvvikLoggTjeneste;
+        this.kalkulusTjeneste = kalkulusTjeneste;
+        this.beregningTjeneste = beregningTjeneste;
+        this.skalKalleKalkulus = no.nav.foreldrepenger.konfig.Environment.current().isDev();
+
     }
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandling);
-        var aksjonspunkter = beregningsgrunnlagKopierOgLagreTjeneste.kontrollerFaktaBeregningsgrunnlag(input);
+        var aksjonspunkter = beregningTjeneste.beregn(BehandlingReferanse.fra(behandling), BehandlingStegType.KONTROLLER_FAKTA_BEREGNING)
+            .getAksjonspunkter();
 
         // TFP-4427
         frilansAvvikLoggTjeneste.loggFrilansavvikVedBehov(BehandlingReferanse.fra(behandling));
 
-        return BehandleStegResultat
-                .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList()));
+        return BehandleStegResultat.utførtMedAksjonspunktResultater(
+            aksjonspunkter.stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList()));
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
-            BehandlingStegType fraSteg) {
-        if (BehandlingStegType.KONTROLLER_FAKTA_BEREGNING.equals(tilSteg)) {
-            beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).gjenopprettOppdatertBeregningsgrunnlag();
-        }
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType tilSteg,
+                                   BehandlingStegType fraSteg) {
+        beregningTjeneste.rydd(kontekst, BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, tilSteg);
     }
 
-    private BeregningsgrunnlagInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {
-        return beregningsgrunnlagInputProvider.getTjeneste(ytelseType);
-    }
 }

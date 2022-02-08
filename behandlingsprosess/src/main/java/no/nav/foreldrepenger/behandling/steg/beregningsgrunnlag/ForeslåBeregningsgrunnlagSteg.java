@@ -22,8 +22,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
+import no.nav.foreldrepenger.domene.prosess.KalkulusTjeneste;
 
 @FagsakYtelseTypeRef
 @BehandlingStegRef(kode = "FORS_BERGRUNN")
@@ -33,8 +37,9 @@ public class ForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
 
     private BehandlingRepository behandlingRepository;
     private FamilieHendelseRepository familieHendelseRepository;
-    private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
-    private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
+    private BeregningTjeneste beregningTjeneste;
+    private FagsakRelasjonRepository fagsakRelasjonRepository;
+
 
     protected ForeslåBeregningsgrunnlagSteg() {
         // for CDI proxy
@@ -42,27 +47,24 @@ public class ForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
 
     @Inject
     public ForeslåBeregningsgrunnlagSteg(BehandlingRepository behandlingRepository,
-            FamilieHendelseRepository familieHendelseRepository,
-            BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-            BeregningsgrunnlagInputProvider inputTjenesteProvider) {
+                                         FamilieHendelseRepository familieHendelseRepository, BeregningTjeneste beregningTjeneste,
+                                         FagsakRelasjonRepository fagsakRelasjonRepository) {
         this.behandlingRepository = behandlingRepository;
         this.familieHendelseRepository = familieHendelseRepository;
-        this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
-        this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
+        this.beregningTjeneste = beregningTjeneste;
+        this.fagsakRelasjonRepository = fagsakRelasjonRepository;
     }
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var ref = BehandlingReferanse.fra(behandling);
-        var input = getInputTjeneste(ref.getFagsakYtelseType()).lagInput(ref.getBehandlingId());
-        var resultat = beregningsgrunnlagKopierOgLagreTjeneste.foreslåBeregningsgrunnlag(input);
+        var resultat = beregningTjeneste.beregn(ref, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
 
-        var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map)
-                .collect(Collectors.toList());
+        var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList());
 
         if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER)) {
-            boolean skalHaAksjonspunktForVurderDekningsgrad = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(input.getYtelsespesifiktGrunnlag().getDekningsgrad(input.getBeregningsgrunnlag(), null),
+            boolean skalHaAksjonspunktForVurderDekningsgrad = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(finnDekningsgrad(ref),
                 getBarn(ref.getBehandlingId()));
             if (skalHaAksjonspunktForVurderDekningsgrad) {
                 aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.VURDER_DEKNINGSGRAD));
@@ -71,23 +73,25 @@ public class ForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
     }
 
-    @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
-            BehandlingStegType fraSteg) {
-        if (tilSteg.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG)) {
-            beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddForeslåBeregningsgrunnlagVedTilbakeføring();
-        }
+    private int finnDekningsgrad(BehandlingReferanse behandlingReferanse) {
+        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(behandlingReferanse.getSaksnummer());
+        return fagsakRelasjon.map(FagsakRelasjon::getGjeldendeDekningsgrad)
+            .map(Dekningsgrad::getVerdi)
+            .orElseThrow(() -> new IllegalStateException("Mangler FagsakRelasjon#dekningsgrad for behandling: " + behandlingReferanse));
     }
 
-    private BeregningsgrunnlagInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {
-        return beregningsgrunnlagInputProvider.getTjeneste(ytelseType);
+    @Override
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType tilSteg,
+                                   BehandlingStegType fraSteg) {
+        beregningTjeneste.rydd(kontekst, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG, tilSteg);
     }
 
     private List<UidentifisertBarn> getBarn(Long behandlingId) {
         Objects.requireNonNull(familieHendelseRepository, "familieHendelseRepository");
-        var familiehendelse = familieHendelseRepository
-                .hentAggregatHvisEksisterer(behandlingId)
-                .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
+        var familiehendelse = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
         return familiehendelse.orElseThrow().getBarna();
     }
 }
