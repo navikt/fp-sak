@@ -44,7 +44,17 @@ public class BeregningDtoTjeneste {
     private BeregningsgrunnlagGUIInput settBeregningsgrunnlagPåInput(BeregningsgrunnlagGUIInput input,
                                                                      BeregningsgrunnlagGrunnlagEntitet beregningsgrunnlagGrunnlagEntitet,
                                                                      Optional<BeregningsgrunnlagGrunnlagEntitet> orginaltGrunnlag) {
-        var bgRestDto = BehandlingslagerTilKalkulusMapper.mapGrunnlag(beregningsgrunnlagGrunnlagEntitet);
-        return input.medBeregningsgrunnlagGrunnlag(bgRestDto);
+        var bgRestDto = BehandlingslagerTilKalkulusMapper.mapGrunnlag(
+            beregningsgrunnlagGrunnlagEntitet);
+        var inputMedBg = input.medBeregningsgrunnlagGrunnlag(bgRestDto);
+        if (orginaltGrunnlag.isPresent() && orginaltGrunnlag.get().getBeregningsgrunnlag().isPresent()) {
+            // Trenger ikke inntektsmeldinger på orginalt grunnlag
+            var orginaltBG = BehandlingslagerTilKalkulusMapper.mapGrunnlag(
+                orginaltGrunnlag.get());
+            return inputMedBg.medBeregningsgrunnlagGrunnlagFraForrigeBehandling(
+                orginaltBG);
+        }
+        return inputMedBg;
     }
+
 }
