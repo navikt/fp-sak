@@ -6,6 +6,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -95,11 +96,13 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
 
     private static void leggTilArbeidsforhold(ManueltArbeidsforholdDto saksbehandlersVurdering, ArbeidsforholdInformasjonBuilder informasjonBuilder) {
         Arbeidsgiver arbeidsgiver = lagArbeidsgiver(saksbehandlersVurdering.getArbeidsgiverIdent());
+        var ref = saksbehandlersVurdering.getInternArbeidsforholdRef() == null
+                ? InternArbeidsforholdRef.nullRef()
+                : InternArbeidsforholdRef.ref(saksbehandlersVurdering.getInternArbeidsforholdRef());
+        informasjonBuilder.fjernOverstyringVedrørende(arbeidsgiver, ref);
         ArbeidsforholdOverstyringBuilder builder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, InternArbeidsforholdRef.nullRef());
         builder.medArbeidsgiver(arbeidsgiver)
-            .medArbeidsforholdRef(saksbehandlersVurdering.getInternArbeidsforholdRef() == null
-                ? null
-                : InternArbeidsforholdRef.ref(saksbehandlersVurdering.getInternArbeidsforholdRef()))
+            .medArbeidsforholdRef(ref)
             .medHandling(mapTilHandling(saksbehandlersVurdering))
             .medAngittStillingsprosent(mapStillingsprosent(saksbehandlersVurdering))
             .medBeskrivelse(saksbehandlersVurdering.getBegrunnelse());
