@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -14,7 +15,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 
 @FagsakYtelseTypeRef
@@ -26,6 +26,7 @@ public class FordelBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
+    private BeregningTjeneste beregningTjeneste;
 
     protected FordelBeregningsgrunnlagSteg() {
         // CDI Proxy
@@ -34,38 +35,30 @@ public class FordelBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     @Inject
     public FordelBeregningsgrunnlagSteg(BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                                         BehandlingRepository behandlingRepository,
-                                        BeregningsgrunnlagInputProvider inputTjenesteProvider) {
+                                        BeregningsgrunnlagInputProvider inputTjenesteProvider,
+                                        BeregningTjeneste beregningTjeneste) {
         this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.beregningTjeneste = beregningTjeneste;
     }
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandlingId);
-        var beregningsgrunnlagResultat = beregningsgrunnlagKopierOgLagreTjeneste.fordelBeregningsgrunnlag(input);
+        var beregningsgrunnlagResultat = beregningTjeneste.beregn(BehandlingReferanse.fra(behandling), BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG);
         var aksjonspunkter = beregningsgrunnlagResultat.getAksjonspunkter();
-        return BehandleStegResultat
-                .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList()));
+        return BehandleStegResultat.utførtMedAksjonspunktResultater(
+            aksjonspunkter.stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList()));
     }
 
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
-            BehandlingStegType fraSteg) {
-        if (tilSteg.equals(BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG)) {
-            var aps = behandlingRepository.hentBehandling(kontekst.getBehandlingId()).getAksjonspunkter();
-            var harAksjonspunktSomErUtførtIUtgang = tilSteg.getAksjonspunktDefinisjonerUtgang().stream()
-                    .anyMatch(ap -> aps.stream().filter(a -> a.getAksjonspunktDefinisjon().equals(ap))
-                            .anyMatch(a -> !a.erAvbrutt()));
-            beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst)
-                    .ryddFordelBeregningsgrunnlagVedTilbakeføring(harAksjonspunktSomErUtførtIUtgang);
-        }
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType tilSteg,
+                                   BehandlingStegType fraSteg) {
+        beregningTjeneste.rydd(kontekst, BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG, tilSteg);
     }
 
-    private BeregningsgrunnlagInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {
-        return beregningsgrunnlagInputProvider.getTjeneste(ytelseType);
-    }
 }

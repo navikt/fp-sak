@@ -1,6 +1,12 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
-import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -12,16 +18,9 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @FagsakYtelseTypeRef("FP")
 @BehandlingStegRef(kode = "FORS_BESTEBEREGNING")
@@ -34,6 +33,7 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private BeregningTjeneste beregningTjeneste;
 
     protected ForeslåBesteberegningSteg() {
         // for CDI proxy
@@ -44,12 +44,14 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
                                      BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                                      BeregningsgrunnlagInputProvider inputTjenesteProvider,
                                      BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste,
-                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                     BeregningTjeneste beregningTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
         this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.beregningTjeneste = beregningTjeneste;
     }
 
     @Override
@@ -57,9 +59,8 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-        var input = getInputTjeneste(ref.getFagsakYtelseType()).lagInput(ref.getBehandlingId());
-        if (skalBeregnesAutomatisk(ref, input)) {
-            var resultat = beregningsgrunnlagKopierOgLagreTjeneste.foreslåBesteberegning(input);
+        if (skalBeregnesAutomatisk(ref)) {
+            var resultat = beregningTjeneste.beregn(ref, BehandlingStegType.FORESLÅ_BESTEBEREGNING);
             var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList());
 
             if (besteberegningFødendeKvinneTjeneste.trengerManuellKontrollAvAutomatiskBesteberegning(ref)) {
@@ -72,20 +73,16 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
         return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections.emptyList());
     }
 
-    private boolean skalBeregnesAutomatisk(BehandlingReferanse ref, BeregningsgrunnlagInput input) {
-        boolean kanBehandlesAutomatisk = besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(ref);
-        return kanBehandlesAutomatisk && input.isEnabled("automatisk-besteberegning", false);
+    private boolean skalBeregnesAutomatisk(BehandlingReferanse ref) {
+        return besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(ref);
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg, BehandlingStegType fraSteg) {
-        if (tilSteg.equals(BehandlingStegType.FORESLÅ_BESTEBEREGNING)) {
-            beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddForeslåBesteberegningVedTilbakeføring();
-        }
-    }
-
-    private BeregningsgrunnlagInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {
-        return beregningsgrunnlagInputProvider.getTjeneste(ytelseType);
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType tilSteg,
+                                   BehandlingStegType fraSteg) {
+        beregningTjeneste.rydd(kontekst, BehandlingStegType.FORESLÅ_BESTEBEREGNING, tilSteg);
     }
 
 

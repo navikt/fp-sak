@@ -6,6 +6,7 @@ import java.util.Objects;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -16,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 
 @FagsakYtelseTypeRef
@@ -30,6 +30,7 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     private RyddDekningsgradTjeneste ryddDekningsgradTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
+    private BeregningTjeneste beregningTjeneste;
 
     protected FastsettBeregningsgrunnlagSteg() {
         // for CDI proxy
@@ -37,24 +38,24 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
 
     @Inject
     public FastsettBeregningsgrunnlagSteg(BehandlingRepository behandlingRepository,
-            BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-            RyddDekningsgradTjeneste ryddDekningsgradTjeneste,
-            BehandlingsresultatRepository behandlingsresultatRepository,
-            BeregningsgrunnlagInputProvider inputTjenesteProvider) {
+                                          BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
+                                          RyddDekningsgradTjeneste ryddDekningsgradTjeneste,
+                                          BehandlingsresultatRepository behandlingsresultatRepository,
+                                          BeregningsgrunnlagInputProvider inputTjenesteProvider,
+                                          BeregningTjeneste beregningTjeneste) {
 
         this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.ryddDekningsgradTjeneste = ryddDekningsgradTjeneste;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
+        this.beregningTjeneste = beregningTjeneste;
     }
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandlingId);
-        beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsgrunnlag(input);
+        beregningTjeneste.beregn(BehandlingReferanse.fra(behandling), BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG);
         return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections.emptyList());
     }
 
@@ -89,7 +90,4 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
         }
     }
 
-    private BeregningsgrunnlagInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {
-        return beregningsgrunnlagInputProvider.getTjeneste(ytelseType);
-    }
 }
