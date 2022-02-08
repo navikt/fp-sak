@@ -38,7 +38,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.transform.TransformerConfigurationException;
 
 import java.util.UUID;
 import java.util.function.Function;
@@ -139,9 +138,9 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
                                                 @NotNull @Parameter(description = "BehandlingUID og versjon på behadlingen.") @Valid BehandlingIdVersjonDto behandlingIdVersjonDto) {
         var behandling = behandlingRepository.hentBehandling(behandlingIdVersjonDto.getBehandlingUuid());
         if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
-            arbeidOgInntektsmeldingProsessTjeneste.rullTilbakeTilKontrollerArbeidOgInntektsmelding(behandlingIdVersjonDto);
+            arbeidOgInntektsmeldingProsessTjeneste.tillTilbakeOgOpprettAksjonspunkt(behandlingIdVersjonDto, false);
         } else if (erOverstyringLovlig()) {
-            arbeidOgInntektsmeldingProsessTjeneste.tillTilbakeOgOpprettAksjonspunkt(behandlingIdVersjonDto);
+            arbeidOgInntektsmeldingProsessTjeneste.tillTilbakeOgOpprettAksjonspunkt(behandlingIdVersjonDto, true);
         }
         return Response.ok().build();
     }

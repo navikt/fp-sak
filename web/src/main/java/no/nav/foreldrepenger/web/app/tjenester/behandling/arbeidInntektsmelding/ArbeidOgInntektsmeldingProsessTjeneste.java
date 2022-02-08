@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdVersjonDto;
 import no.nav.vedtak.exception.TekniskException;
@@ -23,7 +22,6 @@ public class ArbeidOgInntektsmeldingProsessTjeneste {
     private BehandlingRepository behandlingRepository;
     private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
-    private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     ArbeidOgInntektsmeldingProsessTjeneste() {
@@ -34,37 +32,24 @@ public class ArbeidOgInntektsmeldingProsessTjeneste {
     ArbeidOgInntektsmeldingProsessTjeneste(BehandlingRepository behandlingRepository,
                                            BehandlingsutredningTjeneste behandlingsutredningTjeneste,
                                            BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                                           BehandlingsprosessTjeneste behandlingsprosessTjeneste,
                                            BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.behandlingsutredningTjeneste = behandlingsutredningTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
-        this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }
 
-    public void rullTilbakeTilKontrollerArbeidOgInntektsmelding(BehandlingIdVersjonDto dto) {
+    public void tillTilbakeOgOpprettAksjonspunkt(BehandlingIdVersjonDto dto, boolean erOverstyringSomLagerAP) {
         var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
 
         // Diverse kontroller for å sjekke at vi har lov til å flytte behandlingen bakover i prosessen.
-        validerAtOperasjonErLovlig(behandling, false);
+        validerAtOperasjonErLovlig(behandling, erOverstyringSomLagerAP);
 
         behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
-        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING );
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING));
-    }
-
-    public void tillTilbakeOgOpprettAksjonspunkt(BehandlingIdVersjonDto dto) {
-        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
-
-        // Diverse kontroller for å sjekke at vi har lov til å flytte behandlingen bakover i prosessen.
-        validerAtOperasjonErLovlig(behandling, true);
-
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING));
-        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling,
-                BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
+        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
+        behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 
     private void validerAtOperasjonErLovlig(Behandling behandling, boolean aksjonspunktSkalOpprettes) {
