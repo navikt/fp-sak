@@ -52,7 +52,7 @@
         <kalkulus.version>1.5.12</kalkulus.version>
         <abakus-kontrakt.version>1.3.26</abakus-kontrakt.version>
 
-        <swaggercore.version>2.1.12</swaggercore.version>
+        <swaggercore.version>2.1.13</swaggercore.version>
         <flyway.version>8.4.4</flyway.version>
     </properties>
 
