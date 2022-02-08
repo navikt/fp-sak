@@ -52,7 +52,7 @@
         <kalkulus.version>1.5.12</kalkulus.version>
         <abakus-kontrakt.version>1.3.26</abakus-kontrakt.version>
 
-        <swaggercore.version>2.1.12</swaggercore.version>
+        <swaggercore.version>2.1.13</swaggercore.version>
         <flyway.version>8.4.4</flyway.version>
     </properties>
 
@@ -70,7 +70,7 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-bom</artifactId>
-                <version>10.0.7</version>
+                <version>10.0.8</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -551,7 +551,7 @@
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-compat-spec-parser</artifactId>
-                <version>1.0.56</version>
+                <version>1.0.57</version>
             </dependency>
             <dependency>
                 <groupId>io.javaslang</groupId>
