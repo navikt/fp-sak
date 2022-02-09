@@ -51,7 +51,7 @@ import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagD
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagPeriodeDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelFastsatteVerdierDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelRedigerbarAndelDto;
-import no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle;
+import no.nav.foreldrepenger.domene.entiteter.FaktaOmBeregningTilfelle;
 
 public class OppdatererDtoMapper {
     public static no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.FastsettBeregningsgrunnlagATFLDto mapFastsettBeregningsgrunnlagATFLDto(FastsettBeregningsgrunnlagATFLDto tilKalkulus) {

@@ -45,6 +45,8 @@ import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapBehandlingRef;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.prosess.KalkulusTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @ExtendWith(MockitoExtension.class)
 public class ForeslåBeregningsgrunnlagStegTest {
@@ -70,6 +72,9 @@ public class ForeslåBeregningsgrunnlagStegTest {
     @Mock
     BeregningsgrunnlagInputProvider inputProvider;
 
+    @Mock
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+
     @BeforeEach
     void setUp() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -78,10 +83,12 @@ public class ForeslåBeregningsgrunnlagStegTest {
             .medFørsteUttaksdato(LocalDate.now())
             .medFørsteUttaksdatoGrunnbeløp(LocalDate.now())
             .medSkjæringstidspunktOpptjening(LocalDate.now());
+
         var ref = BehandlingReferanse.fra(behandling, stp.build());
         var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag(100, false, AktivitetGradering.INGEN_GRADERING);
         var input = new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(ref), null, null, List.of(), foreldrepengerGrunnlag);
         var inputTjeneste = mock(BeregningsgrunnlagInputTjeneste.class);
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(stp.build());
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
         when(inputTjeneste.lagInput(behandling.getId())).thenReturn(input);
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
@@ -96,10 +103,11 @@ public class ForeslåBeregningsgrunnlagStegTest {
 
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(mockFamilieHendelseGrunnlagEntitet));
 
-        var beregningTjeneste = new BeregningTjeneste(beregningsgrunnlagKopierOgLagreTjeneste, behandlingRepository, null, inputProvider,
-            kalkulusTjeneste);
+        var beregningTjeneste = new BeregningFPSAK(beregningsgrunnlagKopierOgLagreTjeneste, behandlingRepository,
+            new UnitTestLookupInstanceImpl<>(skjæringstidspunktTjeneste), null,
+            null, inputProvider, null, iayTjeneste);
         when(inputProvider.getTjeneste(FagsakYtelseType.FORELDREPENGER)).thenReturn(inputTjeneste);
-        steg = new ForeslåBeregningsgrunnlagSteg(behandlingRepository, familieHendelseRepository, beregningTjeneste, fagsakRelasjonRepository);
+        steg = new ForeslåBeregningsgrunnlagSteg(behandlingRepository, familieHendelseRepository, new BeregningTjeneste(null, beregningTjeneste), fagsakRelasjonRepository);
 
         iayTjeneste.lagreInntektsmeldinger(behandling.getFagsak().getSaksnummer(), behandling.getId(), List.of());
     }

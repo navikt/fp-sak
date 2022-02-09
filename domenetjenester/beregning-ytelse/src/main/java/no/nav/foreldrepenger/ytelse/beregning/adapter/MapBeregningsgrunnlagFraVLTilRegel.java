@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Beregningsgrunnlag;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPeriode;
@@ -41,7 +41,7 @@ public class MapBeregningsgrunnlagFraVLTilRegel {
             .collect(Collectors.toList());
     }
 
-    private static BeregningsgrunnlagPeriode mapBeregningsgrunnlagPeriode(no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode vlBGPeriode) {
+    private static BeregningsgrunnlagPeriode mapBeregningsgrunnlagPeriode(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode vlBGPeriode) {
         final var regelBGPeriode = BeregningsgrunnlagPeriode.builder()
             .medPeriode(Periode.of(vlBGPeriode.getBeregningsgrunnlagPeriodeFom(), vlBGPeriode.getBeregningsgrunnlagPeriodeTom()));
         var beregningsgrunnlagPrStatus = mapVLBGPrStatus(vlBGPeriode);
@@ -50,7 +50,7 @@ public class MapBeregningsgrunnlagFraVLTilRegel {
         return regelBGPeriode.build();
     }
 
-    private static List<BeregningsgrunnlagPrStatus> mapVLBGPrStatus(no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode vlBGPeriode) {
+    private static List<BeregningsgrunnlagPrStatus> mapVLBGPrStatus(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode vlBGPeriode) {
         List<BeregningsgrunnlagPrStatus> liste = new ArrayList<>();
         BeregningsgrunnlagPrStatus bgpsATFL = null;
 
@@ -80,7 +80,7 @@ public class MapBeregningsgrunnlagFraVLTilRegel {
     }
 
     // Felles mapping av alle statuser som mapper til ATFL
-    private static BeregningsgrunnlagPrStatus mapVLBGPStatusForATFL(no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode vlBGPeriode) {
+    private static BeregningsgrunnlagPrStatus mapVLBGPStatusForATFL(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode vlBGPeriode) {
 
         var regelBGPStatusATFL = BeregningsgrunnlagPrStatus.builder().medAktivitetStatus(AktivitetStatus.ATFL);
 

@@ -58,7 +58,7 @@ public class KontrollerFaktaBeregningSteg implements BeregningsgrunnlagSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var aksjonspunkter = beregningTjeneste.beregn(BehandlingReferanse.fra(behandling), BehandlingStegType.KONTROLLER_FAKTA_BEREGNING)
+        var aksjonspunkter = beregningTjeneste.beregn(kontekst.getBehandlingId(), BehandlingStegType.KONTROLLER_FAKTA_BEREGNING)
             .getAksjonspunkter();
 
         // TFP-4427

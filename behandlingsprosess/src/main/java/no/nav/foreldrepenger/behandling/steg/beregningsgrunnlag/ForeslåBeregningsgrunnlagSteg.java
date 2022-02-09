@@ -59,7 +59,7 @@ public class ForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var ref = BehandlingReferanse.fra(behandling);
-        var resultat = beregningTjeneste.beregn(ref, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
+        var resultat = beregningTjeneste.beregn(kontekst.getBehandlingId(), BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
 
         var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList());
 

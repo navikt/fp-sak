@@ -60,7 +60,7 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         if (skalBeregnesAutomatisk(ref)) {
-            var resultat = beregningTjeneste.beregn(ref, BehandlingStegType.FORESLÅ_BESTEBEREGNING);
+            var resultat = beregningTjeneste.beregn(kontekst.getBehandlingId(), BehandlingStegType.FORESLÅ_BESTEBEREGNING);
             var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList());
 
             if (besteberegningFødendeKvinneTjeneste.trengerManuellKontrollAvAutomatiskBesteberegning(ref)) {

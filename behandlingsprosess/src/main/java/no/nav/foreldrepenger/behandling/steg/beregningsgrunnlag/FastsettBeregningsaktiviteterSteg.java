@@ -58,8 +58,7 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         List<BeregningAvklaringsbehovResultat> aksjonspunktResultater;
-        aksjonspunktResultater = beregningTjeneste.beregn(BehandlingReferanse.fra(behandling),
-            BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING).getAksjonspunkter();
+        aksjonspunktResultater = beregningTjeneste.beregn(behandlingId, BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING).getAksjonspunkter();
         var ventPåSykemeldingAksjonspunkt = skalVentePåSykemelding(behandling);
         if (aksjonspunktResultater == null) {
             return BehandleStegResultat.fremoverført(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT);

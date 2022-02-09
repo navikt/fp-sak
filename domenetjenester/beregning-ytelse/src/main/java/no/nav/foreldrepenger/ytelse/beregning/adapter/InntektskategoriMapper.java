@@ -41,7 +41,7 @@ final class InntektskategoriMapper {
         return REGEL_TIL_VL_MAP.getOrDefault(inntektskategori, Inntektskategori.UDEFINERT);
     }
 
-    static no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori fraVLTilRegel(no.nav.foreldrepenger.domene.modell.Inntektskategori inntektskategori) {
+    static no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori fraVLTilRegel(no.nav.foreldrepenger.domene.entiteter.Inntektskategori inntektskategori) {
         return VL_TIL_REGEL_MAP.getOrDefault(Inntektskategori.fraKode(inntektskategori.getKode()), no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori.UDEFINERT);
     }
 }

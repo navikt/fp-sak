@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
-import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
+import no.nav.foreldrepenger.domene.entiteter.AktivitetStatus;
 
 public class MapAkivitetStatusFraBehandlingslagerTilBeregningsgrunnlag {
 
