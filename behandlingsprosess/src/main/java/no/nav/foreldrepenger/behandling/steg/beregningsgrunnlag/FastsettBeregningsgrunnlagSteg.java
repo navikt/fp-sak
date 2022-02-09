@@ -6,7 +6,6 @@ import java.util.Objects;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -54,8 +53,7 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        beregningTjeneste.beregn(BehandlingReferanse.fra(behandling), BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG);
+        beregningTjeneste.beregn(kontekst.getBehandlingId(), BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG);
         return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections.emptyList());
     }
 

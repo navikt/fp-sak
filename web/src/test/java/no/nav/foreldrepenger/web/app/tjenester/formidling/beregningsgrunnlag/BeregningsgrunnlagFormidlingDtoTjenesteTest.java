@@ -1,18 +1,18 @@
 package no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.AndelKilde;
-import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriodeRegelType;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
-import no.nav.foreldrepenger.domene.modell.Hjemmel;
-import no.nav.foreldrepenger.domene.modell.PeriodeÅrsak;
+import no.nav.foreldrepenger.domene.entiteter.AktivitetStatus;
+import no.nav.foreldrepenger.domene.entiteter.AndelKilde;
+import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriodeRegelType;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.entiteter.Hjemmel;
+import no.nav.foreldrepenger.domene.entiteter.PeriodeÅrsak;
 
 import org.junit.jupiter.api.Test;
 

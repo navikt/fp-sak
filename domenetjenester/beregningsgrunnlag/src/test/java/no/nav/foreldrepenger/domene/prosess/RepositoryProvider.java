@@ -6,7 +6,7 @@ import javax.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
 
 /**
  * Provider for å enklere å kunne hente ut ulike repository uten for mange injection points.

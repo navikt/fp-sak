@@ -1,15 +1,24 @@
 package no.nav.foreldrepenger.domene.prosess;
 
+import static no.nav.foreldrepenger.domene.mappers.kalkulatorinput.IAYTilKalkulatorInputMapper.mapTilAktør;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;
 import no.nav.folketrygdloven.kalkulus.felles.v1.AktørIdPersonident;
+import no.nav.folketrygdloven.kalkulus.felles.v1.EksternArbeidsforholdRef;
+import no.nav.folketrygdloven.kalkulus.felles.v1.InternArbeidsforholdRefDto;
 import no.nav.folketrygdloven.kalkulus.felles.v1.PersonIdent;
+import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.ArbeidsforholdReferanseDto;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AvklaringsbehovDefinisjon;
 import no.nav.folketrygdloven.kalkulus.kodeverk.StegType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.YtelseTyperKalkulusStøtterKontrakt;
@@ -17,16 +26,20 @@ import no.nav.folketrygdloven.kalkulus.request.v1.BeregnForRequest;
 import no.nav.folketrygdloven.kalkulus.request.v1.BeregnListeRequest;
 import no.nav.folketrygdloven.kalkulus.request.v1.BeregningsgrunnlagListeRequest;
 import no.nav.folketrygdloven.kalkulus.request.v1.BeregningsgrunnlagRequest;
+import no.nav.folketrygdloven.kalkulus.request.v1.HentBeregningsgrunnlagDtoForGUIRequest;
+import no.nav.folketrygdloven.kalkulus.request.v1.HentBeregningsgrunnlagDtoListeForGUIRequest;
 import no.nav.folketrygdloven.kalkulus.request.v1.HentBeregningsgrunnlagListeRequest;
 import no.nav.folketrygdloven.kalkulus.request.v1.HentBeregningsgrunnlagRequest;
 import no.nav.folketrygdloven.kalkulus.response.v1.TilstandListeResponse;
 import no.nav.folketrygdloven.kalkulus.response.v1.TilstandResponse;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagGrunnlagDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.mappers.kalkulatorinput.KalkulusInputMapper;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
@@ -62,14 +75,25 @@ public class KalkulusTjeneste {
         return mapTilBeregningResultat(respons);
     }
 
-    public BeregningsgrunnlagGrunnlagDto hentGrunnlag(BehandlingReferanse behandlingReferanse) {
+    public Optional<BeregningsgrunnlagGrunnlagDto> hentGrunnlag(BehandlingReferanse behandlingReferanse) {
         HentBeregningsgrunnlagListeRequest hentRequest = lagHentRequest(behandlingReferanse);
         var grunnlagListe = kalkulusRestKlient.hentBeregningsgrunnlagGrunnlag(hentRequest);
-        if (grunnlagListe.size() != 1) {
+        if (grunnlagListe.size() > 1) {
             throw new IllegalStateException("Forventet å finne nøyaktig ett grunnlag. Fant " + grunnlagListe.size());
         }
-        return grunnlagListe.get(0);
+        return grunnlagListe.isEmpty() ? Optional.empty() : Optional.of(grunnlagListe.get(0));
     }
+
+    public Optional<BeregningsgrunnlagDto> hentDtoForVisning(BehandlingReferanse behandlingReferanse) {
+        var hentRequest = lagHentForVisningRequest(behandlingReferanse);
+        var listeRespons = kalkulusRestKlient.hentBeregningsgrunnlagDto(hentRequest);
+        var beregningsgrunnlagListe = listeRespons.getBeregningsgrunnlagListe();
+        if (beregningsgrunnlagListe.size() > 1) {
+            throw new IllegalStateException("Forventet å finne nøyaktig ett grunnlag. Fant " + beregningsgrunnlagListe.size());
+        }
+        return beregningsgrunnlagListe.isEmpty() ? Optional.empty() : Optional.of(beregningsgrunnlagListe.get(0).getBeregningsgrunnlag());
+    }
+
 
     public void deaktiver(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
@@ -92,6 +116,25 @@ public class KalkulusTjeneste {
         return new HentBeregningsgrunnlagListeRequest(List.of(new HentBeregningsgrunnlagRequest(behandlingReferanse.getBehandlingUuid(), behandlingReferanse.getSaksnummer().getVerdi(), YtelseTyperKalkulusStøtterKontrakt.fraKode(
             behandlingReferanse.getFagsakYtelseType().getKode()))),
             behandlingReferanse.getBehandlingUuid(), behandlingReferanse.getSaksnummer().getVerdi(), false);
+    }
+
+    private HentBeregningsgrunnlagDtoListeForGUIRequest lagHentForVisningRequest(BehandlingReferanse behandlingReferanse) {
+        Set<ArbeidsforholdReferanseDto> referanser = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId()).getArbeidsforholdInformasjon()
+            .stream()
+            .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser)
+            .flatMap(Collection::stream)
+            .map(ref -> new ArbeidsforholdReferanseDto(mapTilAktør(ref.getArbeidsgiver()),
+                new InternArbeidsforholdRefDto(ref.getInternReferanse().getReferanse()),
+                new EksternArbeidsforholdRef(ref.getEksternReferanse().getReferanse())))
+            .collect(Collectors.toSet());
+        return new HentBeregningsgrunnlagDtoListeForGUIRequest(
+            List.of(new HentBeregningsgrunnlagDtoForGUIRequest(
+                behandlingReferanse.getBehandlingUuid(),
+                YtelseTyperKalkulusStøtterKontrakt.fraKode(behandlingReferanse.getFagsakYtelseType().getKode()),
+                referanser,
+                behandlingReferanse.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening()
+                )),
+            behandlingReferanse.getBehandlingUuid());
     }
 
     private BeregningsgrunnlagVilkårOgAkjonspunktResultat mapTilBeregningResultat(TilstandListeResponse respons) {

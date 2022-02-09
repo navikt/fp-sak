@@ -47,11 +47,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
-import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.entiteter.AktivitetStatus;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;

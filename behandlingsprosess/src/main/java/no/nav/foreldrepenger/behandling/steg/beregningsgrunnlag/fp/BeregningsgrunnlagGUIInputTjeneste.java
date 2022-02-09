@@ -18,6 +18,7 @@ import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Inntekt;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
+import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningTjeneste;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagGUIInputFelles;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -26,11 +27,11 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BesteberegningInntektEntitet;
-import no.nav.foreldrepenger.domene.modell.BesteberegningMånedsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BesteberegninggrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BesteberegningInntektEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BesteberegningMånedsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BesteberegninggrunnlagEntitet;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -43,6 +44,7 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
     private HentOgLagreBeregningsgrunnlagTjeneste hentOgLagreBeregningsgrunnlagTjeneste;
     private BeregningUttakTjeneste beregningUttakTjeneste;
+    private BeregningTjeneste beregningTjeneste;
 
     protected BeregningsgrunnlagGUIInputTjeneste() {
         // CDI proxy
@@ -56,7 +58,7 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
                                               BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste,
                                               InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                               HentOgLagreBeregningsgrunnlagTjeneste hentOgLagreBeregningsgrunnlagTjeneste,
-                                              OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste) {
+                                              OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste, BeregningTjeneste beregningTjeneste) {
         super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste,
                 inntektsmeldingTjeneste, opptjeningForBeregningTjeneste);
         this.fagsakRelasjonRepository = Objects.requireNonNull(behandlingRepositoryProvider.getFagsakRelasjonRepository(),
@@ -64,6 +66,7 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
         this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;
         this.hentOgLagreBeregningsgrunnlagTjeneste = hentOgLagreBeregningsgrunnlagTjeneste;
         this.beregningUttakTjeneste = Objects.requireNonNull(beregningUttakTjeneste, "andelGrderingTjeneste");
+        this.beregningTjeneste = beregningTjeneste;
     }
 
     @Override

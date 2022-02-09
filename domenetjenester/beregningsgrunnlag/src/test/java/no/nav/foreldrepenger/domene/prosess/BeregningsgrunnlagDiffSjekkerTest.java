@@ -10,17 +10,17 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.modell.Inntektskategori;
-import no.nav.foreldrepenger.domene.modell.PeriodeÅrsak;
-import no.nav.foreldrepenger.domene.modell.Sammenligningsgrunnlag;
-import no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagPrStatus;
-import no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType;
+import no.nav.foreldrepenger.domene.entiteter.AktivitetStatus;
+import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.entiteter.Inntektskategori;
+import no.nav.foreldrepenger.domene.entiteter.PeriodeÅrsak;
+import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
+import no.nav.foreldrepenger.domene.entiteter.SammenligningsgrunnlagPrStatus;
+import no.nav.foreldrepenger.domene.entiteter.SammenligningsgrunnlagType;
 
 public class BeregningsgrunnlagDiffSjekkerTest {
 

@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 
 public class ErEndringIBeregning {
     private ErEndringIBeregning() {

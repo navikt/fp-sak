@@ -2,60 +2,24 @@ package no.nav.foreldrepenger.domene.modell;
 
 import java.util.Objects;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+public class BeregningsgrunnlagAktivitetStatus {
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-
-@Entity(name = "BeregningsgrunnlagAktivitetStatus")
-@Table(name = "BG_AKTIVITET_STATUS")
-public class BeregningsgrunnlagAktivitetStatus extends BaseEntitet {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BG_AKTIVITET_STATUS")
-    private Long id;
-
-    @Version
-    @Column(name = "versjon", nullable = false)
-    private long versjon;
-
-    @JsonBackReference
-    @ManyToOne(cascade = {CascadeType.PERSIST}, optional = false)
-    @JoinColumn(name = "beregningsgrunnlag_id", nullable = false, updatable = false)
-    private BeregningsgrunnlagEntitet beregningsgrunnlag;
-
-    @Convert(converter=AktivitetStatus.KodeverdiConverter.class)
-    @Column(name="aktivitet_status", nullable = false)
+    private Beregningsgrunnlag beregningsgrunnlag;
     private AktivitetStatus aktivitetStatus;
-
-    @Convert(converter=Hjemmel.KodeverdiConverter.class)
-    @Column(name="hjemmel", nullable = false)
     private Hjemmel hjemmel;
 
-    public BeregningsgrunnlagAktivitetStatus(BeregningsgrunnlagAktivitetStatus beregningsgrunnlagAktivitetStatus) {
-        this.aktivitetStatus = beregningsgrunnlagAktivitetStatus.getAktivitetStatus();
-        this.hjemmel = beregningsgrunnlagAktivitetStatus.getHjemmel();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    protected BeregningsgrunnlagAktivitetStatus() {
+    public static Builder builder(BeregningsgrunnlagAktivitetStatus beregningsgrunnlagAktivitetStatusMal) {
+        return new Builder(beregningsgrunnlagAktivitetStatusMal);
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public BeregningsgrunnlagEntitet getBeregningsgrunnlag() {
+    public Beregningsgrunnlag getBeregningsgrunnlag() {
         return beregningsgrunnlag;
     }
 
@@ -67,21 +31,16 @@ public class BeregningsgrunnlagAktivitetStatus extends BaseEntitet {
         return hjemmel;
     }
 
-    void setBeregningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        this.beregningsgrunnlag = beregningsgrunnlag;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        }
-        if (!(obj instanceof BeregningsgrunnlagAktivitetStatus)) {
+        } else if (!(obj instanceof BeregningsgrunnlagAktivitetStatus)) {
             return false;
         }
-        var other = (BeregningsgrunnlagAktivitetStatus) obj;
+        BeregningsgrunnlagAktivitetStatus other = (BeregningsgrunnlagAktivitetStatus) obj;
         return Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus())
-                && Objects.equals(this.getBeregningsgrunnlag(), other.getBeregningsgrunnlag());
+            && Objects.equals(this.getBeregningsgrunnlag(), other.getBeregningsgrunnlag());
     }
 
     @Override
@@ -91,20 +50,19 @@ public class BeregningsgrunnlagAktivitetStatus extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-                "id=" + id + ", " //$NON-NLS-2$
-                + "beregningsgrunnlag=" + beregningsgrunnlag + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "aktivitetStatus=" + aktivitetStatus + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "hjemmel=" + hjemmel + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + ">"; //$NON-NLS-1$
-    }
-
-    public static Builder builder() {
-        return new Builder();
+        return getClass().getSimpleName() + "<" //$NON-NLS-1$
+            + "beregningsgrunnlag=" + beregningsgrunnlag + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "aktivitetStatus=" + aktivitetStatus + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "hjemmel=" + hjemmel + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + ">"; //$NON-NLS-1$
     }
 
     public static class Builder {
         private BeregningsgrunnlagAktivitetStatus beregningsgrunnlagAktivitetStatusMal;
+
+        public Builder(BeregningsgrunnlagAktivitetStatus beregningsgrunnlagAktivitetStatusMal) {
+            this.beregningsgrunnlagAktivitetStatusMal = beregningsgrunnlagAktivitetStatusMal;
+        }
 
         public Builder() {
             beregningsgrunnlagAktivitetStatusMal = new BeregningsgrunnlagAktivitetStatus();
@@ -121,13 +79,15 @@ public class BeregningsgrunnlagAktivitetStatus extends BaseEntitet {
             return this;
         }
 
-        public BeregningsgrunnlagAktivitetStatus build(BeregningsgrunnlagEntitet beregningsgrunnlag) {
+        public BeregningsgrunnlagAktivitetStatus build(Beregningsgrunnlag beregningsgrunnlag) {
+            beregningsgrunnlagAktivitetStatusMal.beregningsgrunnlag = beregningsgrunnlag;
             verifyStateForBuild();
             beregningsgrunnlag.leggTilBeregningsgrunnlagAktivitetStatus(beregningsgrunnlagAktivitetStatusMal);
             return beregningsgrunnlagAktivitetStatusMal;
         }
 
         public void verifyStateForBuild() {
+            Objects.requireNonNull(beregningsgrunnlagAktivitetStatusMal.beregningsgrunnlag, "beregningsgrunnlag");
             Objects.requireNonNull(beregningsgrunnlagAktivitetStatusMal.aktivitetStatus, "aktivitetStatus");
             Objects.requireNonNull(beregningsgrunnlagAktivitetStatusMal.getHjemmel(), "hjemmel");
         }

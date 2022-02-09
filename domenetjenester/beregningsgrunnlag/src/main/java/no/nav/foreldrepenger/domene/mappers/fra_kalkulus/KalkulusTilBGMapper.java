@@ -14,22 +14,21 @@ import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaArbeidsf
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagPrStatusDto;
 import no.nav.folketrygdloven.kalkulator.modell.typer.FaktaVurdering;
-import no.nav.folketrygdloven.kalkulator.modell.typer.Refusjon;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
-import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.AndelKilde;
-import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriodeRegelType;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.modell.Hjemmel;
-import no.nav.foreldrepenger.domene.modell.Inntektskategori;
-import no.nav.foreldrepenger.domene.modell.PeriodeÅrsak;
-import no.nav.foreldrepenger.domene.modell.Sammenligningsgrunnlag;
-import no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagPrStatus;
-import no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType;
+import no.nav.foreldrepenger.domene.entiteter.AktivitetStatus;
+import no.nav.foreldrepenger.domene.entiteter.AndelKilde;
+import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriodeRegelType;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.entiteter.Hjemmel;
+import no.nav.foreldrepenger.domene.entiteter.Inntektskategori;
+import no.nav.foreldrepenger.domene.entiteter.PeriodeÅrsak;
+import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
+import no.nav.foreldrepenger.domene.entiteter.SammenligningsgrunnlagPrStatus;
+import no.nav.foreldrepenger.domene.entiteter.SammenligningsgrunnlagType;
 
 public final class KalkulusTilBGMapper {
 

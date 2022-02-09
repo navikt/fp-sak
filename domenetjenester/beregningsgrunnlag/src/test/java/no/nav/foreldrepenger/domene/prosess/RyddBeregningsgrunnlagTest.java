@@ -16,9 +16,9 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.prosess.testutilities.behandling.ScenarioForeldrepenger;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)

@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.felles;
 
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 
 public interface LagAndelTjeneste {
 
