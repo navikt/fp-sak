@@ -77,12 +77,12 @@ public class BeregningKalkulus implements BeregningAPI {
 
     /**
      * Kopierer beregningsgrunnlag
-     *  @param behandlingId       behandlingId
      *
+     * @param behandlingId behandlingId
      */
     @Override
     public void kopier(Long behandlingId) {
-        // TODO: Utvid kalkulus sitt kopier-endepunkt med stegtype for å åpne for kopiering av fastsatt beregningsgrunnlag
+        kalkulusTjeneste.kopier(behandlingId);
     }
 
     /**

@@ -30,6 +30,8 @@ import no.nav.folketrygdloven.kalkulus.request.v1.BeregningsgrunnlagListeRequest
 import no.nav.folketrygdloven.kalkulus.request.v1.HentBeregningsgrunnlagDtoListeForGUIRequest;
 import no.nav.folketrygdloven.kalkulus.request.v1.HentBeregningsgrunnlagListeRequest;
 import no.nav.folketrygdloven.kalkulus.request.v1.HåndterBeregningListeRequest;
+import no.nav.folketrygdloven.kalkulus.request.v1.KopierBeregningListeRequest;
+import no.nav.folketrygdloven.kalkulus.response.v1.KopiResponse;
 import no.nav.folketrygdloven.kalkulus.response.v1.TilstandListeResponse;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagListe;
@@ -51,6 +53,8 @@ public class KalkulusRestKlient {
     private final ObjectReader dtoListeReader = kalkulusMapper.readerFor(BeregningsgrunnlagListe.class);
     private final ObjectReader grunnlagListReader = kalkulusMapper.readerFor(new TypeReference<List<BeregningsgrunnlagGrunnlagDto>>() {
     });
+    private final ObjectReader kopierReader = kalkulusMapper.readerFor(new TypeReference<List<KopiResponse>>() {});
+
 
     private CloseableHttpClient restClient;
     private URI kalkulusEndpoint;
@@ -59,6 +63,8 @@ public class KalkulusRestKlient {
     private URI beregningsgrunnlagListeDtoEndpoint;
     private URI beregningsgrunnlagGrunnlagBolkEndpoint;
     private URI deaktiverBeregningsgrunnlag;
+    private URI kopierEndpoint;
+
 
 
     protected KalkulusRestKlient() {
@@ -80,6 +86,7 @@ public class KalkulusRestKlient {
         this.kalkulusEndpoint = endpoint;
         this.beregnEndpoint = toUri("/api/kalkulus/v1/beregn/bolk");
         this.deaktiverBeregningsgrunnlag = toUri("/api/kalkulus/v1/deaktiver/bolk");
+        this.kopierEndpoint = toUri("/api/kalkulus/v1/kopier/bolk");
         this.oppdaterListeEndpoint = toUri("/api/kalkulus/v1/oppdaterListe");
         this.beregningsgrunnlagListeDtoEndpoint = toUri("/api/kalkulus/v1/beregningsgrunnlagListe");
         this.beregningsgrunnlagGrunnlagBolkEndpoint = toUri("/api/kalkulus/v1/grunnlag/bolk");
@@ -112,6 +119,17 @@ public class KalkulusRestKlient {
             throw feilVedParsingAvJson(endpoint, e.getMessage());
         }
     }
+
+    public List<KopiResponse> kopierBeregning(KopierBeregningListeRequest request) {
+        var endpoint = kopierEndpoint;
+
+        try {
+            return getResponse(endpoint, kalkulusJsonWriter.writeValueAsString(request), kopierReader);
+        } catch (JsonProcessingException e) {
+            throw feilVedParsingAvJson(endpoint, e.getMessage());
+        }
+    }
+
 
     public List<BeregningsgrunnlagGrunnlagDto> hentBeregningsgrunnlagGrunnlag(HentBeregningsgrunnlagListeRequest req) {
         var endpoint = beregningsgrunnlagGrunnlagBolkEndpoint;
