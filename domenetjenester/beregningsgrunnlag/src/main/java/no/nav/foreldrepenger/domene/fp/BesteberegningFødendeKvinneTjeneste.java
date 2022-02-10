@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +39,7 @@ import java.util.Set;
 
 @ApplicationScoped
 public class BesteberegningFødendeKvinneTjeneste {
-    private static final Set<FamilieHendelseType> fødselHendelser = Set.of(FamilieHendelseType.FØDSEL,
+    private static final Set<FamilieHendelseType> FØDSEL_HENDELSER = Set.of(FamilieHendelseType.FØDSEL,
         FamilieHendelseType.TERMIN);
     private static final Set<OpptjeningAktivitetType> GODKJENT_FOR_AUTOMATISK_BEREGNING = Set.of(OpptjeningAktivitetType.ARBEID,
         OpptjeningAktivitetType.SYKEPENGER, OpptjeningAktivitetType.DAGPENGER);
@@ -184,7 +183,7 @@ public class BesteberegningFødendeKvinneTjeneste {
 
     static boolean erFødendeKvinne(RelasjonsRolleType relasjonsRolleType, FamilieHendelseType type) {
         var erMoren = RelasjonsRolleType.MORA.equals(relasjonsRolleType);
-        return erMoren && fødselHendelser.contains(type);
+        return erMoren && FØDSEL_HENDELSER.contains(type);
     }
 
     private boolean brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(BehandlingReferanse behandlingReferanse,
