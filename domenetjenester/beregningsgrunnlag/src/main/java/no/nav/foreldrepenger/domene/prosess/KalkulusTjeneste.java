@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -30,6 +31,8 @@ import no.nav.folketrygdloven.kalkulus.request.v1.HentBeregningsgrunnlagDtoForGU
 import no.nav.folketrygdloven.kalkulus.request.v1.HentBeregningsgrunnlagDtoListeForGUIRequest;
 import no.nav.folketrygdloven.kalkulus.request.v1.HentBeregningsgrunnlagListeRequest;
 import no.nav.folketrygdloven.kalkulus.request.v1.HentBeregningsgrunnlagRequest;
+import no.nav.folketrygdloven.kalkulus.request.v1.KopierBeregningListeRequest;
+import no.nav.folketrygdloven.kalkulus.request.v1.KopierBeregningRequest;
 import no.nav.folketrygdloven.kalkulus.response.v1.TilstandListeResponse;
 import no.nav.folketrygdloven.kalkulus.response.v1.TilstandResponse;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagGrunnlagDto;
@@ -101,6 +104,20 @@ public class KalkulusTjeneste {
         kalkulusRestKlient.deaktiverBeregningsgrunnlag(deaktiverRequest);
     }
 
+    public void kopier(Long behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandlingReferanse = BehandlingReferanse.fra(behandling);
+        KopierBeregningListeRequest kopierRequest = lagKopierRequest(behandling, behandlingReferanse);
+        kalkulusRestKlient.kopierBeregning(kopierRequest);
+    }
+
+    private KopierBeregningListeRequest lagKopierRequest(Behandling behandling, BehandlingReferanse behandlingReferanse) {
+        return new KopierBeregningListeRequest(behandlingReferanse.getSaksnummer().getVerdi(),
+            YtelseTyperKalkulusStøtterKontrakt.fraKode(behandling.getFagsakYtelseType().getKode()),
+            List.of(new KopierBeregningRequest(behandling.getUuid(), finnOriginalReferanser(behandlingReferanse).get(0))));
+    }
+
+
     private BeregnListeRequest lagBeregnRequest(BehandlingReferanse behandlingReferanse, BehandlingStegType behandlingStegType) {
         return new BeregnListeRequest(behandlingReferanse.getSaksnummer().getVerdi(), map(behandlingReferanse),
             YtelseTyperKalkulusStøtterKontrakt.fraKode(behandlingReferanse.getFagsakYtelseType().getKode()),
@@ -163,16 +180,20 @@ public class KalkulusTjeneste {
     }
 
     private BeregnForRequest mapBeregnRequestForBehandling(BehandlingReferanse behandlingReferanse) {
-        var originalreferanser = behandlingReferanse.getOriginalBehandlingId()
-            .map(behandlingRepository::hentBehandling)
-            .map(Behandling::getUuid)
-            .map(List::of)
-            .orElse(Collections.emptyList());
+        var originalreferanser = finnOriginalReferanser(behandlingReferanse);
 
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId());
         var opptjeningAktiviteter = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(behandlingReferanse, iayGrunnlag).orElseThrow(() -> new IllegalStateException("Ingen opptjeningsaktiviteter for beregning"));
         var kalkulatorInput = kalkulusInputMapper.mapKalkulatorInput(behandlingReferanse, iayGrunnlag, opptjeningAktiviteter);
         return new BeregnForRequest(behandlingReferanse.getBehandlingUuid(), originalreferanser, kalkulatorInput, Collections.emptyList());
+    }
+
+    private List<UUID> finnOriginalReferanser(BehandlingReferanse behandlingReferanse) {
+        return behandlingReferanse.getOriginalBehandlingId()
+            .map(behandlingRepository::hentBehandling)
+            .map(Behandling::getUuid)
+            .map(List::of)
+            .orElse(Collections.emptyList());
     }
 
     private PersonIdent map(BehandlingReferanse behandlingReferanse) {
