@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 

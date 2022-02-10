@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
@@ -35,7 +36,6 @@ import no.nav.foreldrepenger.økonomistøtte.ny.mapper.EksisterendeOppdragMapper
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.EndringsdatoTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.util.SetUtil;
-import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped

@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområ
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
@@ -34,7 +35,6 @@ import no.nav.foreldrepenger.økonomistøtte.ny.mapper.EksisterendeOppdragMapper
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.LagOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.OppdragskontrollTjenesteImpl;
-import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
 public class NyOppdragskontrollTjenesteImplKontantytelseTest {
 

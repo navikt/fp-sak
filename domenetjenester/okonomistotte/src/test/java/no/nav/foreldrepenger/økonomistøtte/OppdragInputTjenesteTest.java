@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringL
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;

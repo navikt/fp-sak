@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.økonomistøtte;
+package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -7,10 +7,10 @@ import java.time.LocalDate;
 
 import javax.persistence.EntityManager;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -37,7 +37,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
 
         // Assert
         var id = oppdrkontroll.getId();
-        assertThat(id).isNotNull();
+        Assertions.assertThat(id).isNotNull();
 
         var oppdrkontrollLest = økonomioppdragRepository.hentOppdragskontroll(id);
 
@@ -203,7 +203,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
 
         // Assert
         var id = oppdrLinje150.getId();
-        assertThat(id).isNotNull();
+        Assertions.assertThat(id).isNotNull();
 
         var oppdrLinje150Lest = entityManager.find(Oppdragslinje150.class, id);
         assertThat(oppdrLinje150Lest).isNotNull();
@@ -223,7 +223,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
 
         // Assert
         var id = oppdrLinje150.getId();
-        assertThat(id).isNotNull();
+        Assertions.assertThat(id).isNotNull();
 
         var oppdrLinje150Lest = entityManager.find(Oppdragslinje150.class, id);
         assertThat(oppdrLinje150Lest).isNotNull();

@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
@@ -43,7 +44,6 @@ import no.nav.foreldrepenger.økonomistøtte.ny.mapper.LagOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.OppdragskontrollTjenesteImpl;
-import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
 public abstract class NyOppdragskontrollTjenesteTestBase {
 

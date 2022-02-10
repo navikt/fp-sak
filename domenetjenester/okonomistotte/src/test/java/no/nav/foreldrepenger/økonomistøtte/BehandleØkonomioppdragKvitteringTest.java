@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;

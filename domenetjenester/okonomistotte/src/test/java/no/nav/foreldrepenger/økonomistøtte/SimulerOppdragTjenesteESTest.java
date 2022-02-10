@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.LagOppdragTjeneste;

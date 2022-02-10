@@ -21,9 +21,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
 @ApplicationScoped
 class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver {

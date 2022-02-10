@@ -23,13 +23,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.vedtak.task.SendØkonomiOppdragTask;
 import no.nav.foreldrepenger.domene.vedtak.task.VurderOgSendØkonomiOppdragTask;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragPatchDto;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
-import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;

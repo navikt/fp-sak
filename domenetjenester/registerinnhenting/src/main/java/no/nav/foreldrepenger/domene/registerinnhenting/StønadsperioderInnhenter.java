@@ -88,6 +88,8 @@ public class StønadsperioderInnhenter {
     }
 
     public Optional<MuligSak> finnSenereStønadsperioderLoggResultat(Behandling behandling) {
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) return Optional.empty();
+
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
 
         var forrigeInnvilgetFom = stønadsperiodeTjeneste.stønadsperiodeStartdato(behandling.getFagsak());

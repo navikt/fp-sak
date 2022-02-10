@@ -44,6 +44,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområ
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.datavarehus.xml.es.DvhPersonopplysningXmlTjenesteImpl;
 import no.nav.foreldrepenger.datavarehus.xml.es.OppdragXmlTjenesteImpl;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -54,7 +55,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.HentOppdragMedPositivKvittering;
-import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @CdiDbAwareTest

@@ -11,25 +11,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ExtendWith(MockitoExtension.class)
-public class NavBrukerTjenesteTest extends EntityManagerAwareTest {
+public class NavBrukerTjenesteTest {
 
     @Mock
     private PersoninfoAdapter personinfoAdapter;
     private NavBrukerTjeneste brukerTjeneste;
+    @Mock
     private NavBrukerRepository navBrukerRepository;
 
     @BeforeEach
     public void oppsett() {
-        navBrukerRepository = new NavBrukerRepository(getEntityManager());
         brukerTjeneste = new NavBrukerTjeneste(navBrukerRepository, personinfoAdapter);
     }
 
@@ -47,11 +45,7 @@ public class NavBrukerTjenesteTest extends EntityManagerAwareTest {
         var navBruker = brukerTjeneste.hentEllerOpprettFraAktørId(aktør);
         assertThat(navBruker.getId()).as("Forventer ny bruker som ikke er lagret returneres uten id.").isNull();
 
-        navBrukerRepository.lagre(navBruker);
-        var hentet = navBrukerRepository.hent(aktør);
-
-        assertThat(hentet).isPresent();
-        assertThat(hentet.map(NavBruker::getSpråkkode).orElse(Språkkode.UDEFINERT)).isEqualTo(Språkkode.EN);
+        assertThat(navBruker.getSpråkkode()).isEqualTo(Språkkode.EN);
     }
 
     @Test
