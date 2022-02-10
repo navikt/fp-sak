@@ -137,13 +137,20 @@ public class StønadsperioderInnhenter {
         // OBS: FHTjenenste erHendelseDatoRelevantForBehandling og matcherGrunnlagene ....
         var filtrert = egneMuligeSaker.stream()
             .filter(s -> !s.saksnummer().equals(egenSak.saksnummer()))
-            .filter(s -> s.startdato().isAfter(egenSak.startdato()) || s.fhdato().isAfter(egenSak.fhdato()))
+            .filter(s -> erRelevant(egenSak, s))
             .toList();
         var førstUt = filtrert.stream().min(Comparator.comparing(MuligSak::startdato));
         if (!filtrert.isEmpty()) {
             LOG.info("NESTEBARN sak {} neste sak {} nyere saker {}", egenSak, førstUt, filtrert);
         }
         return førstUt;
+    }
+
+    private boolean erRelevant(MuligSak egenSak, MuligSak muligSak) {
+        // Sak med senere starttidspunkt eller tilfelle der Mor begynner Barn2 før Far begynner Barn1.
+        // Men skal ikke slå til på koblet sak eller andre saker for samme barn eller saker for tidligere barn.
+        // Krever at mulig sak har FamilieHendelse 12 uker etter sak det sjekkes mot - kan justers
+        return muligSak.startdato().isAfter(egenSak.startdato()) || muligSak.fhdato().minusWeeks(6).isAfter(egenSak.fhdato().plusWeeks(6));
     }
 
     private Optional<MuligSak> opprettMuligSak(Fagsak fagsak, SaksForhold type) {
