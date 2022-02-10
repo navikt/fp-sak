@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.skjæringstidspunkt.fp;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -41,6 +42,8 @@ import no.nav.vedtak.konfig.Tid;
 public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjeneste , SkjæringstidspunktRegisterinnhentingTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(SkjæringstidspunktTjenesteImpl.class);
+
+    private static final Period MAX_STØNADSPERIODE = Period.ofYears(3);
 
     private FamilieHendelseRepository familieGrunnlagRepository;
     private SkjæringstidspunktUtils utlederUtils;
@@ -168,7 +171,8 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
     private LocalDateInterval utledYtelseintervall(Behandling behandling, LocalDate skjæringsTidspunkt, boolean kreverSammenhengendeUttak) {
         var sistedato = sisteØnskedeUttaksdag(behandling, hentYtelseFordelingAggregatFor(behandling.getId()), skjæringsTidspunkt, kreverSammenhengendeUttak);
-        var bruktomdato = sistedato.isAfter(skjæringsTidspunkt.plusYears(3)) ? skjæringsTidspunkt.plusYears(3) : sistedato;
+        var bruktomdato = sistedato.isAfter(skjæringsTidspunkt.plus(MAX_STØNADSPERIODE).minusDays(1)) ?
+            skjæringsTidspunkt.plus(MAX_STØNADSPERIODE).minusDays(1) : sistedato;
         return new LocalDateInterval(skjæringsTidspunkt, bruktomdato.isAfter(skjæringsTidspunkt) ? bruktomdato : skjæringsTidspunkt);
     }
 

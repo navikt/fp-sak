@@ -24,9 +24,9 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvitteringTest;
 import no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.producer.GrensesnittavstemmingJmsProducer;
-import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class GrensesnittavstemmingBatchTjenesteTest {

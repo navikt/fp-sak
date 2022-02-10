@@ -6,11 +6,11 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollPostConditionCheck;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.LagOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
-import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
 @Dependent
 public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
