@@ -41,8 +41,11 @@ public class ArbeidsforholdInntektsmeldingsMangelUtleder {
         var iayGrunnlag = iayTjeneste.finnGrunnlag(referanse.getBehandlingId());
         List<ArbeidsforholdInntektsmeldingMangel> mangler = new ArrayList<>();
         if (iayGrunnlag.isPresent()) {
-            mangler.addAll(lagArbeidsforholdMedMangel(inntektsmeldingRegisterTjeneste
-                .utledManglendeInntektsmeldingerFraGrunnlag(referanse, erEndringssøknad(referanse)), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
+            var erEndringssøknad = erEndringssøknad(referanse);
+            if (!erEndringssøknad) {
+                mangler.addAll(lagArbeidsforholdMedMangel(inntektsmeldingRegisterTjeneste
+                    .utledManglendeInntektsmeldingerFraGrunnlag(referanse, erEndringssøknad), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
+            }
             mangler.addAll(lagArbeidsforholdMedMangel(InntektsmeldingUtenArbeidsforholdTjeneste
                 .utledManglendeArbeidsforhold(iayGrunnlag.get(), referanse.getAktørId(), referanse.getUtledetSkjæringstidspunkt()), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
         }
