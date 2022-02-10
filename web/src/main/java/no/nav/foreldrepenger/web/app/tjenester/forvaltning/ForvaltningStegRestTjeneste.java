@@ -19,7 +19,6 @@ import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -34,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
@@ -158,36 +158,51 @@ public class ForvaltningStegRestTjeneste {
     @Path("/fjernFHValgHoppTilbake")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response fjernOverstyrtFH(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandling = getBehandling(dto);
-        var grunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(dto.getBehandlingUuid());
+        var grunnlag = familieHendelseRepository.hentAggregat(kontekst.getBehandlingId());
         if (grunnlag.getOverstyrtVersjon().isPresent()) {
-            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-            familieHendelseRepository.slettAvklarteData(behandling.getId(), kontekst.getSkriveLås());
-            doHoppTilSteg(behandling, kontekst, KONTROLLER_FAKTA);
-            behandlingsprosessTjeneste.gjenopptaBehandling(behandling);
+            familieHendelseRepository.slettAvklarteData(kontekst.getBehandlingId(), kontekst.getSkriveLås());
+            hoppTilbake(dto, KONTROLLER_FAKTA);
             return Response.ok().build();
         }
         return Response.noContent().build();
     }
 
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Fjerner startpunkt i revurdering og går tilbake til KOFAK", tags = "FORVALTNING-steg-hopp")
+    @Path("/fjernStartpunkt")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    public Response fjernStartpunkt(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+        hoppTilbake(dto, KONTROLLER_FAKTA);
+        return Response.noContent().build();
+    }
+
+
+    private void resetStartpunkt(Behandling behandling) {
+        if (behandling.erRevurdering() && behandling.harSattStartpunkt()) {
+            behandling.setStartpunkt(StartpunktType.UDEFINERT);
+            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling.getId()));
+        }
+    }
+
     private void hoppTilbake(ForvaltningBehandlingIdDto dto, BehandlingStegType tilSteg) {
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(dto.getBehandlingUuid());
         var behandling = getBehandling(dto);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         if (KONTROLLER_FAKTA_ARBEIDSFORHOLD.equals(tilSteg)) {
             arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(behandling.getId(), behandling.getAktørId());
+            resetStartpunkt(behandling);
         }
-        doHoppTilSteg(behandling, kontekst, tilSteg);
+        if (KONTROLLER_FAKTA.equals(tilSteg)) {
+            resetStartpunkt(behandling);
+        }
+        behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
+        lagHistorikkinnslag(behandling, tilSteg.getNavn());
+        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, tilSteg);
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }
         behandlingsprosessTjeneste.asynkKjørProsess(behandling);
-    }
-
-    private void doHoppTilSteg(Behandling behandling, BehandlingskontrollKontekst kontekst, BehandlingStegType tilSteg) {
-        behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
-        lagHistorikkinnslag(behandling, tilSteg.getNavn());
-
-        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, tilSteg);
     }
 
     private void lagHistorikkinnslag(Behandling behandling, String tilStegNavn) {
