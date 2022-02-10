@@ -86,7 +86,8 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
      * 3. Mor SVP, finnes innvilget FP for samme barn
      * 4. Far FP, er oppgitt som annenpart i vedtatt sak for nyere barn
      * 5. Far FP, er oppgitt som annenpart i vedtatt sak for nyere barn - far søker uttak for B1 etter mor har begynt for B2
-     * 6. adopsjon?
+     * 6. SVP flere saker med ulik termin for samme barn
+     * 7. adopsjon?
      */
 
     @Test
@@ -206,6 +207,29 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
             assertThat(v.saksnummer()).isEqualTo(nyereBehandling.getFagsak().getSaksnummer());
             assertThat(v.startdato()).isEqualTo(FH_DATO_YNGRE.minusWeeks(3));
         });
+    }
+
+    @Test
+    public void behandlingMorSVPHarTidligereInnvilgetSVPAnnenTermindato() {
+
+        var avsluttetFPBehMor = lagBehandlingSVP(AKTØR_ID_MOR);
+        Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(avsluttetFPBehMor.getId())).thenReturn(Optional.of(fhGrunnlagAnnenMock));
+        Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
+        Mockito.lenient().when(familieHendelseAnnenMock.getSkjæringstidspunkt()).thenReturn(FH_DATO.plusWeeks(1));
+        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(FH_DATO.minusWeeks(15)));
+        avsluttetFPBehMor.avsluttBehandling();
+
+        var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
+        Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(nyBehSVPOverlapper.getId())).thenReturn(Optional.of(fhGrunnlagAktuellMock));
+        Mockito.lenient().when(fhGrunnlagAktuellMock.getGjeldendeVersjon()).thenReturn(familieHendelseAktuellMock);
+        Mockito.lenient().when(familieHendelseAktuellMock.getSkjæringstidspunkt()).thenReturn(FH_DATO);
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
+        when(skjæringstidspunkt.getUtledetSkjæringstidspunkt()).thenReturn(FH_DATO.minusWeeks(12));
+
+        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyBehSVPOverlapper.getFagsak())).thenReturn(Optional.of(FH_DATO.minusWeeks(12)));
+
+        var muligSak = stønadsperioderInnhenter.finnSenereStønadsperioderLoggResultat(nyBehSVPOverlapper);
+        assertThat(muligSak).isEmpty();
     }
 
     private Behandling lagBehandlingMor(LocalDate fødselsDato, AktørId aktørId, AktørId medfAktørId) {

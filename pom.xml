@@ -574,11 +574,6 @@
                 <version>${swaggercore.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.owasp.encoder</groupId>
-                <artifactId>encoder</artifactId>
-                <version>1.2.3</version>
-            </dependency>
-            <dependency>
                 <groupId>com.fasterxml.woodstox</groupId>
                 <artifactId>woodstox-core</artifactId>
                 <version>6.2.8</version>

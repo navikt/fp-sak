@@ -8,7 +8,7 @@ import javax.ws.rs.core.Application;
 
 import org.glassfish.jersey.server.ServerProperties;
 
-import no.nav.foreldrepenger.web.app.exceptions.RedirectExceptionMapper;
+import no.nav.foreldrepenger.web.app.exceptions.GeneralRestExceptionMapper;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 
 @ApplicationPath("oppgaveredirect")
@@ -16,7 +16,7 @@ public class OppgaveRedirectApplication extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return Set.of(OppgaveRedirectTjeneste.class, RedirectExceptionMapper.class, JacksonJsonConfig.class);
+        return Set.of(OppgaveRedirectTjeneste.class, GeneralRestExceptionMapper.class, JacksonJsonConfig.class);
     }
 
     @Override
