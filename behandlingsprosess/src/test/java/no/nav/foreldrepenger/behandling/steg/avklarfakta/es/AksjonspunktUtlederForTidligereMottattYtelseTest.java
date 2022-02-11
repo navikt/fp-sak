@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta.es;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -29,15 +29,12 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.YtelserKonsolidertTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.OffentligYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 
 public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityManagerAwareTest {
 
@@ -49,8 +46,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        utleder = new AksjonspunktUtlederForTidligereMottattYtelse(
-                iayTjeneste,
+        utleder = new AksjonspunktUtlederForTidligereMottattYtelse(iayTjeneste,
                 new YtelserKonsolidertTjeneste(repositoryProvider),
                 new PersonopplysningRepository(getEntityManager()));
     }
@@ -183,26 +179,6 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_om_soker_har_inntekt_fra_stønad() {
-        // Arrange
-        var aktørId = AktørId.dummy();
-        var annenAktørId = AktørId.dummy();
-
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        var behandling = byggBehandling(scenario, aktørId, annenAktørId);
-
-        leggTilYtelseInntektForAktør(behandling.getId(), aktørId, LocalDate.now().minusMonths(2));
-
-        // Act
-        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
-
-        // Assert
-        assertThat(aksjonspunktResultater).hasSize(1);
-        assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon())
-                .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
-    }
-
-    @Test
     public void skal_ikke_opprette_aksjonspunkt_hvis_behandling_har_type_REVURDERING() {
         // Arrange
         var aktørId = AktørId.dummy();
@@ -283,24 +259,5 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
 
     }
 
-    private void leggTilYtelseInntektForAktør(Long behandlingId,
-            AktørId aktørId, LocalDate tom) {
-
-        var iayAggregatBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
-        var aktørInntektBuilder = iayAggregatBuilder.getAktørInntektBuilder(aktørId);
-        var inntektBuilder = aktørInntektBuilder
-                .getInntektBuilder(InntektsKilde.INNTEKT_OPPTJENING, new Opptjeningsnøkkel(null, null, aktørId.getId()));
-        var inntektspost = inntektBuilder.getInntektspostBuilder()
-                .medBeløp(BigDecimal.TEN)
-                .medPeriode(tom.minusMonths(1), tom)
-                .medInntektspostType(InntektspostType.YTELSE)
-                .medYtelse(OffentligYtelseType.FORELDREPENGER);
-
-        inntektBuilder.leggTilInntektspost(inntektspost);
-        aktørInntektBuilder.leggTilInntekt(inntektBuilder);
-        iayAggregatBuilder.leggTilAktørInntekt(aktørInntektBuilder);
-
-        iayTjeneste.lagreIayAggregat(behandlingId, iayAggregatBuilder);
-    }
 
 }

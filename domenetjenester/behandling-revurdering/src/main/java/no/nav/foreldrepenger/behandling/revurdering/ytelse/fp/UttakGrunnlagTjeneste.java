@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
+import java.time.Period;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -36,10 +37,13 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.OriginalBehandling;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("FP")
 public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste {
+
+    private static final Period INTERVALL_SAMME_BARN = Period.ofWeeks(6);
 
     private BehandlingRepository behandlingRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -182,11 +186,20 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
     }
 
     private boolean annenpartHarInnvilgetES(FamilieHendelser familieHendelser, AktørId annenpartAktørId) {
-        return relatertBehandlingTjeneste.hentAnnenPartsInnvilgeteFagsakerMedYtelseType(annenpartAktørId,
-            FagsakYtelseType.ENGANGSTØNAD)
+        return relatertBehandlingTjeneste.hentAnnenPartsInnvilgeteFagsakerMedYtelseType(annenpartAktørId, FagsakYtelseType.ENGANGSTØNAD)
             .stream()
             .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
-            .anyMatch(b -> familieHendelseTjeneste.harBehandlingFamilieHendelseDato(
-                familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato(), b.getId()));
+            .anyMatch(b -> matcherFamiliehendelseMedSak(familieHendelser, b));
+    }
+
+    private boolean matcherFamiliehendelseMedSak(FamilieHendelser familieHendelser, Behandling behandling) {
+        var egenHendelsedato = familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato();
+        var egetIntervall = new LocalDateInterval(egenHendelsedato.minus(INTERVALL_SAMME_BARN), egenHendelsedato.plus(INTERVALL_SAMME_BARN));
+        var annenpartIntervall = familieHendelseTjeneste.finnAggregat(behandling.getId())
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+            .map(d -> new LocalDateInterval(d.minus(INTERVALL_SAMME_BARN), d.plus(INTERVALL_SAMME_BARN)));
+
+        return annenpartIntervall.filter(i -> i.overlaps(egetIntervall)).isPresent();
     }
 }

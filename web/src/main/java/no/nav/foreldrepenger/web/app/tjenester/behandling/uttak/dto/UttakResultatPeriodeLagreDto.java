@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeUtfallÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
@@ -137,20 +139,6 @@ public class UttakResultatPeriodeLagreDto {
     }
 
     public static PeriodeResultatÅrsak utledPerioderesultatÅrsak(UttakResultatPeriodeLagreDto dto) {
-        if (dto.getPeriodeResultatÅrsak() == null && dto.periodeUtfallÅrsak == null) {
-            LOG.info("UTTAK UTFALL begge null");
-        } else if (dto.getPeriodeResultatÅrsak() == null) {
-            LOG.info("UTTAK UTFALL ULIKT periode null utfall {}", dto.getPeriodeUtfallÅrsak().getKode());
-        } else if (dto.getPeriodeUtfallÅrsak() == null) {
-            LOG.info("UTTAK UTFALL ULIKT periode {} utfall null", dto.getPeriodeResultatÅrsak().getKode());
-        } else if (!dto.getPeriodeUtfallÅrsak().getKode().equals(dto.getPeriodeResultatÅrsak().getKode())) {
-            LOG.info("UTTAK UTFALL ULIKT periode {} utfall {}", dto.getPeriodeResultatÅrsak().getKode(), dto.getPeriodeUtfallÅrsak().getKode());
-        } else {
-            LOG.info("UTTAK UTFALL lik kode");
-        }
-        // Vent med denne. Frontend sender ned getPeriodeUtfallÅrsak = den som ble sendt opp - uten at den røres i koden.
-        // Når frontend oppdaterer  begge felt ta den tilbake
-        /*
         if (dto.getPeriodeUtfallÅrsak() != null && !PeriodeUtfallÅrsak.UKJENT.equals(dto.getPeriodeUtfallÅrsak())) {
             if (InnvilgetÅrsak.kodeMap().containsKey(dto.getPeriodeUtfallÅrsak().getKode())) {
                 return InnvilgetÅrsak.kodeMap().get(dto.getPeriodeUtfallÅrsak().getKode());
@@ -159,9 +147,9 @@ public class UttakResultatPeriodeLagreDto {
             } else {
                 throw new IllegalArgumentException("Utviklerfeil - finner ikke koden fra periodeUtfallÅrsak");
             }
+        } else {
+            return PeriodeResultatÅrsak.UKJENT;
         }
-        */
-        return dto.getPeriodeResultatÅrsak();
     }
 
     public static class Builder {
