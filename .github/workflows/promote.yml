@@ -56,7 +56,7 @@ jobs:
             github.rest.issues.createComment({...issue,
                             body: 'promote til dev-fss ${{ env.NAMESPACE }} feilet'})
             github.rest.issues.addLabels({...issue,
-                            labels: ['deployment-failed','dev-fss-${{ env.NAMESPACE }}']})
+                            labels: ['deployment-failed']})
 
       - name: Oppdater kommentar med deployment status mot dev
         if: success() && (env.CLUSTER_ARG == 'dev-fss' || env.CLUSTER_ARG == '')
@@ -73,7 +73,7 @@ jobs:
                             labels: ['deployment','dev-fss-${{ env.NAMESPACE }}']})
 
       - name: Deploy fpsak til prod
-        if: env.CLUSTER_ARG == 'prod-fss' || env.CLUSTER_ARG == ''
+        if: success() && env.CLUSTER_ARG == 'prod-fss' || env.CLUSTER_ARG == ''
         uses: nais/deploy/actions/deploy@v1
         env:
           PRINT_PAYLOAD: true
@@ -94,7 +94,7 @@ jobs:
             github.rest.issues.createComment({...issue,
                             body: 'promote til prod-fss ${{ env.NAMESPACE }} feilet'})
             github.rest.issues.addLabels({...issue,
-                            labels: ['deployment-failed','prod-fss-${{ env.NAMESPACE }}']})
+                            labels: ['deployment-failed']})
 
       - name: Oppdater kommentar med deployment status mot prod
         if: success() && (env.CLUSTER_ARG == 'prod-fss' || env.CLUSTER_ARG == '')
