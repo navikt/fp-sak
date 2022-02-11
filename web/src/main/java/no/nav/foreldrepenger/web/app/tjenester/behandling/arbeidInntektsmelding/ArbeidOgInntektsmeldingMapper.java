@@ -115,7 +115,7 @@ public class ArbeidOgInntektsmeldingMapper {
         return dtoer;
     }
 
-    private static Optional<ArbeidsforholdDto> mapTilArbeidsforholdDto(Collection<ArbeidsforholdReferanse> arbeidsforholdReferanser,
+    static Optional<ArbeidsforholdDto> mapTilArbeidsforholdDto(Collection<ArbeidsforholdReferanse> arbeidsforholdReferanser,
                                                                        LocalDate stp,
                                                                        Yrkesaktivitet ya,
                                                                        List<ArbeidsforholdMangel> alleIdentifiserteMangler,
