@@ -215,13 +215,6 @@ public class FamilieHendelseTjeneste {
             .orElse(EndringsresultatSnapshot.utenSnapshot(FamilieHendelseGrunnlagEntitet.class));
     }
 
-
-    public boolean harBehandlingFamilieHendelseDato(LocalDate familieHendelseDato, Long behandlingId) {
-        var dato2 = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId)
-            .map(FamilieHendelseGrunnlagEntitet::finnGjeldendeFødselsdato);
-        return dato2.isPresent() && familieHendelseDato.equals(dato2.get());
-    }
-
     public List<PersonopplysningEntitet> finnBarnSøktStønadFor(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
         var behandlingId = ref.getBehandlingId();
         final var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);

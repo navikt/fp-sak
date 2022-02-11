@@ -25,9 +25,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.YtelserKonsolidertTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.TilgrensendeYtelserDto;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.OffentligYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -60,7 +57,6 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
         var aktørId = param.getAktørId();
 
         var skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        var vurderingsTidspunkt = LocalDate.now().isAfter(skjæringstidspunkt) ? LocalDate.now() : skjæringstidspunkt;
 
         var inntektArbeidYtelseGrunnlagOpt = iayTjeneste.finnGrunnlag(behandlingId);
         if (!inntektArbeidYtelseGrunnlagOpt.isPresent()) {
@@ -71,19 +67,9 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
             return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
         }
 
-        // TODO: Fjerne når det ikke lenger finnes mange saker i INFOTRYGD. Denne dekker flytteproblemet og usynlige saker
-        var filter = new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId)).før(vurderingsTidspunkt);
-        if (!filter.isEmpty()) {
-            if (harInntekterForeldrepengerSiste10Mnd(filter, skjæringstidspunkt) == JA) {
-                return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
-            }
-        }
-
-        var annenPart = finnOppgittAnnenPart(behandlingId);
-        if (annenPart.isPresent()) {
-            if (harAnnenPartMottattStønadSiste10Mnd(param.getSaksnummer(), annenPart.get(), grunnlag, skjæringstidspunkt) == JA) {
-                return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE);
-            }
+        var annenPart = finnOppgittAnnenPart(behandlingId).orElse(null);
+        if (annenPart != null && harAnnenPartMottattStønadSiste10Mnd(param.getSaksnummer(), annenPart, grunnlag, skjæringstidspunkt) == JA) {
+            return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE);
         }
 
         return INGEN_AKSJONSPUNKTER;
@@ -102,20 +88,8 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
     private Utfall harAnnenPartMottattStønadSiste10Mnd(@SuppressWarnings("unused") Saksnummer saksnummer, AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag, LocalDate skjæringstidspunkt) {
         var vedtakEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
         var ytelser = ytelseTjeneste.utledAnnenPartsYtelserRelatertTilBehandling(aktørId, grunnlag, RELEVANTE_YTELSE_TYPER);
-        var senerevedtak = ytelser.stream()
-                .map(y -> y.getPeriodeTilDato() != null ? y.getPeriodeTilDato() : y.getPeriodeFraDato())
-                .anyMatch(vedtakEtterDato::isBefore);
+        var senerevedtak = ytelser.stream().map(y -> y.getPeriodeTilDato() != null ? y.getPeriodeTilDato() : y.getPeriodeFraDato()).anyMatch(vedtakEtterDato::isBefore);
         return senerevedtak ? JA : NEI;
-    }
-
-    private Utfall harInntekterForeldrepengerSiste10Mnd(InntektFilter filter, LocalDate skjæringstidspunkt) {
-        var utbetalingEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
-        var utbetalinger = filter
-                .filterPensjonsgivende()
-                .filter(InntektspostType.YTELSE)
-                .filter(OffentligYtelseType.FORELDREPENGER)
-                .getFiltrertInntektsposter().stream().map(ip -> ip.getPeriode().getFomDato()).anyMatch(utbetalingEtterDato::isBefore);
-        return utbetalinger ? JA : NEI;
     }
 
     private Optional<AktørId> finnOppgittAnnenPart(Long behandlingId) {
