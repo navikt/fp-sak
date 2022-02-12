@@ -105,7 +105,7 @@ public class UttakResultatPeriodeLagreDto {
         if (periodeUtfallÅrsak != null) {
             return PeriodeResultatÅrsak.fraKode(periodeUtfallÅrsak.getKode());
         }
-        return periodeResultatÅrsak;
+        return periodeResultatÅrsak != null ? periodeResultatÅrsak : PeriodeResultatÅrsak.UKJENT;
     }
 
     public PeriodeUtfallÅrsak getPeriodeUtfallÅrsak() {
