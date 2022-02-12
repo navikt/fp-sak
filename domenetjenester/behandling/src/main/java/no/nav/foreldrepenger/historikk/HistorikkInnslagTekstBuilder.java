@@ -43,8 +43,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Kontrol
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -77,14 +75,10 @@ public class HistorikkInnslagTekstBuilder {
 
             // Domene : Uttak
             new SimpleEntry<>(PeriodeResultatType.KODEVERK, PeriodeResultatType.kodeMap()),
-            new SimpleEntry<>(IkkeOppfyltÅrsak.KODEVERK, IkkeOppfyltÅrsak.kodeMap()),
-            new SimpleEntry<>(InnvilgetÅrsak.KODEVERK, InnvilgetÅrsak.kodeMap()),
+            new SimpleEntry<>(PeriodeResultatÅrsak.KODEVERK, PeriodeResultatÅrsak.kodeMap()),
             new SimpleEntry<>(StønadskontoType.KODEVERK, StønadskontoType.kodeMap()),
             new SimpleEntry<>(GraderingAvslagÅrsak.KODEVERK, GraderingAvslagÅrsak.kodeMap()),
             new SimpleEntry<>(KontrollerAktivitetskravAvklaring.KODEVERK, KontrollerAktivitetskravAvklaring.kodeMap()),
-
-            // Domene : Uttak (bonus)
-            new SimpleEntry<>(PeriodeResultatÅrsak.UKJENT.getKodeverk(), Map.of(PeriodeResultatÅrsak.UKJENT.getKode(), PeriodeResultatÅrsak.UKJENT)),
 
             // Domene : personopplysninger
             new SimpleEntry<>(VergeType.KODEVERK, VergeType.kodeMap()),

@@ -15,7 +15,7 @@ import org.jboss.weld.exceptions.UnsupportedOperationException;
 
 import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
@@ -64,7 +64,7 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
 
     @Override
     public boolean kontrollerErSisteUttakAvslåttMedÅrsak() {
-        var opphørsAvslagÅrsaker = IkkeOppfyltÅrsak.opphørsAvslagÅrsaker();
+        var opphørsAvslagÅrsaker = PeriodeResultatÅrsak.opphørsAvslagÅrsaker();
         return finnSisteUttaksperiode().map(ForeldrepengerUttakPeriode::getResultatÅrsak).map(opphørsAvslagÅrsaker::contains).orElse(false);
     }
 

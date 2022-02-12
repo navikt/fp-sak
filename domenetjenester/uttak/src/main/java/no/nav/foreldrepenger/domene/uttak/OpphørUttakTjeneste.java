@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
@@ -47,7 +47,7 @@ public class OpphørUttakTjeneste {
     }
 
     private LocalDate utledOpphørsdatoFraUttak(UttakResultatEntitet uttakResultat, LocalDate skjæringstidspunkt) {
-        var opphørsårsaker = IkkeOppfyltÅrsak.opphørsAvslagÅrsaker();
+        var opphørsårsaker = PeriodeResultatÅrsak.opphørsAvslagÅrsaker();
         var perioder = getUttaksperioderIOmvendtRekkefølge(uttakResultat);
 
         // Finn fom-dato i første periode av de siste sammenhengende periodene med opphørårsaker

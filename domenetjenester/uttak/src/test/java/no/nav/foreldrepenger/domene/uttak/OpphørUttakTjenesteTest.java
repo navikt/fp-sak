@@ -15,8 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
@@ -76,12 +74,12 @@ public class OpphørUttakTjenesteTest {
         var revurdering = opprettOpphørtRevurdering(originalBehandling);
         lagreSkjæringstidspunkt(revurdering, skjæringstidspunkt);
         var ref = BehandlingReferanse.fra(revurdering, skjæringstidspunkt);
-        var opphørsÅrsaker = IkkeOppfyltÅrsak.opphørsAvslagÅrsaker().iterator();
+        var opphørsÅrsaker = PeriodeResultatÅrsak.opphørsAvslagÅrsaker().iterator();
         new MockUttakResultatBuilder(skjæringstidspunkt.plusDays(10))
-            .medInnvilgetPeriode(InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER, 10)
-            .medInnvilgetPeriode(InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER, 10)
+            .medInnvilgetPeriode(PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER, 10)
+            .medInnvilgetPeriode(PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER, 10)
             .medAvslåttPeriode(opphørsÅrsaker.next(), 10)
-            .medInnvilgetPeriode(InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER, 10)
+            .medInnvilgetPeriode(PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER, 10)
             .medAvslåttPeriode(opphørsÅrsaker.next(), 10)
             .medAvslåttPeriode(opphørsÅrsaker.next(), 10)
             .buildFor(revurdering.getId());
@@ -98,7 +96,7 @@ public class OpphørUttakTjenesteTest {
         var revurdering = opprettOpphørtRevurdering(originalBehandling);
         var skjæringstidspunkt = lagreSkjæringstidspunkt(revurdering, LocalDate.now());
         var ref = BehandlingReferanse.fra(revurdering, skjæringstidspunkt);
-        var opphørsÅrsaker = IkkeOppfyltÅrsak.opphørsAvslagÅrsaker().iterator();
+        var opphørsÅrsaker = PeriodeResultatÅrsak.opphørsAvslagÅrsaker().iterator();
         new MockUttakResultatBuilder(skjæringstidspunkt.plusDays(7))
             .medAvslåttPeriode(opphørsÅrsaker.next(), 14).medAvslåttPeriode(opphørsÅrsaker.next(), 61)
             .medAvslåttPeriode(opphørsÅrsaker.next(), 14).medAvslåttPeriode(opphørsÅrsaker.next(), 62)

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
@@ -31,7 +31,7 @@ class ForeldrepengerUttakTjenesteTest {
             .medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER).medMottattDato(mottattDato)
             .build();
         var periodeResultatType = PeriodeResultatType.INNVILGET;
-        var innvilgetÅrsak = InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER;
+        var innvilgetÅrsak = PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER;
         var lagretUttaksperiode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
             .medResultatType(periodeResultatType, innvilgetÅrsak).medPeriodeSoknad(periodeSøknad)
             .build();

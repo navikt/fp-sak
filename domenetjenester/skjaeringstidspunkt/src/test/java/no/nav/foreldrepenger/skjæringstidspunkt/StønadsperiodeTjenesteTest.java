@@ -32,8 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
@@ -110,11 +109,11 @@ public class StønadsperiodeTjenesteTest {
         var ur = new UttakResultatEntitet.Builder(repoProvider.getBehandlingsresultatRepository().hent(behandling.getId()))
             .medOpprinneligPerioder(new UttakResultatPerioderEntitet()
                 .leggTilPeriode(new UttakResultatPeriodeEntitet.Builder(skjæringsdato, skjæringsdato.plusWeeks(9).minusDays(1))
-                        .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.SØKNADSFRIST).build())
+                        .medResultatType(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.SØKNADSFRIST).build())
                 .leggTilPeriode(new UttakResultatPeriodeEntitet.Builder(skjæringsdato.plusWeeks(9), skjæringsdato.plusWeeks(15).minusDays(1))
-                    .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build())
+                    .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build())
                 .leggTilPeriode(new UttakResultatPeriodeEntitet.Builder(skjæringsdato.plusWeeks(15), skjæringsdato.plusWeeks(20).minusDays(1))
-                    .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.IKKE_STØNADSDAGER_IGJEN).build())
+                    .medResultatType(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.IKKE_STØNADSDAGER_IGJEN).build())
             );
         when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(ur.build()));
 
@@ -166,21 +165,21 @@ public class StønadsperiodeTjenesteTest {
         var urMor = new UttakResultatEntitet.Builder(repoProvider.getBehandlingsresultatRepository().hent(behandlingMor.getId()))
             .medOpprinneligPerioder(new UttakResultatPerioderEntitet()
                 .leggTilPeriode(new UttakResultatPeriodeEntitet.Builder(skjæringsdato, skjæringsdato.plusWeeks(4).minusDays(1))
-                    .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTSETTELSE_GYLDIG_PGA_BARN_INNLAGT).medUtsettelseType(UttakUtsettelseType.BARN_INNLAGT).build())
+                    .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UTSETTELSE_GYLDIG_PGA_BARN_INNLAGT).medUtsettelseType(UttakUtsettelseType.BARN_INNLAGT).build())
                 .leggTilPeriode(new UttakResultatPeriodeEntitet.Builder(skjæringsdato.plusWeeks(4), skjæringsdato.plusWeeks(19).minusDays(1))
-                    .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build())
+                    .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build())
                 .leggTilPeriode(new UttakResultatPeriodeEntitet.Builder(skjæringsdato.plusWeeks(25), skjæringsdato.plusWeeks(41).minusDays(1))
-                    .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER).build())
+                    .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER).build())
             );
         when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingMor.getId())).thenReturn(Optional.of(urMor.build()));
         var urFar = new UttakResultatEntitet.Builder(repoProviderFar.getBehandlingsresultatRepository().hent(behandlingFar.getId()))
             .medOpprinneligPerioder(new UttakResultatPerioderEntitet()
                 .leggTilPeriode(new UttakResultatPeriodeEntitet.Builder(skjæringsdato.plusWeeks(19), skjæringsdato.plusWeeks(25).minusDays(1))
-                    .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build())
+                    .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build())
                 .leggTilPeriode(new UttakResultatPeriodeEntitet.Builder(skjæringsdato.plusWeeks(41), skjæringsdato.plusWeeks(50).minusDays(1))
-                    .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build())
+                    .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build())
                 .leggTilPeriode(new UttakResultatPeriodeEntitet.Builder(skjæringsdato.plusWeeks(50), skjæringsdato.plusWeeks(55).minusDays(1))
-                    .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.IKKE_STØNADSDAGER_IGJEN).build())
+                    .medResultatType(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.IKKE_STØNADSDAGER_IGJEN).build())
             );
         when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingFar.getId())).thenReturn(Optional.of(urFar.build()));
 

@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeUtfallÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.app.HentKodeverkTjeneste;
@@ -80,7 +80,7 @@ public class KodeverkRestTjenesteTest {
 
         var om = jsonConfig.getObjectMapper();
 
-        var json = om.writer().withDefaultPrettyPrinter().writeValueAsString(new X(PeriodeUtfallÅrsak.STØNADSPERIODE_NYTT_BARN));
+        var json = om.writer().withDefaultPrettyPrinter().writeValueAsString(new X(PeriodeResultatÅrsak.STØNADSPERIODE_NYTT_BARN));
 
         assertThat(json).contains("\"periodeUtfallÅrsak\" : \"4104\"");
     }
@@ -92,12 +92,12 @@ public class KodeverkRestTjenesteTest {
 
         var om = jsonConfig.getObjectMapper();
 
-        var json = om.writer().withDefaultPrettyPrinter().writeValueAsString(new X(PeriodeUtfallÅrsak.STØNADSPERIODE_NYTT_BARN));
+        var json = om.writer().withDefaultPrettyPrinter().writeValueAsString(new X(PeriodeResultatÅrsak.STØNADSPERIODE_NYTT_BARN));
 
         assertThat(json).contains("\"kode\" : \"4104\"");
         assertThat(json).contains("\"utfallType\" : \"AVSLÅTT\"");
     }
 
-    private static record X(PeriodeUtfallÅrsak periodeUtfallÅrsak) {}
+    private static record X(PeriodeResultatÅrsak periodeUtfallÅrsak) {}
 
 }

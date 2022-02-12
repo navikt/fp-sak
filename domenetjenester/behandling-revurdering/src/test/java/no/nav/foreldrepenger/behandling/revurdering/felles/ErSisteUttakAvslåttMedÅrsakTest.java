@@ -35,13 +35,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -111,10 +110,9 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
 
     @Test
     public void skal_teste_at_alle_opphørsårsaker_gir_opphør_på_behandlingen() {
-        IkkeOppfyltÅrsak.opphørsAvslagÅrsaker().forEach(opphørsårsak -> {
+        PeriodeResultatÅrsak.opphørsAvslagÅrsaker().forEach(opphørsårsak -> {
             // Arrange
-            var uttakresultatRevurdering = lagUttaksplanMedIkkeOppfyltÅrsak(
-                    (IkkeOppfyltÅrsak) opphørsårsak);
+            var uttakresultatRevurdering = lagUttaksplanMedIkkeOppfyltÅrsak(opphørsårsak);
 
             // Act
 
@@ -131,7 +129,7 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
     public void skal_sjekke_at_siste_periode_ikke_gir_opphør_når_det_ikke_er_avslått_med_opphørsårsak() {
         // Arrange
         var uttakresultatRevurdering = lagUttaksplanMedIkkeOppfyltÅrsak(
-                IkkeOppfyltÅrsak.UTSETTELSE_SØKERS_INNLEGGELSE_IKKE_DOKUMENTERT);
+                PeriodeResultatÅrsak.UTSETTELSE_SØKERS_INNLEGGELSE_IKKE_DOKUMENTERT);
 
         // Act
         var holder = new UttakResultatHolderFP(Optional.of(ForeldrepengerUttakTjeneste.map(uttakresultatRevurdering)),
@@ -142,7 +140,7 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
         assertThat(harOpphørsårsak).isFalse();
     }
 
-    private UttakResultatEntitet lagUttaksplanMedIkkeOppfyltÅrsak(IkkeOppfyltÅrsak årsak) {
+    private UttakResultatEntitet lagUttaksplanMedIkkeOppfyltÅrsak(PeriodeResultatÅrsak årsak) {
         var fra = LocalDate.now();
         return lagUttakResultatPlanForBehandling(revurdering,
                 List.of(new LocalDateInterval(fra, fra.plusDays(10))),

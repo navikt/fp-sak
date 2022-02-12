@@ -117,9 +117,6 @@ public class UttakResultatPeriodeDto {
 
     @JsonProperty("periodeResultatÅrsakLovhjemmel")
     public String getPeriodeResultatÅrsakLovhjemmel() {
-        if (periodeUtfallÅrsak != null) {
-            return periodeResultatÅrsak.getLovHjemmelData();
-        }
         return periodeResultatÅrsak == null ? null : periodeResultatÅrsak.getLovHjemmelData();
     }
 
@@ -147,13 +144,8 @@ public class UttakResultatPeriodeDto {
         }
 
         public Builder medPeriodeResultatÅrsak(PeriodeResultatÅrsak årsak) {
+            kladd.periodeUtfallÅrsak = PeriodeUtfallÅrsak.fraKode(årsak.getKode());
             kladd.periodeResultatÅrsak = årsak;
-            kladd.periodeUtfallÅrsak = årsak != null ? PeriodeUtfallÅrsak.fraKode(årsak.getKode()) : null;
-            return this;
-        }
-
-        public Builder medPeriodeUtfallÅrsak(PeriodeUtfallÅrsak årsak) {
-            kladd.periodeUtfallÅrsak = årsak;
             return this;
         }
 

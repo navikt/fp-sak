@@ -7,23 +7,23 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeUtfallÅrsak;
 
 /**
  * Enkel serialisering av KodeverkTabell klasser, uten at disse trenger @JsonIgnore eller lignende. Deserialisering går
  * av seg selv normalt (får null for andre felter).
  */
-public class UttakSerializer extends StdSerializer<PeriodeResultatÅrsak> {
+public class UtfallSerializer extends StdSerializer<PeriodeUtfallÅrsak> {
 
     private boolean serialiserKodelisteNavn;
 
-    public UttakSerializer(boolean serialiserKodelisteNavn) {
-        super(PeriodeResultatÅrsak.class);
+    public UtfallSerializer(boolean serialiserKodelisteNavn) {
+        super(PeriodeUtfallÅrsak.class);
         this.serialiserKodelisteNavn = serialiserKodelisteNavn;
     }
 
     @Override
-    public void serialize(PeriodeResultatÅrsak value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+    public void serialize(PeriodeUtfallÅrsak value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         /*
          * Midlertidig til vi helt skiller vanlig serialisering (JsonValue) fra custom kodemapserialisering
          */

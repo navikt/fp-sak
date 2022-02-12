@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
@@ -78,7 +77,7 @@ public class UttakOverstyringshåndtererTest {
                 .build();
         var aktiviteter = Collections.singletonList(aktivitetLagreDto);
         var periodeResultatType = PeriodeResultatType.INNVILGET;
-        PeriodeResultatÅrsak periodeResultatÅrsak = InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER;
+        var periodeResultatÅrsak = PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER;
         var stønadskontoType = StønadskontoType.FORELDREPENGER;
         var begrunnelse = "Dette er begrunnelsen";
         var periode = new UttakResultatPeriodeLagreDto.Builder()

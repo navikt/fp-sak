@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
@@ -160,7 +160,7 @@ public class BeregningUttakTjenesteTest {
                 .medTidsperiode(LocalDate.of(2019, 5, 10), LocalDate.of(2019, 6, 20))
                 .medGraderingInnvilget(true)
                 .medResultatType(PeriodeResultatType.INNVILGET)
-                .medResultatÅrsak(InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER)
+                .medResultatÅrsak(PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER)
                 .medAktiviteter(List.of(aktivitet, ugradertFrilansAktivitet()))
                 .build();
 
@@ -229,7 +229,7 @@ public class BeregningUttakTjenesteTest {
                 .medTidsperiode(LocalDate.of(2019, 5, 27), LocalDate.of(2019, 5, 31))
                 .medGraderingInnvilget(true)
                 .medResultatType(PeriodeResultatType.INNVILGET)
-                .medResultatÅrsak(InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER)
+                .medResultatÅrsak(PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER)
                 .medAktiviteter(List.of(aktivitet, ugradertFrilansAktivitet()))
                 .build();
         var periodeUtenGradering = uttaksperiode(LocalDate.of(2019, 6, 1), LocalDate.of(2019, 6, 1));
@@ -404,7 +404,7 @@ public class BeregningUttakTjenesteTest {
                 .medTidsperiode(fom, tom)
                 .medGraderingInnvilget(true)
                 .medResultatType(PeriodeResultatType.INNVILGET)
-                .medResultatÅrsak(InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER)
+                .medResultatÅrsak(PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER)
                 .medAktiviteter(List.of(aktivitet))
                 .build();
     }
@@ -431,7 +431,7 @@ public class BeregningUttakTjenesteTest {
                 .medTidsperiode(fom, tom)
                 .medGraderingInnvilget(true)
                 .medResultatType(PeriodeResultatType.INNVILGET)
-                .medResultatÅrsak(InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER)
+                .medResultatÅrsak(PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER)
                 .medAktiviteter(List.of(sn, frilans))
                 .build();
     }

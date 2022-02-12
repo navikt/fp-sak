@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -66,7 +66,7 @@ public class BeregningsresultatMedUttaksplanMapper {
         if (uttak.isEmpty() || uttak.get().getGjeldendePerioder().isEmpty()) {
             return Optional.empty();
         }
-        var opphørsAvslagÅrsaker = IkkeOppfyltÅrsak.opphørsAvslagÅrsaker();
+        var opphørsAvslagÅrsaker = PeriodeResultatÅrsak.opphørsAvslagÅrsaker();
         var perioder = uttak.get().getGjeldendePerioder()
             .stream()
             .sorted(Comparator.comparing(ForeldrepengerUttakPeriode::getFom).reversed())

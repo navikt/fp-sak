@@ -26,7 +26,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ÅrsakskodeMedLovreferanse;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
@@ -238,7 +237,7 @@ public enum PeriodeUtfallÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse
         var kode = TempAvledeKode.getVerdi(PeriodeUtfallÅrsak.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
-            throw new IllegalArgumentException("Ukjent IkkeOppfyltÅrsak: " + kode);
+            throw new IllegalArgumentException("Ukjent PeriodeUtfallÅrsak: " + kode);
         }
         return ad;
     }
@@ -281,25 +280,6 @@ public enum PeriodeUtfallÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse
         public PeriodeUtfallÅrsak convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
         }
-    }
-
-    public static Set<PeriodeUtfallÅrsak> opphørsAvslagÅrsaker() {
-        return Set.of(
-            MOR_HAR_IKKE_OMSORG,
-            FAR_HAR_IKKE_OMSORG,
-            BARNET_ER_DØD,
-            SØKER_ER_DØD,
-            OPPHØR_MEDLEMSKAP,
-            FØDSELSVILKÅRET_IKKE_OPPFYLT,
-            ADOPSJONSVILKÅRET_IKKE_OPPFYLT,
-            FORELDREANSVARSVILKÅRET_IKKE_OPPFYLT,
-            OPPTJENINGSVILKÅRET_IKKE_OPPFYLT);
-    }
-
-    public static Set<PeriodeUtfallÅrsak> årsakerTilAvslagPgaAnnenpart() {
-        return Set.of(
-            DEN_ANDRE_PART_OVERLAPPENDE_UTTAK_IKKE_SØKT_INNVILGET_SAMTIDIG_UTTAK,
-            DEN_ANDRE_PART_HAR_OVERLAPPENDE_UTTAKSPERIODER_SOM_ER_INNVILGET_UTSETTELSE);
     }
 
     public enum LovEndring {

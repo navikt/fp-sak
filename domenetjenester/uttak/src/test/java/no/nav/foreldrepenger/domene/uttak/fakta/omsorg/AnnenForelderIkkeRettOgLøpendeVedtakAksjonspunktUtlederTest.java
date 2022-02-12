@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
@@ -108,7 +108,7 @@ public class AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtlederTest {
         var scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
         var uttakMor = new UttakResultatPerioderEntitet();
         var morUttakPeriode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 3, 28),
-            LocalDate.of(2019, 3, 28)).medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER)
+            LocalDate.of(2019, 3, 28)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER)
             .build();
         var morUttakAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(
             morUttakPeriode,
