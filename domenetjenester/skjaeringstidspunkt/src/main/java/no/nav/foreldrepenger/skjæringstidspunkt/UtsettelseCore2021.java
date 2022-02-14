@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.skjæringstidspunkt;
 
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak.SØKNADSFRIST;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.SØKNADSFRIST;
 
 import java.time.LocalDate;
 import java.time.Period;

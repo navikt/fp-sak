@@ -19,8 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
@@ -336,7 +334,7 @@ public class VedtaksperioderHelperTest {
             toUttakPeriodeType(StønadskontoType.FELLESPERIODE)).build();
         var avlått = new UttakResultatPeriodeEntitet.Builder(fødselsdato.plusWeeks(12),
             fødselsdato.plusWeeks(16).minusDays(1)).medResultatType(PeriodeResultatType.AVSLÅTT,
-            IkkeOppfyltÅrsak.DEN_ANDRE_PART_OVERLAPPENDE_UTTAK_IKKE_SØKT_INNVILGET_SAMTIDIG_UTTAK)
+            PeriodeResultatÅrsak.DEN_ANDRE_PART_OVERLAPPENDE_UTTAK_IKKE_SØKT_INNVILGET_SAMTIDIG_UTTAK)
             .medPeriodeSoknad(periodeSøknad)
             .build();
 
@@ -384,7 +382,7 @@ public class VedtaksperioderHelperTest {
             toUttakPeriodeType(StønadskontoType.FELLESPERIODE)).build();
         var avlått = new UttakResultatPeriodeEntitet.Builder(fødselsdato.plusWeeks(12),
             fødselsdato.plusWeeks(16).minusDays(1)).medResultatType(PeriodeResultatType.AVSLÅTT,
-            IkkeOppfyltÅrsak.DEN_ANDRE_PART_HAR_OVERLAPPENDE_UTTAKSPERIODER_SOM_ER_INNVILGET_UTSETTELSE)
+            PeriodeResultatÅrsak.DEN_ANDRE_PART_HAR_OVERLAPPENDE_UTTAKSPERIODER_SOM_ER_INNVILGET_UTSETTELSE)
             .medPeriodeSoknad(periodeSøknad)
             .build();
 
@@ -768,7 +766,7 @@ public class VedtaksperioderHelperTest {
     public void skalKonvertereOverføringÅrsak() {
         var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2018, Month.JULY, 3),
             LocalDate.of(2018, Month.JULY, 10)).medResultatType(PeriodeResultatType.INNVILGET,
-            InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medOverføringÅrsak(OverføringÅrsak.SYKDOM_ANNEN_FORELDER)
             .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medMottattDato(LocalDate.of(2017, 1, 1))
                 .medUttakPeriodeType(UttakPeriodeType.FEDREKVOTE)
@@ -790,7 +788,7 @@ public class VedtaksperioderHelperTest {
         var mottattDato = LocalDate.of(2017, 1, 1);
         var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2018, Month.JULY, 3),
             LocalDate.of(2018, Month.JULY, 10)).medResultatType(PeriodeResultatType.INNVILGET,
-            InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medPeriodeSoknad(
                 new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.FEDREKVOTE)
                     .medMottattDato(mottattDato)

@@ -39,18 +39,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
@@ -252,7 +249,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder,
                 Collections.nCopies(revurderingPerioder.size(), false),
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
-                List.of(PeriodeResultatÅrsak.UKJENT, IkkeOppfyltÅrsak.BARNET_ER_DØD),
+                List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
                 List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
         lagreEndringsdato(endringsdato, revurdering.getId());
@@ -313,7 +310,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder,
                 Collections.nCopies(revurderingPerioder.size(), false),
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET),
-                List.of(PeriodeResultatÅrsak.UKJENT, IkkeOppfyltÅrsak.UKJENT),
+                List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
                 List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
@@ -377,7 +374,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder,
                 Collections.nCopies(revurderingPerioder.size(), false),
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET),
-                List.of(PeriodeResultatÅrsak.UKJENT, IkkeOppfyltÅrsak.UKJENT),
+                List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
                 List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
@@ -830,7 +827,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(førstegangsbehandling, revurderingPerioder,
                 Collections.nCopies(revurderingPerioder.size(), false),
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
-                List.of(PeriodeResultatÅrsak.UKJENT, IkkeOppfyltÅrsak.BARNET_ER_DØD),
+                List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
                 List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
@@ -838,7 +835,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder,
                 Collections.nCopies(revurderingPerioder.size(), false),
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
-                List.of(PeriodeResultatÅrsak.UKJENT, IkkeOppfyltÅrsak.BARNET_ER_DØD),
+                List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
                 List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
@@ -881,7 +878,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(førstegangsbehandling, revurderingPerioder,
                 Collections.nCopies(revurderingPerioder.size(), false),
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
-                List.of(PeriodeResultatÅrsak.UKJENT, IkkeOppfyltÅrsak.BARNET_ER_DØD),
+                List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
                 List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
@@ -889,7 +886,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder,
                 Collections.nCopies(revurderingPerioder.size(), false),
                 List.of(PeriodeResultatType.AVSLÅTT, PeriodeResultatType.AVSLÅTT),
-                List.of(IkkeOppfyltÅrsak.BARNET_ER_DØD, IkkeOppfyltÅrsak.BARNET_ER_DØD),
+                List.of(PeriodeResultatÅrsak.BARNET_ER_DØD, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
                 List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
         lagreEndringsdato(endringsdato, revurdering.getId());
@@ -935,7 +932,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(førstegangsbehandling, revurderingPerioder,
                 Collections.nCopies(revurderingPerioder.size(), false),
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
-                List.of(PeriodeResultatÅrsak.UKJENT, IkkeOppfyltÅrsak.BARNET_ER_DØD),
+                List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
                 List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
@@ -943,7 +940,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder,
                 Collections.nCopies(revurderingPerioder.size(), false),
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
-                List.of(PeriodeResultatÅrsak.UKJENT, IkkeOppfyltÅrsak.BARNET_ER_DØD),
+                List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
                 List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
@@ -999,7 +996,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(førstegangsbehandling, revurderingPerioder,
                 Collections.nCopies(revurderingPerioder.size(), false),
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
-                List.of(PeriodeResultatÅrsak.UKJENT, IkkeOppfyltÅrsak.BARNET_ER_DØD),
+                List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
                 List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
@@ -1007,7 +1004,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder,
                 Collections.nCopies(revurderingPerioder.size(), false),
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
-                List.of(PeriodeResultatÅrsak.UKJENT, IkkeOppfyltÅrsak.BARNET_ER_DØD),
+                List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
                 List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
@@ -1055,7 +1052,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(førstegangsbehandling, revurderingPerioder,
                 Collections.nCopies(revurderingPerioder.size(), false),
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
-                List.of(PeriodeResultatÅrsak.UKJENT, IkkeOppfyltÅrsak.BARNET_ER_DØD),
+                List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
                 List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
@@ -1063,7 +1060,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder,
                 Collections.nCopies(revurderingPerioder.size(), false),
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
-                List.of(PeriodeResultatÅrsak.UKJENT, IkkeOppfyltÅrsak.BARNET_ER_DØD),
+                List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.BARNET_ER_DØD),
                 Collections.nCopies(revurderingPerioder.size(), true), List.of(100), List.of(100),
                 List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 

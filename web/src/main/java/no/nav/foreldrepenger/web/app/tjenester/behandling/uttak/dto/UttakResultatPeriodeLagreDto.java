@@ -16,8 +16,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeUtfallÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
@@ -104,7 +102,10 @@ public class UttakResultatPeriodeLagreDto {
     }
 
     public PeriodeResultatÅrsak getPeriodeResultatÅrsak() {
-        return periodeResultatÅrsak == null ? PeriodeResultatÅrsak.UKJENT : periodeResultatÅrsak;
+        if (periodeUtfallÅrsak != null) {
+            return PeriodeResultatÅrsak.fraKode(periodeUtfallÅrsak.getKode());
+        }
+        return periodeResultatÅrsak != null ? periodeResultatÅrsak : PeriodeResultatÅrsak.UKJENT;
     }
 
     public PeriodeUtfallÅrsak getPeriodeUtfallÅrsak() {
@@ -138,20 +139,6 @@ public class UttakResultatPeriodeLagreDto {
         return mottattDato;
     }
 
-    public static PeriodeResultatÅrsak utledPerioderesultatÅrsak(UttakResultatPeriodeLagreDto dto) {
-        if (dto.getPeriodeUtfallÅrsak() != null && !PeriodeUtfallÅrsak.UKJENT.equals(dto.getPeriodeUtfallÅrsak())) {
-            if (InnvilgetÅrsak.kodeMap().containsKey(dto.getPeriodeUtfallÅrsak().getKode())) {
-                return InnvilgetÅrsak.kodeMap().get(dto.getPeriodeUtfallÅrsak().getKode());
-            } else if (IkkeOppfyltÅrsak.kodeMap().containsKey(dto.getPeriodeUtfallÅrsak().getKode())) {
-                return IkkeOppfyltÅrsak.kodeMap().get(dto.getPeriodeUtfallÅrsak().getKode());
-            } else {
-                throw new IllegalArgumentException("Utviklerfeil - finner ikke koden fra periodeUtfallÅrsak");
-            }
-        } else {
-            return PeriodeResultatÅrsak.UKJENT;
-        }
-    }
-
     public static class Builder {
 
         private final UttakResultatPeriodeLagreDto kladd = new UttakResultatPeriodeLagreDto();
@@ -178,12 +165,7 @@ public class UttakResultatPeriodeLagreDto {
 
         public Builder medPeriodeResultatÅrsak(PeriodeResultatÅrsak årsak) {
             kladd.periodeResultatÅrsak = årsak;
-            kladd.periodeUtfallÅrsak = årsak != null ? PeriodeUtfallÅrsak.fraKode(årsak.getKode()) : null;
-            return this;
-        }
-
-        public Builder medPeriodeUtfallÅrsak(PeriodeUtfallÅrsak årsak) {
-            kladd.periodeUtfallÅrsak = årsak;
+            kladd.periodeUtfallÅrsak = PeriodeUtfallÅrsak.fraKode(årsak.getKode());
             return this;
         }
 

@@ -23,8 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
@@ -294,15 +292,11 @@ public final class UttakEnumMapper {
         return ManuellBehandlingÅrsak.fraKode(String.valueOf(input.getId()));
     }
 
-    public static PeriodeResultatÅrsak map(PeriodeResultatType periodeResultatType, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.PeriodeResultatÅrsak årsak) {
+    public static PeriodeResultatÅrsak map(no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.PeriodeResultatÅrsak årsak) {
         if (årsak == null) {
             return PeriodeResultatÅrsak.UKJENT;
         }
-
-        if (PeriodeResultatType.INNVILGET.equals(periodeResultatType)) {
-            return InnvilgetÅrsak.fraKode(String.valueOf(årsak.getId()));
-        }
-        return IkkeOppfyltÅrsak.fraKode(String.valueOf(årsak.getId()));
+        return PeriodeResultatÅrsak.fraKode(String.valueOf(årsak.getId()));
     }
 
     public static GraderingAvslagÅrsak map(GraderingIkkeInnvilgetÅrsak graderingIkkeInnvilgetÅrsak) {

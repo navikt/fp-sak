@@ -40,8 +40,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
@@ -747,7 +745,7 @@ public class FastsettePerioderRegelAdapterTest {
         var farUttakresultat = new UttakResultatPerioderEntitet();
         var farPeriode = new UttakResultatPeriodeEntitet.Builder(
             morUtsettelseFørstegangs.getFom(), morUtsettelseFørstegangs.getTom()).medResultatType(
-            PeriodeResultatType.INNVILGET, InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER).build();
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER).build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(farPeriode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(
             StønadskontoType.FEDREKVOTE)
@@ -983,7 +981,7 @@ public class FastsettePerioderRegelAdapterTest {
             mødrekvote.getAktiviteter(), virksomhetSomGradereresHos);
         var aktivitetMørdrekvoteVirksomhet2 = aktivitetForArbeidsgiver(
             mødrekvote.getAktiviteter(), annenVirksomhet);
-        assertThat(mødrekvote.getResultatÅrsak()).isInstanceOf(InnvilgetÅrsak.class);
+        assertThat(mødrekvote.getResultatÅrsak()).isInstanceOf(PeriodeResultatÅrsak.class);
         assertThat(mødrekvote.isGraderingInnvilget()).isFalse();
         assertThat(mødrekvote.getGraderingAvslagÅrsak()).isEqualTo(GraderingAvslagÅrsak.UKJENT);
         assertThat(aktivitetMørdrekvoteVirksomhet1.getTrekkdager()).isEqualTo(new Trekkdager(5 * 6));
@@ -999,7 +997,7 @@ public class FastsettePerioderRegelAdapterTest {
             gradertMødrekvote.getAktiviteter(), virksomhetSomGradereresHos);
         var aktivitetGradertMørdrekvoteVirksomhet2 = aktivitetForArbeidsgiver(
             gradertMødrekvote.getAktiviteter(), annenVirksomhet);
-        assertThat(gradertMødrekvote.getResultatÅrsak()).isInstanceOf(InnvilgetÅrsak.class);
+        assertThat(gradertMødrekvote.getResultatÅrsak()).isInstanceOf(PeriodeResultatÅrsak.class);
         assertThat(gradertMødrekvote.isGraderingInnvilget()).isTrue();
         assertThat(gradertMødrekvote.getGraderingAvslagÅrsak()).isEqualTo(GraderingAvslagÅrsak.UKJENT);
         assertThat(aktivitetGradertMørdrekvoteVirksomhet1.getTrekkdager()).isEqualTo(
@@ -1293,7 +1291,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medUtbetalingsgrad(Utbetalingsgrad.TEN)
             .build();
         var opprinneligMødrekvote = new UttakResultatPeriodeEntitet.Builder(fødselsdato,
-            fødselsdato.plusWeeks(8)).medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.UKJENT).build();
+            fødselsdato.plusWeeks(8)).medResultatType(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.UKJENT).build();
         var aktivitet2 = new UttakResultatPeriodeAktivitetEntitet.Builder(
             opprinneligMødrekvote, uttakAktivitet).medTrekkonto(StønadskontoType.MØDREKVOTE)
             .medErSøktGradering(false)
@@ -1589,7 +1587,7 @@ public class FastsettePerioderRegelAdapterTest {
             arbeidsgiver3).getTrekkdager()).isEqualTo(new Trekkdager(10));
 
         assertThat(mødrekvoteAlleTomForDager.isInnvilget()).isFalse();
-        assertThat(mødrekvoteAlleTomForDager.getResultatÅrsak()).isEqualTo(IkkeOppfyltÅrsak.IKKE_STØNADSDAGER_IGJEN);
+        assertThat(mødrekvoteAlleTomForDager.getResultatÅrsak()).isEqualTo(PeriodeResultatÅrsak.IKKE_STØNADSDAGER_IGJEN);
     }
 
     private YrkesaktivitetBuilder lagYrkesaktivitet(Arbeidsgiver arbeidsgiver, LocalDate fom) {

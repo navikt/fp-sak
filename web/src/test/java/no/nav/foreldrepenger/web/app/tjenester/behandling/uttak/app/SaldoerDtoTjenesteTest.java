@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
@@ -254,7 +254,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             .medTidsperiode(LocalDate.of(2019, 2, 19), LocalDate.of(2019, 2, 19))
             .medAktiviteter(Collections.singletonList(aktivitetDto))
             .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
-            .medPeriodeResultatÅrsak(InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medPeriodeResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .build();
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(input(morsBehandling, fødseldato),
@@ -834,7 +834,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
                             UttakAktivitetMedTrekkdager... aktiviteter) {
 
         var periode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medSamtidigUttak(samtidigUttak)
             .medFlerbarnsdager(flerbarnsdager)
             .build();

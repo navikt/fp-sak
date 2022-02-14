@@ -29,8 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMe
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
@@ -98,12 +97,12 @@ public class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
 
     private UttakResultatPeriodeEntitet lagInnvilgetUttakPeriode(LocalDate fom, LocalDate tom) {
         return new UttakResultatPeriodeEntitet.Builder(fom, tom)
-                .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER).build();
+                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER).build();
     }
 
     private UttakResultatPeriodeEntitet lagOpphørtPeriode(LocalDate fom, LocalDate tom) {
         return new UttakResultatPeriodeEntitet.Builder(fom, tom)
-                .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.opphørsAvslagÅrsaker().iterator().next()).build();
+                .medResultatType(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.opphørsAvslagÅrsaker().iterator().next()).build();
     }
 
     private void opprettFamilieHendelseGrunnlag(Behandling originalBehandling, Behandling revurdering) {

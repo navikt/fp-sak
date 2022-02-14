@@ -15,8 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
@@ -55,12 +53,12 @@ class AvslagØverføringValideringTest {
 
     private ForeldrepengerUttakPeriode avslåttOverføring(StønadskontoType kontoDetTrekkesFra,
                                                          UttakPeriodeType søktKonto) {
-        return overføring(kontoDetTrekkesFra, søktKonto, IkkeOppfyltÅrsak.DEN_ANDRE_PART_INNLEGGELSE_IKKE_OPPFYLT);
+        return overføring(kontoDetTrekkesFra, søktKonto, PeriodeResultatÅrsak.DEN_ANDRE_PART_INNLEGGELSE_IKKE_OPPFYLT);
     }
 
     private ForeldrepengerUttakPeriode innvilgetOverføring(StønadskontoType kontoDetTrekkesFra,
                                                            UttakPeriodeType søktKonto) {
-        return overføring(kontoDetTrekkesFra, søktKonto, InnvilgetÅrsak.OVERFØRING_ANNEN_PART_INNLAGT);
+        return overføring(kontoDetTrekkesFra, søktKonto, PeriodeResultatÅrsak.OVERFØRING_ANNEN_PART_INNLAGT);
     }
 
     private ForeldrepengerUttakPeriode overføring(StønadskontoType kontoDetTrekkesFra,
@@ -71,7 +69,7 @@ class AvslagØverføringValideringTest {
             LocalDate.now().plusWeeks(3))
             .medOverføringÅrsak(OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER)
             .medResultatÅrsak(resultatÅrsak)
-            .medResultatType(resultatÅrsak instanceof InnvilgetÅrsak ? PeriodeResultatType.INNVILGET : PeriodeResultatType.AVSLÅTT)
+            .medResultatType(resultatÅrsak != null && PeriodeResultatÅrsak.UtfallType.INNVILGET.equals(resultatÅrsak.getUtfallType()) ? PeriodeResultatType.INNVILGET : PeriodeResultatType.AVSLÅTT)
             .medAktiviteter(List.of(aktivitet))
             .medSøktKonto(søktKonto)
             .build();

@@ -10,12 +10,11 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -94,7 +93,7 @@ public class UttakPerioderMapperTest {
         var opprinneligPeriode = new ForeldrepengerUttakPeriode.Builder()
                 .medTidsperiode(fom, tom)
                 .medResultatType(PeriodeResultatType.INNVILGET)
-                .medResultatÅrsak(InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+                .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
                 .medAktiviteter(List.of(periodeAktivitet1, periodeAktivitet2))
                 .build();
         var mapped = UttakPerioderMapper.map(dto.getPerioder(), List.of(opprinneligPeriode));

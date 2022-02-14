@@ -25,10 +25,10 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
@@ -131,19 +131,19 @@ public class ForvaltningUttakTjeneste {
         return kopiertPeriode;
     }
 
-    private IkkeOppfyltÅrsak opphørAvslagsårsak(Behandling behandling) {
+    private PeriodeResultatÅrsak opphørAvslagsårsak(Behandling behandling) {
         var vilkårResultat = vilkårResultatRepository.hent(behandling.getId());
         if (!opptjeningsvilkåretOppfylt(vilkårResultat)) {
-            return IkkeOppfyltÅrsak.OPPTJENINGSVILKÅRET_IKKE_OPPFYLT;
+            return PeriodeResultatÅrsak.OPPTJENINGSVILKÅRET_IKKE_OPPFYLT;
         }
         if (!fødselsvilkårOppfylt(vilkårResultat, BehandlingReferanse.fra(behandling))) {
-            return IkkeOppfyltÅrsak.FØDSELSVILKÅRET_IKKE_OPPFYLT;
+            return PeriodeResultatÅrsak.FØDSELSVILKÅRET_IKKE_OPPFYLT;
         }
         if (!adopsjonsvilkåretOppfylt(vilkårResultat)) {
-            return IkkeOppfyltÅrsak.ADOPSJONSVILKÅRET_IKKE_OPPFYLT;
+            return PeriodeResultatÅrsak.ADOPSJONSVILKÅRET_IKKE_OPPFYLT;
         }
         if (!foreldreansvarsvilkåretOppfylt(vilkårResultat)) {
-            return IkkeOppfyltÅrsak.FORELDREANSVARSVILKÅRET_IKKE_OPPFYLT;
+            return PeriodeResultatÅrsak.FORELDREANSVARSVILKÅRET_IKKE_OPPFYLT;
         }
         throw new ForvaltningException("Alle inngangsvilkår er oppfylt");
     }

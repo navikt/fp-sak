@@ -275,7 +275,7 @@ public class FastsettePerioderRegelResultatKonverterer {
                                                    UttakResultatPeriodeSøknadEntitet periodeSøknad) {
         var periodeResultatType = UttakEnumMapper.map(uttakPeriode.getPerioderesultattype());
         return new UttakResultatPeriodeEntitet.Builder(uttakPeriode.getFom(), uttakPeriode.getTom()).medResultatType(
-            periodeResultatType, UttakEnumMapper.map(periodeResultatType, uttakPeriode.getPeriodeResultatÅrsak()))
+            periodeResultatType, UttakEnumMapper.map(uttakPeriode.getPeriodeResultatÅrsak()))
             .medDokRegel(dokRegel)
             .medGraderingInnvilget(uttakPeriode.erGraderingInnvilget())
             .medUtsettelseType(toUtsettelseType(uttakPeriode))

@@ -87,11 +87,9 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
     @Column(name="periode_resultat_type", nullable = false)
     private PeriodeResultatType periodeResultatType;
 
-    @Column(name = "kl_periode_resultat_aarsak", nullable = false)
-    private String klPeriodeResultatÅrsak = PeriodeResultatÅrsak.UKJENT.getKode();
-
+    @Convert(converter = PeriodeResultatÅrsak.KodeverdiConverter.class)
     @Column(name="PERIODE_RESULTAT_AARSAK", nullable = false)
-    private String periodeResultatÅrsak;
+    private PeriodeResultatÅrsak periodeResultatÅrsak;
 
     @Convert(converter = GraderingAvslagÅrsak.KodeverdiConverter.class)
     @Column(name="gradering_avslag_aarsak", nullable = false)
@@ -165,13 +163,7 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
     }
 
     public PeriodeResultatÅrsak getResultatÅrsak() {
-        if (Objects.equals(klPeriodeResultatÅrsak, IkkeOppfyltÅrsak.KODEVERK)) {
-            return IkkeOppfyltÅrsak.fraKode(periodeResultatÅrsak);
-        }
-        if (Objects.equals(klPeriodeResultatÅrsak, InnvilgetÅrsak.KODEVERK)) {
-            return InnvilgetÅrsak.fraKode(periodeResultatÅrsak);
-        }
-        return PeriodeResultatÅrsak.UKJENT;
+        return periodeResultatÅrsak;
     }
 
     public GraderingAvslagÅrsak getGraderingAvslagÅrsak() {
@@ -319,8 +311,7 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
 
         public Builder medResultatType(PeriodeResultatType periodeResultatType, PeriodeResultatÅrsak periodeResultatÅrsak) {
             kladd.periodeResultatType = periodeResultatType;
-            kladd.periodeResultatÅrsak = periodeResultatÅrsak.getKode();
-            kladd.klPeriodeResultatÅrsak = periodeResultatÅrsak.getKodeverk();
+            kladd.periodeResultatÅrsak = periodeResultatÅrsak;
             return this;
         }
 

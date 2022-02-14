@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ApplicationScoped
@@ -328,7 +328,7 @@ public class BehandlingRevurderingRepository {
             .setParameter("ytelse", YTELSE_TYPER)
             .setParameter("berort", BehandlingÅrsakType.alleTekniskeÅrsaker().stream().map(BehandlingÅrsakType::getKode).collect(Collectors.toList()))
             .setParameter("grunnbelop", BeregningSatsType.GRUNNBELØP.getKode())
-            .setParameter("sokfrist", IkkeOppfyltÅrsak.SØKNADSFRIST.getKode())
+            .setParameter("sokfrist", PeriodeResultatÅrsak.SØKNADSFRIST.getKode())
             .setParameter("utinnvilg", PeriodeResultatType.INNVILGET.getKode());
     }
 

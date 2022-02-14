@@ -41,8 +41,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
@@ -540,7 +538,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         var fomOpprinneligUttak = FØDSELSDATO;
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(fomOpprinneligUttak,
             fomOpprinneligUttak.plusWeeks(1)).medResultatType(PeriodeResultatType.INNVILGET,
-            InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER).build();
+            PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER).build();
         var uttakAktivitet1 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(
             UttakArbeidType.FRILANS).build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(opprinneligPeriode, uttakAktivitet1).medArbeidsprosent(
@@ -571,7 +569,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         var fomOpprinneligUttak = FØDSELSDATO;
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(fomOpprinneligUttak,
             fomOpprinneligUttak.plusWeeks(1)).medResultatType(PeriodeResultatType.INNVILGET,
-            InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER).build();
+            PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER).build();
         var uttakAktivitet1 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(
             UttakArbeidType.FRILANS).build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(opprinneligPeriode, uttakAktivitet1).medArbeidsprosent(
@@ -599,7 +597,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         var fomOpprinneligUttak = FØDSELSDATO;
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(fomOpprinneligUttak,
             fomOpprinneligUttak.plusWeeks(1)).medResultatType(PeriodeResultatType.INNVILGET,
-            InnvilgetÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER).build();
+            PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER).build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
         var uttakAktivitet1 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(
             UttakArbeidType.ORDINÆRT_ARBEID).medArbeidsforhold(arbeidsgiver, null).build();
@@ -631,7 +629,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         var morTom = morFom.plusDays(10);
         var morPeriode = new UttakResultatPeriodeEntitet.Builder(morFom,
             morTom).medResultatType(PeriodeResultatType.AVSLÅTT,
-            IkkeOppfyltÅrsak.DEN_ANDRE_PART_OVERLAPPENDE_UTTAK_IKKE_SØKT_INNVILGET_SAMTIDIG_UTTAK).build();
+            PeriodeResultatÅrsak.DEN_ANDRE_PART_OVERLAPPENDE_UTTAK_IKKE_SØKT_INNVILGET_SAMTIDIG_UTTAK).build();
         morUttak.leggTilPeriode(morPeriode);
         morScenario.medUttak(morUttak);
         var førstegangsbehandling = morScenario.lagre(repositoryProvider);
@@ -654,7 +652,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         var morTom = morFom.plusDays(10);
         var morPeriode = new UttakResultatPeriodeEntitet.Builder(morFom, morTom).medResultatType(
             PeriodeResultatType.AVSLÅTT,
-            IkkeOppfyltÅrsak.DEN_ANDRE_PART_OVERLAPPENDE_UTTAK_IKKE_SØKT_INNVILGET_SAMTIDIG_UTTAK).build();
+            PeriodeResultatÅrsak.DEN_ANDRE_PART_OVERLAPPENDE_UTTAK_IKKE_SØKT_INNVILGET_SAMTIDIG_UTTAK).build();
         var arbeidsgiver1 = Arbeidsgiver.virksomhet("123");
         var aktivitet1 = new UttakResultatPeriodeAktivitetEntitet.Builder(morPeriode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
