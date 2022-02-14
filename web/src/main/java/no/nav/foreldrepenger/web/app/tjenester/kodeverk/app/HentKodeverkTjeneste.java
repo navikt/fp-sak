@@ -73,7 +73,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeUtfallÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
@@ -124,7 +123,6 @@ public class HentKodeverkTjeneste {
         map.put(Landkoder.class.getSimpleName(), Landkoder.kodeMap().values());
         map.put(ArbeidType.class.getSimpleName(), filtrerArbeidType(ArbeidType.kodeMap().values()));
         map.put(PeriodeResultatÅrsak.class.getSimpleName(), PeriodeResultatÅrsak.kodeMap().values());
-        map.put(PeriodeUtfallÅrsak.class.getSimpleName(), PeriodeUtfallÅrsak.kodeMap().values());
         map.put(OpptjeningAktivitetType.class.getSimpleName(), OpptjeningAktivitetType.kodeMap().values());
         map.put(RevurderingVarslingÅrsak.class.getSimpleName(), RevurderingVarslingÅrsak.kodeMap().values());
         map.put(Inntektskategori.class.getSimpleName(), Inntektskategori.kodeMap().values());
