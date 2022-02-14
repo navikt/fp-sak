@@ -77,6 +77,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
             .medSkjæringstidspunktOpptjening(skjæringstidspunkt)
             .medUtledetMedlemsintervall(utledYtelseintervall(behandlingId, førsteUttakSøknad))
+            .medGjelderFødsel(true)
             .build();
     }
 

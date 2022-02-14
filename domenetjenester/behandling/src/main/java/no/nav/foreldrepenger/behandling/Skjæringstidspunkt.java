@@ -17,6 +17,7 @@ public class Skjæringstidspunkt {
     private LocalDate førsteUttaksdatoGrunnbeløp;
     private LocalDate førsteUttaksdatoSøknad;
     private LocalDateInterval utledetMedlemsintervall;
+    private boolean gjelderFødsel = true;
     private boolean kreverSammenhengendeUttak;
 
     private Skjæringstidspunkt() {
@@ -30,6 +31,7 @@ public class Skjæringstidspunkt {
         this.førsteUttaksdato = other.førsteUttaksdato;
         this.førsteUttaksdatoGrunnbeløp = other.førsteUttaksdatoGrunnbeløp;
         this.førsteUttaksdatoSøknad = other.førsteUttaksdatoSøknad;
+        this.gjelderFødsel = other.gjelderFødsel;
         this.kreverSammenhengendeUttak = other.kreverSammenhengendeUttak;
     }
 
@@ -80,6 +82,11 @@ public class Skjæringstidspunkt {
     /** Grunnbeløpdato er første dag med innvilget uttak/utsettelse/overføring. */
     public Optional<LocalDate> getFørsteUttaksdatoSøknad() {
         return Optional.ofNullable(førsteUttaksdatoSøknad);
+    }
+
+    /** Sak relatert til termin/fødsel - alternativet er adopsjon/omsorgsovertagelse */
+    public boolean gjelderFødsel() {
+        return this.gjelderFødsel;
     }
 
     /** Skal behandles etter nytt regelverk for uttak anno 2021. */
@@ -163,6 +170,11 @@ public class Skjæringstidspunkt {
 
         public Builder medFørsteUttaksdatoSøknad(LocalDate dato) {
             kladd.førsteUttaksdatoSøknad = dato;
+            return this;
+        }
+
+        public Builder medGjelderFødsel(boolean gjelderFødsel) {
+            kladd.gjelderFødsel = gjelderFødsel;
             return this;
         }
 

@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
@@ -21,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.konfig.Tid;
 
@@ -41,6 +43,7 @@ public class StønadsperiodeTjeneste {
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository tilkjentRepository;
     private FpUttakRepository fpUttakRepository;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     StønadsperiodeTjeneste() {
         // CDI
@@ -50,11 +53,13 @@ public class StønadsperiodeTjeneste {
     public StønadsperiodeTjeneste(FagsakRelasjonRepository fagsakRelasjonRepository,
                                   BehandlingRepository behandlingRepository,
                                   FpUttakRepository fpUttakRepository,
-                                  BeregningsresultatRepository tilkjentRepository) {
+                                  BeregningsresultatRepository tilkjentRepository,
+                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
         this.behandlingRepository = behandlingRepository;
         this.tilkjentRepository = tilkjentRepository;
         this.fpUttakRepository = fpUttakRepository;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     public Optional<LocalDate> stønadsperiodeStartdato(Fagsak fagsak) {
@@ -110,9 +115,17 @@ public class StønadsperiodeTjeneste {
     }
 
     private Optional<LocalDate> stønadsperiodeStartdatoFraBehandling(Behandling behandling) {
+        if (RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType())) {
+            var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+            if (stp.gjelderFødsel()) {
+                return stp.getSkjæringstidspunktHvisUtledet().map(VirkedagUtil::fomVirkedag);
+            }
+        }
         return fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())
-            .map(UttakResultatEntitet::getGjeldendePerioder).map(UttakResultatPerioderEntitet::getPerioder)
+            .map(UttakResultatEntitet::getGjeldendePerioder)
+            .map(UttakResultatPerioderEntitet::getPerioder)
             .flatMap(StønadsperiodeTjeneste::finnFørsteStønadsdatoFraUttakResultat);
+
     }
 
     private Optional<LocalDate> stønadsperiodeSluttdato(Behandling behandling) {

@@ -69,11 +69,14 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
         var skjæringstidspunkt = utledSkjæringstidspunktFraBekreftedeData(familieHendelseAggregat)
             .orElseGet(() -> utledSkjæringstidspunktFraOppgitteData(familieHendelseAggregat));
+        var gjelderFødsel = familieHendelseAggregat.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getGjelderFødsel).orElse(true);
         var ytelseIntervall = skjæringstidspunkt != null ? new LocalDateInterval(skjæringstidspunkt.minusWeeks(4), skjæringstidspunkt.plusWeeks(4)) : null;
 
         return Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
             .medUtledetMedlemsintervall(ytelseIntervall)
+            .medGjelderFødsel(gjelderFødsel)
             .build();
     }
 

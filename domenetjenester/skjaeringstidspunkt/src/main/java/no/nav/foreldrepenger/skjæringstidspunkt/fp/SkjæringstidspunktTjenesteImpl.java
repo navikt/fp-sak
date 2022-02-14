@@ -16,6 +16,8 @@ import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -89,13 +91,17 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var sammenhengendeUttak = utsettelse2021.kreverSammenhengendeUttak(behandling);
         var førsteUttaksdatoOpt = Optional.ofNullable(førsteUttaksdag(behandling, sammenhengendeUttak));
         var førsteUttaksdato = førsteUttaksdatoOpt.orElseGet(LocalDate::now); // Mangler grunnlag for å angi dato, bruker midlertidig dagens dato pga Dtos etc.
-        var førsteUttaksdatoFødselsjustert = førsteDatoHensyntattTidligFødsel(behandling, førsteUttaksdato);
+        var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
+        var førsteUttaksdatoFødselsjustert = førsteDatoHensyntattTidligFødsel(behandling, familieHendelseGrunnlag, førsteUttaksdato);
+        var gjelderFødsel = familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getGjelderFødsel).orElse(true);
 
         var builder = Skjæringstidspunkt.builder()
             .medKreverSammenhengendeUttak(sammenhengendeUttak)
             .medFørsteUttaksdato(førsteUttaksdato)
             .medFørsteUttaksdatoGrunnbeløp(førsteUttaksdatoFødselsjustert)
-            .medFørsteUttaksdatoSøknad(førsteUttaksdatoOpt.orElse(null));
+            .medFørsteUttaksdatoSøknad(førsteUttaksdatoOpt.orElse(null))
+            .medGjelderFødsel(gjelderFødsel);
 
         var opptjening = opptjeningRepository.finnOpptjening(behandlingId);
         if (opptjening.filter(Opptjening::erOpptjeningPeriodeVilkårOppfylt).isPresent()) {
@@ -106,7 +112,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
                 .build();
         }
 
-        var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
         Optional<LocalDate> morsMaksDato = !sammenhengendeUttak ? Optional.empty() :
             ytelseMaksdatoTjeneste.beregnMorsMaksdato(behandling.getFagsak().getSaksnummer(), behandling.getFagsak().getRelasjonsRolleType());
         var utledetSkjæringstidspunkt = utlederUtils.utledSkjæringstidspunktFraBehandling(behandling, førsteUttaksdato,
@@ -230,8 +235,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         return UtsettelseCore2021.finnSisteDatoFraUttakResultat(uttakResultatPerioder, kreverSammenhengendeUttak);
     }
 
-    private LocalDate førsteDatoHensyntattTidligFødsel(Behandling behandling, LocalDate førsteUttaksdato) {
-        var grunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId());
+    private LocalDate førsteDatoHensyntattTidligFødsel(Behandling behandling, Optional<FamilieHendelseGrunnlagEntitet> grunnlag, LocalDate førsteUttaksdato) {
         return grunnlag.map(g -> UtsettelseCore2021.førsteUttaksDatoForBeregning(behandling.getRelasjonsRolleType(), g, førsteUttaksdato))
             .orElse(førsteUttaksdato);
     }
