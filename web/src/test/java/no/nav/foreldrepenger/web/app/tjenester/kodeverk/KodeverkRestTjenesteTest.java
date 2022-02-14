@@ -82,7 +82,7 @@ public class KodeverkRestTjenesteTest {
 
         var json = om.writer().withDefaultPrettyPrinter().writeValueAsString(new X(PeriodeResultatÅrsak.STØNADSPERIODE_NYTT_BARN));
 
-        assertThat(json).contains("\"periodeUtfallÅrsak\" : \"4104\"");
+        assertThat(json).contains("\"periodeResultatÅrsak\" : \"4104\"");
     }
 
     @Test
@@ -98,6 +98,6 @@ public class KodeverkRestTjenesteTest {
         assertThat(json).contains("\"utfallType\" : \"AVSLÅTT\"");
     }
 
-    private static record X(PeriodeResultatÅrsak periodeUtfallÅrsak) {}
+    private static record X(PeriodeResultatÅrsak periodeResultatÅrsak) {}
 
 }

@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeUtfallÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 
@@ -25,7 +24,6 @@ public class UttakResultatPeriodeDto {
     private PeriodeResultatType periodeResultatType;
     private String begrunnelse;
     private PeriodeResultatÅrsak periodeResultatÅrsak;
-    private PeriodeUtfallÅrsak periodeUtfallÅrsak;
     private ManuellBehandlingÅrsak manuellBehandlingÅrsak;
     private GraderingAvslagÅrsak graderingAvslagÅrsak;
     private boolean flerbarnsdager;
@@ -44,10 +42,6 @@ public class UttakResultatPeriodeDto {
 
     public PeriodeResultatÅrsak getPeriodeResultatÅrsak() {
         return periodeResultatÅrsak;
-    }
-
-    public PeriodeUtfallÅrsak getPeriodeUtfallÅrsak() {
-        return periodeUtfallÅrsak;
     }
 
     public GraderingAvslagÅrsak getGraderingAvslagÅrsak() {
@@ -144,7 +138,6 @@ public class UttakResultatPeriodeDto {
         }
 
         public Builder medPeriodeResultatÅrsak(PeriodeResultatÅrsak årsak) {
-            kladd.periodeUtfallÅrsak = PeriodeUtfallÅrsak.fraKode(årsak.getKode());
             kladd.periodeResultatÅrsak = årsak;
             return this;
         }

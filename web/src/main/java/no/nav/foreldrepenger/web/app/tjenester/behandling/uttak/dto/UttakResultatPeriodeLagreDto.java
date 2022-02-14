@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeUtfallÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
@@ -45,11 +44,9 @@ public class UttakResultatPeriodeLagreDto {
     @ValidKodeverk
     private PeriodeResultatType periodeResultatType;
 
+    @NotNull
     @ValidKodeverk
     private PeriodeResultatÅrsak periodeResultatÅrsak;
-
-    @ValidKodeverk
-    private PeriodeUtfallÅrsak periodeUtfallÅrsak;
 
     @NotNull
     @ValidKodeverk
@@ -102,14 +99,7 @@ public class UttakResultatPeriodeLagreDto {
     }
 
     public PeriodeResultatÅrsak getPeriodeResultatÅrsak() {
-        if (periodeUtfallÅrsak != null) {
-            return PeriodeResultatÅrsak.fraKode(periodeUtfallÅrsak.getKode());
-        }
         return periodeResultatÅrsak != null ? periodeResultatÅrsak : PeriodeResultatÅrsak.UKJENT;
-    }
-
-    public PeriodeUtfallÅrsak getPeriodeUtfallÅrsak() {
-        return periodeUtfallÅrsak == null ? PeriodeUtfallÅrsak.UKJENT : periodeUtfallÅrsak;
     }
 
     public OppholdÅrsak getOppholdÅrsak() {
@@ -165,7 +155,6 @@ public class UttakResultatPeriodeLagreDto {
 
         public Builder medPeriodeResultatÅrsak(PeriodeResultatÅrsak årsak) {
             kladd.periodeResultatÅrsak = årsak;
-            kladd.periodeUtfallÅrsak = PeriodeUtfallÅrsak.fraKode(årsak.getKode());
             return this;
         }
 
