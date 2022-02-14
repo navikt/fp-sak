@@ -148,7 +148,6 @@ public class StønadsperiodeTjenesteTest {
         førstegangScenario.medSøknadHendelse()
             .medTerminbekreftelse(førstegangScenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medTermindato(termindato));
-        førstegangScenario.medBekreftetHendelse().medFødselsDato(bekreftetfødselsdato);
         førstegangScenario.medBehandlingsresultat(new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         var repoProvider = førstegangScenario.mockBehandlingRepositoryProvider();
         var behandling = førstegangScenario.lagMocked();
@@ -171,6 +170,48 @@ public class StønadsperiodeTjenesteTest {
         assertThat(periode).hasValueSatisfying(b -> {
             assertThat(b.getFomDato()).isEqualTo(skjæringsdato);
             assertThat(b.getTomDato()).isEqualTo(skjæringsdato.plusWeeks(15).minusDays(1));
+        });
+
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId())).thenReturn(Optional.of(behandling));
+
+        // Act/Assert
+        var periodeF =  stønadsperiodeTjeneste.stønadsperiode(behandling.getFagsak());
+        assertThat(periodeF).isEqualTo(periode);
+
+    }
+
+    @Test
+    public void skal_returnere_første_uttak_ved_adopsjon_og_senere_start() {
+        // Arrange
+        var skjæringsdato = VirkedagUtil.fomVirkedag(LocalDate.now().minusDays(30));
+        var uttaksdato = skjæringsdato.plusWeeks(2);
+
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        førstegangScenario.medSøknadHendelse()
+            .medAdopsjon(førstegangScenario.medSøknadHendelse().getAdopsjonBuilder()
+                .medOmsorgsovertakelseDato(skjæringsdato));
+        førstegangScenario.medBehandlingsresultat(new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        var repoProvider = førstegangScenario.mockBehandlingRepositoryProvider();
+        var behandling = førstegangScenario.lagMocked();
+        behandling.avsluttBehandling();
+
+        var ur = new UttakResultatEntitet.Builder(repoProvider.getBehandlingsresultatRepository().hent(behandling.getId()))
+            .medOpprinneligPerioder(new UttakResultatPerioderEntitet()
+                .leggTilPeriode(new UttakResultatPeriodeEntitet.Builder(uttaksdato, uttaksdato.plusWeeks(15).minusDays(1))
+                    .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build())
+                .leggTilPeriode(new UttakResultatPeriodeEntitet.Builder(uttaksdato.plusWeeks(15), uttaksdato.plusWeeks(20).minusDays(1))
+                    .medResultatType(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.IKKE_STØNADSDAGER_IGJEN).build())
+            );
+        when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(ur.build()));
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()))
+            .thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringsdato).medGjelderFødsel(false).build());
+
+        // Act/Assert
+        var periode = stønadsperiodeTjeneste.stønadsperiode(behandling);
+        assertThat(periode).hasValueSatisfying(b -> {
+            assertThat(b.getFomDato()).isEqualTo(uttaksdato);
+            assertThat(b.getTomDato()).isEqualTo(uttaksdato.plusWeeks(15).minusDays(1));
         });
 
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId())).thenReturn(Optional.of(behandling));

@@ -116,15 +116,16 @@ public class StønadsperiodeTjeneste {
 
     private Optional<LocalDate> stønadsperiodeStartdatoFraBehandling(Behandling behandling) {
         if (RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType())) {
-            return skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId())
-                .getSkjæringstidspunktHvisUtledet()
-                .map(VirkedagUtil::fomVirkedag);
-        } else {
-            return fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())
-                .map(UttakResultatEntitet::getGjeldendePerioder)
-                .map(UttakResultatPerioderEntitet::getPerioder)
-                .flatMap(StønadsperiodeTjeneste::finnFørsteStønadsdatoFraUttakResultat);
+            var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+            if (stp.gjelderFødsel()) {
+                return stp.getSkjæringstidspunktHvisUtledet().map(VirkedagUtil::fomVirkedag);
+            }
         }
+        return fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())
+            .map(UttakResultatEntitet::getGjeldendePerioder)
+            .map(UttakResultatPerioderEntitet::getPerioder)
+            .flatMap(StønadsperiodeTjeneste::finnFørsteStønadsdatoFraUttakResultat);
+
     }
 
     private Optional<LocalDate> stønadsperiodeSluttdato(Behandling behandling) {
