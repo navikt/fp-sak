@@ -105,7 +105,7 @@ public class ForeslåBeregningsgrunnlagStegTest {
 
         var beregningTjeneste = new BeregningFPSAK(beregningsgrunnlagKopierOgLagreTjeneste, behandlingRepository,
             new UnitTestLookupInstanceImpl<>(skjæringstidspunktTjeneste), null,
-            null, inputProvider, null, iayTjeneste);
+            null, inputProvider, null, iayTjeneste, beregningHåndterer);
         when(inputProvider.getTjeneste(FagsakYtelseType.FORELDREPENGER)).thenReturn(inputTjeneste);
         steg = new ForeslåBeregningsgrunnlagSteg(behandlingRepository, familieHendelseRepository, new BeregningTjeneste(null, beregningTjeneste), fagsakRelasjonRepository);
 

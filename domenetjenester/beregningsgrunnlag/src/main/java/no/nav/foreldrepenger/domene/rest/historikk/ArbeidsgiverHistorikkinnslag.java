@@ -10,9 +10,9 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.entiteter.AktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetEntitet;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
+import no.nav.foreldrepenger.domene.oppdateringresultat.BeregningAktivitetNøkkel;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ApplicationScoped
@@ -56,14 +56,14 @@ public class ArbeidsgiverHistorikkinnslag {
             .orElse(aktivitetStatus.getNavn());
     }
 
-    public String lagHistorikkinnslagTekstForBeregningaktivitet(BeregningAktivitetEntitet beregningAktivitet,
+    public String lagHistorikkinnslagTekstForBeregningaktivitet(BeregningAktivitetNøkkel aktivitetNøkkel,
                                                                 List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
-        var arbeidsgiver = beregningAktivitet.getArbeidsgiver();
-        var arbeidsforholdRef = beregningAktivitet.getArbeidsforholdRef();
+        var arbeidsgiver = aktivitetNøkkel.getArbeidsgiver();
+        var arbeidsforholdRef = aktivitetNøkkel.getArbeidsforholdRef();
         if (arbeidsgiver != null) {
             return lagArbeidsgiverHistorikkinnslagTekst(arbeidsgiver, arbeidsforholdRef, arbeidsforholdOverstyringer);
         }
-        return beregningAktivitet.getOpptjeningAktivitetType().getNavn();
+        return aktivitetNøkkel.getOpptjeningAktivitetType().getNavn();
     }
 
     private String lagTekstMedArbeidsgiver(Arbeidsgiver arbeidsgiver, List<ArbeidsforholdOverstyring> overstyringer) {

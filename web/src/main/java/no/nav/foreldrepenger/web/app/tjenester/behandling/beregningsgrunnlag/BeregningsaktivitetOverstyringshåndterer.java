@@ -71,9 +71,7 @@ public class BeregningsaktivitetOverstyringshåndterer extends AbstractOverstyri
         var overstyrteAktiviteter = grunnlag.getGjeldendeAktiviteter();
         beregningsaktivitetHistorikkTjeneste.lagHistorikk(behandling.getId(),
             getHistorikkAdapter().tekstBuilder().medHendelse(HistorikkinnslagType.OVERSTYRT),
-            registerAktiviteter,
-            overstyrteAktiviteter,
-            dto.getBegrunnelse(),
-            forrige);
+
+            dto.getBegrunnelse());
     }
 }

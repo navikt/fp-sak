@@ -6,16 +6,20 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
+import no.nav.folketrygdloven.kalkulus.kodeverk.StegType;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_modell.FraKalkulusMapper;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus_rest.FraKalkulusMapper;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.oppdateringresultat.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 import no.nav.foreldrepenger.domene.prosess.KalkulusTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -56,6 +60,12 @@ public class BeregningKalkulus implements BeregningAPI {
         return kalkulusTjeneste.beregn(behandlingReferanse, behandlingStegType);
     }
 
+    @Override
+    public OppdaterBeregningsgrunnlagResultat oppdater(AksjonspunktOppdaterParameter parameter, BekreftetAksjonspunktDto bekreftAksjonspunktDto) {
+        var behandlingReferanse = lagReferanseMedSkjæringstidspunkt(parameter.getBehandlingId());
+        return kalkulusTjeneste.oppdater(behandlingReferanse, bekreftAksjonspunktDto);
+    }
+
     /**
      * Henter beregningsgrunnlag
      *
@@ -81,8 +91,8 @@ public class BeregningKalkulus implements BeregningAPI {
      * @param behandlingId behandlingId
      */
     @Override
-    public void kopier(Long behandlingId) {
-        kalkulusTjeneste.kopier(behandlingId);
+    public void kopierFastsatt(Long behandlingId) {
+        kalkulusTjeneste.kopier(behandlingId, StegType.FAST_BERGRUNN);
     }
 
     /**
