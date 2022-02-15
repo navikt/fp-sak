@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.rest.historikk;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -12,8 +11,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetEntitet;
+import no.nav.foreldrepenger.domene.oppdateringresultat.BeregningAktivitetEndring;
+import no.nav.foreldrepenger.domene.oppdateringresultat.BeregningAktiviteterEndring;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
@@ -37,78 +37,45 @@ public class BeregningsaktivitetHistorikkTjeneste {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
-    public HistorikkInnslagTekstBuilder lagHistorikk(Long behandlingId,
-                                                     BeregningAktivitetAggregatEntitet registerAktiviteter,
-                                                     BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter,
-                                                     String begrunnelse,
-                                                     Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat) {
+    public HistorikkInnslagTekstBuilder lagHistorikk(Long behandlingId, BeregningAktiviteterEndring beregningAktiviteterEndring, String begrunnelse) {
         var historikkInnslagTekstBuilder = historikkAdapter.tekstBuilder();
-        var builder = lagHistorikk(behandlingId, historikkInnslagTekstBuilder, registerAktiviteter,
-            saksbehandledeAktiviteter, begrunnelse, forrigeAggregat);
+        var builder = lagHistorikk(behandlingId, historikkInnslagTekstBuilder, beregningAktiviteterEndring, begrunnelse);
         historikkAdapter.opprettHistorikkInnslag(behandlingId, HistorikkinnslagType.FAKTA_ENDRET);
         return builder;
     }
 
     public HistorikkInnslagTekstBuilder lagHistorikk(Long behandlingId,
-                                                     HistorikkInnslagTekstBuilder tekstBuilder,
-                                                     BeregningAktivitetAggregatEntitet registerAktiviteter,
-                                                     BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter,
-                                                     String begrunnelse,
-                                                     Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat) {
+                                                      HistorikkInnslagTekstBuilder tekstBuilder,
+                                                      BeregningAktiviteterEndring beregningAktiviteterEndring,
+                                                      String begrunnelse) {
         tekstBuilder.medBegrunnelse(begrunnelse).medSkjermlenke(SkjermlenkeType.FAKTA_OM_BEREGNING);
-        var arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId)
-            .getArbeidsforholdOverstyringer();
-        registerAktiviteter.getBeregningAktiviteter().forEach(ba -> {
-            var aktivitetnavn = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningaktivitet(ba,
-                arbeidsforholdOverstyringer);
-            lagSkalBrukesHistorikk(tekstBuilder, saksbehandledeAktiviteter, forrigeAggregat, ba, aktivitetnavn);
-            lagPeriodeHistorikk(tekstBuilder, saksbehandledeAktiviteter, ba, aktivitetnavn);
+        var arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdOverstyringer();
+        beregningAktiviteterEndring.getAktivitetEndringer().forEach(aktivitetEndring -> {
+            var aktivitetnavn = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningaktivitet(
+                aktivitetEndring.getAktivitetNøkkel(), arbeidsforholdOverstyringer);
+            lagSkalBrukesHistorikk(tekstBuilder, aktivitetEndring, aktivitetnavn);
+            lagPeriodeHistorikk(tekstBuilder, aktivitetEndring, aktivitetnavn);
         });
         return tekstBuilder;
     }
 
-    private void lagSkalBrukesHistorikk(HistorikkInnslagTekstBuilder tekstBuilder,
-                                        BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter,
-                                        Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat,
-                                        BeregningAktivitetEntitet ba,
-                                        String aktivitetnavn) {
-        var skalBrukesTilVerdi = finnSkalBrukesTilVerdi(saksbehandledeAktiviteter, ba);
-        var skalBrukesFraVerdi = finnSkalBrukesFraVerdi(forrigeAggregat, ba);
-        if (!skalBrukesTilVerdi.equals(skalBrukesFraVerdi)) {
-            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.AKTIVITET, aktivitetnavn, skalBrukesFraVerdi,
-                skalBrukesTilVerdi);
+    private void lagSkalBrukesHistorikk(HistorikkInnslagTekstBuilder tekstBuilder, BeregningAktivitetEndring aktivitetEndring, String aktivitetnavn) {
+        var skalBrukesEndring = aktivitetEndring.getSkalBrukesEndring();
+        if (skalBrukesEndring != null) {
+            var skalBrukesTilVerdi = skalBrukesEndring.getTilVerdi() ? HistorikkEndretFeltVerdiType.BENYTT : HistorikkEndretFeltVerdiType.IKKE_BENYTT;
+            var skalBrukesFraVerdi = skalBrukesEndring.getTilVerdi() ? HistorikkEndretFeltVerdiType.BENYTT : HistorikkEndretFeltVerdiType.IKKE_BENYTT;
+            if (!skalBrukesTilVerdi.equals(skalBrukesFraVerdi)) {
+                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.AKTIVITET, aktivitetnavn, skalBrukesFraVerdi, skalBrukesTilVerdi);
+            }
         }
-    }
-
-    private HistorikkEndretFeltVerdiType finnSkalBrukesFraVerdi(Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat,
-                                                                BeregningAktivitetEntitet ba) {
-        if (forrigeAggregat.isPresent()) {
-            var finnesIForrige = forrigeAggregat.get()
-                .getBeregningAktiviteter()
-                .stream()
-                .anyMatch(a -> a.getNøkkel().equals(ba.getNøkkel()));
-            return finnesIForrige ? HistorikkEndretFeltVerdiType.BENYTT : HistorikkEndretFeltVerdiType.IKKE_BENYTT;
-        }
-        return null;
-    }
-
-    private HistorikkEndretFeltVerdiType finnSkalBrukesTilVerdi(BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter,
-                                                                BeregningAktivitetEntitet ba) {
-        var finnesISaksbehandletVersjon = finnesMatch(saksbehandledeAktiviteter.getBeregningAktiviteter(), ba);
-        return finnesISaksbehandletVersjon ? HistorikkEndretFeltVerdiType.BENYTT : HistorikkEndretFeltVerdiType.IKKE_BENYTT;
     }
 
     private void lagPeriodeHistorikk(HistorikkInnslagTekstBuilder tekstBuilder,
-                                     BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter,
-                                     BeregningAktivitetEntitet ba,
+                                     BeregningAktivitetEndring aktivitetEndring,
                                      String aktivitetnavn) {
-        var saksbehandletAktivitet = saksbehandledeAktiviteter.getBeregningAktiviteter()
-            .stream()
-            .filter(a -> Objects.equals(a.getNøkkel(), ba.getNøkkel()))
-            .findFirst();
-        if (saksbehandletAktivitet.isPresent()) {
-            var nyPeriodeTom = saksbehandletAktivitet.get().getPeriode().getTomDato();
-            var gammelPeriodeTom = ba.getPeriode().getTomDato();
+        if (aktivitetEndring.getTomDatoEndring() != null) {
+            var nyPeriodeTom = aktivitetEndring.getTomDatoEndring().getTilVerdi();
+            var gammelPeriodeTom = aktivitetEndring.getTomDatoEndring().getFraVerdi();
             if (!nyPeriodeTom.equals(gammelPeriodeTom)) {
                 tekstBuilder.medEndretFelt(HistorikkEndretFeltType.PERIODE_TOM, gammelPeriodeTom, nyPeriodeTom);
                 tekstBuilder.medTema(HistorikkEndretFeltType.AKTIVITET, aktivitetnavn);
@@ -117,9 +84,7 @@ public class BeregningsaktivitetHistorikkTjeneste {
 
     }
 
-    private boolean finnesMatch(List<BeregningAktivitetEntitet> beregningAktiviteter,
-                                BeregningAktivitetEntitet beregningAktivitet) {
-        return beregningAktiviteter.stream()
-            .anyMatch(ba -> Objects.equals(ba.getNøkkel(), beregningAktivitet.getNøkkel()));
+    private boolean finnesMatch(List<BeregningAktivitetEntitet> beregningAktiviteter, BeregningAktivitetEntitet beregningAktivitet) {
+        return beregningAktiviteter.stream().anyMatch(ba -> Objects.equals(ba.getNøkkel(), beregningAktivitet.getNøkkel()));
     }
 }

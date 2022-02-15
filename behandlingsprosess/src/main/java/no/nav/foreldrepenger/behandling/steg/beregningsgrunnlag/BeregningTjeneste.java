@@ -6,9 +6,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.oppdateringresultat.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 
 /**
@@ -48,6 +51,21 @@ public class BeregningTjeneste {
     }
 
     /**
+     * Kjører beregning for angitt steg
+     *  @param parameter             behandlingId
+     * @param bekreftetAksjonspunktDto bekreftetAksjonspunktDto
+     * @return resultat av oppdatering
+     */
+    public OppdaterBeregningsgrunnlagResultat oppdater(AksjonspunktOppdaterParameter parameter, BekreftetAksjonspunktDto bekreftetAksjonspunktDto) {
+        if (skalKalleKalkulus) {
+            return kalkulusBeregner.oppdater(parameter, bekreftetAksjonspunktDto);
+        } else {
+            return fpsakBeregner.oppdater(parameter, bekreftetAksjonspunktDto);
+        }
+    }
+
+
+    /**
      * Henter beregningsgrunnlag
      *
      * @param behandlingId behandlingId
@@ -72,11 +90,14 @@ public class BeregningTjeneste {
     /**
      * Kopierer beregningsgrunnlag
      *
-     * @param behandlingId       behandlingId
-     * @param behandlingStegType Behandlingstegtype
+     * @param behandlingId behandlingId
      */
-    public void kopier(Long behandlingId, BehandlingStegType behandlingStegType) {
-        // TODO: Utvid kalkulus sitt kopier-endepunkt med stegtype for å åpne for kopiering av fastsatt beregningsgrunnlag
+    public void kopier(Long behandlingId) {
+        if (skalKalleKalkulus) {
+            kalkulusBeregner.kopierFastsatt(behandlingId);
+        } else {
+            fpsakBeregner.kopierFastsatt(behandlingId);
+        }
     }
 
     /**

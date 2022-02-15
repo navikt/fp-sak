@@ -11,18 +11,27 @@ import javax.inject.Inject;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.mappers.endringutleder.UtledEndring;
 import no.nav.foreldrepenger.domene.mappers.fra_entitet_til_modell.FraEntitetTilBehandlingsmodellMapper;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OppdatererDtoMapper;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.oppdateringresultat.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.rest.BeregningDtoTjeneste;
+import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
+import no.nav.foreldrepenger.domene.rest.dto.AvklarteAktiviteterDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
@@ -36,6 +45,7 @@ public class BeregningFPSAK implements BeregningAPI {
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
     private BeregningDtoTjeneste beregningDtoTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    private BeregningHåndterer beregningHåndterer;
 
     public BeregningFPSAK() {
     }
@@ -48,7 +58,8 @@ public class BeregningFPSAK implements BeregningAPI {
                           BeregningsgrunnlagVilkårTjeneste beregningsgrunnlagVilkårTjeneste,
                           BeregningsgrunnlagInputProvider inputTjenesteProvider,
                           BeregningDtoTjeneste beregningDtoTjeneste,
-                          InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
+                          InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                          BeregningHåndterer beregningHåndterer) {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.hentBeregningsgrunnlagTjeneste = hentBeregningsgrunnlagTjeneste;
         this.beregningsgrunnlagVilkårTjeneste = beregningsgrunnlagVilkårTjeneste;
@@ -57,6 +68,7 @@ public class BeregningFPSAK implements BeregningAPI {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.beregningDtoTjeneste = beregningDtoTjeneste;
+        this.beregningHåndterer = beregningHåndterer;
     }
 
 
@@ -71,6 +83,26 @@ public class BeregningFPSAK implements BeregningAPI {
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat beregn(Long behandlingId, BehandlingStegType behandlingStegType) {
         var behandlingReferanse = lagReferanseMedSkjæringstidspunkt(behandlingId);
         return beregnUtenKalkulus(behandlingReferanse, behandlingStegType);
+    }
+
+    @Override
+    public OppdaterBeregningsgrunnlagResultat oppdater(AksjonspunktOppdaterParameter param, BekreftetAksjonspunktDto bekreftAksjonspunktDto) {
+        Optional<BeregningsgrunnlagGrunnlagEntitet> forrige;
+        BeregningsgrunnlagGrunnlagEntitet stegGrunnlag;
+        if (bekreftAksjonspunktDto instanceof AvklarteAktiviteterDto dto) {
+            var tjeneste = beregningsgrunnlagInputProvider.getTjeneste(param.getRef().getFagsakYtelseType());
+            var inputUtenBeregningsgrunnlag = tjeneste.lagInput(param.getRef());
+            forrige = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
+                BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
+            stegGrunnlag = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
+                BeregningsgrunnlagTilstand.OPPRETTET).orElseThrow();
+            beregningHåndterer.håndterAvklarAktiviteter(inputUtenBeregningsgrunnlag, OppdatererDtoMapper.mapAvklarteAktiviteterDto(dto));
+        } else {
+            throw new IllegalStateException("Ugyldig aksjonspunkt for beregning");
+        }
+        var nyttGrunnlag = hentBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId()).orElseThrow();
+        return UtledEndring.utled(nyttGrunnlag, stegGrunnlag, forrige, bekreftAksjonspunktDto,
+            inntektArbeidYtelseTjeneste.hentGrunnlag(param.getBehandlingId()));
     }
 
     /**
@@ -97,14 +129,15 @@ public class BeregningFPSAK implements BeregningAPI {
 
     /**
      * Kopierer beregningsgrunnlag
-     *  @param behandlingId       behandlingId
      *
+     * @param behandlingId behandlingId
      */
     @Override
-    public void kopier(Long behandlingId) {
+    public void kopierFastsatt(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var originalBehandlingId = behandling.getOriginalBehandlingId().orElseThrow(() -> new IllegalStateException("Kan ikke kopiere uten original behandling"));
-        beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(originalBehandlingId,behandlingId);
+        var originalBehandlingId = behandling.getOriginalBehandlingId()
+            .orElseThrow(() -> new IllegalStateException("Kan ikke kopiere uten original behandling"));
+        beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(originalBehandlingId, behandlingId);
     }
 
     /**
@@ -116,7 +149,7 @@ public class BeregningFPSAK implements BeregningAPI {
      */
     @Override
     public void rydd(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType, BehandlingStegType tilSteg) {
-            ryddUtenKalkulus(kontekst, behandlingStegType, tilSteg);
+        ryddUtenKalkulus(kontekst, behandlingStegType, tilSteg);
     }
 
     private BeregningsgrunnlagVilkårOgAkjonspunktResultat beregnUtenKalkulus(BehandlingReferanse behandlingReferanse,
