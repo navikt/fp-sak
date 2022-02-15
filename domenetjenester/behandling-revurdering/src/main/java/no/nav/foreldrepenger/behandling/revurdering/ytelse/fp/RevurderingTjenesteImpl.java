@@ -188,7 +188,6 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         var søknadBuilder = new SøknadEntitet.Builder(originalSøknad, true).medErEndringssøknad(false);
         søknadRepository.lagreOgFlush(ny, søknadBuilder.build());
         opptjeningIUtlandDokStatusRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
-        arbeidsforholdValgRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
 
         // gjør til slutt, innebærer kall til abakus
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(originalBehandlingId, nyBehandlingId);
