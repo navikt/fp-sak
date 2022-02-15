@@ -50,11 +50,12 @@ public class FpriskTjeneste {
     }
 
     public void sendRisikovurderingTilFprisk(LagreFaresignalVurderingDto request) {
-        Objects.requireNonNull(request, "behandlingUuid");
+        Objects.requireNonNull(request, "request");
         try {
             oidcRestClient.post(lagreVurderingEndpoint, request);
         } catch (Exception e) {
             LOG.warn("Klarte ikke lagre risikovurdering i fprisk", e);
+            throw e;
         }
     }
 
