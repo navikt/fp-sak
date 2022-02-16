@@ -44,11 +44,11 @@ public enum ReaktiveringStatus implements Kodeverdi {
 
     private String kode;
 
-    private ReaktiveringStatus(String kode) {
+    ReaktiveringStatus(String kode) {
         this.kode = kode;
     }
 
-    private ReaktiveringStatus(String kode, String navn) {
+    ReaktiveringStatus(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

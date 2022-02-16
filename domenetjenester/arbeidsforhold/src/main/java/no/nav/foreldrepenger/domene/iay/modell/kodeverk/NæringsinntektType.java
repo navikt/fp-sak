@@ -54,7 +54,7 @@ public enum NæringsinntektType implements Kodeverdi, MedOffisiellKode, YtelseTy
 
     private String kode;
 
-    private NæringsinntektType(String kode, String navn, String offisiellKode) {
+    NæringsinntektType(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

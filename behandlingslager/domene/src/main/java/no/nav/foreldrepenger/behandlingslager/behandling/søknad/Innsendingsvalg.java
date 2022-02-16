@@ -46,11 +46,11 @@ public enum Innsendingsvalg implements Kodeverdi {
 
     private String kode;
 
-    private Innsendingsvalg(String kode) {
+    Innsendingsvalg(String kode) {
         this.kode = kode;
     }
 
-    private Innsendingsvalg(String kode, String navn) {
+    Innsendingsvalg(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

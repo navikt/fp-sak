@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjene
 import no.nav.foreldrepenger.domene.fp.SykemeldingVentTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
-@FagsakYtelseTypeRef("*")
+@FagsakYtelseTypeRef
 @BehandlingStegRef(kode = "FASTSETT_STP_BER")
 @BehandlingTypeRef
 @ApplicationScoped

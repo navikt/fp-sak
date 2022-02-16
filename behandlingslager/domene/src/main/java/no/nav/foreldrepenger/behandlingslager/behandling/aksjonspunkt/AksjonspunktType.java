@@ -45,7 +45,7 @@ public enum AksjonspunktType implements Kodeverdi {
 
     private String kode;
 
-    private AksjonspunktType(String kode, String navn) {
+    AksjonspunktType(String kode, String navn) {
         this.kode = kode;
         /* merkelig nok har navn blit brukt som offisiell kode bla. mot Pip/ABAC. */
         this.navn = navn;

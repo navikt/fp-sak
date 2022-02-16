@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.es.ManuellRegistreri
 public class ManuellRegistreringFellesValidatorTest {
 
     @Test
-    public void validererTidligereUtenlandsopphold() throws Exception {
+    public void validererTidligereUtenlandsopphold() {
         var forventetFeltnavn = "tidligereOppholdUtenlands";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setHarTidligereOppholdUtenlands(true);
@@ -39,7 +39,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validererTidligereUtenlandsoppholdDatoer() throws Exception {
+    public void validererTidligereUtenlandsoppholdDatoer() {
         var forventetFeltnavn = "tidligereOppholdUtenlands";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setHarTidligereOppholdUtenlands(true);
@@ -99,7 +99,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validererFremtidigUtenlandsoppholdDatoer() throws Exception {
+    public void validererFremtidigUtenlandsoppholdDatoer() {
         var forventetFeltnavn = "fremtidigOppholdUtenlands";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setHarFremtidigeOppholdUtenlands(true);
@@ -140,7 +140,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validererFremtidigUtenlandsopphold() throws Exception {
+    public void validererFremtidigUtenlandsopphold() {
         var forventetFeltnavn = "fremtidigOppholdUtenlands";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setHarFremtidigeOppholdUtenlands(true);
@@ -157,7 +157,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validerTerminEllerFødsel() throws Exception {
+    public void validerTerminEllerFødsel() {
         var forventetFeltnavn = "terminEllerFoedsel";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
@@ -192,7 +192,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validererTermindato() throws Exception {
+    public void validererTermindato() {
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
         registreringDto.setErBarnetFodt(Boolean.FALSE);
@@ -361,7 +361,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validerOmsorgsoveFrtakelsesdato() throws Exception {
+    public void validerOmsorgsoveFrtakelsesdato() {
         var forventetFeltnavn = "omsorgsovertakelsesdato";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.ADOPSJON);

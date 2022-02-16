@@ -82,7 +82,7 @@ public class MedlemskapsvilkårTest {
     }
 
     @BeforeEach
-    public void before() throws Exception {
+    public void before() {
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
                 new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         this.oversetter = new InngangsvilkårOversetter(repositoryProvider,
@@ -139,11 +139,9 @@ public class MedlemskapsvilkårTest {
      * <p>
      * Forventet: Oppfylt
      *
-     * @throws IOException
-     * @throws JsonProcessingException
      */
     @Test
-    public void skal_vurdere_avklart_pliktig_medlem_som_vilkår_oppfylt() throws JsonProcessingException, IOException {
+    public void skal_vurdere_avklart_pliktig_medlem_som_vilkår_oppfylt() {
         // Arrange
         var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_7_a, Landkoder.NOR, PersonstatusType.BOSA);
         scenario.medMedlemskap().medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM);

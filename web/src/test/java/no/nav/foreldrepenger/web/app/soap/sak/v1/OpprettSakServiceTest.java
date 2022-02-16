@@ -157,7 +157,7 @@ public class OpprettSakServiceTest {
     }
 
     @Test
-    public void test_opprettSak_unntak_im_annen_ytelse() throws Exception {
+    public void test_opprettSak_unntak_im_annen_ytelse() {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, FP_FOD);
 
         when(dokumentArkivTjeneste.hentJournalpostForSak(any())).thenReturn(Optional.of(ArkivJournalPost.Builder.ny()

@@ -45,7 +45,7 @@ public enum VariantFormat implements Kodeverdi, MedOffisiellKode {
 
     private String kode;
 
-    private VariantFormat(String kode, String navn, String offisiellKode) {
+    VariantFormat(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

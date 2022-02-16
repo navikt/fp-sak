@@ -51,11 +51,11 @@ public enum SammenligningsgrunnlagType implements Kodeverdi {
 
     private String kode;
 
-    private SammenligningsgrunnlagType(String kode) {
+    SammenligningsgrunnlagType(String kode) {
         this.kode = kode;
     }
 
-    private SammenligningsgrunnlagType(String kode, String navn) {
+    SammenligningsgrunnlagType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

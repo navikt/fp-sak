@@ -46,11 +46,11 @@ public enum ArbeidsforholdIkkeOppfyltÅrsak implements Kodeverdi {
 
     private String kode;
 
-    private ArbeidsforholdIkkeOppfyltÅrsak(String kode) {
+    ArbeidsforholdIkkeOppfyltÅrsak(String kode) {
         this.kode = kode;
     }
 
-    private ArbeidsforholdIkkeOppfyltÅrsak(String kode, String navn) {
+    ArbeidsforholdIkkeOppfyltÅrsak(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

@@ -35,16 +35,16 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
     @Column(name = "IVERKSETTING_STATUS", nullable = false)
     private String iverksettingStatus;
 
-    @Column(name = "GODKJENNENDE_ENHET", nullable = true)
+    @Column(name = "GODKJENNENDE_ENHET")
     private String godkjennendeEnhet;
 
-    @Column(name = "ANSVARLIG_SAKSBEHANDLER", nullable = true)
+    @Column(name = "ANSVARLIG_SAKSBEHANDLER")
     private String ansvarligSaksbehandler;
 
-    @Column(name = "ANSVARLIG_BESLUTTER", nullable = true)
+    @Column(name = "ANSVARLIG_BESLUTTER")
     private String ansvarligBeslutter;
 
-    @Column(name = "VEDTAK_RESULTAT_TYPE_KODE", nullable = true)
+    @Column(name = "VEDTAK_RESULTAT_TYPE_KODE")
     public String vedtakResultatTypeKode;
 
     BehandlingVedtakDvh() {

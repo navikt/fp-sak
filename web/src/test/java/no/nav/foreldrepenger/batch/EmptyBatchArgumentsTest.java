@@ -13,14 +13,14 @@ import no.nav.foreldrepenger.batch.feil.UnknownArgumentsReceivedVLBatchException
 public class EmptyBatchArgumentsTest {
 
     @Test
-    public void skal_kaste_exception_ved_for_mange_argumenter() throws Exception {
+    public void skal_kaste_exception_ved_for_mange_argumenter() {
         Map<String, String> map = new HashMap<>();
         map.put("asdf", "asdf");
         assertThrows(UnknownArgumentsReceivedVLBatchException.class, () -> new EmptyBatchArguments(map));
     }
 
     @Test
-    public void skal_ikke_kaste_exception_ved_ingen_argumenter() throws Exception {
+    public void skal_ikke_kaste_exception_ved_ingen_argumenter() {
         assertTrue(new EmptyBatchArguments(new HashMap<>()).isValid());
     }
 }

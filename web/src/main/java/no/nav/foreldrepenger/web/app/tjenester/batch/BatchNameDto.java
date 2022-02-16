@@ -15,7 +15,7 @@ import no.nav.vedtak.util.InputValideringRegex;
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public class BatchNameDto implements AbacDto {
 
-    @Parameter(description = "Name of batch to run", allowEmptyValue = false, required = true)
+    @Parameter(description = "Name of batch to run", required = true)
     @JsonProperty("batchName")
     @Size(min = 1, max = 100)
     @Pattern(regexp = InputValideringRegex.KODEVERK)

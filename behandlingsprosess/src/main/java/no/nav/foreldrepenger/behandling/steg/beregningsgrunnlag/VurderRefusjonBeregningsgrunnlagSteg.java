@@ -1,5 +1,11 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -11,14 +17,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 @BehandlingStegRef(kode = "VURDER_REF_BERGRUNN")
 @BehandlingTypeRef
-@FagsakYtelseTypeRef("*")
+@FagsakYtelseTypeRef
 @ApplicationScoped
 public class VurderRefusjonBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;

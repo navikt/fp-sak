@@ -42,11 +42,11 @@ public enum Organisasjonstype implements Kodeverdi {
 
     private String kode;
 
-    private Organisasjonstype(String kode) {
+    Organisasjonstype(String kode) {
         this.kode = kode;
     }
 
-    private Organisasjonstype(String kode, String navn) {
+    Organisasjonstype(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

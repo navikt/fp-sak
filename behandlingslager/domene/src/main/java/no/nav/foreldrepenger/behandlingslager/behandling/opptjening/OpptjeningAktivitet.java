@@ -46,7 +46,7 @@ public class OpptjeningAktivitet extends BaseEntitet implements IndexKey {
 
     /** Custom aktivitet referanse. Form og innhold avhenger av #aktivitetType . */
     @ChangeTracked
-    @Column(name = "aktivitet_referanse", nullable = true)
+    @Column(name = "aktivitet_referanse")
     private String aktivitetReferanse;
 
     @ChangeTracked

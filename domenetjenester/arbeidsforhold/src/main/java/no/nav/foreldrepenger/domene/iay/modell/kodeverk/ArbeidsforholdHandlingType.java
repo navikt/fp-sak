@@ -57,11 +57,11 @@ public enum ArbeidsforholdHandlingType implements Kodeverdi {
 
     private String kode;
 
-    private ArbeidsforholdHandlingType(String kode) {
+    ArbeidsforholdHandlingType(String kode) {
         this.kode = kode;
     }
 
-    private ArbeidsforholdHandlingType(String kode, String navn) {
+    ArbeidsforholdHandlingType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

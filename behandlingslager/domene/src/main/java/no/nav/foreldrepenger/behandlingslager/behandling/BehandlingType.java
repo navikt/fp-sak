@@ -71,11 +71,15 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
 
     private String kode;
 
-    private BehandlingType(String kode) {
+    BehandlingType(String kode) {
         this.kode = kode;
     }
 
-    private BehandlingType(String kode, String navn, String offisiellKode, int behandlingstidFristUker, Boolean behandlingstidVarselbrev) {
+    BehandlingType(String kode,
+                   String navn,
+                   String offisiellKode,
+                   int behandlingstidFristUker,
+                   Boolean behandlingstidVarselbrev) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

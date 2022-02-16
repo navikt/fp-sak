@@ -111,7 +111,6 @@ class ForvaltningOppdragTjeneste {
     }
 
     public void patchk27(long behandlingId, long fagsystemId, LocalDate maksDato) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
         var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId)
             .orElseThrow(() -> new IllegalArgumentException("Fant ikke oppdragskontroll for behandlingId=" + behandlingId));
 
@@ -140,8 +139,7 @@ class ForvaltningOppdragTjeneste {
         }
 
         // lag en kopi av dette hva skal patches uten kvittering med fikset tom dato
-        var mapper = new K27OppdragMapper(behandling);
-        mapper.mapTil(oppdragSomPatches, oppdrag110TilPatching.get(0), maksDato);
+        K27OppdragMapper.mapTil(oppdragSomPatches, oppdrag110TilPatching.get(0), maksDato);
 
         // set venter kvittering true på oppdragskontroll
         oppdragSomPatches.setVenterKvittering(true);

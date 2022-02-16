@@ -37,7 +37,7 @@ public enum IverksettingStatus implements Kodeverdi {
 
     private String kode;
 
-    private IverksettingStatus(String kode, String navn) {
+    IverksettingStatus(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

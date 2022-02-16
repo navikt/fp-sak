@@ -41,11 +41,11 @@ public enum VedtakResultatType implements Kodeverdi {
 
     private String kode;
 
-    private VedtakResultatType(String kode) {
+    VedtakResultatType(String kode) {
         this.kode = kode;
     }
 
-    private VedtakResultatType(String kode, String navn) {
+    VedtakResultatType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

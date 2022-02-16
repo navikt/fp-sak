@@ -42,11 +42,11 @@ public enum RelatertYtelseTilstand implements Kodeverdi, MedOffisiellKode {
 
     private String kode;
 
-    private RelatertYtelseTilstand(String kode) {
+    RelatertYtelseTilstand(String kode) {
         this.kode = kode;
     }
 
-    private RelatertYtelseTilstand(String kode, String navn) {
+    RelatertYtelseTilstand(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

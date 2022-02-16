@@ -39,7 +39,7 @@ public class ØkonomioppdragAsyncJmsConsumerImplTest {
     private ØkonomioppdragAsyncJmsConsumerImpl økonomioppdragAsyncJmsConsumerImpl;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         final var mockDefaultDatabaseOppePreconditionChecker = mock(DefaultDatabaseOppePreconditionChecker.class);
         var jmsKonfig = new ØkonomioppdragJmsConsumerKonfig("bruker", "passord");
         økonomioppdragAsyncJmsConsumerImpl = new ØkonomioppdragAsyncJmsConsumerImpl(behandleØkonomioppdragKvittering, mockDefaultDatabaseOppePreconditionChecker, jmsKonfig);

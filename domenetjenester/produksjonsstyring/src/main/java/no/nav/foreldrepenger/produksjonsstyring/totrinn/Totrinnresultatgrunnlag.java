@@ -39,7 +39,7 @@ public class Totrinnresultatgrunnlag extends BaseEntitet {
     @Column(name = "beregningsgrunnlag_id", updatable = false)
     private Long beregningsgrunnlagId;
 
-    @Column(name = "iay_grunnlag_uuid", insertable = true, updatable = false)
+    @Column(name = "iay_grunnlag_uuid", updatable = false)
     private UUID iayGrunnlagUuid;
 
     @Convert(converter = BooleanToStringConverter.class)
@@ -58,7 +58,7 @@ public class Totrinnresultatgrunnlag extends BaseEntitet {
 
     public Totrinnresultatgrunnlag(Behandling behandling,
                                    Long ytelseFordelingGrunnlagEntitetId,
-                                   Long uttakResultatEntitetId, 
+                                   Long uttakResultatEntitetId,
                                    Long beregningsgrunnlagId,
                                    UUID iayGrunnlagUuid) {
         this.behandling = behandling;

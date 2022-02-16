@@ -2,29 +2,25 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import java.time.LocalDate;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 
-class K27OppdragMapper {
+final class K27OppdragMapper {
 
-    private final Behandling behandling;
-
-    public K27OppdragMapper(Behandling behandling) {
-        this.behandling = behandling;
+    private K27OppdragMapper() {
     }
 
-    public void mapTil(Oppdragskontroll oppdragskontroll, Oppdrag110 gammelOppdrag, LocalDate maksDato) {
+    public static void mapTil(Oppdragskontroll oppdragskontroll, Oppdrag110 gammelOppdrag, LocalDate maksDato) {
         var oppdrag110 = mapOppdrag110(gammelOppdrag, oppdragskontroll);
         for (var linje : gammelOppdrag.getOppdragslinje150Liste()) {
             mapOppdragslinje(oppdrag110, linje, maksDato);
         }
     }
 
-    private void mapOppdragslinje(Oppdrag110 oppdrag110, Oppdragslinje150 linje, LocalDate maksDato) {
+    private static void mapOppdragslinje(Oppdrag110 oppdrag110, Oppdragslinje150 linje, LocalDate maksDato) {
         var builder = Oppdragslinje150.builder()
             .medOppdrag110(oppdrag110)
             .medVedtakFomOgTom(linje.getDatoVedtakFom(), linje.getDatoVedtakTom())
@@ -56,7 +52,7 @@ class K27OppdragMapper {
         }
     }
 
-    private Oppdrag110 mapOppdrag110(Oppdrag110 oppdrag110, Oppdragskontroll oppdragskontroll) {
+    private static Oppdrag110 mapOppdrag110(Oppdrag110 oppdrag110, Oppdragskontroll oppdragskontroll) {
         var nyOppdrag110 = Oppdrag110.builder()
             .medOppdragskontroll(oppdragskontroll)
             .medAvstemming(oppdrag110.getAvstemming())

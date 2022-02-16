@@ -106,7 +106,7 @@ public class RisikoklassifiseringTest {
         assertThat(task).isEmpty();
     }
 
-    private void verifyRequestData(ProsessTaskData prosessTaskData, boolean annenPart) throws IOException {
+    private void verifyRequestData(ProsessTaskData prosessTaskData, boolean annenPart) {
         var objectNode = StandardJsonConfig.fromJsonAsTree(prosessTaskData.getPayloadAsString());
         assertThat(objectNode.get("callId").asText()).isEqualTo("callId");
         var request = objectNode.get("request");

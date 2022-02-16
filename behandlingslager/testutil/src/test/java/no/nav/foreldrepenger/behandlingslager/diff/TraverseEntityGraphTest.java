@@ -156,7 +156,7 @@ public class TraverseEntityGraphTest {
     }
 
     @Test
-    public void skal_oppdage_diff_i_kodeverk() throws Exception {
+    public void skal_oppdage_diff_i_kodeverk() {
 
         // Arrange
         var periode1 = new MedlemskapPerioderBuilder().medKildeType(MedlemskapKildeType.ANNEN).build();

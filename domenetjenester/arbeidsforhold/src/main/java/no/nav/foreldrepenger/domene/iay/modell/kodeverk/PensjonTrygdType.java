@@ -74,11 +74,11 @@ public enum PensjonTrygdType implements Kodeverdi, MedOffisiellKode, YtelseType 
     @JsonIgnore
     private String offisiellKode;
 
-    private PensjonTrygdType(String kode) {
+    PensjonTrygdType(String kode) {
         this.kode = kode;
     }
 
-    private PensjonTrygdType(String kode, String navn, String offisiellKode) {
+    PensjonTrygdType(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

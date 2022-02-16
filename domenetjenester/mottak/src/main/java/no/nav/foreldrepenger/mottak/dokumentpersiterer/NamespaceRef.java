@@ -28,7 +28,7 @@ public @interface NamespaceRef {
     String value();
 
     /** AnnotationLiteral som kan brukes ved CDI søk. */
-    public static class NamespaceRefLiteral extends AnnotationLiteral<NamespaceRef> implements NamespaceRef {
+    class NamespaceRefLiteral extends AnnotationLiteral<NamespaceRef> implements NamespaceRef {
 
         private String value;
 

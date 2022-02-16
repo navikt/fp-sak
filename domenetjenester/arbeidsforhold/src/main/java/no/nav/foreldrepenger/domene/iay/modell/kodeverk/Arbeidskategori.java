@@ -53,11 +53,11 @@ public enum Arbeidskategori implements Kodeverdi {
 
     private String kode;
 
-    private Arbeidskategori(String kode) {
+    Arbeidskategori(String kode) {
         this.kode = kode;
     }
 
-    private Arbeidskategori(String kode, String navn) {
+    Arbeidskategori(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

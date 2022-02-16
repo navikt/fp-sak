@@ -39,11 +39,11 @@ public enum VilkårResultatType implements Kodeverdi {
 
     private String kode;
 
-    private VilkårResultatType(String kode) {
+    VilkårResultatType(String kode) {
         this.kode = kode;
     }
 
-    private VilkårResultatType(String kode, String navn) {
+    VilkårResultatType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

@@ -52,7 +52,7 @@ public enum SivilstandType implements Kodeverdi {
     private String navn;
     private String kode;
 
-    private SivilstandType(String kode, String navn) {
+    SivilstandType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

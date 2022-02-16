@@ -49,11 +49,11 @@ public enum FagsakYtelseType implements Kodeverdi {
 
     private String kode;
 
-    private FagsakYtelseType(String kode) {
+    FagsakYtelseType(String kode) {
         this.kode = kode;
     }
 
-    private FagsakYtelseType(String kode, String navn) {
+    FagsakYtelseType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

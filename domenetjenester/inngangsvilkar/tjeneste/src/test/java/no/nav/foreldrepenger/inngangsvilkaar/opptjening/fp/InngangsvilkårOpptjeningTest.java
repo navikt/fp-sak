@@ -20,7 +20,7 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 public class InngangsvilkårOpptjeningTest {
 
     @Test
-    public void test_beregn_opptjening_fra_vilkår_input_data_som_gir_opptjening_P5M7D() throws Exception {
+    public void test_beregn_opptjening_fra_vilkår_input_data_som_gir_opptjening_P5M7D() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/pkmantis-1050.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
@@ -40,7 +40,7 @@ public class InngangsvilkårOpptjeningTest {
     }
 
     @Test
-    public void ikke_duplikat_mellom_avslått_periode_og_mellomliggende() throws Exception {
+    public void ikke_duplikat_mellom_avslått_periode_og_mellomliggende() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/ingen-mellomliggende.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
@@ -56,7 +56,7 @@ public class InngangsvilkårOpptjeningTest {
     }
 
     @Test
-    public void test_beregn_opptjening_fra_vilkår_input_data_som_gir_opptjening_P5M3D() throws Exception {
+    public void test_beregn_opptjening_fra_vilkår_input_data_som_gir_opptjening_P5M3D() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/pkmantis-1050_2.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 

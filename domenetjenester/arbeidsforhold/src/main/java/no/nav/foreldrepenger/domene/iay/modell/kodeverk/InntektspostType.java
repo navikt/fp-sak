@@ -46,11 +46,11 @@ public enum InntektspostType implements Kodeverdi, MedOffisiellKode {
     @JsonIgnore
     private String offisiellKode;
 
-    private InntektspostType(String kode) {
+    InntektspostType(String kode) {
         this.kode = kode;
     }
 
-    private InntektspostType(String kode, String navn, String offisiellKode) {
+    InntektspostType(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

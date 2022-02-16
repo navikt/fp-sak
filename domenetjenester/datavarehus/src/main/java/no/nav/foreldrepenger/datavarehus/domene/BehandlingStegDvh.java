@@ -19,16 +19,16 @@ public class BehandlingStegDvh extends DvhBaseEntitet {
     @Column(name="TRANS_ID")
     private Long id;
 
-    @Column(name = "BEHANDLING_STEG_ID", nullable = true)
+    @Column(name = "BEHANDLING_STEG_ID")
     private Long behandlingStegId;
 
     @Column(name = "BEHANDLING_ID", nullable = false)
     private Long behandlingId;
 
-    @Column(name = "BEHANDLING_STEG_TYPE", nullable = true)
+    @Column(name = "BEHANDLING_STEG_TYPE")
     private String behandlingStegType;
 
-    @Column(name = "BEHANDLING_STEG_STATUS", nullable = true)
+    @Column(name = "BEHANDLING_STEG_STATUS")
     private String behandlingStegStatus;
 
     BehandlingStegDvh() {

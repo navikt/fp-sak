@@ -53,11 +53,11 @@ public enum OffentligYtelseType implements Kodeverdi, MedOffisiellKode, YtelseTy
     @JsonIgnore
     private String offisiellKode;
 
-    private OffentligYtelseType(String kode) {
+    OffentligYtelseType(String kode) {
         this.kode = kode;
     }
 
-    private OffentligYtelseType(String kode, String navn, String offisiellKode) {
+    OffentligYtelseType(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

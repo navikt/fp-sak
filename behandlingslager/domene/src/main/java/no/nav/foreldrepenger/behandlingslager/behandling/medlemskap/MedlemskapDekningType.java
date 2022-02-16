@@ -87,11 +87,11 @@ public enum MedlemskapDekningType implements Kodeverdi {
 
     private String kode;
 
-    private MedlemskapDekningType(String kode) {
+    MedlemskapDekningType(String kode) {
         this.kode = kode;
     }
 
-    private MedlemskapDekningType(String kode, String navn) {
+    MedlemskapDekningType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

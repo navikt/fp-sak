@@ -17,7 +17,7 @@ public class OpptjeningVilkårMellomliggendePerioderTest {
     private final Aktivitet aktivitet = new Aktivitet(ARBEID, "BigCorp", Aktivitet.ReferanseType.ORGNR);
 
     @Test
-    public void skal_anse_mellomliggende_periode_mindre_enn_angitt_maks_med_foregående_periode_lenger_enn_anngitt_min_for_godtatt() throws Exception {
+    public void skal_anse_mellomliggende_periode_mindre_enn_angitt_maks_med_foregående_periode_lenger_enn_anngitt_min_for_godtatt() {
         var maksMellomliggendeDager = 14;
         var minForegåendeDager = 4*7;
 
@@ -53,7 +53,7 @@ public class OpptjeningVilkårMellomliggendePerioderTest {
     }
 
     @Test
-    public void skal_anse_mellomliggende_periode_over_maks_mellomliggende_dager_med_foregående_periode_lenger_enn_min_forgående_dager_for_ikke_medregnet() throws Exception {
+    public void skal_anse_mellomliggende_periode_over_maks_mellomliggende_dager_med_foregående_periode_lenger_enn_min_forgående_dager_for_ikke_medregnet() {
         var maksMellomliggendeDager = 14;
 
         var dt1 = LocalDate.of(2017, 10, 2);

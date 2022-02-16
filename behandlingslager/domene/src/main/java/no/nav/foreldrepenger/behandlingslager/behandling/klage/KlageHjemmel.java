@@ -82,15 +82,20 @@ public enum KlageHjemmel implements Kodeverdi {
     @JsonIgnore
     private Set<FagsakYtelseType.YtelseType> ytelser;
 
-    private KlageHjemmel(String kode) {
+    KlageHjemmel(String kode) {
         this.kode = kode;
     }
 
-    private KlageHjemmel(String kode, String navn, String kapittel, String paragraf, Set<FagsakYtelseType.YtelseType> ytelser) {
+    KlageHjemmel(String kode, String navn, String kapittel, String paragraf, Set<FagsakYtelseType.YtelseType> ytelser) {
         this(kode, navn, FOLKETRYGDLOVEN, kapittel, paragraf, ytelser);
     }
 
-    private KlageHjemmel(String kode, String navn, String lov, String kapittel, String paragraf, Set<FagsakYtelseType.YtelseType> ytelser) {
+    KlageHjemmel(String kode,
+                 String navn,
+                 String lov,
+                 String kapittel,
+                 String paragraf,
+                 Set<FagsakYtelseType.YtelseType> ytelser) {
         this.kode = kode;
         this.navn = navn;
         this.lov = lov;

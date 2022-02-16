@@ -63,11 +63,11 @@ public enum RelatertYtelseType implements Kodeverdi {
 
     private String kode;
 
-    private RelatertYtelseType(String kode) {
+    RelatertYtelseType(String kode) {
         this.kode = kode;
     }
 
-    private RelatertYtelseType(String kode, String navn) {
+    RelatertYtelseType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

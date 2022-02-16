@@ -45,11 +45,11 @@ public enum ForeldreType implements Kodeverdi {
 
     private String kode;
 
-    private ForeldreType(String kode) {
+    ForeldreType(String kode) {
         this.kode = kode;
     }
 
-    private ForeldreType(String kode, String navn) {
+    ForeldreType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

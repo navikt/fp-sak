@@ -42,7 +42,7 @@ public enum OppgaveÅrsak implements Kodeverdi {
 
     private String kode;
 
-    private OppgaveÅrsak(String kode, String navn) {
+    OppgaveÅrsak(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

@@ -63,11 +63,11 @@ public enum TemaUnderkategori implements Kodeverdi {
     @JsonIgnore
     private String offisiellKode;
 
-    private TemaUnderkategori(String kode) {
+    TemaUnderkategori(String kode) {
         this.kode = kode;
     }
 
-    private TemaUnderkategori(String kode, String navn, String offisiellKode) {
+    TemaUnderkategori(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

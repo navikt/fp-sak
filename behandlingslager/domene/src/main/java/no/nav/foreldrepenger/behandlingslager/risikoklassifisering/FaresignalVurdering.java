@@ -48,11 +48,11 @@ public enum FaresignalVurdering implements Kodeverdi {
 
     private String kode;
 
-    private FaresignalVurdering(String kode) {
+    FaresignalVurdering(String kode) {
         this.kode = kode;
     }
 
-    private FaresignalVurdering(String kode, String navn) {
+    FaresignalVurdering(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

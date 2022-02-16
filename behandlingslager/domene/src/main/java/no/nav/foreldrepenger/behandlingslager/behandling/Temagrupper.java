@@ -33,7 +33,7 @@ public enum Temagrupper implements Kodeverdi, MedOffisiellKode {
     @JsonIgnore
     private String offisiellKode;
 
-    private Temagrupper(String kode, String navn, String offisiellKode) {
+    Temagrupper(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

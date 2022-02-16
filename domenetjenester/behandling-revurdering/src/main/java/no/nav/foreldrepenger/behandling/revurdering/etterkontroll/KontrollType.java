@@ -33,11 +33,11 @@ public enum KontrollType implements Kodeverdi {
 
     private String kode;
 
-    private KontrollType(String kode) {
+    KontrollType(String kode) {
         this.kode = kode;
     }
 
-    private KontrollType(String kode, String navn) {
+    KontrollType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

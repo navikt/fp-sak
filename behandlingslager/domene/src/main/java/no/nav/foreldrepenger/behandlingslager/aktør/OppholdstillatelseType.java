@@ -38,7 +38,7 @@ public enum OppholdstillatelseType implements Kodeverdi {
 
     private String kode;
 
-    private OppholdstillatelseType(String kode, String navn) {
+    OppholdstillatelseType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

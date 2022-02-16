@@ -55,11 +55,11 @@ public enum HistorikkAvklartSoeknadsperiodeType implements Kodeverdi {
 
     private String kode;
 
-    private HistorikkAvklartSoeknadsperiodeType(String kode) {
+    HistorikkAvklartSoeknadsperiodeType(String kode) {
         this.kode = kode;
     }
 
-    private HistorikkAvklartSoeknadsperiodeType(String kode, String navn) {
+    HistorikkAvklartSoeknadsperiodeType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

@@ -175,7 +175,7 @@ public class InntektsmeldingTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_ta_hensyn_til_arbeidsforhold_ikke_gyldig_stp() throws Exception {
+    public void skal_ikke_ta_hensyn_til_arbeidsforhold_ikke_gyldig_stp() {
         // Arrange
         final var behandling = opprettBehandling();
         opprettOppgittOpptjening(behandling);

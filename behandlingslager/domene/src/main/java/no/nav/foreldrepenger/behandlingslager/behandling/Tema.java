@@ -38,7 +38,7 @@ public enum Tema implements Kodeverdi, MedOffisiellKode {
 
     private String kode;
 
-    private Tema(String kode, String navn, String offisiellKode) {
+    Tema(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

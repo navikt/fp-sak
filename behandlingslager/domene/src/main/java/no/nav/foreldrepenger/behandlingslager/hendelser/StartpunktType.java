@@ -116,11 +116,11 @@ public enum StartpunktType implements Kodeverdi {
 
     private String kode;
 
-    private StartpunktType(String kode) {
+    StartpunktType(String kode) {
         this.kode = kode;
     }
 
-    private StartpunktType(String kode, String navn, int rangering, BehandlingStegType stegType) {
+    StartpunktType(String kode, String navn, int rangering, BehandlingStegType stegType) {
         this.kode = kode;
         this.navn = navn;
         this.rangering = rangering;

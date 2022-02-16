@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 
-@FagsakYtelseTypeRef("*")
+@FagsakYtelseTypeRef
 @BehandlingStegRef(kode = "FAST_BERGRUNN")
 @BehandlingTypeRef
 @ApplicationScoped

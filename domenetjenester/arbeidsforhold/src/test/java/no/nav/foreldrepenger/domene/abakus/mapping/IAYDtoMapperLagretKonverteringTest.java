@@ -49,7 +49,7 @@ public class IAYDtoMapperLagretKonverteringTest {
     }
 
     @Test
-    public void skal_lagre_ned_inntekt_arbeid_ytelser_og_konvertere_opphentet_til_dto() throws Exception {
+    public void skal_lagre_ned_inntekt_arbeid_ytelser_og_konvertere_opphentet_til_dto() {
         var behandlingId = 1L;
         var behandlingUuid = UUID.randomUUID();
         var aktørId = AktørId.dummy();

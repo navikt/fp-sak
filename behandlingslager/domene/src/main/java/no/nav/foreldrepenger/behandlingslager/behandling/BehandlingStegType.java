@@ -112,11 +112,11 @@ public enum BehandlingStegType implements Kodeverdi {
 
     private String kode;
 
-    private BehandlingStegType(String kode) {
+    BehandlingStegType(String kode) {
         this.kode = kode;
     }
 
-    private BehandlingStegType(String kode, String navn, BehandlingStatus definertBehandlingStatus) {
+    BehandlingStegType(String kode, String navn, BehandlingStatus definertBehandlingStatus) {
         this.kode = kode;
         this.navn = navn;
         this.definertBehandlingStatus = definertBehandlingStatus;

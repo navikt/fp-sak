@@ -34,7 +34,7 @@ public class FinnSakServiceTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_konvertere_fagsak_for_engangsstønad_ved_fødsel_til_ekstern_representasjon() throws Exception {
+    public void skal_konvertere_fagsak_for_engangsstønad_ved_fødsel_til_ekstern_representasjon() {
         final var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSaksnummer(new Saksnummer("1337"));
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
@@ -50,7 +50,7 @@ public class FinnSakServiceTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_konvertere_fagsak_for_engangsstønad_ved_adopsjon_til_ekstern_representasjon() throws Exception {
+    public void skal_konvertere_fagsak_for_engangsstønad_ved_adopsjon_til_ekstern_representasjon() {
         final var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSaksnummer(new Saksnummer("1337"));
         scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));

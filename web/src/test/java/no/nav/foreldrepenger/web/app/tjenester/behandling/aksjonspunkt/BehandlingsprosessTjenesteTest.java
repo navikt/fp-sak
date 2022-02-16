@@ -34,7 +34,7 @@ public class BehandlingsprosessTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_gruppe_når_ikke_er_kjørt() throws Exception {
+    public void skal_returnere_gruppe_når_ikke_er_kjørt() {
 
         var sut = initSut(GRUPPE_1, taskData);
         var status = sut.sjekkProsessTaskPågårForBehandling(behandling, null);
@@ -45,7 +45,7 @@ public class BehandlingsprosessTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_returnere_gruppe_når_er_kjørt() throws Exception {
+    public void skal_ikke_returnere_gruppe_når_er_kjørt() {
         markerFerdig(taskData);
 
         var sut = initSut(GRUPPE_1, taskData);
@@ -58,7 +58,7 @@ public class BehandlingsprosessTjenesteTest {
     }
 
     @Test
-    public void skal_kaste_exception_når_task_har_feilet_null_gruppe() throws Exception {
+    public void skal_kaste_exception_når_task_har_feilet_null_gruppe() {
         markerFeilet(taskData);
 
         var sut = initSut(GRUPPE_1, taskData);
@@ -68,7 +68,7 @@ public class BehandlingsprosessTjenesteTest {
     }
 
     @Test
-    public void skal_kaste_exception_når_task_har_feilet_angitt_gruppe() throws Exception {
+    public void skal_kaste_exception_når_task_har_feilet_angitt_gruppe() {
         markerFeilet(taskData);
 
         var sut = initSut(GRUPPE_1, taskData);
@@ -79,7 +79,7 @@ public class BehandlingsprosessTjenesteTest {
     }
 
     @Test
-    public void skal_kaste_exception_når_task_neste_kjøring_er_utsatt() throws Exception {
+    public void skal_kaste_exception_når_task_neste_kjøring_er_utsatt() {
         taskData.medNesteKjøringEtter(LocalDateTime.now().plusHours(1));
 
         var sut = initSut(GRUPPE_1, taskData);

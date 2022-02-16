@@ -62,11 +62,11 @@ public enum NaturalYtelseType implements Kodeverdi, MedOffisiellKode {
     @JsonIgnore
     private String offisiellKode;
 
-    private NaturalYtelseType(String kode) {
+    NaturalYtelseType(String kode) {
         this.kode = kode;
     }
 
-    private NaturalYtelseType(String kode, String navn, String offisiellKode) {
+    NaturalYtelseType(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

@@ -40,7 +40,7 @@ public @interface DtoTilServiceAdapter {
     Class<?> adapter();
 
     /** For søk på annotation. */
-    public static class Literal extends AnnotationLiteral<DtoTilServiceAdapter> implements DtoTilServiceAdapter {
+    class Literal extends AnnotationLiteral<DtoTilServiceAdapter> implements DtoTilServiceAdapter {
 
         private Class<?> dto;
         private Class<?> adapter;
@@ -72,7 +72,7 @@ public @interface DtoTilServiceAdapter {
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ ElementType.TYPE })
     @Documented
-    public @interface ContainerOfDtoTilServiceAdapter {
+    @interface ContainerOfDtoTilServiceAdapter {
         DtoTilServiceAdapter[] value();
     }
 }

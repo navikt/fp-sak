@@ -66,11 +66,11 @@ public enum VilkårUtfallMerknad implements Kodeverdi {
 
     private String kode;
 
-    private VilkårUtfallMerknad(String kode) {
+    VilkårUtfallMerknad(String kode) {
         this.kode = kode;
     }
 
-    private VilkårUtfallMerknad(String kode, String navn) {
+    VilkårUtfallMerknad(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

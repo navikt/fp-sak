@@ -67,7 +67,7 @@ public class RapporterUnmappedKolonnerIDatabaseTest {
     }
 
     @AfterAll
-    public static void teardown() throws Exception {
+    public static void teardown() {
         entityManagerFactory.close();
     }
 
@@ -103,7 +103,7 @@ public class RapporterUnmappedKolonnerIDatabaseTest {
     }
 
     @SuppressWarnings("unchecked")
-    private void sjekk_alle_kolonner_mappet() throws Exception {
+    private void sjekk_alle_kolonner_mappet() {
         for (var namespace : MetadataExtractorIntegrator.INSTANCE
                 .getDatabase()
                 .getNamespaces()) {
@@ -133,7 +133,7 @@ public class RapporterUnmappedKolonnerIDatabaseTest {
 
     }
 
-    private void sjekk_alle_tabeller_mappet() throws Exception {
+    private void sjekk_alle_tabeller_mappet() {
         for (var namespace : MetadataExtractorIntegrator.INSTANCE
                 .getDatabase()
                 .getNamespaces()) {

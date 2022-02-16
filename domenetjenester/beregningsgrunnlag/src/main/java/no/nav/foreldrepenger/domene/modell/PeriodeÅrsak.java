@@ -51,11 +51,11 @@ public enum PeriodeÅrsak implements Kodeverdi {
 
     private String kode;
 
-    private PeriodeÅrsak(String kode) {
+    PeriodeÅrsak(String kode) {
         this.kode = kode;
     }
 
-    private PeriodeÅrsak(String kode, String navn) {
+    PeriodeÅrsak(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

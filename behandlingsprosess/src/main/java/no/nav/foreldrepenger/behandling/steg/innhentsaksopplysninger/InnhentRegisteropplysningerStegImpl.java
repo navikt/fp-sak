@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.Risikoklas
 
 @BehandlingStegRef(kode = "INREG")
 @BehandlingTypeRef
-@FagsakYtelseTypeRef("*")
+@FagsakYtelseTypeRef
 @ApplicationScoped
 public class InnhentRegisteropplysningerStegImpl implements InnhentRegisteropplysningerSteg {
 

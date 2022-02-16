@@ -46,11 +46,11 @@ public enum VergeType implements Kodeverdi {
 
     private String kode;
 
-    private VergeType(String kode) {
+    VergeType(String kode) {
         this.kode = kode;
     }
 
-    private VergeType(String kode, String navn) {
+    VergeType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

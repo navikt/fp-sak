@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 /** Husk @JsonTypeName på alle sublasser!! */
 public abstract class BekreftetAksjonspunktDto implements AksjonspunktKode {
 

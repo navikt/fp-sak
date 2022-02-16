@@ -44,11 +44,11 @@ public enum Kontrollresultat implements Kodeverdi {
 
     private String kode;
 
-    private Kontrollresultat(String kode) {
+    Kontrollresultat(String kode) {
         this.kode = kode;
     }
 
-    private Kontrollresultat(String kode, String navn) {
+    Kontrollresultat(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

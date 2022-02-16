@@ -10,7 +10,7 @@ import no.nav.vedtak.util.InputValideringRegex;
 
 public class AktoerIdDto {
 
-    @Size(min = 0, max = 20)
+    @Size(max = 20)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private final String aktoerId;
 

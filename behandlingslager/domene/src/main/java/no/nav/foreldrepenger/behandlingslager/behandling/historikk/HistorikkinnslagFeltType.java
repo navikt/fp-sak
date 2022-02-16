@@ -54,11 +54,11 @@ public enum HistorikkinnslagFeltType implements Kodeverdi {
 
     private String kode;
 
-    private HistorikkinnslagFeltType(String kode) {
+    HistorikkinnslagFeltType(String kode) {
         this.kode = kode;
     }
 
-    private HistorikkinnslagFeltType(String kode, String navn) {
+    HistorikkinnslagFeltType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

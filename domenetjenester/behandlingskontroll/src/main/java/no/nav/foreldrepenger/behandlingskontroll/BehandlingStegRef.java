@@ -57,7 +57,7 @@ public @interface BehandlingStegRef {
      * {@link CDI#current#select(javax.enterprise.util.TypeLiteral,
      * Annotation...)}.
      */
-    public static class BehandlingStegRefLiteral extends AnnotationLiteral<BehandlingStegRef> implements BehandlingStegRef {
+    class BehandlingStegRefLiteral extends AnnotationLiteral<BehandlingStegRef> implements BehandlingStegRef {
 
         private String stegKode;
 
@@ -81,7 +81,7 @@ public @interface BehandlingStegRef {
     }
 
     @SuppressWarnings("unchecked")
-    public final static class Lookup {
+    final class Lookup {
 
         private Lookup() {
         }
@@ -163,7 +163,7 @@ public @interface BehandlingStegRef {
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ ElementType.TYPE })
     @Documented
-    public @interface ContainerOfBehandlingStegRef {
+    @interface ContainerOfBehandlingStegRef {
         BehandlingStegRef[] value();
     }
 

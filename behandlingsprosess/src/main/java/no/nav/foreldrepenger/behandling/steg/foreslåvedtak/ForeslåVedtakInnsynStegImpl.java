@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 
 @BehandlingStegRef(kode = "FORVEDSTEG")
 @BehandlingTypeRef("BT-006") // Innsyn
-@FagsakYtelseTypeRef()
+@FagsakYtelseTypeRef
 @ApplicationScoped
 public class ForeslåVedtakInnsynStegImpl implements ForeslåVedtakSteg {
 

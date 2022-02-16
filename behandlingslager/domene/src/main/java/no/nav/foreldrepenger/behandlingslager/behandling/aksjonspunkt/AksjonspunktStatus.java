@@ -46,11 +46,11 @@ public enum AksjonspunktStatus implements Kodeverdi {
 
     private String kode;
 
-    private AksjonspunktStatus(String kode) {
+    AksjonspunktStatus(String kode) {
         this.kode = kode;
     }
 
-    private AksjonspunktStatus(String kode, String navn) {
+    AksjonspunktStatus(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

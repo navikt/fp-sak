@@ -42,11 +42,11 @@ public enum MedlemskapManuellVurderingType implements Kodeverdi {
 
     private String kode;
 
-    private MedlemskapManuellVurderingType(String kode) {
+    MedlemskapManuellVurderingType(String kode) {
         this.kode = kode;
     }
 
-    private MedlemskapManuellVurderingType(String kode, String navn, boolean visGui) {
+    MedlemskapManuellVurderingType(String kode, String navn, boolean visGui) {
         this.kode = kode;
         this.navn = navn;
         this.visForGui = visGui;

@@ -6,7 +6,7 @@ public enum VurderingspunktType {
 
     private final String dbKode;
 
-    private VurderingspunktType(String dbKode) {
+    VurderingspunktType(String dbKode) {
         this.dbKode = dbKode;
     }
 

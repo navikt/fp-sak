@@ -27,7 +27,7 @@ public @interface VilkårTypeRef {
     String value();
 
     /** AnnotationLiteral som kan brukes ved CDI søk. */
-    public static class VilkårTypeRefLiteral extends AnnotationLiteral<VilkårTypeRef> implements VilkårTypeRef {
+    class VilkårTypeRefLiteral extends AnnotationLiteral<VilkårTypeRef> implements VilkårTypeRef {
 
         private String navn;
 

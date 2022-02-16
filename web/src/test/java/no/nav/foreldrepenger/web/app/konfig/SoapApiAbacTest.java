@@ -25,7 +25,7 @@ public class SoapApiAbacTest {
      * går igjennom her *
      */
     @Test
-    public void test_at_alle_soapmetoder_er_annotert_med_BeskyttetRessurs() throws Exception {
+    public void test_at_alle_soapmetoder_er_annotert_med_BeskyttetRessurs() {
         for (var soapMethod : SoapApiTester.finnAlleSoapMetoder()) {
             if (soapMethod.getAnnotation(BeskyttetRessurs.class) == null) {
                 throw new AssertionError("Mangler @" + BeskyttetRessurs.class.getSimpleName() + "-annotering på " + soapMethod);

@@ -42,7 +42,7 @@ public enum Oppgavetyper implements Kodeverdi, MedOffisiellKode {
 
     private String kode;
 
-    private Oppgavetyper(String kode, String navn) {
+    Oppgavetyper(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

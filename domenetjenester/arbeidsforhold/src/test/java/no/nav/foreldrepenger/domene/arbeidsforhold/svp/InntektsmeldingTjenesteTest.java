@@ -115,7 +115,7 @@ public class InntektsmeldingTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_ta_med_arbeidsforhold_det_ikke_er_søkt_for_når_manglende_im_utledes_for_svp() throws Exception {
+    public void skal_ikke_ta_med_arbeidsforhold_det_ikke_er_søkt_for_når_manglende_im_utledes_for_svp() {
         // Arrange
         var arbId1Intern = ARBEIDSFORHOLD_ID;
         var arbId1 = ARBEIDSFORHOLD_ID_EKSTERN;

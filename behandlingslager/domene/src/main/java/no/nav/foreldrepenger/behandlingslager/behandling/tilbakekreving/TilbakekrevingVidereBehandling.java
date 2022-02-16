@@ -46,11 +46,11 @@ public enum TilbakekrevingVidereBehandling implements Kodeverdi {
 
     private String kode;
 
-    private TilbakekrevingVidereBehandling(String kode) {
+    TilbakekrevingVidereBehandling(String kode) {
         this.kode = kode;
     }
 
-    private TilbakekrevingVidereBehandling(String kode, String navn) {
+    TilbakekrevingVidereBehandling(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

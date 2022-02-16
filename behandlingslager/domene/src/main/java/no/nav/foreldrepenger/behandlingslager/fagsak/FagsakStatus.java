@@ -45,11 +45,11 @@ public enum FagsakStatus implements Kodeverdi {
 
     private String kode;
 
-    private FagsakStatus(String kode) {
+    FagsakStatus(String kode) {
         this.kode = kode;
     }
 
-    private FagsakStatus(String kode, String navn) {
+    FagsakStatus(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

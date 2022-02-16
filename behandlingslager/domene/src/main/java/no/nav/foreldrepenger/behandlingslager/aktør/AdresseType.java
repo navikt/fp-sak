@@ -51,11 +51,11 @@ public enum AdresseType implements Kodeverdi, MedOffisiellKode {
     @JsonIgnore
     private String offisiellKode;
 
-    private AdresseType(String kode) {
+    AdresseType(String kode) {
         this.kode = kode;
     }
 
-    private AdresseType(String kode, String navn, String offisiellKode) {
+    AdresseType(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

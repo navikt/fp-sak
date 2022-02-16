@@ -39,11 +39,11 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
 
     private String kode;
 
-    private OmsorgsovertakelseVilkårType(String kode) {
+    OmsorgsovertakelseVilkårType(String kode) {
         this.kode = kode;
     }
 
-    private OmsorgsovertakelseVilkårType(String kode, String navn) {
+    OmsorgsovertakelseVilkårType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

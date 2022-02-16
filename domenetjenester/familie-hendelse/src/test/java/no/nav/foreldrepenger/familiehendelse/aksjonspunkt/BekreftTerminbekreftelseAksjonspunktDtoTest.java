@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekre
 public class BekreftTerminbekreftelseAksjonspunktDtoTest {
 
     @Test
-    public void test_av_json_mapping() throws IOException {
+    public void test_av_json_mapping() {
         var terminbekreftelseAksjonspunktDto = bekreftFødselAksjonspunktDto();
 
         var json = StandardJsonConfig.toJson(terminbekreftelseAksjonspunktDto);

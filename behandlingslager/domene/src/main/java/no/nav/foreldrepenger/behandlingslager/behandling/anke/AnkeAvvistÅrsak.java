@@ -44,7 +44,7 @@ public enum AnkeAvvistÅrsak implements Kodeverdi {
 
     private String kode;
 
-    private AnkeAvvistÅrsak(String kode, String navn) {
+    AnkeAvvistÅrsak(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

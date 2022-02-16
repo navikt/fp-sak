@@ -46,7 +46,7 @@ public class BehandlingModellRepository implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         cachedModell.clear();
     }
 }

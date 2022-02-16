@@ -33,7 +33,7 @@ public class BehandlingModellEnkelTest {
                     new TestStegKonfig(STEG_3, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE, dummyBehandlingSteg_3)));
 
     @Test
-    public void skal_bygge_behandlingskontroll_med_ett_steg() throws Exception {
+    public void skal_bygge_behandlingskontroll_med_ett_steg() {
         try (var modell = new BehandlingModellImpl(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.ENGANGSTØNAD, finnSteg)) {
             modell.leggTil(STEG_1, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE);
 
@@ -46,7 +46,7 @@ public class BehandlingModellEnkelTest {
     }
 
     @Test
-    public void skal_bygge_behandlingskontroll_med_3_steg() throws Exception {
+    public void skal_bygge_behandlingskontroll_med_3_steg() {
         // Arrange
         try (var modell = new BehandlingModellImpl(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.ENGANGSTØNAD, finnSteg)) {
             modell.leggTil(STEG_1, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE);

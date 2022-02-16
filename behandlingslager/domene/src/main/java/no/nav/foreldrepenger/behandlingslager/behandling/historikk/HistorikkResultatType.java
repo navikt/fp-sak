@@ -60,11 +60,11 @@ public enum HistorikkResultatType implements Kodeverdi {
 
     private String kode;
 
-    private HistorikkResultatType(String kode) {
+    HistorikkResultatType(String kode) {
         this.kode = kode;
     }
 
-    private HistorikkResultatType(String kode, String navn) {
+    HistorikkResultatType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

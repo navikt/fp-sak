@@ -70,7 +70,7 @@ public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_gi_avslag_dersom_adoptert_barn_tilhører_ektefelle_eller_samboer() throws JsonProcessingException, IOException {
+    public void skal_gi_avslag_dersom_adoptert_barn_tilhører_ektefelle_eller_samboer() {
         var behandling = settOppAdopsjonBehandlingForMor(10, true, NavBrukerKjønn.KVINNE, false);
 
         var data = new InngangsvilkårEngangsstønadAdopsjon(oversetter).vurderVilkår(lagRef(behandling));

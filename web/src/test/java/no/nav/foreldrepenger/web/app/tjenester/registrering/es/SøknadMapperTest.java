@@ -59,7 +59,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void testMapperMedlemskapES_med_FremtidigUtenlandsopphold() throws Exception {
+    public void testMapperMedlemskapES_med_FremtidigUtenlandsopphold() {
 
         var land = "FRA";
         LocalDate periodeFom = LocalDate.now().plusMonths(2), periodeTom = LocalDate.now().plusMonths(5);
@@ -97,7 +97,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void testMapperMedlemskapES_med_TidligereUtenlandsopphold() throws Exception {
+    public void testMapperMedlemskapES_med_TidligereUtenlandsopphold() {
 
         final var land = "FRA";
         LocalDate periodeFom = LocalDate.now().minusMonths(6), periodeTom = LocalDate.now().minusMonths(3);

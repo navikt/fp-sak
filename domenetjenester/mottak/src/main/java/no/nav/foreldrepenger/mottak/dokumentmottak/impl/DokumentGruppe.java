@@ -36,7 +36,7 @@ public enum DokumentGruppe implements Kodeverdi {
 
     private String kode;
 
-    private DokumentGruppe(String kode, String navn) {
+    DokumentGruppe(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

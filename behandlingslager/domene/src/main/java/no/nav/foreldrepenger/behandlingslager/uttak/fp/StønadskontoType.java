@@ -48,11 +48,11 @@ public enum StønadskontoType implements Kodeverdi {
 
     private String kode;
 
-    private StønadskontoType(String kode) {
+    StønadskontoType(String kode) {
         this.kode = kode;
     }
 
-    private StønadskontoType(String kode, String navn) {
+    StønadskontoType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

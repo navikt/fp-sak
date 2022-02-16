@@ -56,7 +56,7 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_som_ikke_oppfylt_når_søker_ikke_er_kvinne() throws IOException {
+    public void skal_vurdere_vilkår_som_ikke_oppfylt_når_søker_ikke_er_kvinne() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());

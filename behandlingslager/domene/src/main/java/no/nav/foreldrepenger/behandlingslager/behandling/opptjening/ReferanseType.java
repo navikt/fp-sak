@@ -43,11 +43,11 @@ public enum ReferanseType implements Kodeverdi {
 
     private String kode;
 
-    private ReferanseType(String kode) {
+    ReferanseType(String kode) {
         this.kode = kode;
     }
 
-    private ReferanseType(String kode, String navn) {
+    ReferanseType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }
