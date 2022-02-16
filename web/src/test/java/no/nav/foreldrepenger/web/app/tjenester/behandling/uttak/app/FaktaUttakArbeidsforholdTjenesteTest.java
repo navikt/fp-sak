@@ -62,13 +62,13 @@ public class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest
 
         assertThat(arbeidsforhold).hasSize(5);
         var dtoForVirksomhet123 = finnDtoFor(arbeidsforhold, UttakArbeidType.ORDINÆRT_ARBEID, virksomhet123);
-        assertThat(dtoForVirksomhet123.getArbeidsgiverReferanse()).isEqualTo(virksomhetOrgnr1);
+        assertThat(dtoForVirksomhet123.arbeidsgiverReferanse()).isEqualTo(virksomhetOrgnr1);
 
         var dtoForVirksomhet456 = finnDtoFor(arbeidsforhold, UttakArbeidType.ORDINÆRT_ARBEID, virksomhet456);
-        assertThat(dtoForVirksomhet456.getArbeidsgiverReferanse()).isEqualTo(virksomhetOrgnr2);
+        assertThat(dtoForVirksomhet456.arbeidsgiverReferanse()).isEqualTo(virksomhetOrgnr2);
 
         var dtoForPerson = finnDtoFor(arbeidsforhold, UttakArbeidType.ORDINÆRT_ARBEID, person);
-        assertThat(dtoForPerson.getArbeidsgiverReferanse()).isEqualTo(aktørId.getId());
+        assertThat(dtoForPerson.arbeidsgiverReferanse()).isEqualTo(aktørId.getId());
 
         var dtoForFrilans = finnDtoFor(arbeidsforhold, UttakArbeidType.FRILANS, null);
         assertThat(dtoForFrilans).isNotNull();
@@ -78,10 +78,10 @@ public class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest
     }
 
     private ArbeidsforholdDto finnDtoFor(List<ArbeidsforholdDto> arbeidsforhold, UttakArbeidType arbeidType, Arbeidsgiver arbeidsgiver) {
-        var dtoSet = arbeidsforhold.stream().filter(a -> a.getArbeidType().equals(arbeidType)).collect(Collectors.toSet());
+        var dtoSet = arbeidsforhold.stream().filter(a -> a.arbeidType().equals(arbeidType)).collect(Collectors.toSet());
         if (arbeidsgiver != null) {
             dtoSet = dtoSet.stream()
-                .filter(a -> a.getArbeidsgiverReferanse().equals(arbeidsgiver.getIdentifikator()))
+                .filter(a -> a.arbeidsgiverReferanse().equals(arbeidsgiver.getIdentifikator()))
                 .collect(Collectors.toSet());
         }
         if (dtoSet.size() != 1) {
