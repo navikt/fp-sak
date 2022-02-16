@@ -12,7 +12,7 @@ import no.nav.vedtak.util.InputValideringRegex;
 
 public class AktørParam implements AbacDto {
 
-    @Size(min = 0, max = 100)
+    @Size(max = 100)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private final String aktørId;
 

@@ -42,11 +42,11 @@ public enum HistorikkBegrunnelseType implements Kodeverdi {
 
     private String kode;
 
-    private HistorikkBegrunnelseType(String kode) {
+    HistorikkBegrunnelseType(String kode) {
         this.kode = kode;
     }
 
-    private HistorikkBegrunnelseType(String kode, String navn) {
+    HistorikkBegrunnelseType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

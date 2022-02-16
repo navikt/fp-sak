@@ -118,7 +118,7 @@ public enum HistorikkinnslagType implements Kodeverdi {
 
     private String kode;
 
-    private HistorikkinnslagType(String kode, String navn, String mal) {
+    HistorikkinnslagType(String kode, String navn, String mal) {
         this.kode = kode;
         this.navn = navn;
         this.mal = mal;

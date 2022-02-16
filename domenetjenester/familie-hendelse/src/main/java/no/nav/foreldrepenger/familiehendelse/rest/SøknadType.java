@@ -23,7 +23,7 @@ public enum SøknadType {
 
     private final String kode;
 
-    private SøknadType(String kode) {
+    SøknadType(String kode) {
         this.kode = kode;
     }
 

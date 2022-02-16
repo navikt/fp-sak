@@ -93,7 +93,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapAdopsjon() throws Exception {
+    public void test_mapAdopsjon() {
         final var omsorgsovertakelsesdato = LocalDate.now();
         final var fødselssdato = LocalDate.now().minusMonths(3);
         final var ankomstDato = LocalDate.now().minusDays(4);
@@ -119,7 +119,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapOmsorg() throws Exception {
+    public void test_mapOmsorg() {
         final var omsorgsovertakelsesdato = LocalDate.now();
         final var fødselsdato = LocalDate.now().minusDays(10);
         final var antallBarn = 1;
@@ -144,7 +144,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapFødsel() throws Exception {
+    public void test_mapFødsel() {
         final var fødselssdato = LocalDate.now().minusMonths(3);
         final var antallBarn = 1;
 
@@ -165,7 +165,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapTermin() throws Exception {
+    public void test_mapTermin() {
         final var terminbekreftelseDato = LocalDate.now();
         final var termindato = LocalDate.now().plusMonths(3);
         final var antallBarn = 1;

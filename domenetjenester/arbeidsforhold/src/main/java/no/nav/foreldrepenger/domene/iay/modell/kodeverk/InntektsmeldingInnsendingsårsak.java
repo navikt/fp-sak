@@ -40,7 +40,7 @@ public enum InntektsmeldingInnsendingsårsak implements Kodeverdi {
 
     private String kode;
 
-    private InntektsmeldingInnsendingsårsak(String kode, String navn) {
+    InntektsmeldingInnsendingsårsak(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

@@ -57,11 +57,11 @@ public enum BehandlingStegStatus implements Kodeverdi {
 
     private String kode;
 
-    private BehandlingStegStatus(String kode) {
+    BehandlingStegStatus(String kode) {
         this.kode = kode;
     }
 
-    private BehandlingStegStatus(String kode, String navn) {
+    BehandlingStegStatus(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

@@ -44,11 +44,11 @@ public enum TilretteleggingType implements Kodeverdi {
 
     private String kode;
 
-    private TilretteleggingType(String kode) {
+    TilretteleggingType(String kode) {
         this.kode = kode;
     }
 
-    private TilretteleggingType(String kode, String navn) {
+    TilretteleggingType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

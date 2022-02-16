@@ -88,11 +88,11 @@ public enum SkjermlenkeType implements Kodeverdi {
 
     private String kode;
 
-    private SkjermlenkeType(String kode) {
+    SkjermlenkeType(String kode) {
         this.kode = kode;
     }
 
-    private SkjermlenkeType(String kode, String navn) {
+    SkjermlenkeType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

@@ -2,14 +2,11 @@ package no.nav.foreldrepenger.inngangsvilkaar.søknad;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
@@ -49,7 +46,7 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_som_oppfylt_når_elektronisk_søknad_og_søknad_mottat_innen_6_mnd_fra_skjæringstidspunkt() throws JsonProcessingException, IOException {
+    public void skal_vurdere_vilkår_som_oppfylt_når_elektronisk_søknad_og_søknad_mottat_innen_6_mnd_fra_skjæringstidspunkt() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medElektroniskRegistrert(true);

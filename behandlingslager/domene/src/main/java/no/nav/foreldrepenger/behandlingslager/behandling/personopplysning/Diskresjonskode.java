@@ -38,7 +38,7 @@ public enum Diskresjonskode implements Kodeverdi, MedOffisiellKode {
 
     private String kode;
 
-    private Diskresjonskode(String kode, String navn, String offisiellKode) {
+    Diskresjonskode(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

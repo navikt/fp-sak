@@ -46,11 +46,11 @@ public enum HistorikkAktør implements Kodeverdi {
 
     private String kode;
 
-    private HistorikkAktør(String kode) {
+    HistorikkAktør(String kode) {
         this.kode = kode;
     }
 
-    private HistorikkAktør(String kode, String navn) {
+    HistorikkAktør(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

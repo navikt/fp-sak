@@ -45,11 +45,11 @@ public enum FarSøkerType implements Kodeverdi {
 
     private String kode;
 
-    private FarSøkerType(String kode) {
+    FarSøkerType(String kode) {
         this.kode = kode;
     }
 
-    private FarSøkerType(String kode, String navn) {
+    FarSøkerType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

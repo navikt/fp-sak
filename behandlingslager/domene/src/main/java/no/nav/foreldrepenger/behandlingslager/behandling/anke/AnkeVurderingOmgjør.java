@@ -45,11 +45,11 @@ public enum AnkeVurderingOmgjør implements Kodeverdi {
 
     private String kode;
 
-    private AnkeVurderingOmgjør(String kode) {
+    AnkeVurderingOmgjør(String kode) {
         this.kode = kode;
     }
 
-    private AnkeVurderingOmgjør(String kode, String navn) {
+    AnkeVurderingOmgjør(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

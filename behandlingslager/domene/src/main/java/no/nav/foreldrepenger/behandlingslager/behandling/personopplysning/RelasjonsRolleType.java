@@ -55,7 +55,7 @@ public enum RelasjonsRolleType implements Kodeverdi {
 
     private String kode;
 
-    private RelasjonsRolleType(String kode, String navn) {
+    RelasjonsRolleType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

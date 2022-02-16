@@ -46,11 +46,11 @@ public enum SøknadAnnenPartType implements Kodeverdi {
 
     private String kode;
 
-    private SøknadAnnenPartType(String kode) {
+    SøknadAnnenPartType(String kode) {
         this.kode = kode;
     }
 
-    private SøknadAnnenPartType(String kode, String navn) {
+    SøknadAnnenPartType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

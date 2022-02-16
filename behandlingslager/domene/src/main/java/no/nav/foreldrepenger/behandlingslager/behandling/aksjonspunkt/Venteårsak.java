@@ -90,11 +90,11 @@ public enum Venteårsak implements Kodeverdi {
 
     private String kode;
 
-    private Venteårsak(String kode) {
+    Venteårsak(String kode) {
         this.kode = kode;
     }
 
-    private Venteårsak(String kode, String navn) {
+    Venteårsak(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

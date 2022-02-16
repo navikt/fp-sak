@@ -42,7 +42,7 @@ public enum KlageVurdertAv implements Kodeverdi {
 
     private String kode;
 
-    private KlageVurdertAv(String kode, String navn) {
+    KlageVurdertAv(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

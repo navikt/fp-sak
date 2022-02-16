@@ -54,11 +54,11 @@ public enum MedlemskapKildeType implements Kodeverdi {
 
     private String kode;
 
-    private MedlemskapKildeType(String kode) {
+    MedlemskapKildeType(String kode) {
         this.kode = kode;
     }
 
-    private MedlemskapKildeType(String kode, String navn) {
+    MedlemskapKildeType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

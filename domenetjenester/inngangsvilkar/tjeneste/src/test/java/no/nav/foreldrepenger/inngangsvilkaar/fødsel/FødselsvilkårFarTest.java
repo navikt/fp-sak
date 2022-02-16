@@ -60,7 +60,7 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
     }
 
     @Test // FP_VK 11.2 Vilkårsutfall oppfylt
-    public void skal_vurdere_vilkår_som_oppfylt_når_søker_er_far_og_fødsel_bekreftet() throws IOException {
+    public void skal_vurdere_vilkår_som_oppfylt_når_søker_er_far_og_fødsel_bekreftet() {
         // Arrange
         var behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.FARA, NavBrukerKjønn.MANN, true, false, true);
 
@@ -82,7 +82,7 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
     }
 
     @Test // FP_VK 11.2 Vilkårsutfall oppfylt
-    public void skal_vurdere_vilkår_som_oppfylt_når_søker_er_medmor_og_fødsel_bekreftet() throws IOException {
+    public void skal_vurdere_vilkår_som_oppfylt_når_søker_er_medmor_og_fødsel_bekreftet() {
         // Arrange
         var behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, true, false, true);
 

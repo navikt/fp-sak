@@ -550,7 +550,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     }
 
     /** Brukes for utgåtte aksjonspunkt. Disse skal ikke kunne gjenoppstå. */
-    private AksjonspunktDefinisjon(String kode, AksjonspunktType type, String navn) {
+    AksjonspunktDefinisjon(String kode, AksjonspunktType type, String navn) {
         this.kode = kode;
         this.aksjonspunktType = type;
         this.navn = navn;
@@ -558,15 +558,15 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     }
 
     // Bruk for ordinære aksjonspunkt og overstyring
-    private AksjonspunktDefinisjon(String kode,
-                                   AksjonspunktType aksjonspunktType,
-                                   String navn,
-                                   BehandlingStegType behandlingStegType,
-                                   VurderingspunktType vurderingspunktType,
-                                   VilkårType vilkårType,
-                                   SkjermlenkeType skjermlenkeType,
-                                   boolean defaultTotrinnBehandling,
-                                   Set<FagsakYtelseType.YtelseType> ytelseTyper) {
+    AksjonspunktDefinisjon(String kode,
+                           AksjonspunktType aksjonspunktType,
+                           String navn,
+                           BehandlingStegType behandlingStegType,
+                           VurderingspunktType vurderingspunktType,
+                           VilkårType vilkårType,
+                           SkjermlenkeType skjermlenkeType,
+                           boolean defaultTotrinnBehandling,
+                           Set<FagsakYtelseType.YtelseType> ytelseTyper) {
         this.kode = Objects.requireNonNull(kode);
         this.navn = navn;
         this.aksjonspunktType = aksjonspunktType;
@@ -581,17 +581,17 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     }
 
     // Bruk for autopunkt i 7nnn serien
-    private AksjonspunktDefinisjon(String kode,
-                                   AksjonspunktType aksjonspunktType,
-                                   String navn,
-                                   BehandlingStegType behandlingStegType,
-                                   VurderingspunktType vurderingspunktType,
-                                   VilkårType vilkårType,
-                                   SkjermlenkeType skjermlenkeType,
-                                   boolean defaultTotrinnBehandling,
-                                   boolean tilbakehoppVedGjenopptakelse,
-                                   String fristPeriode,
-                                   Set<FagsakYtelseType.YtelseType> ytelseTyper) {
+    AksjonspunktDefinisjon(String kode,
+                           AksjonspunktType aksjonspunktType,
+                           String navn,
+                           BehandlingStegType behandlingStegType,
+                           VurderingspunktType vurderingspunktType,
+                           VilkårType vilkårType,
+                           SkjermlenkeType skjermlenkeType,
+                           boolean defaultTotrinnBehandling,
+                           boolean tilbakehoppVedGjenopptakelse,
+                           String fristPeriode,
+                           Set<FagsakYtelseType.YtelseType> ytelseTyper) {
         this.kode = Objects.requireNonNull(kode);
         this.navn = navn;
         this.aksjonspunktType = aksjonspunktType;

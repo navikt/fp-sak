@@ -69,7 +69,7 @@ public class SendInformasjonsbrevBatchTjenesteTest {
     SendInformasjonsbrevBatchArguments batchArgs;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         tjeneste = new SendInformasjonsbrevBatchTjeneste(repository, taskTjenesteMock);
         Map<String, String> arguments = new HashMap<>();
         arguments.put(SendInformasjonsbrevBatchArguments.FOM_KEY, fom.format(ofPattern(DATE_PATTERN)));

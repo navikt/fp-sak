@@ -140,7 +140,7 @@ public class BehandlingModellTest {
     }
 
     @Test
-    public void skal_stoppe_på_steg_2_når_får_aksjonspunkt() throws Exception {
+    public void skal_stoppe_på_steg_2_når_får_aksjonspunkt() {
         // Arrange
         var modellData = List.of(
                 new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
@@ -164,7 +164,7 @@ public class BehandlingModellTest {
     }
 
     @Test
-    public void skal_kjøre_til_siste_når_ingen_gir_aksjonspunkt() throws Exception {
+    public void skal_kjøre_til_siste_når_ingen_gir_aksjonspunkt() {
         // Arrange
         var modellData = List.of(
                 new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
@@ -288,7 +288,7 @@ public class BehandlingModellTest {
     }
 
     @Test
-    public void skal_modifisere_aksjonspunktet_ved_å_kalle_funksjon_som_legger_til_frist() throws Exception {
+    public void skal_modifisere_aksjonspunktet_ved_å_kalle_funksjon_som_legger_til_frist() {
         // Arrange
         var modellData = List.of(
                 new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, aksjonspunktModifisererSteg, ap(), ap()),

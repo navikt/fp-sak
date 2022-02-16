@@ -35,7 +35,7 @@ public enum RettenTil implements Kodeverdi {
 
     private String kode;
 
-    private RettenTil(String kode, String navn) {
+    RettenTil(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

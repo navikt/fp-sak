@@ -9,7 +9,7 @@ import no.nav.vedtak.util.InputValideringRegex;
 
 public class HendelseTypeParam implements AbacDto {
 
-    @Size(min = 0, max = 100)
+    @Size(max = 100)
     @Pattern(regexp = InputValideringRegex.FRITEKST) // TODO (humle) validering på type i kontrakten
     private final String type;
 
@@ -22,7 +22,7 @@ public class HendelseTypeParam implements AbacDto {
             return null;
         }
         return type;
-    }    
+    }
 
     @Override
     public AbacDataAttributter abacAttributter() {

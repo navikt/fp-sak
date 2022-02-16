@@ -46,11 +46,11 @@ public enum InntektsKilde implements Kodeverdi, MedOffisiellKode {
     @JsonIgnore
     private String offisiellKode;
 
-    private InntektsKilde(String kode) {
+    InntektsKilde(String kode) {
         this.kode = kode;
     }
 
-    private InntektsKilde(String kode, String navn, String offisiellKode) {
+    InntektsKilde(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

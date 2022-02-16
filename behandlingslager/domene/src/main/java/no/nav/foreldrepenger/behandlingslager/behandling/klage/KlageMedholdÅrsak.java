@@ -46,11 +46,11 @@ public enum KlageMedholdÅrsak implements Kodeverdi {
 
     private String kode;
 
-    private KlageMedholdÅrsak(String kode) {
+    KlageMedholdÅrsak(String kode) {
         this.kode = kode;
     }
 
-    private KlageMedholdÅrsak(String kode, String navn) {
+    KlageMedholdÅrsak(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

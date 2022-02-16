@@ -58,7 +58,7 @@ public enum NAVSkjema {
 
     private String termnavn;
 
-    private NAVSkjema(String kode, String offisiellKode, String termnavn) {
+    NAVSkjema(String kode, String offisiellKode, String termnavn) {
         this.kode = kode;
         this.offisiellKode = offisiellKode;
         this.termnavn = termnavn;

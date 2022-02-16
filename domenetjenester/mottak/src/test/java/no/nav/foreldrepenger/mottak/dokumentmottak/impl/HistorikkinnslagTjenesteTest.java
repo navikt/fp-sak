@@ -49,7 +49,7 @@ public class HistorikkinnslagTjenesteTest {
     }
 
     @Test
-    public void skal_lagre_historikkinnslag_for_elektronisk_søknad() throws Exception {
+    public void skal_lagre_historikkinnslag_for_elektronisk_søknad() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
         var behandling = scenario.lagMocked();
@@ -80,7 +80,7 @@ public class HistorikkinnslagTjenesteTest {
     }
 
     @Test
-    public void skal_lagre_historikkinnslag_for_papir_søknad() throws Exception {
+    public void skal_lagre_historikkinnslag_for_papir_søknad() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
         var behandling = scenario.lagMocked();

@@ -46,11 +46,11 @@ public enum HistorikkOpplysningType implements Kodeverdi {
 
     private String kode;
 
-    private HistorikkOpplysningType(String kode) {
+    HistorikkOpplysningType(String kode) {
         this.kode = kode;
     }
 
-    private HistorikkOpplysningType(String kode, String navn) {
+    HistorikkOpplysningType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

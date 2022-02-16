@@ -27,7 +27,7 @@ public class DkifRestTest {
         """;
 
     @Test
-    public void roundtrip_organisasjon() throws IOException {
+    public void roundtrip_organisasjon() {
 
         var k = StandardJsonConfig.fromJson(json, DigitalKontaktinfo.class);
 
@@ -37,7 +37,7 @@ public class DkifRestTest {
     }
 
     @Test
-    public void mapping_jurdisk_enhet() throws IOException {
+    public void mapping_jurdisk_enhet() {
         // Arrange
         var ny = """
             {

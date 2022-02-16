@@ -70,8 +70,7 @@ public class FinnSakService implements ForeldrepengesakV1 {
 
     @Override
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.SAKLISTE)
-    public FinnSakListeResponse finnSakListe(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FinnSakListeRequest request)
-            throws FinnSakListeSikkerhetsbegrensning {
+    public FinnSakListeResponse finnSakListe(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FinnSakListeRequest request) {
 
         var sakspart = request.getSakspart();
         var aktørid = sakspart.getAktoerId();

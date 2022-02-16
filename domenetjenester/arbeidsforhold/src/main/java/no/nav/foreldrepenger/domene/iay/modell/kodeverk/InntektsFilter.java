@@ -62,11 +62,15 @@ public enum InntektsFilter implements Kodeverdi, MedOffisiellKode {
     @JsonIgnore
     private String offisiellKode;
 
-    private InntektsFilter(String kode) {
+    InntektsFilter(String kode) {
         this.kode = kode;
     }
 
-    private InntektsFilter(String kode, String navn, String offisiellKode, InntektsKilde inntektsKilde, InntektsFormål inntektsFormål) {
+    InntektsFilter(String kode,
+                   String navn,
+                   String offisiellKode,
+                   InntektsKilde inntektsKilde,
+                   InntektsFormål inntektsFormål) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

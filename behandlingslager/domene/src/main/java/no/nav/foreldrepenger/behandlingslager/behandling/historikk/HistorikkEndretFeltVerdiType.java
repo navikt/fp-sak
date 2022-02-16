@@ -105,11 +105,11 @@ public enum HistorikkEndretFeltVerdiType implements Kodeverdi {
 
     private String kode;
 
-    private HistorikkEndretFeltVerdiType(String kode) {
+    HistorikkEndretFeltVerdiType(String kode) {
         this.kode = kode;
     }
 
-    private HistorikkEndretFeltVerdiType(String kode, String navn) {
+    HistorikkEndretFeltVerdiType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

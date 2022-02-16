@@ -62,7 +62,7 @@ public class FagsakRevurderingTest {
     }
 
     @Test
-    public void kanIkkeOppretteRevurderingNårÅpenBehandling() throws Exception {
+    public void kanIkkeOppretteRevurderingNårÅpenBehandling() {
         Behandlingsresultat.opprettFor(behandling);
         lenient().when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(any()))
                 .thenReturn(singletonList(behandling));

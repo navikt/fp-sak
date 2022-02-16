@@ -158,8 +158,11 @@ public enum OpptjeningAktivitetType implements Kodeverdi {
     @JsonIgnore
     private Set<RelatertYtelseType> relaterYtelseType;
 
-    private OpptjeningAktivitetType(String kode, String navn, Set<ArbeidType> arbeidType, Set<RelatertYtelseType> relaterYtelseType,
-                                    Set<TemaUnderkategori> temaUnderkategori) {
+    OpptjeningAktivitetType(String kode,
+                            String navn,
+                            Set<ArbeidType> arbeidType,
+                            Set<RelatertYtelseType> relaterYtelseType,
+                            Set<TemaUnderkategori> temaUnderkategori) {
         this.kode = kode;
         this.navn = navn;
         this.arbeidType = arbeidType;

@@ -100,11 +100,11 @@ public enum ArbeidType implements Kodeverdi, MedOffisiellKode {
 
     private boolean visGui;
 
-    private ArbeidType(String kode) {
+    ArbeidType(String kode) {
         this.kode = kode;
     }
 
-    private ArbeidType(String kode, String navn, String offisiellKode, boolean visGui) {
+    ArbeidType(String kode, String navn, String offisiellKode, boolean visGui) {
         this.kode = kode;
         this.navn = navn;
         this.visGui = visGui;

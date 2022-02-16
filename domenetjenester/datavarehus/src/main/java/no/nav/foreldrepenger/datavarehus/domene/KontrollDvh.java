@@ -18,19 +18,19 @@ public class KontrollDvh implements Serializable {
     @Id
     private Long id;
 
-    @Column(name = "FAGSAK_TRANS_ID_MAX", nullable = true)
+    @Column(name = "FAGSAK_TRANS_ID_MAX")
     private Long fagsakTransIdMax;
 
-    @Column(name = "BEH_TRANS_ID_MAX", nullable = true)
+    @Column(name = "BEH_TRANS_ID_MAX")
     private Long behandlingTransIdMax;
 
-    @Column(name = "BEH_STEG_TRANS_ID_MAX", nullable = true)
+    @Column(name = "BEH_STEG_TRANS_ID_MAX")
     private Long behandllingStegTransIdMax;
 
-    @Column(name = "BEH_AKSJONS_TRANS_ID_MAX", nullable = true)
+    @Column(name = "BEH_AKSJONS_TRANS_ID_MAX")
     private Long behandlingAksjonTransIdMax;
 
-    @Column(name = "BEH_VEDTAKS_TRANS_ID_MAX", nullable = true)
+    @Column(name = "BEH_VEDTAKS_TRANS_ID_MAX")
     private Long behandlingVedtakTransIdMax;
 
     @Convert(converter = BooleanToStringConverter.class)

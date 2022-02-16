@@ -53,7 +53,7 @@ public enum VurderArbeidsforholdHistorikkinnslag implements Kodeverdi {
 
     private String kode;
 
-    private VurderArbeidsforholdHistorikkinnslag(String kode, String navn) {
+    VurderArbeidsforholdHistorikkinnslag(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

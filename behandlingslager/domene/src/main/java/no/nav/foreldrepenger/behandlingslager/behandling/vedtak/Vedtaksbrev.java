@@ -37,7 +37,7 @@ public enum Vedtaksbrev implements Kodeverdi{
 
     private String kode;
 
-    private Vedtaksbrev(String kode, String navn) {
+    Vedtaksbrev(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

@@ -113,11 +113,11 @@ public enum BehandlingÅrsakType implements Kodeverdi {
 
     private String kode;
 
-    private BehandlingÅrsakType(String kode) {
+    BehandlingÅrsakType(String kode) {
         this.kode = kode;
     }
 
-    private BehandlingÅrsakType(String kode, String navn) {
+    BehandlingÅrsakType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

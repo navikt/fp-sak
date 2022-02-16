@@ -45,11 +45,11 @@ public enum InnsynResultatType implements Kodeverdi {
 
     private String kode;
 
-    private InnsynResultatType(String kode) {
+    InnsynResultatType(String kode) {
         this.kode = kode;
     }
 
-    private InnsynResultatType(String kode, String navn) {
+    InnsynResultatType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

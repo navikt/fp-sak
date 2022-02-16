@@ -52,11 +52,11 @@ public enum Hjemmel implements Kodeverdi {
 
     private String kode;
 
-    private Hjemmel(String kode) {
+    Hjemmel(String kode) {
         this.kode = kode;
     }
 
-    private Hjemmel(String kode, String navn) {
+    Hjemmel(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

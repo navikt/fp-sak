@@ -28,12 +28,12 @@ public class TimingFilter implements ContainerRequestFilter, ContainerResponseFi
     }
 
     @Override
-    public void filter(ContainerRequestContext req, ContainerResponseContext res) throws IOException {
+    public void filter(ContainerRequestContext req, ContainerResponseContext res) {
         timer(METRIC_NAME, PATH, req.getUriInfo().getPath(), STATUS, String.valueOf(res.getStatus())).record(Duration.ofMillis(TIMER.stop()));
     }
 
     @Override
-    public void filter(ContainerRequestContext req) throws IOException {
+    public void filter(ContainerRequestContext req) {
         TIMER.start();
     }
 

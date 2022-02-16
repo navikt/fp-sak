@@ -32,7 +32,7 @@ public class BehandlingDvh extends DvhBaseEntitet {  // NOSONAR
     @Column(name = "FAGSAK_ID", nullable = false)
     private Long fagsakId;
 
-    @Column(name = "VEDTAK_ID", nullable = true)
+    @Column(name = "VEDTAK_ID")
     private Long vedtakId;
 
     @Column(name = "OPPRETTET_DATO", nullable = false)
@@ -53,17 +53,17 @@ public class BehandlingDvh extends DvhBaseEntitet {  // NOSONAR
     @Column(name = "UTLANDSTILSNITT", nullable = false)
     private String utlandstilsnitt;
 
-    @Column(name = "ANSVARLIG_SAKSBEHANDLER", nullable = true)
+    @Column(name = "ANSVARLIG_SAKSBEHANDLER")
     private String ansvarligSaksbehandler;
 
-    @Column(name = "ANSVARLIG_BESLUTTER", nullable = true)
+    @Column(name = "ANSVARLIG_BESLUTTER")
     private String ansvarligBeslutter;
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "TOTRINNSBEHANDLING")
     private boolean toTrinnsBehandling;
 
-    @Column(name = "RELATERT_TIL", nullable = true)
+    @Column(name = "RELATERT_TIL")
     private Long relatertBehandling;
 
     @Convert(converter = BooleanToStringConverter.class)

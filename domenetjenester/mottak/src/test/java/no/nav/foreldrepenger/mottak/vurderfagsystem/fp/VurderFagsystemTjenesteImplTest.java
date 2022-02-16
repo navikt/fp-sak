@@ -99,7 +99,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void nesteStegSkalVæreVLHvisSakErFlaggetSkalBehandlesAvInfotrygd() throws Exception {
+    public void nesteStegSkalVæreVLHvisSakErFlaggetSkalBehandlesAvInfotrygd() {
         var vfData = byggVurderFagsystem(BehandlingTema.FORELDREPENGER_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
 
@@ -118,7 +118,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void nesteStegSkalVæreManuellHvisEndringPåSakFlaggetSkalBehandlesAvInfotrygd() throws Exception {
+    public void nesteStegSkalVæreManuellHvisEndringPåSakFlaggetSkalBehandlesAvInfotrygd() {
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker(), RelasjonsRolleType.MORA, ÅPEN_SAKSNUMMER_1);
         fagsak.setSkalTilInfotrygd(true);
         var vfData = byggVurderFagsystem(BehandlingTema.FORELDREPENGER_FØDSEL, true);
@@ -134,7 +134,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void nesteStegSkalVæreVLHvisEndringMedSaksnummer() throws Exception {
+    public void nesteStegSkalVæreVLHvisEndringMedSaksnummer() {
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker(), RelasjonsRolleType.MORA, ÅPEN_SAKSNUMMER_1);
         var vfData = byggVurderFagsystem(BehandlingTema.FORELDREPENGER_FØDSEL, true);
         vfData.setDokumentTypeId(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD);

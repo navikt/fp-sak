@@ -53,7 +53,7 @@ public @interface BehandlingTypeRef {
     String value() default "*";
 
     /** AnnotationLiteral som kan brukes ved CDI søk. */
-    public static class BehandlingTypeRefLiteral extends AnnotationLiteral<BehandlingTypeRef> implements BehandlingTypeRef {
+    class BehandlingTypeRefLiteral extends AnnotationLiteral<BehandlingTypeRef> implements BehandlingTypeRef {
 
         private String navn;
 
@@ -76,7 +76,7 @@ public @interface BehandlingTypeRef {
     }
 
     @SuppressWarnings("unchecked")
-    public static final class Lookup {
+    final class Lookup {
 
         private Lookup() {
         }
@@ -149,7 +149,7 @@ public @interface BehandlingTypeRef {
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER })
     @Documented
-    public @interface ContainerOfBehandlingTypeRef {
+    @interface ContainerOfBehandlingTypeRef {
         BehandlingTypeRef[] value();
     }
 }

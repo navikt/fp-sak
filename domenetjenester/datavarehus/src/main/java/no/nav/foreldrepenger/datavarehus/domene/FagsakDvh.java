@@ -36,13 +36,13 @@ public class FagsakDvh extends DvhBaseEntitet {
     @Column(name = "OPPRETTET_DATO", nullable = false)
     private LocalDate opprettetDato;
 
-    @Column(name = "SAKSNUMMER", nullable = true)
+    @Column(name = "SAKSNUMMER")
     private Long saksnummer;
 
-    @Column(name = "FAGSAK_STATUS", nullable = true)
+    @Column(name = "FAGSAK_STATUS")
     private String fagsakStatus;
 
-    @Column(name = "FAGSAK_YTELSE", nullable = true)
+    @Column(name = "FAGSAK_YTELSE")
     private String fagsakYtelse;
 
 

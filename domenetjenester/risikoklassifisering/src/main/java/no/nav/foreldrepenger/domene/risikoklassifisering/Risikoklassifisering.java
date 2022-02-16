@@ -135,7 +135,7 @@ public class Risikoklassifisering {
         return new Opplysningsperiode(interval.getFomDato(), interval.getTomDato());
     }
 
-    private String getJson(RequestWrapper risikovurderingRequest) throws IOException {
+    private String getJson(RequestWrapper risikovurderingRequest) {
         return StandardJsonConfig.toJson(risikovurderingRequest);
     }
 }

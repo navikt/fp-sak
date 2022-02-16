@@ -60,11 +60,11 @@ public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, ÅrsakskodeMedLovrefe
     @JsonIgnore
     private String lovHjemmel;
 
-    private PeriodeIkkeOppfyltÅrsak(String kode) {
+    PeriodeIkkeOppfyltÅrsak(String kode) {
         this.kode = kode;
     }
 
-    private PeriodeIkkeOppfyltÅrsak(String kode, String navn, String lovHjemmel) {
+    PeriodeIkkeOppfyltÅrsak(String kode, String navn, String lovHjemmel) {
         this.kode = kode;
         this.navn = navn;
         this.lovHjemmel = lovHjemmel;

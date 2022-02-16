@@ -410,7 +410,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_finne_for_automatisk_gjenopptagelse_når_aksjonspunt_er_avbrutt() throws Exception {
+    public void skal_ikke_finne_for_automatisk_gjenopptagelse_når_aksjonspunt_er_avbrutt() {
         // Arrange
         var behandling = opprettBehandlingForAutomatiskGjenopptagelse();
         var aksjonspunkt = opprettAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);

@@ -51,11 +51,11 @@ public enum GraderingAvslagÅrsak implements Kodeverdi {
     @JsonIgnore
     private String lovHjemmelData;
 
-    private GraderingAvslagÅrsak(String kode) {
+    GraderingAvslagÅrsak(String kode) {
         this.kode = kode;
     }
 
-    private GraderingAvslagÅrsak(String kode, String navn, String lovHjemmel) {
+    GraderingAvslagÅrsak(String kode, String navn, String lovHjemmel) {
         this.kode = kode;
         this.navn = navn;
         this.lovHjemmelData = lovHjemmel;

@@ -46,11 +46,11 @@ public enum BekreftetPermisjonStatus implements Kodeverdi {
 
     private String kode;
 
-    private BekreftetPermisjonStatus(String kode) {
+    BekreftetPermisjonStatus(String kode) {
         this.kode = kode;
     }
 
-    private BekreftetPermisjonStatus(String kode, String navn) {
+    BekreftetPermisjonStatus(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

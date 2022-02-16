@@ -60,7 +60,7 @@ public enum PersonstatusType implements Kodeverdi {
     @JsonIgnore
     private boolean fortsettBehandling;
 
-    private PersonstatusType(String kode, String navn, boolean fortsettBehandling) {
+    PersonstatusType(String kode, String navn, boolean fortsettBehandling) {
         this.kode = kode;
         this.navn = navn;
         this.fortsettBehandling = fortsettBehandling;

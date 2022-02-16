@@ -22,7 +22,7 @@ public class AksjonspunktDvh extends DvhBaseEntitet {
     @Column(name="TRANS_ID")
     private Long id;
 
-    @Column(name = "BEHANDLING_STEG_ID", nullable = true)
+    @Column(name = "BEHANDLING_STEG_ID")
     private Long behandlingStegId;
 
     @Column(name = "AKSJONSPUNKT_ID", nullable = false)
@@ -31,13 +31,13 @@ public class AksjonspunktDvh extends DvhBaseEntitet {
     @Column(name = "BEHANDLING_ID", nullable = false)
     private Long behandlingId;
 
-    @Column(name = "BEHANDLENDE_ENHET_KODE", nullable = true)
+    @Column(name = "BEHANDLENDE_ENHET_KODE")
     private String behandlendeEnhetKode;
 
-    @Column(name = "ANSVARLIG_BESLUTTER", nullable = true)
+    @Column(name = "ANSVARLIG_BESLUTTER")
     private String ansvarligBeslutter;
 
-    @Column(name = "ANSVARLIG_SAKSBEHANDLER", nullable = true)
+    @Column(name = "ANSVARLIG_SAKSBEHANDLER")
     private String ansvarligSaksbehandler;
 
     @Column(name = "AKSJONSPUNKT_DEF", nullable = false)

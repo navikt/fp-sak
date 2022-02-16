@@ -43,11 +43,11 @@ public enum InntektsFormål implements Kodeverdi, MedOffisiellKode {
     @JsonIgnore
     private String offisiellKode;
 
-    private InntektsFormål(String kode) {
+    InntektsFormål(String kode) {
         this.kode = kode;
     }
 
-    private InntektsFormål(String kode, String navn, String offisiellKode) {
+    InntektsFormål(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

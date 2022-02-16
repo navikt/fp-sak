@@ -58,7 +58,7 @@ public class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
     private SendInformasjonsbrevPåminnelseBatchTjeneste tjeneste;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         tjeneste = new SendInformasjonsbrevPåminnelseBatchTjeneste(repository, taskTjenesteMock);
     }
 

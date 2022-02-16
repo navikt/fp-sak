@@ -44,11 +44,11 @@ public enum PeriodeResultatType implements Kodeverdi {
 
     private String kode;
 
-    private PeriodeResultatType(String kode) {
+    PeriodeResultatType(String kode) {
         this.kode = kode;
     }
 
-    private PeriodeResultatType(String kode, String navn) {
+    PeriodeResultatType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

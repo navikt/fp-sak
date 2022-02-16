@@ -34,7 +34,7 @@ public class BatchRestTjenesteTest {
     }
 
     @Test
-    public void skal_gi_status_400_ved_ukjent_batchname() throws Exception {
+    public void skal_gi_status_400_ved_ukjent_batchname() {
         when(batchSupportTjeneste.finnBatchTjenesteForNavn(any())).thenReturn(null);
         @SuppressWarnings("resource")
         final var response = tjeneste.startBatch(new BatchNameDto("asdf"), null);

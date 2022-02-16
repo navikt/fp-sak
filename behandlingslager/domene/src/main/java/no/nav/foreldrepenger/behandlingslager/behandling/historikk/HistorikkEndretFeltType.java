@@ -162,11 +162,11 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
 
     private String kode;
 
-    private HistorikkEndretFeltType(String kode) {
+    HistorikkEndretFeltType(String kode) {
         this.kode = kode;
     }
 
-    private HistorikkEndretFeltType(String kode, String navn) {
+    HistorikkEndretFeltType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

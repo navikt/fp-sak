@@ -45,11 +45,11 @@ public enum BehandlingStatus implements Kodeverdi {
 
     private String kode;
 
-    private BehandlingStatus(String kode) {
+    BehandlingStatus(String kode) {
         this.kode = kode;
     }
 
-    private BehandlingStatus(String kode, String navn) {
+    BehandlingStatus(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

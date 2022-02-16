@@ -37,7 +37,7 @@ public enum RegelUtfallMerknad {
 
     private String kode;
 
-    private RegelUtfallMerknad(String kode, String navn) {
+    RegelUtfallMerknad(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

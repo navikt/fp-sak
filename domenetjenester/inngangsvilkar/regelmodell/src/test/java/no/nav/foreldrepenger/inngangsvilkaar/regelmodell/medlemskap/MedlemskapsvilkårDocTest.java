@@ -7,7 +7,7 @@ import no.nav.fpsak.nare.doc.RuleDescriptionDigraph;
 public class MedlemskapsvilkårDocTest {
 
     @Test
-    public void test_documentation() throws Exception {
+    public void test_documentation() {
         var vilkår = new Medlemskapsvilkår().getSpecification();
         var digraph = new RuleDescriptionDigraph(vilkår.ruleDescription());
 

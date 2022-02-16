@@ -8,7 +8,7 @@ import no.nav.fpsak.nare.doc.RuleDescriptionDigraph;
 public class SøknadsfristVilkårDocTest {
 
     @Test
-    public void test_documentation() throws Exception {
+    public void test_documentation() {
         var vilkår = new Søknadsfristvilkår().getSpecification();
         var digraph = new RuleDescriptionDigraph(vilkår.ruleDescription());
 

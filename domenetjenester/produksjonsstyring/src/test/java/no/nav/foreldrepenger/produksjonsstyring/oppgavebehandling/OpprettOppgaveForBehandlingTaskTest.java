@@ -78,7 +78,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
     }
 
     @Test
-    public void skal_utføre_tasken_opprett_oppgave_for_behandling_av_førstegangsbehandling() throws Exception {
+    public void skal_utføre_tasken_opprett_oppgave_for_behandling_av_førstegangsbehandling() {
         // Arrange
         var behandlingBuilder = Behandling.forFørstegangssøknad(fagsak).medBehandlendeEnhet(new OrganisasjonsEnhet("0234", null));
         var behandling = behandlingBuilder.build();
@@ -105,7 +105,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
     }
 
     @Test
-    public void oppretter_oppgave_for_behandling_av_revurdering() throws Exception {
+    public void oppretter_oppgave_for_behandling_av_revurdering() {
         // Arrange
         var behandlingBuilder = Behandling.forFørstegangssøknad(fagsak).medBehandlendeEnhet(new OrganisasjonsEnhet("0234", null));
         var behandling = behandlingBuilder.build();

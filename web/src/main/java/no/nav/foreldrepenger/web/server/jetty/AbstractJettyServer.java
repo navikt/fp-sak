@@ -72,7 +72,7 @@ abstract class AbstractJettyServer {
         JmsKonfig.settOppJndiMessageQueue("jms/QueueFpsakGrensesnittavstemmingSend", "ray.avstem.data.queueName", true);
     }
 
-    protected abstract void konfigurerMiljø() throws Exception;
+    protected abstract void konfigurerMiljø();
 
     protected void konfigurerSikkerhet() {
         var factory = new DefaultAuthConfigFactory();

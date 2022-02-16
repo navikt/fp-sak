@@ -45,11 +45,11 @@ public enum OpptjeningAktivitetKlassifisering implements Kodeverdi {
 
     private String kode;
 
-    private OpptjeningAktivitetKlassifisering(String kode) {
+    OpptjeningAktivitetKlassifisering(String kode) {
         this.kode = kode;
     }
 
-    private OpptjeningAktivitetKlassifisering(String kode, String navn) {
+    OpptjeningAktivitetKlassifisering(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

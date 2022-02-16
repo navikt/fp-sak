@@ -57,11 +57,11 @@ public enum BehandlingTema implements Kodeverdi, MedOffisiellKode {
     private String kode;
 
 
-    private BehandlingTema(String kode) {
+    BehandlingTema(String kode) {
         this.kode = kode;
     }
 
-    private BehandlingTema(String kode, String navn, String offisiellKode) {
+    BehandlingTema(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

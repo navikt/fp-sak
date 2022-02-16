@@ -45,11 +45,11 @@ public enum KlageVurderingOmgjør implements Kodeverdi {
 
     private String kode;
 
-    private KlageVurderingOmgjør(String kode) {
+    KlageVurderingOmgjør(String kode) {
         this.kode = kode;
     }
 
-    private KlageVurderingOmgjør(String kode, String navn) {
+    KlageVurderingOmgjør(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

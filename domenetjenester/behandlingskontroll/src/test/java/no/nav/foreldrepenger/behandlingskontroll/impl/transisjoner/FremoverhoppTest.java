@@ -111,7 +111,7 @@ public class FremoverhoppTest {
     }
 
     @Test
-    public void skal_kalle_transisjoner_på_steg_det_hoppes_over() throws Exception {
+    public void skal_kalle_transisjoner_på_steg_det_hoppes_over() {
         assertThat(transisjonerVedFremoverhopp(fra(steg1, INN), til(steg3))).contains(
                 StegTransisjon.hoppFremoverOver(steg1),
                 StegTransisjon.hoppFremoverOver(steg2));

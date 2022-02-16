@@ -54,11 +54,11 @@ public enum Fagsystem implements Kodeverdi, MedOffisiellKode {
         // Hibernate trenger den
     }
 
-    private Fagsystem(String kode) {
+    Fagsystem(String kode) {
         this.kode = kode;
     }
 
-    private Fagsystem(String kode, String navn, String offisiellKode) {
+    Fagsystem(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;

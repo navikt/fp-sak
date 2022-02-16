@@ -71,7 +71,7 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_gi_avslag_dersom_stønadsperiode_for_annen_forelder_er_brukt_opp() throws Exception {
+    public void skal_gi_avslag_dersom_stønadsperiode_for_annen_forelder_er_brukt_opp() {
         var maksdatoForeldrepenger = LocalDate.of(2018, 8, 1);
         var omsorgsovertakelsedato = LocalDate.of(2018, 9, 1);
 
@@ -97,7 +97,7 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_gi_innvilgelse_dersom_stønadsperiode_for_annen_forelder_ikke_er_brukt_opp() throws Exception {
+    public void skal_gi_innvilgelse_dersom_stønadsperiode_for_annen_forelder_ikke_er_brukt_opp() {
         var maksdatoForeldrepenger = LocalDate.of(2018, 6, 1);
         var omsorgsovertakelsedato = LocalDate.of(2018, 5, 1);
 

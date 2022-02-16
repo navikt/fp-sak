@@ -39,11 +39,11 @@ public enum FamilieHendelseType implements Kodeverdi {
 
     private String kode;
 
-    private FamilieHendelseType(String kode) {
+    FamilieHendelseType(String kode) {
         this.kode = kode;
     }
 
-    private FamilieHendelseType(String kode, String navn) {
+    FamilieHendelseType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

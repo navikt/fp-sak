@@ -63,7 +63,7 @@ public class AutomatiskNæringsdrivendeReguleringSVPBatchTjenesteTest {
     private LocalDate cutoff;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         nySats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getVerdi();
         cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now())
                 .getPeriode()

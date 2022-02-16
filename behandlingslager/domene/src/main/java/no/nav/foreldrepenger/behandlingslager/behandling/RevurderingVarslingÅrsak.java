@@ -46,11 +46,11 @@ public enum RevurderingVarslingÅrsak implements Kodeverdi {
 
     private String kode;
 
-    private RevurderingVarslingÅrsak(String kode) {
+    RevurderingVarslingÅrsak(String kode) {
         this.kode = kode;
     }
 
-    private RevurderingVarslingÅrsak(String kode, String navn) {
+    RevurderingVarslingÅrsak(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

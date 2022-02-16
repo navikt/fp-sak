@@ -36,7 +36,7 @@ public enum ForretningshendelseType implements Kodeverdi {
 
     private String kode;
 
-    private ForretningshendelseType(String kode, String navn) {
+    ForretningshendelseType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

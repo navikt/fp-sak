@@ -45,11 +45,11 @@ public enum NavBrukerKjønn implements Kodeverdi {
     NavBrukerKjønn() {
     }
 
-    private NavBrukerKjønn(String kode) {
+    NavBrukerKjønn(String kode) {
         this.kode = kode;
     }
 
-    private NavBrukerKjønn(String kode, String navn) {
+    NavBrukerKjønn(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

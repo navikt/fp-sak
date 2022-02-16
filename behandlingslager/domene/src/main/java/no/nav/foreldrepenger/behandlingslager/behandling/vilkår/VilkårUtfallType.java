@@ -37,11 +37,11 @@ public enum VilkårUtfallType implements Kodeverdi {
 
     private String kode;
 
-    private VilkårUtfallType(String kode) {
+    VilkårUtfallType(String kode) {
         this.kode = kode;
     }
 
-    private VilkårUtfallType(String kode, String navn) {
+    VilkårUtfallType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

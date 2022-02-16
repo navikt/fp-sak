@@ -52,7 +52,7 @@ public @interface GrunnlagRef {
 
 
     @SuppressWarnings("unchecked")
-    public static final class Lookup {
+    final class Lookup {
 
         private Lookup() {
         }
@@ -127,7 +127,7 @@ public @interface GrunnlagRef {
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ ElementType.TYPE, ElementType.PARAMETER, ElementType.FIELD })
     @Documented
-    public @interface ContainerOfGrunnlagRef {
+    @interface ContainerOfGrunnlagRef {
         GrunnlagRef[] value();
     }
 }
