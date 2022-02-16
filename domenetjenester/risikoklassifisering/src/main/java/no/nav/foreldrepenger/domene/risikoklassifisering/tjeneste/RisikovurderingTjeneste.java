@@ -53,7 +53,7 @@ public class RisikovurderingTjeneste {
     }
 
     public boolean behandlingHarBlittRisikoklassifisert(BehandlingReferanse referanse) {
-        var resultat = hentFaresignalerForBehandling(referanse);
+        var resultat = hentFaresignalerFraFprisk(referanse);
         return resultat.map(res -> !res.kontrollresultat().equals(Kontrollresultat.IKKE_KLASSIFISERT)).orElse(false);
     }
 
@@ -106,7 +106,7 @@ public class RisikovurderingTjeneste {
             return Optional.empty();
         }
 
-        var klassifiseringFraRiskOpt = hentFaresignalerForBehandling(referanse);
+        var klassifiseringFraRiskOpt = hentFaresignalerFraFprisk(referanse);
 
         // Må gjøres frem til faresignalvurderinger i fpsak er migrert til fprisk
         if (klassifiseringFraRiskOpt.filter(res -> res.kontrollresultat().equals(Kontrollresultat.HØY) && res.faresignalVurdering() == null).isPresent()) {
@@ -138,7 +138,12 @@ public class RisikovurderingTjeneste {
         var entitet = hentRisikoklassifiseringFraFpsak(behandlingReferanse.getBehandlingId());
         var faresignalVurdering = entitet.map(RisikoklassifiseringEntitet::getFaresignalVurdering)
             .orElseThrow(() -> new IllegalStateException("Har ingen faresignalvurdering å migrere!"));
-        sendVurderingTilFprisk(behandlingReferanse, faresignalVurdering);
+        var finnesKlassifiseringMedResultatHøyIFprisk = hentFaresignalerFraFprisk(behandlingReferanse)
+            .map(risk -> risk.kontrollresultat().equals(Kontrollresultat.HØY))
+            .orElse(false);
+        if (finnesKlassifiseringMedResultatHøyIFprisk) {
+            sendVurderingTilFprisk(behandlingReferanse, faresignalVurdering);
+        }
     }
 
     public List<Long> finnBehandlingIderForMigrering() {
@@ -165,7 +170,7 @@ public class RisikovurderingTjeneste {
         return Objects.equals(wrapper.kontrollresultat(), Kontrollresultat.HØY);
     }
 
-    private Optional<FaresignalWrapper> hentFaresignalerForBehandling(BehandlingReferanse ref) {
+    private Optional<FaresignalWrapper> hentFaresignalerFraFprisk(BehandlingReferanse ref) {
         var request = new HentRisikovurderingDto(ref.getBehandlingUuid());
         var faresignalerRespons = fpriskTjeneste.hentFaresignalerForBehandling(request);
         if (faresignalerRespons.isEmpty()) {
