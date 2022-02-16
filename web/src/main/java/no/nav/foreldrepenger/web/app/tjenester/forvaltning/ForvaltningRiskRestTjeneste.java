@@ -77,7 +77,7 @@ public class ForvaltningRiskRestTjeneste {
         prosessTaskData.setProperty(MigrerFaresignalvurderingTask.BEHANDLING_ID, behandlingId.toString());
         prosessTaskData.setNesteKjøringEtter(kjøreStart);
         prosessTaskData.setCallId(callId);
-        prosessTaskData.setPrioritet(50);
+        prosessTaskData.setPrioritet(101);
         taskTjeneste.lagre(prosessTaskData);
     }
 
