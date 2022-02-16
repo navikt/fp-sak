@@ -497,29 +497,29 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         // Assert
         var fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
-        assertThat(fpffDto.getMaxDager()).isEqualTo(maxDagerFPFF);
-        assertThat(fpffDto.getAktivitetSaldoDtoList()).hasSize(2);
-        assertThat(fpffDto.getAktivitetSaldoDtoList().get(0).getSaldo()).isEqualTo(0);
-        assertThat(fpffDto.getAktivitetSaldoDtoList().get(1).getSaldo()).isEqualTo(0);
+        assertThat(fpffDto.maxDager()).isEqualTo(maxDagerFPFF);
+        assertThat(fpffDto.aktivitetSaldoDtoList()).hasSize(2);
+        assertThat(fpffDto.aktivitetSaldoDtoList().get(0).saldo()).isEqualTo(0);
+        assertThat(fpffDto.aktivitetSaldoDtoList().get(1).saldo()).isEqualTo(0);
 
         var mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
-        assertThat(mkDto.getMaxDager()).isEqualTo(maxDagerMK);
-        assertThat(mkDto.getAktivitetSaldoDtoList()).hasSize(2);
-        assertThat(mkDto.getAktivitetSaldoDtoList().get(0).getSaldo()).isEqualTo(maxDagerMK - (6 * 5));
-        assertThat(mkDto.getAktivitetSaldoDtoList().get(1).getSaldo()).isEqualTo(maxDagerMK - (6 * 5));
+        assertThat(mkDto.maxDager()).isEqualTo(maxDagerMK);
+        assertThat(mkDto.aktivitetSaldoDtoList()).hasSize(2);
+        assertThat(mkDto.aktivitetSaldoDtoList().get(0).saldo()).isEqualTo(maxDagerMK - (6 * 5));
+        assertThat(mkDto.aktivitetSaldoDtoList().get(1).saldo()).isEqualTo(maxDagerMK - (6 * 5));
 
         var fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
-        assertThat(fpDto.getMaxDager()).isEqualTo(maxDagerFP);
-        assertThat(fpDto.getAktivitetSaldoDtoList()).hasSize(2);
-        var aktivitetSaldo1 = finnRiktigAktivitetSaldo(fpDto.getAktivitetSaldoDtoList(),
+        assertThat(fpDto.maxDager()).isEqualTo(maxDagerFP);
+        assertThat(fpDto.aktivitetSaldoDtoList()).hasSize(2);
+        var aktivitetSaldo1 = finnRiktigAktivitetSaldo(fpDto.aktivitetSaldoDtoList(),
             uttakAktivitetForMor1);
-        var aktivitetSaldo2 = finnRiktigAktivitetSaldo(fpDto.getAktivitetSaldoDtoList(),
+        var aktivitetSaldo2 = finnRiktigAktivitetSaldo(fpDto.aktivitetSaldoDtoList(),
             uttakAktivitetForMor2);
         assertThat(aktivitetSaldo1).isPresent();
         assertThat(aktivitetSaldo2).isPresent();
-        assertThat(aktivitetSaldo1.get().getSaldo()).isEqualTo(maxDagerFP - 25);
-        assertThat(aktivitetSaldo2.get().getSaldo()).isEqualTo(maxDagerFP - (10 * 5));
-        assertThat(fpDto.getSaldo()).isEqualTo(maxDagerFP - 25);
+        assertThat(aktivitetSaldo1.get().saldo()).isEqualTo(maxDagerFP - 25);
+        assertThat(aktivitetSaldo2.get().saldo()).isEqualTo(maxDagerFP - (10 * 5));
+        assertThat(fpDto.saldo()).isEqualTo(maxDagerFP - 25);
 
         assertThat(saldoer.getMaksDatoUttak()).isPresent();
         assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(
@@ -786,22 +786,22 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     private Optional<AktivitetSaldoDto> finnRiktigAktivitetSaldo(List<AktivitetSaldoDto> aktivitetSaldoer,
                                                                  UttakAktivitetEntitet aktivitetEntitet) {
         return aktivitetSaldoer.stream().filter(as -> {
-            var aktId = as.getAktivitetIdentifikator();
-            return aktId.getUttakArbeidType().equals(aktivitetEntitet.getUttakArbeidType()) &&
-                aktId.getArbeidsgiverReferanse()
+            var aktId = as.aktivitetIdentifikator();
+            return aktId.uttakArbeidType().equals(aktivitetEntitet.getUttakArbeidType()) &&
+                aktId.arbeidsgiverReferanse()
                     .equals(aktivitetEntitet.getArbeidsgiver().isPresent() ? aktivitetEntitet.getArbeidsgiver()
                         .get()
                         .getIdentifikator() : null) &&
-                aktId.getArbeidsforholdId().equals(aktivitetEntitet.getArbeidsforholdRef().getReferanse());
+                aktId.arbeidsforholdId().equals(aktivitetEntitet.getArbeidsforholdRef().getReferanse());
         }).findFirst();
     }
 
 
     private void assertKonto(StønadskontoDto stønadskontoDto, int maxDager, int saldo) {
-        assertThat(stønadskontoDto.getMaxDager()).isEqualTo(maxDager);
-        assertThat(stønadskontoDto.getAktivitetSaldoDtoList()).hasSize(1);
-        assertThat(stønadskontoDto.getSaldo()).isEqualTo(saldo);
-        assertThat(stønadskontoDto.getAktivitetSaldoDtoList().get(0).getSaldo()).isEqualTo(saldo);
+        assertThat(stønadskontoDto.maxDager()).isEqualTo(maxDager);
+        assertThat(stønadskontoDto.aktivitetSaldoDtoList()).hasSize(1);
+        assertThat(stønadskontoDto.saldo()).isEqualTo(saldo);
+        assertThat(stønadskontoDto.aktivitetSaldoDtoList().get(0).saldo()).isEqualTo(saldo);
 
     }
 
