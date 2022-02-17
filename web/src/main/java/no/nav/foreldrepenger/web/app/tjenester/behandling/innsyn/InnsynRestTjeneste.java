@@ -112,10 +112,11 @@ public class InnsynRestTjeneste {
         }
 
         lagreteVedtak.forEach(lagretVedtakMedBehandlingType -> {
-            var vedtaksdokumentasjonDto = new VedtaksdokumentasjonDto();
-            vedtaksdokumentasjonDto.setDokumentId(lagretVedtakMedBehandlingType.getId().toString());
-            vedtaksdokumentasjonDto.setOpprettetDato(lagretVedtakMedBehandlingType.getOpprettetDato());
-            vedtaksdokumentasjonDto.setTittel(lagretVedtakMedBehandlingType.getBehandlingType());
+            var dokumentId = lagretVedtakMedBehandlingType.getId().toString();
+            var behandlingUuid = lagretVedtakMedBehandlingType.getUuid();
+            var tittel = lagretVedtakMedBehandlingType.getBehandlingType();
+            var opprettetDato = lagretVedtakMedBehandlingType.getOpprettetDato();
+            var vedtaksdokumentasjonDto = new VedtaksdokumentasjonDto(dokumentId, behandlingUuid, tittel, opprettetDato);
             dto.getVedtaksdokumentasjon().add(vedtaksdokumentasjonDto);
         });
 

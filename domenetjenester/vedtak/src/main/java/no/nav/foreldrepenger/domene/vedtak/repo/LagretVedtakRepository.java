@@ -81,6 +81,7 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
 
         var sql = "SELECT " +
             "l.BEHANDLING_ID id, " +
+            "b.UUID uuid, " +
             "b.BEHANDLING_TYPE behandlingType, " +
             "l.opprettet_tid opprettetDato " +
             "FROM LAGRET_VEDTAK l " +

@@ -4,22 +4,29 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.UUID;
 
 public class LagretVedtakMedBehandlingType {
 
     // Id er behandlingId på lagret vedtak
-    private Long id;
-    private String behandlingType;
-    private LocalDate opprettetDato;
+    private final Long id;
+    private final UUID uuid;
+    private final String behandlingType;
+    private final LocalDate opprettetDato;
 
-    public LagretVedtakMedBehandlingType(BigDecimal id, String behandlingType, Object opprettetDato) {
+    public LagretVedtakMedBehandlingType(BigDecimal id, UUID uuid, String behandlingType, Object opprettetDato) {
         this.id = id.longValue();
+        this.uuid = uuid;
         this.behandlingType = behandlingType;
         this.opprettetDato =    ((Timestamp)opprettetDato).toLocalDateTime().toLocalDate();
     }
 
     public Long getId() {
         return id;
+    }
+
+    public UUID getUuid() {
+        return uuid;
     }
 
     public String getBehandlingType() {
@@ -42,13 +49,13 @@ public class LagretVedtakMedBehandlingType {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, behandlingType, opprettetDato);
+        return Objects.hash(id, uuid, behandlingType, opprettetDato);
     }
+
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" +
-            "id=" + id + ", behandlingType='" + behandlingType +
-            ", opprettetDato=" + opprettetDato + ">";
+        return "LagretVedtakMedBehandlingType{" + "id=" + id + ", uuid=" + uuid + ", behandlingType='" + behandlingType + '\'' + ", opprettetDato="
+            + opprettetDato + '}';
     }
 }
