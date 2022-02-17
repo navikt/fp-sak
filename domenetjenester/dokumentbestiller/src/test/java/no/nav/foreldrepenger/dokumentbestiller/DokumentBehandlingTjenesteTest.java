@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -125,7 +126,7 @@ public class DokumentBehandlingTjenesteTest {
         behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENTE_OPPLYSNINGER);
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENTE_OPPLYSNINGER, UUID.randomUUID());
 
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
@@ -138,7 +139,7 @@ public class DokumentBehandlingTjenesteTest {
     public void skal_returnere_true_når_dokument_er_bestilt() {
         // Arrange
         behandling = scenario.lagre(repositoryProvider);
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENTE_OPPLYSNINGER);
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENTE_OPPLYSNINGER, UUID.randomUUID());
 
         // Act+Assert
         assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENTE_OPPLYSNINGER)).isTrue();
@@ -148,7 +149,7 @@ public class DokumentBehandlingTjenesteTest {
     public void skal_returnere_false_når_dokument_ikke_er_bestilt() {
         // Arrange
         behandling = scenario.lagre(repositoryProvider);
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.ETTERLYS_INNTEKTSMELDING);
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.ETTERLYS_INNTEKTSMELDING, UUID.randomUUID());
 
         // Act+Assert
         assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENTE_OPPLYSNINGER)).isFalse();
