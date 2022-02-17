@@ -13,10 +13,8 @@ import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.web.app.rest.ResourceLink;
-import no.nav.foreldrepenger.web.app.util.RestUtils;
 
-public class BehandlingDtoUtil {
+public final class BehandlingDtoUtil {
 
     static void settStandardfelterUtvidet(Behandling behandling,
                                           UtvidetBehandlingDto dto,
@@ -109,14 +107,4 @@ public class BehandlingDtoUtil {
         dto.setManueltOpprettet(årsak.erManueltOpprettet());
         return dto;
     }
-
-    static ResourceLink get(String path, String rel, Object dto) {
-        return ResourceLink.get(RestUtils.getApiPath(path), rel, dto);
-    }
-
-    static ResourceLink post(String path, String rel, Object dto) {
-        return ResourceLink.post(RestUtils.getApiPath(path), rel, dto);
-    }
-
-
 }

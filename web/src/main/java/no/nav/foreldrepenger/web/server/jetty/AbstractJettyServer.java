@@ -78,7 +78,7 @@ abstract class AbstractJettyServer {
         var factory = new DefaultAuthConfigFactory();
         factory.registerConfigProvider(new JaspiAuthConfigProvider(new OidcAuthModule()),
             "HttpServlet",
-            "server " + webKonfigurasjon.getContextPath(),
+            "server " + JettyWebKonfigurasjon.CONTEXT_PATH,
             "OIDC Authentication");
 
         AuthConfigFactory.setFactory(factory);
@@ -118,7 +118,7 @@ abstract class AbstractJettyServer {
         }
         webAppContext.setDescriptor(descriptor);
         webAppContext.setBaseResource(createResourceCollection());
-        webAppContext.setContextPath(webKonfigurasjon.getContextPath());
+        webAppContext.setContextPath(JettyWebKonfigurasjon.CONTEXT_PATH);
         webAppContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
         webAppContext.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", "^.*jersey-.*.jar$|^.*felles-.*.jar$");
         webAppContext.setSecurityHandler(createSecurityHandler());

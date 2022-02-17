@@ -4,15 +4,14 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.vedtak.sikkerhet.ContextPathHolder;
+import no.nav.foreldrepenger.web.server.jetty.JettyWebKonfigurasjon;
 
 @ApplicationScoped
 public class RedirectFactory {
 
-    private String loadBalancerUrl;
-
-    //TODO (TOR) Denne bør ikkje ligga på server, men heller automatisk redirecte i klient. (Men dette er tryggast løysing tett opptil release)
     private static final String DEFAULT_PART_URL = "?punkt=default&fakta=default";
+
+    private String loadBalancerUrl;
 
     public String lagRedirect(OppgaveRedirectData data) {
         if (data.harFeilmelding()) {
@@ -26,7 +25,7 @@ public class RedirectFactory {
     }
 
     protected String getBaseUrl() {
-        return loadBalancerUrl + ContextPathHolder.instance().getContextPath();
+        return loadBalancerUrl + JettyWebKonfigurasjon.CONTEXT_PATH;
     }
 
     @Inject

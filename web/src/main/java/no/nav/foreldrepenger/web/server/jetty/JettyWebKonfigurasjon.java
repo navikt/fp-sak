@@ -4,9 +4,9 @@ import no.nav.vedtak.sikkerhet.ContextPathHolder;
 
 public class JettyWebKonfigurasjon {
 
-    private static final String CONTEXT_PATH = "/fpsak";
+    public static final String CONTEXT_PATH = "/fpsak";
 
-    private Integer serverPort;
+    private final Integer serverPort;
 
     // Hvis du føler for å omstrukturere Jetty-klassene så sørg for at CPHolder
     // blir kalt så tidlig som mulig i oppstarten av Jetty og helst kun en gang ....
@@ -18,9 +18,5 @@ public class JettyWebKonfigurasjon {
 
     public int getServerPort() {
         return serverPort;
-    }
-
-    public String getContextPath() {
-        return CONTEXT_PATH;
     }
 }
