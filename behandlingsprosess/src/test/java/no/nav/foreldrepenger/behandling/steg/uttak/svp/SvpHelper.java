@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
@@ -20,9 +21,11 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 class SvpHelper {
 
     private BehandlingRepositoryProvider behandlingRepositoryProvider;
+    private SvangerskapspengerRepository svangerskapspengerRepository;
 
-    public SvpHelper(BehandlingRepositoryProvider behandlingRepositoryProvider) {
+    public SvpHelper(BehandlingRepositoryProvider behandlingRepositoryProvider, SvangerskapspengerRepository svpRepository) {
         this.behandlingRepositoryProvider = behandlingRepositoryProvider;
+        this.svangerskapspengerRepository = svpRepository;
     }
 
     Behandling lagreBehandling() {
@@ -48,7 +51,7 @@ class SvpHelper {
                 .medBehandlingId(behandling.getId())
                 .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
                 .build();
-        behandlingRepositoryProvider.getSvangerskapspengerRepository().lagreOgFlush(svpGrunnlag);
+        svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
     }
 
     private FamilieHendelseBuilder byggAggregat(LocalDate termindato, LocalDate... fødselsdatoer) {

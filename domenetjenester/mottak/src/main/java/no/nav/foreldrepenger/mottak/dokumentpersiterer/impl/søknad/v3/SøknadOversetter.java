@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRe
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
@@ -139,6 +140,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
     @Inject
     public SøknadOversetter(BehandlingRepositoryProvider repositoryProvider,
+                            BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
                             VirksomhetTjeneste virksomhetTjeneste,
                             InntektArbeidYtelseTjeneste iayTjeneste,
                             PersoninfoAdapter personinfoAdapter,
@@ -146,17 +148,17 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                             OppgittPeriodeTidligstMottattDatoTjeneste oppgittPeriodeTidligstMottattDatoTjeneste,
                             AnnenPartOversetter annenPartOversetter) {
         this.iayTjeneste = iayTjeneste;
-        this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.søknadRepository = repositoryProvider.getSøknadRepository();
-        this.medlemskapRepository = repositoryProvider.getMedlemskapRepository();
-        this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-        this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        this.familieHendelseRepository = grunnlagRepositoryProvider.getFamilieHendelseRepository();
+        this.søknadRepository = grunnlagRepositoryProvider.getSøknadRepository();
+        this.medlemskapRepository = grunnlagRepositoryProvider.getMedlemskapRepository();
+        this.personopplysningRepository = grunnlagRepositoryProvider.getPersonopplysningRepository();
+        this.ytelsesFordelingRepository = grunnlagRepositoryProvider.getYtelsesFordelingRepository();
         this.virksomhetTjeneste = virksomhetTjeneste;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
         this.datavarehusTjeneste = datavarehusTjeneste;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
-        this.svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
+        this.svangerskapspengerRepository = grunnlagRepositoryProvider.getSvangerskapspengerRepository();
         this.oppgittPeriodeTidligstMottattDatoTjeneste = oppgittPeriodeTidligstMottattDatoTjeneste;
         this.annenPartOversetter = annenPartOversetter;
     }

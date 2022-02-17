@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
@@ -45,9 +44,10 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
     @Inject
     public VurderFagsystemTjenesteImpl(VurderFagsystemFellesUtils utils,
-                                       BehandlingRepositoryProvider repositoryProvider) {
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
+                                       BehandlingRepository behandlingRepository,
+                                       SvangerskapspengerRepository svangerskapspengerRepository) {
+        this.behandlingRepository = behandlingRepository;
+        this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.fellesUtils = utils;
     }
 

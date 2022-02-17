@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPartType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -52,6 +53,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
 
 
     private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
 
     @Mock
     private StønadsperiodeTjeneste stønadsperiodeTjeneste;
@@ -76,7 +78,8 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
     public void setUp() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        stønadsperioderInnhenter = new StønadsperioderInnhenter(repositoryProvider, familieHendelseTjeneste, stønadsperiodeTjeneste, skjæringstidspunktTjeneste);
+        grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
+        stønadsperioderInnhenter = new StønadsperioderInnhenter(repositoryProvider, grunnlagRepositoryProvider, familieHendelseTjeneste, stønadsperiodeTjeneste, skjæringstidspunktTjeneste);
     }
 
     /*
@@ -107,7 +110,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         when(skjæringstidspunkt.getUtledetSkjæringstidspunkt()).thenReturn(STP_NORMAL);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(behandling.getFagsak())).thenReturn(Optional.of(STP_NORMAL));
 
-        var muligSak = stønadsperioderInnhenter.finnSenereStønadsperioderLoggResultat(behandling);
+        var muligSak = stønadsperioderInnhenter.finnSenereStønadsperiode(behandling);
         assertThat(muligSak).isEmpty();
     }
 
@@ -127,7 +130,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         when(skjæringstidspunkt.getUtledetSkjæringstidspunkt()).thenReturn(STP_NORMAL);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(behandling.getFagsak())).thenReturn(Optional.of(STP_NORMAL));
 
-        var muligSak = stønadsperioderInnhenter.finnSenereStønadsperioderLoggResultat(behandling);
+        var muligSak = stønadsperioderInnhenter.finnSenereStønadsperiode(behandling);
         assertThat(muligSak).hasValueSatisfying(v -> {
             assertThat(v.saksnummer()).isEqualTo(nyereBehandling.getFagsak().getSaksnummer());
             assertThat(v.startdato()).isEqualTo(FH_DATO_YNGRE);
@@ -151,7 +154,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         when(skjæringstidspunkt.getUtledetSkjæringstidspunkt()).thenReturn(FH_DATO.minusWeeks(12));
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyBehSVPOverlapper.getFagsak())).thenReturn(Optional.of(FH_DATO.minusWeeks(12)));
 
-        var muligSak = stønadsperioderInnhenter.finnSenereStønadsperioderLoggResultat(nyBehSVPOverlapper);
+        var muligSak = stønadsperioderInnhenter.finnSenereStønadsperiode(nyBehSVPOverlapper);
         assertThat(muligSak).hasValueSatisfying(v -> {
             assertThat(v.saksnummer()).isEqualTo(avsluttetFPBehMor.getFagsak().getSaksnummer());
             assertThat(v.startdato()).isEqualTo(STP_NORMAL);
@@ -177,7 +180,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
 
         assertThat(repositoryProvider.getPersonopplysningRepository().fagsakerMedOppgittAnnenPart(MEDF_AKTØR_ID)).isNotEmpty();
 
-        var muligSak = stønadsperioderInnhenter.finnSenereStønadsperioderLoggResultat(behandling);
+        var muligSak = stønadsperioderInnhenter.finnSenereStønadsperiode(behandling);
         assertThat(muligSak).hasValueSatisfying(v -> {
             assertThat(v.saksnummer()).isEqualTo(nyereBehandling.getFagsak().getSaksnummer());
             assertThat(v.startdato()).isEqualTo(FH_DATO_YNGRE.minusWeeks(3));
@@ -202,7 +205,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
 
         assertThat(repositoryProvider.getPersonopplysningRepository().fagsakerMedOppgittAnnenPart(MEDF_AKTØR_ID)).isNotEmpty();
 
-        var muligSak = stønadsperioderInnhenter.finnSenereStønadsperioderLoggResultat(behandling);
+        var muligSak = stønadsperioderInnhenter.finnSenereStønadsperiode(behandling);
         assertThat(muligSak).hasValueSatisfying(v -> {
             assertThat(v.saksnummer()).isEqualTo(nyereBehandling.getFagsak().getSaksnummer());
             assertThat(v.startdato()).isEqualTo(FH_DATO_YNGRE.minusWeeks(3));
@@ -228,7 +231,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
 
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyBehSVPOverlapper.getFagsak())).thenReturn(Optional.of(FH_DATO.minusWeeks(12)));
 
-        var muligSak = stønadsperioderInnhenter.finnSenereStønadsperioderLoggResultat(nyBehSVPOverlapper);
+        var muligSak = stønadsperioderInnhenter.finnSenereStønadsperiode(nyBehSVPOverlapper);
         assertThat(muligSak).isEmpty();
     }
 

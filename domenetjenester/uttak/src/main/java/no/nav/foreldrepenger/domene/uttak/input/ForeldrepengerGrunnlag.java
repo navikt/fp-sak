@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.uttak.input;
 
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 
@@ -13,18 +14,20 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     private Annenpart annenpart;
     private PleiepengerGrunnlagEntitet pleiepengerGrunnlag;
     private UføretrygdGrunnlagEntitet uføretrygdGrunnlag;
+    private NesteSakGrunnlagEntitet nesteSakEntitet;
 
     public ForeldrepengerGrunnlag() {
 
     }
 
     public ForeldrepengerGrunnlag(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
-        berørtBehandling = foreldrepengerGrunnlag.berørtBehandling;
-        familieHendelser = foreldrepengerGrunnlag.familieHendelser;
-        originalBehandling = foreldrepengerGrunnlag.originalBehandling;
-        annenpart = foreldrepengerGrunnlag.annenpart;
-        pleiepengerGrunnlag = foreldrepengerGrunnlag.pleiepengerGrunnlag;
-        uføretrygdGrunnlag = foreldrepengerGrunnlag.uføretrygdGrunnlag;
+        this.berørtBehandling = foreldrepengerGrunnlag.berørtBehandling;
+        this.familieHendelser = foreldrepengerGrunnlag.familieHendelser;
+        this.originalBehandling = foreldrepengerGrunnlag.originalBehandling;
+        this.annenpart = foreldrepengerGrunnlag.annenpart;
+        this.pleiepengerGrunnlag = foreldrepengerGrunnlag.pleiepengerGrunnlag;
+        this.uføretrygdGrunnlag = foreldrepengerGrunnlag.uføretrygdGrunnlag;
+        this.nesteSakEntitet = foreldrepengerGrunnlag.nesteSakEntitet;
     }
 
     public boolean isBerørtBehandling() {
@@ -49,6 +52,10 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
 
     public Optional<UføretrygdGrunnlagEntitet> getUføretrygdGrunnlag() {
         return Optional.ofNullable(uføretrygdGrunnlag);
+    }
+
+    public Optional<NesteSakGrunnlagEntitet> getNesteSakGrunnlag() {
+        return Optional.ofNullable(nesteSakEntitet);
     }
 
     public ForeldrepengerGrunnlag medErBerørtBehandling(boolean berørtBehandling) {
@@ -84,6 +91,12 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     public ForeldrepengerGrunnlag medUføretrygdGrunnlag(UføretrygdGrunnlagEntitet uføretrygdGrunnlag) {
         var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
         nyttGrunnlag.uføretrygdGrunnlag = uføretrygdGrunnlag;
+        return nyttGrunnlag;
+    }
+
+    public ForeldrepengerGrunnlag medNesteSakGrunnlag(NesteSakGrunnlagEntitet nesteSakGrunnlag) {
+        var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
+        nyttGrunnlag.nesteSakEntitet = nesteSakGrunnlag;
         return nyttGrunnlag;
     }
 }

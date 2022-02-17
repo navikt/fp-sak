@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -33,10 +32,10 @@ public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
     private ProsessTaskTjeneste taskTjeneste;
 
     @Inject
-    public AutomatiskArenaReguleringBatchTjeneste(BehandlingRepositoryProvider repositoryProvider,
+    public AutomatiskArenaReguleringBatchTjeneste(BehandlingRevurderingRepository behandlingRevurderingRepository,
             ProsessTaskTjeneste taskTjeneste) {
         this.taskTjeneste = taskTjeneste;
-        this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
+        this.behandlingRevurderingRepository = behandlingRevurderingRepository;
     }
 
     @Override

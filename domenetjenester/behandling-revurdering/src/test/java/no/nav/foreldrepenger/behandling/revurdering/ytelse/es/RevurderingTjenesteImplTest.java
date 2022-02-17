@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -31,12 +32,14 @@ import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 public class RevurderingTjenesteImplTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingGrunnlagRepositoryProvider grunnlagProvider;
     private BehandlingRepository behandlingRepository;
     private RevurderingTjeneste revurderingTjeneste;
 
     @BeforeEach
     public void setup(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        grunnlagProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
         var serviceProvider = new BehandlingskontrollServiceProvider(entityManager,
                 new BehandlingModellRepository(), null);
@@ -44,7 +47,7 @@ public class RevurderingTjenesteImplTest {
                 new LegacyESBeregningRepository(entityManager), repositoryProvider.getBehandlingsresultatRepository());
         var vergeRepository = new VergeRepository(entityManager, new BehandlingLåsRepository(entityManager));
         var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
-        revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider,
+        revurderingTjeneste = new RevurderingTjenesteImpl(behandlingRepository, grunnlagProvider,
                 new BehandlingskontrollTjenesteImpl(serviceProvider), revurderingEndringES, revurderingTjenesteFelles,
                 vergeRepository);
     }

@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.YtelsesesspesifiktGru
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
@@ -23,11 +24,15 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
 
     private FamilieHendelseRepository familieHendelseRepository;
     private SvangerskapspengerRepository svangerskapspengerRepository;
+    private NesteSakRepository nesteSakRepository;
 
     @Inject
-    public UttakGrunnlagTjeneste(FamilieHendelseRepository familieHendelseRepository, SvangerskapspengerRepository svangerskapspengerRepository) {
+    public UttakGrunnlagTjeneste(FamilieHendelseRepository familieHendelseRepository,
+                                 SvangerskapspengerRepository svangerskapspengerRepository,
+                                 NesteSakRepository nesteSakRepository) {
         this.familieHendelseRepository = familieHendelseRepository;
         this.svangerskapspengerRepository = svangerskapspengerRepository;
+        this.nesteSakRepository = nesteSakRepository;
     }
 
     UttakGrunnlagTjeneste() {
@@ -43,6 +48,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         var grunnlag = new SvangerskapspengerGrunnlag()
                 .medFamilieHendelse(familieHendelse.get())
                 .medSvpGrunnlagEntitet(svpGrunnEntitet(ref).orElse(null));
+        nesteSakRepository.hentGrunnlag(ref.getBehandlingId()).ifPresent(g -> grunnlag.medNesteSakEntitet(g));
         return Optional.of(grunnlag);
     }
 

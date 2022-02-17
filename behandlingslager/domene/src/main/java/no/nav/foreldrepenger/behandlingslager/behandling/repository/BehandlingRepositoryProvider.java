@@ -13,12 +13,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
@@ -29,15 +25,12 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 
 /**
- * Provider for å enklere å kunne hente ut ulike repository uten for mange
- * injection points.
+ * Provider for å enklere å kunne hente ut ulike repository uten for mange injection points.
+ *
+ * NB: Behandlingsgrunnlag skal ikke ligge her - men i BehandlingGrunnlagRepositoryProvider
+ * Forøvrig - inject enkeltvis heller enn å bruke denne
  */
 @ApplicationScoped
-/**
- *
- * @depecated Ikke bruk denne monstertklassen som indireksjon for å få tak i
- *            repositories, bruk de enkelte direkte.
- */
 public class BehandlingRepositoryProvider {
 
     private EntityManager entityManager;
@@ -47,8 +40,6 @@ public class BehandlingRepositoryProvider {
     private MedlemskapRepository medlemskapRepository;
     private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
     private FamilieHendelseRepository familieHendelseRepository;
-    private PleiepengerRepository pleiepengerRepository;
-    private UføretrygdRepository uføretrygdRepository;
     private HistorikkRepository historikkRepository;
     private SøknadRepository søknadRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -62,8 +53,6 @@ public class BehandlingRepositoryProvider {
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
-    private SvangerskapspengerRepository svangerskapspengerRepository;
-    private OpptjeningIUtlandDokStatusRepository opptjeningIUtlandDokStatusRepository;
 
     private BehandlingRepository behandlingRepository;
     private FagsakLåsRepository fagsakLåsRepository;
@@ -77,32 +66,25 @@ public class BehandlingRepositoryProvider {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
 
-        // VIS HENSYN - IKKE FORSØPLE MER FLERE REPOS HER. TA GJERNE NOEN UT HVIS DU SER
-        // DETTE.
-
-        // fp spesifikke behandling aggregater
-        this.ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
-
         // behandling repositories
         this.behandlingRepository = new BehandlingRepository(entityManager);
         this.behandlingLåsRepository = new BehandlingLåsRepository(entityManager);
         this.fagsakRepository = new FagsakRepository(entityManager);
         this.fagsakLåsRepository = new FagsakLåsRepository(entityManager);
-        this.fagsakRelasjonRepository = new FagsakRelasjonRepository(entityManager, ytelsesFordelingRepository, fagsakLåsRepository);
 
-        // behandling aggregater
+        // behandling grunnlagaggregater - flyttes til BehandlingGrunnlagRepositoryProvider
+        this.personopplysningRepository = new PersonopplysningRepository(entityManager);
+        this.søknadRepository = new SøknadRepository(entityManager, this.behandlingRepository);
         this.familieHendelseRepository = new FamilieHendelseRepository(entityManager);
         this.medlemskapRepository = new MedlemskapRepository(entityManager);
+        this.ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
+
+        // behandling mellomresultat
         this.medlemskapVilkårPeriodeRepository = new MedlemskapVilkårPeriodeRepository(entityManager);
         this.opptjeningRepository = new OpptjeningRepository(entityManager, this.behandlingRepository);
-        this.personopplysningRepository = new PersonopplysningRepository(entityManager);
-        this.pleiepengerRepository = new PleiepengerRepository(entityManager);
-        this.uføretrygdRepository = new UføretrygdRepository(entityManager);
-        this.søknadRepository = new SøknadRepository(entityManager, this.behandlingRepository);
         this.fpUttakRepository = new FpUttakRepository(entityManager);
         this.uttaksperiodegrenseRepository = new UttaksperiodegrenseRepository(entityManager);
         this.behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
-        this.opptjeningIUtlandDokStatusRepository = new OpptjeningIUtlandDokStatusRepository(entityManager);
 
         // behandling resultat aggregater
         this.beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
@@ -111,15 +93,17 @@ public class BehandlingRepositoryProvider {
         this.mottatteDokumentRepository = new MottatteDokumentRepository(entityManager);
         this.historikkRepository = new HistorikkRepository(entityManager);
         this.behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
-        this.behandlingRevurderingRepository = new BehandlingRevurderingRepository(entityManager, behandlingRepository, fagsakRelasjonRepository,
-                søknadRepository, behandlingLåsRepository);
 
         this.svangerskapspengerUttakResultatRepository = new SvangerskapspengerUttakResultatRepository(entityManager);
-        this.svangerskapspengerRepository = new SvangerskapspengerRepository(entityManager);
+
+        // Må gjøres til slutt pga deps
+        this.fagsakRelasjonRepository = new FagsakRelasjonRepository(entityManager, ytelsesFordelingRepository, fagsakLåsRepository);
+        this.behandlingRevurderingRepository = new BehandlingRevurderingRepository(entityManager, behandlingRepository, fagsakRelasjonRepository,
+            søknadRepository, behandlingLåsRepository);
+
 
         // ********
-        // VIS HENSYN - IKKE FORSØPLE MER FLERE REPOS HER. DET SKAPER AVHENGIGHETER. TA
-        // GJERNE NOEN UT HVIS DU SER DETTE.
+        // VIS HENSYN - IKKE FORSØPLE MER FLERE REPOS HER. DET SKAPER AVHENGIGHETER. TA GJERNE NOEN UT HVIS DU SER DETTE.
         // ********
     }
 
@@ -154,14 +138,6 @@ public class BehandlingRepositoryProvider {
 
     public FamilieHendelseRepository getFamilieHendelseRepository() {
         return familieHendelseRepository;
-    }
-
-    public PleiepengerRepository getPleiepengerRepository() {
-        return pleiepengerRepository;
-    }
-
-    public UføretrygdRepository getUføretrygdRepository() {
-        return uføretrygdRepository;
     }
 
     public HistorikkRepository getHistorikkRepository() {
@@ -214,14 +190,6 @@ public class BehandlingRepositoryProvider {
 
     public SvangerskapspengerUttakResultatRepository getSvangerskapspengerUttakResultatRepository() {
         return svangerskapspengerUttakResultatRepository;
-    }
-
-    public SvangerskapspengerRepository getSvangerskapspengerRepository() {
-        return svangerskapspengerRepository;
-    }
-
-    public OpptjeningIUtlandDokStatusRepository getOpptjeningIUtlandDokStatusRepository() {
-        return opptjeningIUtlandDokStatusRepository;
     }
 
     public UttaksperiodegrenseRepository getUttaksperiodegrenseRepository() {

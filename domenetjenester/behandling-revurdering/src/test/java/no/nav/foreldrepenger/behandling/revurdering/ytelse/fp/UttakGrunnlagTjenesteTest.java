@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
@@ -23,16 +24,18 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 public class UttakGrunnlagTjenesteTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
 
     private UttakGrunnlagTjeneste tjeneste;
 
     @BeforeEach
     void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         var relatertBehandlingTjeneste = new RelatertBehandlingTjeneste(repositoryProvider);
         var familieHendelseRepository = new FamilieHendelseRepository(entityManager);
         var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, familieHendelseRepository);
-        tjeneste = new UttakGrunnlagTjeneste(repositoryProvider, relatertBehandlingTjeneste,
+        tjeneste = new UttakGrunnlagTjeneste(repositoryProvider, grunnlagRepositoryProvider, relatertBehandlingTjeneste,
                 familieHendelseTjeneste);
     }
 

@@ -47,11 +47,7 @@ public class InnhentMedlemskapOpplysningerTask extends BehandlingProsessTask {
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         LOG.info("Innhenter medlemskapsopplysninger for behandling: {}", behandling.getId());
-        try {
-            stønadsperioderInnhenter.finnSenereStønadsperioderLoggResultat(behandling);
-        } catch (Exception e) {
-            LOG.info("NESTEBARN noe gikk galt", e);
-        }
+        stønadsperioderInnhenter.innhentNesteSak(behandling);
         registerdataInnhenter.innhentMedlemskapsOpplysning(behandling);
         uføreInnhenter.innhentUføretrygd(behandling);
     }

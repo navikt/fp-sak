@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
@@ -40,16 +39,11 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
-import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningInnhenter;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPubliserer;
-import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
@@ -258,24 +252,5 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
             .medSivilstandType(SivilstandType.UGIFT)
             .medFamilierelasjon(singleton(familierelasjon))
             .build();
-    }
-
-    private static class TestRegisterdataInnhenter extends RegisterdataInnhenter {
-
-        TestRegisterdataInnhenter(PersoninfoAdapter personinfoAdapter,
-                                  MedlemTjeneste medlemTjeneste,
-                                  BehandlingRepositoryProvider repositoryProvider,
-                                  FamilieHendelseTjeneste familieHendelseTjeneste,
-                                  AbakusTjeneste abakusTjeneste,
-                                  MedlemskapRepository medlemskapRepository,
-                                  OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste) {
-            super(new PersonopplysningInnhenter(personinfoAdapter),
-                medlemTjeneste,
-                repositoryProvider,
-                familieHendelseTjeneste,
-                medlemskapRepository,
-                opplysningsPeriodeTjeneste,
-                abakusTjeneste);
-        }
     }
 }

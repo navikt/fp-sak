@@ -17,10 +17,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -45,27 +46,30 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     private RevurderingEndring revurderingEndring;
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private VergeRepository vergeRepository;
+    private NesteSakRepository nesteSakRepository;
 
     public RevurderingTjenesteImpl() {
         // for CDI proxy
     }
 
     @Inject
-    public RevurderingTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
+    public RevurderingTjenesteImpl(BehandlingRepository behandlingRepository,
+                                   BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                    InntektArbeidYtelseTjeneste iayTjeneste,
                                    @FagsakYtelseTypeRef("SVP") RevurderingEndring revurderingEndring,
                                    RevurderingTjenesteFelles revurderingTjenesteFelles,
                                    VergeRepository vergeRepository) {
         this.iayTjeneste = iayTjeneste;
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingRepository = behandlingRepository;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-        this.medlemskapRepository = repositoryProvider.getMedlemskapRepository();
-        this.svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
-        this.opptjeningIUtlandDokStatusRepository = repositoryProvider.getOpptjeningIUtlandDokStatusRepository();
+        this.ytelsesFordelingRepository = grunnlagRepositoryProvider.getYtelsesFordelingRepository();
+        this.familieHendelseRepository = grunnlagRepositoryProvider.getFamilieHendelseRepository();
+        this.personopplysningRepository = grunnlagRepositoryProvider.getPersonopplysningRepository();
+        this.medlemskapRepository = grunnlagRepositoryProvider.getMedlemskapRepository();
+        this.svangerskapspengerRepository = grunnlagRepositoryProvider.getSvangerskapspengerRepository();
+        this.nesteSakRepository = grunnlagRepositoryProvider.getNesteSakRepository();
+        this.opptjeningIUtlandDokStatusRepository = grunnlagRepositoryProvider.getOpptjeningIUtlandDokStatusRepository();
         this.revurderingEndring = revurderingEndring;
         this.revurderingTjenesteFelles = revurderingTjenesteFelles;
         this.vergeRepository = vergeRepository;
@@ -133,8 +137,8 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
             });
         }
         vergeRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
-        opptjeningIUtlandDokStatusRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId,
-            nyBehandlingId);
+        opptjeningIUtlandDokStatusRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId,nyBehandlingId);
+        nesteSakRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
 
         // gjør til slutt, innebærer kall til abakus
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);

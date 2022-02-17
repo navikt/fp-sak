@@ -10,7 +10,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
@@ -41,10 +40,11 @@ public class UttakXmlTjenesteImpl {
     }
 
     @Inject
-    public UttakXmlTjenesteImpl(BehandlingRepositoryProvider repositoryProvider) {
+    public UttakXmlTjenesteImpl(SvangerskapspengerRepository svangerskapspengerRepository,
+                                SvangerskapspengerUttakResultatRepository uttakRepository) {
         this.uttakObjectFactory = new ObjectFactory();
-        this.uttakRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
-        this.svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
+        this.uttakRepository = uttakRepository;
+        this.svangerskapspengerRepository = svangerskapspengerRepository;
     }
 
     public void setUttak(Beregningsresultat beregningsresultat, Behandling behandling) {

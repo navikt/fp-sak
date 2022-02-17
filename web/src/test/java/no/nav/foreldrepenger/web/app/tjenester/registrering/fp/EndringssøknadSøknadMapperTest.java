@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -47,10 +48,12 @@ public class EndringssøknadSøknadMapperTest {
     private DatavarehusTjeneste datavarehusTjeneste;
     private final SøknadMapper ytelseSøknadMapper = new EndringssøknadSøknadMapper();
     private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
 
     @BeforeEach
     public void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
     }
 
     @Test
@@ -63,7 +66,7 @@ public class EndringssøknadSøknadMapperTest {
 
         var oppgittPeriodeMottattDatoTjeneste = new OppgittPeriodeTidligstMottattDatoTjeneste(
             new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
-        var oversetter = new SøknadOversetter(repositoryProvider,
+        var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider,
             virksomhetTjeneste, iayTjeneste, personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDatoTjeneste,
             new AnnenPartOversetter(personinfoAdapter));
 

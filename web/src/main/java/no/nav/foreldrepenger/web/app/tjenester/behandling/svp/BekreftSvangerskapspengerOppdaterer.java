@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
@@ -52,7 +52,6 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private HistorikkTjenesteAdapter historikkAdapter;
-    private BehandlingRepositoryProvider repositoryProvider;
     private FamilieHendelseRepository familieHendelseRepository;
     private TilgangerTjeneste tilgangerTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
@@ -63,12 +62,11 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
     @Inject
     public BekreftSvangerskapspengerOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                               BehandlingRepositoryProvider repositoryProvider,
+                                               BehandlingGrunnlagRepositoryProvider repositoryProvider,
                                                TilgangerTjeneste tilgangerTjeneste,
                                                InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
         this.historikkAdapter = historikkAdapter;
-        this.repositoryProvider = repositoryProvider;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.tilgangerTjeneste = tilgangerTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
@@ -309,7 +307,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
     private boolean oppdaterFamiliehendelse(BekreftSvangerskapspengerDto dto, Behandling behandling) {
         var behandlingId = behandling.getId();
-        var grunnlag = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandlingId);
+        var grunnlag = familieHendelseRepository.hentAggregat(behandlingId);
 
         var termindatoOppdatert = oppdaterTermindato(dto, behandling, grunnlag);
         var fødselsdatoOppdatert = oppdaterFødselsdato(dto, behandling, grunnlag);

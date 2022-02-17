@@ -37,6 +37,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOppl
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
@@ -59,6 +60,9 @@ public class RevurderingTjenesteImplTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
+    private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
+
     HistorikkRepository historikkRepository;
     private Behandling behandling;
 
@@ -149,7 +153,7 @@ public class RevurderingTjenesteImplTest {
                 serviceProvider);
         var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
         RevurderingTjeneste revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider,
-                behandlingskontrollTjeneste,
+                grunnlagRepositoryProvider, behandlingskontrollTjeneste,
                 iayTjeneste, revurderingEndringES, revurderingTjenesteFelles, vergeRepository);
 
         // Act
