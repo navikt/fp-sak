@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -17,12 +16,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.MedLovHjemmel;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.ÅrsakskodeMedLovreferanse;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum GraderingAvslagÅrsak implements Kodeverdi, MedLovHjemmel {
+public enum GraderingAvslagÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
 
     UKJENT("-", "Ikke definert", null),
     GRADERING_FØR_UKE_7("4504", "§14-16 andre ledd: Avslag gradering - gradering før uke 7", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-16\"}}}"),
@@ -81,7 +80,7 @@ public enum GraderingAvslagÅrsak implements Kodeverdi, MedLovHjemmel {
     }
 
     @Override
-    public String getLovHjemmel() {
+    public String getLovHjemmelData() {
         return lovHjemmelData;
     }
 

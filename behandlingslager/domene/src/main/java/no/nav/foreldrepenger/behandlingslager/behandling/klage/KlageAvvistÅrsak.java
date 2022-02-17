@@ -16,12 +16,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.MedLovHjemmel;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.ÅrsakskodeMedLovreferanse;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum KlageAvvistÅrsak implements Kodeverdi, MedLovHjemmel {
+public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
 
     KLAGET_FOR_SENT("KLAGET_FOR_SENT", "Bruker har klaget for sent",
             "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"31\", \"33\"]},\"KA\": {\"lovreferanser\": [\"31\", \"34\"]}}}"),
@@ -101,7 +101,7 @@ public enum KlageAvvistÅrsak implements Kodeverdi, MedLovHjemmel {
     }
 
     @Override
-    public String getLovHjemmel() {
+    public String getLovHjemmelData() {
         return lovHjemmel;
     }
 

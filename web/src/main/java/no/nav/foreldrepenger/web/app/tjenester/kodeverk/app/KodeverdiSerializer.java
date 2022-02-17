@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.MedLovHjemmel;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.ÅrsakskodeMedLovreferanse;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 
 /**
@@ -29,8 +29,8 @@ public class KodeverdiSerializer extends StdSerializer<Kodeverdi> {
         jgen.writeStringField("kodeverk", value.getKodeverk());
         jgen.writeStringField("navn", value.getNavn());
 
-        if (value instanceof MedLovHjemmel l) {
-            jgen.writeStringField("lovHjemmel", l.getLovHjemmel());
+        if (value instanceof ÅrsakskodeMedLovreferanse l) {
+            jgen.writeStringField("lovHjemmel", l.getLovHjemmelData());
         }
         if (value instanceof PeriodeResultatÅrsak årsak) {
             if (årsak.getUtfallType() != null) {

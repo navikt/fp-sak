@@ -28,13 +28,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.MedLovHjemmel;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.ÅrsakskodeMedLovreferanse;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 import no.nav.foreldrepenger.konfig.Environment;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum PeriodeResultatÅrsak implements Kodeverdi, MedLovHjemmel {
+public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
 
     UKJENT("-", "Ikke definert", null, null),
 
@@ -266,7 +266,7 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, MedLovHjemmel {
 
     /** Returnerer p.t. Raw json. */
     @Override
-    public String getLovHjemmel() {
+    public String getLovHjemmelData() {
         return lovHjemmel;
     }
 

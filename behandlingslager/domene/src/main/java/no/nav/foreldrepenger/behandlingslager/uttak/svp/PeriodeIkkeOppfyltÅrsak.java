@@ -17,12 +17,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.ÅrsakskodeMedLovreferanse;
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.MedLovHjemmel;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, MedLovHjemmel {
+public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
 
     INGEN("-", "Ikke definert", null),
 
@@ -103,7 +103,7 @@ public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, MedLovHjemmel {
     }
 
     @Override
-    public String getLovHjemmel() {
+    public String getLovHjemmelData() {
         return lovHjemmel;
     }
 
