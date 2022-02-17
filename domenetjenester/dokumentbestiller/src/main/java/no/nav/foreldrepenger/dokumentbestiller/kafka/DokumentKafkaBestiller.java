@@ -49,21 +49,21 @@ public class DokumentKafkaBestiller {
     }
 
     public void bestillBrev(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak årsak, HistorikkAktør aktør) {
-        opprettKafkaTask(behandling, dokumentMalType, fritekst, årsak, aktør);
+        var bestillingUuid = UUID.randomUUID();
+        opprettKafkaTask(behandling, dokumentMalType, fritekst, årsak, aktør, bestillingUuid);
 
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, dokumentMalType);
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, dokumentMalType, bestillingUuid);
         brevHistorikkinnslag.opprettHistorikkinnslagForBestiltBrevFraKafka(aktør, behandling, dokumentMalType);
-
     }
 
-    private void opprettKafkaTask(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak årsak, HistorikkAktør aktør) {
+    private void opprettKafkaTask(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak årsak, HistorikkAktør aktør, UUID bestillingUuid) {
         var prosessTaskData = ProsessTaskData.forProsessTask(DokumentBestillerKafkaTask.class);
         prosessTaskData.setPayload(StandardJsonConfig.toJson(fritekst));
         prosessTaskData.setProperty(DokumentBestillerKafkaTask.BEHANDLING_ID, behandling.getId().toString());
         prosessTaskData.setProperty(DokumentBestillerKafkaTask.DOKUMENT_MAL_TYPE, dokumentMalType.getKode());
         prosessTaskData.setProperty(DokumentBestillerKafkaTask.REVURDERING_VARSLING_ÅRSAK, årsak != null ? årsak.getKode() : null);
         prosessTaskData.setProperty(DokumentBestillerKafkaTask.HISTORIKK_AKTØR, aktør.getKode());
-        prosessTaskData.setProperty(DokumentBestillerKafkaTask.BESTILLING_UUID, UUID.randomUUID().toString());
+        prosessTaskData.setProperty(DokumentBestillerKafkaTask.BESTILLING_UUID, String.valueOf(bestillingUuid));
         prosessTaskData.setProperty(DokumentBestillerKafkaTask.BEHANDLENDE_ENHET_NAVN, behandling.getBehandlendeOrganisasjonsEnhet().enhetNavn());
         prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);

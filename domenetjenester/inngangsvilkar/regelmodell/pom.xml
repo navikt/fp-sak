@@ -3,8 +3,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
+    <properties>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+    </properties>
 
-	<parent>
+    <parent>
 		<groupId>no.nav.foreldrepenger</groupId>
 		<artifactId>inngangsvilkar-pom</artifactId>
 		<version>${revision}${sha1}${changelist}</version>

@@ -6,6 +6,7 @@ import java.time.Period;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -55,12 +56,13 @@ public class DokumentBehandlingTjeneste {
         this.behandlingDokumentRepository = behandlingDokumentRepository;
     }
 
-    public void loggDokumentBestilt(Behandling behandling, DokumentMalType dokumentMalTypeKode) {
+    public void loggDokumentBestilt(Behandling behandling, DokumentMalType dokumentMalTypeKode, UUID bestillingUuid) {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
                 .orElseGet(() -> BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build());
         behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder()
                 .medBehandlingDokument(behandlingDokument)
                 .medDokumentMalType(dokumentMalTypeKode.getKode())
+                .medBestillingUuid(bestillingUuid)
                 .build());
         behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
     }

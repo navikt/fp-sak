@@ -1,9 +1,12 @@
 package no.nav.foreldrepenger.dokumentbestiller.kafka;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 
@@ -82,7 +85,7 @@ public class DokumentKafkaBestillerTest {
             assertThat(taskData.getPropertyValue(DokumentBestillerKafkaTask.DOKUMENT_MAL_TYPE)).isEqualTo(innhentDok.getKode());
             assertThat(StandardJsonConfig.fromJson(taskData.getPayloadAsString(), String.class)).isNull();
         });
-        verify(dokumentBehandlingTjeneste, times(1)).loggDokumentBestilt(eq(behandling), eq(innhentDok));
+        verify(dokumentBehandlingTjeneste, times(1)).loggDokumentBestilt(eq(behandling), eq(innhentDok), any(UUID.class));
     }
 
     @Test

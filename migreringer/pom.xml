@@ -79,7 +79,7 @@
                         <phase>deploy</phase>
                         <goals>
                             <goal>deploy</goal>
-                        </goals>   
+                        </goals>
                     </execution>
                 </executions>
                 <configuration>

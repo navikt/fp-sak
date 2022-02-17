@@ -54,6 +54,8 @@
 
         <swaggercore.version>2.1.13</swaggercore.version>
         <flyway.version>8.4.4</flyway.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
 
     <prerequisites>
