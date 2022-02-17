@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -16,13 +17,13 @@ import javax.ws.rs.core.MediaType;
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
+import no.nav.foreldrepenger.web.app.rest.ResourceLinks;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.KodeverkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.dto.InitLinksDto;
-import no.nav.foreldrepenger.web.app.util.RestUtils;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/init-fetch")
@@ -31,7 +32,14 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @Produces(MediaType.APPLICATION_JSON)
 public class InitielleLinksRestTjeneste {
 
-    public InitielleLinksRestTjeneste() {
+    private ResourceLinks links;
+
+    @Inject
+    public InitielleLinksRestTjeneste(ResourceLinks links) {
+        this.links = links;
+    }
+
+    InitielleLinksRestTjeneste() {
         // for CDI proxy
     }
 
@@ -58,12 +66,11 @@ public class InitielleLinksRestTjeneste {
         return new InitLinksDto(lenkene, toggleRelatert, saklenker);
     }
 
-    static ResourceLink get(String path, String rel) {
-        return ResourceLink.get(RestUtils.getApiPath(path), rel);
+    private ResourceLink get(String path, String rel) {
+        return links.get(path, rel);
     }
 
-    static ResourceLink post(String path, String rel) {
-        return ResourceLink.post(RestUtils.getApiPath(path), rel, null);
+    private ResourceLink post(String path, String rel) {
+        return links.post(path, rel);
     }
-
 }

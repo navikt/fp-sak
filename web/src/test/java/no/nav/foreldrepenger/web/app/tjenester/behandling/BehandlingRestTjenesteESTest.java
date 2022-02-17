@@ -35,6 +35,8 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
+import no.nav.foreldrepenger.web.app.rest.ResourceLinks;
+import no.nav.foreldrepenger.web.app.rest.TestContextPathProvider;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
@@ -83,7 +85,8 @@ public class BehandlingRestTjenesteESTest {
         var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste,
             tilbakekrevingRepository, skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste,
             behandlingDokumentRepository, relatertBehandlingTjeneste,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), null, null);
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), null, null,
+            new ResourceLinks(new TestContextPathProvider()));
 
         vergeTjeneste = mock(VergeTjeneste.class);
         henleggBehandlingTjeneste = mock(HenleggBehandlingTjeneste.class);

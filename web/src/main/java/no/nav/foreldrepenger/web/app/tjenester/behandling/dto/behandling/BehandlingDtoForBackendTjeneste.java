@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.get;
-
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,6 +14,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
+import no.nav.foreldrepenger.web.app.rest.ResourceLink;
+import no.nav.foreldrepenger.web.app.rest.ResourceLinks;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonRestTjeneste;
@@ -38,16 +38,18 @@ public class BehandlingDtoForBackendTjeneste {
     private BehandlingVedtakRepository vedtakRepository;
     private BehandlingRepository behandlingRepository;
     private SøknadRepository søknadRepository;
-
-    public BehandlingDtoForBackendTjeneste() {
-        //for CDI proxy
-    }
+    private ResourceLinks links;
 
     @Inject
-    public BehandlingDtoForBackendTjeneste(BehandlingRepositoryProvider repositoryProvider) {
+    public BehandlingDtoForBackendTjeneste(BehandlingRepositoryProvider repositoryProvider, ResourceLinks links) {
         this.vedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.søknadRepository = repositoryProvider.getSøknadRepository();
+        this.links = links;
+    }
+
+    BehandlingDtoForBackendTjeneste() {
+        //for CDI proxy
     }
 
     public UtvidetBehandlingDto lagBehandlingDto(Behandling behandling, AsyncPollingStatus taskStatus, Optional<OrganisasjonsEnhet> endretEnhet) {
@@ -83,6 +85,10 @@ public class BehandlingDtoForBackendTjeneste {
         dto.setSpråkkode(getSpråkkode(behandling));
 
         return dto;
+    }
+
+    public ResourceLink get(String path, String rel, Object dto) {
+        return links.get(path, rel, dto);
     }
 
     private boolean erBehandlingGjeldendeVedtak(Behandling behandling) {

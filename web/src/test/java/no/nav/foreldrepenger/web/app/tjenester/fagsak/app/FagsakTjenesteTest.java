@@ -38,6 +38,8 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.foreldrepenger.web.app.rest.ResourceLinks;
+import no.nav.foreldrepenger.web.app.rest.TestContextPathProvider;
 
 @ExtendWith(MockitoExtension.class)
 public class FagsakTjenesteTest {
@@ -74,7 +76,7 @@ public class FagsakTjenesteTest {
     public void oppsett() {
         var prosesseringAsynkTjeneste = mock(ProsesseringAsynkTjeneste.class);
         tjeneste = new FagsakTjeneste(fagsakRepository, behandlingRepository, prosesseringAsynkTjeneste, personinfoAdapter, null, hendelseTjeneste, null,
-                dekningsgradTjeneste);
+                dekningsgradTjeneste, new ResourceLinks(new TestContextPathProvider()));
     }
 
     @Test

@@ -7,7 +7,6 @@ import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -20,31 +19,20 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKobling;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
+import no.nav.foreldrepenger.web.app.rest.TestContextPathProvider;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
-import no.nav.vedtak.sikkerhet.ContextPathHolder;
 
-@SuppressWarnings({ "deprecation", "resource" })
 public class OppgaveRedirectTjenesteTest {
 
     private final OppgaveBehandlingKoblingRepository oppgaveRepo = Mockito.mock(OppgaveBehandlingKoblingRepository.class);
     private final FagsakRepository fagsakRepo = Mockito.mock(FagsakRepository.class);
     private final BehandlingRepository behandlingRepository = Mockito.mock(BehandlingRepository.class);
 
-    RedirectFactory redirectFactory = new RedirectFactory();
+    private final RedirectFactory redirectFactory = new RedirectFactory("https://erstatter.nav.no", new TestContextPathProvider("/fpsak"));
     private final OppgaveRedirectTjeneste tjeneste = new OppgaveRedirectTjeneste(oppgaveRepo, fagsakRepo, behandlingRepository,
         redirectFactory);
 
     private final Saksnummer saksnummer = new Saksnummer("22");
-
-    @BeforeEach
-    public void setContextPath() {
-        ContextPathHolder.instance("/fpsak");
-    }
-
-    @BeforeEach
-    public void setLoadBalancerUrl() {
-        redirectFactory.setLoadBalancerUrl("https://erstatter.nav.no");
-    }
 
     @Test
     public void skal_lage_url_med_feilmelding_når_hverken_oppgaveId_eller_sakId_finnes() {

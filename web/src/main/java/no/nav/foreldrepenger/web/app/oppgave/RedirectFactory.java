@@ -4,15 +4,26 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.vedtak.sikkerhet.ContextPathHolder;
+import no.nav.foreldrepenger.web.app.rest.ContextPathProvider;
 
 @ApplicationScoped
 public class RedirectFactory {
 
-    private String loadBalancerUrl;
-
-    //TODO (TOR) Denne bør ikkje ligga på server, men heller automatisk redirecte i klient. (Men dette er tryggast løysing tett opptil release)
     private static final String DEFAULT_PART_URL = "?punkt=default&fakta=default";
+
+    private String loadBalancerUrl;
+    private ContextPathProvider contextPathProvider;
+
+    @Inject
+    public RedirectFactory(@KonfigVerdi("loadbalancer.url") String loadBalancerUrl,
+                           ContextPathProvider contextPathProvider) {
+        this.loadBalancerUrl = loadBalancerUrl;
+        this.contextPathProvider = contextPathProvider;
+    }
+
+    RedirectFactory() {
+        //CDI
+    }
 
     public String lagRedirect(OppgaveRedirectData data) {
         if (data.harFeilmelding()) {
@@ -26,11 +37,6 @@ public class RedirectFactory {
     }
 
     protected String getBaseUrl() {
-        return loadBalancerUrl + ContextPathHolder.instance().getContextPath();
-    }
-
-    @Inject
-    public void setLoadBalancerUrl(@KonfigVerdi("loadbalancer.url") String loadBalancerUrl) {
-        this.loadBalancerUrl = loadBalancerUrl;
+        return loadBalancerUrl + contextPathProvider.get();
     }
 }

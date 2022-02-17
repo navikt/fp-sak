@@ -30,6 +30,8 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.web.app.rest.ResourceLinks;
+import no.nav.foreldrepenger.web.app.rest.TestContextPathProvider;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoForBackendTjeneste;
 
 public class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest {
@@ -48,7 +50,7 @@ public class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest 
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         behandlingRepository = repositoryProvider.getBehandlingRepository();
-        behandlingDtoForBackendTjeneste = new BehandlingDtoForBackendTjeneste(repositoryProvider);
+        behandlingDtoForBackendTjeneste = new BehandlingDtoForBackendTjeneste(repositoryProvider, new ResourceLinks(new TestContextPathProvider()));
     }
 
     @Test

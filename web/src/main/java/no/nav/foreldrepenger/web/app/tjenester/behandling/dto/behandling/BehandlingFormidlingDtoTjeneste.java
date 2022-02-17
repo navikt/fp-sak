@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.get;
-
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -34,6 +32,8 @@ import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjenest
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.web.app.rest.ResourceLink;
+import no.nav.foreldrepenger.web.app.rest.ResourceLinks;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjenestePathHack1;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.anke.AnkeRestTjeneste;
@@ -74,10 +74,7 @@ public class BehandlingFormidlingDtoTjeneste {
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
-
-    BehandlingFormidlingDtoTjeneste() {
-        // for CDI proxy
-    }
+    private ResourceLinks links;
 
     @Inject
     public BehandlingFormidlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -85,7 +82,8 @@ public class BehandlingFormidlingDtoTjeneste {
                                            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                            BehandlingDokumentRepository behandlingDokumentRepository,
                                            RelatertBehandlingTjeneste relatertBehandlingTjeneste,
-                                           ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
+                                           ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
+                                           ResourceLinks links) {
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
@@ -97,6 +95,11 @@ public class BehandlingFormidlingDtoTjeneste {
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
+        this.links = links;
+    }
+
+    BehandlingFormidlingDtoTjeneste() {
+        // for CDI proxy
     }
 
     public BehandlingFormidlingDto lagDtoForFormidling(Behandling behandling) {
@@ -247,11 +250,16 @@ public class BehandlingFormidlingDtoTjeneste {
 
             // FIXME hvorfor ytelsspesifikke urler her?  Bør kun ha en beregningresultat
             if (FagsakYtelseType.ENGANGSTØNAD.equals(originalBehandling.getFagsakYtelseType())) {
-                dto.leggTil(get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad-original-behandling", originalUuidDto));
+                dto.leggTil(
+                    get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad-original-behandling", originalUuidDto));
             }
         });
 
         return dto;
+    }
+
+    private ResourceLink get(String path, String rel, Object dto) {
+        return links.get(path, rel, dto);
     }
 
     private Optional<ForeldrepengerUttak> hentUttakAnnenpartHvisEksisterer(Behandling søkersBehandling) {

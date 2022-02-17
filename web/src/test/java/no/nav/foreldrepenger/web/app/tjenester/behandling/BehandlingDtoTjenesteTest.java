@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -12,6 +13,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,13 +42,16 @@ import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDok
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.web.app.ApplicationConfig;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
+import no.nav.foreldrepenger.web.app.rest.ResourceLinks;
+import no.nav.foreldrepenger.web.app.rest.TestContextPathProvider;
+import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.TilbakekrevingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAktivitetskravDtoTjeneste;
-import no.nav.foreldrepenger.web.app.util.RestUtils;
 
 @CdiDbAwareTest
 public class BehandlingDtoTjenesteTest {
@@ -76,16 +85,16 @@ public class BehandlingDtoTjenesteTest {
 
     private BehandlingDtoTjeneste tjeneste;
 
-    private LocalDate now = LocalDate.now();
+    private final LocalDate now = LocalDate.now();
 
-    private Collection<ResourceLink> existingRoutes;
+    private TestContextPathProvider contextPathProvider;
 
     @BeforeEach
     public void setUp() {
-        existingRoutes = RestUtils.getRoutes();
+        contextPathProvider = new TestContextPathProvider();
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
                 opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste, foreldrepengerUttakTjeneste, null,
-                kontrollerAktivitetskravDtoTjeneste);
+                kontrollerAktivitetskravDtoTjeneste, new ResourceLinks(contextPathProvider));
     }
 
     @Test
@@ -106,10 +115,13 @@ public class BehandlingDtoTjenesteTest {
                 TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, "varsel"));
 
         var dto = tjeneste.lagUtvidetBehandlingDto(behandling, null);
-        var href = RestUtils.getApiPath(TilbakekrevingRestTjeneste.VALG_PATH);
-        var link = ResourceLink.get(href, "", new UuidDto(dto.getUuid()));
+        var link = ResourceLink.get(href(TilbakekrevingRestTjeneste.VALG_PATH), "", new UuidDto(dto.getUuid()));
         assertThat(getLinkRel(dto)).contains("tilbakekrevingvalg");
         assertThat(getLinkHref(dto)).contains(link.getHref());
+    }
+
+    private String href(String path) {
+        return contextPathProvider.get() + ApplicationConfig.API_URI + path;
     }
 
     @Test
@@ -117,8 +129,7 @@ public class BehandlingDtoTjenesteTest {
         var behandling = lagBehandling();
 
         var dto = tjeneste.lagUtvidetBehandlingDto(behandling, null);
-        var href = RestUtils.getApiPath(TilbakekrevingRestTjeneste.VALG_PATH);
-        var link = ResourceLink.get(href, "", new UuidDto(dto.getUuid()));
+        var link = ResourceLink.get(href(TilbakekrevingRestTjeneste.VALG_PATH), "", new UuidDto(dto.getUuid()));
         assertThat(getLinkRel(dto)).doesNotContain("tilbakekrevingvalg");
         assertThat(getLinkHref(dto)).doesNotContain(link.getHref());
     }
@@ -132,25 +143,24 @@ public class BehandlingDtoTjenesteTest {
         behandlinger.add(lagBehandling(BehandlingType.INNSYN));
         behandlinger.add(lagBehandling(FagsakYtelseType.ENGANGSTØNAD));
         behandlinger.add(lagBehandling(FagsakYtelseType.SVANGERSKAPSPENGER));
+        var routes = getRoutes();
         for (var behandling : behandlinger) {
             for (var dtoLink : tjeneste.lagUtvidetBehandlingDto(behandling, null).getLinks()) {
-                assertThat(routeExists(dtoLink)).withFailMessage("Route " + dtoLink.toString() + " does not exist.").isTrue();
+                assertThat(routeExists(dtoLink, routes)).withFailMessage("Route " + dtoLink + " does not exist.").isTrue();
             }
         }
     }
 
-    private Boolean routeExists(ResourceLink dtoLink) {
-        Boolean linkEksists = false;
+    private Boolean routeExists(ResourceLink dtoLink, Collection<ResourceLink> routes) {
         if (dtoLink.getRel().equals("simuleringResultat")) {
             return true;
         }
-        for (var routeLink : existingRoutes) {
+        for (var routeLink : routes) {
             if (dtoLink.getHref().getPath().equals(routeLink.getHref().getPath()) && dtoLink.getType().equals(routeLink.getType())) {
-                linkEksists = true;
-                break;
+                return true;
             }
         }
-        return linkEksists;
+        return false;
     }
 
     private Behandling lagBehandling() {
@@ -194,5 +204,56 @@ public class BehandlingDtoTjenesteTest {
 
     private List<String> getLinkRel(UtvidetBehandlingDto dto) {
         return dto.getLinks().stream().map(ResourceLink::getRel).collect(Collectors.toList());
+    }
+
+    public Collection<ResourceLink> getRoutes() {
+        Set<ResourceLink> routes = new HashSet<>();
+        var restClasses = RestImplementationClasses.getImplementationClasses();
+        for (var aClass : restClasses) {
+            var pathFromClass = getClassAnnotationValue(aClass, Path.class, "value");
+            var methods = aClass.getMethods();
+            for (var aMethod : methods) {
+                ResourceLink.HttpMethod method = null;
+                if (aMethod.getAnnotation(POST.class) != null) {
+                    method = ResourceLink.HttpMethod.POST;
+                }
+                if (aMethod.getAnnotation(GET.class) != null) {
+                    method = ResourceLink.HttpMethod.GET;
+                }
+                if (aMethod.getAnnotation(PUT.class) != null) {
+                    method = ResourceLink.HttpMethod.PUT;
+                }
+                if (aMethod.getAnnotation(DELETE.class) != null) {
+                    method = ResourceLink.HttpMethod.DELETE;
+                }
+                if (method != null) {
+                    var pathFromMethod = "";
+                    if (aMethod.getAnnotation(Path.class) != null) {
+                        pathFromMethod = aMethod.getAnnotation(Path.class).value();
+                    }
+                    var resourceLink = new ResourceLink(href(pathFromClass) + pathFromMethod, aMethod.getName(), method);
+                    routes.add(resourceLink);
+                }
+            }
+        }
+        return routes;
+    }
+
+    public static String getClassAnnotationValue(Class<?> aClass, @SuppressWarnings("rawtypes") Class annotationClass, String name) {
+        @SuppressWarnings("unchecked") var aClassAnnotation = aClass.getAnnotation(annotationClass);
+        if (aClassAnnotation != null) {
+            var type = aClassAnnotation.annotationType();
+            for (var method : type.getDeclaredMethods()) {
+                try {
+                    var value = method.invoke(aClassAnnotation);
+                    if (method.getName().equals(name)) {
+                        return value.toString();
+                    }
+                } catch (InvocationTargetException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return null;
     }
 }
