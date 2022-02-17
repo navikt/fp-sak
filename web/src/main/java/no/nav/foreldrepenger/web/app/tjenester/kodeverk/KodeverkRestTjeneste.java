@@ -43,7 +43,7 @@ public class KodeverkRestTjeneste {
 
     private HentKodeverkTjeneste hentKodeverkTjeneste; // NOSONAR
 
-    private final JacksonForKodeMap jsonMapper = new JacksonForKodeMap(true); // generere kodeverk med navn
+    private final JacksonForKodeMap jsonMapper = new JacksonForKodeMap(); // generere kodeverk med navn
 
     private final ObjectMapper objectMapper = jsonMapper.getObjectMapper();
 

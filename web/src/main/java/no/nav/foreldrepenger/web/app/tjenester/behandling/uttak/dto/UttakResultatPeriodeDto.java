@@ -111,12 +111,12 @@ public class UttakResultatPeriodeDto {
 
     @JsonProperty("periodeResultatÅrsakLovhjemmel")
     public String getPeriodeResultatÅrsakLovhjemmel() {
-        return periodeResultatÅrsak == null ? null : periodeResultatÅrsak.getLovHjemmelData();
+        return periodeResultatÅrsak == null ? null : periodeResultatÅrsak.getLovHjemmel();
     }
 
     @JsonProperty("graderingsAvslagÅrsakLovhjemmel")
     public String getGraderingsAvslagÅrsakLovhjemmel() {
-        return graderingAvslagÅrsak == null ? null : graderingAvslagÅrsak.getLovHjemmelData();
+        return graderingAvslagÅrsak == null ? null : graderingAvslagÅrsak.getLovHjemmel();
     }
 
     public LocalDate getMottattDato() {
