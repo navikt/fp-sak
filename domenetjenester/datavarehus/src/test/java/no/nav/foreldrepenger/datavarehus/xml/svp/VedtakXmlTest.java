@@ -118,7 +118,7 @@ public class VedtakXmlTest {
         entityManager = em;
         repositoryProvider = new BehandlingRepositoryProvider(em);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
-        svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
+        svangerskapspengerRepository = new SvangerskapspengerRepository(em);
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
         Mockito.when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(stp);

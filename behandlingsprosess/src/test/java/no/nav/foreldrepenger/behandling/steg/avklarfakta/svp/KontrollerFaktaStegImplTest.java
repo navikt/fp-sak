@@ -65,7 +65,7 @@ public class KontrollerFaktaStegImplTest {
     public KontrollerFaktaStegImplTest(EntityManager em) {
         repositoryProvider = new BehandlingRepositoryProvider(em);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
-        svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
+        svangerskapspengerRepository = new SvangerskapspengerRepository(em);
 
     }
 

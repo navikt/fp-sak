@@ -43,6 +43,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -97,7 +98,11 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
+    private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
+    @Inject
     private YtelsesFordelingRepository ytelsesFordelingRepository;
+    @Inject
+    private SvangerskapspengerUttakResultatRepository uttakResultatRepository;
     @Inject
     private BehandlingRepository behandlingRepository;
     private RevurderingTjeneste revurderingTjeneste;
@@ -135,6 +140,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
 
         revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutleder(repositoryProvider,
+                uttakResultatRepository,
                 hentBeregningsgrunnlagTjeneste,
                 opphørUttakTjeneste,
                 skjæringstidspunktTjeneste,
@@ -143,7 +149,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
                 serviceProvider);
         var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
-        revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, behandlingskontrollTjeneste,
+        revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, grunnlagRepositoryProvider, behandlingskontrollTjeneste,
                 iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
         revurdering = revurderingTjeneste
                 .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),

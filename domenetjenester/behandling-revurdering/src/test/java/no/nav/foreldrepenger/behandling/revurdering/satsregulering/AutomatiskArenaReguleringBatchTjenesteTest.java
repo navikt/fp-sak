@@ -23,9 +23,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
@@ -66,7 +71,9 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
             .getVerdi();
         var nySatsDato = cutoff.plusWeeks(3).plusDays(2);
         var taskTjenesteMock = mock(ProsessTaskTjeneste.class);
-        tjeneste = new AutomatiskArenaReguleringBatchTjeneste(repositoryProvider,
+        tjeneste = new AutomatiskArenaReguleringBatchTjeneste(new BehandlingRevurderingRepository(entityManager, behandlingRepository,
+            new FagsakRelasjonRepository(entityManager, new YtelsesFordelingRepository(entityManager), new FagsakLåsRepository(entityManager)),
+            new SøknadRepository(entityManager, behandlingRepository), new BehandlingLåsRepository(entityManager)),
                 taskTjenesteMock);
         Map<String, String> arguments = new HashMap<>();
         arguments.put(AutomatiskArenaReguleringBatchArguments.REVURDER_KEY, "True");

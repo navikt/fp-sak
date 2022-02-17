@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
@@ -68,13 +69,15 @@ public class BekreftSvangerskapspengerOppdatererTest {
 
     private BekreftSvangerskapspengerOppdaterer oppdaterer;
     private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingGrunnlagRepositoryProvider grunnlagProvider;
 
     @BeforeEach
     public void beforeEach(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        grunnlagProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         var historikkAdapter = new HistorikkTjenesteAdapter(
             repositoryProvider.getHistorikkRepository(), null, repositoryProvider.getBehandlingRepository());
-        oppdaterer = new BekreftSvangerskapspengerOppdaterer(historikkAdapter, repositoryProvider,
+        oppdaterer = new BekreftSvangerskapspengerOppdaterer(historikkAdapter, grunnlagProvider,
             tilgangerTjenesteMock, inntektArbeidYtelseTjeneste);
     }
 
@@ -181,7 +184,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
         var resultat = oppdaterer.oppdater(dto, param);
 
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
-        var oppdatertGrunnlag = repositoryProvider.getSvangerskapspengerRepository().hentGrunnlag(behandling.getId());
+        var oppdatertGrunnlag = grunnlagProvider.getSvangerskapspengerRepository().hentGrunnlag(behandling.getId());
         var tilrettelegginger = new TilretteleggingFilter(
             oppdatertGrunnlag.orElseThrow()).getAktuelleTilretteleggingerUfiltrert();
         assertThat(tilrettelegginger).hasSize(1);
@@ -306,7 +309,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
         var svpGrunnlag = new SvpGrunnlagEntitet.Builder().medBehandlingId(behandling.getId())
             .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
             .build();
-        repositoryProvider.getSvangerskapspengerRepository().lagreOgFlush(svpGrunnlag);
+        grunnlagProvider.getSvangerskapspengerRepository().lagreOgFlush(svpGrunnlag);
         return svpGrunnlag;
     }
 

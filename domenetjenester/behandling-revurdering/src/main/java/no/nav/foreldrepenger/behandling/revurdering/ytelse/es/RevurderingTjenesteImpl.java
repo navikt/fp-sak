@@ -17,8 +17,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -42,18 +42,19 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     }
 
     @Inject
-    public RevurderingTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
+    public RevurderingTjenesteImpl(BehandlingRepository behandlingRepository,
+                                   BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                    @FagsakYtelseTypeRef("ES") RevurderingEndring revurderingEndring,
                                    RevurderingTjenesteFelles revurderingTjenesteFelles,
                                    VergeRepository vergeRepository) {
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingRepository = behandlingRepository;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-        this.medlemskapRepository = repositoryProvider.getMedlemskapRepository();
-        this.søknadRepository = repositoryProvider.getSøknadRepository();
-        this.opptjeningIUtlandDokStatusRepository = repositoryProvider.getOpptjeningIUtlandDokStatusRepository();
+        this.familieHendelseRepository = grunnlagRepositoryProvider.getFamilieHendelseRepository();
+        this.personopplysningRepository = grunnlagRepositoryProvider.getPersonopplysningRepository();
+        this.medlemskapRepository = grunnlagRepositoryProvider.getMedlemskapRepository();
+        this.søknadRepository = grunnlagRepositoryProvider.getSøknadRepository();
+        this.opptjeningIUtlandDokStatusRepository = grunnlagRepositoryProvider.getOpptjeningIUtlandDokStatusRepository();
         this.revurderingEndring = revurderingEndring;
         this.revurderingTjenesteFelles = revurderingTjenesteFelles;
         this.vergeRepository = vergeRepository;

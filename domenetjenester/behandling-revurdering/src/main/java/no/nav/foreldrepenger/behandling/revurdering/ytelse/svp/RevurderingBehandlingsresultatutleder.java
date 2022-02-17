@@ -13,8 +13,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
+import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -27,7 +27,8 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
     @Inject
-    public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
+    public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider,
+            SvangerskapspengerUttakResultatRepository uttakResultatRepository,
             HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
             OpphørUttakTjeneste opphørUttakTjeneste,
             @FagsakYtelseTypeRef("SVP") SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
@@ -37,7 +38,7 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
                 medlemTjeneste,
                 opphørUttakTjeneste,
                 skjæringstidspunktTjeneste);
-        this.uttakRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
+        this.uttakRepository = uttakResultatRepository;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
     }
 

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,8 +18,10 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -65,6 +68,7 @@ public class StønadsperioderInnhenter {
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private PersonopplysningRepository personopplysningRepository;
+    private NesteSakRepository nesteSakRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private StønadsperiodeTjeneste stønadsperiodeTjeneste;
@@ -75,19 +79,30 @@ public class StønadsperioderInnhenter {
 
     @Inject
     public StønadsperioderInnhenter(BehandlingRepositoryProvider repositoryProvider,
+                                    BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
                                     FamilieHendelseTjeneste familieHendelseTjeneste,
                                     StønadsperiodeTjeneste stønadsperiodeTjeneste,
                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
+        this.personopplysningRepository = grunnlagRepositoryProvider.getPersonopplysningRepository();
+        this.nesteSakRepository = grunnlagRepositoryProvider.getNesteSakRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.stønadsperiodeTjeneste = stønadsperiodeTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
     }
 
-    public Optional<MuligSak> finnSenereStønadsperioderLoggResultat(Behandling behandling) {
+    public void innhentNesteSak(Behandling behandling) {
+        var muligsak= finnSenereStønadsperiode(behandling).orElse(null);
+        if (muligsak != null) {
+            nesteSakRepository.lagreNesteSak(behandling.getId(), muligsak.saksnummer(), muligsak.startdato());
+        } else {
+            nesteSakRepository.fjernEventuellNesteSak(behandling.getId());
+        }
+    }
+
+    Optional<MuligSak> finnSenereStønadsperiode(Behandling behandling) {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) return Optional.empty();
 
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
@@ -98,59 +113,70 @@ public class StønadsperioderInnhenter {
         var brukStartdato = forrigeInnvilgetFom.filter(d -> d.isBefore(aktuellAntattFørstedag)).isPresent() ?
             forrigeInnvilgetFom.get() : aktuellAntattFørstedag;
         var fhDato = finnFamilieHendelseDato(behandling);
-        var egenSak = new MuligSak(behandling.getFagsakYtelseType(), behandling.getFagsak().getSaksnummer(), SaksForhold.EGEN_SAK,
-            brukStartdato, fhDato.orElse(Tid.TIDENES_BEGYNNELSE));
+        var egenSak = new MuligSak(behandling.getFagsakYtelseType(), behandling.getFagsak().getSaksnummer(),
+            SaksForhold.EGEN_SAK, brukStartdato, fhDato.orElse(Tid.TIDENES_BEGYNNELSE));
 
-        var alleEgneSaker = fagsakRepository.hentForBruker(behandling.getAktørId()).stream()
-            .filter(f -> !FagsakYtelseType.ENGANGSTØNAD.equals(f.getYtelseType()))
-            .filter(f -> f.getOpprettetTidspunkt().isAfter(behandling.getFagsak().getOpprettetTidspunkt().minusMonths(40)))
-            .filter(f -> !egenSak.saksnummer().equals(f.getSaksnummer()))
-            .toList();
-        Set<MuligSak> egneMuligeSaker = new HashSet<>();
-        alleEgneSaker.stream()
-            .filter(f -> f.getYtelseType().equals(behandling.getFagsakYtelseType()) ||
-                         (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) && FagsakYtelseType.FORELDREPENGER.equals(f.getYtelseType())))
-            .flatMap(f -> opprettMuligSak(f, SaksForhold.EGEN_SAK).stream())
-            .forEach(egneMuligeSaker::add);
+        var egneMuligeSaker = utledEgneMuligeSaker(behandling, egenSak);
 
-        // Finn mødres saker der bruker er implisert
-        if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER) && !RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType())) {
-            // Populer med saker der bruker er oppgitt annen part eller som er koblet med brukers saker
-            var fagsakerSomRefererer = new ArrayList<>(personopplysningRepository.fagsakerMedOppgittAnnenPart(behandling.getAktørId()));
-            var fagsakerSomReferererId = new HashSet<>(fagsakerSomRefererer.stream().map(Fagsak::getId).toList());
-            var egneFagsakerId = alleEgneSaker.stream().map(Fagsak::getId).collect(Collectors.toSet());
-            alleEgneSaker.stream()
-                .flatMap(f -> fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(f).flatMap(fr -> fr.getRelatertFagsak(f)).stream())
-                .filter(f -> !fagsakerSomReferererId.contains(f.getId()))
-                .forEach(f -> { fagsakerSomRefererer.add(f); fagsakerSomReferererId.add(f.getId()); });
-            // Filtrer på saker som ikke er koblet med aktuell sak, saker som er foreldrepenger og mors sak, med utbetaling
-            fagsakerSomRefererer.stream()
-                .filter(f -> fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(f).flatMap(fr -> fr.getRelatertFagsak(f))
-                    .filter(f2 -> egneFagsakerId.contains(f2.getId()) || f2.getSaksnummer().equals(egenSak.saksnummer())).isEmpty())
-                .filter(f -> FagsakYtelseType.FORELDREPENGER.equals(f.getYtelseType()) && RelasjonsRolleType.erMor(f.getRelasjonsRolleType()))
-                .flatMap(f -> opprettMuligSak(f, SaksForhold.ANNEN_PART_SAK).stream())
-                .forEach(egneMuligeSaker::add);
-        }
-
-        // Forberede logging - første utgave før sjekking på fødsler for FP
-        // SVP - samme barn er å vente. FP/mor - bør antagelig sjekke at senere FHdato - FP/ikkeMor - bør antagelig også sjekke FHdato senre
-        // OBS: FHTjenenste erHendelseDatoRelevantForBehandling og matcherGrunnlagene ....
-        var filtrert = egneMuligeSaker.stream()
+        var tidligste = egneMuligeSaker.stream()
             .filter(s -> !s.saksnummer().equals(egenSak.saksnummer()))
             .filter(s -> erRelevant(egenSak, s))
-            .toList();
-        var førstUt = filtrert.stream().min(Comparator.comparing(MuligSak::startdato));
-        if (!filtrert.isEmpty()) {
-            LOG.info("NESTEBARN sak {} neste sak {} nyere saker {}", egenSak, førstUt, filtrert);
+            .min(Comparator.comparing(MuligSak::startdato));
+        if (tidligste.isPresent()) {
+            LOG.info("NESTEBARN sak {} neste sak {}", egenSak, tidligste);
         }
-        return førstUt;
+        return tidligste;
     }
 
     private boolean erRelevant(MuligSak egenSak, MuligSak muligSak) {
         // Sak med senere starttidspunkt eller tilfelle der Mor begynner Barn2 før Far begynner Barn1.
         // Men skal ikke slå til på koblet sak eller andre saker for samme barn eller saker for tidligere barn.
-        // Krever at mulig sak har FamilieHendelse 12 uker etter sak det sjekkes mot - kan justers
+        // Krever at mulig sak har FamilieHendelse 12 uker etter sak det sjekkes mot - kan justeres
         return muligSak.startdato().isAfter(egenSak.startdato()) || muligSak.fhdato().minusWeeks(6).isAfter(egenSak.fhdato().plusWeeks(6));
+    }
+
+    private Set<MuligSak> utledEgneMuligeSaker(Behandling behandling, MuligSak egenSak) {
+        var alleEgneSaker = getAlleEgneSaker(behandling, egenSak);
+        var aktuellType = behandling.getFagsakYtelseType();
+        // SVP->SVP + FP->FP + SVP->FP. Ser ikke på FP->SVP ettersom det ikke opphører rett til FP forrige barn
+        Set<MuligSak> egneMuligeSaker = new HashSet<>();
+        alleEgneSaker.stream()
+            .filter(f -> f.getYtelseType().equals(aktuellType) ||
+                (FagsakYtelseType.SVANGERSKAPSPENGER.equals(aktuellType) && FagsakYtelseType.FORELDREPENGER.equals(f.getYtelseType())))
+            .flatMap(f -> opprettMuligSak(f, SaksForhold.EGEN_SAK).stream())
+            .forEach(egneMuligeSaker::add);
+        // Finn mødres saker der bruker er implisert
+        if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER) && !RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType())) {
+            leggTilMuligeSakerForAnnenPart(behandling, egenSak, alleEgneSaker, egneMuligeSaker);
+        }
+        return egneMuligeSaker;
+    }
+
+    private void leggTilMuligeSakerForAnnenPart(Behandling behandling, MuligSak egenSak, List<Fagsak> alleEgneSaker, Set<MuligSak> egneMuligeSaker) {
+        var egneFagsakerId = alleEgneSaker.stream().map(Fagsak::getId).collect(Collectors.toSet());
+        // Populer med saker der bruker er oppgitt annen part eller som er koblet med brukers saker
+        var fagsakerSomRefererer = new ArrayList<>(personopplysningRepository.fagsakerMedOppgittAnnenPart(behandling.getAktørId()));
+        var fagsakerSomReferererId = new HashSet<>(fagsakerSomRefererer.stream().map(Fagsak::getId).toList());
+        // Legg til eventuelle tilfelle der saker er koblet uten at det er oppgitt annen part
+        alleEgneSaker.stream()
+            .flatMap(f -> fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(f).flatMap(fr -> fr.getRelatertFagsak(f)).stream())
+            .filter(f -> !fagsakerSomReferererId.contains(f.getId()))
+            .forEach(f -> { fagsakerSomRefererer.add(f); fagsakerSomReferererId.add(f.getId()); });
+        // Filtrer på saker som ikke er koblet med aktuell sak, saker som er foreldrepenger og mors sak, med utbetaling
+        fagsakerSomRefererer.stream()
+            .filter(f -> fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(f).flatMap(fr -> fr.getRelatertFagsak(f))
+                .filter(f2 -> egneFagsakerId.contains(f2.getId()) || f2.getSaksnummer().equals(egenSak.saksnummer())).isEmpty())
+            .filter(f -> FagsakYtelseType.FORELDREPENGER.equals(f.getYtelseType()) && RelasjonsRolleType.erMor(f.getRelasjonsRolleType()))
+            .flatMap(f -> opprettMuligSak(f, SaksForhold.ANNEN_PART_SAK).stream())
+            .forEach(egneMuligeSaker::add);
+    }
+
+    private List<Fagsak> getAlleEgneSaker(Behandling behandling, MuligSak egenSak) {
+        return fagsakRepository.hentForBruker(behandling.getAktørId()).stream()
+            .filter(f -> !FagsakYtelseType.ENGANGSTØNAD.equals(f.getYtelseType()))
+            .filter(f -> f.getOpprettetTidspunkt().isAfter(behandling.getFagsak().getOpprettetTidspunkt().minusMonths(40)))
+            .filter(f -> !egenSak.saksnummer().equals(f.getSaksnummer()))
+            .toList();
     }
 
     private Optional<MuligSak> opprettMuligSak(Fagsak fagsak, SaksForhold type) {

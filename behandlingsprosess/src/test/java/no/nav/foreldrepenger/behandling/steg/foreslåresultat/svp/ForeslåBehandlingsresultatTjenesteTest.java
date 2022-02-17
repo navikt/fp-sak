@@ -45,6 +45,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
@@ -81,13 +82,16 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(entityManager);
+        var svpUttakRepository = new SvangerskapspengerUttakResultatRepository(entityManager);
         revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
+                svpUttakRepository,
                 beregningsgrunnlagTjeneste,
                 opphørUttakTjeneste,
                 skjæringstidspunktTjeneste,
                 medlemTjeneste));
 
         tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider,
+                svpUttakRepository,
                 dokumentBehandlingTjeneste,
                 revurderingBehandlingsresultatutleder);
     }

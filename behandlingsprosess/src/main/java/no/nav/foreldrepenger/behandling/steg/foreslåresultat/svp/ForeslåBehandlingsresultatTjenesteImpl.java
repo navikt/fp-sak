@@ -38,9 +38,10 @@ class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresu
 
     @Inject
     ForeslåBehandlingsresultatTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
+            SvangerskapspengerUttakResultatRepository uttakResultatRepository,
             DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
             @FagsakYtelseTypeRef("SVP") RevurderingBehandlingsresultatutlederFelles revurderingBehandlingsresultatutlederFelles) {
-        this.svangerskapspengerUttakResultatRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
+        this.svangerskapspengerUttakResultatRepository = uttakResultatRepository;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.revurderingBehandlingsresultatutlederFelles = revurderingBehandlingsresultatutlederFelles;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;

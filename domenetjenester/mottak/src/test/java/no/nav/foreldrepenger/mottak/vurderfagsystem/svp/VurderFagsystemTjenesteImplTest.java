@@ -65,12 +65,11 @@ public class VurderFagsystemTjenesteImplTest {
         var repositoryProvider = mock(BehandlingRepositoryProvider.class);
         lenient().when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(grunnlagRepository);
         lenient().when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepository);
-        lenient().when(repositoryProvider.getSvangerskapspengerRepository()).thenReturn(svangerskapspengerRepository);
         lenient().when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         var fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository(), null);
         var familieTjeneste = new FamilieHendelseTjeneste(null, grunnlagRepository);
         var fellesUtils = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjeneste, null, null);
-        var svpTjeneste = new VurderFagsystemTjenesteImpl(fellesUtils, repositoryProvider);
+        var svpTjeneste = new VurderFagsystemTjenesteImpl(fellesUtils, behandlingRepository, svangerskapspengerRepository);
         tjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(svpTjeneste));
     }
 

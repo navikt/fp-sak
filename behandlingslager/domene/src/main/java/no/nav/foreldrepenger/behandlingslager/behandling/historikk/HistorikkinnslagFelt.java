@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
 import java.util.Objects;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -20,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 
 @Entity(name = "HistorikkinnslagFelt")
 @Table(name = "HISTORIKKINNSLAG_FELT")
@@ -111,7 +109,7 @@ public class HistorikkinnslagFelt extends BaseEntitet implements IndexKey {
     }
 
     public String getKlNavn() {
-        return tempMapKodeverkNavn(klNavn);
+        return klNavn;
     }
 
     public String getFraVerdi() {
@@ -123,25 +121,15 @@ public class HistorikkinnslagFelt extends BaseEntitet implements IndexKey {
     }
 
     public String getKlFraVerdi() {
-        return tempMapKodeverkNavn(klFraVerdi);
+        return klFraVerdi;
     }
 
     public String getKlTilVerdi() {
-        return tempMapKodeverkNavn(klTilVerdi);
+        return klTilVerdi;
     }
 
     public Integer getSekvensNr() {
         return sekvensNr;
-    }
-
-    private static final Set<String> LEGACY_UTTAK_KODEVERK = Set.of("INNVILGET_AARSAK", "IKKE_OPPFYLT_AARSAK", "PERIODE_UTFALL_AARSAK");
-
-    private static String tempMapKodeverkNavn(String k) {
-        if (k == null) return null;
-        if (LEGACY_UTTAK_KODEVERK.contains(k)) {
-            return PeriodeResultatÅrsak.KODEVERK;
-        }
-        return k;
     }
 
     @Override

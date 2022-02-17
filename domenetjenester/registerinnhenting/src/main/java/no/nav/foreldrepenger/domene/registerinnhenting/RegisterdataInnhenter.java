@@ -42,8 +42,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.Pleiepenger
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
 import no.nav.foreldrepenger.domene.abakus.mapping.KodeverkMapper;
@@ -106,18 +106,19 @@ public class RegisterdataInnhenter {
     @Inject
     public RegisterdataInnhenter(PersonopplysningInnhenter personopplysningInnhenter,
                                  MedlemTjeneste medlemTjeneste,
-                                 BehandlingRepositoryProvider repositoryProvider,
+                                 BehandlingRepository behandlingRepository,
+                                 BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
                                  FamilieHendelseTjeneste familieHendelseTjeneste,
                                  MedlemskapRepository medlemskapRepository,
                                  OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
                                  AbakusTjeneste abakusTjeneste) {
         this.personopplysningInnhenter = personopplysningInnhenter;
         this.medlemTjeneste = medlemTjeneste;
-        this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.personopplysningRepository = grunnlagRepositoryProvider.getPersonopplysningRepository();
+        this.behandlingRepository = behandlingRepository;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.medlemskapRepository = medlemskapRepository;
-        this.pleiepengerRepository = repositoryProvider.getPleiepengerRepository();
+        this.pleiepengerRepository = grunnlagRepositoryProvider.getPleiepengerRepository();
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
         this.abakusTjeneste = abakusTjeneste;
     }

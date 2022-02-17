@@ -45,6 +45,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
@@ -91,10 +92,12 @@ public class SøknadMapperTest {
     private OppgittPeriodeTidligstMottattDatoTjeneste oppgittPeriodeMottattDato;
     private PersoninfoKjønn kvinne;
     private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
 
     @BeforeEach
     public void before(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         oppgittPeriodeMottattDato = new OppgittPeriodeTidligstMottattDatoTjeneste(
             new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
 
@@ -385,7 +388,7 @@ public class SøknadMapperTest {
         when(personinfoAdapter.hentBrukerKjønnForAktør(any(AktørId.class))).thenReturn(Optional.of(kvinne));
         when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
         var soeknad = ytelseSøknadMapper.mapSøknad(dto, navBruker);
-        var oversetter = new SøknadOversetter(repositoryProvider, virksomhetTjeneste, iayTjeneste,
+        var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste,
             personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
@@ -441,7 +444,7 @@ public class SøknadMapperTest {
         when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
 
         var soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringForeldrepengerDto, navBruker);
-        var oversetter = new SøknadOversetter(repositoryProvider, virksomhetTjeneste, iayTjeneste,
+        var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste,
             personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
@@ -546,7 +549,7 @@ public class SøknadMapperTest {
         var mottattDokument = new MottattDokument.Builder().medMottattDato(LocalDate.now())
             .medFagsakId(behandling.getFagsakId())
             .medElektroniskRegistrert(true);
-        var oversetter = new SøknadOversetter(repositoryProvider, virksomhetTjeneste, iayTjeneste,
+        var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste,
             personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
 
         oversetter.trekkUtDataOgPersister(
@@ -589,7 +592,7 @@ public class SøknadMapperTest {
         var mottattDokument = new MottattDokument.Builder().medMottattDato(LocalDate.now())
             .medFagsakId(behandling.getFagsakId())
             .medElektroniskRegistrert(true);
-        var oversetter = new SøknadOversetter(repositoryProvider, virksomhetTjeneste, iayTjeneste,
+        var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste,
             personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
 
         oversetter.trekkUtDataOgPersister(

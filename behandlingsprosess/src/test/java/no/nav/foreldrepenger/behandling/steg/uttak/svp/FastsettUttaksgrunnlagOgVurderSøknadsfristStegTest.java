@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.uttak.svp.FørsteLovligeUttaksdatoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.svp.RegelmodellSøknaderMapper;
@@ -34,6 +35,9 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
 
     @Inject
     private BehandlingRepository behandlingRepository;
+
+    @Inject
+    private SvangerskapspengerRepository svangerskapspengerRepository;
 
     @Inject
     private FørsteLovligeUttaksdatoTjeneste førsteLovligeUttaksdatoTjeneste;
@@ -49,7 +53,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
     @BeforeEach
     public void setup(EntityManager em) {
 
-        svpHelper = new SvpHelper(repositoryProvider);
+        svpHelper = new SvpHelper(repositoryProvider, svangerskapspengerRepository);
         behandling = svpHelper.lagreBehandling();
         em.flush();
         em.clear();

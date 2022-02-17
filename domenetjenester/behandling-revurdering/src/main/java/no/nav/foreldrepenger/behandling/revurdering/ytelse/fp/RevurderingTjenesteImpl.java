@@ -22,9 +22,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
@@ -48,6 +50,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     private MedlemskapRepository medlemskapRepository;
     private PleiepengerRepository pleiepengerRepository;
     private UføretrygdRepository uføretrygdRepository;
+    private NesteSakRepository nesteSakRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private OpptjeningIUtlandDokStatusRepository opptjeningIUtlandDokStatusRepository;
     private RevurderingTjenesteFelles revurderingTjenesteFelles;
@@ -62,6 +65,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
 
     @Inject
     public RevurderingTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
+                                   BehandlingGrunnlagRepositoryProvider grunnlagProvider,
                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                    InntektArbeidYtelseTjeneste iayTjeneste,
                                    @FagsakYtelseTypeRef("FP") RevurderingEndring revurderingEndring,
@@ -71,17 +75,18 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-        this.medlemskapRepository = repositoryProvider.getMedlemskapRepository();
-        this.pleiepengerRepository = repositoryProvider.getPleiepengerRepository();
-        this.uføretrygdRepository = repositoryProvider.getUføretrygdRepository();
-        this.opptjeningIUtlandDokStatusRepository = repositoryProvider.getOpptjeningIUtlandDokStatusRepository();
+        this.ytelsesFordelingRepository = grunnlagProvider.getYtelsesFordelingRepository();
+        this.familieHendelseRepository = grunnlagProvider.getFamilieHendelseRepository();
+        this.personopplysningRepository = grunnlagProvider.getPersonopplysningRepository();
+        this.medlemskapRepository = grunnlagProvider.getMedlemskapRepository();
+        this.pleiepengerRepository = grunnlagProvider.getPleiepengerRepository();
+        this.uføretrygdRepository = grunnlagProvider.getUføretrygdRepository();
+        this.opptjeningIUtlandDokStatusRepository = grunnlagProvider.getOpptjeningIUtlandDokStatusRepository();
+        this.nesteSakRepository = grunnlagProvider.getNesteSakRepository();
         this.revurderingEndring = revurderingEndring;
         this.revurderingTjenesteFelles = revurderingTjenesteFelles;
         this.vergeRepository = vergeRepository;
-        this.søknadRepository = repositoryProvider.getSøknadRepository();
+        this.søknadRepository = grunnlagProvider.getSøknadRepository();
     }
 
     @Override
@@ -136,6 +141,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         medlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         pleiepengerRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         uføretrygdRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
+        nesteSakRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
 
         if (BehandlingType.REVURDERING.equals(ny.getType())) {
             ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
@@ -153,8 +159,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
             });
         }
         vergeRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
-        opptjeningIUtlandDokStatusRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId,
-            nyBehandlingId);
+        opptjeningIUtlandDokStatusRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
 
         // gjør til slutt, innebærer kall til abakus
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);

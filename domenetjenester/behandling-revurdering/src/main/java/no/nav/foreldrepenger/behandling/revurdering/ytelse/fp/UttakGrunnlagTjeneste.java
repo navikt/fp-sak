@@ -17,8 +17,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
@@ -53,9 +56,11 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
     private SøknadRepository søknadRepository;
     private PleiepengerRepository pleiepengerRepository;
     private UføretrygdRepository uføretrygdRepository;
+    private NesteSakRepository nesteSakRepository;
 
     @Inject
     public UttakGrunnlagTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
+                                 BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
                                  RelatertBehandlingTjeneste relatertBehandlingTjeneste,
                                  FamilieHendelseTjeneste familieHendelseTjeneste) {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
@@ -63,9 +68,10 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         this.behandlingVedtakRepository = behandlingRepositoryProvider.getBehandlingVedtakRepository();
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
-        this.søknadRepository = behandlingRepositoryProvider.getSøknadRepository();
-        this.pleiepengerRepository = behandlingRepositoryProvider.getPleiepengerRepository();
-        this.uføretrygdRepository = behandlingRepositoryProvider.getUføretrygdRepository();
+        this.søknadRepository = grunnlagRepositoryProvider.getSøknadRepository();
+        this.pleiepengerRepository = grunnlagRepositoryProvider.getPleiepengerRepository();
+        this.uføretrygdRepository = grunnlagRepositoryProvider.getUføretrygdRepository();
+        this.nesteSakRepository = grunnlagRepositoryProvider.getNesteSakRepository();
     }
 
     UttakGrunnlagTjeneste() {
@@ -92,7 +98,8 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
             .medFamilieHendelser(familiehendelser)
             .medOriginalBehandling(originalBehandling.orElse(null))
             .medPleiepengerGrunnlag(pleiepengerGrunnlag(ref).orElse(null))
-            .medUføretrygdGrunnlag(uføretrygdGrunnlag(ref).orElse(null));
+            .medUføretrygdGrunnlag(uføretrygdGrunnlag(ref).orElse(null))
+            .medNesteSakGrunnlag(nesteSakGrunnlag(ref).orElse(null));
         if (fagsakRelasjon.isPresent()) {
             var annenpart = annenpart(fagsakRelasjon.get(), familiehendelser, behandling);
             grunnlag = grunnlag.medAnnenpart(annenpart.orElse(null));
@@ -106,6 +113,10 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
 
     private Optional<UføretrygdGrunnlagEntitet> uføretrygdGrunnlag(BehandlingReferanse ref) {
         return uføretrygdRepository.hentGrunnlag(ref.getBehandlingId());
+    }
+
+    private Optional<NesteSakGrunnlagEntitet> nesteSakGrunnlag(BehandlingReferanse ref) {
+        return nesteSakRepository.hentGrunnlag(ref.getBehandlingId());
     }
 
     private Optional<Annenpart> annenpart(FagsakRelasjon fagsakRelasjon,
