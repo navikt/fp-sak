@@ -86,7 +86,7 @@ public class InnsynRestTjeneste {
         var lagreteVedtak = vedtakTjeneste.hentLagreteVedtakPåFagsak(behandling.getFagsakId());
 
         var innsynOpt = innsynRepository.hentForBehandling(behandling.getId());
-        if (!innsynOpt.isPresent() && lagreteVedtak.isEmpty()) {
+        if (innsynOpt.isEmpty() && lagreteVedtak.isEmpty()) {
             return null; // quick return
         }
 
@@ -111,11 +111,13 @@ public class InnsynRestTjeneste {
             dto.setDokumenter(doks);
         }
 
-        lagreteVedtak.forEach(lagretVedtakMedBehandlingType -> {
-            var vedtaksdokumentasjonDto = new VedtaksdokumentasjonDto();
-            vedtaksdokumentasjonDto.setDokumentId(lagretVedtakMedBehandlingType.getId().toString());
-            vedtaksdokumentasjonDto.setOpprettetDato(lagretVedtakMedBehandlingType.getOpprettetDato());
-            vedtaksdokumentasjonDto.setTittel(lagretVedtakMedBehandlingType.getBehandlingType());
+        lagreteVedtak.forEach(vedtak -> {
+            var b = behandlingRepository.hentBehandling(vedtak.getBehandlingId());
+            var dokumentId = b.getId().toString();
+            var behandlingUuid = b.getUuid();
+            var tittel = b.getType().getKode();
+            var opprettetDato = vedtak.getOpprettetTidspunkt().toLocalDate();
+            var vedtaksdokumentasjonDto = new VedtaksdokumentasjonDto(dokumentId, behandlingUuid, tittel, opprettetDato);
             dto.getVedtaksdokumentasjon().add(vedtaksdokumentasjonDto);
         });
 
