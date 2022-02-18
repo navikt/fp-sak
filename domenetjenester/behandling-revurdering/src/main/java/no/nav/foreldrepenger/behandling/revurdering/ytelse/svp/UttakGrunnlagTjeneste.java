@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.YtelsesesspesifiktGru
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
@@ -47,13 +48,17 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         }
         var grunnlag = new SvangerskapspengerGrunnlag()
                 .medFamilieHendelse(familieHendelse.get())
+                .medNesteSakEntitet(nesteSakGrunnlag(ref).orElse(null))
                 .medSvpGrunnlagEntitet(svpGrunnEntitet(ref).orElse(null));
-        nesteSakRepository.hentGrunnlag(ref.getBehandlingId()).ifPresent(g -> grunnlag.medNesteSakEntitet(g));
         return Optional.of(grunnlag);
     }
 
     private Optional<SvpGrunnlagEntitet> svpGrunnEntitet(BehandlingReferanse ref) {
         return svangerskapspengerRepository.hentGrunnlag(ref.getBehandlingId());
+    }
+
+    private Optional<NesteSakGrunnlagEntitet> nesteSakGrunnlag(BehandlingReferanse ref) {
+        return nesteSakRepository.hentGrunnlag(ref.getBehandlingId());
     }
 
     private Optional<FamilieHendelse> familieHendelse(BehandlingReferanse ref) {
