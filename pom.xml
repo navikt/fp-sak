@@ -44,7 +44,7 @@
         <svp-uttak.version>2.2.0</svp-uttak.version>
         <felles.version>4.1.17</felles.version>
         <prosesstask.version>3.1.7</prosesstask.version>
-        <ukelonn.felles.version>2.0.23</ukelonn.felles.version>
+        <fp-jms.version>2.1.2</fp-jms.version>
 
         <fp-kontrakter.version>6.1.4</fp-kontrakter.version>
         <fp-tidsserie.version>2.5.8</fp-tidsserie.version>
@@ -127,9 +127,9 @@
             </dependency>
 
             <dependency>
-                <groupId>no.nav.vedtak.felles.familie-jms-integrasjon</groupId>
+                <groupId>no.nav.vedtak.felles.fp-jms-integrasjon</groupId>
                 <artifactId>jms-integrasjon</artifactId>
-                <version>${ukelonn.felles.version}</version>
+                <version>${fp-jms.version}</version>
             </dependency>
 
             <dependency>

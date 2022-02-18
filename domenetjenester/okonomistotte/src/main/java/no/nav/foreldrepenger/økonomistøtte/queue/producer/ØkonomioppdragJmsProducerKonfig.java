@@ -2,44 +2,31 @@ package no.nav.foreldrepenger.økonomistøtte.queue.producer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
+import javax.jms.JMSException;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.vedtak.felles.integrasjon.jms.BaseJmsKonfig;
+import no.nav.foreldrepenger.økonomistøtte.queue.config.FellesJmsKonfig;
+import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
 
-@Named("økonomioppdragjmsproducerkonfig")
 @ApplicationScoped
-public class ØkonomioppdragJmsProducerKonfig extends BaseJmsKonfig {
+public class ØkonomioppdragJmsProducerKonfig extends FellesJmsKonfig {
 
-    private String mqUsername;
-    private String mqPassword;
-
-    public static final String JNDI_QUEUE = "jms/QueueFpsakOkonomiOppdragSend";
-
-    private static final String UT_QUEUE_PREFIX = "fpsak_okonomi_oppdrag_send";
-    private static final String KVITTERING_QUEUE_PREFIX = "fpsak_okonomi_oppdrag_mottak";
+    ØkonomioppdragJmsProducerKonfig() {
+    }
 
     @Inject
-    public ØkonomioppdragJmsProducerKonfig(@KonfigVerdi("mq.username") String bruker,
-                                           @KonfigVerdi("mq.password") String passord) {
-        this();
-        this.mqUsername = bruker;
-        this.mqPassword = passord;
+    public ØkonomioppdragJmsProducerKonfig(@KonfigVerdi("systembruker.username") String bruker,
+                                           @KonfigVerdi("systembruker.password") String passord,
+                                           @KonfigVerdi("mqGateway02.hostname") String host,
+                                           @KonfigVerdi("mqGateway02.port") int port,
+                                           @KonfigVerdi("mqGateway02.name") String managerName,
+                                           @KonfigVerdi(value = "mqGateway02.channel", required = false) String channel,
+                                           @KonfigVerdi("fpsak.okonomi.oppdrag.send.queuename") String queueName,
+                                           @KonfigVerdi("fpsak.okonomi.oppdrag.mottak.queuename") String kvitteringQueueName) throws JMSException {
+        this.jmsKonfig = new JmsKonfig(host, port, managerName, channel, bruker, passord, queueName, kvitteringQueueName);
+        this.mqConnectionFactory = settOppConnectionFactory(host, port, channel, managerName);
+        this.mqQueue = settOppMessageQueue(queueName);
     }
-
-    private ØkonomioppdragJmsProducerKonfig() {
-        super(UT_QUEUE_PREFIX, KVITTERING_QUEUE_PREFIX);
-    }
-
-    @Override
-    public String getQueueManagerUsername() {
-        return mqUsername;
-    }
-
-    @Override
-    public String getQueueManagerPassword() {
-        return mqPassword;
-    }
-
 }
+
 
