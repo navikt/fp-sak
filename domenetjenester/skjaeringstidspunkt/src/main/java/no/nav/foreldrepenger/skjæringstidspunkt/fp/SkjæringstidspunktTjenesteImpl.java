@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -166,7 +167,23 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             // Har ikke grunnlag for å avgjøre skjæringstidspunkt enda
             return førsteØnskedeUttaksdagIBehandling.orElse(null);
         }
-        return førsteØnskedeUttaksdagIBehandling.orElseThrow(() -> finnerIkkeStpException(behandling.getId()));
+        return førsteØnskedeUttaksdagIBehandling
+            .or(() -> unntaksTilfellerFriUtsettelse(behandling))
+            .orElseThrow(() -> finnerIkkeStpException(behandling.getId()));
+    }
+
+    /*
+     * Håndtering av søknader med kun utsettelse - fyll på med tilfelle
+     * - Mor / fødsel - da vil STP være gitt av fødselsdato og første uttaksdato er seneste fødselsdato med mindre utsettelse sykdom/innleggelse/skade
+     */
+    private Optional<LocalDate> unntaksTilfellerFriUtsettelse(Behandling behandling) {
+        if (RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType())) {
+            return familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
+                .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+                .filter(FamilieHendelseEntitet::getGjelderFødsel)
+                .map(FamilieHendelseEntitet::getSkjæringstidspunkt);
+        }
+        return Optional.empty();
     }
 
     private TekniskException finnerIkkeStpException(Long behandlingId) {
