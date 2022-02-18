@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
@@ -36,14 +35,14 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAk
 
 public class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
 
-    private Behandling behandling;
     private BehandlingDtoTjeneste behandlingDtoTjeneste;
+    private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
     public void setup() {
         var stputil = new SkjæringstidspunktUtils();
         var entityManager = getEntityManager();
-        var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
             new RelatertBehandlingTjeneste(repositoryProvider));
         var skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
@@ -65,7 +64,10 @@ public class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
             foreldrepengerUttakTjeneste, null,
             new KontrollerAktivitetskravDtoTjeneste(repositoryProvider.getBehandlingRepository(),
                 ytelseFordelingTjeneste, uttakInputTjeneste, foreldrepengerUttakTjeneste));
+    }
 
+    @Test
+    public void skal_teste_at_behandlingÅrsakDto_får_korrekte_verdier() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medDefaultFordeling(LocalDate.now());
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
@@ -73,16 +75,12 @@ public class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
             .medOpprinneligEndringsdato(LocalDate.now())
             .build();
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
-        behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         var behandlingÅrsak = BehandlingÅrsak.builder(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING)
             .medManueltOpprettet(true);
         behandlingÅrsak.buildFor(behandling);
         repositoryProvider.getBehandlingRepository()
             .lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
-    }
-
-    @Test
-    public void skal_teste_at_behandlingÅrsakDto_får_korrekte_verdier() {
 
         var dto = behandlingDtoTjeneste.lagUtvidetBehandlingDto(behandling, null);
 

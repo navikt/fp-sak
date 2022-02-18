@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.saksbehandler;
 
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.util.ArrayList;
@@ -22,7 +24,6 @@ import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.KodeverkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.dto.InitLinksDto;
-import no.nav.foreldrepenger.web.app.util.RestUtils;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/init-fetch")
@@ -31,7 +32,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @Produces(MediaType.APPLICATION_JSON)
 public class InitielleLinksRestTjeneste {
 
-    public InitielleLinksRestTjeneste() {
+    InitielleLinksRestTjeneste() {
         // for CDI proxy
     }
 
@@ -56,14 +57,6 @@ public class InitielleLinksRestTjeneste {
         saklenker.add(get(BehandlingRestTjeneste.BEHANDLINGER_ALLE_PATH, "sak-alle-behandlinger"));
         saklenker.add(get(BehandlingRestTjeneste.ANNEN_PART_BEHANDLING_PATH, "sak-annen-part-behandling"));
         return new InitLinksDto(lenkene, toggleRelatert, saklenker);
-    }
-
-    static ResourceLink get(String path, String rel) {
-        return ResourceLink.get(RestUtils.getApiPath(path), rel);
-    }
-
-    static ResourceLink post(String path, String rel) {
-        return ResourceLink.post(RestUtils.getApiPath(path), rel, null);
     }
 
 }

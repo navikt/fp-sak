@@ -33,7 +33,6 @@ public class VedtakJsonFeedRestTjenesteTest {
 
     @BeforeEach
     public void setUp() {
-        ContextPathHolder.instance("/fpsak");
         tjeneste = new VedtakJsonFeedRestTjeneste(vedtakFattetTjeneste);
     }
 

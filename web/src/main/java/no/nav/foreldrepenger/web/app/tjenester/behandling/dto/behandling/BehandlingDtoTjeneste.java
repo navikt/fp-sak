@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.get;
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.post;
-
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -45,8 +42,10 @@ import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDok
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
+import no.nav.foreldrepenger.web.app.rest.ResourceLinks;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjenestePathHack1;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
@@ -87,7 +86,8 @@ import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
+
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.*;
 
 /**
  * Bygger et sammensatt resultat av BehandlingDto ved å samle data fra ulike tjenester, for å kunne levere dette ut på en REST tjeneste.
@@ -112,10 +112,6 @@ public class BehandlingDtoTjeneste {
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
     private String fpoppdragOverrideProxyUrl;
     private KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste;
-
-    BehandlingDtoTjeneste() {
-        // for CDI proxy
-    }
 
     @Inject
     public BehandlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -146,12 +142,16 @@ public class BehandlingDtoTjeneste {
         this.kontrollerAktivitetskravDtoTjeneste = kontrollerAktivitetskravDtoTjeneste;
     }
 
-    private static BehandlingDto lagBehandlingDto(Behandling behandling,
-                                                  Optional<BehandlingsresultatDto> behandlingsresultatDto,
-                                                  boolean erBehandlingMedGjeldendeVedtak,
-                                                  SøknadRepository søknadRepository,
-                                                  LocalDate vedtaksdato,
-                                                  BehandlingRepository behandlingRepository) {
+    BehandlingDtoTjeneste() {
+        // for CDI proxy
+    }
+
+    private BehandlingDto lagBehandlingDto(Behandling behandling,
+                                           Optional<BehandlingsresultatDto> behandlingsresultatDto,
+                                           boolean erBehandlingMedGjeldendeVedtak,
+                                           SøknadRepository søknadRepository,
+                                           LocalDate vedtaksdato,
+                                           BehandlingRepository behandlingRepository) {
         var dto = new BehandlingDto();
         var uuidDto = new UuidDto(behandling.getUuid());
         BehandlingDtoUtil.setStandardfelterMedGjeldendeVedtak(behandling, dto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
@@ -172,7 +172,9 @@ public class BehandlingDtoTjeneste {
         }
 
         if (BehandlingType.REVURDERING.equals(behandling.getType())) {
-            dto.leggTil(get(AksjonspunktRestTjeneste.AKSJONSPUNKT_KONTROLLER_REVURDERING_PATH, "har-apent-kontroller-revurdering-aksjonspunkt", uuidDto));
+            dto.leggTil(
+                get(AksjonspunktRestTjeneste.AKSJONSPUNKT_KONTROLLER_REVURDERING_PATH, "har-apent-kontroller-revurdering-aksjonspunkt",
+                    uuidDto));
             dto.leggTil(get(BeregningsresultatRestTjeneste.HAR_SAMME_RESULTAT_PATH, "har-samme-resultat", uuidDto));
         }
 
@@ -249,7 +251,7 @@ public class BehandlingDtoTjeneste {
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
     }
 
-    private static void leggTilLenkerForBehandlingsoperasjoner(Behandling behandling, BehandlingDto dto) {
+    private void leggTilLenkerForBehandlingsoperasjoner(Behandling behandling, BehandlingDto dto) {
         // Felles for alle behandlingstyper
         dto.leggTil(post(BehandlingRestTjeneste.BYTT_ENHET_PATH, "bytt-behandlende-enhet", new ByttBehandlendeEnhetDto()));
         dto.leggTil(post(BehandlingRestTjeneste.HENLEGG_PATH, "henlegg-behandling", new HenleggBehandlingDto()));
@@ -260,18 +262,22 @@ public class BehandlingDtoTjeneste {
 
         if (behandling.erYtelseBehandling()) {
             dto.leggTil(post(BehandlingRestTjeneste.OPNE_FOR_ENDRINGER_PATH, "opne-for-endringer", new ReåpneBehandlingDto()));
-            dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_OVERSTYR_PATH, "lagre-overstyr-aksjonspunkter", new BekreftedeAksjonspunkterDto()));
+            dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_OVERSTYR_PATH, "lagre-overstyr-aksjonspunkter",
+                new BekreftedeAksjonspunkterDto()));
             dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH, "opprett-verge", new BehandlingIdVersjonDto()));
             dto.leggTil(post(VergeRestTjeneste.VERGE_FJERN_PATH, "fjern-verge", new BehandlingIdVersjonDto()));
             if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
-                dto.leggTil(post(UttakRestTjeneste.STONADSKONTOER_GITT_UTTAKSPERIODER_PATH, "lagre-stonadskontoer-gitt-uttaksperioder", new BehandlingMedUttaksperioderDto()));
+                dto.leggTil(post(UttakRestTjeneste.STONADSKONTOER_GITT_UTTAKSPERIODER_PATH, "lagre-stonadskontoer-gitt-uttaksperioder",
+                    new BehandlingMedUttaksperioderDto()));
             }
         }
         if (BehandlingType.ANKE.equals(behandling.getType())) {
-            dto.leggTil(post(AnkeRestTjeneste.MELLOMLAGRE_ANKE_PATH, "mellomlagre-anke", new AnkeVurderingResultatAksjonspunktMellomlagringDto()));
+            dto.leggTil(post(AnkeRestTjeneste.MELLOMLAGRE_ANKE_PATH, "mellomlagre-anke",
+                new AnkeVurderingResultatAksjonspunktMellomlagringDto()));
         }
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
-            dto.leggTil(post(KlageRestTjeneste.MELLOMLAGRE_PATH, "mellomlagre-klage", new KlageVurderingResultatAksjonspunktMellomlagringDto()));
+            dto.leggTil(
+                post(KlageRestTjeneste.MELLOMLAGRE_PATH, "mellomlagre-klage", new KlageVurderingResultatAksjonspunktMellomlagringDto()));
         }
     }
 
@@ -376,10 +382,15 @@ public class BehandlingDtoTjeneste {
             dto.leggTil(get(UttakRestTjeneste.KONTROLLER_FAKTA_PERIODER_PATH, "uttak-kontroller-fakta-perioder", uuidDto));
 
             if (ArbeidsforholdInntektsmeldingToggleTjeneste.erTogglePå()) {
-                dto.leggTil(get(ArbeidOgInntektsmeldingRestTjeneste.ARBEID_OG_INNTEKTSMELDING_PATH, "arbeidsforhold-inntektsmelding", uuidDto));
-                dto.leggTil(post(ArbeidOgInntektsmeldingRestTjeneste.REGISTRER_ARBEIDSFORHOLD_PATH, "arbeidsforhold-inntektsmelding-registrer", new ManueltArbeidsforholdDto()));
-                dto.leggTil(post(ArbeidOgInntektsmeldingRestTjeneste.LAGRE_VURDERING_PATH, "arbeidsforhold-inntektsmelding-vurder", new ManglendeOpplysningerVurderingDto()));
-                dto.leggTil(post(ArbeidOgInntektsmeldingRestTjeneste.ÅPNE_FOR_NY_VURDERING_PATH, "arbeidsforhold-inntektsmelding-apne-for-ny-vurdering", new BehandlingIdVersjonDto()));
+                dto.leggTil(
+                    get(ArbeidOgInntektsmeldingRestTjeneste.ARBEID_OG_INNTEKTSMELDING_PATH, "arbeidsforhold-inntektsmelding", uuidDto));
+                dto.leggTil(
+                    post(ArbeidOgInntektsmeldingRestTjeneste.REGISTRER_ARBEIDSFORHOLD_PATH, "arbeidsforhold-inntektsmelding-registrer",
+                        new ManueltArbeidsforholdDto()));
+                dto.leggTil(post(ArbeidOgInntektsmeldingRestTjeneste.LAGRE_VURDERING_PATH, "arbeidsforhold-inntektsmelding-vurder",
+                    new ManglendeOpplysningerVurderingDto()));
+                dto.leggTil(post(ArbeidOgInntektsmeldingRestTjeneste.ÅPNE_FOR_NY_VURDERING_PATH,
+                    "arbeidsforhold-inntektsmelding-apne-for-ny-vurdering", new BehandlingIdVersjonDto()));
             }
 
             if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
@@ -434,11 +445,15 @@ public class BehandlingDtoTjeneste {
 
             // FIXME hvorfor ytelsspesifikke urler her?  Bør kun ha en beregningresultat
             if (FagsakYtelseType.ENGANGSTØNAD.equals(originalBehandling.getFagsakYtelseType())) {
-                dto.leggTil(get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad-original-behandling", originalUuidDto));
+                dto.leggTil(
+                    get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad-original-behandling",
+                        originalUuidDto));
             } else {
                 var uttak = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(originalBehandling.getId());
                 if (uttak.isPresent()) {
-                    dto.leggTil(get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger-original-behandling", originalUuidDto));
+                    dto.leggTil(
+                        get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger-original-behandling",
+                            originalUuidDto));
                 }
             }
         });
@@ -510,10 +525,6 @@ public class BehandlingDtoTjeneste {
         return behandling.getAksjonspunkter().stream()
             .map(Aksjonspunkt::getAksjonspunktDefinisjon)
             .anyMatch(AksjonspunktDefinisjon.AVKLAR_VERGE::equals);
-    }
-
-    public Boolean finnBehandlingOperasjonRettigheter(Behandling behandling) {
-        return this.søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).isPresent();
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {

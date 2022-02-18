@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.get;
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
 
 import java.util.Optional;
 
@@ -75,10 +75,6 @@ public class BehandlingFormidlingDtoTjeneste {
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
 
-    BehandlingFormidlingDtoTjeneste() {
-        // for CDI proxy
-    }
-
     @Inject
     public BehandlingFormidlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                            HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
@@ -97,6 +93,10 @@ public class BehandlingFormidlingDtoTjeneste {
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
+    }
+
+    BehandlingFormidlingDtoTjeneste() {
+        // for CDI proxy
     }
 
     public BehandlingFormidlingDto lagDtoForFormidling(Behandling behandling) {
@@ -199,7 +199,8 @@ public class BehandlingFormidlingDtoTjeneste {
                     .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
             if (beregningsgrunnlag.isPresent()) {
                 dto.leggTil(get(BeregningsgrunnlagRestTjeneste.BEREGNINGSGRUNNLAG_PATH, "beregningsgrunnlag", uuidDto));
-                dto.leggTilFormidlingRessurs(get(BeregningsgrunnlagFormidlingRestTjeneste.BEREGNINGSGRUNNLAG_PATH, "beregningsgrunnlag", uuidDto));
+                dto.leggTilFormidlingRessurs(
+                    get(BeregningsgrunnlagFormidlingRestTjeneste.BEREGNINGSGRUNNLAG_PATH, "beregningsgrunnlag", uuidDto));
             }
 
             if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
@@ -247,7 +248,9 @@ public class BehandlingFormidlingDtoTjeneste {
 
             // FIXME hvorfor ytelsspesifikke urler her?  Bør kun ha en beregningresultat
             if (FagsakYtelseType.ENGANGSTØNAD.equals(originalBehandling.getFagsakYtelseType())) {
-                dto.leggTil(get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad-original-behandling", originalUuidDto));
+                dto.leggTil(
+                    get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad-original-behandling",
+                        originalUuidDto));
             }
         });
 
