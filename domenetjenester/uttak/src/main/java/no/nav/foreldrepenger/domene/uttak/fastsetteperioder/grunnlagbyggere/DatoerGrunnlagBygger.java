@@ -7,10 +7,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Datoer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Dødsdatoer;
 
@@ -32,11 +34,15 @@ public class DatoerGrunnlagBygger {
         ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = input.getYtelsespesifiktGrunnlag();
         var gjeldendeFamilieHendelse = ytelsespesifiktGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
         var ref = input.getBehandlingReferanse();
-        return new Datoer.Builder()
+        var db = new Datoer.Builder()
             .fødsel(gjeldendeFamilieHendelse.getFødselsdato().orElse(null))
             .termin(gjeldendeFamilieHendelse.getTermindato().orElse(null))
             .omsorgsovertakelse(gjeldendeFamilieHendelse.getOmsorgsovertakelse().orElse(null))
             .dødsdatoer(byggDødsdatoer(ytelsespesifiktGrunnlag, ref));
+        if (!Environment.current().isProd()) {
+            db.startdatoNesteStønadsperiode(ytelsespesifiktGrunnlag.getNesteSakGrunnlag().map(NesteSakGrunnlagEntitet::getStartdato).orElse(null));
+        }
+        return db;
     }
 
     private Dødsdatoer.Builder byggDødsdatoer(ForeldrepengerGrunnlag foreldrepengerGrunnlag, BehandlingReferanse ref) {

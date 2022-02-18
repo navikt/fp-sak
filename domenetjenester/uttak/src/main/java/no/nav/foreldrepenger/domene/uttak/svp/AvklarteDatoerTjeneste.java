@@ -10,6 +10,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
@@ -17,6 +18,7 @@ import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.svangerskapspenger.domene.søknad.AvklarteDatoer;
 import no.nav.svangerskapspenger.domene.søknad.Ferie;
 
@@ -52,13 +54,17 @@ class AvklarteDatoerTjeneste {
         var dødsdatoBrukerOptional = personopplysninger.søkersDødsdatoGjeldendePåDato(ref, LocalDate.now());
 
         var medlemskapOpphørsdatoOptional = input.getMedlemskapOpphørsdato();
+        var startdatoNesteSak = svpGrunnlag.nesteSakEntitet().map(NesteSakGrunnlagEntitet::getStartdato);
 
         var avklarteDatoerBuilder = new AvklarteDatoer.Builder();
         avklarteDatoerBuilder.medTermindato(termindato);
-        fødselsdatoOptional.ifPresent(fdato -> avklarteDatoerBuilder.medFødselsdato(fdato));
-        dødsdatoBarnOptional.ifPresent(dødsdatoBarn -> avklarteDatoerBuilder.medBarnetsDødsdato(dødsdatoBarn));
-        dødsdatoBrukerOptional.ifPresent(dødsdatoBruker -> avklarteDatoerBuilder.medBrukersDødsdato(dødsdatoBruker));
-        medlemskapOpphørsdatoOptional.ifPresent(medlemskapOpphørsdato -> avklarteDatoerBuilder.medOpphørsdatoForMedlemskap(medlemskapOpphørsdato));
+        fødselsdatoOptional.ifPresent(avklarteDatoerBuilder::medFødselsdato);
+        dødsdatoBarnOptional.ifPresent(avklarteDatoerBuilder::medBarnetsDødsdato);
+        dødsdatoBrukerOptional.ifPresent(avklarteDatoerBuilder::medBrukersDødsdato);
+        medlemskapOpphørsdatoOptional.ifPresent(avklarteDatoerBuilder::medOpphørsdatoForMedlemskap);
+        if (!Environment.current().isProd()) {
+            startdatoNesteSak.ifPresent(avklarteDatoerBuilder::medStartdatoNesteSak);
+        }
         if (uttaksgrense.isPresent()) {
             avklarteDatoerBuilder.medFørsteLovligeUttaksdato(uttaksgrense.get().getFørsteLovligeUttaksdag());
             var ferier = finnFerier(ref, uttaksgrense.get().getFørsteLovligeUttaksdag());
