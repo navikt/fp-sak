@@ -10,6 +10,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import no.nav.foreldrepenger.kontrakter.risk.v1.HentRisikovurderingDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.LagreFaresignalVurderingDto;
+import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingRequestDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ public class FpriskTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(FpriskTjeneste.class);
     private static final String ENDPOINT_FPRISK = "fprisk.url";
 
+    private URI sendOppdragEndpoint;
     private URI lagreVurderingEndpoint;
     private URI hentRisikoklassifiseringEndpoint;
     private OidcRestClient oidcRestClient;
@@ -36,8 +38,14 @@ public class FpriskTjeneste {
         this.oidcRestClient = oidcRestClient;
         this.hentRisikoklassifiseringEndpoint = toUri(fpriskEndpoint, "/api/risikovurdering/hentResultat");
         this.lagreVurderingEndpoint = toUri(fpriskEndpoint, "/api/risikovurdering/lagreVurdering");
+        this.sendOppdragEndpoint = toUri(fpriskEndpoint, "/api/risikovurdering/startRisikovurdering");
     }
 
+    /**
+     * Henter resultat av risikoklassifisering og evt vurdering og faresignaler fra fprisk
+     * @param request
+     * @return RisikovurderingResultatDto som inneholder både risikoklasse, vurdering og faresignaler
+     */
     public Optional<RisikovurderingResultatDto> hentFaresignalerForBehandling(HentRisikovurderingDto request) {
         Objects.requireNonNull(request, "request");
         try {
@@ -49,6 +57,10 @@ public class FpriskTjeneste {
         }
     }
 
+    /**
+     * Sender risikovurdering til fprisk
+     * @param request
+     */
     public void sendRisikovurderingTilFprisk(LagreFaresignalVurderingDto request) {
         Objects.requireNonNull(request, "request");
         try {
@@ -57,6 +69,21 @@ public class FpriskTjeneste {
             LOG.warn("Klarte ikke lagre risikovurdering i fprisk", e);
             throw e;
         }
+    }
+
+    /**
+     * Sender oppdrag om risikoklassifisering til fprisk
+     * @param request
+     */
+    public void sendRisikoklassifiseringsoppdrag(RisikovurderingRequestDto request) {
+        Objects.requireNonNull(request, "request");
+        try {
+            oidcRestClient.post(sendOppdragEndpoint, request);
+        } catch (Exception e) {
+            // Feil hardt her når vi har verifisert en periode i prod at ting fungerer fint
+            LOG.warn("Klarte ikke sende risikovurdering til fprisk", e);
+        }
+
     }
 
     private URI toUri(URI endpointURI, String path) {
