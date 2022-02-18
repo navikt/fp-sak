@@ -2,41 +2,28 @@ package no.nav.foreldrepenger.økonomistøtte.queue.consumer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
+import javax.jms.JMSException;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.vedtak.felles.integrasjon.jms.BaseJmsKonfig;
+import no.nav.foreldrepenger.økonomistøtte.queue.config.FellesJmsKonfig;
+import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
 
-@Named("økonomioppdragjmsconsumerkonfig")
 @ApplicationScoped
-public class ØkonomioppdragJmsConsumerKonfig extends BaseJmsKonfig {
+public class ØkonomioppdragJmsConsumerKonfig extends FellesJmsKonfig {
 
-    private String mqUsername;
-    private String mqPassword;
-
-    public static final String JNDI_QUEUE = "jms/QueueFpsakOkonomiOppdragMotta";
-    private static final String INN_QUEUE_PREFIX = "fpsak_okonomi_oppdrag_mottak";
+    ØkonomioppdragJmsConsumerKonfig() {
+    }
 
     @Inject
     public ØkonomioppdragJmsConsumerKonfig(@KonfigVerdi("mq.username") String bruker,
-                                           @KonfigVerdi("mq.password") String passord) {
-        this();
-        this.mqUsername = bruker;
-        this.mqPassword = passord;
+                                           @KonfigVerdi("mq.password") String passord,
+                                           @KonfigVerdi("mqGateway02.hostname") String host,
+                                           @KonfigVerdi("mqGateway02.port") int port,
+                                           @KonfigVerdi("mqGateway02.name") String managerName,
+                                           @KonfigVerdi(value = "mqGateway02.channel", required = false) String channel,
+                                           @KonfigVerdi("fpsak.okonomi.oppdrag.mottak.queuename") String queueName) throws JMSException {
+        this.jmsKonfig = new JmsKonfig(host, port, managerName, channel, bruker, passord, queueName, null);
+        this.mqConnectionFactory = settOppConnectionFactory(host, port, channel, managerName);
+        this.mqQueue = settOppMessageQueue(queueName);
     }
-
-    private ØkonomioppdragJmsConsumerKonfig() {
-        super(INN_QUEUE_PREFIX);
-    }
-
-    @Override
-    public String getQueueManagerUsername() {
-        return mqUsername;
-    }
-
-    @Override
-    public String getQueueManagerPassword() {
-        return mqPassword;
-    }
-
 }

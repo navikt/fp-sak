@@ -2,42 +2,28 @@ package no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.produc
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
+import javax.jms.JMSException;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.vedtak.felles.integrasjon.jms.BaseJmsKonfig;
+import no.nav.foreldrepenger.økonomistøtte.queue.config.FellesJmsKonfig;
+import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
 
-@Named("grensesnittavstemmingjmsproducerkonfig")
 @ApplicationScoped
-public class GrensesnittavstemmingJmsProducerKonfig extends BaseJmsKonfig {
+public class GrensesnittavstemmingJmsProducerKonfig extends FellesJmsKonfig {
 
-    private String mqUsername;
-    private String mqPassword;
-
-    public static final String JNDI_QUEUE = "jms/QueueFpsakGrensesnittavstemmingSend";
-
-    private static final String UT_QUEUE_PREFIX = "RAY.AVSTEM_DATA";
+    GrensesnittavstemmingJmsProducerKonfig() {
+    }
 
     @Inject
     public GrensesnittavstemmingJmsProducerKonfig(@KonfigVerdi("mq.username") String bruker,
-                                                  @KonfigVerdi("mq.password") String passord) {
-        this();
-        this.mqUsername = bruker;
-        this.mqPassword = passord;
+                                                  @KonfigVerdi("mq.password") String passord,
+                                                  @KonfigVerdi("mqGateway02.hostname") String host,
+                                                  @KonfigVerdi("mqGateway02.port") int port,
+                                                  @KonfigVerdi("mqGateway02.name") String managerName,
+                                                  @KonfigVerdi(value = "mqGateway02.channel", required = false) String channel,
+                                                  @KonfigVerdi("ray.avstem.data.queuename") String queueName) throws JMSException {
+        this.jmsKonfig = new JmsKonfig(host, port, managerName, channel, bruker, passord, queueName, null);
+        this.mqConnectionFactory = settOppConnectionFactory(host, port, channel, managerName);
+        this.mqQueue = settOppMessageQueue(queueName, true);
     }
-
-    private GrensesnittavstemmingJmsProducerKonfig() {
-        super(UT_QUEUE_PREFIX);
-    }
-
-    @Override
-    public String getQueueManagerUsername() {
-        return mqUsername;
-    }
-
-    @Override
-    public String getQueueManagerPassword() {
-        return mqPassword;
-    }
-
 }

@@ -23,9 +23,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
+import no.nav.foreldrepenger.økonomistøtte.queue.config.DatabasePreconditionChecker;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.jms.precond.DefaultDatabaseOppePreconditionChecker;
+import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
 
 @ExtendWith(MockitoExtension.class)
 public class ØkonomioppdragAsyncJmsConsumerImplTest {
@@ -40,8 +41,9 @@ public class ØkonomioppdragAsyncJmsConsumerImplTest {
 
     @BeforeEach
     public void setUp() {
-        final var mockDefaultDatabaseOppePreconditionChecker = mock(DefaultDatabaseOppePreconditionChecker.class);
-        var jmsKonfig = new ØkonomioppdragJmsConsumerKonfig("bruker", "passord");
+        final var mockDefaultDatabaseOppePreconditionChecker = mock(DatabasePreconditionChecker.class);
+        var jmsKonfig = mock(ØkonomioppdragJmsConsumerKonfig.class);
+        when(jmsKonfig.getJmsKonfig()).thenReturn(new JmsKonfig("test", 1234,"test", "test", "test", "test", "test", null ));
         økonomioppdragAsyncJmsConsumerImpl = new ØkonomioppdragAsyncJmsConsumerImpl(behandleØkonomioppdragKvittering, mockDefaultDatabaseOppePreconditionChecker, jmsKonfig);
         captor = ArgumentCaptor.forClass(ØkonomiKvittering.class);
     }
