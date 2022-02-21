@@ -61,7 +61,7 @@ public class FpriskTjeneste {
      * Sender risikovurdering til fprisk
      * @param request
      */
-    public void sendRisikovurderingTilFprisk(LagreFaresignalVurderingDto request) {
+    protected void sendRisikovurderingTilFprisk(LagreFaresignalVurderingDto request) {
         Objects.requireNonNull(request, "request");
         try {
             oidcRestClient.post(lagreVurderingEndpoint, request);
@@ -75,7 +75,7 @@ public class FpriskTjeneste {
      * Sender oppdrag om risikoklassifisering til fprisk
      * @param request
      */
-    public void sendRisikoklassifiseringsoppdrag(RisikovurderingRequestDto request) {
+    protected void sendRisikoklassifiseringsoppdrag(RisikovurderingRequestDto request) {
         Objects.requireNonNull(request, "request");
         try {
             oidcRestClient.post(sendOppdragEndpoint, request);
