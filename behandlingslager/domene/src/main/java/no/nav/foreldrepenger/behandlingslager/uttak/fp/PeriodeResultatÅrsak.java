@@ -30,6 +30,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import no.nav.foreldrepenger.behandlingslager.behandling.ÅrsakskodeMedLovreferanse;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
@@ -283,6 +284,19 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
     }
 
     public static Set<PeriodeResultatÅrsak> opphørsAvslagÅrsaker() {
+        if (!Environment.current().isProd()) {
+            return Set.of(
+                MOR_HAR_IKKE_OMSORG,
+                FAR_HAR_IKKE_OMSORG,
+                BARNET_ER_DØD,
+                SØKER_ER_DØD,
+                OPPHØR_MEDLEMSKAP,
+                FØDSELSVILKÅRET_IKKE_OPPFYLT,
+                ADOPSJONSVILKÅRET_IKKE_OPPFYLT,
+                FORELDREANSVARSVILKÅRET_IKKE_OPPFYLT,
+                OPPTJENINGSVILKÅRET_IKKE_OPPFYLT,
+                STØNADSPERIODE_NYTT_BARN);
+        }
         return Set.of(
             MOR_HAR_IKKE_OMSORG,
             FAR_HAR_IKKE_OMSORG,
