@@ -4,6 +4,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -118,6 +120,44 @@ class ArbeidsforholdValgRepositoryTest {
     }
 
     @Test
+    public void lagre_flere_vurderinger_hos_samme_ag() {
+        // Arrange
+        var behandling = opprettBehandling();
+        var ref1 = InternArbeidsforholdRef.nyRef();
+        var vurdering1 = ArbeidsforholdValg.builder()
+            .medVurdering(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING)
+            .medArbeidsgiver("999999999")
+            .medBegrunnelse("Dette er en begrunnelse")
+            .medArbeidsforholdRef(ref1)
+            .build();
+        var ref2 = InternArbeidsforholdRef.nyRef();
+        var vurdering2 = ArbeidsforholdValg.builder()
+            .medVurdering(ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING)
+            .medArbeidsgiver("999999999")
+            .medArbeidsforholdRef(ref2)
+            .medBegrunnelse("Dette er en annen begrunnelse")
+            .build();
+
+        // Act
+        arbeidsforholdValgRepository.lagre(vurdering1, behandling.getId());
+        arbeidsforholdValgRepository.lagre(vurdering2, behandling.getId());
+        var notater = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandling.getId());
+
+        // Assert
+        assertThat(notater).isNotNull();
+        assertThat(notater).hasSize(2);
+        var entitet1 = finnVurderingFor(notater, "999999999", ref1);
+        assertThat(entitet1).isNotNull();
+        assertThat(entitet1.getVurdering()).isEqualTo(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING);
+        assertThat(entitet1.getBegrunnelse()).isEqualTo("Dette er en begrunnelse");
+
+        var entitet2 = finnVurderingFor(notater, "999999999", ref2);
+        assertThat(entitet2).isNotNull();
+        assertThat(entitet2.getVurdering()).isEqualTo(ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING);
+        assertThat(entitet2.getBegrunnelse()).isEqualTo("Dette er en annen begrunnelse");
+    }
+
+    @Test
     public void lagre_ny_vurdering_på_eksisterende_arbeidsforhold_uten_å_berøre_annet_arbeidsforhold() {
         // Arrange 1
         var behandling = opprettBehandling();
@@ -177,10 +217,16 @@ class ArbeidsforholdValgRepositoryTest {
     }
 
 
-    private ArbeidsforholdValg finnVurderingFor(List<ArbeidsforholdValg> vurderteArbeidsforhold, String orgnr) {
+    private ArbeidsforholdValg finnVurderingFor(List<ArbeidsforholdValg> vurderteArbeidsforhold, String orgnr, InternArbeidsforholdRef ref) {
         return vurderteArbeidsforhold.stream()
-            .filter(vurd -> vurd.getArbeidsgiver().getIdentifikator().equals(orgnr)).findFirst()
+            .filter(vurd -> vurd.getArbeidsgiver().getIdentifikator().equals(orgnr))
+            .filter(vurd -> vurd.getArbeidsforholdRef().gjelderFor(ref))
+            .findFirst()
             .orElse(null);
+    }
+
+    private ArbeidsforholdValg finnVurderingFor(List<ArbeidsforholdValg> vurderteArbeidsforhold, String orgnr) {
+        return finnVurderingFor(vurderteArbeidsforhold, orgnr, InternArbeidsforholdRef.nullRef());
     }
 
 
