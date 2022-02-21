@@ -45,11 +45,16 @@ import java.util.function.Function;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
 @Path(ArbeidOgInntektsmeldingRestTjeneste.BASE_PATH)
 @Transactional
 public class ArbeidOgInntektsmeldingRestTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(ArbeidOgInntektsmeldingRestTjeneste.class);
+
     static final String BASE_PATH = "/behandling";
     private static final String ARBEID_OG_INNTEKTSMELDING_PART_PATH = "/arbeid-inntektsmelding";
     private static final String LAGRE_VURDERING_PART_PATH = "/arbeid-inntektsmelding/lagre-vurdering";
@@ -140,6 +145,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
         if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
             arbeidOgInntektsmeldingProsessTjeneste.tillTilbakeOgOpprettAksjonspunkt(behandlingIdVersjonDto, false);
         } else if (erOverstyringLovlig()) {
+            LOG.info("Legger til aksjonspunkt 5085 ved overstyring på behandling {}", behandlingIdVersjonDto.getBehandlingUuid());
             arbeidOgInntektsmeldingProsessTjeneste.tillTilbakeOgOpprettAksjonspunkt(behandlingIdVersjonDto, true);
         }
         return Response.ok().build();

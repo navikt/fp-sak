@@ -15,9 +15,13 @@ import java.util.List;
 import static java.util.Collections.emptyList;
 import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettListeForAksjonspunkt;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @ApplicationScoped
 public class AksjonspunktUtlederForArbeidsforholdInntektsmelding implements AksjonspunktUtleder {
     private static final List<AksjonspunktResultat> INGEN_AKSJONSPUNKTER = emptyList();
+    private static final Logger LOG = LoggerFactory.getLogger(AksjonspunktUtlederForArbeidsforholdInntektsmelding.class);
 
     private BehandlingRepository behandlingRepository;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
@@ -39,6 +43,7 @@ public class AksjonspunktUtlederForArbeidsforholdInntektsmelding implements Aksj
             return INGEN_AKSJONSPUNKTER;
         }
         var mangler = arbeidsforholdInntektsmeldingMangelTjeneste.utledManglerPåArbeidsforholdInntektsmelding(param.getRef());
+        LOG.info("Fant {} mangler relatert til arbeid og inntektsmeldinger på saksnummer {}. Alle mangler var: {}", mangler.size(), param.getSaksnummer(), mangler);
         return mangler.isEmpty() ? INGEN_AKSJONSPUNKTER : opprettListeForAksjonspunkt(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING);
     }
 }
