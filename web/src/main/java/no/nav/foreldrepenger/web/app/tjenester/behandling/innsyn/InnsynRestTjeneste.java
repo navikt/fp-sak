@@ -113,11 +113,10 @@ public class InnsynRestTjeneste {
 
         lagreteVedtak.forEach(vedtak -> {
             var b = behandlingRepository.hentBehandling(vedtak.getBehandlingId());
-            var dokumentId = b.getId().toString();
             var behandlingUuid = b.getUuid();
             var tittel = b.getType().getKode();
             var opprettetDato = vedtak.getOpprettetTidspunkt().toLocalDate();
-            var vedtaksdokumentasjonDto = new VedtaksdokumentasjonDto(dokumentId, behandlingUuid, tittel, opprettetDato);
+            var vedtaksdokumentasjonDto = new VedtaksdokumentasjonDto(behandlingUuid, tittel, opprettetDato);
             dto.getVedtaksdokumentasjon().add(vedtaksdokumentasjonDto);
         });
 
