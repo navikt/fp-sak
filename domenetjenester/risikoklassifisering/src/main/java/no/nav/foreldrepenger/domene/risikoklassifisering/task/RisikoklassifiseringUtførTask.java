@@ -1,51 +1,96 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.task;
 
+import java.util.Optional;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.domene.risikoklassifisering.kafka.config.RisikoklassifiseringMeldingProducer;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
+import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
+import no.nav.foreldrepenger.kontrakter.risk.kodeverk.AktørId;
+import no.nav.foreldrepenger.kontrakter.risk.kodeverk.YtelseType;
+import no.nav.foreldrepenger.kontrakter.risk.v1.AnnenPartDto;
+import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingRequestDto;
+import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
 @ProsessTask("risiko.klassifisering")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class RisikoklassifiseringUtførTask implements ProsessTaskHandler {
-
-    private static final Logger LOG = LoggerFactory.getLogger(RisikoklassifiseringUtførTask.class);
-
-    public static final String KONSUMENT_ID = "konsumentId";
-
-    private RisikoklassifiseringMeldingProducer kafkaProducer;
+public class RisikoklassifiseringUtførTask extends GenerellProsessTask {
+    private RisikovurderingTjeneste risikovurderingTjeneste;
+    private BehandlingRepository behandlingRepository;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
+    private PersonopplysningRepository personopplysningRepository;
 
     RisikoklassifiseringUtførTask() {
         // for CDI proxy
     }
 
     @Inject
-    public RisikoklassifiseringUtførTask(RisikoklassifiseringMeldingProducer kafkaProducer) {
-        this.kafkaProducer = kafkaProducer;
-    }
-
-    private void prosesser(ProsessTaskData prosessTaskData) {
-        try {
-            var eventJson = prosessTaskData.getPayloadAsString();
-            var konsumentId = prosessTaskData.getPropertyValue(KONSUMENT_ID);
-            kafkaProducer.sendJsonMedNøkkel(konsumentId, eventJson);
-            LOG.info("Publiser risikoklassifisering på kafka slik at fprisk kan klassifisere behandlingen. konsumentId :{} BehandlingsId: {}",
-                konsumentId, prosessTaskData.getBehandlingId());
-        }catch (Exception e){
-            LOG.warn("Feil med publisering av meldingen til kafka. Feilen er ignorert og vil ikke påvirke behandlingsprosessen",e);
-        }
+    public RisikoklassifiseringUtførTask(RisikovurderingTjeneste risikovurderingTjeneste,
+                                         BehandlingRepository behandlingRepository,
+                                         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                         OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
+                                         PersonopplysningRepository personopplysningRepository) {
+        this.risikovurderingTjeneste = risikovurderingTjeneste;
+        this.behandlingRepository = behandlingRepository;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
+        this.personopplysningRepository = personopplysningRepository;
     }
 
     @Override
-    public void doTask(ProsessTaskData prosessTaskData) {
-        prosesser(prosessTaskData);
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var referanse = BehandlingReferanse.fra(behandling);
+        var request = opprettRequest(referanse);
+        risikovurderingTjeneste.startRisikoklassifisering(referanse, request);
     }
+
+    private RisikovurderingRequestDto opprettRequest(BehandlingReferanse ref) {
+        var søkerAktørId = new AktørId(ref.getAktørId().getId());
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.getBehandlingId())
+            .getUtledetSkjæringstidspunkt();
+        var opplysningsperiode = opplysningsPeriodeTjeneste.beregn(ref.getBehandlingId(), ref.getFagsakYtelseType());
+        var konsumentId = ref.getBehandlingUuid();
+        var ytelsetype = mapFagsaktype(ref.getFagsakYtelseType());
+        var annenPartOpt = mapAnnenPart(ref);
+        return new RisikovurderingRequestDto(søkerAktørId, stp, opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato(), konsumentId, ytelsetype, annenPartOpt.orElse(null));
+    }
+
+    private Optional<AnnenPartDto> mapAnnenPart(BehandlingReferanse ref) {
+        var oppgittAnnenPart = personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(ref.getBehandlingId());
+        if (oppgittAnnenPart.isPresent()) {
+            var aktoerId =
+                oppgittAnnenPart.get().getAktørId() == null ? null : oppgittAnnenPart.get().getAktørId().getId();
+            if (aktoerId != null) {
+                return Optional.of(new AnnenPartDto(new AktørId(aktoerId), null));
+            }
+            var utenlandskFnr = oppgittAnnenPart.get().getUtenlandskPersonident();
+            if (utenlandskFnr != null) {
+                return Optional.of(new AnnenPartDto(null, utenlandskFnr));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private YtelseType mapFagsaktype(FagsakYtelseType fagsakYtelseType) {
+        return switch (fagsakYtelseType) {
+            case FORELDREPENGER -> YtelseType.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> YtelseType.SVANGERSKAPSPENGER;
+            case ENGANGSTØNAD -> YtelseType.ENGANGSSTØNAD;
+            case UDEFINERT -> throw new IllegalStateException("Ugyldig FagsakYtelseType forsøkt mappet "
+                + "til RisikovurderingRequest. FagsakYtelseType: " + fagsakYtelseType);
+        };
+    }
+
 }

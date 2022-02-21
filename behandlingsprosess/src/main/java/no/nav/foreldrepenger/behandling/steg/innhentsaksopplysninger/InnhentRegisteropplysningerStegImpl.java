@@ -13,8 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.domene.risikoklassifisering.produsent.RisikoklassifiseringEventPubliserer;
-import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.RisikoklassifiseringEvent;
+import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 
 @BehandlingStegRef(kode = "INREG")
 @BehandlingTypeRef
@@ -23,8 +22,8 @@ import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.Risikoklas
 public class InnhentRegisteropplysningerStegImpl implements InnhentRegisteropplysningerSteg {
 
     private BehandlingRepository behandlingRepository;
-    private RisikoklassifiseringEventPubliserer eventPubliserer;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
+    private RisikovurderingTjeneste risikovurderingTjeneste;
 
     InnhentRegisteropplysningerStegImpl() {
         // for CDI proxy
@@ -32,11 +31,11 @@ public class InnhentRegisteropplysningerStegImpl implements InnhentRegisteropply
 
     @Inject
     public InnhentRegisteropplysningerStegImpl(BehandlingRepositoryProvider repositoryProvider,
-            BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-            RisikoklassifiseringEventPubliserer eventPubliserer) {
+                                               BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
+                                               RisikovurderingTjeneste risikovurderingTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
-        this.eventPubliserer = eventPubliserer;
+        this.risikovurderingTjeneste = risikovurderingTjeneste;
     }
 
     @Override
@@ -48,10 +47,8 @@ public class InnhentRegisteropplysningerStegImpl implements InnhentRegisteropply
 
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
             var ref = BehandlingReferanse.fra(behandling);
-            var risikoklassifiseringEvent = new RisikoklassifiseringEvent(ref);
-            eventPubliserer.fireEvent(risikoklassifiseringEvent);
+            risikovurderingTjeneste.lagreProsesstaskForRisikoklassifisering(ref);
         }
-
         return BehandleStegResultat.settPåVent();
     }
 
