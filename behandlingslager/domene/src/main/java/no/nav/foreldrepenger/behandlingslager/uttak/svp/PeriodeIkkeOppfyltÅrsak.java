@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.svp;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ÅrsakskodeMedLovreferanse;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
@@ -122,10 +121,9 @@ public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, ÅrsakskodeMedLovrefe
     }
 
     public static Set<PeriodeIkkeOppfyltÅrsak> opphørsAvslagÅrsaker() {
-        return new HashSet<>(Arrays.asList(
-            _8304,
-            _8305,
-            _8306,
-            _8309));
+        if (!Environment.current().isProd()) {
+            return Set.of(_8304, _8305, _8306, _8309, _8314);
+        }
+        return Set.of(_8304, _8305, _8306, _8309);
     }
 }
