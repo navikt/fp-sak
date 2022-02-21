@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold;
 
-import no.nav.vedtak.felles.jpa.HibernateVerktøy;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -33,7 +33,7 @@ public class ArbeidsforholdValgRepository {
     }
 
     public void lagre(ArbeidsforholdValg nyttNotat, Long behandlingId) {
-        var eksisterendeNotatOpt = hentNøyaktigNotatForBehandling(behandlingId, nyttNotat.getArbeidsgiver().getIdentifikator());
+        var eksisterendeNotatOpt = hentEksaktValg(behandlingId, nyttNotat.getArbeidsgiver().getIdentifikator(), nyttNotat.getArbeidsforholdRef());
         if (eksisterendeNotatOpt.isPresent() && !eksisterendeNotatOpt.get().equals(nyttNotat)) {
             var eksisterendeNotat = eksisterendeNotatOpt.get();
             eksisterendeNotat.setBegrunnelse(nyttNotat.getBegrunnelse());
@@ -54,13 +54,18 @@ public class ArbeidsforholdValgRepository {
         lagre(arbeidsforholdValg);
     }
 
-    private Optional<ArbeidsforholdValg> hentNøyaktigNotatForBehandling(Long behandlingId, String arbeidsgiverIdent) {
+    private Optional<ArbeidsforholdValg> hentEksaktValg(Long behandlingId, String arbeidsgiverIdent, InternArbeidsforholdRef internRef) {
+        var arbeidsforholdValgs = hentAlleValgForArbeidsgiver(behandlingId, arbeidsgiverIdent);
+        return arbeidsforholdValgs.stream().filter(valg -> valg.getArbeidsforholdRef().gjelderFor(internRef)).findFirst();
+    }
+
+    private List<ArbeidsforholdValg> hentAlleValgForArbeidsgiver(Long behandlingId, String arbeidsgiverIdent) {
         final var query = entityManager.createQuery("FROM ArbeidsforholdValg arb " + // NOSONAR //$NON-NLS-1$
             "WHERE arb.behandlingId = :behandlingId " +
-            "AND arb.arbeidsgiverIdent = :arbeidsgiverIdent ", ArbeidsforholdValg.class);
+            "AND arb.arbeidsgiverIdent = :arbeidsgiverIdent", ArbeidsforholdValg.class);
         query.setParameter("behandlingId", behandlingId);
         query.setParameter("arbeidsgiverIdent", arbeidsgiverIdent);
-        return HibernateVerktøy.hentUniktResultat(query);
+        return query.getResultList();
     }
 
     private void lagre(ArbeidsforholdValg arbeidsforholdValg) {
