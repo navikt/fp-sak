@@ -515,7 +515,6 @@ public class BehandlingDtoTjeneste {
 
     private Optional<ResourceLink> lagTilbakekrevingValgLink(Behandling behandling) {
         var uuidDto = new UuidDto(behandling.getUuid());
-        // FIXME (BehandlingIdDto): bør kunne støtte behandlingUuid også
         return tilbakekrevingRepository.hent(behandling.getId()).isPresent()
             ? Optional.of(get(TilbakekrevingRestTjeneste.VALG_PATH, "tilbakekrevingvalg", uuidDto))
             : Optional.empty();

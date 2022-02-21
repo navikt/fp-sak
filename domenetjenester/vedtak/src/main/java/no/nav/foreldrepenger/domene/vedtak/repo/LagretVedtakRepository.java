@@ -3,9 +3,12 @@ package no.nav.foreldrepenger.domene.vedtak.repo;
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -17,7 +20,6 @@ import org.hibernate.jpa.QueryHints;
 import no.nav.foreldrepenger.behandlingslager.BehandlingslagerRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtak;
-import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtakMedBehandlingType;
 
 @ApplicationScoped
 public class LagretVedtakRepository implements BehandlingslagerRepository {
@@ -76,23 +78,11 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
         return hentEksaktResultat(query);
     }
 
-    public List<LagretVedtakMedBehandlingType> hentLagreteVedtakPåFagsak(long fagsakId) {
-        Objects.requireNonNull(fagsakId, "fagsakId"); //NOSONAR
-
-        var sql = "SELECT " +
-            "l.BEHANDLING_ID id, " +
-            "b.BEHANDLING_TYPE behandlingType, " +
-            "l.opprettet_tid opprettetDato " +
-            "FROM LAGRET_VEDTAK l " +
-            "JOIN BEHANDLING b ON b.id = l.BEHANDLING_ID " +
-            "WHERE l.FAGSAK_ID = :fagsakId";
-
-        var query = entityManager.createNativeQuery(sql, "LagretVedtakResult");
-        query.setParameter("fagsakId", fagsakId);
-
-        @SuppressWarnings("unchecked")
-        List<LagretVedtakMedBehandlingType> resultater = query.getResultList();
-        return resultater;
+    public List<LagretVedtak> hentLagreteVedtakPåFagsak(long fagsakId) {
+        var query = entityManager.createQuery("from LagretVedtak where FAGSAK_ID=:fagsakId", LagretVedtak.class); //$NON-NLS-1$
+        query.setParameter("fagsakId", fagsakId); //$NON-NLS-1$
+        query.setHint(QueryHints.HINT_READONLY, "true"); //$NON-NLS-1$
+        return query.getResultList();
     }
 
     public List<Long> hentLagreteVedtakBehandlingId(LocalDateTime fom, LocalDateTime tom){
