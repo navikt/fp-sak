@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.kontrakter.risk.v1.LagreFaresignalVurderingDto;
 
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
-import no.nav.foreldrepenger.domene.risikoklassifisering.json.KontrollresultatMapper;
+import no.nav.foreldrepenger.domene.risikoklassifisering.mapper.KontrollresultatMapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingRequestDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;

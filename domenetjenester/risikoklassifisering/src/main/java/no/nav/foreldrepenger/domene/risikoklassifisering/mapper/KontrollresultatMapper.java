@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.risikoklassifisering.json;
+package no.nav.foreldrepenger.domene.risikoklassifisering.mapper;
 
 import java.util.List;
 import java.util.Optional;
