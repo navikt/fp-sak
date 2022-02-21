@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynResultatType;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.VedtaksdokumentasjonDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.InnsynVedtaksdokumentasjonDto;
 
 public class InnsynsbehandlingDto {
 
 	private LocalDate innsynMottattDato;
 	private InnsynResultatType innsynResultatType;
-	private List<VedtaksdokumentasjonDto> vedtaksdokumentasjon  = new ArrayList<>();
+	private List<InnsynVedtaksdokumentasjonDto> vedtaksdokumentasjon  = new ArrayList<>();
 	private List<InnsynDokumentDto> dokumenter = new ArrayList<>();
 
 	public LocalDate getInnsynMottattDato() {
@@ -30,11 +30,11 @@ public class InnsynsbehandlingDto {
 		this.innsynResultatType = innsynResultatType;
 	}
 
-	public void setVedtaksdokumentasjon(List<VedtaksdokumentasjonDto> vedtaksdokumentasjon) {
+	public void setVedtaksdokumentasjon(List<InnsynVedtaksdokumentasjonDto> vedtaksdokumentasjon) {
 		this.vedtaksdokumentasjon = vedtaksdokumentasjon;
 	}
 
-	public List<VedtaksdokumentasjonDto> getVedtaksdokumentasjon() {
+	public List<InnsynVedtaksdokumentasjonDto> getVedtaksdokumentasjon() {
 		return vedtaksdokumentasjon;
 	}
 

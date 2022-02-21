@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.VedtaksdokumentasjonDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.InnsynVedtaksdokumentasjonDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
@@ -116,7 +116,7 @@ public class InnsynRestTjeneste {
             var behandlingUuid = b.getUuid();
             var tittel = b.getType().getKode();
             var opprettetDato = vedtak.getOpprettetTidspunkt().toLocalDate();
-            var vedtaksdokumentasjonDto = new VedtaksdokumentasjonDto(behandlingUuid, tittel, opprettetDato);
+            var vedtaksdokumentasjonDto = new InnsynVedtaksdokumentasjonDto(behandlingUuid, tittel, opprettetDato);
             dto.getVedtaksdokumentasjon().add(vedtaksdokumentasjonDto);
         });
 
