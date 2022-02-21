@@ -19,10 +19,12 @@ import no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering;
 import no.nav.foreldrepenger.kontrakter.risk.kodeverk.RisikoklasseType;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikogruppeDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 public class RisikovurderingTjenesteTest {
 
     private final FpriskTjeneste fpriskTjeneste = mock(FpriskTjeneste.class);
+    private final ProsessTaskTjeneste prosessTaskTjeneste = mock(ProsessTaskTjeneste.class);
 
     private RisikovurderingTjeneste risikovurderingTjeneste;
 
@@ -35,7 +37,7 @@ public class RisikovurderingTjenesteTest {
     public void setup() {
         var scenarioFørstegang = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenarioFørstegang.lagMocked();
-        risikovurderingTjeneste = new RisikovurderingTjeneste(fpriskTjeneste);
+        risikovurderingTjeneste = new RisikovurderingTjeneste(fpriskTjeneste, prosessTaskTjeneste);
         referanse = BehandlingReferanse.fra(behandling);
     }
 

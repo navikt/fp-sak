@@ -3,43 +3,18 @@ package no.nav.foreldrepenger.domene.risikoklassifisering.json;
 import java.util.List;
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalGruppeWrapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
-import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.KontrollresultatWrapper;
 import no.nav.foreldrepenger.kontrakter.risk.kodeverk.RisikoklasseType;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.kontroll.v1.KontrollResultatV1;
 
 public class KontrollresultatMapper {
 
     private KontrollresultatMapper() {
         // Skjuler default
-    }
-
-    public static KontrollresultatWrapper fraKontrakt(KontrollResultatV1 kontraktResultat) {
-        if (kontraktResultat.getKontrollResultatkode() == null || kontraktResultat.getKontrollResultatkode().getKode() == null) {
-            throw manglerKontrollresultatkode();
-        }
-        var kode = kontraktResultat.getKontrollResultatkode().getKode();
-        var kontrollresultat = finnKontrollresultat(kode);
-        return new KontrollresultatWrapper(kontraktResultat.getBehandlingUuid(), kontrollresultat);
-    }
-
-    private static Kontrollresultat finnKontrollresultat(String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var kontrollresultat = Kontrollresultat.fraKode(kode);
-        if (kontrollresultat == null || Kontrollresultat.UDEFINERT.equals(kontrollresultat)) {
-            throw udefinertKontrollresultat();
-        }
-        return kontrollresultat;
     }
 
     public static no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering mapFaresignalvurderingTilKontrakt(FaresignalVurdering faresignalVurdering) {
