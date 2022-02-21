@@ -124,7 +124,7 @@ public class EnhetsTjeneste {
     private void oppdaterEnhetCache() {
         if (sisteInnhenting.isBefore(LocalDate.now())) {
             alleBehandlendeEnheter.clear();
-            alleBehandlendeEnheter.addAll(hentEnheterFor(null, BehandlingTema.UDEFINERT));
+            alleBehandlendeEnheter.addAll(hentEnheterFor(null, BehandlingTema.FORELDREPENGER));
             alleBehandlendeEnheter.add(SKJERMET_ENHET);
             alleBehandlendeEnheter.add(KLAGE_ENHET);
             alleBehandlendeEnheter.add(KODE6_ENHET);
@@ -162,13 +162,14 @@ public class EnhetsTjeneste {
     }
 
     private List<OrganisasjonsEnhet> hentEnheterFor(String geografi, BehandlingTema behandlingTema) {
+        var brukBTema = BehandlingTema.UDEFINERT.equals(behandlingTema) ? BehandlingTema.FORELDREPENGER : behandlingTema;
         List<ArbeidsfordelingResponse> restenhet;
         var request = ArbeidsfordelingRequest.ny()
             .medTemagruppe(TEMAGRUPPE)
             .medTema(TEMA)
             .medOppgavetype(OPPGAVETYPE)
             .medBehandlingstype(BEHANDLINGTYPE)
-            .medBehandlingstema(behandlingTema.getOffisiellKode())
+            .medBehandlingstema(brukBTema.getOffisiellKode())
             .medDiskresjonskode(null)
             .medGeografiskOmraade(geografi)
             .build();
