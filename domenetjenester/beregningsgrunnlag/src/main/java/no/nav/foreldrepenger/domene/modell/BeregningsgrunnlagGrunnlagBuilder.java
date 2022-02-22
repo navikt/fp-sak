@@ -31,6 +31,13 @@ public class BeregningsgrunnlagGrunnlagBuilder {
         return this;
     }
 
+    public BeregningsgrunnlagGrunnlagBuilder medFakta(FaktaAggregat faktaAggregat) {
+        verifiserKanModifisere();
+        kladd.setFaktaAggregat(faktaAggregat);
+        return this;
+    }
+
+
     public BeregningsgrunnlagGrunnlagBuilder medRegisterAktiviteter(BeregningAktivitetAggregat registerAktiviteter) {
         verifiserKanModifisere();
         kladd.setRegisterAktiviteter(registerAktiviteter);

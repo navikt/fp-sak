@@ -45,9 +45,9 @@ public class BeregningsaktivitetHistorikkTjeneste {
     }
 
     public HistorikkInnslagTekstBuilder lagHistorikk(Long behandlingId,
-                                                      HistorikkInnslagTekstBuilder tekstBuilder,
-                                                      BeregningAktiviteterEndring beregningAktiviteterEndring,
-                                                      String begrunnelse) {
+                                                     HistorikkInnslagTekstBuilder tekstBuilder,
+                                                     BeregningAktiviteterEndring beregningAktiviteterEndring,
+                                                     String begrunnelse) {
         tekstBuilder.medBegrunnelse(begrunnelse).medSkjermlenke(SkjermlenkeType.FAKTA_OM_BEREGNING);
         var arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdOverstyringer();
         beregningAktiviteterEndring.getAktivitetEndringer().forEach(aktivitetEndring -> {
@@ -70,14 +70,14 @@ public class BeregningsaktivitetHistorikkTjeneste {
         }
     }
 
-    private void lagPeriodeHistorikk(HistorikkInnslagTekstBuilder tekstBuilder,
-                                     BeregningAktivitetEndring aktivitetEndring,
-                                     String aktivitetnavn) {
+    private void lagPeriodeHistorikk(HistorikkInnslagTekstBuilder tekstBuilder, BeregningAktivitetEndring aktivitetEndring, String aktivitetnavn) {
         if (aktivitetEndring.getTomDatoEndring() != null) {
-            var nyPeriodeTom = aktivitetEndring.getTomDatoEndring().getTilVerdi();
-            var gammelPeriodeTom = aktivitetEndring.getTomDatoEndring().getFraVerdi();
-            if (!nyPeriodeTom.equals(gammelPeriodeTom)) {
-                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.PERIODE_TOM, gammelPeriodeTom, nyPeriodeTom);
+            var tomDatoEndring = aktivitetEndring.getTomDatoEndring();
+            var nyPeriodeTom = tomDatoEndring.getTilVerdi();
+            if (tomDatoEndring.erEndret()) {
+                var gammelPeriodeTom = tomDatoEndring.getFraVerdi();
+                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.PERIODE_TOM,
+                    gammelPeriodeTom.orElse(null), nyPeriodeTom);
                 tekstBuilder.medTema(HistorikkEndretFeltType.AKTIVITET, aktivitetnavn);
             }
         }

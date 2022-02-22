@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class BeregningsgrunnlagPrStatusOgAndelEndring {
 
+    private Long andelsnr;
     private BeløpEndring beløpEndring;
     private InntektskategoriEndring inntektskategoriEndring;
     private AktivitetStatus aktivitetStatus;
@@ -18,26 +19,31 @@ public class BeregningsgrunnlagPrStatusOgAndelEndring {
     private InternArbeidsforholdRef arbeidsforholdRef;
     private RefusjonEndring refusjonEndring;
 
-    public BeregningsgrunnlagPrStatusOgAndelEndring(AktivitetStatus aktivitetStatus) {
+    public BeregningsgrunnlagPrStatusOgAndelEndring(Long andelsnr, AktivitetStatus aktivitetStatus) {
+        this.andelsnr = andelsnr;
         this.aktivitetStatus = aktivitetStatus;
     }
 
-    public BeregningsgrunnlagPrStatusOgAndelEndring(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
+    public BeregningsgrunnlagPrStatusOgAndelEndring(Long andelsnr, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
+        this.andelsnr = andelsnr;
         this.arbeidsgiver = arbeidsgiver;
         this.arbeidsforholdRef = arbeidsforholdRef;
     }
 
-    private BeregningsgrunnlagPrStatusOgAndelEndring(OpptjeningAktivitetType arbeidsforholdType) {
+    private BeregningsgrunnlagPrStatusOgAndelEndring(Long andelsnr, OpptjeningAktivitetType arbeidsforholdType) {
+        this.andelsnr = andelsnr;
         this.arbeidsforholdType = arbeidsforholdType;
     }
 
-    public BeregningsgrunnlagPrStatusOgAndelEndring(BeløpEndring beløpEndring,
+    public BeregningsgrunnlagPrStatusOgAndelEndring(Long andelsnr,
+                                                    BeløpEndring beløpEndring,
                                                     InntektskategoriEndring inntektskategoriEndring,
                                                     RefusjonEndring refusjonEndring,
                                                     AktivitetStatus aktivitetStatus,
                                                     OpptjeningAktivitetType arbeidsforholdType,
                                                     Arbeidsgiver arbeidsgiver,
                                                     InternArbeidsforholdRef arbeidsforholdRef) {
+        this.andelsnr = andelsnr;
         this.beløpEndring = beløpEndring;
         this.inntektskategoriEndring = inntektskategoriEndring;
         this.aktivitetStatus = aktivitetStatus;
@@ -75,10 +81,10 @@ public class BeregningsgrunnlagPrStatusOgAndelEndring {
         this.refusjonEndring = refusjonEndring;
     }
 
-    public static BeregningsgrunnlagPrStatusOgAndelEndring opprettForArbeidstakerUtenArbeidsgiver(OpptjeningAktivitetType arbeidsforholdType) {
-        return new BeregningsgrunnlagPrStatusOgAndelEndring(arbeidsforholdType);
+    public static BeregningsgrunnlagPrStatusOgAndelEndring opprettForArbeidstakerUtenArbeidsgiver(OpptjeningAktivitetType arbeidsforholdType,
+                                                                                                  Long andelsnr) {
+        return new BeregningsgrunnlagPrStatusOgAndelEndring(andelsnr, arbeidsforholdType);
     }
-
 
 
     public Optional<BeløpEndring> getInntektEndring() {
@@ -109,5 +115,7 @@ public class BeregningsgrunnlagPrStatusOgAndelEndring {
         return arbeidsforholdRef;
     }
 
-
+    public Long getAndelsnr() {
+        return andelsnr;
+    }
 }

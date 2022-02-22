@@ -2,14 +2,15 @@ package no.nav.foreldrepenger.domene.oppdateringresultat;
 
 import java.util.List;
 
-import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class BeregningsgrunnlagPeriodeEndring {
 
     private final List<BeregningsgrunnlagPrStatusOgAndelEndring> beregningsgrunnlagPrStatusOgAndelEndringer;
-    private final Periode periode;
+    private final DatoIntervallEntitet periode;
 
-    public BeregningsgrunnlagPeriodeEndring(List<BeregningsgrunnlagPrStatusOgAndelEndring> beregningsgrunnlagPrStatusOgAndelEndringer, Periode periode) {
+    public BeregningsgrunnlagPeriodeEndring(List<BeregningsgrunnlagPrStatusOgAndelEndring> beregningsgrunnlagPrStatusOgAndelEndringer,
+                                            DatoIntervallEntitet periode) {
         this.beregningsgrunnlagPrStatusOgAndelEndringer = beregningsgrunnlagPrStatusOgAndelEndringer;
         this.periode = periode;
     }
@@ -18,7 +19,7 @@ public class BeregningsgrunnlagPeriodeEndring {
         return beregningsgrunnlagPrStatusOgAndelEndringer;
     }
 
-    public Periode getPeriode() {
+    public DatoIntervallEntitet getPeriode() {
         return periode;
     }
 }

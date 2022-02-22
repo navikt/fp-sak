@@ -1,16 +1,13 @@
 package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.domene.oppdateringresultat.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
 import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
 import no.nav.foreldrepenger.domene.rest.historikk.InntektHistorikkTjeneste;
 import no.nav.foreldrepenger.domene.rest.historikk.MapTilLønnsendring;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
@@ -30,10 +27,13 @@ public class FastsettInntektATUtenIMHistorikkTjeneste extends FaktaOmBeregningHi
     }
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public void lagHistorikk(Long behandlingId,
+                             OppdaterBeregningsgrunnlagResultat oppdaterResultat,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder, InntektArbeidYtelseGrunnlag iayGrunnlag) {
         inntektHistorikkTjeneste.lagHistorikk(
             tekstBuilder,
-            MapTilLønnsendring.mapLønnsendringFraATUtenInntektsmelding(dto, nyttBeregningsgrunnlag, forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)),
+            MapTilLønnsendring.mapLønnsendringFraATUtenInntektsmelding(oppdaterResultat, dto),
             iayGrunnlag);
     }
 

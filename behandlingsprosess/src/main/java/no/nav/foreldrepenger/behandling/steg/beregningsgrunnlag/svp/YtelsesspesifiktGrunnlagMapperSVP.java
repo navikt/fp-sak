@@ -7,9 +7,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver;
+import no.nav.folketrygdloven.kalkulus.beregning.v1.AktivitetDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.PeriodeMedUtbetalingsgradDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.SvangerskapspengerGrunnlag;
-import no.nav.folketrygdloven.kalkulus.beregning.v1.UtbetalingsgradArbeidsforholdDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.UtbetalingsgradPrAktivitetDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.YtelsespesifiktGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Aktør;
@@ -64,8 +64,8 @@ class YtelsesspesifiktGrunnlagMapperSVP implements YtelsesspesifiktGrunnlagMappe
         return new PeriodeMedUtbetalingsgradDto(new Periode(p.getPeriode().getFomDato(), p.getPeriode().getTomDato()), p.getUtbetalingsgrad());
     }
 
-    private UtbetalingsgradArbeidsforholdDto mapAktivitet(no.nav.folketrygdloven.kalkulator.modell.svp.UtbetalingsgradArbeidsforholdDto aktivitet) {
-        return new UtbetalingsgradArbeidsforholdDto(mapArbeidsgiver(aktivitet.getArbeidsgiver()),
+    private AktivitetDto mapAktivitet(no.nav.folketrygdloven.kalkulator.modell.svp.AktivitetDto aktivitet) {
+        return new AktivitetDto(mapArbeidsgiver(aktivitet.getArbeidsgiver()),
             aktivitet.getInternArbeidsforholdRef() != null ? new InternArbeidsforholdRefDto(
                 aktivitet.getInternArbeidsforholdRef().getReferanse()) : null, new UttakArbeidType(aktivitet.getUttakArbeidType().getKode()));
     }

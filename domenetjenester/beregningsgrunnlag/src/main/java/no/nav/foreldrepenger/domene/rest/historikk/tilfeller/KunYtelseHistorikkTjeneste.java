@@ -1,26 +1,25 @@
 package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAndeltype;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.oppdateringresultat.BeløpEndring;
+import no.nav.foreldrepenger.domene.oppdateringresultat.BeregningsgrunnlagPrStatusOgAndelEndring;
+import no.nav.foreldrepenger.domene.oppdateringresultat.InntektskategoriEndring;
+import no.nav.foreldrepenger.domene.oppdateringresultat.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
 import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsattBrukersAndel;
 import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAndeltype;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.entiteter.Inntektskategori;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
@@ -40,101 +39,76 @@ public class KunYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjenest
     }
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto,
-                             HistorikkInnslagTekstBuilder tekstBuilder,
-                             BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
-                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
-                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public void lagHistorikk(Long behandlingId,
+                             OppdaterBeregningsgrunnlagResultat oppdaterResultat,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder, InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var kunYtelseDto = dto.getKunYtelseFordeling();
-        var periode = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0);
-        var forrigePeriode = forrigeGrunnlag
-            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
-            .map(bg -> bg.getBeregningsgrunnlagPerioder().get(0));
         var arbeidsforholdOverstyringer = iayGrunnlag.getArbeidsforholdOverstyringer();
         var andeler = kunYtelseDto.getAndeler();
         for (var andel : andeler) {
             if (andel.getNyAndel()) {
                 leggTilHistorikkinnslagForNyAndel(andel, tekstBuilder);
             } else {
-                var korrektAndel = getKorrektAndel(andel, periode, forrigePeriode);
-                leggTilHistorikkinnslag(andel, korrektAndel, tekstBuilder, forrigePeriode, arbeidsforholdOverstyringer);
+                var endring = oppdaterResultat.getBeregningsgrunnlagEndring()
+                    .stream()
+                    .flatMap(beregningsgrunnlagEndring -> beregningsgrunnlagEndring.getAndelerFørstePeriode().stream())
+                    .filter(a -> a.getAndelsnr().equals(andel.getAndelsnr()))
+                    .findFirst();
+                endring.ifPresent(e -> leggTilHistorikkinnslag(e, tekstBuilder, arbeidsforholdOverstyringer));
             }
         }
     }
 
-    private void leggTilHistorikkinnslag(FastsattBrukersAndel andel,
-                                         BeregningsgrunnlagPrStatusOgAndel korrektAndel,
+    private void leggTilHistorikkinnslag(BeregningsgrunnlagPrStatusOgAndelEndring e,
                                          HistorikkInnslagTekstBuilder tekstBuilder,
-                                         Optional<BeregningsgrunnlagPeriode> forrigePeriode,
                                          List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
-        Integer fastsattÅrsbeløp = andel.getFastsattBeløp() * MND_I_1_ÅR;
-        var andelsInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
-            korrektAndel.getAktivitetStatus(),
-            korrektAndel.getArbeidsgiver(),
-            korrektAndel.getArbeidsforholdRef(),
-            arbeidsforholdOverstyringer);
-        if (forrigePeriode.isPresent()) {
-            var andelIForrige = finnAndelFraPeriode(forrigePeriode.get(), andel);
-            var forrigeInntektskategori = andelIForrige.getInntektskategori();
-            var forrigeBeløp = andelIForrige.getBeregnetPrÅr() == null ? null : andelIForrige.getBeregnetPrÅr().intValue();
-            if (forrigeBeløp != null && !forrigeBeløp.equals(fastsattÅrsbeløp)) {
-                lagHistorikkinnslagdelForFordeling(andelsInfo, forrigeInntektskategori, andel.getFastsattBeløp(), andelIForrige.getBeregnetPrÅr().divide(BigDecimal.valueOf(MND_I_1_ÅR), RoundingMode.HALF_UP).intValue(),
-                    tekstBuilder);
-            }
-            if (forrigeInntektskategori != null && !forrigeInntektskategori.equals(andel.getInntektskategori())) {
-                lagHistorikkinnslagdelForInntektskategori(andelsInfo, andel.getInntektskategori(), forrigeInntektskategori, tekstBuilder);
-            }
-        } else {
-            var forrigeBeløp = korrektAndel.getBeregnetPrÅr() == null ? null : korrektAndel.getBeregnetPrÅr().divide(BigDecimal.valueOf(MND_I_1_ÅR), RoundingMode.HALF_UP).intValue();
-            lagHistorikkinnslagdelForFordeling(andelsInfo, andel.getInntektskategori(), andel.getFastsattBeløp(), forrigeBeløp, tekstBuilder);
-            lagHistorikkinnslagdelForInntektskategori(andelsInfo, andel.getInntektskategori(), null, tekstBuilder);
+        var andelsInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(e.getAktivitetStatus(),
+            e.getArbeidsgiver(), Optional.ofNullable(e.getArbeidsforholdRef()), arbeidsforholdOverstyringer);
+        var forrigeInntektskategori = e.getInntektskategoriEndring().map(InntektskategoriEndring::getFraVerdi).orElse(null);
+        if (e.getInntektEndring().map(BeløpEndring::erEndret).orElse(false)) {
+            lagHistorikkinnslagdelForFordeling(andelsInfo, forrigeInntektskategori,
+                e.getInntektEndring().map(BeløpEndring::getTilMånedsbeløp).map(BigDecimal::intValue).orElse(null),
+                e.getInntektEndring().map(BeløpEndring::getFraMånedsbeløp).map(BigDecimal::intValue).orElse(null), tekstBuilder);
+        }
+        if (e.getInntektskategoriEndring().map(InntektskategoriEndring::erEndret).orElse(false)) {
+            lagHistorikkinnslagdelForInntektskategori(andelsInfo,
+                e.getInntektskategoriEndring().map(InntektskategoriEndring::getTilVerdi).orElse(null), forrigeInntektskategori, tekstBuilder);
         }
     }
 
-    private void lagHistorikkinnslagdelForInntektskategori(String andelsInfo, Inntektskategori inntektskategori, Inntektskategori forrigeInntektskategori,
+    private void lagHistorikkinnslagdelForInntektskategori(String andelsInfo,
+                                                           Inntektskategori inntektskategori,
+                                                           Inntektskategori forrigeInntektskategori,
                                                            HistorikkInnslagTekstBuilder tekstBuilder) {
         if (inntektskategori != null && !inntektskategori.equals(forrigeInntektskategori)) {
-            tekstBuilder
-                .medEndretFelt(HistorikkEndretFeltType.INNTEKTSKATEGORI_FOR_ANDEL, andelsInfo, forrigeInntektskategori, inntektskategori);
+            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.INNTEKTSKATEGORI_FOR_ANDEL, andelsInfo, forrigeInntektskategori, inntektskategori);
         }
     }
 
-    private void lagHistorikkinnslagdelForFordeling(String andel, Inntektskategori inntektskategori, Integer fastsattBeløp,
-                                                    Integer forrigeBeløp, HistorikkInnslagTekstBuilder tekstBuilder) {
+    private void lagHistorikkinnslagdelForFordeling(String andel,
+                                                    Inntektskategori inntektskategori,
+                                                    Integer fastsattBeløp,
+                                                    Integer forrigeBeløp,
+                                                    HistorikkInnslagTekstBuilder tekstBuilder) {
         var fastsattÅrsbeløp = fastsattBeløp == null ? null : fastsattBeløp * MND_I_1_ÅR;
-        if (fastsattÅrsbeløp != null && !fastsattÅrsbeløp.equals(forrigeBeløp)){
-            tekstBuilder
-                .medTema(HistorikkEndretFeltType.FORDELING_FOR_ANDEL, andel)
+        if (fastsattÅrsbeløp != null && !fastsattÅrsbeløp.equals(forrigeBeløp)) {
+            tekstBuilder.medTema(HistorikkEndretFeltType.FORDELING_FOR_ANDEL, andel)
                 .medEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL, inntektskategori.getNavn(), forrigeBeløp, fastsattBeløp);
         }
     }
 
     private void leggTilHistorikkinnslagForNyAndel(FastsattBrukersAndel andel, HistorikkInnslagTekstBuilder tekstBuilder) {
-        lagHistorikkinnslagdelForNyAndel(BeregningsgrunnlagAndeltype.BRUKERS_ANDEL.getNavn(), andel.getInntektskategori().getNavn(), andel.getFastsattBeløp(), tekstBuilder);
+        lagHistorikkinnslagdelForNyAndel(BeregningsgrunnlagAndeltype.BRUKERS_ANDEL.getNavn(), andel.getInntektskategori().getNavn(),
+            andel.getFastsattBeløp(), tekstBuilder);
     }
 
-    private void lagHistorikkinnslagdelForNyAndel(String andel, String inntektskategori, Integer fastsattBeløp, HistorikkInnslagTekstBuilder tekstBuilder) {
-        tekstBuilder
-            .medTema(HistorikkEndretFeltType.FORDELING_FOR_NY_ANDEL, andel)
+    private void lagHistorikkinnslagdelForNyAndel(String andel,
+                                                  String inntektskategori,
+                                                  Integer fastsattBeløp,
+                                                  HistorikkInnslagTekstBuilder tekstBuilder) {
+        tekstBuilder.medTema(HistorikkEndretFeltType.FORDELING_FOR_NY_ANDEL, andel)
             .medEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_NY_ANDEL, inntektskategori, null, fastsattBeløp);
-    }
-
-    private BeregningsgrunnlagPrStatusOgAndel getKorrektAndel(FastsattBrukersAndel andel, BeregningsgrunnlagPeriode periode, Optional<BeregningsgrunnlagPeriode> forrigePeriodeOpt) {
-        if (andel.getLagtTilAvSaksbehandler() && !andel.getNyAndel()) {
-            var forrigePeriode = forrigePeriodeOpt
-                .orElseThrow(() -> new IllegalStateException("Skal ha bereninsgrunnlag fra KOFAKBER_UT om man har lagt til en andel tidligere"));
-            return finnAndelFraPeriode(forrigePeriode, andel);
-        }
-        return finnAndelFraPeriode(periode, andel);
-    }
-
-    private BeregningsgrunnlagPrStatusOgAndel finnAndelFraPeriode(BeregningsgrunnlagPeriode periode, FastsattBrukersAndel andel) {
-        return periode
-            .getBeregningsgrunnlagPrStatusOgAndelList()
-            .stream()
-            .filter(a -> a.getAndelsnr().equals(andel.getAndelsnr()))
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException("Fant ikke andel med andelsnr " + andel.getAndelsnr()));
     }
 
 }

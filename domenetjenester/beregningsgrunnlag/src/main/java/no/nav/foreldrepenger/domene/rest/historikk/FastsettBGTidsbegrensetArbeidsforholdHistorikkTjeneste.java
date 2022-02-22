@@ -16,12 +16,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
-import no.nav.foreldrepenger.domene.entiteter.AktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.oppdateringresultat.BeløpEndring;
+import no.nav.foreldrepenger.domene.oppdateringresultat.BeregningsgrunnlagEndring;
+import no.nav.foreldrepenger.domene.oppdateringresultat.BeregningsgrunnlagPeriodeEndring;
+import no.nav.foreldrepenger.domene.oppdateringresultat.BeregningsgrunnlagPrStatusOgAndelEndring;
 import no.nav.foreldrepenger.domene.rest.dto.FastsatteAndelerTidsbegrensetDto;
-import no.nav.foreldrepenger.domene.rest.dto.FastsattePerioderTidsbegrensetDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBGTidsbegrensetArbeidsforholdDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
@@ -46,72 +45,53 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
     }
 
     public void lagHistorikk(AksjonspunktOppdaterParameter param,
-                             BeregningsgrunnlagEntitet aktivtGrunnlag,
-                             Optional<BeregningsgrunnlagEntitet> gammeltGrunnlag,
+                             BeregningsgrunnlagEndring beregningsgrunnlagEndring,
                              FastsettBGTidsbegrensetArbeidsforholdDto dto) {
         Map<String, List<Integer>> arbeidsforholdInntekterMap = new HashMap<>();
 
-        var perioder = aktivtGrunnlag.getBeregningsgrunnlagPerioder();
+
+        var perioder = beregningsgrunnlagEndring.getBeregningsgrunnlagPeriodeEndringer();
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(param.getBehandlingId());
         var overstyringer = iayGrunnlag.getArbeidsforholdOverstyringer();
         for (var periode : dto.getFastsatteTidsbegrensedePerioder()) {
-            var bgPerioderSomSkalFastsettesAvDennePerioden = perioder.stream()
-                .filter(p -> !p.getBeregningsgrunnlagPeriodeFom().isBefore(periode.getPeriodeFom()))
-                .collect(Collectors.toList());
+            var bgPeriodeSomSkalFastsettesAvDennePerioden = perioder.stream()
+                .filter(p -> p.getPeriode().getFomDato().equals(periode.getPeriodeFom()))
+                .findFirst()
+                .orElseThrow();
             var fastatteAndeler = periode.getFastsatteTidsbegrensedeAndeler();
-            fastatteAndeler.forEach(andel -> lagHistorikkForAndelIPeriode(arbeidsforholdInntekterMap, periode,
-                bgPerioderSomSkalFastsettesAvDennePerioden, andel, overstyringer));
+            fastatteAndeler.forEach(
+                andel -> lagHistorikkForAndelIPeriode(arbeidsforholdInntekterMap, bgPeriodeSomSkalFastsettesAvDennePerioden, andel, overstyringer));
         }
-        var forrigeOverstyrtFrilansinntekt = gammeltGrunnlag.flatMap(bg -> finnFrilansAndel(hentFørstePeriode(bg)))
-            .map(BeregningsgrunnlagPrStatusOgAndel::getOverstyrtPrÅr)
+        var forrigeOverstyrtFrilansinntekt = perioder.get(0)
+            .getBeregningsgrunnlagPrStatusOgAndelEndringer()
+            .stream()
+            .filter(a -> a.getAktivitetStatus().erFrilanser())
+            .findFirst()
+            .flatMap(BeregningsgrunnlagPrStatusOgAndelEndring::getInntektEndring)
+            .flatMap(BeløpEndring::getFraBeløp)
             .orElse(null);
 
         lagHistorikkInnslag(dto, param, arbeidsforholdInntekterMap, forrigeOverstyrtFrilansinntekt);
     }
 
-    private BeregningsgrunnlagPeriode hentFørstePeriode(BeregningsgrunnlagEntitet bg) {
-        return bg.getBeregningsgrunnlagPerioder().get(0);
-    }
-
-
-    private Optional<BeregningsgrunnlagPrStatusOgAndel> finnFrilansAndel(BeregningsgrunnlagPeriode periode) {
-        return periode.getBeregningsgrunnlagPrStatusOgAndelList()
-            .stream()
-            .filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.FRILANSER))
-            .findFirst();
-    }
-
     private void lagHistorikkForAndelIPeriode(Map<String, List<Integer>> arbeidsforholdInntekterMap,
-                                              FastsattePerioderTidsbegrensetDto periode,
-                                              List<BeregningsgrunnlagPeriode> bgPerioderSomSkalFastsettesAvDennePerioden,
+                                              BeregningsgrunnlagPeriodeEndring periodeEndring,
                                               FastsatteAndelerTidsbegrensetDto andel,
                                               List<ArbeidsforholdOverstyring> overstyringer) {
-        bgPerioderSomSkalFastsettesAvDennePerioden.forEach(p -> {
-            var korrektAndel = p.getBeregningsgrunnlagPrStatusOgAndelList()
-                .stream()
-                .filter(a -> a.getAndelsnr().equals(andel.getAndelsnr()))
-                .findFirst();
-            if (korrektAndel.isPresent() && skalLageHistorikkinnslag(korrektAndel.get(), periode)) {
-                mapArbeidsforholdInntekter(andel, arbeidsforholdInntekterMap, korrektAndel.get(), overstyringer);
-            }
-        });
-    }
-
-    private boolean skalLageHistorikkinnslag(BeregningsgrunnlagPrStatusOgAndel korrektAndel,
-                                             FastsattePerioderTidsbegrensetDto fastsattArbeidsforhold) {
-        // Lager kun historikkinnslag dersom perioden ble eksplisitt fastsatt av saksbehandler.
-        // Perioder som "arver" verdier fra foregående periode får ikke historikkinnslag
-        var bgPeriode = korrektAndel.getBeregningsgrunnlagPeriode();
-        return bgPeriode.getBeregningsgrunnlagPeriodeFom().equals(fastsattArbeidsforhold.getPeriodeFom());
+        var andelEndring = periodeEndring.getBeregningsgrunnlagPrStatusOgAndelEndringer()
+            .stream()
+            .filter(a -> a.getAndelsnr().equals(andel.getAndelsnr()))
+            .findFirst();
+        andelEndring.ifPresent(beregningsgrunnlagPrStatusOgAndelEndring -> mapArbeidsforholdInntekter(andel, arbeidsforholdInntekterMap,
+            beregningsgrunnlagPrStatusOgAndelEndring, overstyringer));
     }
 
     private void mapArbeidsforholdInntekter(FastsatteAndelerTidsbegrensetDto arbeidsforhold,
                                             Map<String, List<Integer>> tilHistorikkInnslag,
-                                            BeregningsgrunnlagPrStatusOgAndel korrektAndel,
+                                            BeregningsgrunnlagPrStatusOgAndelEndring andelEndring,
                                             List<ArbeidsforholdOverstyring> overstyringer) {
-        var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
-            korrektAndel.getAktivitetStatus(), korrektAndel.getArbeidsgiver(), korrektAndel.getArbeidsforholdRef(),
-            overstyringer);
+        var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(andelEndring.getAktivitetStatus(),
+            andelEndring.getArbeidsgiver(), Optional.ofNullable(andelEndring.getArbeidsforholdRef()), overstyringer);
         if (tilHistorikkInnslag.containsKey(arbeidsforholdInfo)) {
             var inntekter = tilHistorikkInnslag.get(arbeidsforholdInfo);
             inntekter.add(arbeidsforhold.getBruttoFastsattInntekt());
@@ -135,13 +115,11 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
             .medSkjermlenke(SkjermlenkeType.BEREGNING_FORELDREPENGER);
     }
 
-    private void oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType,
-                                        Map<String, List<Integer>> tilHistorikkInnslag) {
+    private void oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType, Map<String, List<Integer>> tilHistorikkInnslag) {
         for (var entry : tilHistorikkInnslag.entrySet()) {
             var arbeidsforholdInfo = entry.getKey();
             var inntekter = entry.getValue();
-            historikkAdapter.tekstBuilder()
-                .medEndretFelt(historikkEndretFeltType, arbeidsforholdInfo, null, formaterInntekter(inntekter));
+            historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, arbeidsforholdInfo, null, formaterInntekter(inntekter));
         }
     }
 
@@ -149,8 +127,7 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
                                                       BigDecimal forrigeFrilansInntekt,
                                                       FastsettBGTidsbegrensetArbeidsforholdDto dto) {
         if (forrigeFrilansInntekt != null && dto.getFrilansInntekt() != null) {
-            historikkAdapter.tekstBuilder()
-                .medEndretFelt(historikkEndretFeltType, forrigeFrilansInntekt, dto.getFrilansInntekt());
+            historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, forrigeFrilansInntekt, dto.getFrilansInntekt());
         } else if (dto.getFrilansInntekt() != null) {
             historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, null, dto.getFrilansInntekt());
         }

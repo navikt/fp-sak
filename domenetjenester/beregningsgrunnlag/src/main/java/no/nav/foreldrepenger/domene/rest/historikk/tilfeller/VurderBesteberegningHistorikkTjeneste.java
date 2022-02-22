@@ -1,15 +1,12 @@
 package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.oppdateringresultat.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
 import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 
@@ -18,24 +15,18 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 public class VurderBesteberegningHistorikkTjeneste extends FaktaOmBeregningHistorikkTjeneste {
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
-                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        lagBesteberegningHistorikk(
-            dto,
-            tekstBuilder,
-            forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
+    public void lagHistorikk(Long behandlingId,
+                             OppdaterBeregningsgrunnlagResultat oppdaterResultat,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder,
+                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        // TODO: Inkluder valg om besteberegning i endringresultat for å finne riktig fra-verdi
+        lagBesteberegningHistorikk(dto, tekstBuilder);
     }
 
-    private void lagBesteberegningHistorikk(FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, Optional<BeregningsgrunnlagEntitet> forrigeBg) {
-        var forrigeVerdi = forrigeBg
-            .map(beregningsgrunnlag -> beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
-                .flatMap(periode -> periode.getBeregningsgrunnlagPrStatusOgAndelList().stream())
-                .anyMatch(andel -> andel.getBesteberegningPrÅr() != null));
+    private void lagBesteberegningHistorikk(FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder) {
         var tilVerdi = finnTilVerdi(dto);
-        if (forrigeVerdi.isEmpty() || !forrigeVerdi.get().equals(tilVerdi)) {
-            tekstBuilder
-                .medEndretFelt(HistorikkEndretFeltType.FORDELING_ETTER_BESTEBEREGNING, forrigeVerdi.orElse(null), tilVerdi);
-        }
+        tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FORDELING_ETTER_BESTEBEREGNING, null, tilVerdi);
     }
 
     private boolean finnTilVerdi(FaktaBeregningLagreDto dto) {

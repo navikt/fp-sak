@@ -5,16 +5,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
-import no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FaktaOmBeregningHåndteringDto;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.FaktaAggregat;
 import no.nav.foreldrepenger.domene.oppdateringresultat.FaktaOmBeregningVurderinger;
 import no.nav.foreldrepenger.domene.oppdateringresultat.RefusjonskravGyldighetEndring;
 import no.nav.foreldrepenger.domene.oppdateringresultat.ToggleEndring;
+import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
 import no.nav.foreldrepenger.domene.rest.dto.RefusjonskravPrArbeidsgiverVurderingDto;
-import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class UtledFaktaOmBeregningVurderinger {
@@ -23,29 +21,30 @@ public class UtledFaktaOmBeregningVurderinger {
         // Skjul
     }
 
-    public static FaktaOmBeregningVurderinger utled(VurderFaktaOmBeregningDto dto,
-                                                    BeregningsgrunnlagGrunnlagEntitet grunnlag,
-                                                    Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag) {
+    public static FaktaOmBeregningVurderinger utled(Optional<FaktaAggregat> fakta,
+                                                    Optional<FaktaAggregat> forrigeFakta,
+                                                    FaktaBeregningLagreDto faktaLagreDto) {
         FaktaOmBeregningVurderinger faktaOmBeregningVurderinger = new FaktaOmBeregningVurderinger();
-        faktaOmBeregningVurderinger.setHarEtterlønnSluttpakkeEndring(utledVurderEtterlønnSluttpakkeEndring(dto));
-        faktaOmBeregningVurderinger.setHarLønnsendringIBeregningsperiodenEndring(utledVurderLønnsendringEndring(dto));
-        faktaOmBeregningVurderinger.setHarMilitærSiviltjenesteEndring(utledVurderMilitærEllerSiviltjenesteEndring(dto));
-        faktaOmBeregningVurderinger.setErSelvstendingNyIArbeidslivetEndring(utledErSelvstendigNyIArbeidslivetEndring(dto));
-        faktaOmBeregningVurderinger.setErNyoppstartetFLEndring(utledErNyoppstartetFLEndring(dto));
-        faktaOmBeregningVurderinger.setVurderRefusjonskravGyldighetEndringer(utledUtvidRefusjonskravGyldighetEndringer(dto));
-        faktaOmBeregningVurderinger.setErMottattYtelseEndringer(UtledErMottattYtelseEndringer.utled(grunnlag, forrigeGrunnlag));
-        faktaOmBeregningVurderinger.setErTidsbegrensetArbeidsforholdEndringer(UtledErTidsbegrensetArbeidsforholdEndringer.utled(grunnlag, forrigeGrunnlag));
+        faktaOmBeregningVurderinger.setHarEtterlønnSluttpakkeEndring(utledVurderEtterlønnSluttpakkeEndring(faktaLagreDto));
+        faktaOmBeregningVurderinger.setHarLønnsendringIBeregningsperiodenEndring(utledVurderLønnsendringEndring(faktaLagreDto));
+        faktaOmBeregningVurderinger.setHarMilitærSiviltjenesteEndring(utledVurderMilitærEllerSiviltjenesteEndring(faktaLagreDto));
+        faktaOmBeregningVurderinger.setErSelvstendingNyIArbeidslivetEndring(utledErSelvstendigNyIArbeidslivetEndring(faktaLagreDto));
+        faktaOmBeregningVurderinger.setErNyoppstartetFLEndring(utledErNyoppstartetFLEndring(faktaLagreDto));
+        faktaOmBeregningVurderinger.setVurderRefusjonskravGyldighetEndringer(utledUtvidRefusjonskravGyldighetEndringer(faktaLagreDto));
+        fakta.ifPresent(fa -> faktaOmBeregningVurderinger.setErMottattYtelseEndringer(UtledErMottattYtelseEndringer.utled(fa, forrigeFakta)));
+        fakta.ifPresent(fa -> faktaOmBeregningVurderinger.setErTidsbegrensetArbeidsforholdEndringer(UtledErTidsbegrensetArbeidsforholdEndringer.utled(fa, forrigeFakta)));
         if (harEndringer(faktaOmBeregningVurderinger)) {
             return faktaOmBeregningVurderinger;
         }
         return null;
     }
 
-    private static List<RefusjonskravGyldighetEndring> utledUtvidRefusjonskravGyldighetEndringer(VurderFaktaOmBeregningDto dto) {
-        if (dto.getFakta().getRefusjonskravGyldighet() == null) {
+    private static List<RefusjonskravGyldighetEndring> utledUtvidRefusjonskravGyldighetEndringer(FaktaBeregningLagreDto fakta) {
+        if (fakta.getRefusjonskravGyldighet() == null) {
             return Collections.emptyList();
         }
-        return dto.getFakta().getRefusjonskravGyldighet().stream().map(UtledFaktaOmBeregningVurderinger::utledRefusjonskravGyldighetEndring)
+        return fakta.getRefusjonskravGyldighet().stream()
+            .map(UtledFaktaOmBeregningVurderinger::utledRefusjonskravGyldighetEndring)
                 .collect(Collectors.toList());
     }
 
@@ -55,45 +54,47 @@ public class UtledFaktaOmBeregningVurderinger {
     }
 
     private static boolean harEndringer(FaktaOmBeregningVurderinger faktaOmBeregningVurderinger) {
-        return faktaOmBeregningVurderinger.getErNyoppstartetFLEndring().isPresent() || faktaOmBeregningVurderinger.getErSelvstendingNyIArbeidslivetEndring()
-            .isPresent() || faktaOmBeregningVurderinger.getHarEtterlønnSluttpakkeEndring().isPresent() || faktaOmBeregningVurderinger.getHarLønnsendringIBeregningsperiodenEndring()
-            .isPresent() || faktaOmBeregningVurderinger.getHarMilitærSiviltjenesteEndring().isPresent() ||
+        return faktaOmBeregningVurderinger.getErNyoppstartetFLEndring() != null ||
+                faktaOmBeregningVurderinger.getErSelvstendingNyIArbeidslivetEndring() != null ||
+                faktaOmBeregningVurderinger.getHarEtterlønnSluttpakkeEndring() != null ||
+                faktaOmBeregningVurderinger.getHarLønnsendringIBeregningsperiodenEndring() != null ||
+                faktaOmBeregningVurderinger.getHarMilitærSiviltjenesteEndring() != null ||
                 !faktaOmBeregningVurderinger.getErMottattYtelseEndringer().isEmpty() ||
                 !faktaOmBeregningVurderinger.getVurderRefusjonskravGyldighetEndringer().isEmpty() ||
                 !faktaOmBeregningVurderinger.getErTidsbegrensetArbeidsforholdEndringer().isEmpty();
     }
 
-    private static ToggleEndring utledErNyoppstartetFLEndring(VurderFaktaOmBeregningDto dto) {
-        if (dto.getFakta().getVurderNyoppstartetFL() != null) {
-            return new ToggleEndring(null, dto.getFakta().getVurderNyoppstartetFL().erErNyoppstartetFL());
+    private static ToggleEndring utledErNyoppstartetFLEndring(FaktaBeregningLagreDto fakta) {
+        if (fakta.getVurderNyoppstartetFL() != null) {
+            return new ToggleEndring(null, fakta.getVurderNyoppstartetFL().erErNyoppstartetFL());
         }
         return null;
     }
 
-    private static ToggleEndring utledVurderEtterlønnSluttpakkeEndring(VurderFaktaOmBeregningDto dto) {
-        if (dto.getFakta().getVurderEtterlønnSluttpakke() != null) {
-            return new ToggleEndring(null, dto.getFakta().getVurderEtterlønnSluttpakke().erEtterlønnSluttpakke());
+    private static ToggleEndring utledVurderEtterlønnSluttpakkeEndring(FaktaBeregningLagreDto fakta) {
+        if (fakta.getVurderEtterlønnSluttpakke() != null) {
+            return new ToggleEndring(null, fakta.getVurderEtterlønnSluttpakke().erEtterlønnSluttpakke());
         }
         return null;
     }
 
-    private static ToggleEndring utledVurderLønnsendringEndring(VurderFaktaOmBeregningDto dto) {
-        if (dto.getFakta().getVurdertLonnsendring() != null) {
-            return new ToggleEndring(null, dto.getFakta().getVurdertLonnsendring().erLønnsendringIBeregningsperioden());
+    private static ToggleEndring utledVurderLønnsendringEndring(FaktaBeregningLagreDto fakta) {
+        if (fakta.getVurdertLonnsendring() != null) {
+            return new ToggleEndring(null, fakta.getVurdertLonnsendring().erLønnsendringIBeregningsperioden());
         }
         return null;
     }
 
-    private static ToggleEndring utledVurderMilitærEllerSiviltjenesteEndring(VurderFaktaOmBeregningDto dto) {
-        if (dto.getFakta().getVurderMilitaer() != null) {
-            return new ToggleEndring(null, dto.getFakta().getVurderMilitaer().getHarMilitaer());
+    private static ToggleEndring utledVurderMilitærEllerSiviltjenesteEndring(FaktaBeregningLagreDto fakta) {
+        if (fakta.getVurderMilitaer() != null) {
+            return new ToggleEndring(null, fakta.getVurderMilitaer().getHarMilitaer());
         }
         return null;
     }
 
-    private static ToggleEndring utledErSelvstendigNyIArbeidslivetEndring(VurderFaktaOmBeregningDto dto) {
-        if (dto.getFakta().getVurderNyIArbeidslivet() != null) {
-            return new ToggleEndring(null, dto.getFakta().getVurderNyIArbeidslivet().erNyIArbeidslivet());
+    private static ToggleEndring utledErSelvstendigNyIArbeidslivetEndring(FaktaBeregningLagreDto fakta) {
+        if (fakta.getVurderNyIArbeidslivet() != null) {
+            return new ToggleEndring(null, fakta.getVurderNyIArbeidslivet().erNyIArbeidslivet());
         }
         return null;
     }

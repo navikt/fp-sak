@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -21,7 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagTilstand;
-import no.nav.foreldrepenger.domene.mappers.endringutleder.UtledEndring;
+import no.nav.foreldrepenger.domene.mappers.endringutleder_fra_entitet.UtledEndring;
+import no.nav.foreldrepenger.domene.mappers.endringutleder_fra_entitet.UtledEndringIAktiviteter;
 import no.nav.foreldrepenger.domene.mappers.fra_entitet_til_modell.FraEntitetTilBehandlingsmodellMapper;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OppdatererDtoMapper;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
@@ -32,6 +34,18 @@ import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjenest
 import no.nav.foreldrepenger.domene.rest.BeregningDtoTjeneste;
 import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
 import no.nav.foreldrepenger.domene.rest.dto.AvklarteAktiviteterDto;
+import no.nav.foreldrepenger.domene.rest.dto.FastsettBGTidsbegrensetArbeidsforholdDto;
+import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
+import no.nav.foreldrepenger.domene.rest.dto.FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto;
+import no.nav.foreldrepenger.domene.rest.dto.OverstyrBeregningsaktiviteterDto;
+import no.nav.foreldrepenger.domene.rest.dto.OverstyrBeregningsgrunnlagDto;
+import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
+import no.nav.foreldrepenger.domene.rest.dto.VurderRefusjonBeregningsgrunnlagDto;
+import no.nav.foreldrepenger.domene.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto;
+import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagDto;
+import no.nav.foreldrepenger.domene.rest.historikk.BeregningsaktivitetHistorikkTjeneste;
+import no.nav.foreldrepenger.domene.rest.historikk.FaktaBeregningHistorikkHåndterer;
+import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
@@ -46,6 +60,8 @@ public class BeregningFPSAK implements BeregningAPI {
     private BeregningDtoTjeneste beregningDtoTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private BeregningHåndterer beregningHåndterer;
+    private BeregningsaktivitetHistorikkTjeneste beregningsaktivitetHistorikkTjeneste;
+    private FaktaBeregningHistorikkHåndterer faktaBeregningHistorikkHåndterer;
 
     public BeregningFPSAK() {
     }
@@ -59,7 +75,9 @@ public class BeregningFPSAK implements BeregningAPI {
                           BeregningsgrunnlagInputProvider inputTjenesteProvider,
                           BeregningDtoTjeneste beregningDtoTjeneste,
                           InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                          BeregningHåndterer beregningHåndterer) {
+                          BeregningHåndterer beregningHåndterer,
+                          BeregningsaktivitetHistorikkTjeneste beregningsaktivitetHistorikkTjeneste,
+                          FaktaBeregningHistorikkHåndterer faktaBeregningHistorikkHåndterer) {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.hentBeregningsgrunnlagTjeneste = hentBeregningsgrunnlagTjeneste;
         this.beregningsgrunnlagVilkårTjeneste = beregningsgrunnlagVilkårTjeneste;
@@ -69,6 +87,8 @@ public class BeregningFPSAK implements BeregningAPI {
         this.behandlingRepository = behandlingRepository;
         this.beregningDtoTjeneste = beregningDtoTjeneste;
         this.beregningHåndterer = beregningHåndterer;
+        this.beregningsaktivitetHistorikkTjeneste = beregningsaktivitetHistorikkTjeneste;
+        this.faktaBeregningHistorikkHåndterer = faktaBeregningHistorikkHåndterer;
     }
 
 
@@ -86,17 +106,112 @@ public class BeregningFPSAK implements BeregningAPI {
     }
 
     @Override
+    public void overstyr(BehandlingReferanse behandlingReferanse, OverstyringAksjonspunktDto overstyringAksjonspunktDto) {
+        var tjeneste = beregningsgrunnlagInputProvider.getTjeneste(behandlingReferanse.getFagsakYtelseType());
+        var input = tjeneste.lagInput(behandlingReferanse.getBehandlingId());
+        if (overstyringAksjonspunktDto instanceof OverstyrBeregningsaktiviteterDto dto) {
+            beregningHåndterer.håndterBeregningAktivitetOverstyring(input,
+                OppdatererDtoMapper.mapOverstyrBeregningsaktiviteterDto(dto.getBeregningsaktivitetLagreDtoList()));
+        } else if (overstyringAksjonspunktDto instanceof OverstyrBeregningsgrunnlagDto dto) {
+            beregningHåndterer.håndterBeregningsgrunnlagOverstyring(input, OppdatererDtoMapper.mapOverstyrBeregningsgrunnlagDto(dto));
+        }
+    }
+
+    @Override
+    public void lagOverstyringHistorikk(BehandlingReferanse behandlingReferanse,
+                                        OverstyringAksjonspunktDto overstyringAksjonspunktDto,
+                                        HistorikkInnslagTekstBuilder tekstBuilder) {
+        var aktivtGrunnlag = hentBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId())
+            .orElseThrow();
+        if (overstyringAksjonspunktDto instanceof OverstyrBeregningsaktiviteterDto) {
+            var originalBehandlingId = behandlingReferanse.getOriginalBehandlingId();
+            var forrigeGrunnlag = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
+                behandlingReferanse.getBehandlingId(), originalBehandlingId, BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER);
+            var forrigeRegister = forrigeGrunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getRegisterAktiviteter);
+            var forrigeGjeldende = forrigeGrunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getGjeldendeAktiviteter);
+            var registerAktiviteter = aktivtGrunnlag.getRegisterAktiviteter();
+            var overstyrteAktiviteter = aktivtGrunnlag.getGjeldendeAktiviteter();
+            var beregningAktiviteterEndring = UtledEndringIAktiviteter.utedEndring(overstyringAksjonspunktDto, registerAktiviteter,
+                    overstyrteAktiviteter, forrigeRegister, forrigeGjeldende)
+                .orElseThrow(() -> new IllegalStateException("Forventer endringsresultat for overstyring"));
+            beregningsaktivitetHistorikkTjeneste.lagHistorikk(behandlingReferanse.getBehandlingId(), tekstBuilder, beregningAktiviteterEndring,
+                overstyringAksjonspunktDto.getBegrunnelse());
+        } else if (overstyringAksjonspunktDto instanceof OverstyrBeregningsgrunnlagDto dto) {
+            var forrigeGrunnlag = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
+                behandlingReferanse.getBehandlingId(), behandlingReferanse.getOriginalBehandlingId(), BeregningsgrunnlagTilstand.FORESLÅTT);
+            var grunnlagFraSteg = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
+                behandlingReferanse.getBehandlingId(), behandlingReferanse.getOriginalBehandlingId(),
+                BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER).orElseThrow();
+
+            var endringsresultat = UtledEndring.utled(aktivtGrunnlag, grunnlagFraSteg, forrigeGrunnlag, overstyringAksjonspunktDto,
+                inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId()));
+            faktaBeregningHistorikkHåndterer.lagHistorikkOverstyringInntekt(behandlingReferanse.getBehandlingId(), dto, endringsresultat,
+                tekstBuilder);
+        }
+    }
+
+    @Override
     public OppdaterBeregningsgrunnlagResultat oppdater(AksjonspunktOppdaterParameter param, BekreftetAksjonspunktDto bekreftAksjonspunktDto) {
         Optional<BeregningsgrunnlagGrunnlagEntitet> forrige;
         BeregningsgrunnlagGrunnlagEntitet stegGrunnlag;
+        var tjeneste = beregningsgrunnlagInputProvider.getTjeneste(param.getRef().getFagsakYtelseType());
+        var input = tjeneste.lagInput(param.getRef());
         if (bekreftAksjonspunktDto instanceof AvklarteAktiviteterDto dto) {
-            var tjeneste = beregningsgrunnlagInputProvider.getTjeneste(param.getRef().getFagsakYtelseType());
-            var inputUtenBeregningsgrunnlag = tjeneste.lagInput(param.getRef());
             forrige = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
                 BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
             stegGrunnlag = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
                 BeregningsgrunnlagTilstand.OPPRETTET).orElseThrow();
-            beregningHåndterer.håndterAvklarAktiviteter(inputUtenBeregningsgrunnlag, OppdatererDtoMapper.mapAvklarteAktiviteterDto(dto));
+            beregningHåndterer.håndterAvklarAktiviteter(input, OppdatererDtoMapper.mapAvklarteAktiviteterDto(dto));
+        } else if (bekreftAksjonspunktDto instanceof VurderFaktaOmBeregningDto dto) {
+            forrige = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
+                BeregningsgrunnlagTilstand.KOFAKBER_UT);
+            stegGrunnlag = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
+                BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER).orElseThrow();
+            beregningHåndterer.håndterVurderFaktaOmBeregning(input, OppdatererDtoMapper.mapTilFaktaOmBeregningLagreDto(dto.getFakta()));
+        } else if (bekreftAksjonspunktDto instanceof FastsettBGTidsbegrensetArbeidsforholdDto dto) {
+            forrige = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
+                BeregningsgrunnlagTilstand.FORESLÅTT_UT);
+            stegGrunnlag = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
+                BeregningsgrunnlagTilstand.FORESLÅTT).orElseThrow();
+            beregningHåndterer.håndterFastsettBGTidsbegrensetArbeidsforhold(input,
+                OppdatererDtoMapper.mapFastsettBGTidsbegrensetArbeidsforholdDto(dto));
+        } else if (bekreftAksjonspunktDto instanceof FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto dto) {
+            forrige = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
+                BeregningsgrunnlagTilstand.FORESLÅTT_UT);
+            stegGrunnlag = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
+                BeregningsgrunnlagTilstand.FORESLÅTT).orElseThrow();
+            beregningHåndterer.håndterFastsettBruttoForSNNyIArbeidslivet(input,
+                OppdatererDtoMapper.mapFastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto(dto));
+        } else if (bekreftAksjonspunktDto instanceof VurderVarigEndringEllerNyoppstartetSNDto dto) {
+            forrige = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
+                BeregningsgrunnlagTilstand.FORESLÅTT_UT);
+            stegGrunnlag = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
+                BeregningsgrunnlagTilstand.FORESLÅTT).orElseThrow();
+            beregningHåndterer.håndterVurderVarigEndretNyoppstartetSN(input, OppdatererDtoMapper.mapdVurderVarigEndringEllerNyoppstartetSNDto(dto));
+        } else if (bekreftAksjonspunktDto instanceof FastsettBeregningsgrunnlagATFLDto dto) {
+            forrige = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
+                BeregningsgrunnlagTilstand.FORESLÅTT_UT);
+            stegGrunnlag = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
+                BeregningsgrunnlagTilstand.FORESLÅTT).orElseThrow();
+            if (dto.tidsbegrensetInntektErFastsatt()) {
+                var tidsbegrensetDto = new FastsettBGTidsbegrensetArbeidsforholdDto(dto.getBegrunnelse(), dto.getFastsatteTidsbegrensedePerioder(),
+                    dto.getInntektFrilanser());
+                beregningHåndterer.håndterFastsettBGTidsbegrensetArbeidsforhold(input,
+                    OppdatererDtoMapper.mapFastsettBGTidsbegrensetArbeidsforholdDto(tidsbegrensetDto));
+            }
+            beregningHåndterer.håndterFastsettBeregningsgrunnlagATFL(input, OppdatererDtoMapper.mapFastsettBeregningsgrunnlagATFLDto(dto));
+        } else if (bekreftAksjonspunktDto instanceof VurderRefusjonBeregningsgrunnlagDto dto) {
+            forrige = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
+                BeregningsgrunnlagTilstand.VURDERT_REFUSJON_UT);
+            stegGrunnlag = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
+                BeregningsgrunnlagTilstand.VURDERT_REFUSJON).orElseThrow();
+            beregningHåndterer.håndterVurderRefusjonBeregningsgrunnlag(input, OppdatererDtoMapper.mapVurderRefusjonBeregningsgrunnlag(dto));
+        } else if (bekreftAksjonspunktDto instanceof FordelBeregningsgrunnlagDto dto) {
+            forrige = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
+                BeregningsgrunnlagTilstand.FASTSATT_INN);
+            stegGrunnlag = hentBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
+                BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING).orElseThrow();
+            beregningHåndterer.håndterFordelBeregningsgrunnlag(input, OppdatererDtoMapper.mapFordelBeregningsgrunnlagDto(dto));
         } else {
             throw new IllegalStateException("Ugyldig aksjonspunkt for beregning");
         }

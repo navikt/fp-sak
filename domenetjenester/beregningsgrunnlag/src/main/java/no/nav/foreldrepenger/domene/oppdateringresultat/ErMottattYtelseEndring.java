@@ -7,10 +7,10 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class ErMottattYtelseEndring {
 
-    private AktivitetStatus aktivitetStatus;
+    private final AktivitetStatus aktivitetStatus;
     private Arbeidsgiver arbeidsgiver;
     private InternArbeidsforholdRef arbeidsforholdRef;
-    private ToggleEndring erMottattYtelseEndring;
+    private final ToggleEndring erMottattYtelseEndring;
 
     public ErMottattYtelseEndring(AktivitetStatus aktivitetStatus,
                                   Arbeidsgiver arbeidsgiver,

@@ -2,11 +2,11 @@ package no.nav.foreldrepenger.domene.mappers.endringutleder;
 
 import java.util.Optional;
 
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.oppdateringresultat.ToggleEndring;
 import no.nav.foreldrepenger.domene.oppdateringresultat.VarigEndretNæringVurdering;
 
@@ -16,8 +16,8 @@ public class UtledVarigEndringEllerNyoppstartetSNVurderinger {
         // Skjul
     }
 
-    public static VarigEndretNæringVurdering utled(BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
-                                                   Optional<BeregningsgrunnlagEntitet> forrigeBeregningsgrunnlagOpt,
+    public static VarigEndretNæringVurdering utled(Beregningsgrunnlag nyttBeregningsgrunnlag,
+                                                   Optional<Beregningsgrunnlag> forrigeBeregningsgrunnlagOpt,
                                                    InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var bgPeriode = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0);
         var forrigePeriode = forrigeBeregningsgrunnlagOpt.map(bg -> bg.getBeregningsgrunnlagPerioder().get(0));

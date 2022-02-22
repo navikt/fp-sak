@@ -20,4 +20,8 @@ public class InntektskategoriEndring {
         return tilVerdi;
     }
 
+    public boolean erEndret() {
+        return tilVerdi != null && tilVerdi != fraVerdi;
+    }
+
 }

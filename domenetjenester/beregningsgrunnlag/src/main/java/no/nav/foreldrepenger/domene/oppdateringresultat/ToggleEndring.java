@@ -17,4 +17,9 @@ public class ToggleEndring {
     public Boolean getTilVerdi() {
         return tilVerdi;
     }
+
+    public boolean erEndring() {
+        return tilVerdi != null && (fraVerdi == null || tilVerdi.equals(fraVerdi));
+    }
+
 }

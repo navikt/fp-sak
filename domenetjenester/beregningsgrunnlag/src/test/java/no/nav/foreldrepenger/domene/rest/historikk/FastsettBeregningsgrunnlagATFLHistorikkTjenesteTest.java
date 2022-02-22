@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -31,14 +32,13 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
-import no.nav.foreldrepenger.domene.entiteter.AktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.entiteter.Inntektskategori;
+import no.nav.foreldrepenger.domene.oppdateringresultat.BeløpEndring;
+import no.nav.foreldrepenger.domene.oppdateringresultat.BeregningsgrunnlagEndring;
+import no.nav.foreldrepenger.domene.oppdateringresultat.BeregningsgrunnlagPeriodeEndring;
+import no.nav.foreldrepenger.domene.oppdateringresultat.BeregningsgrunnlagPrStatusOgAndelEndring;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
 import no.nav.foreldrepenger.domene.rest.dto.InntektPrAndelDto;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
@@ -67,12 +67,10 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
     @BeforeEach
     void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        var arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(
-            new ArbeidsgiverTjeneste(null, virksomhetTjeneste));
-        when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(
-            InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        fastsettBeregningsgrunnlagATFLHistorikkTjeneste = new FastsettBeregningsgrunnlagATFLHistorikkTjeneste(
-            lagMockHistory(), arbeidsgiverHistorikkinnslagTjeneste, inntektArbeidYtelseTjeneste);
+        var arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(new ArbeidsgiverTjeneste(null, virksomhetTjeneste));
+        when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        fastsettBeregningsgrunnlagATFLHistorikkTjeneste = new FastsettBeregningsgrunnlagATFLHistorikkTjeneste(lagMockHistory(),
+            arbeidsgiverHistorikkinnslagTjeneste, inntektArbeidYtelseTjeneste);
         virk = new Virksomhet.Builder().medOrgnr(NAV_ORGNR).medNavn("AF1").build();
         when(virksomhetTjeneste.hentOrganisasjon(NAV_ORGNR)).thenReturn(virk);
     }
@@ -80,15 +78,14 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
     @Test
     public void skal_generere_historikkinnslag_ved_fastsettelse_av_brutto_beregningsgrunnlag_AT() {
         // Arrange
-        var bg = buildOgLagreBeregningsgrunnlag(false);
+        var bgEndring = buildBeregningsgrunnlagEndring(false);
 
         //Dto
-        var dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse",
-            Collections.singletonList(new InntektPrAndelDto(OVERSTYRT_PR_AR, 1L)), null);
+        var dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse", Collections.singletonList(new InntektPrAndelDto(OVERSTYRT_PR_AR, 1L)), null);
 
         // Act
-        fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(
-            new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto), dto, bg);
+        fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto), dto,
+            bgEndring);
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslag = tekstBuilder.build(historikkinnslag);
@@ -100,29 +97,27 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         var feltList = del.getEndredeFelt();
         assertThat(feltList).hasSize(1);
         assertThat(feltList.get(0)).satisfies(felt -> {
-            assertThat(felt.getNavn()).as("navn")
-                .isEqualTo(HistorikkEndretFeltType.INNTEKT_FRA_ARBEIDSFORHOLD.getKode());
+            assertThat(felt.getNavn()).as("navn").isEqualTo(HistorikkEndretFeltType.INNTEKT_FRA_ARBEIDSFORHOLD.getKode());
             assertThat(felt.getNavnVerdi()).as("navnVerdi")
-                .contains("AF1 (" + NAV_ORGNR + ") ..." + ARBEIDSFORHOLD_ID.getReferanse()
-                    .substring(ARBEIDSFORHOLD_ID.getReferanse().length() - 4));
+                .contains("AF1 (" + NAV_ORGNR + ") ..." + ARBEIDSFORHOLD_ID.getReferanse().substring(ARBEIDSFORHOLD_ID.getReferanse().length() - 4));
             assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
             assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo("200000");
         });
-        assertThat(del.getBegrunnelse()).hasValueSatisfying(
-            begrunnelse -> assertThat(begrunnelse).isEqualTo("begrunnelse"));
+        assertThat(del.getBegrunnelse()).hasValueSatisfying(begrunnelse -> assertThat(begrunnelse).isEqualTo("begrunnelse"));
     }
+
 
     @Test
     public void skal_generere_historikkinnslag_ved_fastsettelse_av_brutto_beregningsgrunnlag_FL() {
         // Arrange
-        var bg = buildOgLagreBeregningsgrunnlag(true);
+        var bgEndring = buildBeregningsgrunnlagEndring(true);
 
         //Dto
         var dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse", FRILANSER_INNTEKT);
 
         // Act
-        fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(
-            new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto), dto, bg);
+        fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto), dto,
+            bgEndring);
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslag = tekstBuilder.build(historikkinnslag);
@@ -138,8 +133,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
             assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
             assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo("4000");
         });
-        assertThat(del.getBegrunnelse()).hasValueSatisfying(
-            begrunnelse -> assertThat(begrunnelse).isEqualTo("begrunnelse"));
+        assertThat(del.getBegrunnelse()).hasValueSatisfying(begrunnelse -> assertThat(begrunnelse).isEqualTo("begrunnelse"));
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {
@@ -148,45 +142,25 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         return mockHistory;
     }
 
-    private BeregningsgrunnlagEntitet buildOgLagreBeregningsgrunnlag(boolean erFrilans) {
+    private BeregningsgrunnlagEndring buildBeregningsgrunnlagEndring(boolean erFrilans) {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagre(repositoryProvider);
-        var beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.ny()
-            .medGrunnbeløp(GRUNNBELØP)
-            .medSkjæringstidspunkt(LocalDate.now().minusDays(5));
-
         var fom = LocalDate.now().minusDays(20);
-        leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagBuilder, fom, erFrilans);
-
-        return beregningsgrunnlagBuilder.build();
+        var periodeEndring = lagTilBeregningsgrunnlagPeriodeEndring(fom, erFrilans);
+        return new BeregningsgrunnlagEndring(List.of(periodeEndring));
     }
 
-    private void leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet.Builder beregningsgrunnlagBuilder,
-                                                  LocalDate fomDato,
-                                                  boolean erFrilans) {
-        var beregningsgrunnlagPeriodeBuilder = BeregningsgrunnlagPeriode.ny()
-            .medBeregningsgrunnlagPeriode(fomDato, null);
-        leggTilBeregningsgrunnlagPrStatusOgAndel(beregningsgrunnlagPeriodeBuilder, virk, erFrilans);
-        beregningsgrunnlagBuilder.leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriodeBuilder);
+    private BeregningsgrunnlagPeriodeEndring lagTilBeregningsgrunnlagPeriodeEndring(LocalDate fomDato, boolean erFrilans) {
+        var andelEndring = lagTilBeregningsgrunnlagPrStatusOgAndelEndring(virk, erFrilans);
+        return new BeregningsgrunnlagPeriodeEndring(List.of(andelEndring), DatoIntervallEntitet.fraOgMed(fomDato));
     }
 
-    private void leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPeriode.Builder beregningsgrunnlagPeriodeBuilder,
-                                                          Virksomhet virksomheten,
-                                                          boolean erFrilans) {
+    private BeregningsgrunnlagPrStatusOgAndelEndring lagTilBeregningsgrunnlagPrStatusOgAndelEndring(Virksomhet virksomheten, boolean erFrilans) {
 
-        var builder = BeregningsgrunnlagPrStatusOgAndel.builder()
-            .medAndelsnr(1L)
-            .medInntektskategori(erFrilans ? Inntektskategori.FRILANSER : Inntektskategori.ARBEIDSTAKER)
-            .medAktivitetStatus(erFrilans ? AktivitetStatus.FRILANSER : AktivitetStatus.ARBEIDSTAKER)
-            .medBeregnetPrÅr(BigDecimal.valueOf(BRUTTO_PR_AR));
-        if (virksomheten != null && !erFrilans) {
-            var bga = BGAndelArbeidsforhold.builder()
-                .medArbeidsforholdRef(FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest.ARBEIDSFORHOLD_ID)
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(virksomheten.getOrgnr()))
-                .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
-                .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
-            builder.medBGAndelArbeidsforhold(bga);
-        }
-        beregningsgrunnlagPeriodeBuilder.leggTilBeregningsgrunnlagPrStatusOgAndel(builder);
+        var endring = erFrilans ? new BeregningsgrunnlagPrStatusOgAndelEndring(1L,
+            no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus.FRILANSER) : new BeregningsgrunnlagPrStatusOgAndelEndring(1L,
+            Arbeidsgiver.virksomhet(virksomheten.getOrgnr()), InternArbeidsforholdRef.nullRef());
+        endring.setBeløpEndring(new BeløpEndring(null, BigDecimal.valueOf(BRUTTO_PR_AR)));
+        return endring;
     }
 }
