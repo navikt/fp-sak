@@ -1,19 +1,17 @@
 package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.oppdateringresultat.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
 import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
 import no.nav.foreldrepenger.domene.rest.historikk.InntektHistorikkTjeneste;
 import no.nav.foreldrepenger.domene.rest.historikk.MapTilLønnsendring;
-import no.nav.foreldrepenger.domene.entiteter.AktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
@@ -32,12 +30,17 @@ public class FastsettInntektFLHistorikkTjeneste extends FaktaOmBeregningHistorik
     }
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var lønnsendring = MapTilLønnsendring.mapTilLønnsendring(
-            AktivitetStatus.FRILANSER,
-            dto.getFastsettMaanedsinntektFL().getMaanedsinntekt(),
-            nyttBeregningsgrunnlag,
-            forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
-        inntektHistorikkTjeneste.lagHistorikk(tekstBuilder, List.of(lønnsendring), iayGrunnlag);
+    public void lagHistorikk(Long behandlingId,
+                             OppdaterBeregningsgrunnlagResultat oppdaterResultat,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        var frilansEndring = oppdaterResultat.getBeregningsgrunnlagEndring()
+            .stream()
+            .flatMap(bgEndring -> bgEndring.getBeregningsgrunnlagPeriodeEndringer().get(0).getBeregningsgrunnlagPrStatusOgAndelEndringer().stream())
+            .filter(a -> a.getAktivitetStatus().erFrilanser())
+            .findFirst();
+        var lønnsendringer = frilansEndring.map(MapTilLønnsendring::mapAndelEndringTilLønnsendring)
+            .map(List::of).orElse(Collections.emptyList());
+        inntektHistorikkTjeneste.lagHistorikk(tekstBuilder, lønnsendringer, iayGrunnlag);
     }
 }

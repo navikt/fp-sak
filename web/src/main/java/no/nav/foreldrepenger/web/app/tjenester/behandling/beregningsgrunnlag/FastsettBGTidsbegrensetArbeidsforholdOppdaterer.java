@@ -9,56 +9,41 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
+import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OppdatererDtoMapper;
-import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBGTidsbegrensetArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.rest.historikk.FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagTilstand;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = FastsettBGTidsbegrensetArbeidsforholdDto.class, adapter = AksjonspunktOppdaterer.class)
 public class FastsettBGTidsbegrensetArbeidsforholdOppdaterer implements AksjonspunktOppdaterer<FastsettBGTidsbegrensetArbeidsforholdDto> {
 
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
-    private BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste;
-    private BeregningHåndterer beregningHåndterer;
+    private BeregningTjeneste beregningTjeneste;
 
     FastsettBGTidsbegrensetArbeidsforholdOppdaterer() {
         // CDI
     }
 
     @Inject
-    public FastsettBGTidsbegrensetArbeidsforholdOppdaterer(HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                                                           FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste,
-                                                           BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste,
-                                                           BeregningHåndterer beregningHåndterer) {
-        this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
+    public FastsettBGTidsbegrensetArbeidsforholdOppdaterer(FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste,
+                                                           BeregningTjeneste beregningTjeneste) {
         this.fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste = fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
-        this.beregningsgrunnlagInputTjeneste = beregningsgrunnlagInputTjeneste;
-        this.beregningHåndterer = beregningHåndterer;
+        this.beregningTjeneste = beregningTjeneste;
     }
 
     @Override
     public OppdateringResultat oppdater(FastsettBGTidsbegrensetArbeidsforholdDto dto, AksjonspunktOppdaterParameter param) {
-        var behandling = param.getBehandling();
-        var aktivtBG = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandling.getId());
-        var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(), BeregningsgrunnlagTilstand.FORESLÅTT_UT)
-            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
-        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(param.getRef().getFagsakYtelseType());
-        beregningHåndterer.håndterFastsettBGTidsbegrensetArbeidsforhold(tjeneste.lagInput(param.getRef().getBehandlingId()), OppdatererDtoMapper.mapFastsettBGTidsbegrensetArbeidsforholdDto(dto));
-        fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste.lagHistorikk(param, aktivtBG, forrigeGrunnlag, dto);
+        var endringsresultat = beregningTjeneste.oppdater(param, dto);
+        endringsresultat.getBeregningsgrunnlagEndring()
+            .ifPresent(e -> fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste.lagHistorikk(param, e, dto));
         var builder = OppdateringResultat.utenTransisjon();
-        håndterEventueltOverflødigAksjonspunkt(behandling)
-            .ifPresent(ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
-
+        var behandling = param.getBehandling();
+        håndterEventueltOverflødigAksjonspunkt(behandling).ifPresent(
+            ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
         return builder.build();
     }
 
@@ -68,7 +53,7 @@ public class FastsettBGTidsbegrensetArbeidsforholdOppdaterer implements Aksjonsp
     Se https://jira.adeo.no/browse/PFP-2042 for mer informasjon.
      */
     private Optional<Aksjonspunkt> håndterEventueltOverflødigAksjonspunkt(Behandling behandling) {
-         return behandling.getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS);
+        return behandling.getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS);
     }
 
 }

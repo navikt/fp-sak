@@ -89,7 +89,7 @@ public class YtelsesspesifiktGrunnlagMapperFP implements YtelsesspesifiktGrunnla
     }
 
     private Ytelseandel mapAndel(no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelseandel a) {
-        return new Ytelseandel(a.getAktivitetStatus(), a.getArbeidskategori(), a.getDagsats());
+        return new Ytelseandel(a.getAktivitetStatus(), a.getInntektskategori(), a.getArbeidskategori(), a.getDagsats());
     }
 
     private AktivitetGraderingDto mapAktivitetGradering(AktivitetGradering aktivitetGradering) {

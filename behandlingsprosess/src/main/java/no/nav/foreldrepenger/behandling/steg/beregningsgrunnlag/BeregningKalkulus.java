@@ -12,16 +12,24 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.mappers.endringutleder.UtledEndring;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus_rest.FraKalkulusMapper;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.oppdateringresultat.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 import no.nav.foreldrepenger.domene.prosess.KalkulusTjeneste;
+import no.nav.foreldrepenger.domene.rest.dto.OverstyrBeregningsaktiviteterDto;
+import no.nav.foreldrepenger.domene.rest.dto.OverstyrBeregningsgrunnlagDto;
+import no.nav.foreldrepenger.domene.rest.historikk.BeregningsaktivitetHistorikkTjeneste;
+import no.nav.foreldrepenger.domene.rest.historikk.FaktaBeregningHistorikkHåndterer;
+import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
@@ -31,6 +39,9 @@ public class BeregningKalkulus implements BeregningAPI {
     private Instance<SkjæringstidspunktTjeneste> skjæringstidspunktTjeneste;
     private BeregningsgrunnlagVilkårTjeneste beregningsgrunnlagVilkårTjeneste;
     private KalkulusTjeneste kalkulusTjeneste;
+    private BeregningsaktivitetHistorikkTjeneste beregningsaktivitetHistorikkTjeneste;
+    private FaktaBeregningHistorikkHåndterer faktaBeregningHistorikkHåndterer;
+    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     public BeregningKalkulus() {
     }
@@ -39,11 +50,17 @@ public class BeregningKalkulus implements BeregningAPI {
     public BeregningKalkulus(BehandlingRepository behandlingRepository,
                              Instance<SkjæringstidspunktTjeneste> skjæringstidspunktTjeneste,
                              BeregningsgrunnlagVilkårTjeneste beregningsgrunnlagVilkårTjeneste,
-                             KalkulusTjeneste kalkulusTjeneste) {
+                             KalkulusTjeneste kalkulusTjeneste,
+                             BeregningsaktivitetHistorikkTjeneste historikkTjeneste,
+                             FaktaBeregningHistorikkHåndterer faktaBeregningHistorikkHåndterer,
+                             InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.beregningsgrunnlagVilkårTjeneste = beregningsgrunnlagVilkårTjeneste;
         this.kalkulusTjeneste = kalkulusTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.beregningsaktivitetHistorikkTjeneste = historikkTjeneste;
+        this.faktaBeregningHistorikkHåndterer = faktaBeregningHistorikkHåndterer;
+        this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
 
@@ -58,6 +75,28 @@ public class BeregningKalkulus implements BeregningAPI {
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat beregn(Long behandlingId, BehandlingStegType behandlingStegType) {
         var behandlingReferanse = lagReferanseMedSkjæringstidspunkt(behandlingId);
         return kalkulusTjeneste.beregn(behandlingReferanse, behandlingStegType);
+    }
+
+    @Override
+    public void overstyr(BehandlingReferanse behandlingReferanse, OverstyringAksjonspunktDto overstyringAksjonspunktDto) {
+        kalkulusTjeneste.overstyr(behandlingReferanse, overstyringAksjonspunktDto);
+    }
+
+    @Override
+    // TODO Send med endringsresultat fra kallet til kalkulus i staden for å utlede
+    public void lagOverstyringHistorikk(BehandlingReferanse behandlingReferanse,
+                                        OverstyringAksjonspunktDto overstyringAksjonspunktDto,
+                                        HistorikkInnslagTekstBuilder tekstBuilder) {
+        var grunnlag = hent(behandlingReferanse.getBehandlingId());
+        var endringsresultat = grunnlag.map(gr -> UtledEndring.utled(gr, gr, Optional.empty(), overstyringAksjonspunktDto,
+            inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId())));
+        if (overstyringAksjonspunktDto instanceof OverstyrBeregningsaktiviteterDto) {
+            endringsresultat.ifPresent(e -> beregningsaktivitetHistorikkTjeneste.lagHistorikk(behandlingReferanse.getBehandlingId(), tekstBuilder,
+                e.getBeregningAktiviteterEndring(), overstyringAksjonspunktDto.getBegrunnelse()));
+        } else if (overstyringAksjonspunktDto instanceof OverstyrBeregningsgrunnlagDto dto) {
+            endringsresultat.ifPresent(
+                e -> faktaBeregningHistorikkHåndterer.lagHistorikkOverstyringInntekt(behandlingReferanse.getBehandlingId(), dto, e, tekstBuilder));
+        }
     }
 
     @Override

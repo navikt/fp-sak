@@ -1,24 +1,15 @@
 package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.oppdateringresultat.OppdaterBeregningsgrunnlagResultat;
+import no.nav.foreldrepenger.domene.oppdateringresultat.ToggleEndring;
 import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
 import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
 import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
-import no.nav.foreldrepenger.domene.entiteter.BeregningRefusjonOverstyringerEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
@@ -37,38 +28,24 @@ public class VurderRefusjonHistorikkTjeneste extends FaktaOmBeregningHistorikkTj
     }
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        for (var vurderingDto : dto.getRefusjonskravGyldighet()) {
-            var arbeidsgiver = finnArbeidsgiver(vurderingDto.getArbeidsgiverId());
-            var frist = nyttBeregningsgrunnlag.getSkjæringstidspunkt();
-            var forrige = finnForrigeVerdi(forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getRefusjonOverstyringer), arbeidsgiver, frist);
-            lagHistorikkInnslag(
-                Boolean.TRUE.equals(vurderingDto.isSkalUtvideGyldighet()),
-                forrige,
-                arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(arbeidsgiver, iayGrunnlag.getArbeidsforholdOverstyringer()),
-                tekstBuilder);
-        }
-    }
-
-    private Boolean finnForrigeVerdi(Optional<BeregningRefusjonOverstyringerEntitet> forrigeBeregningRefusjonOverstyringer, Arbeidsgiver arbeidsgiver, LocalDate frist) {
-        return forrigeBeregningRefusjonOverstyringer.map(BeregningRefusjonOverstyringerEntitet::getRefusjonOverstyringer)
-            .orElse(Collections.emptyList())
+    public void lagHistorikk(Long behandlingId,
+                             OppdaterBeregningsgrunnlagResultat oppdaterResultat,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder,
+                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        oppdaterResultat.getFaktaOmBeregningVurderinger()
             .stream()
-            .filter(beregningRefusjonOverstyring -> beregningRefusjonOverstyring.getArbeidsgiver().equals(arbeidsgiver))
-            .findFirst()
-            .map(beregningRefusjonOverstyring -> Objects.equals(beregningRefusjonOverstyring.getFørsteMuligeRefusjonFom().orElse(null), frist))
-            .orElse(null);
+            .flatMap(fv -> fv.getVurderRefusjonskravGyldighetEndringer().stream())
+            .forEach(e -> lagHistorikkInnslag(e.getErGyldighetUtvidet(),
+                arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(e.getArbeidsgiver(), iayGrunnlag.getArbeidsforholdOverstyringer()),
+                tekstBuilder));
     }
 
-    private Arbeidsgiver finnArbeidsgiver(String identifikator) {
-        if (OrgNummer.erGyldigOrgnr(identifikator)) {
-            return Arbeidsgiver.virksomhet(identifikator);
+    private void lagHistorikkInnslag(ToggleEndring verdiEndring, String arbeidsgivernavn, HistorikkInnslagTekstBuilder tekstBuilder) {
+        if (verdiEndring.erEndring()) {
+            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.NY_REFUSJONSFRIST, arbeidsgivernavn, verdiEndring.getFraVerdi(),
+                verdiEndring.getTilVerdi());
         }
-        return Arbeidsgiver.fra(new AktørId(identifikator));
-    }
-
-    private void lagHistorikkInnslag(Boolean nyVerdi, Boolean forrige, String arbeidsgivernavn, HistorikkInnslagTekstBuilder tekstBuilder) {
-        tekstBuilder.medEndretFelt(HistorikkEndretFeltType.NY_REFUSJONSFRIST, arbeidsgivernavn, forrige, nyVerdi);
     }
 
 }

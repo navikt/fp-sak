@@ -8,9 +8,9 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
-import no.nav.foreldrepenger.domene.entiteter.AktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.AndelKilde;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class FordelRedigerbarAndelDto {
@@ -37,7 +37,8 @@ public class FordelRedigerbarAndelDto {
 
     public FordelRedigerbarAndelDto(@Min(0) @Max(Long.MAX_VALUE) Long andelsnr,
                                     @Pattern(regexp = "[\\d]{9}|[\\d]{13}") String arbeidsgiverId,
-                                    String arbeidsforholdId, @NotNull Boolean nyAndel,
+                                    String arbeidsforholdId,
+                                    @NotNull Boolean nyAndel,
                                     AndelKilde kilde,
                                     AktivitetStatus aktivitetStatus,
                                     OpptjeningAktivitetType arbeidsforholdType,

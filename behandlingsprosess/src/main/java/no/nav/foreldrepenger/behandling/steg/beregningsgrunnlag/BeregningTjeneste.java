@@ -6,13 +6,16 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.oppdateringresultat.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
+import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 /**
  * Eksisterer for å kalle beregning i fpsak eller via rest til kalkulus
@@ -51,8 +54,41 @@ public class BeregningTjeneste {
     }
 
     /**
-     * Kjører beregning for angitt steg
-     *  @param parameter             behandlingId
+     * Utfører overstyring
+     *
+     * @param behandlingReferanse                  behandlingId
+     * @param overstyringAksjonspunktDto bekreftetAksjonspunktDto
+     */
+    public void overstyr(BehandlingReferanse behandlingReferanse, OverstyringAksjonspunktDto overstyringAksjonspunktDto) {
+        if (skalKalleKalkulus) {
+            kalkulusBeregner.overstyr(behandlingReferanse, overstyringAksjonspunktDto);
+        } else {
+            fpsakBeregner.overstyr(behandlingReferanse, overstyringAksjonspunktDto);
+        }
+    }
+
+    /**
+     * Lager historikk for overstyring
+     *  @param behandlingReferanse                  behandlingId
+     * @param overstyringAksjonspunktDto bekreftetAksjonspunktDto
+     * @param tekstbuilder Tekstbuilder for historikk
+     */
+    public void lagOverstyrHistorikk(BehandlingReferanse behandlingReferanse,
+                                     OverstyringAksjonspunktDto overstyringAksjonspunktDto,
+                                     HistorikkInnslagTekstBuilder tekstbuilder) {
+        if (skalKalleKalkulus) {
+            kalkulusBeregner.lagOverstyringHistorikk(behandlingReferanse, overstyringAksjonspunktDto, tekstbuilder);
+        } else {
+            fpsakBeregner.lagOverstyringHistorikk(behandlingReferanse, overstyringAksjonspunktDto, tekstbuilder);
+        }
+    }
+
+
+
+    /**
+     * Gjør oppdatering etter bekreftelse av aksjonpunkt
+     *
+     * @param parameter                behandlingId
      * @param bekreftetAksjonspunktDto bekreftetAksjonspunktDto
      * @return resultat av oppdatering
      */

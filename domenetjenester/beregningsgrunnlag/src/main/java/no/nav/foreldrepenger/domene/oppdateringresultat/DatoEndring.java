@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.oppdateringresultat;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 public class DatoEndring {
 
@@ -17,8 +18,12 @@ public class DatoEndring {
         this.tilVerdi = tilVerdi;
     }
 
-    public LocalDate getFraVerdi() {
-        return fraVerdi;
+    public boolean erEndret() {
+        return tilVerdi != null && (fraVerdi == null || !tilVerdi.equals(fraVerdi));
+    }
+
+    public Optional<LocalDate> getFraVerdi() {
+        return Optional.ofNullable(fraVerdi);
     }
 
     public LocalDate getTilVerdi() {

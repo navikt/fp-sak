@@ -19,6 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
+import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningFPSAK;
+import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningTjeneste;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -70,8 +72,8 @@ public class FastsettBeregningsgrunnlagATFLOppdatererTest {
     @BeforeEach
     public void setup() {
         when(behandling.getFagsak()).thenReturn(fagsak);
-        oppdaterer = new FastsettBeregningsgrunnlagATFLOppdaterer(beregningsgrunnlagTjeneste, historikk, historikkTidsbegrenset,
-                beregningsgrunnlagInputTjeneste, beregningHåndterer);
+        oppdaterer = new FastsettBeregningsgrunnlagATFLOppdaterer(historikk, new BeregningTjeneste(null,
+            new BeregningFPSAK(null, null, null, beregningsgrunnlagTjeneste, null, beregningsgrunnlagInputTjeneste, null, null, beregningHåndterer, null, null)));
     }
 
     @Test

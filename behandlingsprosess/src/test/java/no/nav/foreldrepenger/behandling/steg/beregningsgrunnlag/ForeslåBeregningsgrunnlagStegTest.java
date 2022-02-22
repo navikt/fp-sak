@@ -104,10 +104,10 @@ public class ForeslåBeregningsgrunnlagStegTest {
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(mockFamilieHendelseGrunnlagEntitet));
 
         var beregningTjeneste = new BeregningFPSAK(beregningsgrunnlagKopierOgLagreTjeneste, behandlingRepository,
-            new UnitTestLookupInstanceImpl<>(skjæringstidspunktTjeneste), null,
-            null, inputProvider, null, iayTjeneste, beregningHåndterer);
+            new UnitTestLookupInstanceImpl<>(skjæringstidspunktTjeneste), null, null, inputProvider, null, iayTjeneste, null, null, null);
         when(inputProvider.getTjeneste(FagsakYtelseType.FORELDREPENGER)).thenReturn(inputTjeneste);
-        steg = new ForeslåBeregningsgrunnlagSteg(behandlingRepository, familieHendelseRepository, new BeregningTjeneste(null, beregningTjeneste), fagsakRelasjonRepository);
+        steg = new ForeslåBeregningsgrunnlagSteg(behandlingRepository, familieHendelseRepository, new BeregningTjeneste(null, beregningTjeneste),
+            fagsakRelasjonRepository);
 
         iayTjeneste.lagreInntektsmeldinger(behandling.getFagsak().getSaksnummer(), behandling.getId(), List.of());
     }

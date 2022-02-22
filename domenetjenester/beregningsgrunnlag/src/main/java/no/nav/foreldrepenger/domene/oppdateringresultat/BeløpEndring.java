@@ -30,4 +30,8 @@ public class BeløpEndring {
         return tilBeløp == null ? null : tilBeløp.divide(BigDecimal.valueOf(12), RoundingMode.HALF_UP).setScale(0, RoundingMode.HALF_UP);
     }
 
+    public boolean erEndret() {
+        return tilBeløp != null && (fraBeløp == null || tilBeløp.compareTo(fraBeløp) != 0);
+    }
+
 }

@@ -5,7 +5,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import no.nav.folketrygdloven.kalkulus.felles.v1.Aktør;
-import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
 import no.nav.folketrygdloven.kalkulus.response.v1.håndtering.OppdateringRespons;
 import no.nav.folketrygdloven.kalkulus.response.v1.håndtering.RefusjonoverstyringEndring;
 import no.nav.folketrygdloven.kalkulus.response.v1.håndtering.VarigEndretEllerNyoppstartetNæringEndring;
@@ -32,6 +31,7 @@ import no.nav.foreldrepenger.domene.oppdateringresultat.RefusjonoverstyringPerio
 import no.nav.foreldrepenger.domene.oppdateringresultat.RefusjonskravGyldighetEndring;
 import no.nav.foreldrepenger.domene.oppdateringresultat.ToggleEndring;
 import no.nav.foreldrepenger.domene.oppdateringresultat.VarigEndretNæringVurdering;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
@@ -197,7 +197,7 @@ public class MapEndringsresultat {
     private static BeregningsgrunnlagPeriodeEndring mapTilPeriodeEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.BeregningsgrunnlagPeriodeEndring beregningsgrunnlagPeriodeEndring) {
         return new BeregningsgrunnlagPeriodeEndring(
             mapAndelEndringer(beregningsgrunnlagPeriodeEndring.getBeregningsgrunnlagPrStatusOgAndelEndringer()),
-            new Periode(beregningsgrunnlagPeriodeEndring.getPeriode().getFom(), beregningsgrunnlagPeriodeEndring.getPeriode().getTom()));
+            DatoIntervallEntitet.fraOgMedTilOgMed(beregningsgrunnlagPeriodeEndring.getPeriode().getFom(), beregningsgrunnlagPeriodeEndring.getPeriode().getTom()));
     }
 
     private static List<BeregningsgrunnlagPrStatusOgAndelEndring> mapAndelEndringer(List<no.nav.folketrygdloven.kalkulus.response.v1.håndtering.BeregningsgrunnlagPrStatusOgAndelEndring> beregningsgrunnlagPrStatusOgAndelEndringer) {
@@ -205,7 +205,7 @@ public class MapEndringsresultat {
     }
 
     private static BeregningsgrunnlagPrStatusOgAndelEndring mapAndelEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.BeregningsgrunnlagPrStatusOgAndelEndring beregningsgrunnlagPrStatusOgAndelEndring) {
-        return new BeregningsgrunnlagPrStatusOgAndelEndring(mapInntektEndring(beregningsgrunnlagPrStatusOgAndelEndring.getInntektEndring()),
+        return new BeregningsgrunnlagPrStatusOgAndelEndring(beregningsgrunnlagPrStatusOgAndelEndring.getAndelsnr(), mapInntektEndring(beregningsgrunnlagPrStatusOgAndelEndring.getInntektEndring()),
             mapInntektskategoriEndring(beregningsgrunnlagPrStatusOgAndelEndring.getInntektskategoriEndring()),
             mapRefusjonEndring(beregningsgrunnlagPrStatusOgAndelEndring.getRefusjonEndring()),
             AktivitetStatus.fraKode(beregningsgrunnlagPrStatusOgAndelEndring.getAktivitetStatus().getKode()),

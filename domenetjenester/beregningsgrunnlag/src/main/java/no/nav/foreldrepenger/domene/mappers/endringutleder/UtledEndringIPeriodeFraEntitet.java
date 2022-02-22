@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.oppdateringresultat.BeregningsgrunnlagPeriodeEndring;
 import no.nav.foreldrepenger.domene.oppdateringresultat.BeregningsgrunnlagPrStatusOgAndelEndring;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 class UtledEndringIPeriodeFraEntitet {
 
@@ -26,7 +26,7 @@ class UtledEndringIPeriodeFraEntitet {
         var forrigeAndeler = forrigePeriode.map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList).orElse(Collections.emptyList());
         var periodeEndring = new BeregningsgrunnlagPeriodeEndring(
                 utledAndelEndringer(andeler, andelerFraSteg, forrigeAndeler),
-                new Periode(periode.getBeregningsgrunnlagPeriodeFom(), periode.getBeregningsgrunnlagPeriodeTom())
+                DatoIntervallEntitet.fraOgMedTilOgMed(periode.getBeregningsgrunnlagPeriodeFom(), periode.getBeregningsgrunnlagPeriodeTom())
                 );
         if (periodeEndring.getBeregningsgrunnlagPrStatusOgAndelEndringer().isEmpty()) {
             return Optional.empty();

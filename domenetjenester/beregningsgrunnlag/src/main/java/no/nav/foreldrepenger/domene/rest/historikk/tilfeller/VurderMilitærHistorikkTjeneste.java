@@ -1,16 +1,14 @@
 package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.oppdateringresultat.FaktaOmBeregningVurderinger;
+import no.nav.foreldrepenger.domene.oppdateringresultat.OppdaterBeregningsgrunnlagResultat;
+import no.nav.foreldrepenger.domene.oppdateringresultat.ToggleEndring;
 import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
 import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
@@ -18,23 +16,20 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 public class VurderMilitærHistorikkTjeneste extends FaktaOmBeregningHistorikkTjeneste {
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var militærDto = dto.getVurderMilitaer();
-        var haddeMilitærIForrigeGrunnlag = finnForrigeVerdi(forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
-        lagHistorikkInnslag(militærDto.getHarMilitaer(), haddeMilitærIForrigeGrunnlag, tekstBuilder);
+    public void lagHistorikk(Long behandlingId,
+                             OppdaterBeregningsgrunnlagResultat oppdaterResultat,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder,
+                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        oppdaterResultat.getFaktaOmBeregningVurderinger()
+            .flatMap(FaktaOmBeregningVurderinger::getHarMilitærSiviltjenesteEndring)
+            .ifPresent(e -> lagHistorikkInnslag(e, tekstBuilder));
     }
 
-    private void lagHistorikkInnslag(Boolean harMilitærEllerSivil, Boolean forrigeVerdi, HistorikkInnslagTekstBuilder tekstBuilder) {
-        tekstBuilder.medEndretFelt(HistorikkEndretFeltType.MILITÆR_ELLER_SIVIL, forrigeVerdi, harMilitærEllerSivil);
-    }
-
-    private Boolean finnForrigeVerdi(Optional<BeregningsgrunnlagEntitet> forrigeBg) {
-        return forrigeBg.map(this::harMilitærstatus).orElse(null);
-    }
-
-    private boolean harMilitærstatus(BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        return beregningsgrunnlag.getAktivitetStatuser().stream()
-            .anyMatch(status -> AktivitetStatus.MILITÆR_ELLER_SIVIL.equals(AktivitetStatus.fraKode(status.getAktivitetStatus().getKode())));
+    private void lagHistorikkInnslag(ToggleEndring verdiEndring, HistorikkInnslagTekstBuilder tekstBuilder) {
+        if (verdiEndring.erEndring()) {
+            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.MILITÆR_ELLER_SIVIL, verdiEndring.getFraVerdi(), verdiEndring.getTilVerdi());
+        }
     }
 
 }

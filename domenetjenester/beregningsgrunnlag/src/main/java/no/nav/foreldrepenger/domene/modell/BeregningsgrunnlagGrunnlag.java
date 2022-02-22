@@ -5,8 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffIgnore;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 
 
 public class BeregningsgrunnlagGrunnlag {
@@ -19,6 +19,7 @@ public class BeregningsgrunnlagGrunnlag {
     private BeregningAktivitetAggregat saksbehandletAktiviteter;
     private BeregningAktivitetOverstyringer overstyringer;
     private BeregningRefusjonOverstyringer refusjonOverstyringer;
+    private FaktaAggregat faktaAggregat;
     private boolean aktiv = true;
     private BeregningsgrunnlagTilstand beregningsgrunnlagTilstand;
 
@@ -59,11 +60,12 @@ public class BeregningsgrunnlagGrunnlag {
 
     private Optional<BeregningAktivitetAggregat> getOverstyrteAktiviteter() {
         if (overstyringer != null) {
-            List<BeregningAktivitet> overstyrteAktiviteter = registerAktiviteter.getBeregningAktiviteter().stream()
-                    .filter(beregningAktivitet -> beregningAktivitet.skalBrukes(overstyringer))
-                    .collect(Collectors.toList());
+            List<BeregningAktivitet> overstyrteAktiviteter = registerAktiviteter.getBeregningAktiviteter()
+                .stream()
+                .filter(beregningAktivitet -> beregningAktivitet.skalBrukes(overstyringer))
+                .collect(Collectors.toList());
             BeregningAktivitetAggregat.Builder overstyrtBuilder = BeregningAktivitetAggregat.builder()
-                    .medSkjæringstidspunktOpptjening(registerAktiviteter.getSkjæringstidspunktOpptjening());
+                .medSkjæringstidspunktOpptjening(registerAktiviteter.getSkjæringstidspunktOpptjening());
             overstyrteAktiviteter.forEach(aktivitet -> {
                 BeregningAktivitet kopiert = BeregningAktivitet.builder(aktivitet).build();
                 overstyrtBuilder.leggTilAktivitet(kopiert);
@@ -74,9 +76,11 @@ public class BeregningsgrunnlagGrunnlag {
     }
 
     public BeregningAktivitetAggregat getGjeldendeAktiviteter() {
-        return getOverstyrteAktiviteter()
-                .or(this::getSaksbehandletAktiviteter)
-                .orElse(registerAktiviteter);
+        return getOverstyrteAktiviteter().or(this::getSaksbehandletAktiviteter).orElse(registerAktiviteter);
+    }
+
+    public Optional<FaktaAggregat> getFaktaAggregat() {
+        return Optional.ofNullable(faktaAggregat);
     }
 
     public BeregningAktivitetAggregat getOverstyrteEllerRegisterAktiviteter() {
@@ -103,6 +107,10 @@ public class BeregningsgrunnlagGrunnlag {
         this.beregningsgrunnlag = beregningsgrunnlag;
     }
 
+    void setFaktaAggregat(FaktaAggregat faktaAggregat) {
+        this.faktaAggregat = faktaAggregat;
+    }
+
     void setRegisterAktiviteter(BeregningAktivitetAggregat registerAktiviteter) {
         this.registerAktiviteter = registerAktiviteter;
     }
@@ -127,7 +135,9 @@ public class BeregningsgrunnlagGrunnlag {
         this.refusjonOverstyringer = refusjonOverstyringer;
     }
 
-    /** Identifisere en immutable instans av grunnlaget unikt og er egnet for utveksling (eks. til abakus eller andre systemer) */
+    /**
+     * Identifisere en immutable instans av grunnlaget unikt og er egnet for utveksling (eks. til abakus eller andre systemer)
+     */
     public UUID getEksternReferanse() {
         return uuid;
     }

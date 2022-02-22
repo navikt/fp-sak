@@ -1,18 +1,15 @@
 package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.oppdateringresultat.FaktaOmBeregningVurderinger;
+import no.nav.foreldrepenger.domene.oppdateringresultat.OppdaterBeregningsgrunnlagResultat;
+import no.nav.foreldrepenger.domene.oppdateringresultat.ToggleEndring;
 import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
 import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
-import no.nav.foreldrepenger.domene.rest.dto.VurderNyoppstartetFLDto;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
@@ -20,33 +17,25 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 public class VurderNyoppstartetFLHistorikkTjeneste extends FaktaOmBeregningHistorikkTjeneste {
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var nyoppstartetDto = dto.getVurderNyoppstartetFL();
-        var opprinneligErNyoppstartetFLVerdi = getOpprinneligErNyoppstartetFLVerdi(forrigeGrunnlag);
-        lagHistorikkInnslag(nyoppstartetDto, opprinneligErNyoppstartetFLVerdi, tekstBuilder);
+    public void lagHistorikk(Long behandlingId,
+                             OppdaterBeregningsgrunnlagResultat oppdaterResultat,
+                             FaktaBeregningLagreDto dto,
+                             HistorikkInnslagTekstBuilder tekstBuilder,
+                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        oppdaterResultat.getFaktaOmBeregningVurderinger()
+            .flatMap(FaktaOmBeregningVurderinger::getErNyoppstartetFLEndring)
+            .ifPresent(e -> lagHistorikkInnslag(e, tekstBuilder));
     }
 
-    private Boolean getOpprinneligErNyoppstartetFLVerdi(Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag) {
-        return forrigeGrunnlag
-            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
-            .map(bg -> bg.getBeregningsgrunnlagPerioder().get(0))
-            .stream()
-            .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
-            .filter(bpsa -> bpsa.getAktivitetStatus().erFrilanser())
-            .findFirst()
-            .flatMap(BeregningsgrunnlagPrStatusOgAndel::erNyoppstartet)
-            .orElse(null);
+
+    private void lagHistorikkInnslag(ToggleEndring verdiEndring, HistorikkInnslagTekstBuilder tekstBuilder) {
+        oppdaterVedEndretVerdi(verdiEndring, tekstBuilder);
     }
 
-    private void lagHistorikkInnslag(VurderNyoppstartetFLDto dto, Boolean opprinneligErNyoppstartetFLVerdi, HistorikkInnslagTekstBuilder tekstBuilder) {
-        oppdaterVedEndretVerdi(dto, opprinneligErNyoppstartetFLVerdi, tekstBuilder);
-    }
-
-    private void oppdaterVedEndretVerdi(VurderNyoppstartetFLDto dto,
-                                        Boolean opprinneligNyoppstartetFLVerdi, HistorikkInnslagTekstBuilder tekstBuilder) {
-        var opprinneligVerdi = konvertBooleanTilFaktaEndretVerdiType(opprinneligNyoppstartetFLVerdi);
-        var nyVerdi = konvertBooleanTilFaktaEndretVerdiType(dto.erErNyoppstartetFL());
-        if(opprinneligVerdi != nyVerdi) {
+    private void oppdaterVedEndretVerdi(ToggleEndring verdiEndring, HistorikkInnslagTekstBuilder tekstBuilder) {
+        if (verdiEndring.erEndring()) {
+            var opprinneligVerdi = konvertBooleanTilFaktaEndretVerdiType(verdiEndring.getFraVerdi());
+            var nyVerdi = konvertBooleanTilFaktaEndretVerdiType(verdiEndring.getTilVerdi());
             tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FRILANSVIRKSOMHET, opprinneligVerdi, nyVerdi);
         }
     }

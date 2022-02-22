@@ -7,9 +7,9 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
+import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningTjeneste;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OppdatererDtoMapper;
 import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
 import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
 import no.nav.foreldrepenger.domene.rest.historikk.FaktaBeregningHistorikkHåndterer;
@@ -27,6 +27,7 @@ public class VurderFaktaOmBeregningOppdaterer implements AksjonspunktOppdaterer<
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste;
     private BeregningHåndterer beregningHåndterer;
+    private BeregningTjeneste beregningTjeneste;
 
     VurderFaktaOmBeregningOppdaterer() {
         // for CDI proxy
@@ -37,12 +38,13 @@ public class VurderFaktaOmBeregningOppdaterer implements AksjonspunktOppdaterer<
                                             HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                                             InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                             BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste,
-                                            BeregningHåndterer beregningHåndterer)  {
+                                            BeregningHåndterer beregningHåndterer, BeregningTjeneste beregningTjeneste)  {
         this.faktaBeregningHistorikkHåndterer = faktaBeregningHistorikkHåndterer;
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.beregningsgrunnlagInputTjeneste = beregningsgrunnlagInputTjeneste;
         this.beregningHåndterer = beregningHåndterer;
+        this.beregningTjeneste = beregningTjeneste;
     }
 
     @Override
@@ -54,18 +56,16 @@ public class VurderFaktaOmBeregningOppdaterer implements AksjonspunktOppdaterer<
                 behandling.getOriginalBehandlingId(),
                 BeregningsgrunnlagTilstand.KOFAKBER_UT);
 
-        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(param.getRef().getFagsakYtelseType());
-
-        var input = tjeneste.lagInput(param.getRef());
-
-        beregningHåndterer.håndterVurderFaktaOmBeregning(input, OppdatererDtoMapper.mapTilFaktaOmBeregningLagreDto(dto.getFakta()));
+        var oppdaterResultat = beregningTjeneste.oppdater(param, dto);
 
         var nyttBeregningsgrunnlag = beregningsgrunnlagTjeneste
             .hentSisteBeregningsgrunnlagGrunnlagEntitet(behandling.getId(), BeregningsgrunnlagTilstand.KOFAKBER_UT)
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
             .orElseThrow(() -> new IllegalStateException("Skal ha lagret beregningsgrunnlag fra KOFAKBER_UT."));
         var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
-        faktaBeregningHistorikkHåndterer.lagHistorikk(param, dto, nyttBeregningsgrunnlag, forrigeGrunnlag, inntektArbeidYtelseGrunnlag);
+        faktaBeregningHistorikkHåndterer.lagHistorikk(param,
+            oppdaterResultat,
+            dto, inntektArbeidYtelseGrunnlag);
         return OppdateringResultat.utenOveropp();
     }
 }

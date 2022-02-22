@@ -1,19 +1,22 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.entiteter.AktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.oppdateringresultat.BeløpEndring;
+import no.nav.foreldrepenger.domene.oppdateringresultat.BeregningsgrunnlagEndring;
+import no.nav.foreldrepenger.domene.oppdateringresultat.BeregningsgrunnlagPrStatusOgAndelEndring;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
 import no.nav.foreldrepenger.domene.rest.dto.InntektPrAndelDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
@@ -40,30 +43,28 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
 
     public void lagHistorikk(AksjonspunktOppdaterParameter param,
                              FastsettBeregningsgrunnlagATFLDto dto,
-                             BeregningsgrunnlagEntitet forrigeGrunnlag) {
-        var førstePeriode = forrigeGrunnlag.getBeregningsgrunnlagPerioder().get(0);
+                             BeregningsgrunnlagEndring beregningsgrunnlagEndring) {
 
-        var atAndeler = førstePeriode.getBeregningsgrunnlagPrStatusOgAndelList()
-            .stream()
+        var andelEndringerFørstePeriode = beregningsgrunnlagEndring.getAndelerFørstePeriode();
+
+        var atEndringer = andelEndringerFørstePeriode.stream()
             .filter(andel -> andel.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER))
             .collect(Collectors.toList());
 
-        var flAndeler = førstePeriode.getBeregningsgrunnlagPrStatusOgAndelList()
-            .stream()
+        var flEndringer = andelEndringerFørstePeriode.stream()
             .filter(andel -> andel.getAktivitetStatus().equals(AktivitetStatus.FRILANSER))
             .collect(Collectors.toList());
 
-        lagHistorikkInnslag(dto, param, atAndeler, flAndeler);
+        lagHistorikkInnslag(dto, param, atEndringer, flEndringer);
     }
 
 
     private void lagHistorikkInnslag(FastsettBeregningsgrunnlagATFLDto dto,
                                      AksjonspunktOppdaterParameter param,
-                                     List<BeregningsgrunnlagPrStatusOgAndel> arbeidstakerList,
-                                     List<BeregningsgrunnlagPrStatusOgAndel> frilanserList) {
+                                     List<BeregningsgrunnlagPrStatusOgAndelEndring> arbeidstakerList,
+                                     List<BeregningsgrunnlagPrStatusOgAndelEndring> frilanserList) {
 
-        oppdaterVedEndretVerdi(param.getBehandlingId(), dto.getInntektPrAndelList(), arbeidstakerList, frilanserList,
-            dto.getInntektFrilanser());
+        oppdaterVedEndretVerdi(param.getBehandlingId(), dto.getInntektPrAndelList(), arbeidstakerList, frilanserList, dto.getInntektFrilanser());
 
         historikkAdapter.tekstBuilder()
             .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
@@ -72,17 +73,17 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
 
     private void oppdaterVedEndretVerdi(Long behandlingId,
                                         List<InntektPrAndelDto> overstyrtList,
-                                        List<BeregningsgrunnlagPrStatusOgAndel> arbeidstakerList,
-                                        List<BeregningsgrunnlagPrStatusOgAndel> frilanserList,
+                                        List<BeregningsgrunnlagPrStatusOgAndelEndring> arbeidstakerList,
+                                        List<BeregningsgrunnlagPrStatusOgAndelEndring> frilanserList,
                                         Integer inntektFrilanser) {
-        if (arbeidstakerList.stream()
-            .noneMatch(bgpsa -> bgpsa.getAktivitetStatus().equals(AktivitetStatus.FRILANSER))) {
-            historikkAdapter.tekstBuilder().medResultat(HistorikkResultatType.BEREGNET_AARSINNTEKT);
-        }
+
+        historikkAdapter.tekstBuilder().medResultat(HistorikkResultatType.BEREGNET_AARSINNTEKT);
 
         if (inntektFrilanser != null && !frilanserList.isEmpty()) {
             historikkAdapter.tekstBuilder()
-                .medEndretFelt(HistorikkEndretFeltType.FRILANS_INNTEKT, null, inntektFrilanser);
+                .medEndretFelt(HistorikkEndretFeltType.FRILANS_INNTEKT,
+                    frilanserList.get(0).getInntektEndring().flatMap(BeløpEndring::getFraBeløp).orElse(null),
+                    frilanserList.get(0).getInntektEndring().map(BeløpEndring::getTilBeløp).orElse(null));
         }
 
         if (overstyrtList != null) {
@@ -93,19 +94,16 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
 
     private void oppdaterForOverstyrt(Long behandlingId,
                                       List<InntektPrAndelDto> overstyrtList,
-                                      List<BeregningsgrunnlagPrStatusOgAndel> arbeidstakerList) {
-        var arbeidsforholOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId)
-            .getArbeidsforholdOverstyringer();
-        for (var prStatus : arbeidstakerList) {
-            var overstyrt = overstyrtList.stream()
-                .filter(andelInntekt -> andelInntekt.getAndelsnr().equals(prStatus.getAndelsnr()))
-                .findFirst();
+                                      List<BeregningsgrunnlagPrStatusOgAndelEndring> arbeidstakerList) {
+        var arbeidsforholOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdOverstyringer();
+        for (var endring : arbeidstakerList) {
+            var overstyrt = overstyrtList.stream().filter(andelInntekt -> andelInntekt.getAndelsnr().equals(endring.getAndelsnr())).findFirst();
             if (overstyrt.isPresent()) {
-                var visningsNavn = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
-                    prStatus.getAktivitetStatus(), prStatus.getArbeidsgiver(), prStatus.getArbeidsforholdRef(),
-                    arbeidsforholOverstyringer);
+                var visningsNavn = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(endring.getAktivitetStatus(),
+                    endring.getArbeidsgiver(), Optional.ofNullable(endring.getArbeidsforholdRef()), arbeidsforholOverstyringer);
                 historikkAdapter.tekstBuilder()
-                    .medEndretFelt(HistorikkEndretFeltType.INNTEKT_FRA_ARBEIDSFORHOLD, visningsNavn, null,
+                    .medEndretFelt(HistorikkEndretFeltType.INNTEKT_FRA_ARBEIDSFORHOLD, visningsNavn,
+                        endring.getInntektEndring().flatMap(BeløpEndring::getFraBeløp).map(BigDecimal::intValue).orElse(null),
                         overstyrt.get().getInntekt());
             }
         }

@@ -41,6 +41,7 @@ import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -83,6 +84,20 @@ public class KalkulusTjeneste {
         var request = lagBeregnRequest(behandlingReferanse, behandlingStegType);
         var respons = kalkulusRestKlient.beregn(request);
         return mapTilBeregningResultat(respons);
+    }
+
+    public OppdaterBeregningsgrunnlagResultat overstyr(BehandlingReferanse behandlingReferanse, OverstyringAksjonspunktDto overstyringAksjonspunktDto) {
+        var håndterDto = MapDtoTilRequest.mapOverstyring(overstyringAksjonspunktDto);
+        var request = new HåndterBeregningListeRequest(List.of(new HåndterBeregningRequest(håndterDto, behandlingReferanse.getBehandlingUuid())),
+            YtelseTyperKalkulusStøtterKontrakt.fraKode(behandlingReferanse.getFagsakYtelseType().getKode()),
+            behandlingReferanse.getSaksnummer().getVerdi(), behandlingReferanse.getBehandlingUuid());
+        var respons = kalkulusRestKlient.oppdaterBeregningListe(request);
+        if (respons.getOppdateringer().size() == 0) {
+            throw new IllegalStateException("Forventet å finne endring ved oppdatering av grunnlag");
+        }
+        return MapEndringsresultat.mapFraOppdateringRespons(
+            respons.getOppdateringer().get(0).getOppdatering(),
+            behandlingReferanse.getBehandlingUuid());
     }
 
     public OppdaterBeregningsgrunnlagResultat oppdater(BehandlingReferanse behandlingReferanse, BekreftetAksjonspunktDto bekreftdto) {
