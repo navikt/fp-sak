@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.svangerskapspenger.domene.søknad.AvklarteDatoer;
 import no.nav.svangerskapspenger.domene.søknad.Ferie;
 
@@ -62,9 +61,8 @@ class AvklarteDatoerTjeneste {
         dødsdatoBarnOptional.ifPresent(avklarteDatoerBuilder::medBarnetsDødsdato);
         dødsdatoBrukerOptional.ifPresent(avklarteDatoerBuilder::medBrukersDødsdato);
         medlemskapOpphørsdatoOptional.ifPresent(avklarteDatoerBuilder::medOpphørsdatoForMedlemskap);
-        if (!Environment.current().isProd()) {
-            startdatoNesteSak.ifPresent(avklarteDatoerBuilder::medStartdatoNesteSak);
-        }
+        startdatoNesteSak.ifPresent(avklarteDatoerBuilder::medStartdatoNesteSak);
+        
         if (uttaksgrense.isPresent()) {
             avklarteDatoerBuilder.medFørsteLovligeUttaksdato(uttaksgrense.get().getFørsteLovligeUttaksdag());
             var ferier = finnFerier(ref, uttaksgrense.get().getFørsteLovligeUttaksdag());

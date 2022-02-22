@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Datoer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Dødsdatoer;
 
@@ -38,10 +37,9 @@ public class DatoerGrunnlagBygger {
             .fødsel(gjeldendeFamilieHendelse.getFødselsdato().orElse(null))
             .termin(gjeldendeFamilieHendelse.getTermindato().orElse(null))
             .omsorgsovertakelse(gjeldendeFamilieHendelse.getOmsorgsovertakelse().orElse(null))
-            .dødsdatoer(byggDødsdatoer(ytelsespesifiktGrunnlag, ref));
-        if (!Environment.current().isProd()) {
-            db.startdatoNesteStønadsperiode(ytelsespesifiktGrunnlag.getNesteSakGrunnlag().map(NesteSakGrunnlagEntitet::getStartdato).orElse(null));
-        }
+            .dødsdatoer(byggDødsdatoer(ytelsespesifiktGrunnlag, ref))
+            .startdatoNesteStønadsperiode(nesteStønadsperiode(ytelsespesifiktGrunnlag).orElse(null));
+
         return db;
     }
 
@@ -50,6 +48,10 @@ public class DatoerGrunnlagBygger {
             .søkersDødsdato(personopplysninger.søkersDødsdato(ref).orElse(null))
             .barnsDødsdato(barnsDødsdato(foreldrepengerGrunnlag).orElse(null))
             .alleBarnDøde(erAlleBarnDøde(foreldrepengerGrunnlag));
+    }
+
+    private Optional<LocalDate> nesteStønadsperiode(ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
+        return ytelsespesifiktGrunnlag.getNesteSakGrunnlag().map(NesteSakGrunnlagEntitet::getStartdato);
     }
 
     private Optional<LocalDate> barnsDødsdato(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
