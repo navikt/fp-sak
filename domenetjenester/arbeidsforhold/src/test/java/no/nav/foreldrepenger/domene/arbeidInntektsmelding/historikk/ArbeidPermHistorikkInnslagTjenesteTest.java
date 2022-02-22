@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
+package no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
@@ -19,17 +19,15 @@ import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 
 @CdiDbAwareTest
-class ArbeidsforholdHistorikkTjenesteTest {
+class ArbeidPermHistorikkInnslagTjenesteTest {
     private static final String KUNSTIG_ORG = OrgNummer.KUNSTIG_ORG;
     private static final String INTERN_ARBEIDSFORHOLD_ID = "a6ea6724-868f-11e9-bc42-526af7764f64";
     private static final String ARB_NAVN = "Arbeidsgivernavn";
     private static final Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(KUNSTIG_ORG);
-    private static final InternArbeidsforholdRef internArbeidsforholdRef = InternArbeidsforholdRef.ref(INTERN_ARBEIDSFORHOLD_ID);
 
     @Inject
     private HistorikkTjenesteAdapter historikkAdapter;
@@ -41,7 +39,7 @@ class ArbeidsforholdHistorikkTjenesteTest {
     @Mock
     private HistorikkRepository historikkRepository;
 
-    private ArbeidsforholdHistorikkTjeneste arbeidsforholdHistorikkTjeneste;
+    private ArbeidPermHistorikkInnslagTjeneste arbeidPermHistorikkInnslagTjenesteTest;
 
     @BeforeEach
     void setUp(EntityManager entityManager) {
@@ -53,18 +51,12 @@ class ArbeidsforholdHistorikkTjenesteTest {
         new ArbeidsgiverOpplysninger(KUNSTIG_ORG, INTERN_ARBEIDSFORHOLD_ID);
         lenient().when(arbeidsgiverTjeneste.hent(arbeidsgiver)).thenReturn(new ArbeidsgiverOpplysninger(KUNSTIG_ORG, ARB_NAVN ));
 
-        arbeidsforholdHistorikkTjeneste = new ArbeidsforholdHistorikkTjeneste(historikkAdapter, arbeidsgiverTjeneste );
+        arbeidPermHistorikkInnslagTjenesteTest = new ArbeidPermHistorikkInnslagTjeneste(historikkAdapter, arbeidsgiverTjeneste );
     }
 
     @Test
     void lagTekstMedArbeidsgiver() {
-        var tekst = arbeidsforholdHistorikkTjeneste.lagTekstMedArbeidsgiverOgArbeidforholdRef(arbeidsgiver, null);
+        var tekst = arbeidPermHistorikkInnslagTjenesteTest.lagTekstForArbeidsgiver(arbeidsgiver);
         assertThat(tekst).isEqualTo(ARB_NAVN + " " +"(" + KUNSTIG_ORG + ")");
-    }
-
-    @Test
-    void lagTekstMedArbeidsgiverRef() {
-        var tekst = arbeidsforholdHistorikkTjeneste.lagTekstMedArbeidsgiverOgArbeidforholdRef(arbeidsgiver, internArbeidsforholdRef);
-        assertThat(tekst).isEqualTo(" ...4f64");
     }
 }

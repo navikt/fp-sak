@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
+package no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk;
 
 import java.util.List;
 
@@ -9,32 +9,34 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.AvklarPermisjonUtenSluttdatoDto;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.historikk.VurderArbeidsforholdHistorikkinnslag;
 
 @ApplicationScoped
-class ArbeidsforholdHistorikkTjeneste {
+public class ArbeidPermHistorikkInnslagTjeneste {
     private HistorikkTjenesteAdapter historikkAdapter;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
 
-    ArbeidsforholdHistorikkTjeneste() {
+    ArbeidPermHistorikkInnslagTjeneste() {
         // CDI
     }
 
     @Inject
-    ArbeidsforholdHistorikkTjeneste(HistorikkTjenesteAdapter historikkAdapter,
-                                    ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
+    public ArbeidPermHistorikkInnslagTjeneste(HistorikkTjenesteAdapter historikkAdapter, ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
         this.historikkAdapter = historikkAdapter;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
 
     }
 
-    public void opprettHistorikkinnslag(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref, AvklarPermisjonUtenSluttdatoDto avklartArbForhold) {
+    public void opprettHistorikkinnslag(AvklarPermisjonUtenSluttdatoDto avklartArbForhold) {
+        Arbeidsgiver arbeidsgiver = lagArbeidsgiver(avklartArbForhold.arbeidsgiverIdent());
 
-        var arbeidsforholdNavn = lagTekstMedArbeidsgiverOgArbeidforholdRef(arbeidsgiver, ref);
+        var arbeidsforholdNavn = lagTekstForArbeidsgiver(arbeidsgiver);
         var historikkInnslagType = utledHistorikkInnslagValg(avklartArbForhold.permisjonStatus());
 
         opprettHistorikkinnslagDel(historikkInnslagType, arbeidsforholdNavn, arbeidsforholdNavn);
@@ -48,33 +50,18 @@ class ArbeidsforholdHistorikkTjeneste {
         } else return null;
     }
 
-    String lagTekstMedArbeidsgiverOgArbeidforholdRef(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef) {
-        var sb = new StringBuilder();
-        //Usikker på denne - vil man ikke alltid ha arbeidsgivernavn?
-        if ((arbeidsgiver != null) && (internArbeidsforholdRef != null) && internArbeidsforholdRef.gjelderForSpesifiktArbeidsforhold()) {
-            return lagTekstForArbeidsforholdRef(internArbeidsforholdRef, sb);
+    String lagTekstForArbeidsgiver(Arbeidsgiver arbeidsgiver) {
+        if (arbeidsgiver == null) {
+            throw new IllegalStateException("Klarte ikke lage historikkinnslagstekst for arbeidsgiver");
+        } else {
+            var sb = new StringBuilder();
+            var opplysninger =  arbeidsgiverTjeneste.hent(arbeidsgiver);
+            sb.append(opplysninger.getNavn())
+                .append(" (")
+                .append(opplysninger.getIdentifikator())
+                .append(")");
+            return sb.toString();
         }
-        if (arbeidsgiver != null) {
-            return lagTekstForArbeidsgiver(arbeidsgiver, sb);
-        }
-        throw new IllegalStateException("Klarte ikke lage historikkinnslagstekst for arbeidsgiver");
-    }
-
-    private String lagTekstForArbeidsgiver(Arbeidsgiver arbeidsgiver, StringBuilder sb) {
-        var opplysninger =  arbeidsgiverTjeneste.hent(arbeidsgiver);
-        sb.append(opplysninger.getNavn())
-            .append(" (")
-            .append(opplysninger.getIdentifikator())
-            .append(")");
-        return sb.toString();
-    }
-
-    private String lagTekstForArbeidsforholdRef(InternArbeidsforholdRef internArbeidsforholdRef, StringBuilder sb) {
-        var referanse = internArbeidsforholdRef.getReferanse();
-        var sisteFireTegnIRef = referanse.substring(referanse.length() - 4);
-        sb.append(" ...")
-            .append(sisteFireTegnIRef);
-        return sb.toString();
     }
 
     private void opprettHistorikkinnslagDel(VurderArbeidsforholdHistorikkinnslag tilVerdi, String begrunnelse, String arbeidsforholdNavn) {
@@ -90,5 +77,12 @@ class ArbeidsforholdHistorikkTjeneste {
 
     private boolean harSkjermlenke(List<HistorikkinnslagDel> historikkDeler) {
         return historikkDeler.stream().anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
+    }
+
+    private Arbeidsgiver lagArbeidsgiver(String arbeidsgiverIdent) {
+        if (OrgNummer.erGyldigOrgnr(arbeidsgiverIdent)) {
+            return Arbeidsgiver.virksomhet(arbeidsgiverIdent);
+        }
+        return Arbeidsgiver.fra(new AktørId(arbeidsgiverIdent));
     }
 }

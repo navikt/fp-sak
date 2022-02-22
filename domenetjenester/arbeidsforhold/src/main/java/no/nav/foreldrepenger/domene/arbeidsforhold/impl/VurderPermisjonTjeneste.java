@@ -67,9 +67,9 @@ public final class VurderPermisjonTjeneste {
             if (utledetPermisjoner.isEmpty()) {
                 continue;
             }
-            if (harAlleredeTattStillingTilPermisjonUtenSluttdato(iayGrunnlag, ya, utledetPermisjoner)) {
+/*            if (harAlleredeTattStillingTilPermisjonUtenSluttdato(iayGrunnlag, ya, utledetPermisjoner)) {
                 continue;
-            }
+            }*/
             arbForholdMedPermUtenSluttdato.add(new ArbeidsforholdMangel(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO));
         }
 
@@ -83,6 +83,7 @@ public final class VurderPermisjonTjeneste {
                 .filter(ov -> gjelderSammeArbeidsforhold(ya, ov))
                 .anyMatch(ov -> harSammePermisjonsperiode(ya, ov));
     }
+
     private static boolean harAlleredeTattStillingTilPermisjon(InntektArbeidYtelseGrunnlag grunnlag,
             Yrkesaktivitet ya,
             Collection<PermisjonDto> utledetPermisjoner) {
