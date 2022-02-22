@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.kodeverk.app;
+package no.nav.foreldrepenger.web.app.jackson;
 
 import java.io.IOException;
 import java.util.Set;
@@ -12,16 +12,29 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.ÅrsakskodeMedLovreferans
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 
 /**
- * Enkel serialisering av Kodevedi'er for å sende en stor map mot navn, etc til frontend.
+ * Enkel serialisering av KodeverkTabell klasser, uten at disse trenger @JsonIgnore eller lignende.
+ * Deserialisering går av seg selv normalt (får null for andre felter).
+ *
+ * TODO: Flytt til web kodeverk KodeverRestTjeneste når all normal (De)Ser av Kodeverdi skjer med JsonValue
  */
 public class KodeverdiSerializer extends StdSerializer<Kodeverdi> {
 
-    public KodeverdiSerializer() {
+    private boolean serialiserKodelisteNavn;
+
+    public KodeverdiSerializer(boolean serialiserKodelisteNavn) {
         super(Kodeverdi.class);
+        this.serialiserKodelisteNavn = serialiserKodelisteNavn;
     }
 
     @Override
     public void serialize(Kodeverdi value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+        /*
+         * Midlertidig til vi helt skiller vanlig serialisering (JsonValue) fra custom kodemapserialisering
+         */
+        if (!serialiserKodelisteNavn) {
+            jgen.writeString(value.getKode());
+            return;
+        }
 
         jgen.writeStartObject();
 
@@ -52,6 +65,5 @@ public class KodeverdiSerializer extends StdSerializer<Kodeverdi> {
         }
         jgen.writeEndArray();
     }
-
 
 }

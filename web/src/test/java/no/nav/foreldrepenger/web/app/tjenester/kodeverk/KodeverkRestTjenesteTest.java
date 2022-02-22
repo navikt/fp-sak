@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.app.HentKodeverkTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.kodeverk.app.JacksonForKodeMap;
 
 public class KodeverkRestTjenesteTest {
 
@@ -89,7 +88,7 @@ public class KodeverkRestTjenesteTest {
     @Test
     public void serialize_kodeverdi_uttak_full() throws Exception {
 
-        var jsonConfig = new JacksonForKodeMap();
+        var jsonConfig = new JacksonJsonConfig(true);
 
         var om = jsonConfig.getObjectMapper();
 

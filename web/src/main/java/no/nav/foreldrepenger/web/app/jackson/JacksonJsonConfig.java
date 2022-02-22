@@ -36,7 +36,11 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
      * output for kodeverk.
      */
     public JacksonJsonConfig() {
-        objectMapper = createObjectMapper(createModule());
+        this(false);
+    }
+
+    public JacksonJsonConfig(boolean serialiserKodelisteNavn) {
+        objectMapper = createObjectMapper(createModule(serialiserKodelisteNavn));
     }
 
     private static ObjectMapper createObjectMapper(SimpleModule simpleModule) {
@@ -76,9 +80,16 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
         return om;
     }
 
-    private static SimpleModule createModule() {
+    private static SimpleModule createModule(boolean serialiserKodelisteNavn) {
         var module = new SimpleModule("VL-REST", new Version(1, 0, 0, null, null, null));
+
+        addSerializers(module, serialiserKodelisteNavn);
+
         return module;
+    }
+
+    private static void addSerializers(SimpleModule module, boolean serialiserKodelisteNavn) {
+        module.addSerializer(new KodeverdiSerializer(serialiserKodelisteNavn));
     }
 
     /**
