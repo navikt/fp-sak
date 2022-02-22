@@ -295,7 +295,7 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
                 ADOPSJONSVILKÅRET_IKKE_OPPFYLT,
                 FORELDREANSVARSVILKÅRET_IKKE_OPPFYLT,
                 OPPTJENINGSVILKÅRET_IKKE_OPPFYLT,
-                STØNADSPERIODE_NYTT_BARN);
+                BARN_OVER_3_ÅR, STØNADSPERIODE_NYTT_BARN);
         }
         return Set.of(
             MOR_HAR_IKKE_OMSORG,
