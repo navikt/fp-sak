@@ -6,7 +6,6 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -147,7 +146,7 @@ public class UttakRestTjeneste {
     }
 
     private SaldoerDto defaultSvar() {
-        return new SaldoerDto(Optional.empty(), Map.of(), 0);
+        return new SaldoerDto(null, Map.of(), 0);
     }
 
     @GET
