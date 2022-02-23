@@ -68,6 +68,15 @@ public class ArbeidsforholdValgRepository {
         return query.getResultList();
     }
 
+    /**
+     * Kopierer grunnlag fra en tidligere behandling. Lager helt ny entiteter.
+     */
+    public void kopierGrunnlagFraEksisterendeBehandling(Long originalBehandlingId, Long nyBehandlingId) {
+        var valgPåOriginalBehandling = hentArbeidsforholdValgForBehandling(originalBehandlingId);
+        var kopierteValg = valgPåOriginalBehandling.stream().map(valg -> ArbeidsforholdValg.kopier(valg).build()).toList();
+        kopierteValg.forEach(valg -> lagre(valg, nyBehandlingId));
+    }
+
     private void lagre(ArbeidsforholdValg arbeidsforholdValg) {
         entityManager.persist(arbeidsforholdValg);
         entityManager.flush();

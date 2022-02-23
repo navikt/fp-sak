@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
@@ -47,6 +48,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private VergeRepository vergeRepository;
     private NesteSakRepository nesteSakRepository;
+    private ArbeidsforholdValgRepository arbeidsforholdValgRepository;
 
     public RevurderingTjenesteImpl() {
         // for CDI proxy
@@ -73,6 +75,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         this.revurderingEndring = revurderingEndring;
         this.revurderingTjenesteFelles = revurderingTjenesteFelles;
         this.vergeRepository = vergeRepository;
+        this.arbeidsforholdValgRepository = grunnlagRepositoryProvider.getArbeidsforholdValgRepository();
     }
 
     @Override
@@ -139,6 +142,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         vergeRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         opptjeningIUtlandDokStatusRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId,nyBehandlingId);
         nesteSakRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
+        arbeidsforholdValgRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
 
         // gjør til slutt, innebærer kall til abakus
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);

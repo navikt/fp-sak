@@ -6,6 +6,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
@@ -34,6 +35,7 @@ public class BehandlingGrunnlagRepositoryProvider {
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private OpptjeningIUtlandDokStatusRepository opptjeningIUtlandDokStatusRepository;
+    private ArbeidsforholdValgRepository arbeidsforholdValgRepository;
 
     BehandlingGrunnlagRepositoryProvider() {
         // for CDI proxy
@@ -53,6 +55,7 @@ public class BehandlingGrunnlagRepositoryProvider {
         this.søknadRepository = new SøknadRepository(entityManager, new BehandlingRepository(entityManager));
         this.opptjeningIUtlandDokStatusRepository = new OpptjeningIUtlandDokStatusRepository(entityManager);
         this.nesteSakRepository = new NesteSakRepository(entityManager);
+        this.arbeidsforholdValgRepository = new ArbeidsforholdValgRepository(entityManager);
 
         // Ytelsespesifikke grunnlag
         this.ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
@@ -101,5 +104,9 @@ public class BehandlingGrunnlagRepositoryProvider {
 
     public NesteSakRepository getNesteSakRepository() {
         return nesteSakRepository;
+    }
+
+    public ArbeidsforholdValgRepository getArbeidsforholdValgRepository() {
+        return arbeidsforholdValgRepository;
     }
 }
