@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -54,7 +53,6 @@ public class BehandlingRepositoryProvider {
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
-    private ArbeidsforholdValgRepository arbeidsforholdValgRepository;
 
     private BehandlingRepository behandlingRepository;
     private FagsakLåsRepository fagsakLåsRepository;
@@ -87,7 +85,6 @@ public class BehandlingRepositoryProvider {
         this.fpUttakRepository = new FpUttakRepository(entityManager);
         this.uttaksperiodegrenseRepository = new UttaksperiodegrenseRepository(entityManager);
         this.behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
-        this.arbeidsforholdValgRepository = new ArbeidsforholdValgRepository(entityManager);
 
         // behandling resultat aggregater
         this.beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
@@ -197,9 +194,5 @@ public class BehandlingRepositoryProvider {
 
     public UttaksperiodegrenseRepository getUttaksperiodegrenseRepository() {
         return uttaksperiodegrenseRepository;
-    }
-
-    public ArbeidsforholdValgRepository getArbeidsforholdValgRepository() {
-        return arbeidsforholdValgRepository;
     }
 }
