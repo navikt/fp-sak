@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler;
-import no.nav.vedtak.felles.integrasjon.rest.SystemUserOidcRestClient;
 
 @ApplicationScoped
 public class KalkulusRestKlient {
@@ -73,11 +72,6 @@ public class KalkulusRestKlient {
 
     @Inject
     public KalkulusRestKlient(OidcRestClient restClient, @KonfigVerdi(value = "ftkalkulus.url") URI endpoint) {
-        this(endpoint);
-        this.restClient = restClient;
-    }
-
-    public KalkulusRestKlient(SystemUserOidcRestClient restClient, URI endpoint) {
         this(endpoint);
         this.restClient = restClient;
     }

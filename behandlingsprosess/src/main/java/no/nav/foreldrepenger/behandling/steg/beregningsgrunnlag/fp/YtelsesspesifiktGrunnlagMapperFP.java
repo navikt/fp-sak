@@ -49,7 +49,7 @@ public class YtelsesspesifiktGrunnlagMapperFP implements YtelsesspesifiktGrunnla
                                             BeregningUttakTjeneste beregningUttakTjeneste,
                                             BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste) {
 
-        this.behandlingRepository = Objects.requireNonNull(behandlingRepository, "behandlingRepository");
+        this.behandlingRepository = Objects.requireNonNull(behandlingRepositoryProvider.getBehandlingRepository(), "behandlingRepository");
         this.fagsakRelasjonRepository = Objects.requireNonNull(behandlingRepositoryProvider.getFagsakRelasjonRepository(),
             "fagsakRelasjonRepository");
         this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;
@@ -93,7 +93,7 @@ public class YtelsesspesifiktGrunnlagMapperFP implements YtelsesspesifiktGrunnla
     }
 
     private AktivitetGraderingDto mapAktivitetGradering(AktivitetGradering aktivitetGradering) {
-        return new AktivitetGraderingDto(mapAndelGradering(aktivitetGradering));
+        return aktivitetGradering.getAndelGradering().isEmpty() ? null : new AktivitetGraderingDto(mapAndelGradering(aktivitetGradering));
     }
 
     private List<AndelGraderingDto> mapAndelGradering(AktivitetGradering aktivitetGradering) {
