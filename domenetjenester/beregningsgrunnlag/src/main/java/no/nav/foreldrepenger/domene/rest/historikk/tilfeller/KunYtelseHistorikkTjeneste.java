@@ -42,7 +42,8 @@ public class KunYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjenest
     public void lagHistorikk(Long behandlingId,
                              OppdaterBeregningsgrunnlagResultat oppdaterResultat,
                              FaktaBeregningLagreDto dto,
-                             HistorikkInnslagTekstBuilder tekstBuilder, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+                             HistorikkInnslagTekstBuilder tekstBuilder,
+                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var kunYtelseDto = dto.getKunYtelseFordeling();
         var arbeidsforholdOverstyringer = iayGrunnlag.getArbeidsforholdOverstyringer();
         var andeler = kunYtelseDto.getAndeler();
@@ -65,7 +66,7 @@ public class KunYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjenest
                                          List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
         var andelsInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(e.getAktivitetStatus(),
             e.getArbeidsgiver(), Optional.ofNullable(e.getArbeidsforholdRef()), arbeidsforholdOverstyringer);
-        var forrigeInntektskategori = e.getInntektskategoriEndring().map(InntektskategoriEndring::getFraVerdi).orElse(null);
+        var forrigeInntektskategori = e.getInntektskategoriEndring().map(InntektskategoriEndring::getFraVerdi).orElse(Inntektskategori.UDEFINERT);
         if (e.getInntektEndring().map(BeløpEndring::erEndret).orElse(false)) {
             lagHistorikkinnslagdelForFordeling(andelsInfo, forrigeInntektskategori,
                 e.getInntektEndring().map(BeløpEndring::getTilMånedsbeløp).map(BigDecimal::intValue).orElse(null),

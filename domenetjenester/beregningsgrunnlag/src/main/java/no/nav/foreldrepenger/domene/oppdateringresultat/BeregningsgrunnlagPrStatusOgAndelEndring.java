@@ -28,6 +28,7 @@ public class BeregningsgrunnlagPrStatusOgAndelEndring {
         this.andelsnr = andelsnr;
         this.arbeidsgiver = arbeidsgiver;
         this.arbeidsforholdRef = arbeidsforholdRef;
+        this.aktivitetStatus = AktivitetStatus.ARBEIDSTAKER;
     }
 
     private BeregningsgrunnlagPrStatusOgAndelEndring(Long andelsnr, OpptjeningAktivitetType arbeidsforholdType) {

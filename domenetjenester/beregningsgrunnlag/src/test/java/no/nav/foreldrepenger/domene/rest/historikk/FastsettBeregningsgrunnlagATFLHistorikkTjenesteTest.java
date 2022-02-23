@@ -159,8 +159,8 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
 
         var endring = erFrilans ? new BeregningsgrunnlagPrStatusOgAndelEndring(1L,
             no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus.FRILANSER) : new BeregningsgrunnlagPrStatusOgAndelEndring(1L,
-            Arbeidsgiver.virksomhet(virksomheten.getOrgnr()), InternArbeidsforholdRef.nullRef());
-        endring.setBeløpEndring(new BeløpEndring(null, BigDecimal.valueOf(BRUTTO_PR_AR)));
+            Arbeidsgiver.virksomhet(virksomheten.getOrgnr()), ARBEIDSFORHOLD_ID);
+        endring.setBeløpEndring(new BeløpEndring(null, erFrilans ? BigDecimal.valueOf(FRILANSER_INNTEKT) : BigDecimal.valueOf(OVERSTYRT_PR_AR)));
         return endring;
     }
 }

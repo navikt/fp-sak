@@ -107,7 +107,7 @@ public class KunYtelseHistorikkTjenesteTest {
         var andelEndring = new BeregningsgrunnlagPrStatusOgAndelEndring(andelsnr, AktivitetStatus.BRUKERS_ANDEL);
         andelEndring.setBeløpEndring(new BeløpEndring(forrigeFastsatt != null ? BigDecimal.valueOf(forrigeFastsatt*12) : null,
             BigDecimal.valueOf(fastsatt*12)));
-        andelEndring.setInntektskategoriEndring(new InntektskategoriEndring(null, inntektskategori));
+        andelEndring.setInntektskategoriEndring(new InntektskategoriEndring(Inntektskategori.ARBEIDSTAKER, inntektskategori));
         return andelEndring;
     }
 
