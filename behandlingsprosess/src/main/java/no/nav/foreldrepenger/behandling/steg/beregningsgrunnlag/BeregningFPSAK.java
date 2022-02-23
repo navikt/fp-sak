@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
@@ -69,7 +70,7 @@ public class BeregningFPSAK implements BeregningAPI {
     @Inject
     public BeregningFPSAK(BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                           BehandlingRepository behandlingRepository,
-                          Instance<SkjæringstidspunktTjeneste> skjæringstidspunktTjeneste,
+                          @Any Instance<SkjæringstidspunktTjeneste> skjæringstidspunktTjeneste,
                           HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste,
                           BeregningsgrunnlagVilkårTjeneste beregningsgrunnlagVilkårTjeneste,
                           BeregningsgrunnlagInputProvider inputTjenesteProvider,

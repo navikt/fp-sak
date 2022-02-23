@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
@@ -48,7 +49,7 @@ public class BeregningKalkulus implements BeregningAPI {
 
     @Inject
     public BeregningKalkulus(BehandlingRepository behandlingRepository,
-                             Instance<SkjæringstidspunktTjeneste> skjæringstidspunktTjeneste,
+                             @Any Instance<SkjæringstidspunktTjeneste> skjæringstidspunktTjeneste,
                              BeregningsgrunnlagVilkårTjeneste beregningsgrunnlagVilkårTjeneste,
                              KalkulusTjeneste kalkulusTjeneste,
                              BeregningsaktivitetHistorikkTjeneste historikkTjeneste,
