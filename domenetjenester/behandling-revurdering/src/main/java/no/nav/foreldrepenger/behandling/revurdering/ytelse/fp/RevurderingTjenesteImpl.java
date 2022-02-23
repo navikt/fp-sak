@@ -89,6 +89,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         this.revurderingTjenesteFelles = revurderingTjenesteFelles;
         this.vergeRepository = vergeRepository;
         this.søknadRepository = grunnlagProvider.getSøknadRepository();
+        this.arbeidsforholdValgRepository = grunnlagProvider.getArbeidsforholdValgRepository();
     }
 
     @Override
