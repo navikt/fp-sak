@@ -63,7 +63,7 @@ public class ArbeidsforholdInntektsmeldingRyddeTjeneste {
     public static List<ArbeidsforholdValg> finnUgyldigeValgSomErGjort(List<ArbeidsforholdValg> valgPåBehandlingen,
                                                                       List<ArbeidsforholdInntektsmeldingMangel> manglerPåBehandlingen) {
         return valgPåBehandlingen.stream()
-            .filter(valg -> liggerIMangelListe(valg, manglerPåBehandlingen))
+            .filter(valg -> !liggerIMangelListe(valg, manglerPåBehandlingen))
             .collect(Collectors.toList());
 
     }
