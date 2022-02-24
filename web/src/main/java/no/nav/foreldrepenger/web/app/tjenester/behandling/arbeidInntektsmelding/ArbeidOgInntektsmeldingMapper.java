@@ -168,22 +168,19 @@ public class ArbeidOgInntektsmeldingMapper {
 
     public static List<ArbeidsforholdDto> mapOverstyrteArbeidsforhold(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer,
                                                                       Collection<ArbeidsforholdReferanse> referanser,
-                                                                      List<ArbeidsforholdInntektsmeldingMangel> mangler,
-                                                                      LocalDate utledetSkjæringstidspunkt) {
+                                                                      List<ArbeidsforholdInntektsmeldingMangel> mangler) {
         return arbeidsforholdOverstyringer.stream()
-            .map(overstyring -> mapManueltArbeidsforhold(overstyring, referanser, mangler, utledetSkjæringstidspunkt))
+            .map(overstyring -> mapManueltArbeidsforhold(overstyring, referanser, mangler))
             .collect(Collectors.toList());
     }
 
     private static ArbeidsforholdDto mapManueltArbeidsforhold(ArbeidsforholdOverstyring overstyring,
                                                               Collection<ArbeidsforholdReferanse> referanser,
-                                                              List<ArbeidsforholdInntektsmeldingMangel> mangler,
-                                                              LocalDate utledetSkjæringstidspunkt) {
+                                                              List<ArbeidsforholdInntektsmeldingMangel> mangler) {
         var eksternRef = finnEksternRef(overstyring.getArbeidsforholdRef(), referanser);
         var mangel = finnIdentifisertMangelForArbeidsforhold(overstyring.getArbeidsgiver(), overstyring.getArbeidsforholdRef(), mangler);
         var relevantPeriode = overstyring.getArbeidsforholdOverstyrtePerioder().stream()
             .map(ArbeidsforholdOverstyrtePerioder::getOverstyrtePeriode)
-            .filter(overstyrtePeriode -> overstyrtePeriode.inkluderer(utledetSkjæringstidspunkt))
             .findFirst();
         return new ArbeidsforholdDto(overstyring.getArbeidsgiver().getIdentifikator(),
             overstyring.getArbeidsforholdRef().getReferanse(),
