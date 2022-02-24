@@ -76,7 +76,7 @@ public class KodeverkRestTjenesteTest {
     @Test
     public void serialize_kodeverdi_uttak() throws Exception {
 
-        var jsonConfig = new JacksonJsonConfig(false);
+        var jsonConfig = new JacksonJsonConfig();
 
         var om = jsonConfig.getObjectMapper();
 

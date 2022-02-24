@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.AvslagsårsakMa
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.domene.medlem.api.EndringsresultatPersonopplysningerForMedlemskap;
 import no.nav.foreldrepenger.domene.medlem.api.EndringsresultatPersonopplysningerForMedlemskap.EndretAttributt;
 import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
@@ -212,7 +212,7 @@ public class MedlemTjeneste {
         return Optional.empty();
     }
 
-    private <T extends BasisKodeverdi> void sjekkEndringer(Stream<ElementMedGyldighetsintervallWrapper<T>> elementer,
+    private <T extends Kodeverdi> void sjekkEndringer(Stream<ElementMedGyldighetsintervallWrapper<T>> elementer,
                                                       EndringsresultatPersonopplysningerForMedlemskap.Builder builder, EndretAttributt endretAttributt) {
         var endringer = elementer
             .sorted(Comparator.comparing(ElementMedGyldighetsintervallWrapper::sortPeriode))
@@ -221,7 +221,7 @@ public class MedlemTjeneste {
         leggTilEndringer(endringer, builder, endretAttributt);
     }
 
-    private <T extends BasisKodeverdi> void leggTilEndringer(List<ElementMedGyldighetsintervallWrapper<T>> endringer,
+    private <T extends Kodeverdi> void leggTilEndringer(List<ElementMedGyldighetsintervallWrapper<T>> endringer,
                                                         EndringsresultatPersonopplysningerForMedlemskap.Builder builder, EndretAttributt endretAttributt) {
         if (endringer != null && endringer.size() > 1) {
             for (var i = 0; i < endringer.size() - 1; i++) {

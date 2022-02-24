@@ -1,5 +1,14 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -7,20 +16,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import no.nav.foreldrepenger.behandlingslager.behandling.ÅrsakskodeMedLovreferanse;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.ÅrsakskodeMedLovreferanse;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse{
+public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
 
     SØKT_FOR_TIDLIG("1001", "Søkt for tidlig", "{\"fagsakYtelseType\": [{\"FP\": [{\"kategori\": \"FP_VK_1\", \"lovreferanse\": \"14-5\"}]}]}"),
     SØKER_ER_MEDMOR("1002", "Søker er medmor", null),

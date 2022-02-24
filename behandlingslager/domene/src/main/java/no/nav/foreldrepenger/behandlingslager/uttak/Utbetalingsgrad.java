@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.uttak;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
@@ -12,13 +11,9 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 @Embeddable
-@JsonSerialize(using = Utbetalingsgrad.MyUtbetalingsgradSerializer.class)
 public class Utbetalingsgrad implements Comparable<Utbetalingsgrad> {
 
     public static final Utbetalingsgrad ZERO = new Utbetalingsgrad(0);
@@ -26,6 +21,7 @@ public class Utbetalingsgrad implements Comparable<Utbetalingsgrad> {
     public static final Utbetalingsgrad FULL = new Utbetalingsgrad(100);
     public static final Utbetalingsgrad HUNDRED = FULL;
 
+    @JsonValue
     @Column(name = "utbetalingsprosent")
     @Min(0)
     @Max(100)
@@ -82,23 +78,5 @@ public class Utbetalingsgrad implements Comparable<Utbetalingsgrad> {
     @Override
     public int compareTo(Utbetalingsgrad utbetalingsgrad) {
         return decimalValue().compareTo(utbetalingsgrad.decimalValue());
-    }
-
-    static class UtbetalingsgradSerializer<V extends Utbetalingsgrad> extends StdSerializer<V> {
-
-        public UtbetalingsgradSerializer(Class<V> targetCls) {
-            super(targetCls);
-        }
-
-        @Override
-        public void serialize(V value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-            jgen.writeNumber(value.decimalValue());
-        }
-    }
-
-    static class MyUtbetalingsgradSerializer extends Utbetalingsgrad.UtbetalingsgradSerializer<Utbetalingsgrad> {
-        public MyUtbetalingsgradSerializer() {
-            super(Utbetalingsgrad.class);
-        }
     }
 }
