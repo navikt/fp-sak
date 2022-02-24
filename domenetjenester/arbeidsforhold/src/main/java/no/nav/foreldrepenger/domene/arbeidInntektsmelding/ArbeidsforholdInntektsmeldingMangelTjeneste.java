@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk.ArbeidInntektHistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
@@ -22,6 +23,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private ArbeidsforholdInntektsmeldingsMangelUtleder arbeidsforholdInntektsmeldingsMangelUtleder;
+    private ArbeidInntektHistorikkinnslagTjeneste arbeidInntektHistorikkinnslagTjeneste;
 
 
     public ArbeidsforholdInntektsmeldingMangelTjeneste() {
@@ -32,11 +34,13 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     public ArbeidsforholdInntektsmeldingMangelTjeneste(ArbeidsforholdValgRepository arbeidsforholdValgRepository,
                                                        ArbeidsforholdAdministrasjonTjeneste arbeidsforholdTjeneste,
                                                        InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                                       ArbeidsforholdInntektsmeldingsMangelUtleder arbeidsforholdInntektsmeldingsMangelUtleder) {
+                                                       ArbeidsforholdInntektsmeldingsMangelUtleder arbeidsforholdInntektsmeldingsMangelUtleder,
+                                                       ArbeidInntektHistorikkinnslagTjeneste arbeidInntektHistorikkinnslagTjeneste) {
         this.arbeidsforholdValgRepository = arbeidsforholdValgRepository;
         this.arbeidsforholdTjeneste = arbeidsforholdTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.arbeidsforholdInntektsmeldingsMangelUtleder = arbeidsforholdInntektsmeldingsMangelUtleder;
+        this.arbeidInntektHistorikkinnslagTjeneste = arbeidInntektHistorikkinnslagTjeneste;
     }
 
     public void lagreManglendeOpplysningerVurdering(BehandlingReferanse behandlingReferanse, ManglendeOpplysningerVurderingDto dto) {
@@ -45,6 +49,8 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         var arbeidsforholdMedMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse);
         var entitet = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, arbeidsforholdMedMangler);
         arbeidsforholdValgRepository.lagre(entitet, behandlingReferanse.getBehandlingId());
+        var iaygrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId());
+        arbeidInntektHistorikkinnslagTjeneste.opprettHistorikkinnslag(behandlingReferanse, dto, iaygrunnlag);
     }
 
     private void ryddBortManuelleArbeidsforholdVedBehov(BehandlingReferanse behandlingReferanse, ManglendeOpplysningerVurderingDto dto) {
@@ -66,6 +72,8 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         var informasjonBuilder = arbeidsforholdTjeneste.opprettBuilderFor(behandlingReferanse.getBehandlingId());
         ArbeidsforholdInformasjonBuilder oppdatertBuilder = ArbeidsforholdInntektsmeldingMangelMapper.mapManueltArbeidsforhold(dto, arbeidsforholdMedMangler, informasjonBuilder);
         arbeidsforholdTjeneste.lagreOverstyring(behandlingReferanse.getBehandlingId(), behandlingReferanse.getAktørId(), oppdatertBuilder);
+        var iaygrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId());
+        arbeidInntektHistorikkinnslagTjeneste.opprettHistorikkinnslag(behandlingReferanse, dto, iaygrunnlag);
     }
 
     public List<ArbeidsforholdInntektsmeldingMangel> utledManglerPåArbeidsforholdInntektsmelding(BehandlingReferanse behandlingReferanse) {
