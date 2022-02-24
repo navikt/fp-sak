@@ -17,7 +17,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 @Entity(name = "HistorikkinnslagFelt")
@@ -173,7 +172,7 @@ public class HistorikkinnslagFelt extends BaseEntitet implements IndexKey {
             return this;
         }
 
-        public Builder medNavn(BasisKodeverdi kodeliste) {
+        public Builder medNavn(Kodeverdi kodeliste) {
             kladd.navn = kodeliste.getKode();
             kladd.klNavn = kodeliste.getKodeverk();
             return this;
@@ -184,7 +183,7 @@ public class HistorikkinnslagFelt extends BaseEntitet implements IndexKey {
             return this;
         }
 
-        public Builder medFraVerdi(BasisKodeverdi fraVerdi) {
+        public Builder medFraVerdi(Kodeverdi fraVerdi) {
             if (fraVerdi != null) {
                 kladd.fraVerdiKode = fraVerdi.getKode();
                 kladd.klFraVerdi = fraVerdi.getKodeverk();

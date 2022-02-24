@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
@@ -184,7 +184,7 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
                                                      HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder,
                                                      AnkeVurderingResultatAksjonspunktDto dto,
                                                      AnkeResultatEntitet ankeResultat,
-                                                     BasisKodeverdi årsakFraDto,
+                                                     Kodeverdi årsakFraDto,
                                                      HistorikkResultatType resultat,
                                                      Long påAnketKlageBehandlingId) {
         if (erVedtakOppdatert(ankeResultat, påAnketKlageBehandlingId)) {
@@ -257,7 +257,7 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
 
     private boolean erAnkeOmgjørÅrsakEndret(AnkeVurderingResultatEntitet ankeVurderingResultat,
                                             AnkeVurderingResultatAksjonspunktDto dto,
-                                            BasisKodeverdi årsakFraDto) {
+                                            Kodeverdi årsakFraDto) {
         return ankeVurderingResultat.getAnkeOmgjørÅrsak() != null && dto.getAnkeOmgjoerArsak() != null
             && årsakFraDto != null && !ankeVurderingResultat.getAnkeOmgjørÅrsak().equals(dto.getAnkeOmgjoerArsak());
     }

@@ -104,7 +104,7 @@ public class SaldoerDtoTjeneste {
                     kontoUtvidelser.orElse(null)));
         }
         var tapteDagerFpff = finnTapteDagerFpff(input);
-        return new SaldoerDto(maksDatoUttakTjeneste.beregnMaksDatoUttak(input), stønadskontoMap, tapteDagerFpff);
+        return new SaldoerDto(maksDatoUttakTjeneste.beregnMaksDatoUttak(input).orElse(null), stønadskontoMap, tapteDagerFpff);
     }
 
     private int finnTapteDagerFpff(UttakInput input) {

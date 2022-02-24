@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
@@ -58,6 +59,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private VergeRepository vergeRepository;
     private SøknadRepository søknadRepository;
+    private ArbeidsforholdValgRepository arbeidsforholdValgRepository;
 
     public RevurderingTjenesteImpl() {
         // for CDI proxy
@@ -87,6 +89,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         this.revurderingTjenesteFelles = revurderingTjenesteFelles;
         this.vergeRepository = vergeRepository;
         this.søknadRepository = grunnlagProvider.getSøknadRepository();
+        this.arbeidsforholdValgRepository = grunnlagProvider.getArbeidsforholdValgRepository();
     }
 
     @Override
@@ -160,6 +163,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         }
         vergeRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         opptjeningIUtlandDokStatusRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
+        arbeidsforholdValgRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
 
         // gjør til slutt, innebærer kall til abakus
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
@@ -184,7 +188,6 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         var originalSøknad = søknadRepository.hentSøknad(originalBehandlingId);
         var søknadBuilder = new SøknadEntitet.Builder(originalSøknad, true).medErEndringssøknad(false);
         søknadRepository.lagreOgFlush(ny, søknadBuilder.build());
-
         opptjeningIUtlandDokStatusRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
 
         // gjør til slutt, innebærer kall til abakus

@@ -14,7 +14,9 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdInntektsmeldingToggleTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -27,7 +29,7 @@ class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbei
     private BehandlingRepository behandlingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private AksjonspunktUtlederForArbeidsforholdInntektsmelding utleder;
-
+    private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
     KontrollerArbeidsforholdInntektsmeldingStegImpl() {
         // for CDI proxy
     }
@@ -35,10 +37,12 @@ class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbei
     @Inject
     KontrollerArbeidsforholdInntektsmeldingStegImpl(BehandlingRepository behandlingRepository,
                                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                                    AksjonspunktUtlederForArbeidsforholdInntektsmelding utleder) {
+                                                    AksjonspunktUtlederForArbeidsforholdInntektsmelding utleder,
+                                                    ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.utleder = utleder;
+        this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
     }
 
     @Override
@@ -48,8 +52,19 @@ class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbei
         }
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
+
+        // Hvis behandlingen har løst 5080 skal den ikke også få utledet 5085, tidlig return.
+        if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD)) {
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
+        }
+
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
+
+        if (ref.erRevurdering()) {
+            arbeidsforholdInntektsmeldingMangelTjeneste.ryddVekkUgyldigeValg(ref);
+            arbeidsforholdInntektsmeldingMangelTjeneste.ryddVekkUgyldigeArbeidsforholdoverstyringer(ref);
+        }
         List<AksjonspunktResultat> aksjonspuntker = new ArrayList<>(utleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref)));
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspuntker);
     }

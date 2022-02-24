@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 /**
  * Hjelpeklasse som tilbyr bygging av en mapping mellom kodelisteinnslag og noe annet.
@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
  * Kodelisteinnslag kan ikke brukes som case i en switch, så denne klassen er et kompakt og effektivt alternativ
  * som også støtter toveis mapping.
  */
-public class KodeMapper<K extends BasisKodeverdi, O> {
+public class KodeMapper<K extends Kodeverdi, O> {
     private final List<Kodemapping<K,O>> mappinger;
 
     private KodeMapper(List<Kodemapping<K,O>> mappinger) {
@@ -30,11 +30,11 @@ public class KodeMapper<K extends BasisKodeverdi, O> {
             .findAny();
     }
 
-    public static <R extends BasisKodeverdi, T> Builder<R, T> medMapping(R r, T t) {
+    public static <R extends Kodeverdi, T> Builder<R, T> medMapping(R r, T t) {
         return new Builder<R, T>().medMapping(r, t);
     }
 
-    public static class Builder<R extends BasisKodeverdi, T> {
+    public static class Builder<R extends Kodeverdi, T> {
         private final ArrayList<R> rs;
         private final ArrayList<T> ts;
 
@@ -64,5 +64,5 @@ public class KodeMapper<K extends BasisKodeverdi, O> {
         }
     }
 
-    private record Kodemapping<R extends BasisKodeverdi, O>(R key, O mapped) {}
+    private record Kodemapping<R extends Kodeverdi, O>(R key, O mapped) {}
 }
