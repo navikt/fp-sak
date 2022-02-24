@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBegrunnelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
@@ -90,6 +91,7 @@ public class HistorikkInnslagTekstBuilder {
             // Domene : arbeid og beregningsgrunnlag
             new SimpleEntry<>(Inntektskategori.KODEVERK, Inntektskategori.kodeMap()),
             new SimpleEntry<>(VurderArbeidsforholdHistorikkinnslag.KODEVERK, VurderArbeidsforholdHistorikkinnslag.kodeMap()),
+            new SimpleEntry<>(ArbeidsforholdKomplettVurderingType.KODEVERK, ArbeidsforholdKomplettVurderingType.kodeMap()),
 
             // Domene : klage og anke
             new SimpleEntry<>(KlageMedholdÅrsak.KODEVERK, KlageMedholdÅrsak.kodeMap()),
