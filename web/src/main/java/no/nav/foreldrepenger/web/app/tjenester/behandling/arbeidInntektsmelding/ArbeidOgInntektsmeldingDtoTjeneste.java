@@ -96,8 +96,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
             saksbehandlersVurderinger);
         var arbeidsforholdFraOverstyringer = ArbeidOgInntektsmeldingMapper.mapOverstyrteArbeidsforhold(iayGrunnlag.getArbeidsforholdOverstyringer(),
             referanser,
-            mangler,
-            behandlingReferanse.getUtledetSkjæringstidspunkt());
+            mangler);
         var alleArbeidsforhold = new ArrayList<>(arbeidsforholdFraRegister);
         alleArbeidsforhold.addAll(arbeidsforholdFraOverstyringer);
         return alleArbeidsforhold;
