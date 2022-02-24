@@ -81,13 +81,10 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
     }
 
     private Arbeidsgiver lagArbeidsgiver(String arbeidsgiverIdent) {
-        Arbeidsgiver ag;
         if (OrgNummer.erGyldigOrgnr(arbeidsgiverIdent)) {
-            ag = Arbeidsgiver.virksomhet(arbeidsgiverIdent);
-        } else {
-            ag = Arbeidsgiver.fra(new AktørId(arbeidsgiverIdent));
+            return Arbeidsgiver.virksomhet(arbeidsgiverIdent);
         }
-        return ag;
+        return Arbeidsgiver.fra(new AktørId(arbeidsgiverIdent));
     }
 
     private Optional<String> finnNavnFraSaksbehandler(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {

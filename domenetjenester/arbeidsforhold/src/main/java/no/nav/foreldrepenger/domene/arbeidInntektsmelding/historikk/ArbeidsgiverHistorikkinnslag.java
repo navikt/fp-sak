@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 
 class ArbeidsgiverHistorikkinnslag {
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     private ArbeidsgiverHistorikkinnslag() {
         // Skjuler default konstruktør
@@ -33,18 +34,20 @@ class ArbeidsgiverHistorikkinnslag {
         var arbeidsgiverNavn = opplysninger.getNavn();
         sb.append(arbeidsgiverNavn);
 
-        if (opplysninger.getFødselsdato() != null) {
-            sb.append(opplysninger.getFødselsdato().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        }
-
         // Ved kunstig orgnr er det ikke noe orgnr å vise, da det ikke betyr noe for saksbehandler
-        if (!OrgNummer.KUNSTIG_ORG.equals(opplysninger.getIdentifikator())) {
-            sb.append(arbeidsgiverNavn)
-                .append(" (")
-                .append(opplysninger.getIdentifikator())
-                .append(")");
+        if (OrgNummer.KUNSTIG_ORG.equals(opplysninger.getIdentifikator())) {
+            return sb.toString();
         }
-        return sb.toString();
 
+        String identifikator;
+        if (opplysninger.getFødselsdato() != null) {
+            identifikator = DATE_FORMATTER.format(opplysninger.getFødselsdato());
+        } else {
+            identifikator = opplysninger.getIdentifikator();
+        }
+
+        return sb.append(" (")
+            .append(identifikator)
+            .append(")").toString();
     }
 }
