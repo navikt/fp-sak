@@ -19,10 +19,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.IAYGrunnlagDiff;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.VurderArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdInntektsmeldingToggleTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.SakInntektsmeldinger;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 
 @ApplicationScoped
@@ -32,28 +36,32 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     private String klassenavn = this.getClass().getSimpleName();
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private StartpunktUtlederInntektsmelding startpunktUtlederInntektsmelding;
-    private VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste;
+    private VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste; // Denne bør kunne ryddes bort når saker ikke lenger stopper i 5080
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
 
     public StartpunktUtlederInntektArbeidYtelse() {
         // For CDI
     }
 
     @Inject
-    StartpunktUtlederInntektArbeidYtelse(InntektArbeidYtelseTjeneste iayTjeneste, // NOSONAR - ingen enkel måte å unngå mange parametere her
+    StartpunktUtlederInntektArbeidYtelse(InntektArbeidYtelseTjeneste iayTjeneste,
+                                         // NOSONAR - ingen enkel måte å unngå mange parametere her
                                          BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                          BehandlingRepositoryProvider repositoryProvider,
                                          StartpunktUtlederInntektsmelding startpunktUtlederInntektsmelding,
                                          VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste,
-                                         ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste) {
+                                         ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
+                                         ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
         this.iayTjeneste = iayTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.startpunktUtlederInntektsmelding = startpunktUtlederInntektsmelding;
         this.vurderArbeidsforholdTjeneste = vurderArbeidsforholdTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
+        this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
     }
 
     @Override
@@ -95,7 +103,8 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
             var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.getBehandlingId()); // TODO burde ikke være nødvendig (bør velge grunnlagId1, grunnlagId2)
             var sakInntektsmeldinger = skalTaStillingTilEndringerIArbeidsforhold ? iayTjeneste.hentInntektsmeldinger(ref.getSaksnummer()) : null /* ikke hent opp */;
 
-            var erPåkrevdManuelleAvklaringer = !vurderArbeidsforholdTjeneste.vurder(ref, iayGrunnlag, sakInntektsmeldinger, skalTaStillingTilEndringerIArbeidsforhold).isEmpty();
+            var erPåkrevdManuelleAvklaringer = trengsManuelleAvklaringer(ref, skalTaStillingTilEndringerIArbeidsforhold, iayGrunnlag,
+                sakInntektsmeldinger);
 
             if (erPåkrevdManuelleAvklaringer) {
                 leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, StartpunktType.KONTROLLER_ARBEIDSFORHOLD, "manuell vurdering av arbeidsforhold");
@@ -126,6 +135,16 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         return startpunkter;
     }
 
+    private boolean trengsManuelleAvklaringer(BehandlingReferanse ref,
+                                                   boolean skalTaStillingTilEndringerIArbeidsforhold,
+                                                   InntektArbeidYtelseGrunnlag iayGrunnlag,
+                                                   SakInntektsmeldinger sakInntektsmeldinger) {
+        var trengerAvklaringI5080 = !vurderArbeidsforholdTjeneste.vurder(ref, iayGrunnlag, sakInntektsmeldinger, skalTaStillingTilEndringerIArbeidsforhold).isEmpty();
+        var trengerAvklaringI5085 = ArbeidsforholdInntektsmeldingToggleTjeneste.erTogglePå() &&
+        !arbeidsforholdInntektsmeldingMangelTjeneste.utledManglerPåArbeidsforholdInntektsmelding(ref).isEmpty();
+        return trengerAvklaringI5080 || trengerAvklaringI5085;
+    }
+
     private boolean skalTaStillingTilEndringerIArbeidsforhold(BehandlingReferanse behandlingReferanse) {
         var behandling = behandlingRepository.hentBehandling(behandlingReferanse.getBehandlingId());
         return Objects.equals(behandlingReferanse.getBehandlingType(), BehandlingType.REVURDERING)
@@ -139,7 +158,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     private void ryddOppAksjonspunktHvisEksisterer(BehandlingReferanse behandlingReferanse) {
         var behandling = behandlingRepository.hentBehandling(behandlingReferanse.getId());
         var aksjonspunkter = behandling.getAksjonspunkter().stream()
-            .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD)
+            .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD) // HER
                 || ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING))
             .filter(Aksjonspunkt::erÅpentAksjonspunkt)
             .collect(Collectors.toList());

@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
@@ -63,6 +64,9 @@ public class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest
     @Mock
     InntektArbeidYtelseGrunnlag revurderingGrunnlagIAY;
 
+    @Mock
+    ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
+
     private StartpunktUtlederInntektsmelding utleder;
 
     @BeforeEach
@@ -72,7 +76,7 @@ public class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest
         behandlingRepository = new BehandlingRepository(entityManager);
         lenient().when(førstegangsbehandlingGrunnlagIAY.getInntektsmeldinger()).thenReturn(Optional.of(førstegangsbehandlingIMAggregat));
         lenient().when(revurderingGrunnlagIAY.getInntektsmeldinger()).thenReturn(Optional.of(revurderingIMAggregat));
-        utleder = new StartpunktUtlederInntektsmelding(inntektArbeidYtelseTjeneste);
+        utleder = new StartpunktUtlederInntektsmelding(inntektArbeidYtelseTjeneste, arbeidsforholdInntektsmeldingMangelTjeneste);
     }
 
     @Test
