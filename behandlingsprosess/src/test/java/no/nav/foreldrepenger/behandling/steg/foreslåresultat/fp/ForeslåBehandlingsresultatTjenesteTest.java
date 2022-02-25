@@ -55,6 +55,7 @@ import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjenest
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -78,32 +79,32 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     public void setup() {
         when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(new MedlemTjeneste.VilkårUtfallMedÅrsak(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
         var entityManager = getEntityManager();
-        var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(new UttakRepositoryProvider(
-                entityManager));
-        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        fpUttakRepository = repositoryProvider.getFpUttakRepository();
+        var uttakRepositoryProvider = new UttakRepositoryProvider(entityManager);
+        var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(uttakRepositoryProvider, new KontoerGrunnlagBygger(uttakRepositoryProvider));
+        this.repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        fpUttakRepository = this.repositoryProvider.getFpUttakRepository();
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
         var beregningUttakTjeneste = new BeregningUttakTjeneste(uttakTjeneste,
-                repositoryProvider.getYtelsesFordelingRepository());
+                this.repositoryProvider.getYtelsesFordelingRepository());
         var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(
                 entityManager);
-        var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, beregningsgrunnlagTjeneste,
+        var uttakInputTjeneste = new UttakInputTjeneste(this.repositoryProvider, beregningsgrunnlagTjeneste,
                 new AbakusInMemoryInntektArbeidYtelseTjeneste(),
                 skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste);
-        revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
+        revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(this.repositoryProvider,
                 beregningsgrunnlagTjeneste,
                 opphørUttakTjeneste,
                 new HarEtablertYtelseFP(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste,
-                        uttakTjeneste, repositoryProvider.getBehandlingVedtakRepository()),
+                        uttakTjeneste, this.repositoryProvider.getBehandlingVedtakRepository()),
                 skjæringstidspunktTjeneste,
                 medlemTjeneste,
                 uttakTjeneste));
-        tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider,
-                new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()),
+        tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(this.repositoryProvider,
+                new ForeldrepengerUttakTjeneste(this.repositoryProvider.getFpUttakRepository()),
                 dokumentBehandlingTjeneste,
                 revurderingBehandlingsresultatutleder);
-        behandlingRepository = repositoryProvider.getBehandlingRepository();
-        behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        behandlingRepository = this.repositoryProvider.getBehandlingRepository();
+        behandlingVedtakRepository = this.repositoryProvider.getBehandlingVedtakRepository();
     }
 
     @Test

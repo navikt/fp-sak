@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -263,7 +264,7 @@ public class StønadskontoSaldoTjenesteTest {
     }
 
     private StønadskontoSaldoTjeneste tjeneste() {
-        return new StønadskontoSaldoTjeneste(repositoryProvider);
+        return new StønadskontoSaldoTjeneste(repositoryProvider, new KontoerGrunnlagBygger(repositoryProvider));
     }
 
 }

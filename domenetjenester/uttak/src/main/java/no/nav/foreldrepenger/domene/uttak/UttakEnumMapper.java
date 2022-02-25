@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetType;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ArbeidsgiverIdentifikator;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedAvklartMorsAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeVurderingType;
@@ -347,5 +348,18 @@ public final class UttakEnumMapper {
             case IKKE_I_AKTIVITET_DOKUMENTERT -> PeriodeMedAvklartMorsAktivitet.Resultat.IKKE_I_AKTIVITET_DOKUMENTERT;
             case IKKE_I_AKTIVITET_IKKE_DOKUMENTERT -> PeriodeMedAvklartMorsAktivitet.Resultat.IKKE_I_AKTIVITET_IKKE_DOKUMENTERT;
         };
+    }
+
+    public static FastsattUttakPeriode.ResultatÅrsak mapTilFastsattPeriodeÅrsak(PeriodeResultatÅrsak periodeResultatÅrsak) {
+        if (PeriodeResultatÅrsak.FORELDREPENGER_KUN_FAR_HAR_RETT.equals(periodeResultatÅrsak)) {
+            return FastsattUttakPeriode.ResultatÅrsak.INNVILGET_FORELDREPENGER_KUN_FAR_HAR_RETT;
+        }
+        if (PeriodeResultatÅrsak.GRADERING_FORELDREPENGER_KUN_FAR_HAR_RETT.equals(periodeResultatÅrsak)) {
+            return FastsattUttakPeriode.ResultatÅrsak.INNVILGET_GRADERING_FORELDREPENGER_KUN_FAR_HAR_RETT;
+        }
+        if (PeriodeResultatÅrsak.SØKNADSFRIST.equals(periodeResultatÅrsak)) {
+            return FastsattUttakPeriode.ResultatÅrsak.IKKE_OPPFYLT_SØKNADSFRIST;
+        }
+        return FastsattUttakPeriode.ResultatÅrsak.ANNET;
     }
 }
