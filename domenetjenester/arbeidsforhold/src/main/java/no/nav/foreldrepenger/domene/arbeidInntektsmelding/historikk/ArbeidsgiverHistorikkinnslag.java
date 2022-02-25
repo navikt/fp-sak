@@ -25,7 +25,7 @@ class ArbeidsgiverHistorikkinnslag {
     private static String lagTekstMedArbeidsgiverOgArbeidforholdRef(String tekstForArbeidsgiver, EksternArbeidsforholdRef eksternArbeidsforholdRef) {
         var sb = new StringBuilder(tekstForArbeidsgiver);
         var referanse = eksternArbeidsforholdRef.getReferanse();
-        var sisteFireTegnIRef = referanse.substring(referanse.length() - 4);
+        var sisteFireTegnIRef = referanse.length() < 4 ? referanse : referanse.substring(referanse.length() - 4);
         return sb.append(" ...").append(sisteFireTegnIRef).toString();
     }
 
