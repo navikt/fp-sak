@@ -121,9 +121,6 @@ public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, ÅrsakskodeMedLovrefe
     }
 
     public static Set<PeriodeIkkeOppfyltÅrsak> opphørsAvslagÅrsaker() {
-        if (!Environment.current().isProd()) {
-            return Set.of(_8304, _8305, _8306, _8309, _8314);
-        }
-        return Set.of(_8304, _8305, _8306, _8309);
+        return Set.of(_8304, _8305, _8306, _8309, _8314);
     }
 }
