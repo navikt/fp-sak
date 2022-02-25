@@ -40,4 +40,13 @@ class ArbeidsgiverHistorikkinnslagTest {
         assertThat(tekst).isEqualTo("Borghild (12.12.1992) ...0001");
     }
 
+    @Test
+    public void tester_privatperson_med_kort_ekstern_ref() {
+        var opplysninger = new ArbeidsgiverOpplysninger(new AktørId("9999999999999"), "12.12.1992", "Borghild", LocalDate.of(1992,12,12));
+
+        var tekst = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger, Optional.of(EksternArbeidsforholdRef.ref("1")));
+
+        assertThat(tekst).isEqualTo("Borghild (12.12.1992) ...1");
+    }
+
 }
