@@ -58,10 +58,6 @@ public class KontrollresultatMapper {
         return Optional.of(new FaresignalGruppeWrapper(faresignaler));
     }
 
-    private static TekniskException udefinertKontrollresultat() {
-        return new TekniskException("FP-42518", "Udefinert kontrollresultat");
-    }
-
     private static TekniskException manglerKontrollresultatkode() {
         return new TekniskException("FP-42517", "Mangler kontrollresultatkode på kontrollresultat");
     }
