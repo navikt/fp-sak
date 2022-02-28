@@ -64,10 +64,10 @@ public class YtelserSammeBarnTjeneste {
 
     private Optional<FamilieHendelseGrunnlagEntitet> gjeldendeFamilieHendelse(Fagsak fagsak) {
         return behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId())
-            .filter(this::ikkeAvslått)
+            //.filter(this::ikkeAvslått) TODO enable etter sjekk
             .flatMap(this::gjeldendeFamilieHendelse)
             .or(() -> behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId())
-                .filter(this::ikkeAvslått)
+              //  .filter(this::ikkeAvslått)
                 .flatMap(this::gjeldendeFamilieHendelse));
     }
 
