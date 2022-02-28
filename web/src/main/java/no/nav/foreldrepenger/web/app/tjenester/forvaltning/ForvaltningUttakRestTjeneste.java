@@ -78,4 +78,17 @@ public class ForvaltningUttakRestTjeneste {
         forvaltningUttakTjeneste.endreAnnenForelderHarRett(dto.getBehandlingUuid(), harRett);
         return Response.noContent().build();
     }
+
+    @POST
+    @Path("/endre-aleneomsorg")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Operation(description = "Endrer om bruker har aleneomsorg", tags = "FORVALTNING-uttak")
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    public Response endreAleneomsorg(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
+                                           @QueryParam(value = "aleneomsorg") @Valid Boolean aleneomsorg) {
+        Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
+
+        forvaltningUttakTjeneste.endreAleneomsorg(dto.getBehandlingUuid(), aleneomsorg);
+        return Response.noContent().build();
+    }
 }

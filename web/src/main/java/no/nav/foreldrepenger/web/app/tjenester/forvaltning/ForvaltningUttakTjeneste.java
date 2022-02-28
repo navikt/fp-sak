@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
+import no.nav.foreldrepenger.domene.ytelsefordeling.BekreftFaktaForOmsorgVurderingAksjonspunktDto;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
@@ -181,11 +182,28 @@ public class ForvaltningUttakTjeneste {
         if (UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, Optional.empty()) != harRett) {
             ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandlingId, harRett);
 
-            lagHistorikkinnslag(harRett, behandlingId);
+            lagHistorikkinnslagRett(harRett, behandlingId);
         }
     }
 
-    private void lagHistorikkinnslag(boolean harRett, Long behandlingId) {
+    public void endreAleneomsorg(UUID behandlingUuid, Boolean aleneomsorg) {
+        var behandlingId = behandlingRepository.hentBehandling(behandlingUuid).getId();
+        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandlingId, new BekreftFaktaForOmsorgVurderingAksjonspunktDto(aleneomsorg,
+            null, null));
+
+        var historikkinnslag = new Historikkinnslag();
+        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
+        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
+        historikkinnslag.setBehandlingId(behandlingId);
+
+        var begrunnelse = aleneomsorg ? "FORVALTNING - Endret til aleneomsorg" : "FORVALTNING - Endret til ikke aleneomsorg";
+        var historieBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
+            .medBegrunnelse(begrunnelse);
+        historieBuilder.build(historikkinnslag);
+        historikkRepository.lagre(historikkinnslag);
+    }
+
+    private void lagHistorikkinnslagRett(boolean harRett, Long behandlingId) {
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
