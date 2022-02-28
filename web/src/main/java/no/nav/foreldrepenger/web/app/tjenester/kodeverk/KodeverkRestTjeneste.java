@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -30,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.app.HentKodeverkTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.util.LRUCache;
 
 @Path("/kodeverk")
 @ApplicationScoped
@@ -47,8 +45,7 @@ public class KodeverkRestTjeneste {
 
     private final ObjectMapper objectMapper = jsonMapper.getObjectMapper();
 
-    private static final long CACHE_ELEMENT_LIVE_TIME_MS = TimeUnit.MILLISECONDS.convert(24, TimeUnit.HOURS);
-    private LRUCache<String, String> kodelisteCache = new LRUCache<>(10, CACHE_ELEMENT_LIVE_TIME_MS);
+    private String kodelisteCache;
 
     @Inject
     public KodeverkRestTjeneste(HentKodeverkTjeneste hentKodeverkTjeneste) {
@@ -82,11 +79,10 @@ public class KodeverkRestTjeneste {
     }
 
     private String getKodeverkRawJson() throws JsonProcessingException {
-        if (kodelisteCache.get("alle") == null) {
-            kodelisteCache.put("alle", tilJson(this.hentGruppertKodelisteTilCache()));
+        if (kodelisteCache == null) {
+            kodelisteCache = tilJson(this.hentGruppertKodelisteTilCache());
         }
-        var kodelisteJson = kodelisteCache.get("alle");
-        return kodelisteJson;
+        return kodelisteCache;
     }
 
     private String tilJson(Map<String, Object> kodeverk) throws JsonProcessingException {
