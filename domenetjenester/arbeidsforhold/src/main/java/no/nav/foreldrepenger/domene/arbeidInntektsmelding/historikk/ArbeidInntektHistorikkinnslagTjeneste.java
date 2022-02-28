@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -20,7 +19,6 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ManueltArbeidsforholdD
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -64,8 +62,7 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
         var eksternRef = finnEksternRef(internRef, arbeidsgiver, iayGrunnlag);
         ArbeidsgiverOpplysninger opplysninger;
         if (OrgNummer.erKunstig(arbeidsgiver.getIdentifikator())) {
-            var navnFraSaksbehandler = finnNavnFraSaksbehandler(iayGrunnlag.getArbeidsforholdOverstyringer()).orElseThrow(() -> new IllegalStateException("Det finnes et helmanuelt arbeidsforhold "
-                + "uten oppgitt navn, ugyldig tilstand"));
+            var navnFraSaksbehandler = Objects.requireNonNull(arbeidsforholdFraSaksbehandler.getArbeidsgiverNavn(), "arbeidsgivernavn");
             opplysninger = new ArbeidsgiverOpplysninger(arbeidsgiver.getIdentifikator(), navnFraSaksbehandler);
         } else {
             opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
@@ -85,13 +82,6 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
             return Arbeidsgiver.virksomhet(arbeidsgiverIdent);
         }
         return Arbeidsgiver.fra(new AktørId(arbeidsgiverIdent));
-    }
-
-    private Optional<String> finnNavnFraSaksbehandler(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
-        return arbeidsforholdOverstyringer.stream()
-            .filter(arb -> arb.getArbeidsgiver() != null && arb.getArbeidsgiver().getIdentifikator().equals(OrgNummer.KUNSTIG_ORG))
-            .findFirst()
-            .map(ArbeidsforholdOverstyring::getArbeidsgiverNavn);
     }
 
     private Optional<EksternArbeidsforholdRef> finnEksternRef(InternArbeidsforholdRef internRef, Arbeidsgiver arbeidsgiver, InntektArbeidYtelseGrunnlag iayGrunnlag) {
@@ -117,9 +107,4 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
         historikkAdapter.tekstBuilder().medSkjermlenke(SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_INNTEKTSMELDING);
         historikkAdapter.opprettHistorikkInnslag(behandlingReferanse.getBehandlingId(), HistorikkinnslagType.FAKTA_ENDRET);
     }
-
-    private boolean harSkjermlenke(List<HistorikkinnslagDel> historikkDeler) {
-        return historikkDeler.stream().anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
-    }
-
 }
