@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -291,7 +292,8 @@ class MapTilKalkulatorInput {
                 new Periode(ytelseAnvistDto.getAnvistFOM(), ytelseAnvistDto.getAnvistTOM()),
                 ytelseAnvistDto.getBeløp().map(Beløp::getVerdi).map(BeløpDto::new).orElse(null),
                 ytelseAnvistDto.getDagsats().map(Beløp::getVerdi).map(BeløpDto::new).orElse(null),
-                ytelseAnvistDto.getUtbetalingsgradProsent().map(Stillingsprosent::getVerdi).orElse(null));
+                ytelseAnvistDto.getUtbetalingsgradProsent().map(Stillingsprosent::getVerdi).orElse(null),
+                Collections.emptyList());
     }
 
     private static OppgittOpptjeningDto mapOppgittOpptjening(Optional<no.nav.folketrygdloven.kalkulator.modell.iay.OppgittOpptjeningDto> oppgittOpptjening) {
