@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
@@ -65,6 +66,23 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         var aktørId = AktørId.dummy();
         var scenarioEldre = ScenarioMorSøkerForeldrepenger.forFødsel();
         byggBehandlingFødsel(scenarioEldre, aktørId, FØDSELSDATO.minusYears(1));
+
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = byggBehandlingTermin(scenario, aktørId, TERMINDATO);
+
+        // Act
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+
+        // Assert
+        assertThat(aksjonspunktResultater).isEmpty();
+    }
+
+    @Test
+    public void skal_ikke_opprette_aksjonspunkt_om_søker_mottatt_svangerskapspenger_samme_barn() {
+        // Arrange
+        var aktørId = AktørId.dummy();
+        var scenarioSVP = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
+        byggBehandlingTermin(scenarioSVP, aktørId, TERMINDATO);
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = byggBehandlingTermin(scenario, aktørId, TERMINDATO);

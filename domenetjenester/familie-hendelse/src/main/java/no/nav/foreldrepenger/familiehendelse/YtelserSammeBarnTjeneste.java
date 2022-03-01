@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.familiehendelse;
 
 import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -24,6 +26,8 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 public class YtelserSammeBarnTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(YtelserSammeBarnTjeneste.class);
+
+    private static final Set<FagsakYtelseType> SAKSTYPER = Set.of(FagsakYtelseType.ENGANGSTØNAD, FagsakYtelseType.FORELDREPENGER);
 
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
@@ -55,7 +59,7 @@ public class YtelserSammeBarnTjeneste {
         }
 
         var sakForSammeFamilieHendelse = fagsakRepository.hentForBruker(aktørId).stream()
-            .filter(sak -> !saksnummer.equals(sak.getSaksnummer()))
+            .filter(sak -> !saksnummer.equals(sak.getSaksnummer()) && SAKSTYPER.contains(sak.getYtelseType()))
             .map(this::gjeldendeFamilieHendelse)
             .flatMap(Optional::stream)
             .anyMatch(fh -> familieHendelseTjeneste.matcherGrunnlagene(aktuellFamilieHendelse, fh));
@@ -64,10 +68,10 @@ public class YtelserSammeBarnTjeneste {
 
     private Optional<FamilieHendelseGrunnlagEntitet> gjeldendeFamilieHendelse(Fagsak fagsak) {
         return behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId())
-            //.filter(this::ikkeAvslått) TODO enable etter sjekk
+            .filter(this::ikkeAvslått)
             .flatMap(this::gjeldendeFamilieHendelse)
             .or(() -> behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId())
-              //  .filter(this::ikkeAvslått)
+                .filter(this::ikkeAvslått)
                 .flatMap(this::gjeldendeFamilieHendelse));
     }
 
