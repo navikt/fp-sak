@@ -19,12 +19,12 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.AnnenPartGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenpartUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriodeAktivitet;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Konto;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Kontoer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregningGrunnlag;
@@ -36,15 +36,17 @@ public class StønadskontoSaldoTjeneste {
 
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private FpUttakRepository fpUttakRepository;
+    private KontoerGrunnlagBygger kontoerGrunnlagBygger;
 
     StønadskontoSaldoTjeneste() {
         //For CDI
     }
 
     @Inject
-    public StønadskontoSaldoTjeneste(UttakRepositoryProvider repositoryProvider) {
+    public StønadskontoSaldoTjeneste(UttakRepositoryProvider repositoryProvider, KontoerGrunnlagBygger kontoerGrunnlagBygger) {
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
+        this.kontoerGrunnlagBygger = kontoerGrunnlagBygger;
     }
 
     public SaldoUtregning finnSaldoUtregning(UttakInput uttakInput) {
@@ -69,22 +71,14 @@ public class StønadskontoSaldoTjeneste {
             .orElse(null);
         if (stønadskontoer.isPresent() && perioderSøker.size() > 0) {
             var perioderAnnenpart = perioderAnnenpart(fpGrunnlag);
-            var kontoer = lagKontoer(stønadskontoer.get());
+            var kontoer = kontoerGrunnlagBygger.byggGrunnlag(uttakInput.getBehandlingReferanse(), fpGrunnlag)
+                .build();
             return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(perioderSøker,
                 fpGrunnlag.isBerørtBehandling(), perioderAnnenpart, kontoer, søknadOpprettetTidspunkt,
                 sisteSøknadOpprettetTidspunktAnnenpart);
         }
         return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(List.of(), fpGrunnlag.isBerørtBehandling(),
             List.of(), new Kontoer.Builder().build(), søknadOpprettetTidspunkt, sisteSøknadOpprettetTidspunktAnnenpart);
-    }
-
-    private Kontoer lagKontoer(Set<Stønadskonto> stønadskontoer) {
-        var kontoList = stønadskontoer.stream()
-            .map(stønadskonto -> new Konto.Builder()
-                .type(UttakEnumMapper.map(stønadskonto.getStønadskontoType()))
-                .trekkdager(stønadskonto.getMaxDager()))
-            .collect(Collectors.toList());
-        return new Kontoer.Builder().kontoList(kontoList).build();
     }
 
     public boolean erNegativSaldoPåNoenKonto(UttakInput uttakInput) {
@@ -149,6 +143,8 @@ public class StønadskontoSaldoTjeneste {
             .oppholdÅrsak(UttakEnumMapper.map(periode.getOppholdÅrsak()))
             .samtidigUttak(periode.isSamtidigUttak())
             .flerbarnsdager(periode.isFlerbarnsdager())
+            .resultatÅrsak(UttakEnumMapper.mapTilFastsattPeriodeÅrsak(periode.getResultatÅrsak()))
+            .utsettelse(periode.isUtsettelse())
             .periodeResultatType(UttakEnumMapper.map(periode.getResultatType()))
             .mottattDato(periode.getPeriodeSøknad().map(ps -> ps.getMottattDato()).orElse(null))
             .build();

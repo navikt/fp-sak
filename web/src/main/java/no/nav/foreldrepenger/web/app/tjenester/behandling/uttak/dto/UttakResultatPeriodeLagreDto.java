@@ -10,20 +10,16 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
 public class UttakResultatPeriodeLagreDto {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UttakResultatPeriodeLagreDto.class);
 
     @NotNull
     private LocalDate fom;
@@ -47,6 +43,10 @@ public class UttakResultatPeriodeLagreDto {
     @NotNull
     @ValidKodeverk
     private PeriodeResultatÅrsak periodeResultatÅrsak;
+
+    @NotNull
+    @ValidKodeverk
+    private UttakUtsettelseType utsettelseType;
 
     @NotNull
     @ValidKodeverk
@@ -129,6 +129,10 @@ public class UttakResultatPeriodeLagreDto {
         return mottattDato;
     }
 
+    public UttakUtsettelseType getUtsettelseType() {
+        return utsettelseType == null ? UttakUtsettelseType.UDEFINERT : utsettelseType;
+    }
+
     public static class Builder {
 
         private final UttakResultatPeriodeLagreDto kladd = new UttakResultatPeriodeLagreDto();
@@ -195,6 +199,11 @@ public class UttakResultatPeriodeLagreDto {
 
         public Builder medMottattDato(LocalDate mottattDato) {
             kladd.mottattDato = mottattDato;
+            return this;
+        }
+
+        public Builder medUtsettelseType(UttakUtsettelseType utsettelseType) {
+            kladd.utsettelseType = utsettelseType;
             return this;
         }
 

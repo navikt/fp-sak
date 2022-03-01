@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktiv
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.fp.MaksDatoUttakTjenesteImpl;
@@ -33,7 +34,7 @@ public class MaksDatoUttakTjenesteImplTest {
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
 
     private final MaksDatoUttakTjenesteImpl maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(
-        repositoryProvider.getFpUttakRepository(), new StønadskontoSaldoTjeneste(repositoryProvider));
+        repositoryProvider.getFpUttakRepository(), new StønadskontoSaldoTjeneste(repositoryProvider, new KontoerGrunnlagBygger(repositoryProvider)));
 
     @Test
     public void maksdato_skal_være_siste_uttaksdato_hvis_tom_konto() {

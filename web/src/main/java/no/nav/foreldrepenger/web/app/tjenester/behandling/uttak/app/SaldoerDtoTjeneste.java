@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.TapteDagerFpffTjeneste;
@@ -147,6 +148,8 @@ public class SaldoerDtoTjeneste {
             .flerbarnsdager(dto.isFlerbarnsdager())
             .aktiviteter(map(dto.getAktiviteter()))
             .periodeResultatType(UttakEnumMapper.map(dto.getPeriodeResultatType()))
+            .resultatÅrsak(UttakEnumMapper.mapTilFastsattPeriodeÅrsak(dto.getPeriodeResultatÅrsak()))
+            .utsettelse(!UttakUtsettelseType.UDEFINERT.equals(dto.getUtsettelseType()))
             .tidsperiode(dto.getFom(), dto.getTom())
             .mottattDato(dto.getMottattDato())
             .build();

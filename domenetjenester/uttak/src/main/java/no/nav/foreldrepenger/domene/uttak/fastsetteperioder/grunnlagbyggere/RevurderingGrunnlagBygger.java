@@ -70,13 +70,16 @@ public class RevurderingGrunnlagBygger {
     }
 
     private FastsattUttakPeriode map(UttakResultatPeriodeEntitet periode) {
+        var resultatType = periode.getResultatType();
         return new FastsattUttakPeriode.Builder()
             .aktiviteter(map(periode.getAktiviteter()))
             .flerbarnsdager(periode.isFlerbarnsdager())
             .samtidigUttak(periode.isSamtidigUttak())
             .tidsperiode(periode.getFom(), periode.getTom())
             .oppholdÅrsak(UttakEnumMapper.map(periode.getOppholdÅrsak()))
-            .periodeResultatType(UttakEnumMapper.map(periode.getResultatType()))
+            .resultatÅrsak(UttakEnumMapper.mapTilFastsattPeriodeÅrsak(periode.getResultatÅrsak()))
+            .utsettelse(periode.isUtsettelse())
+            .periodeResultatType(UttakEnumMapper.map(resultatType))
             .mottattDato(periode.getPeriodeSøknad().map(ps -> ps.getMottattDato()).orElse(null))
             .build();
     }

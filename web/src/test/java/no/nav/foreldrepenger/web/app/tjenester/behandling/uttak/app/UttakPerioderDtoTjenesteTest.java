@@ -101,27 +101,27 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var result = tjeneste.mapFra(behandling);
 
         assertThat(result).isPresent();
-        assertThat(result.get().getPerioderSøker()).hasSize(1);
-        assertThat(result.get().getPerioderSøker().get(0).getFom()).isEqualTo(periode.getFom());
-        assertThat(result.get().getPerioderSøker().get(0).getTom()).isEqualTo(periode.getTom());
-        assertThat(result.get().getPerioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
-        assertThat(result.get().getPerioderSøker().get(0).getPeriodeResultatType()).isEqualTo(periode.getResultatType());
-        assertThat(result.get().getPerioderSøker().get(0).getBegrunnelse()).isEqualTo(periode.getBegrunnelse());
-        assertThat(result.get().getPerioderSøker().get(0).getGradertAktivitet().getArbeidsforholdId()).isEqualTo(internArbeidsforholdId.getReferanse());
-        assertThat(result.get().getPerioderSøker().get(0).getGradertAktivitet().getEksternArbeidsforholdId()).isEqualTo(eksternArbeidsforholdId.getReferanse());
-        assertThat(result.get().getPerioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
-        assertThat(result.get().getPerioderSøker().get(0).getSamtidigUttaksprosent()).isEqualTo(periode.getSamtidigUttaksprosent());
-        assertThat(result.get().getPerioderSøker().get(0).getPeriodeType()).isEqualTo(periodeType);
-        assertThat(result.get().getPerioderSøker().get(0).getMottattDato()).isEqualTo(mottattDato);
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter()).hasSize(1);
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getArbeidsforholdId()).isEqualTo(periodeAktivitet.getArbeidsforholdRef().getReferanse());
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getEksternArbeidsforholdId()).isEqualTo(eksternArbeidsforholdId.getReferanse());
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getArbeidsgiverReferanse()).isEqualTo(periodeAktivitet.getArbeidsgiver().getIdentifikator());
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getStønadskontoType()).isEqualTo(periodeAktivitet.getTrekkonto());
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getTrekkdager()).isEqualTo(periodeAktivitet.getTrekkdager().decimalValue());
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getProsentArbeid()).isEqualTo(periodeAktivitet.getArbeidsprosent());
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getUtbetalingsgrad()).isEqualTo(periodeAktivitet.getUtbetalingsgrad());
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getUttakArbeidType()).isEqualTo(periodeAktivitet.getUttakArbeidType());
+        assertThat(result.get().perioderSøker()).hasSize(1);
+        assertThat(result.get().perioderSøker().get(0).getFom()).isEqualTo(periode.getFom());
+        assertThat(result.get().perioderSøker().get(0).getTom()).isEqualTo(periode.getTom());
+        assertThat(result.get().perioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
+        assertThat(result.get().perioderSøker().get(0).getPeriodeResultatType()).isEqualTo(periode.getResultatType());
+        assertThat(result.get().perioderSøker().get(0).getBegrunnelse()).isEqualTo(periode.getBegrunnelse());
+        assertThat(result.get().perioderSøker().get(0).getGradertAktivitet().getArbeidsforholdId()).isEqualTo(internArbeidsforholdId.getReferanse());
+        assertThat(result.get().perioderSøker().get(0).getGradertAktivitet().getEksternArbeidsforholdId()).isEqualTo(eksternArbeidsforholdId.getReferanse());
+        assertThat(result.get().perioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
+        assertThat(result.get().perioderSøker().get(0).getSamtidigUttaksprosent()).isEqualTo(periode.getSamtidigUttaksprosent());
+        assertThat(result.get().perioderSøker().get(0).getPeriodeType()).isEqualTo(periodeType);
+        assertThat(result.get().perioderSøker().get(0).getMottattDato()).isEqualTo(mottattDato);
+        assertThat(result.get().perioderSøker().get(0).getAktiviteter()).hasSize(1);
+        assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getArbeidsforholdId()).isEqualTo(periodeAktivitet.getArbeidsforholdRef().getReferanse());
+        assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getEksternArbeidsforholdId()).isEqualTo(eksternArbeidsforholdId.getReferanse());
+        assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getArbeidsgiverReferanse()).isEqualTo(periodeAktivitet.getArbeidsgiver().getIdentifikator());
+        assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getStønadskontoType()).isEqualTo(periodeAktivitet.getTrekkonto());
+        assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getTrekkdager()).isEqualTo(periodeAktivitet.getTrekkdager().decimalValue());
+        assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getProsentArbeid()).isEqualTo(periodeAktivitet.getArbeidsprosent());
+        assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getUtbetalingsgrad()).isEqualTo(periodeAktivitet.getUtbetalingsgrad());
+        assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getUttakArbeidType()).isEqualTo(periodeAktivitet.getUttakArbeidType());
     }
 
     private Behandling morBehandlingMedUttak(UttakResultatPerioderEntitet perioder) {
@@ -180,9 +180,9 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var result = tjeneste.mapFra(behandling);
 
         assertThat(result).isPresent();
-        assertThat(result.get().getPerioderSøker()).hasSize(2);
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter()).hasSize(2);
-        assertThat(result.get().getPerioderSøker().get(1).getAktiviteter()).hasSize(1);
+        assertThat(result.get().perioderSøker()).hasSize(2);
+        assertThat(result.get().perioderSøker().get(0).getAktiviteter()).hasSize(2);
+        assertThat(result.get().perioderSøker().get(1).getAktiviteter()).hasSize(1);
     }
 
     private UttakResultatPeriodeAktivitetEntitet periodeAktivitet(UttakResultatPeriodeEntitet periode, String orgnr) {
@@ -230,12 +230,12 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var result = tjeneste.mapFra(behandlingSøker);
 
         assertThat(result).isPresent();
-        assertThat(result.get().getPerioderSøker()).hasSize(2);
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter()).hasSize(1);
-        assertThat(result.get().getPerioderSøker().get(1).getAktiviteter()).hasSize(1);
+        assertThat(result.get().perioderSøker()).hasSize(2);
+        assertThat(result.get().perioderSøker().get(0).getAktiviteter()).hasSize(1);
+        assertThat(result.get().perioderSøker().get(1).getAktiviteter()).hasSize(1);
 
-        assertThat(result.get().getPerioderAnnenpart()).hasSize(1);
-        assertThat(result.get().getPerioderAnnenpart().get(0).getAktiviteter()).hasSize(1);
+        assertThat(result.get().perioderAnnenpart()).hasSize(1);
+        assertThat(result.get().perioderAnnenpart().get(0).getAktiviteter()).hasSize(1);
     }
 
     @Test
@@ -272,11 +272,11 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var result = tjeneste.mapFra(behandlingSøker);
 
         assertThat(result).isPresent();
-        assertThat(result.get().getPerioderSøker()).hasSize(1);
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter()).hasSize(1);
+        assertThat(result.get().perioderSøker()).hasSize(1);
+        assertThat(result.get().perioderSøker().get(0).getAktiviteter()).hasSize(1);
 
-        assertThat(result.get().getPerioderAnnenpart()).hasSize(1);
-        assertThat(result.get().getPerioderAnnenpart().get(0).getAktiviteter()).hasSize(1);
+        assertThat(result.get().perioderAnnenpart()).hasSize(1);
+        assertThat(result.get().perioderAnnenpart().get(0).getAktiviteter()).hasSize(1);
     }
 
     private ArbeidsforholdInformasjonBuilder lagFiktivtArbeidsforholdOverstyring(InternArbeidsforholdRef internArbeidsforholdRef) {
@@ -319,8 +319,8 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         var result = tjeneste.mapFra(behandling);
 
-        assertThat(result.get().getPerioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
-        assertThat(result.get().getPerioderSøker().get(0).getSamtidigUttaksprosent()).isEqualTo(periode.getSamtidigUttaksprosent());
+        assertThat(result.get().perioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
+        assertThat(result.get().perioderSøker().get(0).getSamtidigUttaksprosent()).isEqualTo(periode.getSamtidigUttaksprosent());
     }
 
     @Test
@@ -333,8 +333,8 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var tjeneste = tjeneste();
 
         var result = tjeneste.mapFra(behandling);
-        assertThat(result.get().isAnnenForelderHarRett()).isFalse();
-        assertThat(result.get().isAleneomsorg()).isFalse();
+        assertThat(result.get().annenForelderHarRett()).isFalse();
+        assertThat(result.get().aleneomsorg()).isFalse();
     }
 
     @Test
@@ -356,8 +356,8 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         var result = tjeneste().mapFra(behandling);
-        assertThat(result.get().isAnnenForelderHarRett()).isTrue();
-        assertThat(result.get().isAleneomsorg()).isTrue();
+        assertThat(result.get().annenForelderHarRett()).isTrue();
+        assertThat(result.get().aleneomsorg()).isTrue();
     }
 
     private UttakResultatPeriodeEntitet.Builder periodeBuilder(LocalDate fom, LocalDate tom) {

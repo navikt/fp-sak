@@ -46,7 +46,7 @@ public final class UttakPerioderMapper {
             .medFlerbarnsdager(dtoPeriode.isFlerbarnsdager())
             .medGraderingInnvilget(dtoPeriode.isGraderingInnvilget())
             .medGraderingAvslagÅrsak(dtoPeriode.getGraderingAvslagÅrsak())
-            .medUtsettelseType(gjeldendePeriode.getUtsettelseType())
+            .medUtsettelseType(dtoPeriode.getUtsettelseType())
             .medOppholdÅrsak(dtoPeriode.getOppholdÅrsak())
             .medOverføringÅrsak(gjeldendePeriode.getOverføringÅrsak())
             .medAktiviteter(aktiviteter)
