@@ -34,13 +34,48 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
         var mangler = Arrays.asList(lagMangel(orgnr, InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
 
         // Act
-        ArbeidsforholdValg resultat = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, mangler);
+        List<ArbeidsforholdValg> resultat = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, mangler);
 
         // Assert
-        assertThat(resultat).isNotNull();
-        assertThat(resultat.getArbeidsgiver().getOrgnr()).isEqualTo(orgnr);
-        assertThat(resultat.getBegrunnelse()).isEqualTo(begrunnelse);
-        assertThat(resultat.getVurdering()).isEqualTo(ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING);
+        assertThat(resultat).hasSize(1);
+        var res = resultat.get(0);
+        assertThat(res.getArbeidsgiver().getOrgnr()).isEqualTo(orgnr);
+        assertThat(res.getBegrunnelse()).isEqualTo(begrunnelse);
+        assertThat(res.getVurdering()).isEqualTo(ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING);
+    }
+
+    @Test
+    void skal_registrere_samme_valg_for_alle_arbeidsforhold_hos_samme_ag_hvis_arbeidsforholdId_mangler_fra_dto() {
+        // Arrange
+        String orgnr = "999999999";
+        String begrunnelse = "Begrunnelse";
+        ManglendeOpplysningerVurderingDto dto = new ManglendeOpplysningerVurderingDto(UUID.randomUUID(), ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING,
+            begrunnelse, orgnr, null);
+        var ref1 = InternArbeidsforholdRef.nyRef();
+        var ref2 = InternArbeidsforholdRef.nyRef();
+        var ref3 = InternArbeidsforholdRef.nyRef();
+        var mangler = Arrays.asList(lagMangel(orgnr, ref1, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING),
+            lagMangel(orgnr, ref2, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING),
+            lagMangel(orgnr, ref3, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
+
+        // Act
+        List<ArbeidsforholdValg> resultat = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, mangler);
+
+        // Assert
+        assertThat(resultat).hasSize(3);
+
+        var res1 = resultat.stream().filter(res -> res.getArbeidsforholdRef().gjelderFor(ref1)).findFirst().orElse(null);
+        assertThat(res1).isNotNull();
+        assertThat(res1.getVurdering()).isEqualTo(ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING);
+
+        var res2 = resultat.stream().filter(res -> res.getArbeidsforholdRef().gjelderFor(ref2)).findFirst().orElse(null);
+        assertThat(res2).isNotNull();
+        assertThat(res2.getVurdering()).isEqualTo(ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING);
+
+        var res3 = resultat.stream().filter(res -> res.getArbeidsforholdRef().gjelderFor(ref3)).findFirst().orElse(null);
+        assertThat(res3).isNotNull();
+        assertThat(res3.getVurdering()).isEqualTo(ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING);
+
     }
 
     @Test

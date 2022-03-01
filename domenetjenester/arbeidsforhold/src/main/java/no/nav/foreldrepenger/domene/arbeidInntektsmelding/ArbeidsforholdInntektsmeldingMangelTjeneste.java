@@ -44,13 +44,15 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     }
 
     public void lagreManglendeOpplysningerVurdering(BehandlingReferanse behandlingReferanse, ManglendeOpplysningerVurderingDto dto) {
-        ryddBortManuelleArbeidsforholdVedBehov(behandlingReferanse, dto);
 
         var arbeidsforholdMedMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse);
         var entitet = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, arbeidsforholdMedMangler);
-        arbeidsforholdValgRepository.lagre(entitet, behandlingReferanse.getBehandlingId());
+        entitet.forEach(ent -> arbeidsforholdValgRepository.lagre(ent, behandlingReferanse.getBehandlingId()));
         var iaygrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId());
         arbeidInntektHistorikkinnslagTjeneste.opprettHistorikkinnslag(behandlingReferanse, dto, iaygrunnlag);
+
+        // Kall til abakus, gjøres til slutt
+        ryddBortManuelleArbeidsforholdVedBehov(behandlingReferanse, dto);
     }
 
     private void ryddBortManuelleArbeidsforholdVedBehov(BehandlingReferanse behandlingReferanse, ManglendeOpplysningerVurderingDto dto) {

@@ -6,7 +6,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -16,6 +15,7 @@ import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Mapper som mapper saksbehandlers vurdering om til domeneobjekter og validerer valg som er tatt
@@ -26,21 +26,40 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
         // Skjuler default konstruktør
     }
 
-    public static ArbeidsforholdValg mapManglendeOpplysningerVurdering(ManglendeOpplysningerVurderingDto saksbehandlersVurdering,
+    public static List<ArbeidsforholdValg> mapManglendeOpplysningerVurdering(ManglendeOpplysningerVurderingDto saksbehandlersVurdering,
                                                                        List<ArbeidsforholdInntektsmeldingMangel> arbeidsforholdMedMangler) {
         Arbeidsgiver arbeidsgiver = lagArbeidsgiver(saksbehandlersVurdering.getArbeidsgiverIdent());
 
         InternArbeidsforholdRef referanse = finnReferanse(saksbehandlersVurdering);
 
-        validerAtArbeidsforholdErÅpentForEndring(arbeidsgiver, referanse, arbeidsforholdMedMangler, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING,
-            AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD);
+        // En avklaring kan gjelde flere mangler, dersom det er flere arbeidsforhold hos samme arbeidsgiver med samme mangel må samme valg gjelde for alle
+        var manglerSomBlirAvklart = finnManglerSomBlirAvklart(arbeidsgiver, referanse, arbeidsforholdMedMangler,
+            AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING, AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD);
 
-        ArbeidsforholdValg.Builder nyVurdering = ArbeidsforholdValg.builder()
-            .medVurdering(saksbehandlersVurdering.getVurdering())
-            .medArbeidsforholdRef(referanse)
-            .medArbeidsgiver(saksbehandlersVurdering.getArbeidsgiverIdent())
-            .medBegrunnelse(saksbehandlersVurdering.getBegrunnelse());
-        return nyVurdering.build();
+        return manglerSomBlirAvklart.stream()
+            .map(mangel -> ArbeidsforholdValg.builder()
+                .medArbeidsgiver(mangel.arbeidsgiver().getIdentifikator())
+                .medArbeidsforholdRef(mangel.ref())
+                .medVurdering(saksbehandlersVurdering.getVurdering())
+                .medBegrunnelse(saksbehandlersVurdering.getBegrunnelse())
+                .build())
+            .collect(Collectors.toList());
+    }
+
+    private static List<ArbeidsforholdInntektsmeldingMangel> finnManglerSomBlirAvklart(Arbeidsgiver arbeidsgiver,
+                                                                                       InternArbeidsforholdRef referanse,
+                                                                                       List<ArbeidsforholdInntektsmeldingMangel> arbeidsforholdMedMangler,
+                                                                                       AksjonspunktÅrsak... årsakPåMangel) {
+        var gyldigeÅrsaker = Arrays.asList(årsakPåMangel);
+        var manglerSomAvklares = arbeidsforholdMedMangler.stream()
+            .filter(mangel -> mangel.arbeidsgiver().equals(arbeidsgiver) && mangel.ref().gjelderFor(referanse))
+            .filter(mangel -> gyldigeÅrsaker.contains(mangel.årsak()))
+            .collect(Collectors.toList());
+        if (manglerSomAvklares.size() < 1) {
+            throw new IllegalStateException("Feil: Finnes ingen åpne mangler på arbeidsforhold hos "
+                + arbeidsgiver + " med arbeidsforholdId " + referanse);
+        }
+        return manglerSomAvklares;
     }
 
     public static Arbeidsgiver lagArbeidsgiver(String arbeidsgiverIdent) {
