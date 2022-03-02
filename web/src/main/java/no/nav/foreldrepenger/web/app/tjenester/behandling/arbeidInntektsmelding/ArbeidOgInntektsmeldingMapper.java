@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
@@ -170,6 +171,8 @@ public class ArbeidOgInntektsmeldingMapper {
                                                                       Collection<ArbeidsforholdReferanse> referanser,
                                                                       List<ArbeidsforholdInntektsmeldingMangel> mangler) {
         return arbeidsforholdOverstyringer.stream()
+            .filter(os -> os.getHandling().equals(ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING)
+                || os.getHandling().equals(ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER))
             .map(overstyring -> mapManueltArbeidsforhold(overstyring, referanser, mangler))
             .collect(Collectors.toList());
     }
