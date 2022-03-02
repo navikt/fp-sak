@@ -86,7 +86,7 @@ public class AvklarArbeidPermisjonUtenSluttdatoOppdaterer implements Aksjonspunk
         return yrkesaktiviet.getPermisjon().stream()
             .filter( p-> p.getTilOgMed() == null || TIDENES_ENDE.equals(p.getTilOgMed()))
             .map(Permisjon::getPeriode)
-            .min(Comparator.naturalOrder())
+            .max(Comparator.naturalOrder())
             .orElseThrow(() -> new IllegalStateException("Finner ikke permisjon uten sluttdato for arbeidsgiverIdent: " + avklartArbeidsForhold.arbeidsgiverIdent()));
     }
 

@@ -68,7 +68,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
             return Optional.empty();
         }
         var mangler = arbeidsforholdInntektsmeldingMangelTjeneste.utledManglerPåArbeidsforholdInntektsmelding(referanse);
-        var mangelPermisjon = VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdato(referanse, iayGrunnlag);
+        var mangelPermisjon = VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdatoMangel(referanse, iayGrunnlag);
         if (!mangelPermisjon.isEmpty()) {
             mangler.addAll(mangelPermisjon);
         }

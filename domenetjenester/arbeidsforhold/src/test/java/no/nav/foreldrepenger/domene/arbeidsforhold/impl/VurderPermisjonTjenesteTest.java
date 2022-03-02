@@ -495,7 +495,7 @@ public class VurderPermisjonTjenesteTest {
         var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Act
-        List<ArbeidsforholdMangel> arbForholdMedPermUtenSluttdato = VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdato(behandlingReferanse, grunnlag);
+        List<ArbeidsforholdMangel> arbForholdMedPermUtenSluttdato = VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdatoMangel(behandlingReferanse, grunnlag);
 
         assertThat(arbForholdMedPermUtenSluttdato).isEmpty();
     }
@@ -529,7 +529,7 @@ public class VurderPermisjonTjenesteTest {
         var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Assert
-        List<ArbeidsforholdMangel> arbForholdMedPermUtenSluttdato = VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdato(behandlingReferanse, grunnlag);
+        List<ArbeidsforholdMangel> arbForholdMedPermUtenSluttdato = VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdatoMangel(behandlingReferanse, grunnlag);
 
         assertThat(arbForholdMedPermUtenSluttdato).hasSize(1);
         assertThat(arbForholdMedPermUtenSluttdato.get(0).ref()).isEqualTo(ref);
@@ -566,7 +566,7 @@ public class VurderPermisjonTjenesteTest {
         var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Assert
-        List<ArbeidsforholdMangel> arbForholdMedPermUtenSluttdato = VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdato(behandlingReferanse, grunnlag);
+        List<ArbeidsforholdMangel> arbForholdMedPermUtenSluttdato = VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdatoMangel(behandlingReferanse, grunnlag);
 
         assertThat(arbForholdMedPermUtenSluttdato).hasSize(1);
         assertThat(arbForholdMedPermUtenSluttdato.get(0).ref()).isEqualTo(ref);
@@ -597,7 +597,7 @@ public class VurderPermisjonTjenesteTest {
         var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Act
-        List<ArbeidsforholdMangel> arbForholdMedPermUtenSluttdato = VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdato(behandlingReferanse, grunnlag);
+        List<ArbeidsforholdMangel> arbForholdMedPermUtenSluttdato = VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdatoMangel(behandlingReferanse, grunnlag);
 
         assertThat(arbForholdMedPermUtenSluttdato).hasSize(1);
     }

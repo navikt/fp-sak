@@ -38,11 +38,9 @@ final class UtledPermisjonSomFørerTilAksjonspunkt {
                 .collect(Collectors.toList());
     }
 
-    static List<PermisjonDto> utledArbForholdMedPermisjonUtenSluttdato(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate stp) {
+    static boolean harArbeidsforholdetPermisjonUtenSluttdato(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate stp) {
         return hentRelevantePermisjoner(filter, yrkesaktiviteter, stp)
-            .filter(p-> p.getTilOgMed() == null || TIDENES_ENDE.equals(p.getTilOgMed()))
-            .map(UtledPermisjonSomFørerTilAksjonspunkt::byggPermisjonDto)
-            .collect(Collectors.toList());
+            .anyMatch(p-> p.getTilOgMed() == null || TIDENES_ENDE.equals(p.getTilOgMed()));
     }
 
     private static Stream<Permisjon> hentRelevantePermisjoner(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate stp) {
