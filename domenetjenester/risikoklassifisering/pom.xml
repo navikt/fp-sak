@@ -20,7 +20,6 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingslager-domene</artifactId>
         </dependency>
-
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>felles-integrasjon-rest-klient</artifactId>
@@ -30,17 +29,10 @@
             <artifactId>skjaeringstidspunkt</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.foreldrepenger.kontrakter.topics</groupId>
-            <artifactId>hendelser-kontroll-resultat</artifactId>
-        </dependency>
-        <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>risk-v1</artifactId>
         </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.kontrakter.topics</groupId>
-            <artifactId>fp-topics-manifest</artifactId>
-        </dependency>
+
         <!-- Test avhengigheter -->
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
