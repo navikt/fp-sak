@@ -38,24 +38,6 @@ public class ForvaltningUttakRestTjeneste {
     }
 
     @POST
-    @Path("/leggTilUttakPåOpphørtFpBehandling")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Operation(description = "Legg til uttak på opphørt behandling. Alle periodene avslås.", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
-    public Response leggTilOpphørUttakPåOpphørtFpBehandling(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
-
-        if (!forvaltningUttakTjeneste.erFerdigForeldrepengerBehandlingSomHarFørtTilOpphør(dto.getBehandlingUuid())) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Behandlingen må være type foreldrepenger, avsluttet og ført til oppfør")
-                    .build();
-        }
-
-        forvaltningUttakTjeneste.lagOpphørtUttaksresultat(dto.getBehandlingUuid());
-        return Response.noContent().build();
-    }
-
-    @POST
     @Path("/beregn-kontoer")
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Beregner kontoer basert på data fra behandlingen. Husk å revurdere begge foreldre", tags = "FORVALTNING-uttak")
