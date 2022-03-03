@@ -3,27 +3,29 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 import java.time.LocalDate;
 import java.util.Map;
 
-public class SaldoerDto {
+import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
 
-    private final LocalDate maksDatoUttak;
-    private final Map<String, StønadskontoDto> stonadskontoer;
-    private final int tapteDagerFpff;
+public record SaldoerDto(LocalDate maksDatoUttak, Map<SaldoVisningStønadskontoType, StønadskontoDto> stonadskontoer, int tapteDagerFpff) {
 
-    public SaldoerDto(LocalDate maksDatoUttak, Map<String, StønadskontoDto> stonadskontoer, int tapteDagerFpff) {
-        this.maksDatoUttak = maksDatoUttak;
-        this.stonadskontoer = stonadskontoer;
-        this.tapteDagerFpff = tapteDagerFpff;
+    public enum SaldoVisningStønadskontoType {
+        MØDREKVOTE,
+        FEDREKVOTE,
+        FELLESPERIODE,
+        FORELDREPENGER,
+        FORELDREPENGER_FØR_FØDSEL,
+        FLERBARNSDAGER,
+        FORELDREPENGER_UTEN_AKTIVITETSKRAV;
+
+        public static SaldoVisningStønadskontoType fra(Stønadskontotype stønadskontotype) {
+            return switch (stønadskontotype) {
+                case FORELDREPENGER -> FORELDREPENGER;
+                case MØDREKVOTE -> MØDREKVOTE;
+                case FORELDREPENGER_FØR_FØDSEL -> FORELDREPENGER_FØR_FØDSEL;
+                case FELLESPERIODE -> FELLESPERIODE;
+                case FEDREKVOTE -> FEDREKVOTE;
+                case FLERBARNSDAGER -> FLERBARNSDAGER;
+            };
+        }
     }
 
-    public LocalDate getMaksDatoUttak() {
-        return maksDatoUttak;
-    }
-
-    public Map<String, StønadskontoDto> getStonadskontoer() {
-        return stonadskontoer;
-    }
-
-    public int getTapteDagerFpff() {
-        return tapteDagerFpff;
-    }
 }
