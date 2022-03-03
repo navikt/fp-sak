@@ -72,15 +72,16 @@ public class HåndterOpphørAvYtelser {
     }
 
     void oppdaterEllerOpprettRevurdering(Fagsak fagsak, String beskrivelse, BehandlingÅrsakType årsakType) {
-        var eksisterendeBehandling = finnÅpenOrdinærYtelsesbehandlingUtenÅrsakType(fagsak, årsakType);
+        var eksisterendeBehandling = finnÅpenOrdinærYtelsesbehandling(fagsak);
 
         if (eksisterendeBehandling != null && !eksisterendeBehandling.erStatusFerdigbehandlet()) {
+            if (!eksisterendeBehandling.harBehandlingÅrsak(årsakType)) {
+                oppdatereBehMedÅrsak(eksisterendeBehandling.getId(), årsakType);
+            }
             opprettVurderKonsekvens(eksisterendeBehandling, beskrivelse);
-            oppdatereBehMedÅrsak(eksisterendeBehandling.getId(), årsakType);
             kompletthetskontroller.vurderNyForretningshendelse(eksisterendeBehandling);
         } else {
             behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId())
-                .filter(b -> !b.harBehandlingÅrsak(årsakType))
                 .ifPresent(b -> {
                     var enhet = opprettVurderKonsekvens(b, beskrivelse);
 
@@ -96,10 +97,9 @@ public class HåndterOpphørAvYtelser {
         }
     }
 
-    private Behandling finnÅpenOrdinærYtelsesbehandlingUtenÅrsakType(Fagsak fagsak, BehandlingÅrsakType årsakType) {
+    private Behandling finnÅpenOrdinærYtelsesbehandling(Fagsak fagsak) {
         return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
             .filter(b -> !BehandlingStatus.getFerdigbehandletStatuser().contains(b.getStatus()))
-            .filter(b -> !b.harBehandlingÅrsak(årsakType))
             .filter(SpesialBehandling::erIkkeSpesialBehandling)
             .orElse(null);
     }

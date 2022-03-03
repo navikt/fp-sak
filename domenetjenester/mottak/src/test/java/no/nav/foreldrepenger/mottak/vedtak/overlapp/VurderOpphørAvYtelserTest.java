@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -23,13 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPartType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -62,8 +54,6 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         LocalDate.now().plusMonths(1));
     private static final LocalDate SISTE_DAG_IKKE_OVERLAPP = SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1.plusWeeks(6);
 
-    private static final int DAGSATS = 100;
-    private static final int DAGSATS_GRADERING = 50;
     private static final AktørId AKTØR_ID_MOR = AktørId.dummy();
     private static final AktørId MEDF_AKTØR_ID = AktørId.dummy();
 
@@ -71,7 +61,6 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private FagsakRepository fagsakRepository;
-    private BeregningsresultatRepository beregningsresultatRepository;
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
     @Mock
@@ -82,7 +71,6 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     public void setUp() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
         fagsakRepository = new FagsakRepository(entityManager);
         vurderOpphørAvYtelser = new VurderOpphørAvYtelser(repositoryProvider, stønadsperiodeTjeneste, taskTjeneste);
     }
@@ -202,7 +190,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     @Test
     public void opprettHåndteringNårOverlappMedFPNårInnvSVPPåSammeBarn() {
         var avsluttetFPBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
-        when(stønadsperiodeTjeneste.stønadsperiode(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1, SISTE_DAG_MOR)));
+        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1, SISTE_DAG_MOR)));
 
         var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
         when(stønadsperiodeTjeneste.stønadsperiode(nyBehSVPOverlapper)).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1.minusWeeks(3), FØDSELS_DATO_1.plusDays(4))));
@@ -216,9 +204,8 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     public void opprettHåndteringNårOverlappMedFPNårInnvilgerSVPPåNyttBarn() {
         var avsluttetFPBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
         // PGA sjekk gradering
-        var berResMorBeh1 = lagBeregningsresultat(FØDSELS_DATO_1, SISTE_DAG_MOR, Inntektskategori.ARBEIDSTAKER);
-        beregningsresultatRepository.lagre(avsluttetFPBehMor, berResMorBeh1);
-        when(stønadsperiodeTjeneste.stønadsperiode(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1, SISTE_DAG_MOR)));
+        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1, SISTE_DAG_MOR)));
+        when(stønadsperiodeTjeneste.fullUtbetalingSisteUtbetalingsperiode(avsluttetFPBehMor.getFagsak())).thenReturn(true);
 
         var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
         when(stønadsperiodeTjeneste.stønadsperiode(nyBehSVPOverlapper)).thenReturn(Optional.of(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, SISTE_DAG_PER_OVERLAPP)));
@@ -232,10 +219,8 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     public void loggOverlappFPMedGraderingNårInnvilgerSVP() {
         //Har FP som overlapper med ny SVP sak og det er ikke gradering
         var avsluttetFPBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
-        var berResMorBeh1 = lagBeregningsresultat(FØDSELS_DATO_1, FØDSELS_DATO_1.plusWeeks(10), Inntektskategori.ARBEIDSTAKER);
-        leggTilBeregningsresPeriode(berResMorBeh1, FØDSELS_DATO_1.plusWeeks(11), FØDSELS_DATO_1.plusWeeks(21), true);
-        beregningsresultatRepository.lagre(avsluttetFPBehMor, berResMorBeh1);
-        when(stønadsperiodeTjeneste.stønadsperiode(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1, FØDSELS_DATO_1.plusWeeks(21))));
+        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1, FØDSELS_DATO_1.plusWeeks(21))));
+        when(stønadsperiodeTjeneste.fullUtbetalingSisteUtbetalingsperiode(avsluttetFPBehMor.getFagsak())).thenReturn(false);
 
         var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
         when(stønadsperiodeTjeneste.stønadsperiode(nyBehSVPOverlapper)).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1.plusWeeks(18), FØDSELS_DATO_1.plusWeeks(25))));
@@ -248,10 +233,8 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     @Test
     public void opphørOverlappFPMedGraderingIPeriodenNårInnvilgerSVP() {
         var avsluttetFPBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
-        var berResMorBeh1 = lagBeregningsresultat(FØDSELS_DATO_1, SISTE_DAG_MOR, Inntektskategori.ARBEIDSTAKER);
-        leggTilBeregningsresPeriode(berResMorBeh1, FØDSELS_DATO_1.minusWeeks(6), FØDSELS_DATO_1.minusWeeks(5), true);
-        beregningsresultatRepository.lagre(avsluttetFPBehMor, berResMorBeh1);
-        when(stønadsperiodeTjeneste.stønadsperiode(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1.minusWeeks(6), SISTE_DAG_MOR)));
+        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1.minusWeeks(6), SISTE_DAG_MOR)));
+        when(stønadsperiodeTjeneste.fullUtbetalingSisteUtbetalingsperiode(avsluttetFPBehMor.getFagsak())).thenReturn(true);
 
         var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
         when(stønadsperiodeTjeneste.stønadsperiode(nyBehSVPOverlapper)).thenReturn(Optional.of(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, SISTE_DAG_PER_OVERLAPP)));
@@ -264,7 +247,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     @Test
     public void loggOverlappSVPNårInnvilgerSVP() {
         var avslSVPBeh = lagBehandlingSVP(AKTØR_ID_MOR);
-        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avslSVPBeh.getFagsak())).thenReturn(Optional.of(SISTE_DAG_MOR));
+        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avslSVPBeh.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(SISTE_DAG_MOR.minusMonths(2), SISTE_DAG_MOR)));
 
         var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
         when(stønadsperiodeTjeneste.stønadsperiode(nyBehSVPOverlapper)).thenReturn(Optional.of(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, SISTE_DAG_PER_OVERLAPP)));
@@ -278,9 +261,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     public void opprettIkkeRevNårOverlappMedFPNårInnvilgerSVPPåNyttBarn() {
         var fud = LocalDate.of(2021, 6, 4);
         var avsluttetFPBehMor = lagBehandlingMor(fud.plusWeeks(3), AKTØR_ID_MOR, null);
-        var berResMorBeh1 = lagBeregningsresultat(fud, fud.plusMonths(3), Inntektskategori.ARBEIDSTAKER);
-        beregningsresultatRepository.lagre(avsluttetFPBehMor, berResMorBeh1);
-        when(stønadsperiodeTjeneste.stønadsperiode(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(fud, fud.plusMonths(3))));
+        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(fud, fud.plusMonths(3))));
 
         var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
         when(stønadsperiodeTjeneste.stønadsperiode(nyBehSVPOverlapper)).thenReturn(Optional.of(new LocalDateInterval(LocalDate.of(2021, 5, 3), fud.minusDays(1))));
@@ -396,50 +377,6 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         return behandlingSVP;
     }
 
-    private BeregningsresultatEntitet lagBeregningsresultat(LocalDate periodeFom,
-                                                            LocalDate periodeTom,
-                                                            Inntektskategori inntektskategori) {
-        var beregningsresultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("input")
-            .medRegelSporing("sporing")
-            .build();
-        var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
-            .build(beregningsresultat);
-        BeregningsresultatAndel.builder()
-            .medInntektskategori(inntektskategori)
-            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-            .medDagsats(DAGSATS)
-            .medDagsatsFraBg(DAGSATS)
-            .medBrukerErMottaker(true)
-            .medUtbetalingsgrad(BigDecimal.valueOf(100))
-            .medStillingsprosent(BigDecimal.valueOf(100))
-            .build(beregningsresultatPeriode);
-        return beregningsresultat;
-    }
-
-    private void leggTilBeregningsresPeriode(BeregningsresultatEntitet beregningsresultatEntitet,
-                                             LocalDate fom,
-                                             LocalDate tom,
-                                             boolean gradering) {
-        var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(fom, tom)
-            .build(beregningsresultatEntitet);
-
-        if (gradering) {
-            BeregningsresultatAndel.builder()
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .medDagsats(gradering ? DAGSATS_GRADERING : DAGSATS)
-                .medDagsatsFraBg(DAGSATS)
-                .medBrukerErMottaker(true)
-                .medUtbetalingsgrad(gradering ? BigDecimal.valueOf(50) : BigDecimal.valueOf(100))
-                .medStillingsprosent(BigDecimal.valueOf(50))
-                .build(beregningsresultatPeriode);
-        }
-        beregningsresultatEntitet.addBeregningsresultatPeriode(beregningsresultatPeriode);
-    }
-
     private void avsluttBehandlingOgFagsak(Behandling behandling) {
         behandling.avsluttBehandling();
         repositoryProvider.getBehandlingRepository()
@@ -461,8 +398,6 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
             .orElse(null);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(fagsak.getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNotNull();
-        assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BEHANDLING_ÅRSAK_KEY)).isEqualTo(
-            BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN.getKode());
     }
 
     private void verifiserAtProsesstaskForHåndteringAvOpphørIkkeErOpprettet() {

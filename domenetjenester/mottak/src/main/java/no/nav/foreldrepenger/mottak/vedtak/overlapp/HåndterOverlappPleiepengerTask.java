@@ -32,7 +32,6 @@ public class HåndterOverlappPleiepengerTask extends GenerellProsessTask {
     @Override
     public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
-        var behandlingÅrsak = BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER;
-        tjeneste.oppdaterEllerOpprettRevurdering(fagsak, null, behandlingÅrsak);
+        tjeneste.oppdaterEllerOpprettRevurdering(fagsak, null, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER);
     }
 }
