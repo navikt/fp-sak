@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.skjæringstidspunkt;
 
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.SØKNADSFRIST;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -38,6 +39,7 @@ import no.nav.vedtak.konfig.Tid;
 public class StønadsperiodeTjeneste {
 
     private static final String YTELSE_IKKE_STØTTET = "Utviklerfeil: skal bare kalles for FP/SVP";
+    private static final BigDecimal HUNDRE = new BigDecimal(100);
 
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private BehandlingRepository behandlingRepository;
@@ -67,11 +69,6 @@ public class StønadsperiodeTjeneste {
             .flatMap(this::stønadsperiodeStartdato);
     }
 
-    public Optional<LocalDateInterval> stønadsperiode(Fagsak fagsak) {
-        return  behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
-            .flatMap(this::stønadsperiode);
-    }
-
     public Optional<LocalDate> stønadsperiodeStartdato(Behandling behandling) {
         return switch (behandling.getFagsakYtelseType()) {
             case FORELDREPENGER -> stønadsperiodeStartdatoUR(behandling);
@@ -86,6 +83,16 @@ public class StønadsperiodeTjeneste {
             case SVANGERSKAPSPENGER -> stønadsperiodeEnkeltSakBR(behandling);
             default -> throw new IllegalArgumentException(YTELSE_IKKE_STØTTET);
         };
+    }
+
+    public Optional<LocalDateInterval> utbetalingsperiodeEnkeltSak(Fagsak fagsak) {
+        return  behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
+            .flatMap(this::stønadsperiodeEnkeltSakBR);
+    }
+
+    public boolean fullUtbetalingSisteUtbetalingsperiode(Fagsak fagsak) {
+        return  behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
+            .map(this::erFullUtbetalingSistePeriode).orElse(false);
     }
 
     public Optional<LocalDate> stønadsperiodeSluttdatoEnkeltSak(Fagsak fagsak) {
@@ -176,6 +183,16 @@ public class StønadsperiodeTjeneste {
         if (start.isEmpty()) return Optional.empty();
         var slutt = stønadsperiodeSluttdatoEnkeltSakBR(behandling);
         return start.map(s -> new LocalDateInterval(s, slutt.orElse(Tid.TIDENES_ENDE)));
+    }
+
+    private boolean erFullUtbetalingSistePeriode(Behandling behandling) {
+        return tilkjentRepository.hentUtbetBeregningsresultat(behandling.getId())
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+            .filter(p -> p.getDagsats() > 0)
+            .max(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom))
+            .map(BeregningsresultatPeriode::getKalkulertUtbetalingsgrad)
+            .filter(ug -> ug.compareTo(HUNDRE) >= 0)
+            .isPresent();
     }
 
 }

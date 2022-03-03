@@ -21,7 +21,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 public class HåndterOpphørAvYtelserTask extends GenerellProsessTask {
 
     public static final String BESKRIVELSE_KEY = "beskrivelse";
-    public static final String BEHANDLING_ÅRSAK_KEY = "behandlingAarsak";
 
     private HåndterOpphørAvYtelser tjeneste;
     private FagsakRepository fagsakRepository;
@@ -42,8 +41,6 @@ public class HåndterOpphørAvYtelserTask extends GenerellProsessTask {
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         var beskrivelse = Optional.ofNullable(prosessTaskData.getPropertyValue(BESKRIVELSE_KEY))
             .orElseGet(() -> String.format("Overlapp identifisert: Vurder saksnr %s", fagsak.getSaksnummer()));
-        var behandlingÅrsak = Optional.ofNullable(prosessTaskData.getPropertyValue(BEHANDLING_ÅRSAK_KEY))
-            .map(BehandlingÅrsakType::fraKode).orElse(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
-        tjeneste.oppdaterEllerOpprettRevurdering(fagsak, beskrivelse, behandlingÅrsak);
+        tjeneste.oppdaterEllerOpprettRevurdering(fagsak, beskrivelse, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
     }
 }

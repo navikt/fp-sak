@@ -86,10 +86,8 @@ public class StønadsperiodeTjenesteTest {
             assertThat(b.getTomDato()).isEqualTo(skjæringsdato.plusMonths(2).minusWeeks(3).minusDays(1));
         });
 
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId())).thenReturn(Optional.of(behandling));
-
         // Act/Assert
-        var periodeF =  stønadsperiodeTjeneste.stønadsperiode(behandling.getFagsak());
+        var periodeF =  stønadsperiodeTjeneste.stønadsperiode(behandling);
         assertThat(periodeF).isEqualTo(periodeB);
     }
 
@@ -128,10 +126,8 @@ public class StønadsperiodeTjenesteTest {
             assertThat(b.getTomDato()).isEqualTo(skjæringsdato.plusWeeks(15).minusDays(1));
         });
 
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId())).thenReturn(Optional.of(behandling));
-
         // Act/Assert
-        var periodeF =  stønadsperiodeTjeneste.stønadsperiode(behandling.getFagsak());
+        var periodeF =  stønadsperiodeTjeneste.stønadsperiode(behandling);
         assertThat(periodeF).isEqualTo(periode);
 
     }
@@ -172,10 +168,8 @@ public class StønadsperiodeTjenesteTest {
             assertThat(b.getTomDato()).isEqualTo(skjæringsdato.plusWeeks(15).minusDays(1));
         });
 
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId())).thenReturn(Optional.of(behandling));
-
         // Act/Assert
-        var periodeF =  stønadsperiodeTjeneste.stønadsperiode(behandling.getFagsak());
+        var periodeF =  stønadsperiodeTjeneste.stønadsperiode(behandling);
         assertThat(periodeF).isEqualTo(periode);
 
     }
@@ -214,10 +208,8 @@ public class StønadsperiodeTjenesteTest {
             assertThat(b.getTomDato()).isEqualTo(uttaksdato.plusWeeks(15).minusDays(1));
         });
 
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId())).thenReturn(Optional.of(behandling));
-
         // Act/Assert
-        var periodeF =  stønadsperiodeTjeneste.stønadsperiode(behandling.getFagsak());
+        var periodeF =  stønadsperiodeTjeneste.stønadsperiode(behandling);
         assertThat(periodeF).isEqualTo(periode);
 
     }
@@ -283,7 +275,7 @@ public class StønadsperiodeTjenesteTest {
 
 
         // Act/Assert
-        var periodeSak =  stønadsperiodeTjeneste.stønadsperiode(behandlingMor.getFagsak());
+        var periodeSak =  stønadsperiodeTjeneste.stønadsperiode(behandlingMor);
         assertThat(periodeSak).isEqualTo(periode);
 
     }
