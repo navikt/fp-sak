@@ -170,9 +170,10 @@ public class ArbeidOgInntektsmeldingMapper {
     public static List<ArbeidsforholdDto> mapOverstyrteArbeidsforhold(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer,
                                                                       Collection<ArbeidsforholdReferanse> referanser,
                                                                       List<ArbeidsforholdInntektsmeldingMangel> mangler) {
+        // Trenger kun arbeidsforhold opprettet av handlinger som  kan oppstå i 5085
         return arbeidsforholdOverstyringer.stream()
-            .filter(os -> os.getHandling().equals(ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING)
-                || os.getHandling().equals(ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER))
+            .filter(os -> ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING.equals(os.getHandling())
+                || ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER.equals(os.getHandling()))
             .map(overstyring -> mapManueltArbeidsforhold(overstyring, referanser, mangler))
             .collect(Collectors.toList());
     }
