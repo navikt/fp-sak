@@ -7,7 +7,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
+import no.nav.foreldrepenger.dokumentbestiller.formidling.DokumentBestiller;
 import no.nav.foreldrepenger.dokumentbestiller.kafka.DokumentKafkaBestiller;
+import no.nav.foreldrepenger.konfig.Environment;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,12 +19,15 @@ import static no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder.
 @ApplicationScoped
 public class DokumentBestillerTjeneste {
 
+    private final static Environment ENV = Environment.current();
+
     private BehandlingRepository behandlingRepository;
     private KlageRepository klageRepository;
     private AnkeRepository ankeRepository;
 
     private BrevHistorikkinnslag brevHistorikkinnslag;
     private DokumentKafkaBestiller dokumentKafkaBestiller;
+    private DokumentBestiller dokumentBestiller;
 
     public DokumentBestillerTjeneste() {
         // for cdi proxy
@@ -33,12 +38,14 @@ public class DokumentBestillerTjeneste {
                                      KlageRepository klageRepository,
                                      AnkeRepository ankeRepository,
                                      BrevHistorikkinnslag brevHistorikkinnslag,
-                                     DokumentKafkaBestiller dokumentKafkaBestiller) {
+                                     DokumentKafkaBestiller dokumentKafkaBestiller,
+                                     DokumentBestiller dokumentBestiller) {
         this.behandlingRepository = behandlingRepository;
         this.klageRepository = klageRepository;
         this.ankeRepository = ankeRepository;
         this.brevHistorikkinnslag = brevHistorikkinnslag;
         this.dokumentKafkaBestiller = dokumentKafkaBestiller;
+        this.dokumentBestiller = dokumentBestiller;
     }
 
     public void produserVedtaksbrev(BehandlingVedtak behandlingVedtak) {
@@ -51,8 +58,11 @@ public class DokumentBestillerTjeneste {
         var behandling = behandlingRepository.hentBehandling(behandlingsresultat.getBehandlingId());
         var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak,
             klageRepository, ankeRepository);
-
-        dokumentKafkaBestiller.bestillBrev(behandling, dokumentMal, null, null, HistorikkAktør.VEDTAKSLØSNINGEN);
+        if (ENV.isProd()) {
+            dokumentKafkaBestiller.bestillBrev(behandling, dokumentMal, null, null, HistorikkAktør.VEDTAKSLØSNINGEN);
+        } else {
+            dokumentBestiller.bestillBrev(behandling, dokumentMal, null, null, HistorikkAktør.VEDTAKSLØSNINGEN);
+        }
     }
 
     public void bestillDokument(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
@@ -66,6 +76,11 @@ public class DokumentBestillerTjeneste {
             brevHistorikkinnslag.opprettHistorikkinnslagForManueltBestiltBrev(aktør, behandling,
                 DokumentMalType.fraKode(bestillBrevDto.getBrevmalkode()));
         }
-        dokumentKafkaBestiller.bestillBrevFraKafka(bestillBrevDto, aktør);
+
+        if (ENV.isProd()) {
+            dokumentKafkaBestiller.bestillBrevFraKafka(bestillBrevDto, aktør);
+        } else {
+            dokumentBestiller.bestillBrev(bestillBrevDto, aktør);
+        }
     }
 }

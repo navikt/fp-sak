@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
+import no.nav.foreldrepenger.dokumentbestiller.formidling.DokumentBestiller;
 import no.nav.foreldrepenger.dokumentbestiller.kafka.DokumentKafkaBestiller;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,6 +28,9 @@ public class DokumentBestillerTjenesteTest {
 
     @Mock
     private DokumentKafkaBestiller dokumentKafkaBestiller;
+
+    @Mock
+    private DokumentBestiller dokumentBestiller;
 
 
     private Behandling behandling;
@@ -44,7 +48,8 @@ public class DokumentBestillerTjenesteTest {
                 null,
                 null,
                 brevHistorikkinnslag,
-                dokumentKafkaBestiller);
+                dokumentKafkaBestiller,
+                dokumentBestiller);
     }
 
     @Test
@@ -61,7 +66,7 @@ public class DokumentBestillerTjenesteTest {
         tjeneste.bestillDokument(bestillBrevDto, historikkAktør, false);
 
         // Assert
-        verify(dokumentKafkaBestiller).bestillBrevFraKafka(bestillBrevDto, historikkAktør);
+        verify(dokumentBestiller).bestillBrev(bestillBrevDto, historikkAktør);
     }
 
     @Test
@@ -78,7 +83,7 @@ public class DokumentBestillerTjenesteTest {
         tjeneste.bestillDokument(bestillBrevDto, historikkAktør, true);
 
         // Assert
-        verify(dokumentKafkaBestiller).bestillBrevFraKafka(bestillBrevDto, historikkAktør);
+        verify(dokumentBestiller).bestillBrev(bestillBrevDto, historikkAktør);
 
         var historikkinnslagCaptor = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkRepositoryMock).lagre(historikkinnslagCaptor.capture());
