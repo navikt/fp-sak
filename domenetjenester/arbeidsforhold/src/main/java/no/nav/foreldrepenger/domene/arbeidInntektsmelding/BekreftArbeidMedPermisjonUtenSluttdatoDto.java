@@ -16,6 +16,7 @@ public class BekreftArbeidMedPermisjonUtenSluttdatoDto extends BekreftetAksjonsp
     @Valid
     @Size(max = 1000)
     @NotNull
+    @Size(min = 1, max = 10)
     private List<AvklarPermisjonUtenSluttdatoDto> arbeidsforhold;
 
     @SuppressWarnings("unused") // NOSONAR
