@@ -43,9 +43,9 @@ public class DokumentBestiller {
         var behandling = bestillBrevDto.getBehandlingUuid() == null ? behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingId())
             : behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid());
         bestillBrev(behandling,
-                    DokumentMalType.fraKode(bestillBrevDto.getBrevmalkode()),
+                    bestillBrevDto.getBrevmalkode(),
                     bestillBrevDto.getFritekst(),
-                    bestillBrevDto.getÅrsakskode(),
+                    bestillBrevDto.getÅrsakskode().getKode(),
                     aktør);
     }
 

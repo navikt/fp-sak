@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
@@ -44,6 +45,7 @@ public enum RevurderingVarslingÅrsak implements Kodeverdi {
     @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     RevurderingVarslingÅrsak(String kode) {
@@ -55,18 +57,6 @@ public enum RevurderingVarslingÅrsak implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static RevurderingVarslingÅrsak fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent RevurderingVarslingÅrsak: " + kode);
-        }
-        return ad;
-    }
-
     public static Map<String, RevurderingVarslingÅrsak> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -76,13 +66,11 @@ public enum RevurderingVarslingÅrsak implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

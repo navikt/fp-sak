@@ -93,7 +93,7 @@ public class DokumentKafkaBestillerTest {
         var innhentDok = DokumentMalType.INNHENTE_OPPLYSNINGER;
         var fritekst = "FRITEKST";
         var årsak = RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER;
-        var bestillBrevDto = lagBestillBrevDto(innhentDok, årsak.getKode(), fritekst);
+        var bestillBrevDto = lagBestillBrevDto(innhentDok, årsak, fritekst);
         var aktør = HistorikkAktør.SAKSBEHANDLER;
 
         dokumentKafkaBestiller.bestillBrevFraKafka(bestillBrevDto, aktør);
@@ -109,7 +109,7 @@ public class DokumentKafkaBestillerTest {
         });
     }
 
-    private BestillBrevDto lagBestillBrevDto(DokumentMalType dokumentMalType, String arsakskode, String fritekst) {
+    private BestillBrevDto lagBestillBrevDto(DokumentMalType dokumentMalType, RevurderingVarslingÅrsak arsakskode, String fritekst) {
         return new BestillBrevDto(behandling.getId(), behandling.getUuid(), dokumentMalType, fritekst, arsakskode);
     }
 

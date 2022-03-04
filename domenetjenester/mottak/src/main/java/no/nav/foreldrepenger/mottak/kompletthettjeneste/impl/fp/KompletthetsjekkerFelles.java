@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -152,7 +151,7 @@ public class KompletthetsjekkerFelles {
                 if (skalIkkeSendeBrev) {
                     LOG.info("Sender ikke etterlys inntektsmelding brev for sak som er migrert fra Infotrygd. Gjelder behandlingId {}", ref.getBehandlingId());
                 } else {
-                    sendBrev(ref.getBehandlingId(), ref.getBehandlingUuid(), DokumentMalType.ETTERLYS_INNTEKTSMELDING, null);
+                    sendEtterlysInntektsmeldingBrev(ref.getBehandlingId(), ref.getBehandlingUuid());
                 }
             }
             return ventefristEtterlysning;
@@ -201,15 +200,13 @@ public class KompletthetsjekkerFelles {
     }
 
     private void loggManglendeInntektsmeldinger(Long behandlingId, List<ManglendeVedlegg> manglendeInntektsmeldinger) {
-        var arbgivere = manglendeInntektsmeldinger.stream()
-            .map(v -> OrgNummer.tilMaskertNummer(v.getArbeidsgiver()))
-            .collect(Collectors.toList()).toString();
+        var arbgivere = manglendeInntektsmeldinger.stream().map(v -> OrgNummer.tilMaskertNummer(v.getArbeidsgiver())).toList().toString();
         LOG.info("Behandling {} er ikke komplett - mangler IM fra arbeidsgivere: {}", behandlingId, arbgivere); // NOSONAR //$NON-NLS-1$
     }
 
-    private void sendBrev(Long behandlingId, UUID behandlingUuid, DokumentMalType dokumentMalType, String årsakskode) {
-        if (!erSendtBrev(behandlingId, dokumentMalType)) {
-            var bestillBrevDto = new BestillBrevDto(behandlingId,behandlingUuid, dokumentMalType, null, årsakskode);
+    private void sendEtterlysInntektsmeldingBrev(Long behandlingId, UUID behandlingUuid) {
+        if (!erSendtBrev(behandlingId, DokumentMalType.ETTERLYS_INNTEKTSMELDING)) {
+            var bestillBrevDto = new BestillBrevDto(behandlingId,behandlingUuid, DokumentMalType.ETTERLYS_INNTEKTSMELDING, null, null);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
     }

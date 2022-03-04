@@ -74,7 +74,7 @@ public class DokumentBestillerTjeneste {
             var behandling = bestillBrevDto.getBehandlingUuid() == null ? behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingId())
                 : behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid());
             brevHistorikkinnslag.opprettHistorikkinnslagForManueltBestiltBrev(aktør, behandling,
-                DokumentMalType.fraKode(bestillBrevDto.getBrevmalkode()));
+                bestillBrevDto.getBrevmalkode());
         }
 
         if (ENV.isProd()) {

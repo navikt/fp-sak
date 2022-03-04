@@ -85,7 +85,7 @@ public class SendBrevForAutopunkt {
     public void sendBrevForEtterkontroll(Behandling behandling) {
         if (!harSendtBrevForMal(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING)) {
             var bestillBrevDto = opprettBestillBrevDto(behandling, DokumentMalType.VARSEL_OM_REVURDERING);
-            bestillBrevDto.setÅrsakskode(RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER.getKode());
+            bestillBrevDto.setÅrsakskode(RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
     }

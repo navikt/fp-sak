@@ -39,13 +39,10 @@ public class DokumentKafkaBestiller {
     }
 
     public void bestillBrevFraKafka(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
-        RevurderingVarslingÅrsak årsak = null;
-        if (bestillBrevDto.getÅrsakskode() != null && !bestillBrevDto.getÅrsakskode().isEmpty()) {
-            årsak = RevurderingVarslingÅrsak.fraKode(bestillBrevDto.getÅrsakskode());
-        }
         var behandling = bestillBrevDto.getBehandlingUuid() == null ? behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingId())
             : behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid());
-        bestillBrev(behandling, DokumentMalType.fraKode(bestillBrevDto.getBrevmalkode()), bestillBrevDto.getFritekst(), årsak, aktør);
+
+        bestillBrev(behandling, bestillBrevDto.getBrevmalkode(), bestillBrevDto.getFritekst(), bestillBrevDto.getÅrsakskode(), aktør);
     }
 
     public void bestillBrev(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak årsak, HistorikkAktør aktør) {
