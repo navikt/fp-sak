@@ -11,6 +11,7 @@ import javax.validation.constraints.Size;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
 public class BestillBrevDto {
@@ -27,7 +28,7 @@ public class BestillBrevDto {
     @Size(max = 256)
     private String mottaker;
 
-    @Valid
+    @ValidKodeverk
     @NotNull
     private DokumentMalType brevmalkode;
 
@@ -35,7 +36,7 @@ public class BestillBrevDto {
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     public String fritekst;
 
-    @Valid
+    @ValidKodeverk
     public RevurderingVarslingÅrsak arsakskode;
 
     public BestillBrevDto() { // NOSONAR

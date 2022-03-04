@@ -1,5 +1,11 @@
 package no.nav.foreldrepenger.dokumentbestiller.kafka;
 
+import java.util.Optional;
+import java.util.UUID;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -11,10 +17,6 @@ import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.UUID;
 
 @ApplicationScoped
 public class DokumentKafkaBestiller {
@@ -58,7 +60,8 @@ public class DokumentKafkaBestiller {
         prosessTaskData.setPayload(StandardJsonConfig.toJson(fritekst));
         prosessTaskData.setProperty(DokumentBestillerKafkaTask.BEHANDLING_ID, behandling.getId().toString());
         prosessTaskData.setProperty(DokumentBestillerKafkaTask.DOKUMENT_MAL_TYPE, dokumentMalType.getKode());
-        prosessTaskData.setProperty(DokumentBestillerKafkaTask.REVURDERING_VARSLING_ÅRSAK, årsak != null ? årsak.getKode() : null);
+        prosessTaskData.setProperty(DokumentBestillerKafkaTask.REVURDERING_VARSLING_ÅRSAK,
+            Optional.ofNullable(årsak).map(RevurderingVarslingÅrsak::getKode).orElse(null));
         prosessTaskData.setProperty(DokumentBestillerKafkaTask.HISTORIKK_AKTØR, aktør.getKode());
         prosessTaskData.setProperty(DokumentBestillerKafkaTask.BESTILLING_UUID, String.valueOf(bestillingUuid));
         prosessTaskData.setProperty(DokumentBestillerKafkaTask.BEHANDLENDE_ENHET_NAVN, behandling.getBehandlendeOrganisasjonsEnhet().enhetNavn());
