@@ -4,9 +4,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
@@ -117,6 +120,7 @@ public enum DokumentMalType implements Kodeverdi {
     @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     DokumentMalType(String kode, String navn) {
@@ -124,13 +128,11 @@ public enum DokumentMalType implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return "DOKUMENT_MAL_TYPE";
@@ -141,8 +143,7 @@ public enum DokumentMalType implements Kodeverdi {
         return navn;
     }
 
-    @JsonCreator
-    public static DokumentMalType fraKode(@JsonProperty("kode") String kode) {
+    public static DokumentMalType fraKode(String kode) {
         var ad = Optional.ofNullable(KODER.get(kode));
         if (ad.isEmpty()) {
             throw new IllegalArgumentException("Ukjent DokumentMalType: " + kode);

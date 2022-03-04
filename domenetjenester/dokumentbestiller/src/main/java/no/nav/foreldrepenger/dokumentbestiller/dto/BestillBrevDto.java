@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.vedtak.util.InputValideringRegex;
 
@@ -29,7 +30,7 @@ public class BestillBrevDto {
     @NotNull
     @Size(min = 1, max = 100)
     @Pattern(regexp = InputValideringRegex.KODEVERK)
-    private String brevmalkode;
+    private DokumentMalType brevmalkode;
 
     @Size(max = 6000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
@@ -37,15 +38,15 @@ public class BestillBrevDto {
 
     @Size(min = 1, max = 100)
     @Pattern(regexp = InputValideringRegex.KODEVERK)
-    public String arsakskode;
+    public RevurderingVarslingÅrsak arsakskode;
 
     public BestillBrevDto() { // NOSONAR
     }
 
-    public BestillBrevDto(long behandlingId, UUID behandlingUuid, DokumentMalType dokumentMalType, String fritekst, String arsakskode) { // NOSONAR
+    public BestillBrevDto(long behandlingId, UUID behandlingUuid, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak arsakskode) { // NOSONAR
         this.behandlingId = behandlingId;
         this.behandlingUuid = behandlingUuid;
-        this.brevmalkode = dokumentMalType == null ? null : dokumentMalType.getKode();
+        this.brevmalkode = dokumentMalType;
         this.fritekst = fritekst;
         this.mottaker = "Søker";
         this.arsakskode = arsakskode;
@@ -67,11 +68,11 @@ public class BestillBrevDto {
         return behandlingUuid;
     }
 
-    public String getÅrsakskode() {
+    public RevurderingVarslingÅrsak getÅrsakskode() {
         return arsakskode;
     }
 
-    public void setÅrsakskode(String årsakskode) {
+    public void setÅrsakskode(RevurderingVarslingÅrsak årsakskode) {
         this.arsakskode = årsakskode;
     }
 
@@ -87,11 +88,11 @@ public class BestillBrevDto {
         this.mottaker = mottaker;
     }
 
-    public String getBrevmalkode() {
+    public DokumentMalType getBrevmalkode() {
         return brevmalkode;
     }
 
-    public void setBrevmalkode(String brevmalkode) {
+    public void setBrevmalkode(DokumentMalType brevmalkode) {
         this.brevmalkode = brevmalkode;
     }
 
