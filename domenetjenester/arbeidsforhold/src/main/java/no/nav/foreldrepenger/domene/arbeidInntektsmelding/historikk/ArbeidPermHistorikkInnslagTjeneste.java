@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -33,13 +34,16 @@ public class ArbeidPermHistorikkInnslagTjeneste {
 
     }
 
-    public void opprettHistorikkinnslag(AvklarPermisjonUtenSluttdatoDto avklartArbForhold) {
-        Arbeidsgiver arbeidsgiver = lagArbeidsgiver(avklartArbForhold.arbeidsgiverIdent());
+    public void opprettHistorikkinnslag(List<AvklarPermisjonUtenSluttdatoDto> avklarteArbForhold) {
+        avklarteArbForhold.forEach( avklartArbForhold -> {
+                Arbeidsgiver arbeidsgiver = lagArbeidsgiver(avklartArbForhold.arbeidsgiverIdent());
+                var opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
+                var arbeidsforholdNavn = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger, Optional.empty());
+                var historikkInnslagType = utledHistorikkInnslagValg(avklartArbForhold.permisjonStatus());
 
-        var arbeidsforholdNavn = lagTekstForArbeidsgiver(arbeidsgiver);
-        var historikkInnslagType = utledHistorikkInnslagValg(avklartArbForhold.permisjonStatus());
-
-        opprettHistorikkinnslagDel(historikkInnslagType, arbeidsforholdNavn, arbeidsforholdNavn);
+                opprettHistorikkinnslagDel(historikkInnslagType, arbeidsforholdNavn, arbeidsforholdNavn);
+            }
+        );
     }
 
     private VurderArbeidsforholdHistorikkinnslag utledHistorikkInnslagValg(BekreftetPermisjonStatus permisjonStatus) {
@@ -50,33 +54,16 @@ public class ArbeidPermHistorikkInnslagTjeneste {
         } else return null;
     }
 
-    String lagTekstForArbeidsgiver(Arbeidsgiver arbeidsgiver) {
-        if (arbeidsgiver == null) {
-            throw new IllegalStateException("Klarte ikke lage historikkinnslagstekst for arbeidsgiver");
-        } else {
-            var sb = new StringBuilder();
-            var opplysninger =  arbeidsgiverTjeneste.hent(arbeidsgiver);
-            sb.append(opplysninger.getNavn())
-                .append(" (")
-                .append(opplysninger.getIdentifikator())
-                .append(")");
-            return sb.toString();
-        }
-    }
-
     private void opprettHistorikkinnslagDel(VurderArbeidsforholdHistorikkinnslag tilVerdi, String begrunnelse, String arbeidsforholdNavn) {
-        historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
         var historikkDeler = historikkAdapter.tekstBuilder().getHistorikkinnslagDeler();
         historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.ARBEIDSFORHOLD, arbeidsforholdNavn, null, tilVerdi);
-        historikkAdapter.tekstBuilder().medBegrunnelse(begrunnelse);
+        if (!harBegrunnelse(historikkDeler)) {
+            historikkAdapter.tekstBuilder().medBegrunnelse(begrunnelse);
+        }
         if (!harSkjermlenke(historikkDeler)) {
-            historikkAdapter.tekstBuilder().medSkjermlenke(SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD);
+            historikkAdapter.tekstBuilder().medSkjermlenke(SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_PERMISJON);
         }
         historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
-    }
-
-    private boolean harSkjermlenke(List<HistorikkinnslagDel> historikkDeler) {
-        return historikkDeler.stream().anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
     }
 
     private Arbeidsgiver lagArbeidsgiver(String arbeidsgiverIdent) {
@@ -84,5 +71,13 @@ public class ArbeidPermHistorikkInnslagTjeneste {
             return Arbeidsgiver.virksomhet(arbeidsgiverIdent);
         }
         return Arbeidsgiver.fra(new AktørId(arbeidsgiverIdent));
+    }
+
+    private boolean harBegrunnelse(List<HistorikkinnslagDel> historikkDeler) {
+        return historikkDeler.stream().anyMatch(historikkDel -> historikkDel.getBegrunnelse().isPresent());
+    }
+
+    private boolean harSkjermlenke(List<HistorikkinnslagDel> historikkDeler) {
+        return historikkDeler.stream().anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
     }
 }

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -39,10 +40,13 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYR
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYScenarioBuilder;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -74,6 +78,7 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
     private final InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
 
     private AvklarArbeidPermisjonUtenSluttdatoOppdaterer avklarArbeidPermisjonUtenSluttdatoOppdaterer;
+    private Behandling behandling;
 
     @BeforeEach
     void setUp(EntityManager entityManager) {
@@ -88,14 +93,14 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
         var arbeidsforholdHistorikkTjeneste = new ArbeidPermHistorikkInnslagTjeneste(historikkAdapter, arbeidsgiverTjeneste);
 
         avklarArbeidPermisjonUtenSluttdatoOppdaterer = new AvklarArbeidPermisjonUtenSluttdatoOppdaterer(arbeidsforholdAdministrasjonTjeneste, arbeidsforholdHistorikkTjeneste, iayTjeneste);
+
+        IAYScenarioBuilder iayScenarioBuilder = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        behandling = iayScenarioBuilder.lagre(provider);
     }
 
     @Test
     public void bekrefte_avklart_permisjon_uten_sluttdato() {
         // Arrange
-        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        var behandling = scenario.lagre(provider);
-
         final var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         leggTilArbeidsforholdPåBehandling(behandling, NAV_ORGNR, InternArbeidsforholdRef.ref(INTERN_ARBEIDSFORHOLD_ID), inntektArbeidYtelseAggregatBuilder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);
@@ -134,6 +139,51 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
 
     }
 
+    @Test
+    public void ikke_overstyre_eksisterende_overstyringer_gjort_i_5085_5080() {
+        // Arrange
+        final var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        leggTilArbeidsforholdPåBehandling(behandling, NAV_ORGNR, InternArbeidsforholdRef.ref(INTERN_ARBEIDSFORHOLD_ID), inntektArbeidYtelseAggregatBuilder);
+        iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);
+
+        var arbeidsforholdOverstyringBuilder = ArbeidsforholdOverstyringBuilder.oppdatere(Optional.empty())
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(NAV_ORGNR))
+            .medArbeidsforholdRef(InternArbeidsforholdRef.ref(INTERN_ARBEIDSFORHOLD_ID))
+            .medHandling(ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING)
+            .leggTilOverstyrtPeriode(LocalDate.now(), LocalDate.now().plusDays(2));
+
+        var arbeidsforholdInformasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(Optional.empty()).leggTil(arbeidsforholdOverstyringBuilder);
+
+        iayTjeneste.lagreOverstyrtArbeidsforhold(behandling.getId(), behandling.getAktørId(), arbeidsforholdInformasjonBuilder);
+
+        var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
+            AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO);
+
+        var bekreftetArbeidMedPermisjonUtenSluttdato = new BekreftArbeidMedPermisjonUtenSluttdatoDto("Har tatt stilling til dette",
+            List.of(new AvklarPermisjonUtenSluttdatoDto(NAV_ORGNR, INTERN_ARBEIDSFORHOLD_ID, BekreftetPermisjonStatus.BRUK_PERMISJON)));
+
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(LocalDate.of(2019, 1, 1))
+            .build();
+
+        //Act
+        var resultat = avklarArbeidPermisjonUtenSluttdatoOppdaterer.oppdater(bekreftetArbeidMedPermisjonUtenSluttdato, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt,
+            bekreftetArbeidMedPermisjonUtenSluttdato.getBegrunnelse()));
+
+        //Assert
+        var behandlingRepository = provider.getBehandlingRepository();
+        var overstyring = iayTjeneste.hentGrunnlag(behandling.getId()).getArbeidsforholdOverstyringer();
+        var behandling1 = behandlingRepository.hentBehandling(behandling.getId());
+        var aksjonspunkter = behandling1.getAksjonspunkter();
+
+        assertThat(aksjonspunkter).hasSize(1);
+        assertThat(resultat.kreverTotrinnsKontroll()).isFalse();
+        assertThat(overstyring.get(0).getBekreftetPermisjon().get().getStatus()).isEqualTo(BekreftetPermisjonStatus.BRUK_PERMISJON);
+        assertThat(overstyring.get(0).getHandling()).isEqualTo(ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING);
+        assertThat(overstyring.get(0).getArbeidsforholdRef()).isEqualTo(InternArbeidsforholdRef.ref(INTERN_ARBEIDSFORHOLD_ID));
+        assertThat(overstyring.get(0).getArbeidsforholdOverstyrtePerioder()).isNotEmpty();
+    }
+
     private void leggTilArbeidsforholdPåBehandling(Behandling behandling, String virksomhetOrgnr, InternArbeidsforholdRef ref,
                                                    InntektArbeidYtelseAggregatBuilder builder) {
         final var arbeidsgiver = Arbeidsgiver.virksomhet(virksomhetOrgnr);
@@ -153,6 +203,9 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
                 .getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(3)), true));
         arbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilderForType);
         builder.leggTilAktørArbeid(arbeidBuilder);
+
+
+
     }
 
     private Permisjon byggPermisjon(YrkesaktivitetBuilder yrkesaktivitetBuilder, LocalDate fom, LocalDate tom) {

@@ -3,11 +3,11 @@ package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
 
 import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
@@ -18,6 +18,9 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk.ArbeidPermHistorikkInnslagTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyrtePerioder;
 import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
@@ -32,8 +35,6 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftArbeidMedPermisjonUtenSluttdatoDto.class, adapter = AksjonspunktOppdaterer.class)
 public class AvklarArbeidPermisjonUtenSluttdatoOppdaterer implements AksjonspunktOppdaterer<BekreftArbeidMedPermisjonUtenSluttdatoDto> {
-    @Valid
-    @Size(max = 1000)
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
     private ArbeidPermHistorikkInnslagTjeneste arbeidPermHistorikkInnslagTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
@@ -55,31 +56,66 @@ public class AvklarArbeidPermisjonUtenSluttdatoOppdaterer implements Aksjonspunk
     public OppdateringResultat oppdater(BekreftArbeidMedPermisjonUtenSluttdatoDto bekreftetArbforholdDto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
         var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId)
-            .orElseThrow(() -> new IllegalStateException("Finner ikke arbeidsinformasjon for behanldingId: "+ behandlingId));
+            .orElseThrow(() -> new IllegalStateException("Finner ikke arbeidsinformasjon for behandlingId: "+ behandlingId));
 
-        var arbeidsforholdInformasjonBuilder = arbeidsforholdAdministrasjonTjeneste.opprettBuilderFor(behandlingId).tilbakestillOverstyringer();
+
+        var arbeidsforholdInformasjonBuilder = arbeidsforholdAdministrasjonTjeneste.opprettBuilderFor(behandlingId);
 
         for (var avklartArbeidsForhold : bekreftetArbforholdDto.getArbeidsforhold()) {
             if (erGyldigPermisjonStatus(avklartArbeidsForhold.permisjonStatus())) {
-                var internArbeidsforholdId = avklartArbeidsForhold.internArbeidsforholdId();
+                var internRef = InternArbeidsforholdRef.ref(avklartArbeidsForhold.internArbeidsforholdId());
                 var arbeidsgiver = hentArbeidsgiver(avklartArbeidsForhold.arbeidsgiverIdent());
 
                 var yrkesaktiviet = hentYrkesaktivietForArbeidsforholdet(param, iayGrunnlag, avklartArbeidsForhold);
                 var permisjonsperiode = hentPermisjonsperiodeForArbeidsforholdet(avklartArbeidsForhold, yrkesaktiviet);
+                var avklartPermisjonsstatus = avklartArbeidsForhold.permisjonStatus();
 
-                var overstyringBuilderForPermisjon = arbeidsforholdInformasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, InternArbeidsforholdRef.ref(internArbeidsforholdId))
-                    .medBekreftetPermisjon(new BekreftetPermisjon(permisjonsperiode.getFomDato(), permisjonsperiode.getTomDato(), avklartArbeidsForhold.permisjonStatus()))
-                    .medHandling(utledHandlingType(avklartArbeidsForhold.permisjonStatus()));
+                var eksisterendeOverstyring = hentEksisterendeOverstyringHvisFinnes(iayGrunnlag, internRef, arbeidsgiver).orElse(null);
+                arbeidsforholdInformasjonBuilder.fjernOverstyringVedrørende(arbeidsgiver, internRef);
+                var overstyringBuilderForPermisjon = arbeidsforholdInformasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, internRef)
+                    .medBekreftetPermisjon(new BekreftetPermisjon(permisjonsperiode.getFomDato(), permisjonsperiode.getTomDato(), avklartPermisjonsstatus));
+
+                if (eksisterendeOverstyring != null) {
+                    mapFraEksisterende(overstyringBuilderForPermisjon, eksisterendeOverstyring, avklartPermisjonsstatus);
+                } else {
+                    overstyringBuilderForPermisjon
+                        .medHandling(utledHandlingType(avklartPermisjonsstatus));
+                }
 
                 arbeidsforholdInformasjonBuilder.leggTil(overstyringBuilderForPermisjon);
-                arbeidPermHistorikkInnslagTjeneste.opprettHistorikkinnslag(avklartArbeidsForhold);
+
             } else {
                 throw new IllegalStateException("Ugyldig permisjonsstaus for arbeidsgiverIdent : "+ avklartArbeidsForhold.arbeidsgiverIdent());
             }
         }
-
+        arbeidPermHistorikkInnslagTjeneste.opprettHistorikkinnslag(bekreftetArbforholdDto.getArbeidsforhold());
         arbeidsforholdAdministrasjonTjeneste.lagreOverstyring(behandlingId, param.getAktørId(), arbeidsforholdInformasjonBuilder );
         return OppdateringResultat.utenTransisjon().build();
+    }
+
+    private void mapFraEksisterende(ArbeidsforholdOverstyringBuilder builder, ArbeidsforholdOverstyring eksisterendeOverstyring, BekreftetPermisjonStatus avklartPermisjonsstatus) {
+        builder
+            .medAngittArbeidsgiverNavn(eksisterendeOverstyring.getArbeidsgiverNavn())
+            .medHandling(eksisterendeOverstyring.getHandling() != null ? eksisterendeOverstyring.getHandling() : utledHandlingType(avklartPermisjonsstatus))
+            .medAngittStillingsprosent(eksisterendeOverstyring.getStillingsprosent())
+            .medBeskrivelse(eksisterendeOverstyring.getBegrunnelse());
+
+        if(eksisterendeOverstyring.getArbeidsforholdOverstyrtePerioder() != null) {
+            mapOverstyrtePerioder(eksisterendeOverstyring.getArbeidsforholdOverstyrtePerioder(), builder);
+        }
+    }
+
+    private void mapOverstyrtePerioder(List<ArbeidsforholdOverstyrtePerioder> overstyrtePerioder, ArbeidsforholdOverstyringBuilder builder) {
+        overstyrtePerioder.forEach(
+            osp-> builder.leggTilOverstyrtPeriode(osp.getOverstyrtePeriode().getFomDato(), osp.getOverstyrtePeriode().getTomDato()));
+    }
+
+    private Optional<ArbeidsforholdOverstyring> hentEksisterendeOverstyringHvisFinnes(InntektArbeidYtelseGrunnlag iayGrunnlag,
+                                                                                      InternArbeidsforholdRef internRef,
+                                                                                      Arbeidsgiver arbeidsgiver) {
+        return iayGrunnlag.getArbeidsforholdOverstyringer().stream()
+            .filter(os -> os.getArbeidsgiver().equals(arbeidsgiver) && os.getArbeidsforholdRef().equals(internRef))
+            .findFirst();
     }
 
     private DatoIntervallEntitet hentPermisjonsperiodeForArbeidsforholdet(AvklarPermisjonUtenSluttdatoDto avklartArbeidsForhold, Yrkesaktivitet yrkesaktiviet) {
