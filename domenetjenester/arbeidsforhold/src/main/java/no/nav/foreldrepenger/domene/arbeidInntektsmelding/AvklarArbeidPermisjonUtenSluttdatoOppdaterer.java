@@ -79,7 +79,7 @@ public class AvklarArbeidPermisjonUtenSluttdatoOppdaterer implements Aksjonspunk
                     mapFraEksisterende(overstyringBuilderForPermisjon, eksisterendeOverstyring, avklartPermisjonsstatus);
                 } else {
                     overstyringBuilderForPermisjon
-                        .medHandling(utledHandlingType(avklartPermisjonsstatus));
+                        .medHandling(ArbeidsforholdHandlingType.BRUK);
                 }
 
                 arbeidsforholdInformasjonBuilder.leggTil(overstyringBuilderForPermisjon);
@@ -88,7 +88,7 @@ public class AvklarArbeidPermisjonUtenSluttdatoOppdaterer implements Aksjonspunk
                 throw new IllegalStateException("Ugyldig permisjonsstaus for arbeidsgiverIdent : "+ avklartArbeidsForhold.arbeidsgiverIdent());
             }
         }
-        arbeidPermHistorikkInnslagTjeneste.opprettHistorikkinnslag(bekreftetArbforholdDto.getArbeidsforhold());
+        arbeidPermHistorikkInnslagTjeneste.opprettHistorikkinnslag(bekreftetArbforholdDto.getArbeidsforhold(), bekreftetArbforholdDto.getBegrunnelse());
         arbeidsforholdAdministrasjonTjeneste.lagreOverstyring(behandlingId, param.getAktørId(), arbeidsforholdInformasjonBuilder );
         return OppdateringResultat.utenTransisjon().build();
     }
@@ -96,7 +96,7 @@ public class AvklarArbeidPermisjonUtenSluttdatoOppdaterer implements Aksjonspunk
     private void mapFraEksisterende(ArbeidsforholdOverstyringBuilder builder, ArbeidsforholdOverstyring eksisterendeOverstyring, BekreftetPermisjonStatus avklartPermisjonsstatus) {
         builder
             .medAngittArbeidsgiverNavn(eksisterendeOverstyring.getArbeidsgiverNavn())
-            .medHandling(eksisterendeOverstyring.getHandling() != null ? eksisterendeOverstyring.getHandling() : utledHandlingType(avklartPermisjonsstatus))
+            .medHandling(eksisterendeOverstyring.getHandling() != null ? eksisterendeOverstyring.getHandling() : ArbeidsforholdHandlingType.BRUK)
             .medAngittStillingsprosent(eksisterendeOverstyring.getStillingsprosent())
             .medBeskrivelse(eksisterendeOverstyring.getBegrunnelse());
 

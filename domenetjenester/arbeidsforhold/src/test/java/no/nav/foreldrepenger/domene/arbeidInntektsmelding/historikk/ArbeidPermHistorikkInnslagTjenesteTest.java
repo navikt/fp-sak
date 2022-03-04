@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
@@ -34,7 +33,6 @@ class ArbeidPermHistorikkInnslagTjenesteTest {
     private static final String INTERN_ARBEIDSFORHOLD_ID = "a6ea6724-868f-11e9-bc42-526af7764f64";
     private static final String INTERN_ARBEIDSFORHOLD_ID_2 = "a6ea6724-868f-11e9-bc42-526af7764f65";
     private static final String ARB_NAVN = "Arbeidsgivernavn";
-    private static final Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(KUNSTIG_ORG);
 
     @Inject
     private HistorikkTjenesteAdapter historikkAdapter;
@@ -66,8 +64,9 @@ class ArbeidPermHistorikkInnslagTjenesteTest {
         List<AvklarPermisjonUtenSluttdatoDto> avklarteArbForhold = List.of(new AvklarPermisjonUtenSluttdatoDto(KUNSTIG_ORG, INTERN_ARBEIDSFORHOLD_ID, BekreftetPermisjonStatus.BRUK_PERMISJON),
             new AvklarPermisjonUtenSluttdatoDto(NAV_ORGNR, INTERN_ARBEIDSFORHOLD_ID_2, BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON));
 
-        arbeidPermHistorikkInnslagTjenesteTest.opprettHistorikkinnslag(avklarteArbForhold);
+        arbeidPermHistorikkInnslagTjenesteTest.opprettHistorikkinnslag(avklarteArbForhold, "begrunnelse");
 
-        assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(2);
+        assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(3);
+        assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler().get(2).getBegrunnelse().get()).isEqualTo("begrunnelse");
     }
 }

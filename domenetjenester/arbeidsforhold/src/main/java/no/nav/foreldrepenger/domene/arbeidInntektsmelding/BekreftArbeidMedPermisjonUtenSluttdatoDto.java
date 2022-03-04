@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 import java.util.List;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -17,7 +16,6 @@ public class BekreftArbeidMedPermisjonUtenSluttdatoDto extends BekreftetAksjonsp
     @Valid
     @Size(max = 1000)
     @NotNull
-    @Min(1)
     private List<AvklarPermisjonUtenSluttdatoDto> arbeidsforhold;
 
     @SuppressWarnings("unused") // NOSONAR

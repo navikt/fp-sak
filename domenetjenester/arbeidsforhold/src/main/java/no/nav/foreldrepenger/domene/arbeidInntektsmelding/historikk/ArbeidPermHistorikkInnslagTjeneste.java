@@ -34,16 +34,17 @@ public class ArbeidPermHistorikkInnslagTjeneste {
 
     }
 
-    public void opprettHistorikkinnslag(List<AvklarPermisjonUtenSluttdatoDto> avklarteArbForhold) {
+    public void opprettHistorikkinnslag(List<AvklarPermisjonUtenSluttdatoDto> avklarteArbForhold, String begrunnelse) {
         avklarteArbForhold.forEach( avklartArbForhold -> {
                 Arbeidsgiver arbeidsgiver = lagArbeidsgiver(avklartArbForhold.arbeidsgiverIdent());
                 var opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
                 var arbeidsforholdNavn = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger, Optional.empty());
                 var historikkInnslagType = utledHistorikkInnslagValg(avklartArbForhold.permisjonStatus());
 
-                opprettHistorikkinnslagDel(historikkInnslagType, arbeidsforholdNavn, arbeidsforholdNavn);
+                opprettHistorikkinnslagDel(historikkInnslagType, arbeidsforholdNavn);
             }
         );
+        historikkAdapter.tekstBuilder().medBegrunnelse(begrunnelse).ferdigstillHistorikkinnslagDel();
     }
 
     private VurderArbeidsforholdHistorikkinnslag utledHistorikkInnslagValg(BekreftetPermisjonStatus permisjonStatus) {
@@ -54,12 +55,9 @@ public class ArbeidPermHistorikkInnslagTjeneste {
         } else return null;
     }
 
-    private void opprettHistorikkinnslagDel(VurderArbeidsforholdHistorikkinnslag tilVerdi, String begrunnelse, String arbeidsforholdNavn) {
+    private void opprettHistorikkinnslagDel(VurderArbeidsforholdHistorikkinnslag tilVerdi, String arbeidsforholdNavn) {
         var historikkDeler = historikkAdapter.tekstBuilder().getHistorikkinnslagDeler();
         historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.ARBEIDSFORHOLD, arbeidsforholdNavn, null, tilVerdi);
-        if (!harBegrunnelse(historikkDeler)) {
-            historikkAdapter.tekstBuilder().medBegrunnelse(begrunnelse);
-        }
         if (!harSkjermlenke(historikkDeler)) {
             historikkAdapter.tekstBuilder().medSkjermlenke(SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_PERMISJON);
         }
