@@ -27,17 +27,15 @@ public class BestillBrevDto {
     @Size(max = 256)
     private String mottaker;
 
+    @Valid
     @NotNull
-    @Size(min = 1, max = 100)
-    @Pattern(regexp = InputValideringRegex.KODEVERK)
     private DokumentMalType brevmalkode;
 
     @Size(max = 6000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     public String fritekst;
 
-    @Size(min = 1, max = 100)
-    @Pattern(regexp = InputValideringRegex.KODEVERK)
+    @Valid
     public RevurderingVarslingÅrsak arsakskode;
 
     public BestillBrevDto() { // NOSONAR

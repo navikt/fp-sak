@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.json.JsonValue;
 import javax.persistence.Entity;
@@ -216,10 +217,7 @@ public class RestApiOppdragInputValideringDtoTest extends RestApiTester {
         if (!erKodeverk(field.getType())) {
             validerRiktigAnnotert(field);
         }
-        var illegal = List.of(field.getAnnotations())
-            .stream()
-            .filter(a -> !ALLOWED_ENUM_ANNOTATIONS.contains(a.annotationType()))
-            .collect(Collectors.toList());
+        var illegal = Stream.of(field.getAnnotations()).filter(a -> !ALLOWED_ENUM_ANNOTATIONS.contains(a.annotationType())).toList();
         if (!illegal.isEmpty()) {
             throw new AssertionError("Ugyldige annotasjoner funnet på [" + field + "]: " + illegal);
         }
