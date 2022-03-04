@@ -6,15 +6,13 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentbestiller.BrevHistorikkinnslag;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
-import no.nav.foreldrepenger.dokumentbestiller.kafka.DokumentBestillerKafkaTask;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.vedtak.felles.prosesstask.api.CommonTaskProperties;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -61,13 +59,14 @@ public class DokumentBestiller {
 
     private void opprettBrevTask(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, String årsak, HistorikkAktør aktør, UUID bestillingUuid) {
         var prosessTaskData = ProsessTaskData.forProsessTask(DokumentBestillerTask.class);
-        prosessTaskData.setPayload(StandardJsonConfig.toJson(fritekst));
-        prosessTaskData.setProperty(DokumentBestillerKafkaTask.BEHANDLING_ID, behandling.getId().toString());
-        prosessTaskData.setProperty(DokumentBestillerKafkaTask.DOKUMENT_MAL_TYPE, dokumentMalType.getKode());
-        prosessTaskData.setProperty(DokumentBestillerKafkaTask.REVURDERING_VARSLING_ÅRSAK, årsak);
-        prosessTaskData.setProperty(DokumentBestillerKafkaTask.HISTORIKK_AKTØR, aktør.getKode());
-        prosessTaskData.setProperty(DokumentBestillerKafkaTask.BESTILLING_UUID, String.valueOf(bestillingUuid));
-        prosessTaskData.setProperty(DokumentBestillerKafkaTask.BEHANDLENDE_ENHET_NAVN, behandling.getBehandlendeOrganisasjonsEnhet().enhetNavn());
+        prosessTaskData.setSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi());
+        prosessTaskData.setProperty(CommonTaskProperties.BEHANDLING_UUID, behandling.getUuid().toString());
+        prosessTaskData.setPayload(fritekst);
+        prosessTaskData.setProperty(DokumentBestillerTask.DOKUMENT_MAL_TYPE, dokumentMalType.getKode());
+        prosessTaskData.setProperty(DokumentBestillerTask.REVURDERING_VARSLING_ÅRSAK, årsak);
+        prosessTaskData.setProperty(DokumentBestillerTask.HISTORIKK_AKTØR, aktør.getKode());
+        prosessTaskData.setProperty(DokumentBestillerTask.BESTILLING_UUID, String.valueOf(bestillingUuid));
+        prosessTaskData.setProperty(DokumentBestillerTask.BEHANDLENDE_ENHET_NAVN, behandling.getBehandlendeOrganisasjonsEnhet().enhetNavn());
         prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }

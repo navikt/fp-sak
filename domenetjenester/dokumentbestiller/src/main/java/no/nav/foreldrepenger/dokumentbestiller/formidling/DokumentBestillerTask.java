@@ -7,7 +7,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.HistorikkAktør;
 import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.YtelseType;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingV2Dto;
@@ -21,7 +20,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class DokumentBestillerTask implements ProsessTaskHandler {
 
-    public static final String BEHANDLING_ID = "behandlingId";
     public static final String DOKUMENT_MAL_TYPE = "dokumentMalType";
     public static final String REVURDERING_VARSLING_ÅRSAK = "revurderingVarslingAarsak";
     public static final String HISTORIKK_AKTØR = "historikkAktoer";
@@ -47,7 +45,7 @@ public class DokumentBestillerTask implements ProsessTaskHandler {
     }
 
     private DokumentbestillingV2Dto mapDokumentbestilling(ProsessTaskData prosessTaskData) {
-        var behandling = behandlingRepository.hentBehandling(Long.valueOf(prosessTaskData.getPropertyValue(BEHANDLING_ID)));
+        var behandling = behandlingRepository.hentBehandling(prosessTaskData.getBehandlingUuid());
 
         return new DokumentbestillingV2Dto(
             behandling.getUuid(),
@@ -55,9 +53,9 @@ public class DokumentBestillerTask implements ProsessTaskHandler {
             mapYtelse(behandling.getFagsakYtelseType()),
             mapHistorikkAktør(prosessTaskData.getPropertyValue(HISTORIKK_AKTØR)),
             prosessTaskData.getPropertyValue(DOKUMENT_MAL_TYPE),
-            StandardJsonConfig.fromJson(prosessTaskData.getPayloadAsString(), String.class),
             prosessTaskData.getPropertyValue(BEHANDLENDE_ENHET_NAVN),
-            prosessTaskData.getPropertyValue(REVURDERING_VARSLING_ÅRSAK)
+            prosessTaskData.getPropertyValue(REVURDERING_VARSLING_ÅRSAK),
+            prosessTaskData.getPayloadAsString()
         );
     }
 
