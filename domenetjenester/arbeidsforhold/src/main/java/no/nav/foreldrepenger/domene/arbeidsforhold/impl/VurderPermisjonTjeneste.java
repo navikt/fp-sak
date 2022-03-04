@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -9,6 +9,7 @@ import java.util.Set;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdMangel;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.PermisjonDto;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
@@ -17,7 +18,6 @@ import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public final class VurderPermisjonTjeneste {
 
@@ -53,9 +53,9 @@ public final class VurderPermisjonTjeneste {
         }
     }
 
-    public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledArbForholdMedPermisjonUtenSluttdato(BehandlingReferanse behandlingReferanse,
-                                                                                                           InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbForholdMedPermUtenSluttdato = new HashMap<>();
+    public static List<ArbeidsforholdMangel> finnArbForholdMedPermisjonUtenSluttdato(BehandlingReferanse behandlingReferanse,
+                                                                                     InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        List<ArbeidsforholdMangel> arbForholdMedPermUtenSluttdato = new ArrayList<>();
 
         var stp = behandlingReferanse.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
         var aktørId = behandlingReferanse.getAktørId();
@@ -67,15 +67,22 @@ public final class VurderPermisjonTjeneste {
             if (utledetPermisjoner.isEmpty()) {
                 continue;
             }
-            if (harAlleredeTattStillingTilPermisjon(iayGrunnlag, ya, utledetPermisjoner)) {
+            if (harAlleredeTattStillingTilPermisjonUtenSluttdato(iayGrunnlag, ya, utledetPermisjoner)) {
                 continue;
             }
-            arbForholdMedPermUtenSluttdato.put(ya.getArbeidsgiver(), Set.of(ya.getArbeidsforholdRef()) );
+            arbForholdMedPermUtenSluttdato.add(new ArbeidsforholdMangel(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO));
         }
 
         return arbForholdMedPermUtenSluttdato;
     }
 
+    private static boolean harAlleredeTattStillingTilPermisjonUtenSluttdato(InntektArbeidYtelseGrunnlag grunnlag,
+                                                               Yrkesaktivitet ya,
+                                                               Collection<PermisjonDto> utledetPermisjoner) {
+        return grunnlag.getArbeidsforholdOverstyringer().stream()
+                .filter(ov -> gjelderSammeArbeidsforhold(ya, ov))
+                .anyMatch(ov -> harSammePermisjonsperiode(ya, ov));
+    }
     private static boolean harAlleredeTattStillingTilPermisjon(InntektArbeidYtelseGrunnlag grunnlag,
             Yrkesaktivitet ya,
             Collection<PermisjonDto> utledetPermisjoner) {
@@ -84,7 +91,7 @@ public final class VurderPermisjonTjeneste {
                 .anyMatch(ov -> harFortsattUgyldigePerioder(ov, utledetPermisjoner) || harSammePermisjonsperiode(ya, ov));
     }
 
-    //permisjoner uten sluttdato:  er kun interessert i de som eventuelt har flere åpne perioder (uten tomdato). De som har flere perioder, men sluttdato er ok
+    //permisjoner uten sluttdato, vi trenger vel ikke denne lenger?:  er kun interessert i de som eventuelt har flere åpne perioder (uten tomdato). De som har flere perioder, men sluttdato er ok
     private static boolean harFortsattUgyldigePerioder(ArbeidsforholdOverstyring ov, Collection<PermisjonDto> utledetPermisjoner) {
         var bekreftetPermisjonOpt = ov.getBekreftetPermisjon();
         if (bekreftetPermisjonOpt.isPresent()) {
@@ -94,7 +101,7 @@ public final class VurderPermisjonTjeneste {
         }
         return false;
     }
-
+    //permisjoner uten sluttdato, vi trenger vel ikke denne lenger?:
     private static boolean harSammePermisjonsperiode(Yrkesaktivitet ya, ArbeidsforholdOverstyring ov) {
         var bekreftetPermisjonOpt = ov.getBekreftetPermisjon();
         if (bekreftetPermisjonOpt.isPresent()) {
@@ -103,7 +110,7 @@ public final class VurderPermisjonTjeneste {
         }
         return false;
     }
-
+    //permisjoner uten sluttdato, vi trenger vel ikke denne lenger?:
     private static boolean harSammeFomOgTom(BekreftetPermisjon bekreftetPermisjon, Permisjon permisjon) {
         var bekreftetPermisjonPeriode = bekreftetPermisjon.getPeriode();
         return (bekreftetPermisjonPeriode != null)

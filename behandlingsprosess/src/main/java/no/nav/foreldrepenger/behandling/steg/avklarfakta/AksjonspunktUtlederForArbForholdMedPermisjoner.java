@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.behandling.steg.avklarfakta;
 
 import static java.util.Collections.emptyList;
 import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettListeForAksjonspunkt;
-import static no.nav.foreldrepenger.domene.arbeidsforhold.impl.VurderPermisjonTjeneste.utledArbForholdMedPermisjonUtenSluttdato;
+import static no.nav.foreldrepenger.domene.arbeidsforhold.impl.VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdato;
 
 import java.util.List;
 
@@ -44,7 +44,7 @@ public class AksjonspunktUtlederForArbForholdMedPermisjoner implements Aksjonspu
         var iayGrunnlag = iayTjeneste.finnGrunnlag(param.getBehandlingId()).orElse(null);
         if (iayGrunnlag != null) {
 
-            var arbForholdMedPermisjonUtenSluttdato = utledArbForholdMedPermisjonUtenSluttdato(param.getRef(),iayGrunnlag);
+            var arbForholdMedPermisjonUtenSluttdato = finnArbForholdMedPermisjonUtenSluttdato(param.getRef(),iayGrunnlag);
 
             if (!arbForholdMedPermisjonUtenSluttdato.isEmpty()) {
                 return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO);

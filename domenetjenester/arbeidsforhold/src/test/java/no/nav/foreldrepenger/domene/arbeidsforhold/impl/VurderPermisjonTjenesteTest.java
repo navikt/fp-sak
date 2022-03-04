@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdMangel;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYScenarioBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
@@ -494,9 +495,82 @@ public class VurderPermisjonTjenesteTest {
         var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Act
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbForholdMedPermUtenSluttdato = VurderPermisjonTjeneste.utledArbForholdMedPermisjonUtenSluttdato(behandlingReferanse, grunnlag);
+        List<ArbeidsforholdMangel> arbForholdMedPermUtenSluttdato = VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdato(behandlingReferanse, grunnlag);
 
         assertThat(arbForholdMedPermUtenSluttdato).isEmpty();
+    }
+
+    @Test
+    public void skal_finne_arbeidsforhold_når_permisjon_uten_sluttdato_ikke_er_bekreftet() {
+
+        // Arrange
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingReferanse = lagReferanse(behandling);
+
+        var arbeidsgiver = Arbeidsgiver.virksomhet("1");
+        var ref = InternArbeidsforholdRef.nyRef();
+
+        var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa = lagAktivitetsAvtaleBuilder(yaBuilder, SKJÆRINGSTIDSPUNKT.minusYears(1), TIDENES_ENDE);
+        var permisjon_ok = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.minusDays(1));
+        var permisjon_uten_sluttdato = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(2), TIDENES_ENDE);
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
+                arbeidsgiver, ref, List.of(permisjon_ok, permisjon_uten_sluttdato));
+
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
+                List.of(yrkesaktivitet_1));
+
+        var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+        var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref);
+        informasjonBuilder.leggTil(overstyringBuilder);
+
+        // Act
+        var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
+
+        // Assert
+        List<ArbeidsforholdMangel> arbForholdMedPermUtenSluttdato = VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdato(behandlingReferanse, grunnlag);
+
+        assertThat(arbForholdMedPermUtenSluttdato).hasSize(1);
+        assertThat(arbForholdMedPermUtenSluttdato.get(0).ref()).isEqualTo(ref);
+        assertThat(arbForholdMedPermUtenSluttdato.get(0).årsak()).isEqualTo(AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO);
+    }
+
+
+    @Test
+    public void skal_ikke_finne_arbeidsforhold_når_permisjon_uten_sluttdato_er_bekreftet() {
+
+        // Arrange
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingReferanse = lagReferanse(behandling);
+
+        var arbeidsgiver = Arbeidsgiver.virksomhet("1");
+        var ref = InternArbeidsforholdRef.nyRef();
+
+        var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa = lagAktivitetsAvtaleBuilder(yaBuilder, SKJÆRINGSTIDSPUNKT.minusYears(1), TIDENES_ENDE);
+        var permisjon_ok = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.minusDays(1));
+        var permisjon_uten_sluttdato = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(2), TIDENES_ENDE);
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
+                arbeidsgiver, ref, List.of(permisjon_ok, permisjon_uten_sluttdato));
+
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
+                List.of(yrkesaktivitet_1));
+
+        var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+        var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref);
+        informasjonBuilder.leggTil(overstyringBuilder);
+
+        // Act
+        var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
+
+        // Assert
+        List<ArbeidsforholdMangel> arbForholdMedPermUtenSluttdato = VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdato(behandlingReferanse, grunnlag);
+
+        assertThat(arbForholdMedPermUtenSluttdato).hasSize(1);
+        assertThat(arbForholdMedPermUtenSluttdato.get(0).ref()).isEqualTo(ref);
+        assertThat(arbForholdMedPermUtenSluttdato.get(0).årsak()).isEqualTo(AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO);
     }
 
     @Test
@@ -523,7 +597,7 @@ public class VurderPermisjonTjenesteTest {
         var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Act
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbForholdMedPermUtenSluttdato = VurderPermisjonTjeneste.utledArbForholdMedPermisjonUtenSluttdato(behandlingReferanse, grunnlag);
+        List<ArbeidsforholdMangel> arbForholdMedPermUtenSluttdato = VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdato(behandlingReferanse, grunnlag);
 
         assertThat(arbForholdMedPermUtenSluttdato).hasSize(1);
     }

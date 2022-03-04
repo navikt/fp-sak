@@ -1,16 +1,7 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
-import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -19,8 +10,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
 class ArbeidsforholdInntektsmeldingMangelMapperTest {
 
@@ -204,7 +205,7 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
 
         var dto = new ManueltArbeidsforholdDto(UUID.randomUUID(), begrunnelse, eksisterendeOrgnr, null, null,
             fom, tom, 50, ArbeidsforholdKomplettVurderingType.FJERN_FRA_BEHANDLINGEN);
-        List<ArbeidsforholdInntektsmeldingMangel> mangler = Collections.emptyList();
+        List<ArbeidsforholdMangel> mangler = Collections.emptyList();
 
         // Act
         var resultat = ArbeidsforholdInntektsmeldingMangelMapper.mapManueltArbeidsforhold(dto, mangler, nyInformasjonBuilder).build();
@@ -228,7 +229,7 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
 
         var dto = new ManueltArbeidsforholdDto(UUID.randomUUID(), begrunnelse, orgNrSomSkalSlettes, null, null,
             fom, tom, 50, ArbeidsforholdKomplettVurderingType.FJERN_FRA_BEHANDLINGEN);
-        List<ArbeidsforholdInntektsmeldingMangel> mangler = Collections.emptyList();
+        List<ArbeidsforholdMangel> mangler = Collections.emptyList();
 
         // Act
         var resultat = ArbeidsforholdInntektsmeldingMangelMapper.mapManueltArbeidsforhold(dto, mangler, nyInformasjonBuilder).build();
@@ -255,8 +256,8 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
         return resultat.getOverstyringer().stream().filter(os -> os.getArbeidsgiver().getIdentifikator().equals(orgnr)).findFirst().orElse(null);
     }
 
-    private ArbeidsforholdInntektsmeldingMangel lagMangel(String orgnr, InternArbeidsforholdRef ref, AksjonspunktÅrsak årsak) {
-        return new ArbeidsforholdInntektsmeldingMangel(Arbeidsgiver.virksomhet(orgnr), ref, årsak);
+    private ArbeidsforholdMangel lagMangel(String orgnr, InternArbeidsforholdRef ref, AksjonspunktÅrsak årsak) {
+        return new ArbeidsforholdMangel(Arbeidsgiver.virksomhet(orgnr), ref, årsak);
     }
 
 }
