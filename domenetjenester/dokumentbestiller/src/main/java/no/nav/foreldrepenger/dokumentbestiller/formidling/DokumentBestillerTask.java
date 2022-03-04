@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.HistorikkAktør;
 import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.YtelseType;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingV2Dto;
@@ -24,7 +25,6 @@ public class DokumentBestillerTask implements ProsessTaskHandler {
     public static final String REVURDERING_VARSLING_ÅRSAK = "revurderingVarslingAarsak";
     public static final String HISTORIKK_AKTØR = "historikkAktoer";
     public static final String BESTILLING_UUID = "bestillingUuid";
-    public static final String BEHANDLENDE_ENHET_NAVN = "behandlendeEnhetNavn";
 
     private BehandlingRepository behandlingRepository;
     private Brev brev;
@@ -46,20 +46,19 @@ public class DokumentBestillerTask implements ProsessTaskHandler {
 
     private DokumentbestillingV2Dto mapDokumentbestilling(ProsessTaskData prosessTaskData) {
         var behandling = behandlingRepository.hentBehandling(prosessTaskData.getBehandlingUuid());
-
         return new DokumentbestillingV2Dto(
             behandling.getUuid(),
             UUID.fromString(prosessTaskData.getPropertyValue(BESTILLING_UUID)),
             mapYtelse(behandling.getFagsakYtelseType()),
             mapHistorikkAktør(prosessTaskData.getPropertyValue(HISTORIKK_AKTØR)),
             prosessTaskData.getPropertyValue(DOKUMENT_MAL_TYPE),
-            prosessTaskData.getPropertyValue(BEHANDLENDE_ENHET_NAVN),
-            prosessTaskData.getPropertyValue(REVURDERING_VARSLING_ÅRSAK),
-            prosessTaskData.getPayloadAsString()
+            prosessTaskData.getPayloadAsString(),
+            behandling.getBehandlendeOrganisasjonsEnhet().enhetNavn(),
+            prosessTaskData.getPropertyValue(REVURDERING_VARSLING_ÅRSAK)
         );
     }
 
-    private static YtelseType mapYtelse(no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType fpsakYtelseKode) {
+    private static YtelseType mapYtelse(FagsakYtelseType fpsakYtelseKode) {
         return switch (fpsakYtelseKode) {
             case ENGANGSTØNAD -> YtelseType.ES;
             case FORELDREPENGER -> YtelseType.FP;
@@ -68,13 +67,15 @@ public class DokumentBestillerTask implements ProsessTaskHandler {
         };
     }
 
-    private static HistorikkAktør mapHistorikkAktør(String historikkAtkør) {
-        return switch(historikkAtkør) {
-            case "BESL" -> HistorikkAktør.BESLUTTER;
-            case "SBH" -> HistorikkAktør.SAKSBEHANDLER;
-            case "SOKER" -> HistorikkAktør.SØKER;
-            case "ARBEIDSGIVER" -> HistorikkAktør.ARBEIDSGIVER;
-            case "VL" -> HistorikkAktør.VEDTAKSLØSNINGEN;
+    private static HistorikkAktør mapHistorikkAktør(String historikkAktørString) {
+        if (historikkAktørString == null) return null;
+        var historikkAktør = no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør.fraKode(historikkAktørString);
+        return switch(historikkAktør) {
+            case BESLUTTER -> HistorikkAktør.BESLUTTER;
+            case SAKSBEHANDLER -> HistorikkAktør.SAKSBEHANDLER;
+            case SØKER -> HistorikkAktør.SØKER;
+            case ARBEIDSGIVER -> HistorikkAktør.ARBEIDSGIVER;
+            case VEDTAKSLØSNINGEN -> HistorikkAktør.VEDTAKSLØSNINGEN;
             default -> null;
         };
     }
