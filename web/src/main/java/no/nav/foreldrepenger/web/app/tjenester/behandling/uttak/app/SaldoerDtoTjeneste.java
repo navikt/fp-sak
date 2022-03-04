@@ -87,7 +87,7 @@ public class SaldoerDtoTjeneste {
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
         var ref = input.getBehandlingReferanse();
         var annenpart = annenPartUttak(fpGrunnlag);
-        Map<String, StønadskontoDto> stønadskontoMap = new HashMap<>();
+        Map<SaldoerDto.SaldoVisningStønadskontoType, StønadskontoDto> stønadskontoMap = new HashMap<>();
         for (var stønadskontotype : saldoUtregning.stønadskontoer()) {
             List<AktivitetSaldoDto> aktivitetSaldoListe = new ArrayList<>();
             for (var aktivitet : saldoUtregning.aktiviteterForSøker()) {
@@ -99,11 +99,12 @@ public class SaldoerDtoTjeneste {
                 fpGrunnlag.isBerørtBehandling());
             var kontoUtvidelser = finnKontoUtvidelser(ref, stønadskontotype, annenpart, fpGrunnlag);
             var saldoValideringResultat = saldoValidering.valider(stønadskontotype);
-            stønadskontoMap.put(stønadskontotype.name(),
+            stønadskontoMap.put(SaldoerDto.SaldoVisningStønadskontoType.fra(stønadskontotype),
                 new StønadskontoDto(stønadskontotype.name(), saldoUtregning.getMaxDager(stønadskontotype),
                     saldoUtregning.saldo(stønadskontotype), aktivitetSaldoListe, saldoValideringResultat.isGyldig(),
                     kontoUtvidelser.orElse(null)));
         }
+
         var tapteDagerFpff = finnTapteDagerFpff(input);
         return new SaldoerDto(maksDatoUttakTjeneste.beregnMaksDatoUttak(input).orElse(null), stønadskontoMap, tapteDagerFpff);
     }
