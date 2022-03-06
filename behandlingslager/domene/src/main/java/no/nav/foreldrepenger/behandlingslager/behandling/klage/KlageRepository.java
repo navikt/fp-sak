@@ -29,6 +29,10 @@ public class KlageRepository {
     }
 
     public KlageResultatEntitet hentEvtOpprettKlageResultat(Long behandlingId) {
+        return hentKlageResultatHvisEksisterer(behandlingId).orElseGet(() -> leggTilKlageResultat(behandlingId));
+    }
+
+    public Optional<KlageResultatEntitet> hentKlageResultatHvisEksisterer(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
 
         final var query = entityManager.createQuery(
@@ -36,7 +40,7 @@ public class KlageRepository {
             KlageResultatEntitet.class);// NOSONAR
 
         query.setParameter("behandlingId", behandlingId);
-        return hentUniktResultat(query).orElseGet(() -> leggTilKlageResultat(behandlingId));
+        return hentUniktResultat(query);
     }
 
     private List<KlageVurderingResultat> hentVurderingsResultaterForKlageBehandling(Long behandlingId) {
@@ -81,6 +85,16 @@ public class KlageRepository {
         klageResultat.settPåKlagdEksternBehandlingUuid(påKlagdEksternBehandlingUuid);
         klageResultat.settPåKlagdBehandlingId(null);
 
+        entityManager.persist(klageResultat);
+        entityManager.flush();
+    }
+
+    public void settKabalReferanse(Long klageBehandlingId, String kabalReferanse) {
+        var klageResultat = hentEvtOpprettKlageResultat(klageBehandlingId);
+        if (Objects.equals(kabalReferanse, klageResultat.getKabalReferanse())) {
+            return;
+        }
+        klageResultat.setKabalReferanse(kabalReferanse);
         entityManager.persist(klageResultat);
         entityManager.flush();
     }
