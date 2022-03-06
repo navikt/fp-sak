@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.dokument;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -21,6 +22,22 @@ public class BehandlingDokumentRepository {
     @Inject
     public BehandlingDokumentRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
+    }
+
+    public Optional<BehandlingDokumentBestiltEntitet> hentHvisEksisterer(UUID bestillingUuid) {
+        var query = entityManager.createQuery("from BehandlingDokumentBestilt where bestillingUuid = :bestillingUuid", BehandlingDokumentBestiltEntitet.class);
+        query.setParameter("bestillingUuid", bestillingUuid);
+        return HibernateVerktøy.hentUniktResultat(query);
+    }
+
+    public void lagreOgFlush(BehandlingDokumentBestiltEntitet behandlingDokument) {
+        Objects.requireNonNull(behandlingDokument, "behandlingDokument");
+        if (behandlingDokument.getId() == null) {
+            entityManager.persist(behandlingDokument);
+        } else {
+            entityManager.merge(behandlingDokument);
+        }
+        entityManager.flush();
     }
 
     public Optional<BehandlingDokumentEntitet> hentHvisEksisterer(Long behandlingId) {
