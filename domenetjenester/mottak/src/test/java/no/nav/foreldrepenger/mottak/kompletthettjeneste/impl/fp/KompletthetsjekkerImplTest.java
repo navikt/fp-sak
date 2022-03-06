@@ -254,7 +254,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(
-                søknadRepository.hentSøknad(behandling.getId()).getMottattDato().plusWeeks(3));
+                søknadRepository.hentSøknad(behandling.getId()).getMottattDato().plusWeeks(1));
     }
 
     @Test

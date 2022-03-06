@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -241,6 +243,21 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
     public boolean erInntektsmelding() {
         return INNTEKTSMELDING.equals(this);
     }
+
+    public static Set<DokumentTypeId> ekvivalenter(Set<DokumentTypeId> dokumentTypeId) {
+        return dokumentTypeId.stream()
+            .filter(EKVIVALENTER::containsKey)
+            .map(EKVIVALENTER::get)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toSet());
+    }
+
+    private static final Map<DokumentTypeId, Set<DokumentTypeId>> EKVIVALENTER = Map.ofEntries(
+        Map.entry(LEGEERKLÆRING, Set.of(DOK_MORS_UTDANNING_ARBEID_SYKDOM)),
+        Map.entry(DOK_MORS_UTDANNING_ARBEID_SYKDOM, Set.of(LEGEERKLÆRING))
+    );
+
+
 
     // Ulike titler er brukt i selvbetjening, fordel, sak og kodeverk
     private static final Map<String, DokumentTypeId> ALT_TITLER = Map.ofEntries(

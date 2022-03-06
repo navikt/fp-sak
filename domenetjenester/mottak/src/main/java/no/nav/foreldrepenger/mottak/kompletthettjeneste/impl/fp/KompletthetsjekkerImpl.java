@@ -71,14 +71,13 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
             return KompletthetResultat.oppfylt();
         }
         // Kalles fra VurderKompletthetSteg (en gang) som setter autopunkt 7003 + fra KompletthetsKontroller (dokument på åpen behandling, hendelser)
-        // KompletthetsKontroller vil ikke røre åpne autopunkt, men kan ellers sette på vent med 7009.
         var kompletthetManglendeIM = fellesUtil.getInntektsmeldingKomplett(ref);
         if (kompletthetManglendeIM.isPresent()) {
             return kompletthetManglendeIM.get();
         }
         // Denne fristen skulle egentlig vært samordnet med frist over - men man ønsket få opp IM-mangler uavhengig
         if (!kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(ref).isEmpty()) {
-            var ventefristTidligMottattSøknad = fellesUtil.finnVentefristTilForTidligMottattSøknad(behandlingId);
+            var ventefristTidligMottattSøknad = fellesUtil.finnVentefristForManglendeVedlegg(behandlingId);
             return ventefristTidligMottattSøknad
                 .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.AVV_DOK))
                 .orElse(KompletthetResultat.fristUtløpt());

@@ -63,7 +63,6 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     @Override
     public KompletthetResultat vurderForsendelseKomplett(BehandlingReferanse ref) {
         // Kalles fra VurderKompletthetSteg (en ganger) som setter autopunkt 7003 + fra KompletthetsKontroller (dokument på åpen behandling, hendelser)
-        // KompletthetsKontroller vil ikke røre åpne autopunkt, men kan ellers sette på vent med 7009.
         var kompletthetManglendeIM = fellesUtil.getInntektsmeldingKomplett(ref);
         return kompletthetManglendeIM.orElseGet(KompletthetResultat::oppfylt);
     }

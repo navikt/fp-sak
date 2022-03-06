@@ -388,8 +388,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             "P3D", EnumSet.of(ES, FP, SVP)),
     VENT_PGA_FOR_TIDLIG_SØKNAD(AksjonspunktKodeDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD_KODE, AksjonspunktType.AUTOPUNKT, "Satt på vent pga for tidlig søknad",
             BehandlingStegType.VURDER_KOMPLETTHET, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(ES, FP, SVP)),
-    AUTO_VENT_KOMPLETT_OPPDATERING(AksjonspunktKodeDefinisjon.AUTO_VENT_KOMPLETT_OPPDATERING_KODE, AksjonspunktType.AUTOPUNKT, "Vent på oppdatering som passerer kompletthetssjekk",
-            BehandlingStegType.FATTE_VEDTAK, VurderingspunktType.INN, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, FORBLI, UTEN_FRIST, EnumSet.of(ES, FP, SVP)),
 
     AUTO_KØET_BEHANDLING(AksjonspunktKodeDefinisjon.AUTO_KØET_BEHANDLING_KODE,
             AksjonspunktType.AUTOPUNKT, "Autokøet behandling", BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN,
@@ -438,6 +436,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     _5079("5079", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser opphørt"),
     @Deprecated
     _7006("7006", AksjonspunktType.AUTOPUNKT, "Venter på opptjeningsopplysninger"),
+    @Deprecated
+    _7009("7009", AksjonspunktType.AUTOPUNKT, "Vent på oppdatering som passerer kompletthetssjekk"),
     @Deprecated
     _7015("7015", AksjonspunktType.AUTOPUNKT, "Venter på regler for 80% dekningsgrad (UTGÅTT)"),
     @Deprecated
