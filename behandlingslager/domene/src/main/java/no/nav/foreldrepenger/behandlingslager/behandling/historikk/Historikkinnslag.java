@@ -68,9 +68,12 @@ public class Historikkinnslag extends BaseEntitet {
      *  Eksisterende opprettet tid burde migreres og kopieres over hit, så en enkelt kan sortere kronologisk på
      *  når historikkhendelsen egentlig oppstod
      */
+    //FIXME (MS) Ble aldri tatt i bruk - modent for fjerning
+    @Deprecated(forRemoval = true)
     @Column(name = "historikk_tid", updatable = false)
     private LocalDateTime historikkTid;
 
+    //FIXME (MS) Bruker vi dette noe sted? Trenger vi denne informasjonen egentlig? Bare for loggingskyld??
     @Column(name = "opprettet_i_system", updatable = false)
     private String opprettetISystem = "FPSAK";
 
@@ -205,11 +208,13 @@ public class Historikkinnslag extends BaseEntitet {
             return this;
         }
 
+        @Deprecated(forRemoval = true)
         public Builder medHistorikkTid(LocalDateTime historikkTid) {
             historikkinnslag.historikkTid = historikkTid;
             return this;
         }
 
+        @Deprecated(forRemoval = true)
         public Builder medOpprettetISystem(String opprettetISystem) {
             historikkinnslag.opprettetISystem = opprettetISystem;
             return this;

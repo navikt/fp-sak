@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
+import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingV2Dto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.DokumentProdusertDto;
@@ -110,6 +111,15 @@ public class BrevRestTjeneste {
         return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.fraKode(dto.getDokumentMal())); // NOSONAR
     }
 
+    @POST
+    @Path("/kvittering")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Kvitterer at brevet ble produsert og sendt. BREV_SENT historikk blir lagt og behandling dokument blir oppdatert med journalpostId.", tags = "brev")
+    @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public void kvittering(@TilpassetAbacAttributt(supplierClass = DokumentProdusertDataSupplier.class) @Valid no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto kvittering) {
+        dokumentBehandlingTjeneste.kvitterBrevSent(kvittering); // NOSONAR
+    }
+
     @GET
     @Path(VARSEL_REVURDERING_PART_PATH)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -143,6 +153,15 @@ public class BrevRestTjeneste {
         public AbacDataAttributter apply(Object obj) {
             var req = (DokumentProdusertDto) obj;
             return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
+        }
+    }
+
+    public static class DokumentProdusertDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto) obj;
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
         }
     }
 
