@@ -99,8 +99,9 @@ public class SaldoerDtoTjeneste {
                 fpGrunnlag.isBerørtBehandling());
             var kontoUtvidelser = finnKontoUtvidelser(ref, stønadskontotype, annenpart, fpGrunnlag);
             var saldoValideringResultat = saldoValidering.valider(stønadskontotype);
-            stønadskontoMap.put(SaldoerDto.SaldoVisningStønadskontoType.fra(stønadskontotype),
-                new StønadskontoDto(stønadskontotype.name(), saldoUtregning.getMaxDager(stønadskontotype),
+            var visningStønadskontoType = SaldoerDto.SaldoVisningStønadskontoType.fra(stønadskontotype);
+            stønadskontoMap.put(visningStønadskontoType,
+                new StønadskontoDto(visningStønadskontoType, saldoUtregning.getMaxDager(stønadskontotype),
                     saldoUtregning.saldo(stønadskontotype), aktivitetSaldoListe, saldoValideringResultat.isGyldig(),
                     kontoUtvidelser.orElse(null)));
         }
