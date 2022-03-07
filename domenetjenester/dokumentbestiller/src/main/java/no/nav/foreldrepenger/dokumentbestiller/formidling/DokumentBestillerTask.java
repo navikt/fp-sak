@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.HistorikkAktør;
 import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.YtelseType;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingV2Dto;
 import no.nav.vedtak.exception.TekniskException;
@@ -50,7 +49,6 @@ public class DokumentBestillerTask implements ProsessTaskHandler {
             behandling.getUuid(),
             UUID.fromString(prosessTaskData.getPropertyValue(BESTILLING_UUID)),
             mapYtelse(behandling.getFagsakYtelseType()),
-            mapHistorikkAktør(prosessTaskData.getPropertyValue(HISTORIKK_AKTØR)),
             prosessTaskData.getPropertyValue(DOKUMENT_MAL_TYPE),
             prosessTaskData.getPayloadAsString(),
             behandling.getBehandlendeOrganisasjonsEnhet().enhetNavn(),
@@ -64,19 +62,6 @@ public class DokumentBestillerTask implements ProsessTaskHandler {
             case FORELDREPENGER -> YtelseType.FP;
             case SVANGERSKAPSPENGER -> YtelseType.SVP;
             default -> throw new TekniskException("FP-533280", "Klarte ikke utlede ytelsetype: %s. Kan ikke bestille dokument");
-        };
-    }
-
-    private static HistorikkAktør mapHistorikkAktør(String historikkAktørString) {
-        if (historikkAktørString == null) return null;
-        var historikkAktør = no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør.fraKode(historikkAktørString);
-        return switch(historikkAktør) {
-            case BESLUTTER -> HistorikkAktør.BESLUTTER;
-            case SAKSBEHANDLER -> HistorikkAktør.SAKSBEHANDLER;
-            case SØKER -> HistorikkAktør.SØKER;
-            case ARBEIDSGIVER -> HistorikkAktør.ARBEIDSGIVER;
-            case VEDTAKSLØSNINGEN -> HistorikkAktør.VEDTAKSLØSNINGEN;
-            default -> null;
         };
     }
 }

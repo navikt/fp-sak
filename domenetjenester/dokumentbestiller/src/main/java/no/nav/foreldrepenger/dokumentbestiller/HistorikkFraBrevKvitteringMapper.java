@@ -14,22 +14,22 @@ import no.nav.vedtak.exception.TekniskException;
 
 public class HistorikkFraBrevKvitteringMapper {
 
+    protected static final String FP_FORMIDLING_SYSTEM = "FP-FORMIDLING";
+
     static Historikkinnslag opprettHistorikkInnslag(DokumentProdusertDto kvittering, long behandlingId, long fagsakId) {
         var nyttHistorikkInnslag = new Historikkinnslag.Builder().medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
             .medUuid(kvittering.dokumentbestillingUuid())
-            .medHistorikkTid(kvittering.opprettetTidspunkt())
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medKjoenn(NavBrukerKjønn.UDEFINERT)
             .medType(HistorikkinnslagType.BREV_SENT)
-            .medOpprettetISystem("FP-FORMIDLING")
+            .medOpprettetISystem(FP_FORMIDLING_SYSTEM)
             .build();
 
         mapBrevSendtDel(nyttHistorikkInnslag);
         var dokumentLenker = mapDokumentlink(kvittering.dokumentMal(), kvittering.dokumentId(), kvittering.journalpostId(), nyttHistorikkInnslag);
         nyttHistorikkInnslag.setDokumentLinker(List.of(dokumentLenker));
         return nyttHistorikkInnslag;
-
     }
 
     private static void mapBrevSendtDel(Historikkinnslag nyttHistorikkInnslag) {

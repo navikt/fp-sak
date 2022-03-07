@@ -53,20 +53,19 @@ public class DokumentBestiller {
 
     public void bestillBrev(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak årsak, HistorikkAktør aktør) {
         var bestillingUuid = UUID.randomUUID();
-        opprettBrevTask(behandling, dokumentMalType, fritekst, årsak, aktør, bestillingUuid);
+        opprettBrevTask(behandling, dokumentMalType, fritekst, årsak, bestillingUuid);
 
         dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, dokumentMalType, bestillingUuid);
         brevHistorikkinnslag.opprettHistorikkinnslagForBestiltBrevFraKafka(aktør, behandling, dokumentMalType);
     }
 
-    private void opprettBrevTask(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak årsak, HistorikkAktør aktør, UUID bestillingUuid) {
+    private void opprettBrevTask(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak årsak, UUID bestillingUuid) {
         var prosessTaskData = ProsessTaskData.forProsessTask(DokumentBestillerTask.class);
         prosessTaskData.setSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi());
         prosessTaskData.setProperty(CommonTaskProperties.BEHANDLING_UUID, behandling.getUuid().toString());
         prosessTaskData.setPayload(fritekst);
         prosessTaskData.setProperty(DokumentBestillerTask.DOKUMENT_MAL_TYPE, dokumentMalType.getKode());
         Optional.ofNullable(årsak).ifPresent(a -> prosessTaskData.setProperty(DokumentBestillerTask.REVURDERING_VARSLING_ÅRSAK, a.getKode()));
-        prosessTaskData.setProperty(DokumentBestillerTask.HISTORIKK_AKTØR, aktør.getKode());
         prosessTaskData.setProperty(DokumentBestillerTask.BESTILLING_UUID, String.valueOf(bestillingUuid));
         prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
