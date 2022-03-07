@@ -27,6 +27,7 @@ public class KabalHendelseStream implements LivenessAware, ReadinessAware, AppSe
 
     private KafkaStreams stream;
     private String topicName;
+    private boolean isDeployment;
 
     KabalHendelseStream() {
     }
@@ -35,6 +36,7 @@ public class KabalHendelseStream implements LivenessAware, ReadinessAware, AppSe
     public KabalHendelseStream(KabalHendelseHåndterer kabalHendelseHåndterer,
                                KabalHendelseProperties streamKafkaProperties) {
         this.topicName = streamKafkaProperties.getTopicName();
+        this.isDeployment = streamKafkaProperties.isDeployment();
 
         final Consumed<String, String> consumed = Consumed.with(Topology.AutoOffsetReset.EARLIEST);
 
@@ -64,6 +66,7 @@ public class KabalHendelseStream implements LivenessAware, ReadinessAware, AppSe
 
     @Override
     public void start() {
+        if (!isDeployment) return;
         addShutdownHooks();
 
         stream.start();
@@ -86,6 +89,7 @@ public class KabalHendelseStream implements LivenessAware, ReadinessAware, AppSe
 
     @Override
     public void stop() {
+        if (!isDeployment) return;
         LOG.info("Starter shutdown av topic={}, tilstand={} med 15 sekunder timeout", getTopicName(), stream.state());
         stream.close(Duration.ofSeconds(15));
         LOG.info("Shutdown av topic={}, tilstand={} med 15 sekunder timeout", getTopicName(), stream.state());
