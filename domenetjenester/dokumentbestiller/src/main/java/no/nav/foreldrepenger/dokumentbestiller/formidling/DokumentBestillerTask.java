@@ -22,7 +22,6 @@ public class DokumentBestillerTask implements ProsessTaskHandler {
 
     public static final String DOKUMENT_MAL_TYPE = "dokumentMalType";
     public static final String REVURDERING_VARSLING_ÅRSAK = "revurderingVarslingAarsak";
-    public static final String HISTORIKK_AKTØR = "historikkAktoer";
     public static final String BESTILLING_UUID = "bestillingUuid";
 
     private BehandlingRepository behandlingRepository;
