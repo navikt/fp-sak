@@ -1,6 +1,7 @@
 {
   "cluster": "preprod",
   "namespace": "teamforeldrepenger",
+  "kafkaPool": "nav-dev",
   "oracleconfig": "oracle/data/dev/config/fpsak_q1",
   "oraclefpsaksecret": "oracle/data/dev/creds/fpsak_q1-fpsak",
   "oracledvhsecret": "oracle/data/dev/creds/fpsak_q1-fpsak_hist",
@@ -23,6 +24,7 @@
     "KAFKA_HISTORIKKINNSLAG_TOPIC": "privat-foreldrepenger-historikkinnslag-q1",
     "KAFKA_DOKUMENTBESTILLING_TOPIC": "privat-foreldrepenger-dokumenthendelse-q1",
     "KAFKA_SAKOGBEHANDLING_TOPIC": "aapen-sob-oppgaveHendelse-v1",
+    "KAFKA_KABAL_TOPIC":  "klage.behandling-events.v1",
     "SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.preprod.local",
     "SECURITYTOKENSERVICE_URL": "https://sts-q1.preprod.local/SecurityTokenServiceProvider/",
     "BOOTSTRAP_SERVERS": "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",

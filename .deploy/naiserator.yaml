@@ -41,6 +41,8 @@ spec:
   azure:
     application:
       enabled: true
+  kafka:
+      pool: {{kafkaPool}}
   vault:
     enabled: true
     paths:
