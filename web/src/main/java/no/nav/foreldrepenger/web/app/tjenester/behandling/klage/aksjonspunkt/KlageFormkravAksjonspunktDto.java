@@ -152,7 +152,7 @@ public abstract class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunkt
         }
 
         public Boolean getSendTilKabal() {
-            return Optional.of(sendTilKabal).orElse(false);
+            return Optional.ofNullable(sendTilKabal).orElse(false);
         }
 
         public KlageHjemmel getKlageHjemmel() {
