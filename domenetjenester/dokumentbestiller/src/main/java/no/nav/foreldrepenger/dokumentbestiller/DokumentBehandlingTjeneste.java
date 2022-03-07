@@ -11,6 +11,9 @@ import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -19,15 +22,21 @@ import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
+import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKobling;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 
 @ApplicationScoped
 public class DokumentBehandlingTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DokumentBehandlingTjeneste.class);
+
     private static final Period MANUELT_VENT_FRIST = Period.ofDays(28);
 
     private BehandlingRepository behandlingRepository;
@@ -36,6 +45,7 @@ public class DokumentBehandlingTjeneste {
     private FamilieHendelseRepository familieHendelseRepository;
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
+    private HistorikkRepository historikkRepository;
 
     public DokumentBehandlingTjeneste() {
         // for cdi proxy
@@ -54,6 +64,7 @@ public class DokumentBehandlingTjeneste {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.oppgaveTjeneste = oppgaveTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
+        this.historikkRepository = repositoryProvider.getHistorikkRepository();
     }
 
     public void loggDokumentBestilt(Behandling behandling, DokumentMalType dokumentMalTypeKode, UUID bestillingUuid) {
@@ -117,6 +128,25 @@ public class DokumentBehandlingTjeneste {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         oppdaterBehandlingMedNyFrist(behandling, utledFristMedlemskap(behandling, finnAksjonspunktperiodeForVentPåFødsel()));
 
+    }
+
+    public void kvitterBrevSent(DokumentProdusertDto kvittering) {
+        var behandling = behandlingRepository.hentBehandling(kvittering.behandlingUuid());
+        var historikkInnslag = HistorikkFraBrevKvitteringMapper.opprettHistorikkInnslag(kvittering, behandling.getId(), behandling.getFagsakId());
+        if (historikkRepository.finnesUuidAllerede(historikkInnslag.getUuid())) {
+            LOG.info("Oppdaget duplikat historikkinnslag: {}, lagrer ikke.", historikkInnslag.getUuid());
+            return;
+        }
+        historikkRepository.lagre(historikkInnslag);
+        oppdaterDokumentBestillingMedJournalpostId(kvittering.dokumentbestillingUuid(), kvittering.journalpostId());
+    }
+
+    private void oppdaterDokumentBestillingMedJournalpostId(UUID bestillingUuid, String journalpostId) {
+        var dokumentBestiling = behandlingDokumentRepository.hentHvisEksisterer(bestillingUuid);
+        dokumentBestiling.ifPresent(bestilling -> {
+            bestilling.setJournalpostId(new JournalpostId(journalpostId));
+            behandlingDokumentRepository.lagreOgFlush(bestilling);
+        });
     }
 
     private Period finnAksjonspunktperiodeForVentPåFødsel() {
