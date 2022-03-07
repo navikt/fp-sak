@@ -13,10 +13,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
@@ -74,12 +72,12 @@ public class SendVedtaksbrev {
             return;
         }
 
-        if (BehandlingType.KLAGE.equals(behandling.getType()) && (!skalSendeVedtaksbrevIKlagebehandling(behandling) || harKlageBlittBehandletAvKabal(behandling))) {
+        if (BehandlingType.KLAGE.equals(behandling.getType()) && !skalSendeVedtaksbrevIKlagebehandling(behandling)) {
             LOG.info("Sender ikke vedtaksbrev fra klagebehandlingen i behandlingen etter, eller når KlageVurderingResultat = null. For behandlingId {}", behandlingId); //$NON-NLS-1$
             return;
         }
 
-        if (BehandlingType.ANKE.equals(behandling.getType()) && (!skalSendeVedtaksbrevEtterAnke(behandling) || harAnkeBlittBehandletAvKabal(behandling))) {
+        if (BehandlingType.ANKE.equals(behandling.getType()) && !skalSendeVedtaksbrevEtterAnke(behandling)) {
             LOG.info("Sender ikke vedtaksbrev for vedtak fra omgjøring fra klageinstansen på behandling {}, gjelder omgjør fra klageinstans", behandlingId); //$NON-NLS-1$
             return;
         }
@@ -145,16 +143,6 @@ public class SendVedtaksbrev {
         var vurdering = klageRepository.hentGjeldendeKlageVurderingResultat(klage).orElse(null);
         // henlagt eller ikke avsluttet
         return vurdering == null;
-    }
-
-    private boolean harKlageBlittBehandletAvKabal(Behandling behandling) {
-        return klageRepository.hentKlageResultatHvisEksisterer(behandling.getId())
-            .map(KlageResultatEntitet::erBehandletAvKabal).orElse(false);
-    }
-
-    private boolean harAnkeBlittBehandletAvKabal(Behandling behandling) {
-        return ankeRepository.hentAnkeResultat(behandling.getId())
-            .map(AnkeResultatEntitet::erBehandletAvKabal).orElse(false);
     }
 
     private boolean erBehandlingEtterKlage(Behandling behandling) {

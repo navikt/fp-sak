@@ -52,17 +52,15 @@ class ForeslåVedtakTjeneste {
         }
 
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner = new ArrayList<>();
-        if (KlageAnkeVedtakTjeneste.behandlingErKlageEllerAnke(behandling)) {
-            if (klageAnkeVedtakTjeneste.erKlageResultatHjemsendt(behandling) || klageAnkeVedtakTjeneste.erBehandletAvKabal(behandling)) {
-                behandling.nullstillToTrinnsBehandling();
-                return BehandleStegResultat.utførtUtenAksjonspunkter();
-            } else if (klageAnkeVedtakTjeneste.erGodkjentHosMedunderskriver(behandling)) {
-                behandling.nullstillToTrinnsBehandling();
-                return BehandleStegResultat.utførtMedAksjonspunkter(List.of(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL));
-            }
-        } else {
+        if (!BehandlingType.KLAGE.equals(behandling.getType()) && !BehandlingType.ANKE.equals(behandling.getType())) {
             aksjonspunktDefinisjoner
                     .addAll(sjekkMotEksisterendeOppgaverTjeneste.sjekkMotEksisterendeGsakOppgaver(behandling.getAktørId(), behandling));
+        } else if (klageAnkeVedtakTjeneste.erKlageResultatHjemsendt(behandling)) {
+            behandling.nullstillToTrinnsBehandling();
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
+        } else if (klageAnkeVedtakTjeneste.erGodkjentHosMedunderskriver(behandling)) {
+            behandling.nullstillToTrinnsBehandling();
+            return BehandleStegResultat.utførtMedAksjonspunkter(List.of(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL));
         }
 
         var vedtakUtenTotrinnskontroll = behandling
