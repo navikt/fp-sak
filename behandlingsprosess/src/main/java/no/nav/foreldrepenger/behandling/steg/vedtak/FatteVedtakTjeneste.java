@@ -97,6 +97,10 @@ public class FatteVedtakTjeneste {
     public BehandleStegResultat fattVedtak(BehandlingskontrollKontekst kontekst, Behandling behandling) {
         verifiserBehandlingsresultat(behandling);
 
+        if (KlageAnkeVedtakTjeneste.behandlingErKlageEllerAnke(behandling) && klageAnkeVedtakTjeneste.erBehandletAvKabal(behandling)) {
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
+        }
+
         if (behandling.isToTrinnsBehandling()) {
             var totrinnaksjonspunktvurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
             if (sendesTilbakeTilSaksbehandler(totrinnaksjonspunktvurderinger)) {

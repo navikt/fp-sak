@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt;
 
 
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.validation.Valid;
@@ -12,6 +13,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public abstract class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto {
@@ -120,6 +123,13 @@ public abstract class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunkt
     @JsonTypeName(AksjonspunktKodeDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA_KODE)
     public static class KlageFormkravKaAksjonspunktDto extends KlageFormkravAksjonspunktDto {
 
+        @JsonProperty("sendTilKabal")
+        private Boolean sendTilKabal;
+
+        @ValidKodeverk
+        @JsonProperty("klageHjemmel")
+        private KlageHjemmel klageHjemmel;
+
 
         KlageFormkravKaAksjonspunktDto() {
             super();
@@ -132,9 +142,21 @@ public abstract class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunkt
                                               UUID vedtakBehandlingUuid,
                                               String begrunnelse,
                                               boolean erTilbakekreving,
-                                              KlageTilbakekrevingDto klageTilbakekreving) {
+                                              KlageTilbakekrevingDto klageTilbakekreving,
+                                              Boolean sendTilKabal,
+                                              KlageHjemmel klageHjemmel) {
             super(erKlagerPart, erFristOverholdt, erKonkret, erSignert, vedtakBehandlingUuid, begrunnelse, erTilbakekreving,
                 klageTilbakekreving);
+            this.sendTilKabal = sendTilKabal;
+            this.klageHjemmel = klageHjemmel;
+        }
+
+        public Boolean getSendTilKabal() {
+            return Optional.ofNullable(sendTilKabal).orElse(false);
+        }
+
+        public KlageHjemmel getKlageHjemmel() {
+            return klageHjemmel;
         }
     }
 

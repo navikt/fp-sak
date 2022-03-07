@@ -34,6 +34,15 @@ public class AnkeSteg implements BehandlingSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
+        /**
+         * TODO: Gå opp dynamikk rundt kabal. Må håndtere en del scenarier
+         * - Anke opprettet i VL, uten kabalhendelse -> overfør til kabal manuelt/automatisk/begge - tenk steg + oppdaterer. Sett på vent
+         * - Anke opprettet i KABAL og behandling i VL med referanse -> settes på vent til behandling i Kabal avsluttet
+         * - Anke avsluttet / trukket -> henlegg
+         * - Anke avsluttet / retur -> ukjent betydning
+         * - Anke avsluttet / stadfest/avvist -> fortsett/avslutt. avklar oppførsel vs TR
+         * - Anke avsluttet / opphev/endre -> fortsett/avslutt. avklar oppførsel vs TR
+        */
         var aksjonspunktDefinisjons = singletonList(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE);
         return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjons);
     }

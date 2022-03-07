@@ -31,7 +31,7 @@ public class AnkeRepository {
         return hentAnkeResultat(ankeBehandlingId).orElseGet(() -> leggTilAnkeResultat(ankeBehandlingId));
     }
 
-    private Optional<AnkeResultatEntitet> hentAnkeResultat(Long ankeBehandlingId) {
+    public Optional<AnkeResultatEntitet> hentAnkeResultat(Long ankeBehandlingId) {
         Objects.requireNonNull(ankeBehandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
 
         final var query = entityManager.createQuery(
@@ -71,6 +71,16 @@ public class AnkeRepository {
             entityManager.persist(avr);
             entityManager.flush();
         });
+    }
+
+    public void settKabalReferanse(Long ankeBehandlingId, String kabalReferanse) {
+        var ankeResultat = hentEllerOpprettAnkeResultat(ankeBehandlingId);
+        if (Objects.equals(kabalReferanse, ankeResultat.getKabalReferanse())) {
+            return;
+        }
+        ankeResultat.setKabalReferanse(kabalReferanse);
+        entityManager.persist(ankeResultat);
+        entityManager.flush();
     }
 
     public Long lagreVurderingsResultat(Long ankeBehandlingId, AnkeVurderingResultatEntitet ankeVurderingResultat) {

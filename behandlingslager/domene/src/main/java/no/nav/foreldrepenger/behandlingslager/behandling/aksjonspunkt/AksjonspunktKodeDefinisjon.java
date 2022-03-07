@@ -19,6 +19,8 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN_KODE = "7033";
     public static final String AUTO_VENT_PÅ_SYKEMELDING_KODE = "7037";
     public static final String AUTO_VENT_PÅ_KORRIGERT_BESTEBEREGNING_KODE = "7038";
+    public static final String AUTO_VENT_PÅ_KABAL_KLAGE_KODE = "7039";
+    public static final String AUTO_VENT_PÅ_KABAL_ANKE_KODE = "7040";
 
 
     public static final String AVKLAR_ADOPSJONSDOKUMENTAJON_KODE = "5004";

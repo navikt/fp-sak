@@ -26,6 +26,9 @@ public class AnkeResultatEntitet extends BaseEntitet {
     @Column(name = "paa_anket_behandling_id")
     private Long påAnketKlageBehandlingId;
 
+    @Column(name = "kabal_referanse") // Klageinstansens saksbehandlingssystem
+    private String kabalReferanse;
+
     public AnkeResultatEntitet() {
         // Hibernate
     }
@@ -33,6 +36,7 @@ public class AnkeResultatEntitet extends BaseEntitet {
     private AnkeResultatEntitet(AnkeResultatEntitet entitet) {
         this.ankeBehandlingId = entitet.ankeBehandlingId;
         this.påAnketKlageBehandlingId = entitet.påAnketKlageBehandlingId;
+        this.kabalReferanse = entitet.kabalReferanse;
     }
 
     public static Builder builder() {
@@ -57,6 +61,18 @@ public class AnkeResultatEntitet extends BaseEntitet {
 
     public void settPåAnketKlageBehandling(Long påAnketKlageBehandlingId) {
         this.påAnketKlageBehandlingId = påAnketKlageBehandlingId;
+    }
+
+    public String getKabalReferanse() {
+        return kabalReferanse;
+    }
+
+    public boolean erBehandletAvKabal() {
+        return kabalReferanse != null;
+    }
+
+    public void setKabalReferanse(String kabalReferanse) {
+        this.kabalReferanse = kabalReferanse;
     }
 
     @Override
