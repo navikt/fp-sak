@@ -28,12 +28,12 @@ jobs:
 
       - name: Setter IMAGE som brukes i deploy filen
         run: echo "IMAGE=$IMAGE_BASE:$(echo ${{ steps.issue_comment.outputs.title }} | awk '{print $NF}')" >> $GITHUB_ENV
-           
+
       - name: Sjekk ut kode
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
             ref: ${{ steps.issue_comment.outputs.sha }}
-                  
+
       - name: Deploy fpsak til dev
         if: env.CLUSTER_ARG == 'dev-fss' || env.CLUSTER_ARG == ''
         uses: nais/deploy/actions/deploy@v1
