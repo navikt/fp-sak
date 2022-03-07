@@ -10,6 +10,7 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -32,9 +33,10 @@ public class LagreHistorikkTaskTest {
                 Files.readAllBytes(Paths.get(ClassLoader.getSystemResource("historikkinnslagmelding.json").toURI())))
                         .replace("PLACEHOLDER-UUID", behandling.getUuid().toString());
         var historikkRepository = new HistorikkRepository(entityManager);
+        var dokumentBehandlingRepository = new BehandlingDokumentRepository(entityManager);
         var historikkFraDtoMapper = new HistorikkFraDtoMapper(
                 new BehandlingRepository(entityManager), new FagsakRepository(entityManager));
-        var task = new LagreHistorikkTask(historikkRepository, historikkFraDtoMapper);
+        var task = new LagreHistorikkTask(historikkRepository, historikkFraDtoMapper, dokumentBehandlingRepository);
 
         var data = ProsessTaskData.forProsessTask(LagreHistorikkTask.class);
         data.setPayload(melding);

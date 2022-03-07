@@ -1,12 +1,18 @@
 package no.nav.foreldrepenger.historikk.kafka;
 
+import java.util.List;
+import java.util.UUID;
+
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
+import no.nav.historikk.v1.HistorikkInnslagDokumentLink;
 import no.nav.historikk.v1.HistorikkInnslagV1;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -18,15 +24,18 @@ public class LagreHistorikkTask implements ProsessTaskHandler {
 
     private HistorikkRepository historikkRepository;
     private HistorikkFraDtoMapper historikkFraDtoMapper;
+    private BehandlingDokumentRepository behandlingDokumentRepository;
 
     public LagreHistorikkTask() {
     }
 
     @Inject
     public LagreHistorikkTask(HistorikkRepository historikkRepository,
-            HistorikkFraDtoMapper historikkFraDtoMapper) {
+                              HistorikkFraDtoMapper historikkFraDtoMapper,
+                              BehandlingDokumentRepository behandlingDokumentRepository) {
         this.historikkRepository = historikkRepository;
         this.historikkFraDtoMapper = historikkFraDtoMapper;
+        this.behandlingDokumentRepository = behandlingDokumentRepository;
     }
 
     @Override
@@ -43,6 +52,18 @@ public class LagreHistorikkTask implements ProsessTaskHandler {
             return;
         }
         historikkRepository.lagre(nyttHistorikkInnslag);
+        oppdaterDokumentBestillingMedJournalpostId(jsonHistorikk.getHistorikkUuid(), jsonHistorikk.getDokumentLinker());
+    }
+
+    private void oppdaterDokumentBestillingMedJournalpostId(UUID historikkUuid, List<HistorikkInnslagDokumentLink> dokumentLinker) {
+        var dokumentBestiling = behandlingDokumentRepository.hentHvisEksisterer(historikkUuid);
+        dokumentBestiling.ifPresent(bestilling -> {
+            if (dokumentLinker.size() > 0) {
+                // Tar første i lista siden formidling produserer aldri flere journalposter. Er forbedret i ny kontrakt.
+                bestilling.setJournalpostId(new JournalpostId(dokumentLinker.get(0).getJournalpostId().getVerdi()));
+                behandlingDokumentRepository.lagreOgFlush(bestilling);
+            }
+        });
     }
 
 }

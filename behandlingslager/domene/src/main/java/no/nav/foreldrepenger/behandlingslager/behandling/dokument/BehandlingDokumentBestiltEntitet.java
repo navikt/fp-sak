@@ -40,6 +40,10 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
         // for hibernate
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public BehandlingDokumentEntitet getBehandlingDokument() {
         return behandlingDokument;
     }
@@ -54,6 +58,10 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
 
     public JournalpostId getJournalpostId() {
         return journalpostId;
+    }
+
+    public void setJournalpostId(JournalpostId journalpostId) {
+        this.journalpostId = journalpostId;
     }
 
     @Override
