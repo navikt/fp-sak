@@ -61,10 +61,11 @@ public class LagreHistorikkTask implements ProsessTaskHandler {
             LOG.info("Fant ikke dokument bestillinger for historikkUuid: {}.", historikkUuid);
         }
         dokumentBestiling.ifPresent(bestilling -> {
+            var behandlingDokument = bestilling.getBehandlingDokument();
             var journalpostId = dokumentLinker.get(0).getJournalpostId().getVerdi();
             LOG.info("JournalpostId: {}.", journalpostId);
             bestilling.setJournalpostId(new JournalpostId(journalpostId));
-            behandlingDokumentRepository.lagreOgFlush(bestilling);
+            behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
         });
     }
 
