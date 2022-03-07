@@ -19,8 +19,6 @@ import static no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder.
 @ApplicationScoped
 public class DokumentBestillerTjeneste {
 
-    private final static Environment ENV = Environment.current();
-
     private BehandlingRepository behandlingRepository;
     private KlageRepository klageRepository;
     private AnkeRepository ankeRepository;
@@ -58,11 +56,8 @@ public class DokumentBestillerTjeneste {
         var behandling = behandlingRepository.hentBehandling(behandlingsresultat.getBehandlingId());
         var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak,
             klageRepository, ankeRepository);
-        if (ENV.isProd()) {
-            dokumentKafkaBestiller.bestillBrev(behandling, dokumentMal, null, null, HistorikkAktør.VEDTAKSLØSNINGEN);
-        } else {
-            dokumentBestiller.bestillBrev(behandling, dokumentMal, null, null, HistorikkAktør.VEDTAKSLØSNINGEN);
-        }
+
+        dokumentBestiller.bestillBrev(behandling, dokumentMal, null, null, HistorikkAktør.VEDTAKSLØSNINGEN);
     }
 
     public void bestillDokument(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
@@ -77,10 +72,6 @@ public class DokumentBestillerTjeneste {
                 bestillBrevDto.getBrevmalkode());
         }
 
-        if (ENV.isProd()) {
-            dokumentKafkaBestiller.bestillBrevFraKafka(bestillBrevDto, aktør);
-        } else {
-            dokumentBestiller.bestillBrev(bestillBrevDto, aktør);
-        }
+        dokumentBestiller.bestillBrev(bestillBrevDto, aktør);
     }
 }
