@@ -1,23 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidInntektsmelding;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangel;
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.InntektDto;
-import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
-import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
-import no.nav.foreldrepenger.domene.iay.modell.InntektBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
-import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
-import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.KontaktinformasjonIM;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -27,9 +10,38 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
+import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdMangel;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
+import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
+import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
+import no.nav.foreldrepenger.domene.iay.modell.InntektBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.KontaktinformasjonIM;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ArbeidsgiverIdentifikator;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 
 class ArbeidOgInntektsmeldingMapperTest {
+    private AbakusInMemoryInntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
 
     @Test
     void skal_teste_mapping_av_inntektsmelding_med_ref_og_kontakt() {
@@ -59,9 +71,10 @@ class ArbeidOgInntektsmeldingMapperTest {
         var relevantOrgnr = "999999999";
         var irrelevantOrgnr = "342352362";
         var im = lagIM(relevantOrgnr, internRef, 50000, null);
-        var relevantMangel = new ArbeidsforholdInntektsmeldingMangel(Arbeidsgiver.virksomhet(relevantOrgnr), InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD);
-        var irrelevantMangel = new ArbeidsforholdInntektsmeldingMangel(Arbeidsgiver.virksomhet(irrelevantOrgnr), InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING);
-        var mangler = Arrays.asList(relevantMangel, irrelevantMangel);
+        var relevantMangel = new ArbeidsforholdMangel(Arbeidsgiver.virksomhet(relevantOrgnr), InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD);
+        var irrelevantMangel = new ArbeidsforholdMangel(Arbeidsgiver.virksomhet(irrelevantOrgnr), InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING);
+        var permisjonUtenSluttdatoMangel = new ArbeidsforholdMangel(Arbeidsgiver.virksomhet(irrelevantOrgnr), InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO);
+        var mangler = Arrays.asList(relevantMangel, irrelevantMangel, permisjonUtenSluttdatoMangel);
         var relevantValg = ArbeidsforholdValg.builder()
             .medArbeidsgiver(relevantOrgnr)
             .medBegrunnelse("Dette er en begrunnelse")
@@ -124,6 +137,73 @@ class ArbeidOgInntektsmeldingMapperTest {
         assertThat(inntekter.get(0).inntekter()).hasSize(10);
     }
 
+    @Test
+    void mapping_av_arbeidsforhold_med_permisjon_uten_sluttdato() {
+        //Arrange
+        var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
+        var arbeidsforholdReferanse = arbeidsforholdId.getReferanse();
+        var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer(OrgNummer.KUNSTIG_ORG),arbeidsforholdReferanse);
+
+        var arbeidsgiver = lagVirksomhetArbeidsgiver(aktivitet.getArbeidsgiverIdentifikator());
+
+        var yrkesaktivitet = lagYrkesAktivitetMedPermisjon(arbeidsgiver, BigDecimal.valueOf(100),
+            LocalDate.now().minusWeeks(1), LocalDate.now().plusMonths(1), arbeidsforholdId,
+            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD).build();
+
+
+        List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, arbeidsforholdId, arbeidsforholdReferanse));
+        LocalDate stp = LocalDate.now().minusDays(3);
+        List<ArbeidsforholdMangel> mangler = List.of(new ArbeidsforholdMangel(arbeidsgiver, arbeidsforholdId, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING), new ArbeidsforholdMangel(arbeidsgiver, arbeidsforholdId, AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO));
+
+        //Act
+        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, yrkesaktivitet, mangler, Collections.emptyList(), Collections.emptyList()).orElse(null);
+
+        //Assert
+        assertThat(arbeidsforholdDto).isNotNull();
+        assertThat(arbeidsforholdDto.internArbeidsforholdId()).isEqualTo(arbeidsforholdId.getReferanse());
+        assertThat(arbeidsforholdDto.permisjonUtenSluttdatoDto().permisjonFom()).isEqualTo(LocalDate.now());
+        assertThat(arbeidsforholdDto.permisjonUtenSluttdatoDto().permisjonStatus()).isNull();
+    }
+
+    @Test
+    void mapping_av_arbeidsforhold_med_permisjon_uten_sluttdato_hvor_aksjonspunkt_er_bekreftet() {
+        //Arrange
+        var internArbeidsforholdRef = InternArbeidsforholdRef.nyRef();
+        var arbeidsforholdReferanse = internArbeidsforholdRef.getReferanse();
+        var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer(OrgNummer.KUNSTIG_ORG),arbeidsforholdReferanse);
+
+        var arbeidsgiver = lagVirksomhetArbeidsgiver(aktivitet.getArbeidsgiverIdentifikator());
+
+        var yrkesaktivitet = lagYrkesAktivitetMedPermisjon(arbeidsgiver, BigDecimal.valueOf(100),
+            LocalDate.now().minusWeeks(1), LocalDate.now().plusMonths(1), internArbeidsforholdRef,
+            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD).build();
+
+
+        List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, internArbeidsforholdRef, arbeidsforholdReferanse));
+        LocalDate stp = LocalDate.now().minusDays(3);
+        List<ArbeidsforholdMangel> mangler = List.of(new ArbeidsforholdMangel(arbeidsgiver, internArbeidsforholdRef, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING),
+            new ArbeidsforholdMangel(arbeidsgiver, internArbeidsforholdRef, AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO));
+
+        var overstyring = List.of(ArbeidsforholdOverstyringBuilder.oppdatere(Optional.empty())
+            .medArbeidsgiver(arbeidsgiver)
+            .medArbeidsforholdRef(internArbeidsforholdRef)
+            .medBekreftetPermisjon(new BekreftetPermisjon(BekreftetPermisjonStatus.BRUK_PERMISJON))
+            .build());
+
+        //Act
+        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, yrkesaktivitet, mangler, Collections.emptyList(), overstyring).orElse(null);
+
+        //Assert
+        assertThat(arbeidsforholdDto).isNotNull();
+        assertThat(arbeidsforholdDto.internArbeidsforholdId()).isEqualTo(internArbeidsforholdRef.getReferanse());
+        assertThat(arbeidsforholdDto.permisjonUtenSluttdatoDto().permisjonFom()).isEqualTo(LocalDate.now());
+        assertThat(arbeidsforholdDto.permisjonUtenSluttdatoDto().permisjonStatus()).isEqualTo(BekreftetPermisjonStatus.BRUK_PERMISJON);
+    }
+
+    private ArbeidsforholdReferanse lagReferanser(Arbeidsgiver arbeidsgiver1, InternArbeidsforholdRef arbeidsforholdRef2, String eksternReferanse2) {
+        return new ArbeidsforholdReferanse(arbeidsgiver1, arbeidsforholdRef2, EksternArbeidsforholdRef.ref(eksternReferanse2));
+    }
+
     private Inntekt lagInntekter(YearMonth fom, YearMonth tom, String orgnr) {
         YearMonth counter = fom;
 
@@ -140,6 +220,10 @@ class ArbeidOgInntektsmeldingMapperTest {
         return builder.build();
     }
 
+    private Arbeidsgiver lagVirksomhetArbeidsgiver(ArbeidsgiverIdentifikator arbeidsgiverIdentifikator) {
+        return Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator.value());
+    }
+
     private ArbeidsforholdReferanse lagRef(String orgnr, InternArbeidsforholdRef intern, EksternArbeidsforholdRef ekstern) {
         return new ArbeidsforholdReferanse(Arbeidsgiver.virksomhet(orgnr), intern, ekstern);
     }
@@ -151,6 +235,34 @@ class ArbeidOgInntektsmeldingMapperTest {
             .medArbeidsforholdId(internRef)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))
             .build();
+    }
+
+    private YrkesaktivitetBuilder lagYrkesAktivitetMedPermisjon(Arbeidsgiver virksomhet,
+                                                                     BigDecimal stillingsprosent,
+                                                                     LocalDate fraOgMed,
+                                                                     LocalDate tilOgMed,
+                                                                     InternArbeidsforholdRef arbeidsforholdId,
+                                                                     ArbeidType arbeidType) {
+        var yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var permisjonsBuilder = YrkesaktivitetBuilder.nyPermisjonBuilder()
+            .medPeriode(LocalDate.now().minusDays(10), null)
+            .medPeriode(LocalDate.now(), null)
+            .medProsentsats(BigDecimal.valueOf(100));
+
+        var aktivitetsAvtale = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed))
+            .medProsentsats(stillingsprosent)
+            .medSisteLønnsendringsdato(fraOgMed);
+        var ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed));
+        yrkesaktivitetBuilder.medArbeidType(arbeidType)
+            .medArbeidsgiver(virksomhet)
+            .medArbeidsforholdId(arbeidsforholdId)
+            .leggTilAktivitetsAvtale(aktivitetsAvtale)
+            .leggTilAktivitetsAvtale(ansettelsesperiode)
+            .leggTilPermisjon(permisjonsBuilder.build());
+
+        return yrkesaktivitetBuilder;
     }
 
 }

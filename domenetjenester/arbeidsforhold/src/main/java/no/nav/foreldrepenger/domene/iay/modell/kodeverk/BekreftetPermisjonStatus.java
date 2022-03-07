@@ -5,6 +5,7 @@ package no.nav.foreldrepenger.domene.iay.modell.kodeverk;
  * Definerer statuser for bekreftet permisjoner
  * </p>
  */
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
@@ -55,14 +57,15 @@ public enum BekreftetPermisjonStatus implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static BekreftetPermisjonStatus fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static BekreftetPermisjonStatus fraKode(@JsonProperty(value = "kode") Object node) {
+        if (node == null) {
             return null;
         }
+        var kode = TempAvledeKode.getVerdi(BekreftetPermisjonStatus.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
-            throw new IllegalArgumentException("Ukjent BekreftetPermisjonStatus: " + kode);
+            throw new IllegalArgumentException("Ukjent BekreftPermisjonStatus: " + kode);
         }
         return ad;
     }

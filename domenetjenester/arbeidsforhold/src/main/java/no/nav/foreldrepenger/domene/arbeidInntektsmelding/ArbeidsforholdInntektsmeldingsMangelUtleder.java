@@ -1,5 +1,15 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -9,15 +19,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingUtenArbeidsfor
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ArbeidsforholdInntektsmeldingsMangelUtleder {
@@ -37,9 +38,9 @@ public class ArbeidsforholdInntektsmeldingsMangelUtleder {
         this.søknadRepository = søknadRepository;
     }
 
-    public List<ArbeidsforholdInntektsmeldingMangel> finnManglerIArbeidsforholdInntektsmeldinger(BehandlingReferanse referanse) {
+    public List<ArbeidsforholdMangel> finnManglerIArbeidsforholdInntektsmeldinger(BehandlingReferanse referanse) {
         var iayGrunnlag = iayTjeneste.finnGrunnlag(referanse.getBehandlingId());
-        List<ArbeidsforholdInntektsmeldingMangel> mangler = new ArrayList<>();
+        List<ArbeidsforholdMangel> mangler = new ArrayList<>();
         if (iayGrunnlag.isPresent()) {
             var erEndringssøknad = erEndringssøknad(referanse);
             if (!erEndringssøknad) {
@@ -52,9 +53,9 @@ public class ArbeidsforholdInntektsmeldingsMangelUtleder {
         return mangler;
     }
 
-    private List<ArbeidsforholdInntektsmeldingMangel> lagArbeidsforholdMedMangel(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgiverSetMap, AksjonspunktÅrsak manglendeInntektsmelding) {
+    private List<ArbeidsforholdMangel> lagArbeidsforholdMedMangel(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgiverSetMap, AksjonspunktÅrsak manglendeInntektsmelding) {
         return arbeidsgiverSetMap.entrySet().stream()
-            .map(entry -> entry.getValue().stream().map(refer -> new ArbeidsforholdInntektsmeldingMangel(entry.getKey(), refer, manglendeInntektsmelding)).collect(Collectors.toList()))
+            .map(entry -> entry.getValue().stream().map(refer -> new ArbeidsforholdMangel(entry.getKey(), refer, manglendeInntektsmelding)).collect(Collectors.toList()))
             .flatMap(Collection::stream)
             .collect(Collectors.toList());
     }

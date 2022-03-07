@@ -1,16 +1,16 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 
 /**
  * Ryddetjeneste som sjekker om vi må rydde bort valg fra overstyringer i abakus eller saksbehandlers valg.
@@ -61,21 +61,20 @@ public class ArbeidsforholdInntektsmeldingRyddeTjeneste {
      * @return liste over valg som ikke lenger er gydlige
      */
     public static List<ArbeidsforholdValg> finnUgyldigeValgSomErGjort(List<ArbeidsforholdValg> valgPåBehandlingen,
-                                                                      List<ArbeidsforholdInntektsmeldingMangel> manglerPåBehandlingen) {
+                                                                      List<ArbeidsforholdMangel> manglerPåBehandlingen) {
         return valgPåBehandlingen.stream()
             .filter(valg -> !liggerIMangelListe(valg, manglerPåBehandlingen))
             .collect(Collectors.toList());
 
     }
 
-    private static boolean liggerIMangelListe(ArbeidsforholdValg valg, List<ArbeidsforholdInntektsmeldingMangel> manglerPåBehandlingen) {
+    private static boolean liggerIMangelListe(ArbeidsforholdValg valg, List<ArbeidsforholdMangel> manglerPåBehandlingen) {
         return manglerPåBehandlingen.stream()
             .anyMatch(mangel -> mangel.arbeidsgiver().equals(valg.getArbeidsgiver())
                 && mangel.ref().gjelderFor(valg.getArbeidsforholdRef()));
     }
 
-    public static List<ArbeidsforholdOverstyring> finnUgyldigeOverstyringer(List<ArbeidsforholdInntektsmeldingMangel> manglerPåBehandlingen,
-                                                                            List<ArbeidsforholdOverstyring> overstyringer) {
+    public static List<ArbeidsforholdOverstyring> finnUgyldigeOverstyringer(List<ArbeidsforholdOverstyring> overstyringer) {
         return overstyringer.stream()
             .filter(os -> UGYLDIGE_HANDLINGER.contains(os.getHandling()))
             .collect(Collectors.toList());

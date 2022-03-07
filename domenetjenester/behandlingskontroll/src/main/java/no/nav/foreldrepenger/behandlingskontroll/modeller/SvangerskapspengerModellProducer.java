@@ -39,6 +39,7 @@ public class SvangerskapspengerModellProducer {
                 BehandlingStegType.VURDER_OPPTJENING_FAKTA,
                 BehandlingStegType.VURDER_OPPTJENINGSVILKÅR,
                 BehandlingStegType.VURDER_SAMLET,
+                BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON,
                 BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING,
                 BehandlingStegType.KONTROLLER_FAKTA_BEREGNING,
                 BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG,

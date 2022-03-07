@@ -1,19 +1,20 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
+import java.util.List;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk.ArbeidInntektHistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class ArbeidsforholdInntektsmeldingMangelTjeneste {
@@ -81,7 +82,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         arbeidsforholdTjeneste.lagreOverstyring(behandlingReferanse.getBehandlingId(), behandlingReferanse.getAktørId(), oppdatertBuilder);
     }
 
-    public List<ArbeidsforholdInntektsmeldingMangel> utledManglerPåArbeidsforholdInntektsmelding(BehandlingReferanse behandlingReferanse) {
+    public List<ArbeidsforholdMangel> utledManglerPåArbeidsforholdInntektsmelding(BehandlingReferanse behandlingReferanse) {
         return arbeidsforholdInntektsmeldingsMangelUtleder.finnManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse);
     }
 
@@ -108,9 +109,8 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
      * @param ref
      */
     public void ryddVekkUgyldigeArbeidsforholdoverstyringer(BehandlingReferanse ref) {
-        var manglerPåBehandlingen = utledManglerPåArbeidsforholdInntektsmelding(ref);
         var overstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.getBehandlingId()).getArbeidsforholdOverstyringer();
-        var overstyringerSomMåFjernes = ArbeidsforholdInntektsmeldingRyddeTjeneste.finnUgyldigeOverstyringer(manglerPåBehandlingen, overstyringer);
+        var overstyringerSomMåFjernes = ArbeidsforholdInntektsmeldingRyddeTjeneste.finnUgyldigeOverstyringer(overstyringer);
         if (!overstyringerSomMåFjernes.isEmpty()) {
             var informasjonBuilder = arbeidsforholdTjeneste.opprettBuilderFor(ref.getBehandlingId());
             overstyringerSomMåFjernes.forEach(os -> {

@@ -16,14 +16,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.Arbeidsf
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
-import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangel;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdMangel;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.ArbeidOgInntektsmeldingDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.ArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.InntektDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.InntektsmeldingDto;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.VurderPermisjonTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -62,15 +63,19 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
     }
 
     public Optional<ArbeidOgInntektsmeldingDto> lagDto(BehandlingReferanse referanse) {
-        var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.getBehandlingId());
-        if (iayGrunnlag.isEmpty()) {
+        var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.getBehandlingId()).orElse(null);
+        if (iayGrunnlag == null) {
             return Optional.empty();
         }
         var mangler = arbeidsforholdInntektsmeldingMangelTjeneste.utledManglerPåArbeidsforholdInntektsmelding(referanse);
+        var mangelPermisjon = VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdatoMangel(referanse, iayGrunnlag);
+        if (!mangelPermisjon.isEmpty()) {
+            mangler.addAll(mangelPermisjon);
+        }
         var saksbehandlersVurderinger = arbeidsforholdInntektsmeldingMangelTjeneste.hentArbeidsforholdValgForSak(referanse);
-        var inntektsmeldinger = mapInntektsmeldinger(iayGrunnlag.get(), referanse, mangler, saksbehandlersVurderinger);
-        var arbeidsforhold = mapArbeidsforhold(iayGrunnlag.get(), referanse, mangler, saksbehandlersVurderinger);
-        var inntekter = mapInntekter(iayGrunnlag.get(), referanse);
+        var inntektsmeldinger = mapInntektsmeldinger(iayGrunnlag, referanse, mangler, saksbehandlersVurderinger);
+        var arbeidsforhold = mapArbeidsforhold(iayGrunnlag, referanse, mangler, saksbehandlersVurderinger);
+        var inntekter = mapInntekter(iayGrunnlag, referanse);
         return Optional.of(new ArbeidOgInntektsmeldingDto(inntektsmeldinger, arbeidsforhold, inntekter, referanse.getUtledetSkjæringstidspunkt()));
     }
 
@@ -81,7 +86,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
 
     private List<ArbeidsforholdDto> mapArbeidsforhold(InntektArbeidYtelseGrunnlag iayGrunnlag,
                                                       BehandlingReferanse behandlingReferanse,
-                                                      List<ArbeidsforholdInntektsmeldingMangel> mangler,
+                                                      List<ArbeidsforholdMangel> mangler,
                                                       List<ArbeidsforholdValg> saksbehandlersVurderinger) {
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getAktørArbeidFraRegister(behandlingReferanse.getAktørId())
             .map(AktørArbeid::hentAlleYrkesaktiviteter)
@@ -90,13 +95,15 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
             .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser)
             .orElse(Collections.emptyList());
         var arbeidsforholdFraRegister = ArbeidOgInntektsmeldingMapper.mapArbeidsforholdUtenOverstyringer(filter,
-            referanser,
-            behandlingReferanse.getUtledetSkjæringstidspunkt(),
-            mangler,
-            saksbehandlersVurderinger);
+                referanser,
+                behandlingReferanse.getUtledetSkjæringstidspunkt(),
+                mangler,
+                saksbehandlersVurderinger,
+                iayGrunnlag.getArbeidsforholdOverstyringer());
         var arbeidsforholdFraOverstyringer = ArbeidOgInntektsmeldingMapper.mapOverstyrteArbeidsforhold(iayGrunnlag.getArbeidsforholdOverstyringer(),
             referanser,
             mangler);
+
         var alleArbeidsforhold = new ArrayList<>(arbeidsforholdFraRegister);
         alleArbeidsforhold.addAll(arbeidsforholdFraOverstyringer);
         return alleArbeidsforhold;
@@ -104,7 +111,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
 
     private List<InntektsmeldingDto> mapInntektsmeldinger(InntektArbeidYtelseGrunnlag iayGrunnlag,
                                                           BehandlingReferanse referanse,
-                                                          List<ArbeidsforholdInntektsmeldingMangel> mangler,
+                                                          List<ArbeidsforholdMangel> mangler,
                                                           List<ArbeidsforholdValg> saksbehandlersVurderinger) {
         var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(referanse, referanse.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
         var referanser = iayGrunnlag.getArbeidsforholdInformasjon()

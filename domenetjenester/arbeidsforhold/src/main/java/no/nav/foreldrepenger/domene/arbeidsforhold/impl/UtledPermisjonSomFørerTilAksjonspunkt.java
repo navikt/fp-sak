@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.PermisjonDto;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
@@ -32,16 +33,25 @@ final class UtledPermisjonSomFørerTilAksjonspunkt {
     }
 
     static List<PermisjonDto> utled(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate stp) {
-        return yrkesaktiviteter.stream()
-                .filter(ya -> AA_REGISTER_TYPER.contains(ya.getArbeidType()))
-                .filter(ya -> harAnsettelsesPerioderSomInkludererStp(filter, stp, ya))
-                .map(Yrkesaktivitet::getPermisjon)
-                .flatMap(Collection::stream)
-                .filter(UtledPermisjonSomFørerTilAksjonspunkt::har100ProsentPermisjonEllerMer)
-                .filter(p -> fomErFørStp(stp, p) && tomErLikEllerEtterStp(stp, p))
-                .filter(p -> !PERMISJONTYPER_SOM_ER_URELEVANT_FOR_5080.contains(p.getPermisjonsbeskrivelseType()))
+        return hentRelevantePermisjoner(filter, yrkesaktiviteter, stp)
                 .map(UtledPermisjonSomFørerTilAksjonspunkt::byggPermisjonDto)
                 .collect(Collectors.toList());
+    }
+
+    static boolean harArbeidsforholdetPermisjonUtenSluttdato(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate stp) {
+        return hentRelevantePermisjoner(filter, yrkesaktiviteter, stp)
+            .anyMatch(p-> p.getTilOgMed() == null || TIDENES_ENDE.equals(p.getTilOgMed()));
+    }
+
+    private static Stream<Permisjon> hentRelevantePermisjoner(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate stp) {
+        return yrkesaktiviteter.stream()
+            .filter(ya -> AA_REGISTER_TYPER.contains(ya.getArbeidType()))
+            .filter(ya -> harAnsettelsesPerioderSomInkludererStp(filter, stp, ya))
+            .map(Yrkesaktivitet::getPermisjon)
+            .flatMap(Collection::stream)
+            .filter(UtledPermisjonSomFørerTilAksjonspunkt::har100ProsentPermisjonEllerMer)
+            .filter(p -> fomErFørStp(stp, p) && tomErLikEllerEtterStp(stp, p))
+            .filter(p -> !PERMISJONTYPER_SOM_ER_URELEVANT_FOR_5080.contains(p.getPermisjonsbeskrivelseType()));
     }
 
     private static boolean fomErFørStp(LocalDate stp, Permisjon p) {

@@ -1,5 +1,15 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -11,15 +21,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftArbeidInntektsmeldingAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -63,7 +64,7 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
         }
     }
 
-    private void validerInntektsmeldingerSomManglerArbeidsforhold(List<ArbeidsforholdInntektsmeldingMangel> alleMangler, List<ArbeidsforholdValg> alleSaksbehandlersValg, List<ArbeidsforholdOverstyring> alleManuelleArbeidsforhold) {
+    private void validerInntektsmeldingerSomManglerArbeidsforhold(List<ArbeidsforholdMangel> alleMangler, List<ArbeidsforholdValg> alleSaksbehandlersValg, List<ArbeidsforholdOverstyring> alleManuelleArbeidsforhold) {
         var eksisterendeMangler = alleMangler.stream()
             .filter(m -> m.årsak().equals(AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD))
             .collect(Collectors.toList());
@@ -99,7 +100,7 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
         }
     }
 
-    private void validerArbeidsforholdSomManglerInntektsmelding(List<ArbeidsforholdInntektsmeldingMangel> alleMangler, List<ArbeidsforholdValg> alleSaksbehandlersValg) {
+    private void validerArbeidsforholdSomManglerInntektsmelding(List<ArbeidsforholdMangel> alleMangler, List<ArbeidsforholdValg> alleSaksbehandlersValg) {
         var alleArbeidsforholdSomManglerIM = alleMangler.stream()
             .filter(m -> m.årsak().equals(AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING))
             .collect(Collectors.toList());
@@ -123,30 +124,30 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
         });
     }
 
-    private boolean avklartIkkeRelevant(ArbeidsforholdInntektsmeldingMangel mangel, List<ArbeidsforholdValg> saksbehandlersValgOmManglendeArbeidsforhold) {
+    private boolean avklartIkkeRelevant(ArbeidsforholdMangel mangel, List<ArbeidsforholdValg> saksbehandlersValgOmManglendeArbeidsforhold) {
         return saksbehandlersValgOmManglendeArbeidsforhold.stream()
             .filter(valg -> valg.getVurdering().equals(ArbeidsforholdKomplettVurderingType.IKKE_OPPRETT_BASERT_PÅ_INNTEKTSMELDING))
             .anyMatch(valg -> valg.getArbeidsgiver().equals(mangel.arbeidsgiver()) && valg.getArbeidsforholdRef().gjelderFor(mangel.ref()));
     }
 
-    private boolean finnesManueltArbeidsforhold(ArbeidsforholdInntektsmeldingMangel mangel, List<ArbeidsforholdOverstyring> overstyringer) {
+    private boolean finnesManueltArbeidsforhold(ArbeidsforholdMangel mangel, List<ArbeidsforholdOverstyring> overstyringer) {
         return overstyringer.stream().anyMatch(os -> os.getHandling().equals(ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING)
             && os.getArbeidsgiver().equals(mangel.arbeidsgiver())
             && os.getArbeidsforholdRef().gjelderFor(mangel.ref()));
     }
 
-    private boolean finnesIListe(List<ArbeidsforholdInntektsmeldingMangel> alleArbeidsforholdSomManglerIM, ArbeidsforholdValg valg) {
+    private boolean finnesIListe(List<ArbeidsforholdMangel> alleArbeidsforholdSomManglerIM, ArbeidsforholdValg valg) {
         return alleArbeidsforholdSomManglerIM.stream()
             .anyMatch(mangel -> mangel.arbeidsgiver().equals(valg.getArbeidsgiver()) && mangel.ref().gjelderFor(valg.getArbeidsforholdRef()));
     }
 
-    private boolean liggerIMangelListe(ArbeidsforholdOverstyring os, List<ArbeidsforholdInntektsmeldingMangel> inntektsmeldingerSomManglerArbeidsforhold) {
+    private boolean liggerIMangelListe(ArbeidsforholdOverstyring os, List<ArbeidsforholdMangel> inntektsmeldingerSomManglerArbeidsforhold) {
         return inntektsmeldingerSomManglerArbeidsforhold.stream()
             .anyMatch(mangel -> Objects.equals(mangel.arbeidsgiver(), os.getArbeidsgiver())
                 && mangel.ref().gjelderFor(os.getArbeidsforholdRef()));
     }
 
-    private Optional<ArbeidsforholdValg> finnValgSomErGjort(List<ArbeidsforholdValg> saksbehandlersValg, ArbeidsforholdInntektsmeldingMangel mangel) {
+    private Optional<ArbeidsforholdValg> finnValgSomErGjort(List<ArbeidsforholdValg> saksbehandlersValg, ArbeidsforholdMangel mangel) {
         return saksbehandlersValg.stream()
             .filter(valg -> valg.getArbeidsgiver().equals(mangel.arbeidsgiver()) && valg.getArbeidsforholdRef().gjelderFor(mangel.ref()))
             .findFirst();

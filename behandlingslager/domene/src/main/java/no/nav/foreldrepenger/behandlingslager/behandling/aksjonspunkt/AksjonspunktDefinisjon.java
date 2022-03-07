@@ -277,6 +277,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktKodeDefinisjon.VURDER_OPPTJENINGSVILKÅRET_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av opptjeningsvilkår",
             BehandlingStegType.VURDER_OPPTJENINGSVILKÅR, VurderingspunktType.UT, VilkårType.OPPTJENINGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OPPTJENING,
             TOTRINN, EnumSet.of(FP, SVP)),
+    VURDER_PERMISJON_UTEN_SLUTTDATO(
+            AksjonspunktKodeDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO_KODE, AksjonspunktType.MANUELL,"Vurder arbeidsforhold med permisjon uten sluttdato",
+            BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_PERMISJON,
+            ENTRINN, EnumSet.of(FP, SVP)),
 
     // Midlertidig aksjonspunkt i oppstart av automatisk besteberegning så saksbehandler kan kontrolere disse
     KONTROLLER_AUTOMATISK_BESTEBEREGNING(

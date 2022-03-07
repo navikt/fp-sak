@@ -1,7 +1,11 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
@@ -13,10 +17,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
  * Mapper som mapper saksbehandlers vurdering om til domeneobjekter og validerer valg som er tatt
  */
@@ -26,8 +26,7 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
         // Skjuler default konstruktør
     }
 
-    public static List<ArbeidsforholdValg> mapManglendeOpplysningerVurdering(ManglendeOpplysningerVurderingDto saksbehandlersVurdering,
-                                                                       List<ArbeidsforholdInntektsmeldingMangel> arbeidsforholdMedMangler) {
+    public static List<ArbeidsforholdValg> mapManglendeOpplysningerVurdering(ManglendeOpplysningerVurderingDto saksbehandlersVurdering, List<ArbeidsforholdMangel> arbeidsforholdMedMangler) {
         Arbeidsgiver arbeidsgiver = lagArbeidsgiver(saksbehandlersVurdering.getArbeidsgiverIdent());
 
         InternArbeidsforholdRef referanse = finnReferanse(saksbehandlersVurdering);
@@ -46,9 +45,9 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
             .collect(Collectors.toList());
     }
 
-    private static List<ArbeidsforholdInntektsmeldingMangel> finnManglerSomBlirAvklart(Arbeidsgiver arbeidsgiver,
+    private static List<ArbeidsforholdMangel> finnManglerSomBlirAvklart(Arbeidsgiver arbeidsgiver,
                                                                                        InternArbeidsforholdRef referanse,
-                                                                                       List<ArbeidsforholdInntektsmeldingMangel> arbeidsforholdMedMangler,
+                                                                                       List<ArbeidsforholdMangel> arbeidsforholdMedMangler,
                                                                                        AksjonspunktÅrsak... årsakPåMangel) {
         var gyldigeÅrsaker = Arrays.asList(årsakPåMangel);
         var manglerSomAvklares = arbeidsforholdMedMangler.stream()
@@ -77,7 +76,7 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
 
     private static void validerAtArbeidsforholdErÅpentForEndring(Arbeidsgiver arbeidsgiver,
                                                                  InternArbeidsforholdRef referanse,
-                                                                 List<ArbeidsforholdInntektsmeldingMangel> arbeidsforholdMedMangler,
+                                                                 List<ArbeidsforholdMangel> arbeidsforholdMedMangler,
                                                                  AksjonspunktÅrsak... gyldigeÅrsaker) {
         var årsaker = Arrays.asList(gyldigeÅrsaker);
         long arbeidsforholdMedMangelSomMatcherAvklaring = arbeidsforholdMedMangler.stream()
@@ -92,7 +91,7 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
 
 
     public static ArbeidsforholdInformasjonBuilder mapManueltArbeidsforhold(ManueltArbeidsforholdDto saksbehandlersVurdering,
-                                                                            List<ArbeidsforholdInntektsmeldingMangel> arbeidsforholdMedMangler,
+                                                                            List<ArbeidsforholdMangel> arbeidsforholdMedMangler,
                                                                             ArbeidsforholdInformasjonBuilder informasjonBuilder) {
         if (saksbehandlersVurdering.getVurdering().equals(ArbeidsforholdKomplettVurderingType.OPPRETT_BASERT_PÅ_INNTEKTSMELDING)) {
             Arbeidsgiver arbeidsgiver = lagArbeidsgiver(saksbehandlersVurdering.getArbeidsgiverIdent());

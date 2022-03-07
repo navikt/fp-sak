@@ -133,6 +133,7 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String VURDER_PERIODER_MED_OPPTJENING_KODE = "5051";
     public static final String VURDER_ARBEIDSFORHOLD_KODE = "5080";
+    public static final String VURDER_PERMISJON_UTEN_SLUTTDATO_KODE = "5041";
     public static final String VURDER_FEILUTBETALING_KODE = "5084";
     public static final String VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING_KODE = "5085";
     public static final String VURDER_DEKNINGSGRAD_KODE = "5087";

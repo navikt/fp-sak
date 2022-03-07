@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ApplicationScoped
-class ArbeidsgiverHistorikkinnslag {
+public class ArbeidsgiverHistorikkinnslag {
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
 
     ArbeidsgiverHistorikkinnslag() {

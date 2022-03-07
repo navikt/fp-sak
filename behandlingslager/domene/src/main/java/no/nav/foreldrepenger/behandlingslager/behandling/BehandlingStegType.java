@@ -1,16 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus.IVERKSETTER_VEDTAK;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus.UTREDES;
-
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -18,10 +7,19 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderingspunktType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus.IVERKSETTER_VEDTAK;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus.UTREDES;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
@@ -54,6 +52,7 @@ public enum BehandlingStegType implements Kodeverdi {
     VURDER_SAMLET("VURDERSAMLET", "Vurder vilkår samlet", UTREDES),
     VURDER_TILBAKETREKK("VURDER_TILBAKETREKK", "Vurder tilbaketrekk", UTREDES),
     VURDER_FARESIGNALER("VURDER_FARESIGNALER", "Vurder faresignaler", UTREDES),
+    VURDER_ARB_FORHOLD_PERMISJON("VURDER_ARB_FORHOLD_PERMISJON", "Vurder arbeidsforhold med permisjon", UTREDES),
 
     // Kun for Foreldrepenger
     VURDER_UTTAK("VURDER_UTTAK", "Vurder uttaksvilkår", UTREDES),
@@ -72,6 +71,8 @@ public enum BehandlingStegType implements Kodeverdi {
     FASTSETT_OPPTJENINGSPERIODE("VURDER_OPPTJ_PERIODE", "Vurder Opptjening Periode", UTREDES),
     KONTROLLER_LØPENDE_MEDLEMSKAP("KOFAK_LOP_MEDL", "Kontroller løpende medlemskap", UTREDES),
     HINDRE_TILBAKETREKK("BERYT_OPPDRAG", "Hindre tilbaketrekk", UTREDES),
+
+
 
     // Kun for Engangsstønad
     VURDER_SØKNADSFRISTVILKÅR("VURDERSFV", "Vurder felles inngangsvilkår", UTREDES),
