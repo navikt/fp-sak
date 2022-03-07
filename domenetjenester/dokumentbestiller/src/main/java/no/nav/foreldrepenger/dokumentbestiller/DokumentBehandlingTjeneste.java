@@ -119,6 +119,29 @@ public class DokumentBehandlingTjeneste {
 
     }
 
+    public void kvitterBrevSent(DokumentProdusertDto kvittering) {
+        var behandling = behandlingRepository.hentBehandling(kvittering.behandlingUuid());
+        lagreHistorikkInnslag(kvittering, behandling);
+        oppdaterDokumentBestillingMedJournalpostId(kvittering.dokumentbestillingUuid(), kvittering.journalpostId());
+    }
+
+    private void lagreHistorikkInnslag(DokumentProdusertDto kvittering, Behandling behandling) {
+        var historikkInnslag = HistorikkFraBrevKvitteringMapper.opprettHistorikkInnslag(kvittering, behandling.getId(), behandling.getFagsakId());
+        if (historikkRepository.finnesUuidAllerede(historikkInnslag.getUuid())) {
+            LOG.info("Oppdaget duplikat historikkinnslag: {}, lagrer ikke.", historikkInnslag.getUuid());
+            return;
+        }
+        historikkRepository.lagre(historikkInnslag);
+    }
+
+    private void oppdaterDokumentBestillingMedJournalpostId(UUID bestillingUuid, String journalpostId) {
+        var dokumentBestiling = behandlingDokumentRepository.hentHvisEksisterer(bestillingUuid);
+        dokumentBestiling.ifPresent(bestilling -> {
+            bestilling.setJournalpostId(new JournalpostId(journalpostId));
+            behandlingDokumentRepository.lagreOgFlush(bestilling);
+        });
+    }
+
     private Period finnAksjonspunktperiodeForVentPåFødsel() {
         var ventPåFødsel = AksjonspunktDefinisjon.VENT_PÅ_FØDSEL;
         return Period.parse(ventPåFødsel.getFristPeriode());
