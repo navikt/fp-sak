@@ -9,9 +9,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
@@ -77,6 +79,17 @@ public class KlageAnkeVedtakTjeneste {
             return klageRepository.hentGjeldendeKlageVurderingResultat(behandling)
                 .map(KlageVurderingResultat::getKlageVurdering)
                 .filter(KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE::equals).isPresent();
+        }
+        return false;
+    }
+
+    public boolean erBehandletAvKabal(Behandling behandling) {
+        if (BehandlingType.KLAGE.equals(behandling.getType())) {
+            return klageRepository.hentKlageResultatHvisEksisterer(behandling.getId())
+                .map(KlageResultatEntitet::erBehandletAvKabal).orElse(false);
+        } else if (BehandlingType.ANKE.equals(behandling.getType())) {
+            return ankeRepository.hentAnkeResultat(behandling.getId())
+                .map(AnkeResultatEntitet::erBehandletAvKabal).orElse(false);
         }
         return false;
     }

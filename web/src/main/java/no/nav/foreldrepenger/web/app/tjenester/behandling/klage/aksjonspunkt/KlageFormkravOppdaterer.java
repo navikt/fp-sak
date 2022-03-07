@@ -11,6 +11,9 @@ import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -43,6 +46,8 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
 
     private static final String IKKE_PÅKLAGD_ET_VEDTAK_HISTORIKKINNSLAG_TEKST = "Ikke påklagd et vedtak";
 
+    private static final Logger LOG = LoggerFactory.getLogger(KlageFormkravOppdaterer.class);
+
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
     private KlageVurderingTjeneste klageVurderingTjeneste;
     private BehandlingRepository behandlingRepository;
@@ -71,6 +76,13 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
     public OppdateringResultat oppdater(KlageFormkravAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var apDefFormkrav = dto.getAksjonspunktDefinisjon();
         var klageVurdertAv = getKlageVurdertAv(apDefFormkrav);
+        if (KlageVurdertAv.NK.equals(klageVurdertAv)) {
+            if (dto instanceof KlageFormkravAksjonspunktDto.KlageFormkravKaAksjonspunktDto kaDto && kaDto.getSendTilKabal()) {
+                LOG.warn("Litt vel tidlig å sende til KABAL?");
+                // Her bør det lagres en task som sender til Kabal som tar med hjemmel som parameter (dersom satt og ulik NFP-vurdering)
+                // Deretter return OppdateringResultat.utenTransisjon().medEkstraAksjonspunktResultat(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE, AksjonspunktStatus.OPPRETTET).build();
+            }
+        }
 
         var klageBehandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         var klageResultat = klageVurderingTjeneste.hentEvtOpprettKlageResultat(klageBehandling);
