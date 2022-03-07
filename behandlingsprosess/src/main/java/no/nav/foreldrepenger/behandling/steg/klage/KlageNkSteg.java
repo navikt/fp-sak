@@ -45,8 +45,7 @@ public class KlageNkSteg implements BehandlingSteg {
         var klageVurderingNFP = klageRepository.hentKlageVurderingResultat(behandling.getId(), KlageVurdertAv.NFP)
                 .orElseThrow(() -> new IllegalStateException("Skal ha NFPs klagevurdering opprettet før dette steget"));
 
-        if (KlageVurderingTjeneste.skalBehandlesAvKlageInstans(KlageVurdertAv.NFP, klageVurderingNFP.getKlageVurdering())
-            && !klageVurderingNFP.getKlageResultat().erBehandletAvKabal()) {
+        if (KlageVurderingTjeneste.skalBehandlesAvKlageInstans(KlageVurdertAv.NFP, klageVurderingNFP.getKlageVurdering())) {
             var aksjonspunktDefinisjons = singletonList(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK);
             return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjons);
         }
