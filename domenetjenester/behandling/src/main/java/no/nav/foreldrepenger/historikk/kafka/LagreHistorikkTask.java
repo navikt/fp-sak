@@ -43,6 +43,7 @@ public class LagreHistorikkTask implements ProsessTaskHandler {
         var payload = prosessTaskData.getPayloadAsString();
         var jsonHistorikk = StandardJsonConfig.fromJson(payload, HistorikkInnslagV1.class);
         opprettOgLagreHistorikkInnslag(jsonHistorikk);
+        oppdaterDokumentBestillingMedJournalpostId(jsonHistorikk.getHistorikkUuid(), jsonHistorikk.getDokumentLinker());
     }
 
     private void opprettOgLagreHistorikkInnslag(HistorikkInnslagV1 jsonHistorikk) {
@@ -52,17 +53,18 @@ public class LagreHistorikkTask implements ProsessTaskHandler {
             return;
         }
         historikkRepository.lagre(nyttHistorikkInnslag);
-        oppdaterDokumentBestillingMedJournalpostId(jsonHistorikk.getHistorikkUuid(), jsonHistorikk.getDokumentLinker());
     }
 
     private void oppdaterDokumentBestillingMedJournalpostId(UUID historikkUuid, List<HistorikkInnslagDokumentLink> dokumentLinker) {
         var dokumentBestiling = behandlingDokumentRepository.hentHvisEksisterer(historikkUuid);
+        if (dokumentBestiling.isEmpty()) {
+            LOG.info("Fant ikke dokument bestillinger for historikkUuid: {}.", historikkUuid);
+        }
         dokumentBestiling.ifPresent(bestilling -> {
-            if (dokumentLinker.size() > 0) {
-                // Tar første i lista siden formidling produserer aldri flere journalposter. Er forbedret i ny kontrakt.
-                bestilling.setJournalpostId(new JournalpostId(dokumentLinker.get(0).getJournalpostId().getVerdi()));
-                behandlingDokumentRepository.lagreOgFlush(bestilling);
-            }
+            var journalpostId = dokumentLinker.get(0).getJournalpostId().getVerdi();
+            LOG.info("JournalpostId: {}.", journalpostId);
+            bestilling.setJournalpostId(new JournalpostId(journalpostId));
+            behandlingDokumentRepository.lagreOgFlush(bestilling);
         });
     }
 
