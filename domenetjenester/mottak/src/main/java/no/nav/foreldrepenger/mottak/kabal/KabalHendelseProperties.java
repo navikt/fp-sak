@@ -34,7 +34,7 @@ class KabalHendelseProperties {
 
 
     @Inject
-    KabalHendelseProperties(@KonfigVerdi("kafka.kabal.topic") String topicName,
+    KabalHendelseProperties(@KonfigVerdi(value = "kafka.kabal.topic", defaultVerdi = "klage.behandling-events.v1") String topicName,
                             // De neste stammer fra Aivenator
                             @KonfigVerdi("KAFKA_BROKERS") String bootstrapServers,
                             @KonfigVerdi("KAFKA_TRUSTSTORE_PATH") String trustStorePath,
@@ -51,6 +51,10 @@ class KabalHendelseProperties {
 
     public String getTopicName() {
         return topicName;
+    }
+
+    public boolean isDeployment() {
+        return isDeployment;
     }
 
     Properties getProperties() {
