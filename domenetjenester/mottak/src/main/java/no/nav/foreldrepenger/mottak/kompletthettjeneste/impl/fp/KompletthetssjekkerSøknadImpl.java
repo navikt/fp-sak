@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -54,13 +55,15 @@ public abstract class KompletthetssjekkerSøknadImpl implements Kompletthetssjek
     }
 
     protected List<ManglendeVedlegg> identifiserManglendeVedlegg(Optional<SøknadEntitet> søknad, Set<DokumentTypeId> dokumentTypeIdSet) {
+        var dokumentTypeIds = new HashSet<>(dokumentTypeIdSet);
+        dokumentTypeIds.addAll(DokumentTypeId.ekvivalenter(dokumentTypeIds));
 
         return getSøknadVedleggListe(søknad)
             .stream()
             .filter(SøknadVedleggEntitet::isErPåkrevdISøknadsdialog)
             .map(SøknadVedleggEntitet::getSkjemanummer)
             .map(this::finnDokumentTypeId)
-            .filter(doc -> !dokumentTypeIdSet.contains(doc))
+            .filter(doc -> !dokumentTypeIds.contains(doc))
             .map(ManglendeVedlegg::new)
             .collect(Collectors.toList());
     }

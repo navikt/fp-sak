@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -84,7 +85,8 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
             return emptyList();
         }
 
-        var dokumentTypeIds = dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.getSaksnummer(), LocalDate.MIN);
+        var dokumentTypeIds = new HashSet<>(dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.getSaksnummer(), LocalDate.MIN));
+        dokumentTypeIds.addAll(DokumentTypeId.ekvivalenter(dokumentTypeIds));
 
         return søknad.get().getSøknadVedlegg()
             .stream()

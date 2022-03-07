@@ -22,8 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
@@ -52,7 +50,7 @@ public class KompletthetsjekkerFelles {
      * Disse konstantene ligger hardkodet (og ikke i KonfigVerdi), da endring i en eller flere av disse vil
      * sannsynnlig kreve kodeendring
      */
-    public static final Integer VENTEFRIST_FRAM_I_TID_FRA_MOTATT_DATO_UKER = 3;
+    public static final Integer VENTEFRIST_ETTERSENDELSE_FRA_MOTATT_DATO_UKER = 1;
     public static final Integer VENTEFRIST_FOR_MANGLENDE_SØKNAD = 4;
 
     private static final Integer TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER = 3;
@@ -88,12 +86,12 @@ public class KompletthetsjekkerFelles {
         return behandlingRepository.hentBehandling(behandlingId);
     }
 
-    public Optional<LocalDateTime> finnVentefristTilForTidligMottattSøknad(Long behandlingId) {
+    public Optional<LocalDateTime> finnVentefristForManglendeVedlegg(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId må være satt"); // NOSONAR //$NON-NLS-1$
         var søknad = søknadRepository.hentSøknad(behandlingId);
         Objects.requireNonNull(søknad, "søknad kan ikke være null"); // NOSONAR //$NON-NLS-1$
 
-        final var ønsketFrist = søknad.getMottattDato().plusWeeks(VENTEFRIST_FRAM_I_TID_FRA_MOTATT_DATO_UKER);
+        final var ønsketFrist = søknad.getMottattDato().plusWeeks(VENTEFRIST_ETTERSENDELSE_FRA_MOTATT_DATO_UKER);
         return finnVentefrist(ønsketFrist);
     }
 
@@ -123,7 +121,6 @@ public class KompletthetsjekkerFelles {
             return KompletthetResultat.oppfylt();
         }
         // Kalles fra KOARB (flere ganger) som setter autopunkt 7030 + fra KompletthetsKontroller (dokument på åpen behandling, hendelser)
-        // KompletthetsKontroller vil ikke røre åpne autopunkt, men kan ellers sette på vent med 7009.
         var manglendeInntektsmeldinger = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldingerFraGrunnlag(ref);
         if (!manglendeInntektsmeldinger.isEmpty()) {
             loggManglendeInntektsmeldinger(behandlingId, manglendeInntektsmeldinger);
@@ -145,14 +142,7 @@ public class KompletthetsjekkerFelles {
         var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, ref.getUtledetSkjæringstidspunkt());
         if (inntektsmeldinger.isEmpty()) {
             if (!erSendtBrev) {
-                // TODO: Fjerne brevsjekken når restene i Infotrygd er ferdig. Da skal man sende brev. Kan returnere ved migrering FP
-                var skalIkkeSendeBrev = FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.getFagsakYtelseType()) &&
-                    behandlingRepository.finnUnikBehandlingForBehandlingId(ref.getBehandlingId()).map(Behandling::getMigrertKilde).filter(Fagsystem.INFOTRYGD::equals).isPresent();
-                if (skalIkkeSendeBrev) {
-                    LOG.info("Sender ikke etterlys inntektsmelding brev for sak som er migrert fra Infotrygd. Gjelder behandlingId {}", ref.getBehandlingId());
-                } else {
-                    sendEtterlysInntektsmeldingBrev(ref.getBehandlingId(), ref.getBehandlingUuid());
-                }
+                sendEtterlysInntektsmeldingBrev(ref.getBehandlingId(), ref.getBehandlingUuid());
             }
             return ventefristEtterlysning;
         }

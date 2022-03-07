@@ -76,7 +76,7 @@ public class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTes
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.getVenteårsak()).isEqualTo(Venteårsak.AVV_DOK);
-        assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(3));
+        assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(1));
     }
 
     @Test

@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENT_KOMPLETT_OPPDATERING;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -20,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
-import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetModell;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -68,10 +65,8 @@ public class Kompletthetskontroller {
         // Vurder kompletthet etter at dokument knyttet til behandling - med mindre man venter på registrering av papirsøknad
         var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT).stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).collect(Collectors.toList());
         var kompletthetResultat = kompletthetModell.vurderKompletthet(ref, åpneAksjonspunkter);
-        if (!kompletthetResultat.erOppfylt()) {
-            settPåVent(behandling, kompletthetResultat);
-        } else if (kompletthetModell.erKompletthetssjekkEllerPassert(behandlingId) || behandling.isBehandlingPåVent()
-            || mottattDokument.getDokumentType().erSøknadType() || mottattDokument.getDokumentType().erEndringsSøknadType()) {
+        if (kompletthetResultat.erOppfylt() && (kompletthetModell.erKompletthetssjekkEllerPassert(behandlingId)
+            || behandling.isBehandlingPåVent() || mottattDokument.getDokumentType().erSøknadType() || mottattDokument.getDokumentType().erEndringsSøknadType())) {
             spolKomplettBehandlingTilStartpunkt(behandling, grunnlagSnapshot);
             if (kompletthetModell.erKompletthetssjekkPassert(behandlingId)) {
                 behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
@@ -79,19 +74,6 @@ public class Kompletthetskontroller {
                 behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
             }
         }
-    }
-
-    private void settPåVent(Behandling behandling, KompletthetResultat kompletthetResultat) {
-        if (kompletthetResultat.erFristUtløpt() || behandling.isBehandlingPåVent()) {
-            // Tidsfrist for kompletthetssjekk er utløpt, skal derfor ikke settes på vent på nytt
-            return;
-        }
-        // TODO (JOL): Logikken nå reflekterer det som lå i EndrKontroll. Avklar om andre autopunkt skal erstattes med det under.
-        // Settes på vent til behandlig er komplett
-        behandlingProsesseringTjeneste.settBehandlingPåVent(behandling, AUTO_VENT_KOMPLETT_OPPDATERING,
-            kompletthetResultat.getVentefrist(), kompletthetResultat.getVenteårsak());
-        dokumentmottakerFelles.opprettHistorikkinnslagForVenteFristRelaterteInnslag(behandling,
-            HistorikkinnslagType.BEH_VENT, kompletthetResultat.getVentefrist(), kompletthetResultat.getVenteårsak());
     }
 
     void persisterKøetDokumentOgVurderKompletthet(Behandling behandling, MottattDokument mottattDokument, Optional<LocalDate> gjelderFra) {

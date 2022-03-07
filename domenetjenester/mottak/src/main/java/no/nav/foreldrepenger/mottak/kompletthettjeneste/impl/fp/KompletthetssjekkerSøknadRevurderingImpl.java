@@ -84,8 +84,7 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
 
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var vedtaksdato = behandlingVedtakRepository.hentBehandlingVedtakFraRevurderingensOriginaleBehandling(behandling).getVedtaksdato();
-        var sammenligningsdato = søknad.map(SøknadEntitet::getSøknadsdato).map(vedtaksdato::isAfter).orElse(Boolean.FALSE) ? søknad.get().getSøknadsdato()
-            : vedtaksdato;
+        var sammenligningsdato = søknad.map(SøknadEntitet::getSøknadsdato).filter(vedtaksdato::isAfter).orElse(vedtaksdato);
 
         Set<DokumentTypeId> arkivDokumentTypeIds = new HashSet<>(dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.getSaksnummer(), sammenligningsdato));
         mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(ref.getFagsakId()).stream()

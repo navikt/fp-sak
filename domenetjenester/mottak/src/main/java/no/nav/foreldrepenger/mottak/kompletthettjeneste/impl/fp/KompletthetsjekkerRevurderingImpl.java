@@ -102,7 +102,7 @@ public class KompletthetsjekkerRevurderingImpl implements Kompletthetsjekker {
     }
 
     private KompletthetResultat opprettKompletthetResultatMedVentefrist(Long behandlingId) {
-        var ventefristTidligMottattSøknad = fellesUtil.finnVentefristTilForTidligMottattSøknad(behandlingId);
+        var ventefristTidligMottattSøknad = fellesUtil.finnVentefristForManglendeVedlegg(behandlingId);
         return ventefristTidligMottattSøknad
             .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.AVV_DOK))
             .orElse(KompletthetResultat.fristUtløpt());

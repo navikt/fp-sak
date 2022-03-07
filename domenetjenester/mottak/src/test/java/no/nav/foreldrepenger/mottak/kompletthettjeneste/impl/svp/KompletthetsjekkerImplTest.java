@@ -109,26 +109,6 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(), any(), Mockito.anyBoolean());
     }
 
-    @Test
-    public void skal_ikke_sende_brev_når_inntektsmelding_mangler_men_sak_er_migrert_fra_infotrygd() {
-        // Arrange
-        var behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
-        behandling.setMigrertKilde(Fagsystem.INFOTRYGD);
-        mockManglendeInntektsmeldingGrunnlag();
-        testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1),
-            STARTDATO_PERMISJON);
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
-
-        // Act
-        var kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
-            lagRef(behandling, STARTDATO_PERMISJON));
-
-        // Assert
-        assertThat(kompletthetResultat.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(3));
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any(), Mockito.anyBoolean());
-    }
-
     private BehandlingReferanse lagRef(Behandling behandling, LocalDate stpDate) {
         var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stpDate).build();
         return BehandlingReferanse.fra(behandling, stp);
