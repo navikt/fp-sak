@@ -57,6 +57,8 @@
     "ARBEIDSFORDELING_RS_URL": "http://norg2.default/norg2/api/v1/arbeidsfordeling/enheter",
     "PDL_BASE_URL" : "http://pdl-api.pdl/graphql",
     "SAF_BASE_URL" : "http://saf-q1.teamdokumenthandtering",
+    "KABAL_API_SCOPES": "api://dev-gcp.klage.kabal-api/.default",
+    "KABAL_API_URL": "https://kabal-api.dev.nav.no/api/oversendelse/v3/sak",
     "KODEVERK_BASE_URL": "http://kodeverk.org",
     "SKJERMET_PERSON_RS_URL": "http://skjermede-personer-pip.nom/skjermet",
     "UFORE_RS_URL": "http://pensjon-pen-q1.teampensjon/pen/api/sak/uforehistorikk"
