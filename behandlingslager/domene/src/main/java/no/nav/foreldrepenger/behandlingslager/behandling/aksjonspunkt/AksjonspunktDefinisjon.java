@@ -281,19 +281,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktKodeDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO_KODE, AksjonspunktType.MANUELL,"Vurder arbeidsforhold med permisjon uten sluttdato",
             BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_PERMISJON,
             ENTRINN, EnumSet.of(FP, SVP)),
-
-    // Midlertidig aksjonspunkt i oppstart av automatisk besteberegning så saksbehandler kan kontrolere disse
-    KONTROLLER_AUTOMATISK_BESTEBEREGNING(
-        AksjonspunktKodeDefinisjon.KONTROLLER_AUTOMATISK_BESTEBEREGNING_KODE, AksjonspunktType.MANUELL, "Kontroller den automatiske besteberegningen",
-        BehandlingStegType.FORESLÅ_BESTEBEREGNING, VurderingspunktType.UT, VilkårType.BEREGNINGSGRUNNLAGVILKÅR, SkjermlenkeType.BESTEBEREGNING,
-        ENTRINN, EnumSet.of(FP)),
-
     MANUELL_KONTROLL_AV_BESTEBEREGNING(
         AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AV_BESTEBEREGNING_KODE, AksjonspunktType.MANUELL, "Kontroller den automatiske besteberegningen",
         BehandlingStegType.FORESLÅ_BESTEBEREGNING, VurderingspunktType.UT, VilkårType.BEREGNINGSGRUNNLAGVILKÅR, SkjermlenkeType.BESTEBEREGNING,
         ENTRINN, EnumSet.of(FP)),
-
-
     VURDER_TILBAKETREKK(AksjonspunktKodeDefinisjon.VURDER_TILBAKETREKK_KODE,
             AksjonspunktType.MANUELL, "Vurder tilbaketrekk", BehandlingStegType.VURDER_TILBAKETREKK, VurderingspunktType.UT, UTEN_VILKÅR,
             SkjermlenkeType.TILKJENT_YTELSE, TOTRINN, EnumSet.of(FP)),
@@ -433,6 +424,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     _5042("5042", AksjonspunktType.MANUELL, "Fastsett beregningsgrunnlag for selvstendig næringsdrivende"),
     @Deprecated
     _5045("5045", AksjonspunktType.MANUELL, "Avklar startdato for foreldrepengeperioden"),
+    @Deprecated // Erstattet av aksjonspunkt 5062
+    _5048("5048", AksjonspunktType.MANUELL, "Kontroller den automatiske besteberegningen."),
     @Deprecated
     _5050("5050", AksjonspunktType.MANUELL, "Vurder gradering på andel uten beregningsgrunnlag"),
     @Deprecated

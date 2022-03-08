@@ -357,56 +357,5 @@ public class BeregningsgrunnlagRepository {
         }
         return false;
     }
-
-    /**
-     *
-     * @param behandlingId id på nåværende behandling
-     * @param originalBehandlingId id på orginal behandling, om den finnes.
-     * @param forrigeTilstand tilstanden før aksjonspunkt er løst (altså tilstanden som returneres fra steget)
-     * @param nesteTilstand tilstanden etter at aksjonspunktet er løst.
-     * @return finner grunnlaget som skal brukes til preutfylling i GUI. Enten det forrige grunnlaget som ble
-     * hadde denne tilstanden eller grunlaget i orginalbehandlingen som hadde denne tilstanden om det finnes.
-     */
-    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentBeregningsgrunnlagForPreutfylling(Long behandlingId, Optional<Long> originalBehandlingId,
-                                                                                             BeregningsgrunnlagTilstand forrigeTilstand, BeregningsgrunnlagTilstand nesteTilstand) {
-        var sisteBeregningsgrunnlag = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
-
-        if (sisteBeregningsgrunnlag.isEmpty()) {
-            return Optional.empty();
-        }
-
-        var gjeldendeTilstand = sisteBeregningsgrunnlag.get().getBeregningsgrunnlagTilstand();
-
-        if (gjeldendeTilstand.erFør(forrigeTilstand)) {
-            return Optional.empty();
-        }
-
-        if (gjeldendeTilstand.equals(forrigeTilstand) || gjeldendeTilstand.equals(nesteTilstand)) {
-            return sisteBeregningsgrunnlag;
-        }
-
-        var grunnlagMedNesteTilstandOpt = hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingId, nesteTilstand);
-        var grunnlagMedForrigeTiltandOpt = hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingId, forrigeTilstand);
-
-        if (grunnlagMedForrigeTiltandOpt.isEmpty() && originalBehandlingId.isPresent()) {
-            grunnlagMedForrigeTiltandOpt = hentSisteBeregningsgrunnlagGrunnlagEntitet(originalBehandlingId.get(), forrigeTilstand);
-        }
-
-        if (grunnlagMedNesteTilstandOpt.isEmpty()) {
-            return grunnlagMedForrigeTiltandOpt;
-        }
-
-        var forrigeTilstandGrunnlag = grunnlagMedForrigeTiltandOpt
-            .orElseThrow(() -> new IllegalArgumentException("Mangler beregningsgrunnlag med tilstand: " + forrigeTilstand + " for behandling " + behandlingId));
-
-        var nesteTilstandOpprettetTidspunkt = grunnlagMedNesteTilstandOpt.get().getOpprettetTidspunkt();
-        var forrigeTilstandOpprettetTitdspunkt = forrigeTilstandGrunnlag.getOpprettetTidspunkt();
-
-        if (nesteTilstandOpprettetTidspunkt.isAfter(forrigeTilstandOpprettetTitdspunkt)) {
-            return grunnlagMedNesteTilstandOpt;
-        }
-
-        return grunnlagMedForrigeTiltandOpt;
-    }
 }
 
