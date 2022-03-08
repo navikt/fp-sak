@@ -40,7 +40,7 @@
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
         <jupiter.version>5.7.2</jupiter.version>
-        <fp-uttak.version>11.4.0</fp-uttak.version>
+        <fp-uttak.version>11.4.2</fp-uttak.version>
         <svp-uttak.version>2.3.0</svp-uttak.version>
         <felles.version>4.1.18</felles.version>
         <prosesstask.version>3.1.7</prosesstask.version>

@@ -14,7 +14,7 @@ public record SaldoerDto(LocalDate maksDatoUttak, Map<SaldoVisningStønadskontoT
         FORELDREPENGER,
         FORELDREPENGER_FØR_FØDSEL,
         FLERBARNSDAGER,
-        FORELDREPENGER_UTEN_AKTIVITETSKRAV;
+        UTEN_AKTIVITETSKRAV;
 
         public static SaldoVisningStønadskontoType fra(Stønadskontotype stønadskontotype) {
             return switch (stønadskontotype) {
