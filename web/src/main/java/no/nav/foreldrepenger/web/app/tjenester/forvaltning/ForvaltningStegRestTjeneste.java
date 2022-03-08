@@ -7,7 +7,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType.F
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.util.Collections;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -25,13 +24,13 @@ import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
@@ -59,6 +58,7 @@ public class ForvaltningStegRestTjeneste {
     private FamilieHendelseRepository familieHendelseRepository;
     private VilkårResultatRepository vilkårResultatRepository;
     private BehandlingRepository behandlingRepository;
+    private OpptjeningRepository opptjeningRepository;
 
     @Inject
     public ForvaltningStegRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
@@ -73,6 +73,7 @@ public class ForvaltningStegRestTjeneste {
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.vilkårResultatRepository = vilkårResultatRepository;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
     }
 
     public ForvaltningStegRestTjeneste() {
@@ -187,6 +188,13 @@ public class ForvaltningStegRestTjeneste {
 
     private void resetStartpunkt(Behandling behandling) {
         if (behandling.erRevurdering() && behandling.harSattStartpunkt()) {
+            behandling.getOriginalBehandlingId()
+                .filter(id -> opptjeningRepository.finnOpptjening(id).isPresent())
+                .ifPresent(originalId -> {
+                    var origBehandling = behandlingRepository.hentBehandling(originalId);
+                    opptjeningRepository.kopierGrunnlagFraEksisterendeBehandling(origBehandling, behandling);
+
+            });
             behandling.setStartpunkt(StartpunktType.UDEFINERT);
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling.getId()));
         }
