@@ -58,6 +58,8 @@
     "AZURE_HTTP_PROXY": "http://webproxy.nais:8088",
     "SPOKELSE_GRUNNLAG_SCOPES": "api://prod-fss.tbd.spokelse/.default",
     "SPOKELSE_GRUNNLAG_URL": "http://spokelse.tbd/grunnlag",
+    "KABAL_API_SCOPES": "api://prod-gcp.klage.kabal-api/.default",
+    "KABAL_API_URL": "https://kabal-api.intern.nav.no/api/oversendelse/v3/sak",
     "SKJERMET_PERSON_RS_URL": "http://skjermede-personer-pip.nom/skjermet",
     "UFORE_RS_URL": "http://pensjon-pen.pensjondeployer/pen/api/sak/uforehistorikk"
   }
