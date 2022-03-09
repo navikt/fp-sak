@@ -41,7 +41,8 @@ public class SaldoValidering implements OverstyrUttakPerioderValidering {
 
     public SaldoValideringResultat valider(Stønadskontotype stønadskontoType) {
         if (berørtBehandling || !harAnnenpart) {
-            return new SaldoValideringResultat(!saldoUtregning.negativSaldo(stønadskontoType), false);
+            var isGyldig = !saldoUtregning.negativSaldo(stønadskontoType) && !saldoUtregning.restSaldoDagerUtenAktivitetskrav().mindreEnn0();
+            return new SaldoValideringResultat(isGyldig, false);
         }
         if (saldoUtregning.negativSaldo(stønadskontoType)) {
             if (saldoUtregning.nokDagerÅFrigiPåAnnenpart(stønadskontoType)) {

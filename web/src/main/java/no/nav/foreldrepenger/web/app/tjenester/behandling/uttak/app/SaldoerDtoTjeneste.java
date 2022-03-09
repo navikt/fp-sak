@@ -88,6 +88,7 @@ public class SaldoerDtoTjeneste {
         var ref = input.getBehandlingReferanse();
         var annenpart = annenPartUttak(fpGrunnlag);
         Map<SaldoerDto.SaldoVisningStønadskontoType, StønadskontoDto> stønadskontoMap = new HashMap<>();
+        var saldoValidering = new SaldoValidering(saldoUtregning, annenpart.isPresent(), fpGrunnlag.isBerørtBehandling());
         for (var stønadskontotype : saldoUtregning.stønadskontoer()) {
             List<AktivitetSaldoDto> aktivitetSaldoListe = new ArrayList<>();
             for (var aktivitet : saldoUtregning.aktiviteterForSøker()) {
@@ -95,19 +96,32 @@ public class SaldoerDtoTjeneste {
                 var aktivitetIdentifikatorDto = mapToDto(aktivitet);
                 aktivitetSaldoListe.add(new AktivitetSaldoDto(aktivitetIdentifikatorDto, saldo));
             }
-            var saldoValidering = new SaldoValidering(saldoUtregning, annenpart.isPresent(),
-                fpGrunnlag.isBerørtBehandling());
             var kontoUtvidelser = finnKontoUtvidelser(ref, stønadskontotype, annenpart, fpGrunnlag);
             var saldoValideringResultat = saldoValidering.valider(stønadskontotype);
             var visningStønadskontoType = SaldoerDto.SaldoVisningStønadskontoType.fra(stønadskontotype);
             stønadskontoMap.put(visningStønadskontoType,
-                new StønadskontoDto(visningStønadskontoType, saldoUtregning.getMaxDager(stønadskontotype),
-                    saldoUtregning.saldo(stønadskontotype), aktivitetSaldoListe, saldoValideringResultat.isGyldig(),
-                    kontoUtvidelser.orElse(null)));
+                new StønadskontoDto(visningStønadskontoType, saldoUtregning.getMaxDager(stønadskontotype), saldoUtregning.saldo(stønadskontotype),
+                    aktivitetSaldoListe, saldoValideringResultat.isGyldig(), kontoUtvidelser.orElse(null)));
+        }
+
+        if (saldoUtregning.getMaxDagerUtenAktivitetskrav() != null && saldoUtregning.getMaxDagerUtenAktivitetskrav().merEnn0()) {
+            var stønadskontoDto = foreldrepengerUtenAktKravDto(saldoUtregning);
+            stønadskontoMap.put(SaldoerDto.SaldoVisningStønadskontoType.UTEN_AKTIVITETSKRAV, stønadskontoDto);
         }
 
         var tapteDagerFpff = finnTapteDagerFpff(input);
         return new SaldoerDto(maksDatoUttakTjeneste.beregnMaksDatoUttak(input).orElse(null), stønadskontoMap, tapteDagerFpff);
+    }
+
+    private StønadskontoDto foreldrepengerUtenAktKravDto(SaldoUtregning saldoUtregning) {
+        var aktivitetSaldoList = saldoUtregning.aktiviteterForSøker().stream().map(a -> {
+            var saldo = saldoUtregning.restSaldoDagerUtenAktivitetskrav(a);
+            return new AktivitetSaldoDto(mapToDto(a), saldo.rundOpp());
+        }).toList();
+        var restSaldoDagerUtenAktivitetskrav = saldoUtregning.restSaldoDagerUtenAktivitetskrav();
+        var gyldigForbruk = !restSaldoDagerUtenAktivitetskrav.mindreEnn0();
+        return new StønadskontoDto(SaldoerDto.SaldoVisningStønadskontoType.UTEN_AKTIVITETSKRAV,
+            saldoUtregning.getMaxDagerUtenAktivitetskrav().rundOpp(), restSaldoDagerUtenAktivitetskrav.rundOpp(), aktivitetSaldoList, gyldigForbruk, null);
     }
 
     private int finnTapteDagerFpff(UttakInput input) {
@@ -126,14 +140,12 @@ public class SaldoerDtoTjeneste {
                                                           Stønadskontotype stønadskonto,
                                                           Optional<ForeldrepengerUttak> annenpart,
                                                           ForeldrepengerGrunnlag fpGrunnlag) {
-        if (!Stønadskontotype.FELLESPERIODE.equals(stønadskonto) && !Stønadskontotype.FORELDREPENGER.equals(
-            stønadskonto)) {
+        if (!Stønadskontotype.FELLESPERIODE.equals(stønadskonto) && !Stønadskontotype.FORELDREPENGER.equals(stønadskonto)) {
             return Optional.empty();
         }
         var yfAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
         var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(ref.getSaksnummer());
-        var stønadskontoberegning = stønadskontoRegelAdapter.beregnKontoerMedResultat(ref, yfAggregat,
-            fagsakRelasjon, annenpart, fpGrunnlag);
+        var stønadskontoberegning = stønadskontoRegelAdapter.beregnKontoerMedResultat(ref, yfAggregat, fagsakRelasjon, annenpart, fpGrunnlag);
         int prematurdager = stønadskontoberegning.getAntallPrematurDager();
         int flerbarnsdager = stønadskontoberegning.getAntallFlerbarnsdager();
 
@@ -162,15 +174,13 @@ public class SaldoerDtoTjeneste {
     }
 
     private FastsattUttakPeriodeAktivitet map(UttakResultatPeriodeAktivitetLagreDto dto) {
-        return new FastsattUttakPeriodeAktivitet(UttakEnumMapper.map(dto.getTrekkdagerDesimaler()),
-            UttakEnumMapper.map(dto.getStønadskontoType()),
+        return new FastsattUttakPeriodeAktivitet(UttakEnumMapper.map(dto.getTrekkdagerDesimaler()), UttakEnumMapper.map(dto.getStønadskontoType()),
             UttakEnumMapper.map(dto.getUttakArbeidType(), dto.getArbeidsgiver(), dto.getArbeidsforholdId()));
     }
 
     private AktivitetIdentifikatorDto mapToDto(AktivitetIdentifikator aktivitet) {
         return new AktivitetIdentifikatorDto(UttakEnumMapper.map(aktivitet.getAktivitetType()),
-            Optional.ofNullable(aktivitet.getArbeidsgiverIdentifikator()).map(ai -> ai.value()).orElse(null),
-            aktivitet.getArbeidsforholdId());
+            Optional.ofNullable(aktivitet.getArbeidsgiverIdentifikator()).map(ai -> ai.value()).orElse(null), aktivitet.getArbeidsforholdId());
     }
 
 }
