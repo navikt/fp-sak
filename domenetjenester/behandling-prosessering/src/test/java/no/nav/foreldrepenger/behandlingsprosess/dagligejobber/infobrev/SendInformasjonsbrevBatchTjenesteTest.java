@@ -63,10 +63,11 @@ public class SendInformasjonsbrevBatchTjenesteTest {
     private LocalDate fom = LocalDate.now();
     private LocalDate tom = fom.plusDays(3);
     private LocalDate uttakFom = fom.minusWeeks(10);
-    LocalDate fomOpphold = LocalDate.now();
-    LocalDate tomOpphold = LocalDate.now().plusWeeks(5);
-    private LocalDate uttakFomOpphold = fom.minusWeeks(4);
+    LocalDate fomOpphold = LocalDate.of(2021, 1, 1);
+    LocalDate tomOpphold = LocalDate.of(2021, 1, 1).plusWeeks(5);
+    private LocalDate uttakFomOpphold = LocalDate.of(2021, 1, 1).minusWeeks(4);
     SendInformasjonsbrevBatchArguments batchArgs;
+    SendInformasjonsbrevBatchArguments batchArgsOpphold;
 
     @BeforeEach
     public void setUp() {
@@ -80,7 +81,7 @@ public class SendInformasjonsbrevBatchTjenesteTest {
         Map<String, String> argumentsOpphold = new HashMap<>();
         argumentsOpphold.put(SendInformasjonsbrevBatchArguments.FOM_KEY, fomOpphold.format((ofPattern(DATE_PATTERN))));
         argumentsOpphold.put(SendInformasjonsbrevBatchArguments.TOM_KEY, tomOpphold.format((ofPattern(DATE_PATTERN))));
-        batchArgs = new SendInformasjonsbrevBatchArguments(argumentsOpphold, 4);
+        batchArgsOpphold = new SendInformasjonsbrevBatchArguments(argumentsOpphold, 4);
     }
 
     @Test
@@ -102,14 +103,14 @@ public class SendInformasjonsbrevBatchTjenesteTest {
     public void skal_ikke_finne_saker_til_revurdering_med_opphold(EntityManager em) {
         opprettRevurderingsKandidat(em, BehandlingStatus.UTREDES, uttakFom, true);
         opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, uttakFom.minusWeeks(4), true);
-        var svar = tjenesteOpphold.launch(batchArgs);
+        var svar = tjenesteOpphold.launch(batchArgsOpphold);
         assertThat(svar).isEqualTo(SendInformasjonsbrevOppholdBatchTjeneste.BATCHNAVN + "-0");
     }
 
     @Test
     public void skal_finne_en_sak_til_revurdering_med_opphold(EntityManager em) {
         opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, uttakFomOpphold, true);
-        var svar = tjenesteOpphold.launch(batchArgs);
+        var svar = tjenesteOpphold.launch(batchArgsOpphold);
         assertThat(svar).isEqualTo(SendInformasjonsbrevOppholdBatchTjeneste.BATCHNAVN + "-1");
     }
 

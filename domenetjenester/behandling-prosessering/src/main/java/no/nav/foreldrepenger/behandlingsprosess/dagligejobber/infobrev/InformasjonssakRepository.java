@@ -139,7 +139,7 @@ public class InformasjonssakRepository {
           join so_annen_part anpa on (grpo.so_annen_part_id=anpa.id and anpa.aktoer_id is not null)
           join gr_familie_hendelse grfh on (beh.id=grfh.behandling_id and grfh.aktiv='J')
           join (select familie_hendelse_id sfhid, min(foedsel_dato) minfdato from fh_uidentifisert_barn ub
-                where ub.doedsdato is null group by familie_hendelse_id ) on sfhid=grfh.bekreftet_familie_hendelse_id
+                where ub.doedsdato is null and ub.foedsel_dato <= :frittUttakDato group by familie_hendelse_id ) on sfhid=grfh.bekreftet_familie_hendelse_id
         where beh.behandling_status in (:avsluttet)
           and fs.ytelse_type = :foreldrepenger
           and fs.bruker_rolle = :relrolle
@@ -180,6 +180,7 @@ public class InformasjonssakRepository {
         query.setParameter("infobrev", INFOBREV_TYPER); //$NON-NLS-1$
         query.setParameter("restyper", INNVILGET_TYPER); //$NON-NLS-1$
         query.setParameter("seneretyper", SENERE_TYPER); //$NON-NLS-1$
+        query.setParameter("frittUttakDato", LocalDate.of(2021, 10, 1)); //$NON-NLS-1$
         query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
         query.setParameter("oppholdsaarsaker", List.of(OppholdÅrsak.KVOTE_FELLESPERIODE_ANNEN_FORELDER.getKode(),
                 OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER.getKode(), OppholdÅrsak.KVOTE_FORELDREPENGER_ANNEN_FORELDER.getKode()));
