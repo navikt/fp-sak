@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
 
 public class SaldoValideringTest {
@@ -37,7 +36,6 @@ public class SaldoValideringTest {
     public void berørt_skal_godkjennes_hvis_ikke_negativ_saldo() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FELLESPERIODE)).thenReturn(false);
-        when(saldoUtregning.restSaldoDagerUtenAktivitetskrav()).thenReturn(Trekkdager.ZERO);
         var validering = new SaldoValidering(saldoUtregning, true, true);
 
         assertThat(validering.valider(FELLESPERIODE).isGyldig()).isTrue();
@@ -65,7 +63,6 @@ public class SaldoValideringTest {
     public void ikke_annenpart_skal_godkjennes_hvis_ikke_negativ_saldo() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FELLESPERIODE)).thenReturn(false);
-        when(saldoUtregning.restSaldoDagerUtenAktivitetskrav()).thenReturn(Trekkdager.ZERO);
         var validering = new SaldoValidering(saldoUtregning, false, false);
 
         assertThat(validering.valider(FELLESPERIODE).isGyldig()).isTrue();
