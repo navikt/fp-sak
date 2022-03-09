@@ -198,7 +198,6 @@ public class BehandlingFormidlingDtoTjeneste {
             var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId())
                     .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
             if (beregningsgrunnlag.isPresent()) {
-                dto.leggTil(get(BeregningsgrunnlagRestTjeneste.BEREGNINGSGRUNNLAG_PATH, "beregningsgrunnlag", uuidDto));
                 dto.leggTilFormidlingRessurs(
                     get(BeregningsgrunnlagFormidlingRestTjeneste.BEREGNINGSGRUNNLAG_PATH, "beregningsgrunnlag", uuidDto));
             }
