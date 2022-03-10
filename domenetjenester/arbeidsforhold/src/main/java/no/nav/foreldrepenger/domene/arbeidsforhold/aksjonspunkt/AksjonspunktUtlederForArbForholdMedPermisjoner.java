@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.avklarfakta;
+package no.nav.foreldrepenger.domene.arbeidsforhold.aksjonspunkt;
 
 import static java.util.Collections.emptyList;
 import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettListeForAksjonspunkt;
