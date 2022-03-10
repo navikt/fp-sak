@@ -145,6 +145,7 @@ public class DokumentBehandlingTjeneste {
         var dokumentBestiling = behandlingDokumentRepository.hentHvisEksisterer(bestillingUuid);
         dokumentBestiling.ifPresentOrElse(bestilling -> {
             bestilling.setJournalpostId(new JournalpostId(journalpostId));
+            LOG.trace("JournalpostId: {}.", journalpostId);
             behandlingDokumentRepository.lagreOgFlush(bestilling);
         }, () -> LOG.warn("Fant ikke dokument bestilling for bestillingUuid: {}.", bestillingUuid) );
     }
