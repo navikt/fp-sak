@@ -76,7 +76,7 @@ public class AvklarArbeidPermisjonUtenSluttdatoOppdaterer implements Aksjonspunk
                     .medBekreftetPermisjon(new BekreftetPermisjon(permisjonsperiode.getFomDato(), permisjonsperiode.getTomDato(), avklartPermisjonsstatus));
 
                 if (eksisterendeOverstyring != null) {
-                    mapFraEksisterende(overstyringBuilderForPermisjon, eksisterendeOverstyring, avklartPermisjonsstatus);
+                    mapFraEksisterende(overstyringBuilderForPermisjon, eksisterendeOverstyring);
                 } else {
                     overstyringBuilderForPermisjon
                         .medHandling(ArbeidsforholdHandlingType.BRUK);
@@ -93,7 +93,7 @@ public class AvklarArbeidPermisjonUtenSluttdatoOppdaterer implements Aksjonspunk
         return OppdateringResultat.utenTransisjon().build();
     }
 
-    private void mapFraEksisterende(ArbeidsforholdOverstyringBuilder builder, ArbeidsforholdOverstyring eksisterendeOverstyring, BekreftetPermisjonStatus avklartPermisjonsstatus) {
+    private void mapFraEksisterende(ArbeidsforholdOverstyringBuilder builder, ArbeidsforholdOverstyring eksisterendeOverstyring) {
         builder
             .medAngittArbeidsgiverNavn(eksisterendeOverstyring.getArbeidsgiverNavn())
             .medHandling(eksisterendeOverstyring.getHandling() != null ? eksisterendeOverstyring.getHandling() : ArbeidsforholdHandlingType.BRUK)
@@ -134,10 +134,6 @@ public class AvklarArbeidPermisjonUtenSluttdatoOppdaterer implements Aksjonspunk
             .filter(ya -> ya.getArbeidsforholdRef().gjelderFor(InternArbeidsforholdRef.ref(avklartArbeidsForhold.internArbeidsforholdId())))
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("Finner ikke arbeidsinformasjon for arbeidsgiverIdent: " + avklartArbeidsForhold.arbeidsgiverIdent()));
-    }
-
-    private ArbeidsforholdHandlingType utledHandlingType(BekreftetPermisjonStatus permisjonStatus) {
-        return BekreftetPermisjonStatus.BRUK_PERMISJON.equals(permisjonStatus) ? ArbeidsforholdHandlingType.IKKE_BRUK : ArbeidsforholdHandlingType.BRUK;
     }
 
     private boolean erGyldigPermisjonStatus(BekreftetPermisjonStatus permisjonStatus) {
