@@ -143,10 +143,10 @@ public class DokumentBehandlingTjeneste {
 
     private void oppdaterDokumentBestillingMedJournalpostId(UUID bestillingUuid, String journalpostId) {
         var dokumentBestiling = behandlingDokumentRepository.hentHvisEksisterer(bestillingUuid);
-        dokumentBestiling.ifPresent(bestilling -> {
+        dokumentBestiling.ifPresentOrElse(bestilling -> {
             bestilling.setJournalpostId(new JournalpostId(journalpostId));
             behandlingDokumentRepository.lagreOgFlush(bestilling);
-        });
+        }, () -> LOG.warn("Fant ikke dokument bestilling for bestillingUuid: {}.", bestillingUuid) );
     }
 
     private Period finnAksjonspunktperiodeForVentPåFødsel() {

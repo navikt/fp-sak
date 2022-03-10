@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.dokument;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;

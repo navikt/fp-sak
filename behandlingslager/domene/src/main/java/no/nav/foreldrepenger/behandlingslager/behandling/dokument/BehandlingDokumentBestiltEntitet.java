@@ -3,7 +3,10 @@ package no.nav.foreldrepenger.behandlingslager.behandling.dokument;
 import java.util.Objects;
 import java.util.UUID;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -33,7 +36,8 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
     @Column(name = "bestilling_uuid")
     private UUID bestillingUuid;
 
-    @Column(name = "journalpost_id")
+    @Embedded
+    @AttributeOverrides(@AttributeOverride(name = "journalpostId", column = @Column(name = "journalpost_id")))
     private JournalpostId journalpostId;
 
     public BehandlingDokumentBestiltEntitet() {
@@ -74,12 +78,15 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
         }
         var that = (BehandlingDokumentBestiltEntitet) o;
         return Objects.equals(behandlingDokument, that.behandlingDokument) &&
-            Objects.equals(dokumentMalType, that.dokumentMalType);
+            Objects.equals(dokumentMalType, that.dokumentMalType) &&
+            Objects.equals(bestillingUuid, that.bestillingUuid) &&
+            Objects.equals(journalpostId, that.journalpostId)
+            ;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(behandlingDokument, dokumentMalType);
+        return Objects.hash(behandlingDokument, dokumentMalType, bestillingUuid, journalpostId);
     }
 
     @Override
@@ -88,6 +95,8 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
             (id != null ? "id=" + id + ", " : "")
             + "behandlingDokument=" + behandlingDokument + ", "
             + "dokumentMalType=" + dokumentMalType + ", "
+            + "bestillingUuid=" + bestillingUuid + ", "
+            + "journalpostId=" + journalpostId
             + ">";
     }
 
