@@ -57,16 +57,16 @@ public class LagreHistorikkTask implements ProsessTaskHandler {
 
     private void oppdaterDokumentBestillingMedJournalpostId(UUID historikkUuid, List<HistorikkInnslagDokumentLink> dokumentLinker) {
         var dokumentBestiling = behandlingDokumentRepository.hentHvisEksisterer(historikkUuid);
-        if (dokumentBestiling.isEmpty()) {
-            LOG.info("Fant ikke dokument bestillinger for historikkUuid: {}.", historikkUuid);
-        }
-        dokumentBestiling.ifPresent(bestilling -> {
+
+        dokumentBestiling.ifPresentOrElse(bestilling -> {
             var behandlingDokument = bestilling.getBehandlingDokument();
-            var journalpostId = dokumentLinker.get(0).getJournalpostId().getVerdi();
-            LOG.info("JournalpostId: {}.", journalpostId);
-            bestilling.setJournalpostId(new JournalpostId(journalpostId));
-            behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
-        });
+            dokumentLinker.stream().findFirst().ifPresentOrElse(link -> {
+                var journalpostId = link.getJournalpostId().getVerdi();
+                bestilling.setJournalpostId(new JournalpostId(journalpostId));
+                LOG.trace("JournalpostId: {}.", journalpostId);
+                behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
+            }, () -> LOG.warn("Fant ikke dokument link i kvittering for bestillingUuid: {}.", historikkUuid) );
+        }, () -> LOG.warn("Fant ikke dokument bestilling for bestillingUuid: {}.", historikkUuid));
     }
 
 }
