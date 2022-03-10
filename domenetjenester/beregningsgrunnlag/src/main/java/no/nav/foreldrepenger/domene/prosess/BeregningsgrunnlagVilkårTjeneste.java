@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
+package no.nav.foreldrepenger.domene.prosess;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 
 @ApplicationScoped
-class BeregningsgrunnlagVilkårTjeneste {
+public class BeregningsgrunnlagVilkårTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -36,7 +36,7 @@ class BeregningsgrunnlagVilkårTjeneste {
         this.behandlingsresultatRepository = behandlingsresultatRepository;
     }
 
-    void lagreVilkårresultat(BehandlingskontrollKontekst kontekst, BeregningsgrunnlagVilkårOgAkjonspunktResultat beregningsgrunnlagResultat) {
+    public void lagreVilkårresultat(BehandlingskontrollKontekst kontekst, BeregningsgrunnlagVilkårOgAkjonspunktResultat beregningsgrunnlagResultat) {
         boolean vilkårOppfylt = beregningsgrunnlagResultat.getVilkårOppfylt();
         var regelEvaluering = beregningsgrunnlagResultat.getRegelEvalueringVilkårVurdering();
         var regelInput = beregningsgrunnlagResultat.getRegelInputVilkårVurdering();

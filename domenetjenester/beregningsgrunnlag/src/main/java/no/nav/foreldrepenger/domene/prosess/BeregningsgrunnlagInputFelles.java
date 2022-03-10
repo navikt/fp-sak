@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
+package no.nav.foreldrepenger.domene.prosess;
 
 import java.util.Collections;
 import java.util.List;
