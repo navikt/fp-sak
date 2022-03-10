@@ -225,12 +225,12 @@ public class IAYTilKalkulatorInputMapper {
         return ytelseAnvist.stream().map(ya -> {
             BeløpDto beløpDto = mapBeløp(ya.getBeløp());
             BeløpDto dagsatsDto = mapBeløp(ya.getDagsats());
-            BigDecimal bigDecimal = ya.getUtbetalingsgradProsent().isPresent() ? ya.getUtbetalingsgradProsent().get().getVerdi() : null;
-            return new YtelseAnvistDto(new Periode(
-                ya.getAnvistFOM(), ya.getAnvistTOM()),
+            BigDecimal utbetalingsprosent = ya.getUtbetalingsgradProsent().isPresent() ? ya.getUtbetalingsgradProsent().get().getVerdi() : null;
+            return new YtelseAnvistDto(new Periode(ya.getAnvistFOM(), ya.getAnvistTOM()),
                 beløpDto,
                 dagsatsDto,
-                bigDecimal);
+                utbetalingsprosent,
+                Collections.emptyList()); // TODO FIKS
         }).collect(Collectors.toSet());
     }
 

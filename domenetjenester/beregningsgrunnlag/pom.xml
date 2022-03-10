@@ -46,6 +46,10 @@
             <artifactId>behandlingslager-testutilities</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>skjaeringstidspunkt</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

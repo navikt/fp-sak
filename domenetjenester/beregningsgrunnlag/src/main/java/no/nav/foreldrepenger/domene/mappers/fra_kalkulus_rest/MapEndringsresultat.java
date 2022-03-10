@@ -176,13 +176,13 @@ public class MapEndringsresultat {
         return new BeregningAktivitetNøkkel(OpptjeningAktivitetType.fraKode(aktivitetNøkkel.getOpptjeningAktivitetType().getKode()),
             aktivitetNøkkel.getFom(), mapTilArbeidsgiver(aktivitetNøkkel),
             aktivitetNøkkel.getArbeidsforholdRef() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(
-                aktivitetNøkkel.getArbeidsforholdRef()));
+                aktivitetNøkkel.getArbeidsforholdRef().getAbakusReferanse()));
     }
 
     private static Arbeidsgiver mapTilArbeidsgiver(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.BeregningAktivitetNøkkel aktivitetNøkkel) {
-        if (aktivitetNøkkel.getArbeidsgiverIdentifikator() != null) {
-            return OrgNummer.erGyldigOrgnr(aktivitetNøkkel.getArbeidsgiverIdentifikator()) ? Arbeidsgiver.virksomhet(
-                aktivitetNøkkel.getArbeidsgiverIdentifikator()) : Arbeidsgiver.person(new AktørId(aktivitetNøkkel.getArbeidsgiverIdentifikator()));
+        if (aktivitetNøkkel.getArbeidsgiver() != null) {
+            return OrgNummer.erGyldigOrgnr(aktivitetNøkkel.getArbeidsgiver().getIdent()) ? Arbeidsgiver.virksomhet(
+                aktivitetNøkkel.getArbeidsgiver().getIdent()) : Arbeidsgiver.person(new AktørId(aktivitetNøkkel.getArbeidsgiver().getIdent()));
         }
         return null;
     }

@@ -14,14 +14,14 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagVilkårTjeneste;
 
 @BehandlingStegRef(kode = "VURDER_VILKAR_BERGRUNN")
 @BehandlingTypeRef
 @FagsakYtelseTypeRef
 @ApplicationScoped
 public class VurderBeregningsgrunnlagVilkårSteg implements BeregningsgrunnlagSteg {
-    private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagVilkårTjeneste beregningsgrunnlagVilkårTjeneste;
     private BeregningTjeneste beregningTjeneste;
 
@@ -30,10 +30,8 @@ public class VurderBeregningsgrunnlagVilkårSteg implements BeregningsgrunnlagSt
     }
 
     @Inject
-    public VurderBeregningsgrunnlagVilkårSteg(BehandlingRepository behandlingRepository,
-                                              BeregningsgrunnlagVilkårTjeneste beregningsgrunnlagVilkårTjeneste,
+    public VurderBeregningsgrunnlagVilkårSteg(BeregningsgrunnlagVilkårTjeneste beregningsgrunnlagVilkårTjeneste,
                                               BeregningTjeneste beregningTjeneste) {
-        this.behandlingRepository = behandlingRepository;
         this.beregningsgrunnlagVilkårTjeneste = beregningsgrunnlagVilkårTjeneste;
         this.beregningTjeneste = beregningTjeneste;
     }

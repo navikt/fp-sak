@@ -26,8 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
-import no.nav.foreldrepenger.domene.prosess.KalkulusTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 
 @FagsakYtelseTypeRef
 @BehandlingStegRef(kode = "FORS_BERGRUNN")
