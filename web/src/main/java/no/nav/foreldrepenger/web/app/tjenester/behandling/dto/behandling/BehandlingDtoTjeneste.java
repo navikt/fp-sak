@@ -68,6 +68,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.InnsynRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.KlageRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktMellomlagringDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.SendTilKabalDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.KontrollRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.opptjening.OpptjeningRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonRestTjeneste;
@@ -272,12 +273,11 @@ public class BehandlingDtoTjeneste {
             }
         }
         if (BehandlingType.ANKE.equals(behandling.getType())) {
-            dto.leggTil(post(AnkeRestTjeneste.MELLOMLAGRE_ANKE_PATH, "mellomlagre-anke",
-                new AnkeVurderingResultatAksjonspunktMellomlagringDto()));
+            dto.leggTil(post(AnkeRestTjeneste.MELLOMLAGRE_ANKE_PATH, "mellomlagre-anke", new AnkeVurderingResultatAksjonspunktMellomlagringDto()));
         }
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
-            dto.leggTil(
-                post(KlageRestTjeneste.MELLOMLAGRE_PATH, "mellomlagre-klage", new KlageVurderingResultatAksjonspunktMellomlagringDto()));
+            dto.leggTil(post(KlageRestTjeneste.MELLOMLAGRE_PATH, "mellomlagre-klage", new KlageVurderingResultatAksjonspunktMellomlagringDto()));
+            dto.leggTil(post(KlageRestTjeneste.KABAL_PATH, "kabal-klage", new SendTilKabalDto(behandling.getUuid(), null)));
         }
     }
 

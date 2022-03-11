@@ -29,6 +29,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
+import no.nav.foreldrepenger.behandling.kabal.SendTilKabalTask;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -44,9 +45,12 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktMellomlagringDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.SendTilKabalDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.TilbakeBehandlingDto;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -62,6 +66,8 @@ public class KlageRestTjeneste {
     public static final String KLAGE_V2_PATH = BASE_PATH + KLAGE_V2_PART_PATH;
     private static final String MELLOMLAGRE_PART_PATH = "/klage/mellomlagre-klage";
     public static final String MELLOMLAGRE_PATH = BASE_PATH + MELLOMLAGRE_PART_PATH;
+    private static final String KABAL_PART_PATH = "/klage/send-kabal";
+    public static final String KABAL_PATH = BASE_PATH + KABAL_PART_PATH;
     private static final String MOTTATT_KLAGEDOKUMENT_V2_PART_PATH = "/klage/mottatt-klagedokument-v2";
     public static final String MOTTATT_KLAGEDOKUMENT_V2_PATH = BASE_PATH + MOTTATT_KLAGEDOKUMENT_V2_PART_PATH;
 
@@ -69,6 +75,7 @@ public class KlageRestTjeneste {
     private KlageVurderingTjeneste klageVurderingTjeneste;
     private FptilbakeRestKlient fptilbakeRestKlient;
     private MottatteDokumentRepository mottatteDokumentRepository;
+    private ProsessTaskTjeneste prosessTaskTjeneste;
 
     public KlageRestTjeneste() {
         // for CDI proxy
@@ -76,13 +83,15 @@ public class KlageRestTjeneste {
 
     @Inject
     public KlageRestTjeneste(BehandlingRepository behandlingRepository,
-            KlageVurderingTjeneste klageVurderingTjeneste,
-            FptilbakeRestKlient fptilbakeRestKlient,
-            MottatteDokumentRepository mottatteDokumentRepository) {
+                             KlageVurderingTjeneste klageVurderingTjeneste,
+                             FptilbakeRestKlient fptilbakeRestKlient,
+                             MottatteDokumentRepository mottatteDokumentRepository,
+                             ProsessTaskTjeneste prosessTaskTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
         this.fptilbakeRestKlient = fptilbakeRestKlient;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
+        this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 
     @GET
@@ -133,6 +142,24 @@ public class KlageRestTjeneste {
                 .medKlageMedholdÅrsak(dto.getKlageMedholdArsak())
                 .medKlageHjemmel(dto.getKlageHjemmel())
                 .medBegrunnelse(dto.getBegrunnelse());
+    }
+
+    @POST
+    @Path(KABAL_PART_PATH)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Mellomlagring av vurderingstekst for klagebehandling", tags = "klage")
+    @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public Response sendTilKabal(@TilpassetAbacAttributt(supplierClass = TilKabalAbacSupplier.class)
+                                     @Parameter(description = "Send klage til Kabal.") @Valid SendTilKabalDto kabalDto) { // NOSONAR
+
+        var behandling = behandlingRepository.hentBehandling(kabalDto.behandlingUuid());
+        var task = ProsessTaskData.forProsessTask(SendTilKabalTask.class);
+        task.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        Optional.ofNullable(kabalDto.klageHjemmel())
+            .filter(h -> !KlageHjemmel.UDEFINERT.equals(h))
+            .ifPresent(h -> task.setProperty(SendTilKabalTask.HJEMMEL_KEY, h.getKode()));
+        prosessTaskTjeneste.lagre(task);
+        return Response.ok().build();
     }
 
     @GET
@@ -217,6 +244,16 @@ public class KlageRestTjeneste {
             var req = (KlageVurderingResultatAksjonspunktMellomlagringDto) obj;
             return AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
+        }
+    }
+
+    public static class TilKabalAbacSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (SendTilKabalDto) obj;
+            return AbacDataAttributter.opprett()
+                .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
         }
     }
 

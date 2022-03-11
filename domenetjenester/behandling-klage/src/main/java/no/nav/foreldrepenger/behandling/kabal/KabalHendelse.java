@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.kabal;
+package no.nav.foreldrepenger.behandling.kabal;
 
 import java.time.LocalDateTime;
 import java.util.List;

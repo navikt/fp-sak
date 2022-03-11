@@ -6,6 +6,8 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.kabal.KabalHendelse;
+import no.nav.foreldrepenger.behandling.kabal.KabalUtfall;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 
