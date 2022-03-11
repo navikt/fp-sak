@@ -37,11 +37,17 @@ public class SaldoValidering implements OverstyrUttakPerioderValidering {
                 LOG.info("Saksbehandler går videre med negativ saldo pga samtidig uttak");
             }
         }
+        if (saldoUtregning.getMaxDagerUtenAktivitetskrav().merEnn0()) {
+            var restSaldoDagerUtenAktivitetskrav = saldoUtregning.restSaldoDagerUtenAktivitetskrav();
+            if (restSaldoDagerUtenAktivitetskrav.mindreEnn0()) {
+                throw OverstyrUttakValideringFeil.trekkdagerOverskriderKontoMaksDager();
+            }
+        }
     }
 
     public SaldoValideringResultat valider(Stønadskontotype stønadskontoType) {
         if (berørtBehandling || !harAnnenpart) {
-            var isGyldig = !saldoUtregning.negativSaldo(stønadskontoType) && !saldoUtregning.restSaldoDagerUtenAktivitetskrav().mindreEnn0();
+            var isGyldig = !saldoUtregning.negativSaldo(stønadskontoType);
             return new SaldoValideringResultat(isGyldig, false);
         }
         if (saldoUtregning.negativSaldo(stønadskontoType)) {
