@@ -8,5 +8,6 @@ public record KlagebehandlingDto(KlageFormkravResultatDto klageFormkravResultatN
                                  KlageVurderingResultatDto klageVurderingResultatNFP,
                                  KlageFormkravResultatDto klageFormkravResultatKA,
                                  KlageVurderingResultatDto klageVurderingResultatNK,
-                                 List<KlageHjemmel> aktuelleHjemler) {
+                                 List<KlageHjemmel> aktuelleHjemler,
+                                 boolean enableKabal) {
 }
