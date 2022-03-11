@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.avklarfakta;
+package no.nav.foreldrepenger.domene.arbeidsforhold.aksjonspunkt;
 
 import java.util.List;
 import java.util.Optional;

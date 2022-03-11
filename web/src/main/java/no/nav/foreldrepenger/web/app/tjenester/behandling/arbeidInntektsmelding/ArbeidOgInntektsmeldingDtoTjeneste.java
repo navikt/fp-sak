@@ -20,10 +20,10 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntekts
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdMangel;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.ArbeidOgInntektsmeldingDto;
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.ArbeidsforholdDto;
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.InntektDto;
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.InntektsmeldingDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.ArbeidOgInntektsmeldingDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.ArbeidsforholdDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektsmeldingDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.VurderPermisjonTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding;
+package no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto;
 
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 

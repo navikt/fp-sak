@@ -4,11 +4,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.Arbeidsf
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdMangel;
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.ArbeidsforholdDto;
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.InntektDto;
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.InntektsmeldingDto;
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.InntektspostDto;
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.arbeidInntektsmelding.PermisjonUtenSluttdatoDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.ArbeidsforholdDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektsmeldingDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektspostDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.PermisjonUtenSluttdatoDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;

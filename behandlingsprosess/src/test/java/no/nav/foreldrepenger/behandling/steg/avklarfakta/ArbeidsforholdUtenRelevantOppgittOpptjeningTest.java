@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta;
 
-import static no.nav.foreldrepenger.behandling.steg.avklarfakta.ArbeidsforholdUtenRelevantOppgittOpptjening.erUtenRelevantOppgittOpptjening;
+import static no.nav.foreldrepenger.domene.arbeidsforhold.aksjonspunkt.ArbeidsforholdUtenRelevantOppgittOpptjening.erUtenRelevantOppgittOpptjening;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
