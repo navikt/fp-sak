@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.dokumentbestiller;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -145,6 +146,16 @@ public enum DokumentMalType implements Kodeverdi {
             throw new IllegalArgumentException("Ukjent DokumentMalType: " + kode);
         }
         return ad.get();
+    }
+
+    public static boolean erVedtaksBrev(DokumentMalType brev) {
+        return Set.of(ENGANGSSTØNAD_INNVILGELSE, ENGANGSSTØNAD_AVSLAG,
+            FORELDREPENGER_INNVILGELSE, FORELDREPENGER_AVSLAG, FORELDREPENGER_OPPHØR,
+            SVANGERSKAPSPENGER_INNVILGELSE, SVANGERSKAPSPENGER_AVSLAG, SVANGERSKAPSPENGER_OPPHØR).contains(brev);
+    }
+
+    public static boolean erKlageVedtaksBrev(DokumentMalType brev) {
+        return Set.of(KLAGE_STADFESTET, KLAGE_AVVIST, KLAGE_OMGJORT).contains(brev);
     }
 
 }

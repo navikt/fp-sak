@@ -43,6 +43,7 @@ public enum Venteårsak implements Kodeverdi {
     VENT_SØKNAD_SENDT_INFORMASJONSBREV("VENT_SØKNAD_SENDT_INFORMASJONSBREV", "Sendt informasjonsbrev venter søknad."),
     VENT_ÅPEN_BEHANDLING("VENT_ÅPEN_BEHANDLING", "Søker eller den andre forelderen har en åpen behandling"),
     VENT_PÅ_KORRIGERT_BESTEBEREGNING("VENT_PÅ_KORRIGERT_BESTEBEREGNING", "Besteberegningen er feil. Feilen må meldes og korrigeres."),
+    VENT_KABAL("VENT_KABAL", "Klage / anke behandles av Klageinstans i egen løsning"),
     /*
      * Disse er i bruk i koden til interne formål rundt historikkinnslag, brukes ikke for aksjosnpunkt - men finnes i gamle aksjonspunkt.
      */
