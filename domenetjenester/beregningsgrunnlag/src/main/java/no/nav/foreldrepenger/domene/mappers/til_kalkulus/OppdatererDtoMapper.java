@@ -14,10 +14,11 @@ import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.RedigerbarAndelFakt
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.RefusjonskravPrArbeidsgiverVurderingDto;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.VurderMilitærDto;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.VurderteArbeidsforholdDto;
-import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AndelKilde;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;
+import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
+import no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.rest.dto.AvklarteAktiviteterDto;
 import no.nav.foreldrepenger.domene.rest.dto.BeregningsaktivitetLagreDto;
 import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
@@ -51,7 +52,6 @@ import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagD
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagPeriodeDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelFastsatteVerdierDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelRedigerbarAndelDto;
-import no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle;
 
 public class OppdatererDtoMapper {
     public static no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.FastsettBeregningsgrunnlagATFLDto mapFastsettBeregningsgrunnlagATFLDto(FastsettBeregningsgrunnlagATFLDto tilKalkulus) {
@@ -383,11 +383,7 @@ public class OppdatererDtoMapper {
             redigerbarAndel.getArbeidsgiverId(),
             redigerbarAndel.getArbeidsforholdId().getReferanse(),
             redigerbarAndel.getNyAndel(),
-            redigerbarAndel.getKilde() == null ? null : AndelKilde.fraKode(redigerbarAndel.getKilde().getKode()),
-            redigerbarAndel.getAktivitetStatus() == null ? null : AktivitetStatus.fraKode(redigerbarAndel.getAktivitetStatus().getKode()),
-            redigerbarAndel.getArbeidsforholdType() == null ? null : OpptjeningAktivitetType.fraKode(redigerbarAndel.getArbeidsforholdType().getKode()),
-            redigerbarAndel.getBeregningsperiodeFom(),
-            redigerbarAndel.getBeregningsperiodeTom());
+            redigerbarAndel.getKilde() == null ? null : AndelKilde.fraKode(redigerbarAndel.getKilde().getKode()));
     }
 
     private static RedigerbarAndelFaktaOmBeregningDto mapTilRedigerbarAndelDto(RedigerbarAndelDto redigerbarAndel) {
