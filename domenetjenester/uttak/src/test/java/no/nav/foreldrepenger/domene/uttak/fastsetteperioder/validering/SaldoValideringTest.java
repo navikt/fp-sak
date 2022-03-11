@@ -2,14 +2,19 @@ package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
 import static no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype.FEDREKVOTE;
 import static no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype.FELLESPERIODE;
+import static no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype.FORELDREPENGER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
+import no.nav.vedtak.exception.TekniskException;
 
 public class SaldoValideringTest {
 
@@ -102,6 +107,18 @@ public class SaldoValideringTest {
 
         assertThat(validering.valider(FELLESPERIODE).isGyldig()).isFalse();
         assertThat(validering.valider(FELLESPERIODE).isNegativPgaSamtidigUttak()).isFalse();
+    }
+
+    @Test
+    public void ikke_kunne_gå_negativ_på_dager_uten_aktivitetskrav() {
+        var saldoUtregning = mock(SaldoUtregning.class);
+        when(saldoUtregning.negativSaldo(FORELDREPENGER)).thenReturn(false);
+        when(saldoUtregning.getMaxDagerUtenAktivitetskrav()).thenReturn(new Trekkdager(10));
+        when(saldoUtregning.restSaldoDagerUtenAktivitetskrav()).thenReturn(new Trekkdager(-5));
+        var validering = new SaldoValidering(saldoUtregning, false, false);
+
+        assertThat(validering.valider(FORELDREPENGER).isGyldig()).isTrue();
+        assertThatExceptionOfType(TekniskException.class).isThrownBy(() -> validering.utfør(List.of()));
     }
 }
 

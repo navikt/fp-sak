@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
@@ -69,6 +70,8 @@ public class OverstyrUttakResultatValidator {
             .aktiviteter(mapAktiviteter(periode.getAktiviteter()))
             .flerbarnsdager(periode.isFlerbarnsdager())
             .mottattDato(periode.getMottattDato())
+            .resultatÅrsak(UttakEnumMapper.mapTilFastsattPeriodeÅrsak(periode.getResultatÅrsak()))
+            .utsettelse(!UttakUtsettelseType.UDEFINERT.equals(periode.getUtsettelseType()))
             .build();
     }
 

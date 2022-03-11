@@ -104,7 +104,7 @@ public class SaldoerDtoTjeneste {
                     aktivitetSaldoListe, saldoValideringResultat.isGyldig(), kontoUtvidelser.orElse(null)));
         }
 
-        if (saldoUtregning.getMaxDagerUtenAktivitetskrav() != null && saldoUtregning.getMaxDagerUtenAktivitetskrav().merEnn0()) {
+        if (saldoUtregning.getMaxDagerUtenAktivitetskrav().merEnn0()) {
             var stønadskontoDto = foreldrepengerUtenAktKravDto(saldoUtregning);
             stønadskontoMap.put(SaldoerDto.SaldoVisningStønadskontoType.UTEN_AKTIVITETSKRAV, stønadskontoDto);
         }
