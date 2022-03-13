@@ -148,24 +148,21 @@ public class KabalTjeneste {
     private List<TilKabalDto.DokumentReferanse> finnDokumentReferanser(long behandlingId, KlageResultatEntitet resultat) {
         List<TilKabalDto.DokumentReferanse> referanser = new ArrayList<>();
 
-        hentDokumentReferanseFor(behandlingId, TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV, referanser, erKlageOversendtBrevSent(), erKlageOversendtHistorikkInnslagOpprettet());
+        hentDokumentReferanseFor(behandlingId, TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV, referanser, erKlageOversendtBrevSent(),
+            erKlageOversendtHistorikkInnslagOpprettet());
 
         resultat.getPåKlagdBehandlingId()
-            .ifPresent(b -> {
-                hentDokumentReferanseFor(b, TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK, referanser, erVedtakDokument(), erVedtakHistorikkInnslagOpprettet());
-                }
-            );
+            .ifPresent(b -> hentDokumentReferanseFor(b, TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK, referanser, erVedtakDokument(),
+                erVedtakHistorikkInnslagOpprettet()));
 
-        finnMottattDokumentFor(behandlingId, erKlageEllerAnkeDokumentPredicate())
-            .map(MottattDokument::getJournalpostId)
+        finnMottattDokumentFor(behandlingId, erKlageEllerAnkeDokumentPredicate()).map(MottattDokument::getJournalpostId)
             .forEach(opprettDokumentReferanse(referanser, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE));
 
         resultat.getPåKlagdBehandlingId()
-            .ifPresent(b -> finnMottattDokumentFor(b, erSøknadDokumentPredicate())
-                .map(MottattDokument::getJournalpostId)
+            .ifPresent(b -> finnMottattDokumentFor(b, erSøknadDokumentPredicate()).map(MottattDokument::getJournalpostId)
                 .distinct()
-                .forEach(opprettDokumentReferanse(referanser, TilKabalDto.DokumentReferanseType.BRUKERS_SOEKNAD))
-            );
+                .forEach(opprettDokumentReferanse(referanser, TilKabalDto.DokumentReferanseType.BRUKERS_SOEKNAD)));
+
         return referanser;
     }
 
