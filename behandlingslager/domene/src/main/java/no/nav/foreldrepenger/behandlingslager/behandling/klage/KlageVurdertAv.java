@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum KlageVurdertAv implements Kodeverdi {
 
     NFP("NFP", "NAV Familie- og Pensjonsytelser"),
-    NK("NK", "NAV Klageenhet"),
+    NK("NK", "NAV Klageinstans"),
     ;
 
     private static final Map<String, KlageVurdertAv> KODER = new LinkedHashMap<>();

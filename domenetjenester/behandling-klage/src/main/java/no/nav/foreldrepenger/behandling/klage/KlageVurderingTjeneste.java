@@ -83,6 +83,10 @@ public class KlageVurderingTjeneste {
         klageRepository.settPåklagdBehandlingId(klageBehandlingId, påklagetBehandlingId.orElse(null));
     }
 
+    public void oppdaterKlageMedKabalReferanse(Long klageBehandlingId, String ref) {
+        klageRepository.settKabalReferanse(klageBehandlingId, ref);
+    }
+
     private Optional<Long> getPåklagetBehandlingId(UUID påklagetBehandlingUuid) {
         if (påklagetBehandlingUuid == null) {
             return Optional.empty();
@@ -128,6 +132,7 @@ public class KlageVurderingTjeneste {
 
         var uendret = (eksisterende != null) && eksisterende.harLikVurdering(nyttresultat);
         var endretBeslutterStatus = (eksisterende != null) && eksisterende.isGodkjentAvMedunderskriver() && !uendret;
+        var kabal = klageResultat.erBehandletAvKabal();
 
         if (eksisterende == null) {
             nyttresultat.setGodkjentAvMedunderskriver(false);
@@ -137,11 +142,11 @@ public class KlageVurderingTjeneste {
                 klageRepository.settKlageGodkjentHosMedunderskriver(behandling.getId(), KlageVurdertAv.NK, false);
             }
         }
-        var tilbakeføres = endretBeslutterStatus &&
+        var tilbakeføres = !kabal && endretBeslutterStatus &&
                 !behandling.harÅpentAksjonspunktMedType(aksjonspunkt) &&
                 behandlingskontrollTjeneste.erStegPassert(behandling, vurderingsteg);
         klageRepository.lagreVurderingsResultat(behandling.getId(), nyttresultat);
-        if (erVurderingOppdaterer || tilbakeføres) {
+        if (erVurderingOppdaterer || tilbakeføres || kabal) {
             settBehandlingResultatTypeBasertPaaUtfall(behandling, nyttresultat.getKlageVurdering(), vurdertAv);
         }
         if (tilbakeføres) {

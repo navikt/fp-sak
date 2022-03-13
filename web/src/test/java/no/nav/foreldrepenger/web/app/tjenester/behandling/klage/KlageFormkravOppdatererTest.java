@@ -68,7 +68,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         klageVurderingTjeneste = new KlageVurderingTjeneste(null, null,null, behandlingRepository, klageRepository, null,
                 repositoryProvider.getBehandlingsresultatRepository());
         klageFormkravOppdaterer = new KlageFormkravOppdaterer(klageVurderingTjeneste, historikkTjenesteAdapter,
-                behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), mockFptilbakeRestKlient);
+                behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), mockFptilbakeRestKlient, null);
 
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP, BehandlingStegType.KLAGE_NFP);
     }

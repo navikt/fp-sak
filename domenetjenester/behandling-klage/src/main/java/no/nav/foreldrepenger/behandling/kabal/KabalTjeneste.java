@@ -10,18 +10,20 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
+import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentBestiltEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
@@ -31,12 +33,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.vedtak.exception.FunksjonellException;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class KabalTjeneste {
 
-    private AnkeRepository ankeRepository;
-    private KlageRepository klageRepository;
+    private AnkeVurderingTjeneste ankeVurderingTjeneste;
+    private KlageVurderingTjeneste klageVurderingTjeneste;
     private BehandlingRepository behandlingRepository;
     private MottatteDokumentRepository mottatteDokumentRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
@@ -55,11 +59,11 @@ public class KabalTjeneste {
                          MottatteDokumentRepository mottatteDokumentRepository,
                          BehandlingDokumentRepository behandlingDokumentRepository,
                          VergeRepository vergeRepository,
-                         AnkeRepository ankeRepository,
-                         KlageRepository klageRepository) {
+                         AnkeVurderingTjeneste ankeVurderingTjeneste,
+                         KlageVurderingTjeneste klageVurderingTjeneste) {
         this.personinfoAdapter = personinfoAdapter;
-        this.ankeRepository = ankeRepository;
-        this.klageRepository = klageRepository;
+        this.ankeVurderingTjeneste = ankeVurderingTjeneste;
+        this.klageVurderingTjeneste = klageVurderingTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
@@ -71,9 +75,17 @@ public class KabalTjeneste {
         if (!BehandlingType.KLAGE.equals(behandling.getType())) {
             throw new IllegalArgumentException("Utviklerfeil: Prøver sende noe annet enn klage/anke til Kabal!");
         }
-        var resultat = klageRepository.hentKlageVurderingResultat(behandling.getId(), KlageVurdertAv.NFP).orElseThrow();
-        var brukHjemmel = Optional.ofNullable(hjemmel).or(() -> Optional.ofNullable(resultat.getKlageHjemmel()))
-            .orElseThrow(() -> new IllegalArgumentException("Utviklerfeil: mangler hjemmel for klage"));
+        var resultat = klageVurderingTjeneste.hentKlageVurderingResultat(behandling, KlageVurdertAv.NFP).orElseThrow();
+        if (resultat.getKlageResultat().erBehandletAvKabal()) {
+            // Reset flagg før ny oversendelse
+            klageVurderingTjeneste.oppdaterKlageMedKabalReferanse(behandling.getId(), null);
+        }
+        var brukHjemmel = Optional.ofNullable(hjemmel)
+            .or(() -> Optional.ofNullable(resultat.getKlageHjemmel()))
+            .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(behandling.getFagsakYtelseType()));
+        if (KlageHjemmel.UDEFINERT.equals(brukHjemmel)) {
+            throw new TekniskException("FP-Hjemmel", "Utviklerfeil: Mangler hjemmel for behandling " + behandling.getId());
+        }
         var enhet = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId())
             .map(Behandling::getBehandlendeEnhet).orElseThrow();
         var klageMottattDato  = utledDokumentMottattDato(behandling);
@@ -81,6 +93,20 @@ public class KabalTjeneste {
         var request = TilKabalDto.klage(behandling, klager, enhet, finnDokumentReferanser(behandling, resultat.getKlageResultat()),
             klageMottattDato, klageMottattDato, List.of(brukHjemmel.getKabal()), resultat.getBegrunnelse());
         kabalKlient.sendTilKabal(request);
+    }
+
+    public void lagreKlageUtfallFraKabal(Behandling behandling, KabalUtfall utfall) {
+        var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, KlageVurdertAv.NK);
+        switch (utfall) {
+            case STADFESTELSE -> builder.medKlageVurdering(KlageVurdering.STADFESTE_YTELSESVEDTAK);
+            case AVVIST -> builder.medKlageVurdering(KlageVurdering.AVVIS_KLAGE);
+            case OPPHEVET -> builder.medKlageVurdering(KlageVurdering.OPPHEVE_YTELSESVEDTAK);
+            case MEDHOLD -> builder.medKlageVurdering(KlageVurdering.MEDHOLD_I_KLAGE).medKlageVurderingOmgjør(KlageVurderingOmgjør.GUNST_MEDHOLD_I_KLAGE);
+            case DELVIS_MEDHOLD -> builder.medKlageVurdering(KlageVurdering.MEDHOLD_I_KLAGE).medKlageVurderingOmgjør(KlageVurderingOmgjør.DELVIS_MEDHOLD_I_KLAGE);
+            case UGUNST -> builder.medKlageVurdering(KlageVurdering.MEDHOLD_I_KLAGE).medKlageVurderingOmgjør(KlageVurderingOmgjør.UGUNST_MEDHOLD_I_KLAGE);
+            default -> throw new IllegalStateException(String.format("Utviklerfeil forsøker lagre klage %s med utfall %s", behandling.getId(), utfall));
+        }
+        klageVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, builder.medGodkjentAvMedunderskriver(true), KlageVurdertAv.NK);
     }
 
 

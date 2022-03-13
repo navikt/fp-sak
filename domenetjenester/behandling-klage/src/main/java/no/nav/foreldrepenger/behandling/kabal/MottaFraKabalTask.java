@@ -8,8 +8,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
@@ -55,7 +53,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         if (!KabalHendelse.BehandlingEventType.KLAGEBEHANDLING_AVSLUTTET.equals(hendelsetype)) {
             throw new IllegalStateException("Utviklerfeil: Mottatt ikke-støtte kabalisme");
         }
-        var utfall = Optional.ofNullable(prosessTaskData.getPropertyValue(HENDELSETYPE_KEY))
+        var utfall = Optional.ofNullable(prosessTaskData.getPropertyValue(UTFALL_KEY))
             .map(KabalUtfall::valueOf).orElse(null);
         if (utfall == null) {
             throw new IllegalStateException("Utviklerfeil: Kabal-klage avsluttet men mangler utfall");
@@ -70,6 +68,8 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             }
             if (KabalUtfall.RETUR.equals(utfall)) {
                 behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.KLAGE_NFP);
+            } else {
+                kabalTjeneste.lagreKlageUtfallFraKabal(behandling, utfall);
             }
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
         }
