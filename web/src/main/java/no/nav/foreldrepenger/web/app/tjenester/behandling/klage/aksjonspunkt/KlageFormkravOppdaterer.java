@@ -105,6 +105,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
                 }
                 var tilKabalTask = ProsessTaskData.forProsessTask(SendTilKabalTask.class);
                 tilKabalTask.setBehandling(klageBehandling.getFagsakId(), klageBehandling.getId(), klageBehandling.getAktørId().getId());
+                tilKabalTask.setCallIdFraEksisterende();
                 tilKabalTask.setProperty(SendTilKabalTask.HJEMMEL_KEY, klageHjemmel.getKode());
                 prosessTaskTjeneste.lagre(tilKabalTask);
                 var frist = LocalDateTime.now().plusYears(3);

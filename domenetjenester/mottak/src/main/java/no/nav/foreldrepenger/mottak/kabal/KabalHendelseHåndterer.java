@@ -89,6 +89,7 @@ public class KabalHendelseHåndterer {
             klageRepository.settKabalReferanse(behandling.getId(), mottattHendelse.kabalReferanse());
             var task = ProsessTaskData.forProsessTask(MottaFraKabalTask.class);
             task.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+            task.setCallIdFraEksisterende();
             task.setProperty(MottaFraKabalTask.HENDELSETYPE_KEY, mottattHendelse.type().name());
             task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().klagebehandlingAvsluttet().utfall().name());
             taskTjeneste.lagre(task);
