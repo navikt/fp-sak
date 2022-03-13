@@ -151,4 +151,16 @@ public enum KlageHjemmel implements Kodeverdi {
         }
     }
 
+    public static KlageHjemmel standardHjemmelForYtelse(FagsakYtelseType ytelseType) {
+        if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
+            return KlageHjemmel.FORELDRE;
+        } else if (FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
+            return KlageHjemmel.ENGANGS;
+        } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)) {
+            return KlageHjemmel.SVANGERSKAP;
+        } else {
+            return KlageHjemmel.UDEFINERT;
+        }
+    }
+
 }

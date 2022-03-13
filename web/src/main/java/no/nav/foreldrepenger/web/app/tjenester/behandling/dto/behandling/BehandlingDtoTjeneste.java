@@ -277,7 +277,6 @@ public class BehandlingDtoTjeneste {
         }
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             dto.leggTil(post(KlageRestTjeneste.MELLOMLAGRE_PATH, "mellomlagre-klage", new KlageVurderingResultatAksjonspunktMellomlagringDto()));
-            dto.leggTil(post(KlageRestTjeneste.KABAL_PATH, "kabal-klage", new SendTilKabalDto(behandling.getUuid(), null)));
         }
     }
 
