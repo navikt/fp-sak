@@ -133,7 +133,7 @@ public class KabalTjeneste {
     }
 
     private LocalDate utledDokumentMottattDato(Behandling behandling) {
-        return finnMottattDokumentFor(behandling.getId(), erKlageEllerAnkeDokumentPredicate())
+        return finnMottattDokumentFor(behandling.getId(), erKlageEllerAnkeDokument())
             .map(MottattDokument::getMottattDato)
             .min(Comparator.naturalOrder())
             .orElseGet(() -> behandling.getOpprettetDato().toLocalDate());
@@ -155,11 +155,11 @@ public class KabalTjeneste {
             .ifPresent(b -> hentDokumentReferanseFor(b, TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK, referanser, erVedtakDokument(),
                 erVedtakHistorikkInnslagOpprettet()));
 
-        finnMottattDokumentFor(behandlingId, erKlageEllerAnkeDokumentPredicate()).map(MottattDokument::getJournalpostId)
+        finnMottattDokumentFor(behandlingId, erKlageEllerAnkeDokument()).map(MottattDokument::getJournalpostId)
             .forEach(opprettDokumentReferanse(referanser, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE));
 
         resultat.getPåKlagdBehandlingId()
-            .ifPresent(b -> finnMottattDokumentFor(b, erSøknadDokumentPredicate()).map(MottattDokument::getJournalpostId)
+            .ifPresent(b -> finnMottattDokumentFor(b, erSøknadDokument()).map(MottattDokument::getJournalpostId)
                 .distinct()
                 .forEach(opprettDokumentReferanse(referanser, TilKabalDto.DokumentReferanseType.BRUKERS_SOEKNAD)));
 
@@ -214,11 +214,11 @@ public class KabalTjeneste {
         return j -> referanser.add(new TilKabalDto.DokumentReferanse(j.getVerdi(), referanseType));
     }
 
-    private Predicate<MottattDokument> erSøknadDokumentPredicate() {
+    private Predicate<MottattDokument> erSøknadDokument() {
         return MottattDokument::erSøknadsDokument;
     }
 
-    private Predicate<MottattDokument> erKlageEllerAnkeDokumentPredicate() {
+    private Predicate<MottattDokument> erKlageEllerAnkeDokument() {
         return d -> DokumentTypeId.KLAGE_DOKUMENT.equals(d.getDokumentType()) || DokumentKategori.KLAGE_ELLER_ANKE.equals(d.getDokumentKategori());
     }
 
