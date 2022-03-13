@@ -148,18 +148,21 @@ public class KabalTjeneste {
     private List<TilKabalDto.DokumentReferanse> finnDokumentReferanser(long behandlingId, KlageResultatEntitet resultat) {
         List<TilKabalDto.DokumentReferanse> referanser = new ArrayList<>();
 
-        hentDokumentReferanseFor(behandlingId, TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV, referanser, erKlageOversendtBrevSent(),
+        opprettDokumentReferanseFor(behandlingId, TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV, referanser, erKlageOversendtBrevSent(),
             erKlageOversendtHistorikkInnslagOpprettet());
 
         resultat.getPåKlagdBehandlingId()
-            .ifPresent(b -> hentDokumentReferanseFor(b, TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK, referanser, erVedtakDokument(),
+            .ifPresent(b -> opprettDokumentReferanseFor(b, TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK, referanser, erVedtakDokument(),
                 erVedtakHistorikkInnslagOpprettet()));
 
-        finnMottattDokumentFor(behandlingId, erKlageEllerAnkeDokument()).map(MottattDokument::getJournalpostId)
+        finnMottattDokumentFor(behandlingId, erKlageEllerAnkeDokument())
+            .map(MottattDokument::getJournalpostId)
+            .distinct()
             .forEach(opprettDokumentReferanse(referanser, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE));
 
         resultat.getPåKlagdBehandlingId()
-            .ifPresent(b -> finnMottattDokumentFor(b, erSøknadDokument()).map(MottattDokument::getJournalpostId)
+            .ifPresent(b -> finnMottattDokumentFor(b, erSøknadDokument())
+                .map(MottattDokument::getJournalpostId)
                 .distinct()
                 .forEach(opprettDokumentReferanse(referanser, TilKabalDto.DokumentReferanseType.BRUKERS_SOEKNAD)));
 
@@ -175,11 +178,11 @@ public class KabalTjeneste {
      * @param bestilltDokumentPredicate - predicate filter til å filtrere riktig dokument fra bestillte dokumenter.
      * @param historikkInnslagPredicate - predicate filter til å filtrere riktig dokument fra historikk innslag.
      */
-    private void hentDokumentReferanseFor(long behandlingId,
-                                          TilKabalDto.DokumentReferanseType referanseType,
-                                          List<TilKabalDto.DokumentReferanse> referanser,
-                                          Predicate<BehandlingDokumentBestiltEntitet> bestilltDokumentPredicate,
-                                          Predicate<HistorikkinnslagDokumentLink> historikkInnslagPredicate) {
+    private void opprettDokumentReferanseFor(long behandlingId,
+                                             TilKabalDto.DokumentReferanseType referanseType,
+                                             List<TilKabalDto.DokumentReferanse> referanser,
+                                             Predicate<BehandlingDokumentBestiltEntitet> bestilltDokumentPredicate,
+                                             Predicate<HistorikkinnslagDokumentLink> historikkInnslagPredicate) {
         hentBestilltDokumentFor(behandlingId, bestilltDokumentPredicate)
             .ifPresentOrElse(
                 opprettDokumentReferanse(referanser, referanseType),
