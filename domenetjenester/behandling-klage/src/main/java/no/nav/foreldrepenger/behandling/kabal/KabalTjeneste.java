@@ -39,7 +39,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
@@ -155,18 +154,23 @@ public class KabalTjeneste {
             .ifPresent(b -> opprettDokumentReferanseFor(b, TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK, referanser, erVedtakDokument(),
                 erVedtakHistorikkInnslagOpprettet()));
 
-        finnMottattDokumentFor(behandlingId, erKlageEllerAnkeDokument())
-            .map(MottattDokument::getJournalpostId)
-            .distinct()
-            .forEach(opprettDokumentReferanse(referanser, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE));
+        opprettDokumentReferanseFor(behandlingId, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE, referanser, erKlageEllerAnkeDokument());
 
         resultat.getPåKlagdBehandlingId()
-            .ifPresent(b -> finnMottattDokumentFor(b, erSøknadDokument())
-                .map(MottattDokument::getJournalpostId)
-                .distinct()
-                .forEach(opprettDokumentReferanse(referanser, TilKabalDto.DokumentReferanseType.BRUKERS_SOEKNAD)));
+            .ifPresent(
+                b -> opprettDokumentReferanseFor(behandlingId, TilKabalDto.DokumentReferanseType.BRUKERS_SOEKNAD, referanser, erSøknadDokument()));
 
         return referanser;
+    }
+
+    private void opprettDokumentReferanseFor(long behandlingId,
+                                             TilKabalDto.DokumentReferanseType referanseType,
+                                             List<TilKabalDto.DokumentReferanse> referanser,
+                                             Predicate<MottattDokument> mottattDokumentPredicate) {
+        finnMottattDokumentFor(behandlingId, mottattDokumentPredicate)
+            .map(MottattDokument::getJournalpostId)
+            .distinct()
+            .forEach(opprettDokumentReferanse(referanser, referanseType));
     }
 
     /**
@@ -184,10 +188,8 @@ public class KabalTjeneste {
                                              Predicate<BehandlingDokumentBestiltEntitet> bestilltDokumentPredicate,
                                              Predicate<HistorikkinnslagDokumentLink> historikkInnslagPredicate) {
         hentBestilltDokumentFor(behandlingId, bestilltDokumentPredicate)
-            .ifPresentOrElse(
-                opprettDokumentReferanse(referanser, referanseType),
-                () -> hentDokumentFraHistorikkFor(behandlingId, historikkInnslagPredicate).ifPresent(opprettDokumentReferanse(referanser, referanseType))
-            );
+            .or(() -> hentDokumentFraHistorikkFor(behandlingId, historikkInnslagPredicate))
+            .ifPresent(opprettDokumentReferanse(referanser, referanseType));
     }
 
     private Optional<JournalpostId> hentBestilltDokumentFor(long behandlingId, Predicate<BehandlingDokumentBestiltEntitet> filterPredicate) {
