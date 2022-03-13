@@ -104,6 +104,9 @@ public enum DokumentMalType implements Kodeverdi {
     ETTERLYS_INNTEKTSMELDING_FRITEKST("INNLYS", "Etterlys inntektsmelding"),
     ;
 
+    public static final Set<DokumentMalType> VEDTAKSBREV = Set.of(ENGANGSSTØNAD_INNVILGELSE, ENGANGSSTØNAD_AVSLAG, FORELDREPENGER_INNVILGELSE,
+        FORELDREPENGER_AVSLAG, FORELDREPENGER_OPPHØR, SVANGERSKAPSPENGER_INNVILGELSE, SVANGERSKAPSPENGER_AVSLAG, SVANGERSKAPSPENGER_OPPHØR);
+
     private static final Map<String, DokumentMalType> KODER = new LinkedHashMap<>();
 
     static {
@@ -149,9 +152,7 @@ public enum DokumentMalType implements Kodeverdi {
     }
 
     public static boolean erVedtaksBrev(DokumentMalType brev) {
-        return Set.of(ENGANGSSTØNAD_INNVILGELSE, ENGANGSSTØNAD_AVSLAG,
-            FORELDREPENGER_INNVILGELSE, FORELDREPENGER_AVSLAG, FORELDREPENGER_OPPHØR,
-            SVANGERSKAPSPENGER_INNVILGELSE, SVANGERSKAPSPENGER_AVSLAG, SVANGERSKAPSPENGER_OPPHØR).contains(brev);
+        return VEDTAKSBREV.contains(brev);
     }
 
     public static boolean erKlageVedtaksBrev(DokumentMalType brev) {
