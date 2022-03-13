@@ -6,13 +6,16 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -27,6 +30,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
+    private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private KabalTjeneste kabalTjeneste;
 
     MottaFraKabalTask() {
@@ -37,12 +41,14 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
     public MottaFraKabalTask(BehandlingRepositoryProvider repositoryProvider,
                              BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                              BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
+                             BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                              KabalTjeneste kabalTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.kabalTjeneste = kabalTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
+        this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
     }
 
     @Override
@@ -68,10 +74,20 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             }
             if (KabalUtfall.RETUR.equals(utfall)) {
                 behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.KLAGE_NFP);
+                endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(behandling);
             } else {
                 kabalTjeneste.lagreKlageUtfallFraKabal(behandling, utfall);
             }
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
         }
+    }
+
+    private void endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(Behandling behandling) {
+        if ((behandling.getBehandlendeEnhet() != null)
+            && !BehandlendeEnhetTjeneste.getKlageInstans().enhetId().equals(behandling.getBehandlendeEnhet())) {
+            return;
+        }
+        var tilEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());
+        behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, tilEnhet, HistorikkAktør.VEDTAKSLØSNINGEN, "");
     }
 }
