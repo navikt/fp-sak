@@ -98,6 +98,7 @@ public class FatteVedtakTjeneste {
         verifiserBehandlingsresultat(behandling);
 
         if (KlageAnkeVedtakTjeneste.behandlingErKlageEllerAnke(behandling) && klageAnkeVedtakTjeneste.erBehandletAvKabal(behandling)) {
+            vedtakTjeneste.lagHistorikkinnslagFattVedtak(behandling);
             behandlingVedtakTjeneste.opprettBehandlingVedtak(kontekst, behandling);
             opprettLagretVedtak(behandling);
             return BehandleStegResultat.utførtUtenAksjonspunkter();

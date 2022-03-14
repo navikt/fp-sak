@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -23,8 +24,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentBestiltEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
@@ -39,6 +44,7 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
@@ -104,17 +110,12 @@ public class KabalTjeneste {
     }
 
     public void lagreKlageUtfallFraKabal(Behandling behandling, KabalUtfall utfall) {
-        var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, KlageVurdertAv.NK);
-        switch (utfall) {
-            case STADFESTELSE -> builder.medKlageVurdering(KlageVurdering.STADFESTE_YTELSESVEDTAK);
-            case AVVIST -> builder.medKlageVurdering(KlageVurdering.AVVIS_KLAGE);
-            case OPPHEVET -> builder.medKlageVurdering(KlageVurdering.OPPHEVE_YTELSESVEDTAK);
-            case MEDHOLD -> builder.medKlageVurdering(KlageVurdering.MEDHOLD_I_KLAGE).medKlageVurderingOmgjør(KlageVurderingOmgjør.GUNST_MEDHOLD_I_KLAGE);
-            case DELVIS_MEDHOLD -> builder.medKlageVurdering(KlageVurdering.MEDHOLD_I_KLAGE).medKlageVurderingOmgjør(KlageVurderingOmgjør.DELVIS_MEDHOLD_I_KLAGE);
-            case UGUNST -> builder.medKlageVurdering(KlageVurdering.MEDHOLD_I_KLAGE).medKlageVurderingOmgjør(KlageVurderingOmgjør.UGUNST_MEDHOLD_I_KLAGE);
-            default -> throw new IllegalStateException(String.format("Utviklerfeil forsøker lagre klage %s med utfall %s", behandling.getId(), utfall));
-        }
-        klageVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, builder.medGodkjentAvMedunderskriver(true), KlageVurdertAv.NK);
+        var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, KlageVurdertAv.NK)
+            .medGodkjentAvMedunderskriver(true)
+            .medKlageVurdering(vurderingFraUtfall(utfall))
+            .medKlageVurderingOmgjør(vurderingOmgjørFraUtfall(utfall));
+        klageVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, builder, KlageVurdertAv.NK);
+        opprettHistorikkinnslag(behandling, utfall);
     }
 
 
@@ -241,5 +242,57 @@ public class KabalTjeneste {
 
     private Predicate<HistorikkinnslagDokumentLink> erVedtakHistorikkInnslagOpprettet() {
         return d -> DokumentMalType.VEDTAKSBREV.stream().anyMatch(malType -> d.getLinkTekst().equals(malType.getNavn()));
+    }
+
+    private void opprettHistorikkinnslag(Behandling behandling, KabalUtfall utfall) {
+        var klageVurdering = vurderingFraUtfall(utfall);
+        var klageVurderingOmgjør = vurderingOmgjørFraUtfall(utfall);
+
+        var resultat = KlageVurderingTjeneste.historikkResultatForKlageVurdering(klageVurdering, KlageVurdertAv.NK, klageVurderingOmgjør);
+
+        var builder = new HistorikkInnslagTekstBuilder()
+            .medHendelse(HistorikkinnslagType.KLAGE_BEH_NK)
+            .medEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_KA, null, resultat.getNavn());;
+        var historikkinnslag = new Historikkinnslag();
+        historikkinnslag.setType(HistorikkinnslagType.KLAGE_BEH_NK);
+        historikkinnslag.setBehandlingId(behandling.getId());
+        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
+        builder.build(historikkinnslag);
+
+        historikkRepository.lagre(historikkinnslag);
+    }
+
+    private KlageVurdering vurderingFraUtfall(KabalUtfall utfall) {
+        return switch (utfall) {
+            case STADFESTELSE -> KlageVurdering.STADFESTE_YTELSESVEDTAK;
+            case AVVIST -> KlageVurdering.AVVIS_KLAGE;
+            case OPPHEVET -> KlageVurdering.OPPHEVE_YTELSESVEDTAK;
+            case MEDHOLD -> KlageVurdering.MEDHOLD_I_KLAGE;
+            case DELVIS_MEDHOLD -> KlageVurdering.MEDHOLD_I_KLAGE;
+            case UGUNST -> KlageVurdering.MEDHOLD_I_KLAGE;
+            default -> throw new IllegalStateException("Utviklerfeil forsøker lagre klage med utfall " + utfall);
+        };
+    }
+
+    private KlageVurderingOmgjør vurderingOmgjørFraUtfall(KabalUtfall utfall) {
+        return switch (utfall) {
+            case MEDHOLD -> KlageVurderingOmgjør.GUNST_MEDHOLD_I_KLAGE;
+            case DELVIS_MEDHOLD -> KlageVurderingOmgjør.DELVIS_MEDHOLD_I_KLAGE;
+            case UGUNST -> KlageVurderingOmgjør.UGUNST_MEDHOLD_I_KLAGE;
+            default -> KlageVurderingOmgjør.UDEFINERT;
+        };
+    }
+
+    public void lagHistorikkinnslagForHenleggelse(Long behandlingsId, BehandlingResultatType aarsak) {
+        var builder = new HistorikkInnslagTekstBuilder()
+            .medHendelse(HistorikkinnslagType.AVBRUTT_BEH)
+            .medÅrsak(aarsak);
+        var historikkinnslag = new Historikkinnslag();
+        historikkinnslag.setType(HistorikkinnslagType.AVBRUTT_BEH);
+        historikkinnslag.setBehandlingId(behandlingsId);
+        builder.build(historikkinnslag);
+
+        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
+        historikkRepository.lagre(historikkinnslag);
     }
 }

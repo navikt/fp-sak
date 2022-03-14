@@ -67,7 +67,11 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (KabalUtfall.TRUKKET.equals(utfall)) {
+            if (behandling.isBehandlingPåVent()) {
+                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(behandling, kontekst);
+            }
             behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
+            kabalTjeneste.lagHistorikkinnslagForHenleggelse(behandlingId, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
         } else {
             if (behandling.isBehandlingPåVent()) { // Autopunkt
                 behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
