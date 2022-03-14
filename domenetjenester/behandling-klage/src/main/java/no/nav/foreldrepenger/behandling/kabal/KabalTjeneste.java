@@ -6,6 +6,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -20,6 +23,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentBestiltEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
@@ -32,8 +37,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjon
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
@@ -46,6 +51,7 @@ public class KabalTjeneste {
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private VergeRepository vergeRepository;
     private PersoninfoAdapter personinfoAdapter;
+    private HistorikkRepository historikkRepository;
     private KabalKlient kabalKlient;
 
     KabalTjeneste() {
@@ -60,7 +66,8 @@ public class KabalTjeneste {
                          BehandlingDokumentRepository behandlingDokumentRepository,
                          VergeRepository vergeRepository,
                          AnkeVurderingTjeneste ankeVurderingTjeneste,
-                         KlageVurderingTjeneste klageVurderingTjeneste) {
+                         KlageVurderingTjeneste klageVurderingTjeneste,
+                         HistorikkRepository historikkRepository) {
         this.personinfoAdapter = personinfoAdapter;
         this.ankeVurderingTjeneste = ankeVurderingTjeneste;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
@@ -68,6 +75,7 @@ public class KabalTjeneste {
         this.mottatteDokumentRepository = mottatteDokumentRepository;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.vergeRepository = vergeRepository;
+        this.historikkRepository = historikkRepository;
         this.kabalKlient = kabalKlient;
     }
 
@@ -90,7 +98,7 @@ public class KabalTjeneste {
             .map(Behandling::getBehandlendeEnhet).orElseThrow();
         var klageMottattDato  = utledDokumentMottattDato(behandling);
         var klager = utledKlager(behandling, resultat.getKlageResultat());
-        var request = TilKabalDto.klage(behandling, klager, enhet, finnDokumentReferanser(behandling, resultat.getKlageResultat()),
+        var request = TilKabalDto.klage(behandling, klager, enhet, finnDokumentReferanser(behandling.getId(), resultat.getKlageResultat()),
             klageMottattDato, klageMottattDato, List.of(brukHjemmel.getKabal()), resultat.getBegrunnelse());
         kabalKlient.sendTilKabal(request);
     }
@@ -124,42 +132,114 @@ public class KabalTjeneste {
     }
 
     private LocalDate utledDokumentMottattDato(Behandling behandling) {
-        return finnKlageAnkeDokument(behandling).stream()
+        return finnMottattDokumentFor(behandling.getId(), erKlageEllerAnkeDokument())
             .map(MottattDokument::getMottattDato)
             .min(Comparator.naturalOrder())
             .orElseGet(() -> behandling.getOpprettetDato().toLocalDate());
     }
 
-    private List<MottattDokument> finnKlageAnkeDokument(Behandling behandling) {
-        return mottatteDokumentRepository.hentMottatteDokument(behandling.getId()).stream()
-            .filter(d -> DokumentTypeId.KLAGE_DOKUMENT.equals(d.getDokumentType()) || DokumentKategori.KLAGE_ELLER_ANKE.equals(d.getDokumentKategori()))
-            .toList();
+    private Stream<MottattDokument> finnMottattDokumentFor(long behandlingId, Predicate<MottattDokument> filterPredicate) {
+        return mottatteDokumentRepository.hentMottatteDokument(behandlingId)
+            .stream()
+            .filter(filterPredicate);
     }
 
-    private List<TilKabalDto.DokumentReferanse> finnDokumentReferanser(Behandling behandling, KlageResultatEntitet resultat) {
+    protected List<TilKabalDto.DokumentReferanse> finnDokumentReferanser(long behandlingId, KlageResultatEntitet resultat) {
         List<TilKabalDto.DokumentReferanse> referanser = new ArrayList<>();
-        behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
-            .map(BehandlingDokumentEntitet::getBestilteDokumenter).orElse(List.of()).stream()
-            .filter(d -> DokumentMalType.KLAGE_OVERSENDT.getKode().equals(d.getDokumentMalType()))
-            .map(BehandlingDokumentBestiltEntitet::getJournalpostId)
-            .filter(Objects::nonNull)
-            .findFirst()
-            .ifPresent(j -> referanser.add(new TilKabalDto.DokumentReferanse(j.getVerdi(), TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV)));
-        finnKlageAnkeDokument(behandling).stream()
-            .map(MottattDokument::getJournalpostId)
-            .forEach(j -> referanser.add(new TilKabalDto.DokumentReferanse(j.getVerdi(), TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE)));
-        resultat.getPåKlagdBehandlingId().flatMap(b -> behandlingDokumentRepository.hentHvisEksisterer(b))
-            .map(BehandlingDokumentEntitet::getBestilteDokumenter).orElse(List.of()).stream()
-            .filter(d -> d.getDokumentMalType() != null && DokumentMalType.erVedtaksBrev(DokumentMalType.fraKode(d.getDokumentMalType())))
-            .map(BehandlingDokumentBestiltEntitet::getJournalpostId)
-            .filter(Objects::nonNull)
-            .findFirst()
-            .ifPresent(j -> referanser.add(new TilKabalDto.DokumentReferanse(j.getVerdi(), TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK)));
-        resultat.getPåKlagdBehandlingId().map(b -> mottatteDokumentRepository.hentMottatteDokument(b)).orElse(List.of()).stream()
-            .filter(MottattDokument::erSøknadsDokument)
+
+        opprettDokumentReferanseFor(behandlingId, TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV, referanser, erKlageOversendtBrevSent(),
+            erKlageOversendtHistorikkInnslagOpprettet());
+
+        resultat.getPåKlagdBehandlingId()
+            .ifPresent(b -> opprettDokumentReferanseFor(b, TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK, referanser, erVedtakDokument(),
+                erVedtakHistorikkInnslagOpprettet()));
+
+        opprettDokumentReferanseFor(behandlingId, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE, referanser, erKlageEllerAnkeDokument());
+
+        resultat.getPåKlagdBehandlingId()
+            .ifPresent(
+                b -> opprettDokumentReferanseFor(behandlingId, TilKabalDto.DokumentReferanseType.BRUKERS_SOEKNAD, referanser, erSøknadDokument()));
+
+        return referanser;
+    }
+
+    private void opprettDokumentReferanseFor(long behandlingId,
+                                             TilKabalDto.DokumentReferanseType referanseType,
+                                             List<TilKabalDto.DokumentReferanse> referanser,
+                                             Predicate<MottattDokument> mottattDokumentPredicate) {
+        finnMottattDokumentFor(behandlingId, mottattDokumentPredicate)
             .map(MottattDokument::getJournalpostId)
             .distinct()
-            .forEach(j -> referanser.add(new TilKabalDto.DokumentReferanse(j.getVerdi(), TilKabalDto.DokumentReferanseType.BRUKERS_SOEKNAD)));
-        return referanser;
+            .forEach(opprettDokumentReferanse(referanser, referanseType));
+    }
+
+    /**
+     * Prøver å finne dokumentReferanse blant bestillte dokumenter i fpformidling - om refereansen ikke finnes
+     * så skanner man gjennom historikk innslag til å finne riktig referanse der.
+     * @param behandlingId - Behandling referanse.
+     * @param referanseType - Hva slags referanseType skal opprettes som resultat.
+     * @param referanser - resultat list med referanser.
+     * @param bestilltDokumentPredicate - predicate filter til å filtrere riktig dokument fra bestillte dokumenter.
+     * @param historikkInnslagPredicate - predicate filter til å filtrere riktig dokument fra historikk innslag.
+     */
+    private void opprettDokumentReferanseFor(long behandlingId,
+                                             TilKabalDto.DokumentReferanseType referanseType,
+                                             List<TilKabalDto.DokumentReferanse> referanser,
+                                             Predicate<BehandlingDokumentBestiltEntitet> bestilltDokumentPredicate,
+                                             Predicate<HistorikkinnslagDokumentLink> historikkInnslagPredicate) {
+        hentBestilltDokumentFor(behandlingId, bestilltDokumentPredicate)
+            .or(() -> hentDokumentFraHistorikkFor(behandlingId, historikkInnslagPredicate))
+            .ifPresent(opprettDokumentReferanse(referanser, referanseType));
+    }
+
+    private Optional<JournalpostId> hentBestilltDokumentFor(long behandlingId, Predicate<BehandlingDokumentBestiltEntitet> filterPredicate) {
+        return behandlingDokumentRepository.hentHvisEksisterer(behandlingId)
+            .map(BehandlingDokumentEntitet::getBestilteDokumenter)
+            .orElse(List.of())
+            .stream()
+            .filter(filterPredicate)
+            .map(BehandlingDokumentBestiltEntitet::getJournalpostId)
+            .filter(Objects::nonNull)
+            .findFirst();
+    }
+
+    private Optional<JournalpostId> hentDokumentFraHistorikkFor(long behandlingId, Predicate<HistorikkinnslagDokumentLink> filterPredicate) {
+        return historikkRepository.hentHistorikk(behandlingId)
+            .stream()
+            .flatMap(h -> h.getDokumentLinker().stream())
+            .filter(filterPredicate)
+            .map(HistorikkinnslagDokumentLink::getJournalpostId)
+            .filter(Objects::nonNull)
+            .distinct()
+            .findFirst();
+    }
+
+    private Consumer<JournalpostId> opprettDokumentReferanse(List<TilKabalDto.DokumentReferanse> referanser,
+                                                             TilKabalDto.DokumentReferanseType referanseType) {
+        return j -> referanser.add(new TilKabalDto.DokumentReferanse(j.getVerdi(), referanseType));
+    }
+
+    private Predicate<MottattDokument> erSøknadDokument() {
+        return MottattDokument::erSøknadsDokument;
+    }
+
+    private Predicate<MottattDokument> erKlageEllerAnkeDokument() {
+        return d -> DokumentTypeId.KLAGE_DOKUMENT.equals(d.getDokumentType()) || DokumentKategori.KLAGE_ELLER_ANKE.equals(d.getDokumentKategori());
+    }
+
+    private Predicate<BehandlingDokumentBestiltEntitet> erKlageOversendtBrevSent() {
+        return d -> DokumentMalType.KLAGE_OVERSENDT.getKode().equals(d.getDokumentMalType());
+    }
+
+    private Predicate<BehandlingDokumentBestiltEntitet> erVedtakDokument() {
+        return d -> d.getDokumentMalType() != null && DokumentMalType.erVedtaksBrev(DokumentMalType.fraKode(d.getDokumentMalType()));
+    }
+
+    private Predicate<HistorikkinnslagDokumentLink> erKlageOversendtHistorikkInnslagOpprettet() {
+        return d -> d.getLinkTekst().equals(DokumentMalType.KLAGE_OVERSENDT.getNavn());
+    }
+
+    private Predicate<HistorikkinnslagDokumentLink> erVedtakHistorikkInnslagOpprettet() {
+        return d -> DokumentMalType.VEDTAKSBREV.stream().anyMatch(malType -> d.getLinkTekst().equals(malType.getNavn()));
     }
 }
