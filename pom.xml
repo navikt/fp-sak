@@ -46,7 +46,7 @@
         <prosesstask.version>3.1.7</prosesstask.version>
         <fp-jms.version>2.1.2</fp-jms.version>
 
-        <fp-kontrakter.version>6.1.14</fp-kontrakter.version>
+        <fp-kontrakter.version>6.1.18</fp-kontrakter.version>
         <fp-tidsserie.version>2.5.8</fp-tidsserie.version>
         <fp-nare.version>2.1.5</fp-nare.version>
         <abakus-kontrakt.version>1.3.28</abakus-kontrakt.version>
@@ -214,6 +214,11 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.kontrakter</groupId>
                 <artifactId>fp-formidling-v1</artifactId>
+                <version>${fp-kontrakter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+                <artifactId>fp-sak-v1</artifactId>
                 <version>${fp-kontrakter.version}</version>
             </dependency>
             <dependency>

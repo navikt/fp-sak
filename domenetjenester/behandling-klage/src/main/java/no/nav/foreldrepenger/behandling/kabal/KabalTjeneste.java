@@ -118,7 +118,6 @@ public class KabalTjeneste {
         klageVurderingTjeneste.oppdaterKlageMedKabalReferanse(behandling.getId(), null);
     }
 
-
     private TilKabalDto.Klager utledKlager(Behandling behandling, KlageResultatEntitet resultat) {
         var verge = vergeRepository.hentAggregat(behandling.getId())
             .or(() -> resultat.getPåKlagdBehandlingId().flatMap(b -> vergeRepository.hentAggregat(b)))
@@ -129,7 +128,6 @@ public class KabalTjeneste {
             .map(p -> new TilKabalDto.Fullmektig(p, true));
         var klagerPart = new TilKabalDto.Part(TilKabalDto.PartsType.PERSON, personinfoAdapter.hentFnr(behandling.getAktørId()).map(PersonIdent::getIdent).orElseThrow());
         return new TilKabalDto.Klager(klagerPart, verge.orElse(null));
-
     }
 
     private LocalDate utledDokumentMottattDato(Behandling behandling) {
