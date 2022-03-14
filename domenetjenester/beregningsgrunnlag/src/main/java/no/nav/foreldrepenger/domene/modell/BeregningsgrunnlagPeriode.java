@@ -166,7 +166,9 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
     }
 
     public List<PeriodeÅrsak> getPeriodeÅrsaker() {
-        return beregningsgrunnlagPeriodeÅrsaker.stream().map(BeregningsgrunnlagPeriodeÅrsak::getPeriodeÅrsak).collect(Collectors.toList());
+        return beregningsgrunnlagPeriodeÅrsaker.stream()
+            .map(BeregningsgrunnlagPeriodeÅrsak::getPeriodeÅrsak)
+            .collect(Collectors.toList());
     }
 
     void addBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel bgPrStatusOgAndel) {
