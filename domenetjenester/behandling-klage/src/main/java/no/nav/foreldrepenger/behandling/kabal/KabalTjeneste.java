@@ -144,7 +144,7 @@ public class KabalTjeneste {
             .filter(filterPredicate);
     }
 
-    protected List<TilKabalDto.DokumentReferanse> finnDokumentReferanser(long behandlingId, KlageResultatEntitet resultat) {
+    List<TilKabalDto.DokumentReferanse> finnDokumentReferanser(long behandlingId, KlageResultatEntitet resultat) {
         List<TilKabalDto.DokumentReferanse> referanser = new ArrayList<>();
 
         opprettDokumentReferanseFor(behandlingId, TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV, referanser, erKlageOversendtBrevSent(),
@@ -158,7 +158,7 @@ public class KabalTjeneste {
 
         resultat.getPåKlagdBehandlingId()
             .ifPresent(
-                b -> opprettDokumentReferanseFor(behandlingId, TilKabalDto.DokumentReferanseType.BRUKERS_SOEKNAD, referanser, erSøknadDokument()));
+                b -> opprettDokumentReferanseFor(b, TilKabalDto.DokumentReferanseType.BRUKERS_SOEKNAD, referanser, erSøknadDokument()));
 
         return referanser;
     }

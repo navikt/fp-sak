@@ -146,12 +146,13 @@ class KabalTjenesteTest {
     @Test
     void finnerSøknadDokumentFraMottatteDokumenter() {
         var behandlingId = 1234L;
-        var påKlagdBehandling = 1234L;
+        var påKlagdBehandling = 5432L;
         var journalpost = new JournalpostId("87654");
 
         MottattDokument dokumentMottatt = opprettMottattDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, påKlagdBehandling, journalpost);
 
         when(mottatteDokumentRepository.hentMottatteDokument(påKlagdBehandling)).thenReturn(List.of(dokumentMottatt));
+        when(mottatteDokumentRepository.hentMottatteDokument(behandlingId)).thenReturn(List.of());
 
         var dokumentReferanses = kabalTjeneste.finnDokumentReferanser(behandlingId,
             KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandling).build());
