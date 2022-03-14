@@ -77,6 +77,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
                 behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
             }
             if (KabalUtfall.RETUR.equals(utfall)) {
+                kabalTjeneste.fjerneKabalFlagg(behandling);
                 behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.KLAGE_NFP);
                 endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(behandling);
             } else {
