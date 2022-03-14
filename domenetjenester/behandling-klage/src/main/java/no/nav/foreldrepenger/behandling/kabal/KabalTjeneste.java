@@ -90,10 +90,6 @@ public class KabalTjeneste {
             throw new IllegalArgumentException("Utviklerfeil: Prøver sende noe annet enn klage/anke til Kabal!");
         }
         var resultat = klageVurderingTjeneste.hentKlageVurderingResultat(behandling, KlageVurdertAv.NFP).orElseThrow();
-        if (resultat.getKlageResultat().erBehandletAvKabal()) {
-            // Reset flagg før ny oversendelse
-            klageVurderingTjeneste.oppdaterKlageMedKabalReferanse(behandling.getId(), null);
-        }
         var brukHjemmel = Optional.ofNullable(hjemmel)
             .or(() -> Optional.ofNullable(resultat.getKlageHjemmel()))
             .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(behandling.getFagsakYtelseType()));
@@ -116,6 +112,10 @@ public class KabalTjeneste {
             .medKlageVurderingOmgjør(vurderingOmgjørFraUtfall(utfall));
         klageVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, builder, KlageVurdertAv.NK);
         opprettHistorikkinnslag(behandling, utfall);
+    }
+
+    public void fjerneKabalFlagg(Behandling behandling) {
+        klageVurderingTjeneste.oppdaterKlageMedKabalReferanse(behandling.getId(), null);
     }
 
 

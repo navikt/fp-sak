@@ -72,7 +72,7 @@ public class HenleggBehandlingTjeneste {
         behandlingskontrollTjeneste.henleggBehandling(kontekst, årsakKode);
 
         if (BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET.equals(årsakKode)
-                || (BehandlingResultatType.HENLAGT_KLAGE_TRUKKET.equals(årsakKode) )
+                || BehandlingResultatType.HENLAGT_KLAGE_TRUKKET.equals(årsakKode)
                 || BehandlingResultatType.HENLAGT_INNSYN_TRUKKET.equals(årsakKode)) {
             sendHenleggelsesbrev(behandling.getId(), behandling.getUuid(), HistorikkAktør.VEDTAKSLØSNINGEN);
         } else if (BehandlingResultatType.MANGLER_BEREGNINGSREGLER.equals(årsakKode)) {
