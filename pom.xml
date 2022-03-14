@@ -217,11 +217,6 @@
                 <version>${fp-kontrakter.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.foreldrepenger.kontrakter</groupId>
-                <artifactId>fp-sak-v1</artifactId>
-                <version>${fp-kontrakter.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>no.nav.foreldrepenger.abakus</groupId>
                 <artifactId>abakus-kontrakt</artifactId>
                 <version>${abakus-kontrakt.version}</version>
