@@ -15,10 +15,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -190,5 +192,33 @@ public class KlageVurderingTjeneste {
         var lås = behandlingRepository.taSkriveLås(behandling);
         behandling.setBehandlingstidFrist(LocalDate.now().plusWeeks(14));
         behandlingRepository.lagre(behandling, lås);
+    }
+
+    public static HistorikkResultatType historikkResultatForKlageVurdering(KlageVurdering vurdering, KlageVurdertAv vurdertAv, KlageVurderingOmgjør klageVurderingOmgjør) {
+        if (KlageVurdering.AVVIS_KLAGE.equals(vurdering)) {
+            return HistorikkResultatType.AVVIS_KLAGE;
+        }
+        if (KlageVurdering.MEDHOLD_I_KLAGE.equals(vurdering)) {
+            if (KlageVurderingOmgjør.DELVIS_MEDHOLD_I_KLAGE.equals(klageVurderingOmgjør)) {
+                return HistorikkResultatType.DELVIS_MEDHOLD_I_KLAGE;
+            }
+            if (KlageVurderingOmgjør.UGUNST_MEDHOLD_I_KLAGE.equals(klageVurderingOmgjør)) {
+                return HistorikkResultatType.UGUNST_MEDHOLD_I_KLAGE;
+            }
+            return HistorikkResultatType.MEDHOLD_I_KLAGE;
+        }
+        if (KlageVurdering.OPPHEVE_YTELSESVEDTAK.equals(vurdering)) {
+            return HistorikkResultatType.OPPHEVE_VEDTAK;
+        }
+        if (KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE.equals(vurdering)) {
+            return HistorikkResultatType.KLAGE_HJEMSENDE_UTEN_OPPHEVE;
+        }
+        if (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(vurdering)) {
+            if (KlageVurdertAv.NFP.equals(vurdertAv)) {
+                return HistorikkResultatType.OPPRETTHOLDT_VEDTAK;
+            }
+            return HistorikkResultatType.STADFESTET_VEDTAK;
+        }
+        return null;
     }
 }

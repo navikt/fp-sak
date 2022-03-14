@@ -103,7 +103,7 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
             årsak = dto.getKlageAvvistArsak();
         }
 
-        var resultat = konverterKlageVurderingTilResultatType(klageVurdering, erNfpAksjonspunkt, klageVurderingOmgjør);
+        var resultat = KlageVurderingTjeneste.historikkResultatForKlageVurdering(klageVurdering, erNfpAksjonspunkt ? KlageVurdertAv.NFP : KlageVurdertAv.NK, klageVurderingOmgjør);
         var historiebygger = new HistorikkInnslagTekstBuilder();
         if (erNfpAksjonspunkt) {
             historiebygger.medEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_NFP, null, resultat.getNavn());
