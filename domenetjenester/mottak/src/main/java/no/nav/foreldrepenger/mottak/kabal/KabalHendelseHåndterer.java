@@ -92,6 +92,8 @@ public class KabalHendelseHåndterer {
             task.setCallIdFraEksisterende();
             task.setProperty(MottaFraKabalTask.HENDELSETYPE_KEY, mottattHendelse.type().name());
             task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().klagebehandlingAvsluttet().utfall().name());
+            mottattHendelse.detaljer().klagebehandlingAvsluttet().journalpostReferanser().stream()
+                .findFirst().ifPresent(journalpost -> task.setProperty(MottaFraKabalTask.JOURNALPOST_KEY, journalpost));
             taskTjeneste.lagre(task);
         } catch (VLException e) {
             LOG.info("FP-328773 KABAL Feil under parsing av vedtak. key={} payload={}", key, payload, e);

@@ -15,6 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -26,12 +28,14 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
 
     public static final String HENDELSETYPE_KEY = "hendelse";
     public static final String UTFALL_KEY = "utfall";
+    public static final String JOURNALPOST_KEY = "journalpostId";
 
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private KabalTjeneste kabalTjeneste;
+    private DokumentArkivTjeneste dokumentArkivTjeneste;
 
     MottaFraKabalTask() {
         // for CDI proxy
@@ -42,6 +46,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
                              BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                              BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                              BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
+                             DokumentArkivTjeneste dokumentArkivTjeneste,
                              KabalTjeneste kabalTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -49,6 +54,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
+        this.dokumentArkivTjeneste = dokumentArkivTjeneste;
     }
 
     @Override
@@ -66,6 +72,9 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         }
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var journalpost = Optional.ofNullable(prosessTaskData.getPropertyValue(JOURNALPOST_KEY))
+            .map(JournalpostId::new)
+            .flatMap(j -> dokumentArkivTjeneste.hentUtgåendeJournalpostForSak(j));
         if (KabalUtfall.TRUKKET.equals(utfall)) {
             if (behandling.isBehandlingPåVent()) {
                 behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(behandling, kontekst);
@@ -85,6 +94,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             }
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
         }
+        journalpost.ifPresent(j -> kabalTjeneste.lagHistorikkinnslagForBrevSendt(behandling, j));
     }
 
     private void endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(Behandling behandling) {
