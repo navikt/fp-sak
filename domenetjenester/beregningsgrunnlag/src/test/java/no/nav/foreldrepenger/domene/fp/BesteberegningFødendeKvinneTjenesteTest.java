@@ -69,12 +69,11 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     @Mock
     private BeregningsresultatRepository beregningsresultatRepository;
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
-    private Behandling behandling;
     private AbakusInMemoryInntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     @BeforeEach
     public void setUp() {
-        behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
+        Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         behandlingReferanse = BehandlingReferanse.fra(behandling);
         inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandlingReferanse.getBehandlingId(),
