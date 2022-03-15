@@ -19,7 +19,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
@@ -56,13 +58,13 @@ public class BeregningsgrunnlagRepositoryTest {
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now().minusDays(5);
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BehandlingRepository behandlingRepository;
-    private FagsakBehandlingBuilder behandlingBuilder;
+    private BehandlingRepositoryProvider behandlingRepositoryProvider;
 
     @BeforeEach
     public void setup(EntityManager entityManager) {
         beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
-        behandlingBuilder = new FagsakBehandlingBuilder(entityManager);
+        behandlingRepositoryProvider = new BehandlingRepositoryProvider(entityManager);
     }
 
     @Test
@@ -460,7 +462,7 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     private Behandling opprettBehandling() {
-        return behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
+        return ScenarioMorSøkerForeldrepenger.forFødsel().lagre(behandlingRepositoryProvider);
     }
 
     @Test

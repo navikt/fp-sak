@@ -14,8 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
-import no.nav.foreldrepenger.domene.prosess.testutilities.behandling.ScenarioForeldrepenger;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
@@ -30,13 +31,12 @@ public class RyddBeregningsgrunnlagTest {
 
     @BeforeEach
     public void setup(EntityManager entityManager) {
-        var repositoryProvider = new RepositoryProvider(entityManager);
-        beregningsgrunnlagRepository = repositoryProvider.getBeregningsgrunnlagRepository();
+        beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
 
-        var scenario = ScenarioForeldrepenger.nyttScenario();
-        referanse = BehandlingReferanse.fra(scenario.lagre(repositoryProvider));
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(new BehandlingRepositoryProvider(entityManager));
+        referanse = BehandlingReferanse.fra(behandling);
         var kontekst = new BehandlingskontrollKontekst(referanse.getFagsakId(), AktørId.dummy(), new BehandlingLås(referanse.getId()));
-        ryddBeregningsgrunnlag = new RyddBeregningsgrunnlag(repositoryProvider.getBeregningsgrunnlagRepository(), kontekst);
+        ryddBeregningsgrunnlag = new RyddBeregningsgrunnlag(beregningsgrunnlagRepository, kontekst);
     }
 
     @Test
