@@ -93,8 +93,6 @@ public abstract class BeregningsgrunnlagInputFelles {
         if (opptjeningAktiviteter.isEmpty()) {
             throw new IllegalStateException("No value present: Fant ikke forventet OpptjeningAktiviteter for behandling.");
         }
-        var refusjonskravDatoer = inntektsmeldingTjeneste.hentAlleRefusjonskravDatoerForFagsak(ref.getSaksnummer());
-
         var inntektsmeldingDiff = inntektsmeldingTjeneste.hentInntektsmeldingDiffFraOriginalbehandling(ref);
         var inntektsmeldingDiffDto = inntektsmeldingDiff.stream().map(IAYMapperTilKalkulus::mapInntektsmeldingDto)
                 .collect(Collectors.toList());

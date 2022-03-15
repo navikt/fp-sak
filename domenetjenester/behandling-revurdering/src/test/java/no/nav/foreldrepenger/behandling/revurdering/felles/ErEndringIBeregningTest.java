@@ -109,6 +109,7 @@ public class ErEndringIBeregningTest {
     @Test
     public void skal_gi_ingen_endring_når_vi_har_like_mange_perioder_med_forskjellig_startdato() {
         // Arrange
+        // Originalgrunnlag
         var bgOrg = byggBeregningsgrunnlag(SKJÆRINGSTIDSPUNKT_BEREGNING, AktivitetStatus.ARBEIDSTAKER);
         var p1Org = byggBGPeriode(bgOrg, SKJÆRINGSTIDSPUNKT_BEREGNING, etterSTP(50));
         var p2Org = byggBGPeriode(bgOrg, etterSTP(51), Tid.TIDENES_ENDE);
