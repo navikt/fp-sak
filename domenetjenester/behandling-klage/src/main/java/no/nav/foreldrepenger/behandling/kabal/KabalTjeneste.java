@@ -305,11 +305,12 @@ public class KabalTjeneste {
 
         new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.BREV_SENT).medBegrunnelse("").build(historikkInnslag);
 
-        new HistorikkinnslagDokumentLink.Builder().medHistorikkinnslag(historikkInnslag)
+        var doklink = new HistorikkinnslagDokumentLink.Builder().medHistorikkinnslag(historikkInnslag)
             .medLinkTekst(journalPost.getTittel())
             .medDokumentId(journalPost.getDokumentId())
             .medJournalpostId(journalPost.getJournalpostId())
             .build();
+        historikkInnslag.setDokumentLinker(List.of(doklink));
 
         historikkRepository.lagre(historikkInnslag);
     }
