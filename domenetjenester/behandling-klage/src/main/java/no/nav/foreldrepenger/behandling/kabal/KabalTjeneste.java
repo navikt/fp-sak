@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
+import no.nav.foreldrepenger.dokumentarkiv.ArkivDokumentUtgående;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -293,4 +294,24 @@ public class KabalTjeneste {
         historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         historikkRepository.lagre(historikkinnslag);
     }
+
+    public void lagHistorikkinnslagForBrevSendt(Behandling behandling, ArkivDokumentUtgående journalPost) {
+        var historikkInnslag = new Historikkinnslag.Builder()
+            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(behandling.getId())
+            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+            .medType(HistorikkinnslagType.BREV_SENT)
+            .build();
+
+        new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.BREV_SENT).medBegrunnelse("").build(historikkInnslag);
+
+        new HistorikkinnslagDokumentLink.Builder().medHistorikkinnslag(historikkInnslag)
+            .medLinkTekst(journalPost.getTittel())
+            .medDokumentId(journalPost.getDokumentId())
+            .medJournalpostId(journalPost.getJournalpostId())
+            .build();
+
+        historikkRepository.lagre(historikkInnslag);
+    }
+
 }

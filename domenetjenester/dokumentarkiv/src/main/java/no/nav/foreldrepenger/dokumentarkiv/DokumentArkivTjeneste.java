@@ -139,6 +139,35 @@ public class DokumentArkivTjeneste {
         return Optional.ofNullable(resultat).map(this::mapTilArkivJournalPost);
     }
 
+    public Optional<ArkivDokumentUtgående> hentUtgåendeJournalpostForSak(JournalpostId journalpostId) {
+        var query = new JournalpostQueryRequest();
+        query.setJournalpostId(journalpostId.getVerdi());
+
+        var projection = new JournalpostResponseProjection()
+            .journalpostId()
+            .tittel()
+            .dokumenter(new DokumentInfoResponseProjection()
+                .dokumentInfoId()
+                .tittel()
+                .dokumentvarianter(new DokumentvariantResponseProjection().variantformat()));
+
+        var resultat = safKlient.hentJournalpostInfo(query, projection);
+
+        return Optional.ofNullable(resultat)
+            .map(Journalpost::getDokumenter).orElse(List.of()).stream()
+            .filter(d -> d.getDokumentvarianter().stream().filter(Objects::nonNull).anyMatch(v -> Variantformat.ARKIV.equals(v.getVariantformat())))
+            .map(d -> mapTilArkivDokumentUtgående(journalpostId, d))
+            .findFirst();
+    }
+
+    private ArkivDokumentUtgående mapTilArkivDokumentUtgående(JournalpostId journalpostId, DokumentInfo dokumentInfo) {
+        return ArkivDokumentUtgående.Builder.ny()
+            .medJournalpostId(journalpostId)
+            .medDokumentId(dokumentInfo.getDokumentInfoId())
+            .medTittel(dokumentInfo.getTittel())
+            .build();
+    }
+
     public Set<DokumentTypeId> hentDokumentTypeIdForSak(Saksnummer saksnummer, LocalDate mottattEtterDato) {
         if (LocalDate.MIN.equals(mottattEtterDato)) {
             return hentAlleJournalposterForSakSjekkCache(saksnummer).stream()
