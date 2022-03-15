@@ -180,7 +180,9 @@ public class KlageRestTjeneste {
                 .map(fk -> KlageRestTjeneste.mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient));
 
         return new KlagebehandlingDto(nfpFormkrav.orElse(null), nfpVurdering.orElse(null),
-            kaFormkrav.orElse(null), nkVurdering.orElse(null), KlageHjemmel.getHjemlerForYtelse(ytelseType), !ER_PROD);
+            kaFormkrav.orElse(null), nkVurdering.orElse(null), KlageHjemmel.getHjemlerForYtelse(ytelseType),
+            !ER_PROD, behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE),
+            klageResultat.erBehandletAvKabal());
     }
 
     private static KlageVurderingResultatDto mapKlageVurderingResultatDto(KlageVurderingResultat klageVurderingResultat) {
