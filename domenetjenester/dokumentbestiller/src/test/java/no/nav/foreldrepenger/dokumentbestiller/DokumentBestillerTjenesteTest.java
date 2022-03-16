@@ -19,15 +19,11 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.dokumentbestiller.formidling.DokumentBestiller;
-import no.nav.foreldrepenger.dokumentbestiller.kafka.DokumentKafkaBestiller;
 
 @ExtendWith(MockitoExtension.class)
 public class DokumentBestillerTjenesteTest {
     @Mock
     private HistorikkRepository historikkRepositoryMock;
-
-    @Mock
-    private DokumentKafkaBestiller dokumentKafkaBestiller;
 
     @Mock
     private DokumentBestiller dokumentBestiller;
@@ -43,13 +39,7 @@ public class DokumentBestillerTjenesteTest {
 
         var brevHistorikkinnslag = new BrevHistorikkinnslag(historikkRepositoryMock);
 
-        tjeneste = new DokumentBestillerTjeneste(
-                repositoryProvider.getBehandlingRepository(),
-                null,
-                null,
-                brevHistorikkinnslag,
-                dokumentKafkaBestiller,
-                dokumentBestiller);
+        tjeneste = new DokumentBestillerTjeneste(repositoryProvider.getBehandlingRepository(), null, null, brevHistorikkinnslag, dokumentBestiller);
     }
 
     @Test

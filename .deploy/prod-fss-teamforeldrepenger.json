@@ -19,7 +19,6 @@
     "KAFKA_AKSJONSPUNKTHENDELSE_TOPIC": "privat-foreldrepenger-aksjonspunkthendelse-p",
     "KAFKA_FATTEVEDTAK_TOPIC": "privat-familie-vedtakFattet-v1",
     "KAFKA_HISTORIKKINNSLAG_TOPIC": "privat-foreldrepenger-historikkinnslag",
-    "KAFKA_DOKUMENTBESTILLING_TOPIC": "privat-foreldrepenger-dokumenthendelse",
     "KAFKA_SAKOGBEHANDLING_TOPIC": "aapen-sob-oppgaveHendelse-v1",
     "KAFKA_KABAL_TOPIC":  "klage.behandling-events.v1",
     "SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.adeo.no",
