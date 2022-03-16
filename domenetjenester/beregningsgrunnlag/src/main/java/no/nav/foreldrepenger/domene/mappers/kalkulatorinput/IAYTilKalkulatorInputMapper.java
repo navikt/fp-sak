@@ -77,6 +77,7 @@ import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelse;
+import no.nav.foreldrepenger.domene.mappers.kodeverk.KodeverkTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -99,9 +100,10 @@ public class IAYTilKalkulatorInputMapper {
     public static ArbeidsforholdInformasjonDto mapTilArbeidsforholdInformasjonDto(ArbeidsforholdInformasjon arbeidsforholdInformasjon) {
         List<ArbeidsforholdOverstyringDto> resultat = arbeidsforholdInformasjon.getOverstyringer().stream()
             .map(arbeidsforholdOverstyring -> new ArbeidsforholdOverstyringDto(mapTilAktør(arbeidsforholdOverstyring.getArbeidsgiver()),
-                arbeidsforholdOverstyring.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold() ? new InternArbeidsforholdRefDto(arbeidsforholdOverstyring.getArbeidsforholdRef().getReferanse())
+                arbeidsforholdOverstyring.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold()
+                    ? new InternArbeidsforholdRefDto(arbeidsforholdOverstyring.getArbeidsforholdRef().getReferanse())
                     : null,
-                ArbeidsforholdHandlingType.fraKode(arbeidsforholdOverstyring.getHandling().getKode())))
+                KodeverkTilKalkulusMapper.mapArbeidsforholdHandlingType(arbeidsforholdOverstyring.getHandling())))
             .collect(Collectors.toList());
 
         if (!resultat.isEmpty()) {
@@ -114,7 +116,7 @@ public class IAYTilKalkulatorInputMapper {
         return new OppgittEgenNæringDto(
             mapPeriode(oppgittEgenNæring.getPeriode()),
             oppgittEgenNæring.getOrgnr() == null ? null : new Organisasjon(oppgittEgenNæring.getOrgnr()),
-            VirksomhetType.fraKode(oppgittEgenNæring.getVirksomhetType().getKode()),
+            KodeverkTilKalkulusMapper.mapVirksomhetstype(oppgittEgenNæring.getVirksomhetType()),
             oppgittEgenNæring.getNyoppstartet(),
             oppgittEgenNæring.getVarigEndring(),
             oppgittEgenNæring.getEndringDato(),
@@ -139,7 +141,8 @@ public class IAYTilKalkulatorInputMapper {
             var naturalYtelseDtos = inntektsmelding.getNaturalYtelser().stream().map(naturalYtelse -> new NaturalYtelseDto(
                 mapPeriode(naturalYtelse.getPeriode()),
                 new BeløpDto(naturalYtelse.getBeloepPerMnd().getVerdi()),
-                NaturalYtelseType.fraKode(naturalYtelse.getType().getKode()))).collect(Collectors.toList());
+                KodeverkTilKalkulusMapper.mapNaturalytelsetype(naturalYtelse.getType())
+            )).collect(Collectors.toList());
 
             var refusjonDtos = inntektsmelding.getEndringerRefusjon().stream().map(refusjon -> new RefusjonDto(
                 new BeløpDto(refusjon.getRefusjonsbeløp().getVerdi()),
@@ -184,7 +187,7 @@ public class IAYTilKalkulatorInputMapper {
                 mapYtelseAnvist(ytelse.getYtelseAnvist()),
                 new RelatertYtelseType(ytelse.getRelatertYtelseType().getKode()),
                 mapPeriode(ytelse.getPeriode()),
-                mapTemaUnderkategori(ytelse),
+                KodeverkTilKalkulusMapper.mapTemaUnderkategori(ytelse.getBehandlingsTema()),
                 mapYtelseGrunnlag(ytelse.getYtelseGrunnlag())))
             .collect(Collectors.toList());
 
@@ -195,26 +198,18 @@ public class IAYTilKalkulatorInputMapper {
     }
 
     private static YtelseGrunnlagDto mapYtelseGrunnlag(Optional<YtelseGrunnlag> ytelseGrunnlag) {
-        return ytelseGrunnlag.map(yg -> new YtelseGrunnlagDto(
-            Arbeidskategori.fraKode(yg.getArbeidskategori().map(no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori::getKode).orElse(null)), mapYtelseFordeling(yg.getYtelseStørrelse()))).orElse(null);
+        return ytelseGrunnlag.map(yg -> new YtelseGrunnlagDto(yg.getArbeidskategori().map(KodeverkTilKalkulusMapper::mapArbeidskategori).orElse(null),
+            mapYtelseFordeling(yg.getYtelseStørrelse()))).orElse(null);
     }
 
     private static List<YtelseFordelingDto> mapYtelseFordeling(List<YtelseStørrelse> ytelseStørrelse) {
         return ytelseStørrelse.stream()
-            .map(ys -> new YtelseFordelingDto(mapVirksomhet(ys), InntektPeriodeType.fraKode(ys.getHyppighet().getKode()), ys.getBeløp().getVerdi(), ys.getErRefusjon()))
+            .map(ys -> new YtelseFordelingDto(mapVirksomhet(ys), KodeverkTilKalkulusMapper.mapInntektPeiodetype(ys.getHyppighet()), ys.getBeløp().getVerdi(), ys.getErRefusjon()))
             .collect(Collectors.toList());
     }
 
     private static Organisasjon mapVirksomhet(YtelseStørrelse ys) {
         return ys.getVirksomhet().map(orgNummer -> new Organisasjon(orgNummer.getId())).orElse(null);
-    }
-
-    // TODO (OJR): Skal vi mappe dette slik eller tåler Kalkulus UNDEFINED("-")
-    private static TemaUnderkategori mapTemaUnderkategori(Ytelse ytelse) {
-        if (KODEVERDI_UNDEFINED.equals(ytelse.getBehandlingsTema().getKode())) {
-            return null;
-        }
-        return TemaUnderkategori.fraKode(ytelse.getBehandlingsTema().getKode());
     }
 
     private static BeløpDto mapBeløp(Optional<Beløp> beløp) {
@@ -243,7 +238,7 @@ public class IAYTilKalkulatorInputMapper {
     }
 
     private static UtbetalingDto mapTilDto(Inntekt inntekt) {
-        UtbetalingDto utbetalingDto = new UtbetalingDto(InntektskildeType.fraKode(inntekt.getInntektsKilde().getKode()),
+        UtbetalingDto utbetalingDto = new UtbetalingDto(KodeverkTilKalkulusMapper.mapInntektskildeType(inntekt.getInntektsKilde()),
             inntekt.getAlleInntektsposter().stream().map(IAYTilKalkulatorInputMapper::mapTilDto).collect(Collectors.toList()));
         if (inntekt.getArbeidsgiver() != null) {
             return utbetalingDto.medArbeidsgiver(mapTilAktør(inntekt.getArbeidsgiver()));
@@ -254,7 +249,7 @@ public class IAYTilKalkulatorInputMapper {
     private static UtbetalingsPostDto mapTilDto(Inntektspost inntektspost) {
         return new UtbetalingsPostDto(
             mapPeriode(inntektspost.getPeriode()),
-            InntektspostType.fraKode(inntektspost.getInntektspostType().getKode()),
+            KodeverkTilKalkulusMapper.mapInntektspostType(inntektspost.getInntektspostType()),
             inntektspost.getBeløp().getVerdi());
     }
 
@@ -279,7 +274,7 @@ public class IAYTilKalkulatorInputMapper {
         return new YrkesaktivitetDto(
             mapTilAktør(yrkesaktivitet.getArbeidsgiver()),
             arbeidsforholdRef != null ? new InternArbeidsforholdRefDto(arbeidsforholdRef) : null,
-            ArbeidType.fraKode(yrkesaktivitet.getArbeidType().getKode()),
+            KodeverkTilKalkulusMapper.mapArbeidtype(yrkesaktivitet.getArbeidType()),
             aktivitetsAvtaleDtos,
             permisjoner);
     }
@@ -288,7 +283,7 @@ public class IAYTilKalkulatorInputMapper {
         return new OpptjeningAktiviteterDto(opptjeningAktiviteter.getOpptjeningPerioder()
             .stream()
             .map(opptjeningPeriode -> new OpptjeningPeriodeDto(
-                OpptjeningAktivitetType.fraKode(opptjeningPeriode.opptjeningAktivitetType().getKode()),
+                KodeverkTilKalkulusMapper.mapOpptjeningAktivitettype(opptjeningPeriode.opptjeningAktivitetType()),
                 new Periode(opptjeningPeriode.periode().getFom(), opptjeningPeriode.periode().getTom()),
                 mapTilDto(opptjeningPeriode),
                 opptjeningPeriode.arbeidsforholdId() != null && opptjeningPeriode.arbeidsforholdId().getReferanse() != null
@@ -303,7 +298,7 @@ public class IAYTilKalkulatorInputMapper {
         return new PermisjonDto(
             new Periode(permisjon.getFraOgMed(), permisjon.getTilOgMed()),
             permisjon.getProsentsats().getVerdi(),
-            PermisjonsbeskrivelseType.fraKode(permisjon.getPermisjonsbeskrivelseType().getKode())
+            KodeverkTilKalkulusMapper.mapPermisjonsbeskrivelsetype(permisjon.getPermisjonsbeskrivelseType())
         );
     }
 
