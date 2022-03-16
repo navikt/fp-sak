@@ -257,7 +257,7 @@ class MapTilKalkulatorInput {
             : new YtelseDto(
                 ytelseDto.getVedtaksDagsats().map(Beløp::getVerdi).map(BeløpDto::new).orElse(null),
                 mapYtelseAnvistSet(ytelseDto.getYtelseAnvist()),
-                ytelseDto.getRelatertYtelseType() == null ? null : new RelatertYtelseType(ytelseDto.getRelatertYtelseType().getKode()),
+                ytelseDto.getYtelseType() == null ? null : new RelatertYtelseType(ytelseDto.getYtelseType().getKode()),
                 mapPeriode(ytelseDto.getPeriode()),
                 ytelseDto.getBehandlingsTema() == null ||
                     ytelseDto.getBehandlingsTema().equals(TemaUnderkategori.UDEFINERT) ? null
