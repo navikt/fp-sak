@@ -116,7 +116,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         var ref = lagReferanseMedStp(behandling);
         var input = lagBeregningsgrunnlagInput(ref, opptjeningAktiviteter, inntektsmeldinger);
         var beregningAktivitetAggregat = fastsettBeregningAktiviteter.fastsettAktiviteter(lagStartInput(input));
-        return mapBeregningsgrunnlag(fastsettSkjæringstidspunktOgStatuser.fastsett(input, beregningAktivitetAggregat, input.getIayGrunnlag(),
+        return mapBeregningsgrunnlag(fastsettSkjæringstidspunktOgStatuser.fastsett(input, beregningAktivitetAggregat,
                 grunnbeløpTjeneste.mapGrunnbeløpSatser()).getBeregningsgrunnlag(), Optional.empty(), Optional.empty());
     }
 
@@ -482,7 +482,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
                 fastsettBeregningAktiviteter.fastsettAktiviteter(lagStartInput(input)));
 
         var BeregningsgrunnlagEntitet = mapBeregningsgrunnlag(fastsettSkjæringstidspunktOgStatuser.fastsett(input,
-                mapSaksbehandletAktivitet(beregningAktivitetAggregat), input.getIayGrunnlag(), grunnbeløpTjeneste.mapGrunnbeløpSatser())
+                mapSaksbehandletAktivitet(beregningAktivitetAggregat), grunnbeløpTjeneste.mapGrunnbeløpSatser())
                 .getBeregningsgrunnlag(), Optional.empty(), Optional.empty());
 
         // Assert
