@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,13 +116,18 @@ public class SaldoerDtoTjeneste {
 
     private StønadskontoDto foreldrepengerUtenAktKravDto(SaldoUtregning saldoUtregning) {
         var aktivitetSaldoList = saldoUtregning.aktiviteterForSøker().stream().map(a -> {
-            var saldo = saldoUtregning.restSaldoDagerUtenAktivitetskrav(a);
-            return new AktivitetSaldoDto(mapToDto(a), saldo.rundOpp());
+            var restSaldoDagerUtenAktivitetskrav = saldoUtregning.restSaldoDagerUtenAktivitetskrav(a);
+            var totalSaldo = saldoUtregning.saldoITrekkdager(Stønadskontotype.FORELDREPENGER, a);
+            return new AktivitetSaldoDto(mapToDto(a), Math.min(restSaldoDagerUtenAktivitetskrav.rundOpp(), totalSaldo.rundOpp()));
         }).toList();
-        var restSaldoDagerUtenAktivitetskrav = saldoUtregning.restSaldoDagerUtenAktivitetskrav();
-        var gyldigForbruk = !restSaldoDagerUtenAktivitetskrav.mindreEnn0();
+        int restSaldoDagerUtenAktivitetskrav = aktivitetSaldoList.stream()
+            .map(aktivitetSaldoDto -> aktivitetSaldoDto.saldo())
+            .max(Comparator.comparing(integer -> integer))
+            .orElse(0);
+        var gyldigForbruk = restSaldoDagerUtenAktivitetskrav >= 0;
         return new StønadskontoDto(SaldoerDto.SaldoVisningStønadskontoType.UTEN_AKTIVITETSKRAV,
-            saldoUtregning.getMaxDagerUtenAktivitetskrav().rundOpp(), restSaldoDagerUtenAktivitetskrav.rundOpp(), aktivitetSaldoList, gyldigForbruk, null);
+            saldoUtregning.getMaxDagerUtenAktivitetskrav().rundOpp(), restSaldoDagerUtenAktivitetskrav, aktivitetSaldoList, gyldigForbruk,
+            null);
     }
 
     private int finnTapteDagerFpff(UttakInput input) {
