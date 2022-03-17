@@ -23,10 +23,10 @@ public enum DokumentMalType implements Kodeverdi {
     SVANGERSKAPSPENGER_INNVILGELSE("INVSVP", "Innvilgelsesbrev svangerskapspenger"),
     SVANGERSKAPSPENGER_OPPHØR("OPPSVP", "Opphør svangerskapspenger"),
     SVANGERSKAPSPENGER_AVSLAG("AVSSVP", "Avslag svangerskapspenger"),
-    INNHENTE_OPPLYSNINGER ("INNOPP", "Innhente opplysninger"),
+    INNHENTE_OPPLYSNINGER("INNOPP", "Innhente opplysninger"),
     VARSEL_OM_REVURDERING("VARREV", "Varsel om revurdering"),
     INFO_OM_HENLEGGELSE("IOHENL", "Behandling henlagt"),
-    INNSYN_SVAR( "INNSYN", "Svar på innsynskrav"),
+    INNSYN_SVAR("INNSYN", "Svar på innsynskrav"),
     IKKE_SØKT("IKKESO", "Ikke mottatt søknad"),
     INGEN_ENDRING("INGEND", "Uendret utfall"),
     FORLENGET_SAKSBEHANDLINGSTID("FORSAK", "Forlenget saksbehandlingstid"),
@@ -42,66 +42,36 @@ public enum DokumentMalType implements Kodeverdi {
     ETTERLYS_INNTEKTSMELDING("ELYSIM", "Etterlys inntektsmelding"),
 
     // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
-    @Deprecated
-    FRITEKSTBREV_DOK("FRITKS", "Fritekstbrev"),
-    @Deprecated
-    ENGANGSSTØNAD_INNVILGELSE_DOK("POSVED", "Positivt vedtaksbrev"),
-    @Deprecated
-    ENGANGSSTØNAD_AVSLAG_DOK("AVSLAG", "Avslagsbrev"),
-    @Deprecated
-    FORELDREPENGER_INNVILGELSE_DOK("INNVFP", "Innvilgelsesbrev Foreldrepenger"),
-    @Deprecated
-    FORELDREPENGER_AVSLAG_DOK("AVSLFP", "Avslagsbrev Foreldrepenger"),
-    @Deprecated
-    FORELDREPENGER_OPPHØR_DOK("OPPHOR", "Opphør brev"),
-    @Deprecated
-    FORELDREPENGER_INFOBREV_TIL_ANNEN_FORELDER_DOK("INAFOR", "Informasjonsbrev til den andre forelderen"),
-    @Deprecated
-    SVANGERSKAPSPENGER_INNVILGELSE_FRITEKST("INNSVP", "Innvilgelsesbrev svangerskapspenger"),
-    @Deprecated
-    INNHENTE_OPPLYSNINGER_DOK("INNHEN", "Innhent dokumentasjon"),
-    @Deprecated
-    VARSEL_OM_REVURDERING_DOK("REVURD", "Varsel om revurdering"),
-    @Deprecated
-    INFO_OM_HENLEGGELSE_DOK("HENLEG", "Behandling henlagt"),
-    @Deprecated
-    INNSYN_SVAR_DOK("INSSKR", "Svar på innsynskrav"),
-    @Deprecated
-    IKKE_SØKT_DOK("INNTID", "Ikke mottatt søknad"),
-    @Deprecated
-    INGEN_ENDRING_DOK("UENDRE", "Uendret utfall"),
-    @Deprecated
-    FORLENGET_SAKSBEHANDLINGSTID_DOK("FORLEN", "Forlenget saksbehandlingstid"),
-    @Deprecated
-    FORLENGET_SAKSBEHANDLINGSTID_MEDL_DOK("FORLME", "Forlenget saksbehandlingstid - medlemskap"),
-    @Deprecated
-    FORLENGET_SAKSBEHANDLINGSTID_TIDLIG_DOK("FORLTS", "Forlenget saksbehandlingstid - Tidlig søknad"),
-    @Deprecated
-    KLAGE_AVVIST_DOK("KLAGAV", "Vedtak om avvist klage"),
-    @Deprecated
-    KLAGE_AVVIST_FRITEKST("KAVVIS", "Vedtak om avvist klage"),
-    @Deprecated
-    KLAGE_HJEMSENDT_DOK("KLAGNY", "Vedtak opphevet, sendt til ny behandling"),
-    @Deprecated
-    KLAGE_HJEMSENDT_FRITEKST("KHJEMS", "Klage hjemsendt/opphevet"),
-    @Deprecated
-    KLAGE_OMGJORT_DOK("VEDMED", "Vedtak om medhold"),
-    @Deprecated
-    KLAGE_OMGJORT_FRITEKST("KOMGJO", "Vedtak om omgjøring av klage"),
-    @Deprecated
-    KLAGE_OVERSENDT_DOK("KLAGOV", "Overføring til NAV Klageinstans"),
-    @Deprecated
-    KLAGE_OVERSENDT_FRITEKST("KOVKLA", "Klage oversendt til klageinstans"),
-    @Deprecated
-    KLAGE_STADFESTET_DOK("KLAGVE", "Vedtak om stadfestelse"),
-    @Deprecated
-    KLAGE_STADFESTET_FRITEKST("KSTADF", "Vedtak om stadfestelse"),
-    @Deprecated
-    ANKE_OMGJORT_FRITEKST("VEDOGA", "Vedtak om omgjøring i ankesak"),
-    @Deprecated
-    ANKE_OPPHEVET_FRITEKST("ANKEBO", "Ankebrev om beslutning om oppheving"),
-    @Deprecated
-    ETTERLYS_INNTEKTSMELDING_FRITEKST("INNLYS", "Etterlys inntektsmelding"),
+    @Deprecated FRITEKSTBREV_DOK("FRITKS", "Fritekstbrev"),
+    @Deprecated ENGANGSSTØNAD_INNVILGELSE_DOK("POSVED", "Positivt vedtaksbrev"),
+    @Deprecated ENGANGSSTØNAD_AVSLAG_DOK("AVSLAG", "Avslagsbrev"),
+    @Deprecated FORELDREPENGER_INNVILGELSE_DOK("INNVFP", "Innvilgelsesbrev Foreldrepenger"),
+    @Deprecated FORELDREPENGER_AVSLAG_DOK("AVSLFP", "Avslagsbrev Foreldrepenger"),
+    @Deprecated FORELDREPENGER_OPPHØR_DOK("OPPHOR", "Opphør brev"),
+    @Deprecated FORELDREPENGER_INFOBREV_TIL_ANNEN_FORELDER_DOK("INAFOR", "Informasjonsbrev til den andre forelderen"),
+    @Deprecated SVANGERSKAPSPENGER_INNVILGELSE_FRITEKST("INNSVP", "Innvilgelsesbrev svangerskapspenger"),
+    @Deprecated INNHENTE_OPPLYSNINGER_DOK("INNHEN", "Innhent dokumentasjon"),
+    @Deprecated VARSEL_OM_REVURDERING_DOK("REVURD", "Varsel om revurdering"),
+    @Deprecated INFO_OM_HENLEGGELSE_DOK("HENLEG", "Behandling henlagt"),
+    @Deprecated INNSYN_SVAR_DOK("INSSKR", "Svar på innsynskrav"),
+    @Deprecated IKKE_SØKT_DOK("INNTID", "Ikke mottatt søknad"),
+    @Deprecated INGEN_ENDRING_DOK("UENDRE", "Uendret utfall"),
+    @Deprecated FORLENGET_SAKSBEHANDLINGSTID_DOK("FORLEN", "Forlenget saksbehandlingstid"),
+    @Deprecated FORLENGET_SAKSBEHANDLINGSTID_MEDL_DOK("FORLME", "Forlenget saksbehandlingstid - medlemskap"),
+    @Deprecated FORLENGET_SAKSBEHANDLINGSTID_TIDLIG_DOK("FORLTS", "Forlenget saksbehandlingstid - Tidlig søknad"),
+    @Deprecated KLAGE_AVVIST_DOK("KLAGAV", "Vedtak om avvist klage"),
+    @Deprecated KLAGE_AVVIST_FRITEKST("KAVVIS", "Vedtak om avvist klage"),
+    @Deprecated KLAGE_HJEMSENDT_DOK("KLAGNY", "Vedtak opphevet, sendt til ny behandling"),
+    @Deprecated KLAGE_HJEMSENDT_FRITEKST("KHJEMS", "Klage hjemsendt/opphevet"),
+    @Deprecated KLAGE_OMGJORT_DOK("VEDMED", "Vedtak om medhold"),
+    @Deprecated KLAGE_OMGJORT_FRITEKST("KOMGJO", "Vedtak om omgjøring av klage"),
+    @Deprecated KLAGE_OVERSENDT_DOK("KLAGOV", "Overføring til NAV Klageinstans"),
+    @Deprecated KLAGE_OVERSENDT_FRITEKST("KOVKLA", "Klage oversendt til klageinstans"),
+    @Deprecated KLAGE_STADFESTET_DOK("KLAGVE", "Vedtak om stadfestelse"),
+    @Deprecated KLAGE_STADFESTET_FRITEKST("KSTADF", "Vedtak om stadfestelse"),
+    @Deprecated ANKE_OMGJORT_FRITEKST("VEDOGA", "Vedtak om omgjøring i ankesak"),
+    @Deprecated ANKE_OPPHEVET_FRITEKST("ANKEBO", "Ankebrev om beslutning om oppheving"),
+    @Deprecated ETTERLYS_INNTEKTSMELDING_FRITEKST("INNLYS", "Etterlys inntektsmelding"),
     ;
 
     public static final Set<DokumentMalType> VEDTAKSBREV = Set.of(ENGANGSSTØNAD_INNVILGELSE, ENGANGSSTØNAD_AVSLAG, FORELDREPENGER_INNVILGELSE,

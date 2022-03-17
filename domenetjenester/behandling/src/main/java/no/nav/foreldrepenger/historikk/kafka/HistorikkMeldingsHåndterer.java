@@ -23,7 +23,7 @@ public class HistorikkMeldingsHåndterer {
     }
 
     void lagreMelding(@SuppressWarnings("unused") String header, String payload) { // NOSONAR
-        var data = ProsessTaskData.forProsessTask(LagreHistorikkTask.class);
+        var data = ProsessTaskData.forProsessTask(LagreJournalpostTask.class);
         data.setPayload(payload);
         taskTjeneste.lagre(data);
     }
