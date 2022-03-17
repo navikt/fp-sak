@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.prosess.testutilities.behandling.beregningsgrunnlag;
+package no.nav.foreldrepenger.domene.prosess;
 
 import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
 import static org.assertj.core.api.Assertions.assertThat;

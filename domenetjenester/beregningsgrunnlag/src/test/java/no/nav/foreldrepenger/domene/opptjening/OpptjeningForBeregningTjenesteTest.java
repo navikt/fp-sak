@@ -10,18 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
@@ -29,11 +26,8 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningsperioderUtenOverstyringTjeneste;
-import no.nav.foreldrepenger.domene.prosess.RepositoryProvider;
-import no.nav.foreldrepenger.domene.prosess.testutilities.behandling.ScenarioForeldrepenger;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
-@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class OpptjeningForBeregningTjenesteTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT_OPPTJENING = LocalDate.of(2018, 12, 12);
@@ -44,10 +38,8 @@ public class OpptjeningForBeregningTjenesteTest {
     private BehandlingReferanse behandlingReferanse;
 
     @BeforeEach
-    public void setUp(EntityManager entityManager) {
-        var scenario = ScenarioForeldrepenger.nyttScenario();
-        var repositoryProvider = new RepositoryProvider(entityManager);
-        var behandling = scenario.lagre(repositoryProvider);
+    public void setUp() {
+        var behandling= ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         var opptjeningsperioderTjeneste = mock(OpptjeningsperioderUtenOverstyringTjeneste.class);
         behandlingReferanse = BehandlingReferanse.fra(behandling).medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING);
         when(opptjeningsperioderTjeneste.mapPerioderForSaksbehandling(any(), any(), any())).thenReturn(
