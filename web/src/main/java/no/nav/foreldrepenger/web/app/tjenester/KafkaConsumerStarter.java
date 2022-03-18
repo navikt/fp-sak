@@ -5,7 +5,6 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-import no.nav.foreldrepenger.historikk.kafka.HistorikkConsumer;
 import no.nav.foreldrepenger.mottak.kabal.KabalHendelseStream;
 import no.nav.foreldrepenger.mottak.vedtak.kafka.VedtaksHendelseConsumer;
 
