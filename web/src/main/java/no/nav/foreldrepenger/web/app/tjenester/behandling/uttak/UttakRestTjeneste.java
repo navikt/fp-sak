@@ -146,7 +146,7 @@ public class UttakRestTjeneste {
     }
 
     private SaldoerDto defaultSvar() {
-        return new SaldoerDto(null, Map.of(), 0);
+        return new SaldoerDto(Map.of(), 0);
     }
 
     @GET

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
 
-public record SaldoerDto(LocalDate maksDatoUttak, Map<SaldoVisningStønadskontoType, StønadskontoDto> stonadskontoer, int tapteDagerFpff) {
+public record SaldoerDto(Map<SaldoVisningStønadskontoType, StønadskontoDto> stonadskontoer, int tapteDagerFpff) {
 
     public enum SaldoVisningStønadskontoType {
         MØDREKVOTE,

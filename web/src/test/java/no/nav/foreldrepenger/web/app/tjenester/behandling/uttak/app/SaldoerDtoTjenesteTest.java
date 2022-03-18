@@ -69,7 +69,6 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
-import no.nav.foreldrepenger.domene.uttak.saldo.fp.MaksDatoUttakTjenesteImpl;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Periode;
@@ -104,10 +103,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         tapteDagerFpffTjeneste = new TapteDagerFpffTjeneste(uttakRepositoryProvider,
             new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager)));
         uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
-        var maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(fpUttakRepository,
-            stønadskontoSaldoTjeneste);
-        tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste, maksDatoUttakTjeneste,
-            stønadskontoRegelAdapter, repositoryProvider, uttakTjeneste,
+        tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste, stønadskontoRegelAdapter, repositoryProvider, uttakTjeneste,
             tapteDagerFpffTjeneste);
         behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
     }
@@ -178,8 +174,6 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         assertKonto(mkDto, maxDagerMK, maxDagerMK - (6 * 5));
         var fpDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FELLESPERIODE);
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (10 * 5));
-        assertThat(saldoer.maksDatoUttak()).isEqualTo(
-            fødseldato.plusWeeks(16 /* forbrukte uker */ + 9 /* saldo MK */ + 6 /* saldo FP */).minusDays(1));
     }
 
     private void lagre(Behandlingsresultat behandlingsresultatForMor) {
@@ -403,8 +397,6 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var fbDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FLERBARNSDAGER);
         assertKonto(fbDto, maxDagerFlerbarn, maxDagerFlerbarn - (10 * 5));
 
-        assertThat(saldoer.maksDatoUttak()).isEqualTo(
-            fødseldato.plusWeeks(16 /* forbrukte uker */ + 9 /* saldo MK */ + 23 /* saldo FP */).minusDays(1));
     }
 
     @Test
@@ -497,7 +489,6 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         // Act
         var tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste,
-            new MaksDatoUttakTjenesteImpl(repositoryProvider.getFpUttakRepository(), stønadskontoSaldoTjeneste),
             stønadskontoRegelAdapter,
             repositoryProvider,
             uttakTjeneste,
@@ -529,10 +520,6 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(aktivitetSaldo1.get().saldo()).isEqualTo(maxDagerFP - 25);
         assertThat(aktivitetSaldo2.get().saldo()).isEqualTo(maxDagerFP - (10 * 5));
         assertThat(fpDto.saldo()).isEqualTo(maxDagerFP - 25);
-
-
-        assertThat(saldoer.maksDatoUttak()).isEqualTo(
-            fødseldato.plusWeeks(16 /* forbrukte uker */ + 9 /* saldo MK */ + 11 /* saldo FP */).minusDays(1));
     }
 
     @Test
@@ -577,9 +564,6 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (12 * 5));
         var fkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FEDREKVOTE);
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
-
-        assertThat(saldoer.maksDatoUttak()).isEqualTo(
-            fødseldato.plusWeeks(18 /* forbrukte uker */ + 4 /* saldo FP */ + 15 /* saldo FK*/).minusDays(1));
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
@@ -632,9 +616,6 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (15 * 5));
         var fkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FEDREKVOTE);
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
-
-        assertThat(saldoer.maksDatoUttak()).isEqualTo(
-            fødseldato.plusWeeks(21 /* forbrukte uker */ + 1 /* saldo FP */ + 15 /* saldo FK*/).minusDays(1));
     }
 
     private Behandling behandlingMedUttakFar(LocalDate fødseldato,
@@ -730,9 +711,6 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (15 * 5));
         var fkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FEDREKVOTE);
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
-
-        assertThat(saldoer.maksDatoUttak()).isEqualTo(
-            fødseldato.plusWeeks(16 /* forbrukte uker */ + 1 /* saldo FP */ + 15 /* saldo FK*/).minusDays(1));
     }
 
     @Test
@@ -788,8 +766,6 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var fkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FEDREKVOTE);
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
 
-        assertThat(saldoer.maksDatoUttak()).isEqualTo(
-            fødseldato.plusWeeks(21 /* forbrukte uker */ + 5 /* saldo FP */ + 15 /* saldo FK */).minusDays(1));
     }
 
     @Test

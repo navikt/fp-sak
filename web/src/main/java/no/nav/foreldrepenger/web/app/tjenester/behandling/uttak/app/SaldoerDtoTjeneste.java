@@ -12,7 +12,6 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
@@ -25,7 +24,6 @@ import no.nav.foreldrepenger.domene.uttak.beregnkontoer.StønadskontoRegelAdapte
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering.SaldoValidering;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriode;
@@ -43,7 +41,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResulta
 @Dependent
 public class SaldoerDtoTjeneste {
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
-    private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
     private StønadskontoRegelAdapter stønadskontoRegelAdapter;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -56,13 +53,11 @@ public class SaldoerDtoTjeneste {
 
     @Inject
     public SaldoerDtoTjeneste(StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
-                              @FagsakYtelseTypeRef("FP") MaksDatoUttakTjeneste maksDatoUttakTjeneste,
                               StønadskontoRegelAdapter stønadskontoRegelAdapter,
                               BehandlingRepositoryProvider repositoryProvider,
                               ForeldrepengerUttakTjeneste uttakTjeneste,
                               TapteDagerFpffTjeneste tapteDagerFpffTjeneste) {
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
-        this.maksDatoUttakTjeneste = maksDatoUttakTjeneste;
         this.stønadskontoRegelAdapter = stønadskontoRegelAdapter;
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
@@ -111,7 +106,7 @@ public class SaldoerDtoTjeneste {
         }
 
         var tapteDagerFpff = finnTapteDagerFpff(input);
-        return new SaldoerDto(maksDatoUttakTjeneste.beregnMaksDatoUttak(input).orElse(null), stønadskontoMap, tapteDagerFpff);
+        return new SaldoerDto(stønadskontoMap, tapteDagerFpff);
     }
 
     private StønadskontoDto foreldrepengerUtenAktKravDto(SaldoUtregning saldoUtregning) {
