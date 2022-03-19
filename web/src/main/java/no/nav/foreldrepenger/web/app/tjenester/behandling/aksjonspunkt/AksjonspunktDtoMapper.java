@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.VurderÅrsakTotrinnsvurdering;
@@ -49,7 +50,7 @@ class AksjonspunktDtoMapper {
         );
 
         dto.setAksjonspunktType(aksjonspunktDefinisjon.getAksjonspunktType());
-        dto.setKanLoses(kanLøses(aksjonspunktDefinisjon, behandling));
+        dto.setKanLoses(kanLøses(aksjonspunktDefinisjon, behandling, aksjonspunkt.getStatus()));
         dto.setErAktivt(Boolean.TRUE);
         return dto;
     }
@@ -65,10 +66,14 @@ class AksjonspunktDtoMapper {
         return aksjonspunktDefinisjon.getVilkårType();
     }
 
-    private static Boolean kanLøses(AksjonspunktDefinisjon def, Behandling behandling) {
+    private static Boolean kanLøses(AksjonspunktDefinisjon def, Behandling behandling, AksjonspunktStatus status) {
         if (behandling.getBehandlingStegStatus() == null) {
             // Stegstatus ikke satt, kan derfor ikke sette noen aksjonspunkt som løsbart
             return false;
+        }
+        //Spesialbehandling av opprettelse av verge fordi det skal kunne gjelde alle behandlingstyper
+        if (AksjonspunktDefinisjon.AVKLAR_VERGE.equals(def) && !AksjonspunktStatus.UTFØRT.equals(status)) {
+            return true;
         }
         if (def.erAutopunkt()) {
             return false;

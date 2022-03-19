@@ -68,7 +68,7 @@ public class BehandlingModellTest {
         var a1_0 = AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON;
         var a1_1 = AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD;
         var a2_0 = AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE;
-        var a2_1 = AksjonspunktDefinisjon.AVKLAR_VERGE;
+        var a2_1 = AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO;
 
         var steg = new DummySteg();
         var steg0 = new DummySteg();
@@ -275,16 +275,16 @@ public class BehandlingModellTest {
 
     @Test
     public void finner_tidligste_steg_for_aksjonspunkter() {
-        var aksjonspunktDefinisjon = STEG_2.getAksjonspunktDefinisjonerInngang().get(0);
+        var aksjonspunktDefinisjon = STEG_3.getAksjonspunktDefinisjonerInngang().get(0);
         var modellData = List.of(
-                new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullSteg, ap(aksjonspunktDefinisjon), ap()),
-                new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
+                new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg, ap(aksjonspunktDefinisjon), ap()),
+                new TestStegKonfig(STEG_4, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
 
         var modell = setupModell(modellData);
         Set<AksjonspunktDefinisjon> aksjonspunktDefinisjoner = new HashSet<>();
         aksjonspunktDefinisjoner.add(aksjonspunktDefinisjon);
         var behandlingStegModell = modell.finnTidligsteStegFor(aksjonspunktDefinisjoner);
-        assertThat(behandlingStegModell.getBehandlingStegType()).isEqualTo(STEG_2);
+        assertThat(behandlingStegModell.getBehandlingStegType()).isEqualTo(STEG_3);
     }
 
     @Test

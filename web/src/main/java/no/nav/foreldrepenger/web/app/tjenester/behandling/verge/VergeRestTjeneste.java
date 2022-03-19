@@ -78,7 +78,7 @@ public class VergeRestTjeneste {
         // Precondition - sjekk behandling versjon/lås
         behandlingsutredningTjeneste.kanEndreBehandling(behandling, behandlingVersjon);
 
-        vergeTjeneste.opprettVergeAksjonspunktOgHoppTilbakeTilKofakHvisSenereSteg(behandling);
+        vergeTjeneste.opprettVergeAksjonspunktOgHoppTilbakeTilFORVEDSTEGHvisSenereSteg(behandling);
 
         behandling = behandlingsprosessTjeneste.hentBehandling(behandling.getId());
         return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), Optional.empty());
