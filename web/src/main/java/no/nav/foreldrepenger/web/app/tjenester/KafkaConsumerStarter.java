@@ -15,8 +15,6 @@ import no.nav.foreldrepenger.mottak.vedtak.kafka.VedtaksHendelseConsumer;
 public class KafkaConsumerStarter implements ServletContextListener {
 
     @Inject //NOSONAR
-    private HistorikkConsumer historikkConsumer; //NOSONAR
-    @Inject //NOSONAR
     private VedtaksHendelseConsumer vedtaksHendelseConsumer; //NOSONAR
     @Inject //NOSONAR
     private KabalHendelseStream kabalHendelseConsumer; //NOSONAR
@@ -27,14 +25,12 @@ public class KafkaConsumerStarter implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        historikkConsumer.start();
         vedtaksHendelseConsumer.start();
         kabalHendelseConsumer.start();
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        historikkConsumer.stop();
         vedtaksHendelseConsumer.stop();
         kabalHendelseConsumer.stop();
     }
