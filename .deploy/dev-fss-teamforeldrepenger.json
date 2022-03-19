@@ -21,7 +21,6 @@
     "ABAC_ATTRIBUTT_DRIFT": "no.nav.abac.attributter.foreldrepenger.drift",
     "KAFKA_AKSJONSPUNKTHENDELSE_TOPIC": "privat-foreldrepenger-aksjonspunkthendelse-q1",
     "KAFKA_FATTEVEDTAK_TOPIC": "privat-familie-vedtakFattet-v1-q1",
-    "KAFKA_HISTORIKKINNSLAG_TOPIC": "privat-foreldrepenger-historikkinnslag-q1",
     "KAFKA_SAKOGBEHANDLING_TOPIC": "aapen-sob-oppgaveHendelse-v1",
     "KAFKA_KABAL_TOPIC":  "klage.behandling-events.v1",
     "SCHEMA_REGISTRY_URL": "https://kafka-schema-registry.nais.preprod.local",

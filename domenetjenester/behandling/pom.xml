@@ -38,10 +38,6 @@
             <artifactId>felles-feil</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.foreldrepenger.kontrakter</groupId>
-            <artifactId>fp-formidling-v1</artifactId>
-        </dependency>
-        <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter.topics</groupId>
             <artifactId>fp-topics-manifest</artifactId>
         </dependency>

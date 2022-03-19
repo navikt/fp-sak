@@ -5,7 +5,6 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-import no.nav.foreldrepenger.historikk.kafka.HistorikkConsumer;
 import no.nav.foreldrepenger.mottak.kabal.KabalHendelseStream;
 import no.nav.foreldrepenger.mottak.vedtak.kafka.VedtaksHendelseConsumer;
 
@@ -15,8 +14,6 @@ import no.nav.foreldrepenger.mottak.vedtak.kafka.VedtaksHendelseConsumer;
 @WebListener
 public class KafkaConsumerStarter implements ServletContextListener {
 
-    @Inject //NOSONAR
-    private HistorikkConsumer historikkConsumer; //NOSONAR
     @Inject //NOSONAR
     private VedtaksHendelseConsumer vedtaksHendelseConsumer; //NOSONAR
     @Inject //NOSONAR
@@ -28,14 +25,12 @@ public class KafkaConsumerStarter implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        historikkConsumer.start();
         vedtaksHendelseConsumer.start();
         kabalHendelseConsumer.start();
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        historikkConsumer.stop();
         vedtaksHendelseConsumer.stop();
         kabalHendelseConsumer.stop();
     }
