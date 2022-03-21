@@ -88,7 +88,7 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
     public OppdateringResultat oppdater(AnkeVurderingResultatAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var ankeBehandling = param.getBehandling();
 
-        if (!ER_PROD && dto.getSendTilKabal()) {
+        if (!ER_PROD && Optional.ofNullable(dto.getSendTilKabal()).orElse(false)) {
             var ankeresultat = ankeRepository.hentAnkeResultat(ankeBehandling.getId());
             var påAnketKlageBehandlingId = mapPåAnketKlageBehandlingUuid(dto)
                 .or(() ->  ankeresultat.flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId))
