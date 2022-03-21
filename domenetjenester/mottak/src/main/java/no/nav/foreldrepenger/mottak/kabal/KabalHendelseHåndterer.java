@@ -65,12 +65,6 @@ public class KabalHendelseHåndterer {
             LOG.info("KABAL mottatt hendelse key={} hendelse={}", key, mottattHendelse);
 
             if (!Objects.equals(Fagsystem.FPSAK.getOffisiellKode(), mottattHendelse.kilde())) return;
-            if (KabalHendelse.BehandlingEventType.ANKEBEHANDLING_OPPRETTET.equals(mottattHendelse.type()) ||
-                KabalHendelse.BehandlingEventType.ANKEBEHANDLING_AVSLUTTET.equals(mottattHendelse.type()) ||
-                mottattHendelse.detaljer().klagebehandlingAvsluttet() == null) {
-                LOG.warn("KABAL mottatt ankehendelse key={} hendelse={}", key, mottattHendelse);
-                return;
-            }
             if (!mottakRepository.hendelseErNy(KABAL+mottattHendelse.eventId().toString())) {
                 LOG.warn("KABAL mottatt hendelse på nytt key={} hendelse={}", key, mottattHendelse);
                 return;
@@ -82,15 +76,30 @@ public class KabalHendelseHåndterer {
             }
             var klageResultat = klageRepository.hentKlageResultatHvisEksisterer(behandling.getId()).orElse(null);
             if (klageResultat == null) {
-                LOG.warn("KABAL mottatt hendelse for behandling uen klageresultat key={} hendelse={}", key, mottattHendelse);
+                LOG.warn("KABAL mottatt hendelse for behandling uten klageresultat key={} hendelse={}", key, mottattHendelse);
                 return;
             }
             mottakRepository.registrerMottattHendelse(KABAL+ mottattHendelse.eventId());
-            klageRepository.settKabalReferanse(behandling.getId(), mottattHendelse.kabalReferanse());
             var task = ProsessTaskData.forProsessTask(MottaFraKabalTask.class);
             task.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
             task.setCallIdFraEksisterende();
             task.setProperty(MottaFraKabalTask.HENDELSETYPE_KEY, mottattHendelse.type().name());
+            task.setProperty(MottaFraKabalTask.KABALREF_KEY, mottattHendelse.kabalReferanse());
+            if (KabalHendelse.BehandlingEventType.KLAGEBEHANDLING_AVSLUTTET.equals(mottattHendelse.type())) {
+                task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().klagebehandlingAvsluttet().utfall().name());
+                mottattHendelse.detaljer().klagebehandlingAvsluttet().journalpostReferanser().stream()
+                    .findFirst().ifPresent(journalpost -> task.setProperty(MottaFraKabalTask.JOURNALPOST_KEY, journalpost));
+            } else if (KabalHendelse.BehandlingEventType.ANKEBEHANDLING_OPPRETTET.equals(mottattHendelse.type())) {
+                task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().klagebehandlingAvsluttet().utfall().name());
+
+            } else if (KabalHendelse.BehandlingEventType.ANKEBEHANDLING_AVSLUTTET.equals(mottattHendelse.type())) {
+                task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().ankebehandlingAvsluttet().utfall().name());
+                mottattHendelse.detaljer().ankebehandlingAvsluttet().journalpostReferanser().stream()
+                    .findFirst().ifPresent(journalpost -> task.setProperty(MottaFraKabalTask.JOURNALPOST_KEY, journalpost));
+            } else {
+                LOG.warn("KABAL mottatt hendelse med ukjent type key={} hendelse={}", key, mottattHendelse);
+                return;
+            }
             task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().klagebehandlingAvsluttet().utfall().name());
             mottattHendelse.detaljer().klagebehandlingAvsluttet().journalpostReferanser().stream()
                 .findFirst().ifPresent(journalpost -> task.setProperty(MottaFraKabalTask.JOURNALPOST_KEY, journalpost));

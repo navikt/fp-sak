@@ -1,6 +1,10 @@
 package no.nav.foreldrepenger.behandling.steg.anke;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -10,6 +14,7 @@ import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioAnkeEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 
@@ -20,10 +25,13 @@ public class AnkeStegTest {
         // Arrange
         var scenario = ScenarioAnkeEngangsstønad.forAvvistAnke(ScenarioMorSøkerEngangsstønad.forAdopsjon());
         var ankeBehandling = scenario.lagMocked();
+        var rProvider = scenario.mockBehandlingRepositoryProvider();
+        var ankeRepository = Mockito.mock(AnkeRepository.class);
+        when(ankeRepository.hentAnkeResultat(any())).thenReturn(Optional.empty());
         var kontekst = new BehandlingskontrollKontekst(ankeBehandling.getFagsakId(),
                 ankeBehandling.getAktørId(), new BehandlingLås(ankeBehandling.getId()));
 
-        var steg = new AnkeSteg(Mockito.mock(AnkeRepository.class));
+        var steg = new AnkeSteg(ankeRepository, rProvider.getBehandlingRepository());
 
         // Act
         var behandlingStegResultat = steg.utførSteg(kontekst);

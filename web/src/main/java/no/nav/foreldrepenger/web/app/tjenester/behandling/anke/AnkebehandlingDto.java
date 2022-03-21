@@ -1,24 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.anke;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 
-@JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
-public class AnkebehandlingDto {
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 
-    @JsonProperty("ankeVurderingResultat")
-    private AnkeVurderingResultatDto ankeVurderingResultat;
+public record AnkebehandlingDto(AnkeVurderingResultatDto ankeVurderingResultat,
+                                KlageHjemmel hjemmelFraKlage,
+                                List<KlageHjemmel> aktuelleHjemler,
+                                boolean enableKabal,
+                                boolean underBehandlingKabal,
+                                boolean behandletAvKabal) {
 
-
-    public AnkebehandlingDto() {
-        // trengs for deserialisering av JSON
-    }
-
-    public AnkeVurderingResultatDto getAnkeVurderingResultat() {
-        return ankeVurderingResultat;
-    }
-
-    void setAnkeVurderingResultat(AnkeVurderingResultatDto ankeVurderingResultat) {
-        this.ankeVurderingResultat = ankeVurderingResultat;
-    }
 }

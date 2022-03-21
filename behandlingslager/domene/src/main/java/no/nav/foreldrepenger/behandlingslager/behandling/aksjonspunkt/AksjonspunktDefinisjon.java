@@ -410,7 +410,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AUTO_VENT_PÅ_KABAL_KLAGE(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE_KODE, AksjonspunktType.AUTOPUNKT, "Vent på klagebehandling hos NAV Klageinstans",
         BehandlingStegType.KLAGE_NK, VurderingspunktType.INN, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(ES, FP, SVP)),
     AUTO_VENT_PÅ_KABAL_ANKE(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE_KODE, AksjonspunktType.AUTOPUNKT, "Vent på ankebehandling hos NAV Klageinstans",
-        BehandlingStegType.ANKE, VurderingspunktType.INN, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(ES, FP, SVP)),
+        BehandlingStegType.ANKE, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(ES, FP, SVP)),
     UNDEFINED,
 
     // Utgåtte aksjonspunktkoder - kun her for bakoverkompatibilitet. Finnes historisk i databasen til fpsak i PROD !

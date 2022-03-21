@@ -46,7 +46,6 @@ import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktMellomlagringDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.SendTilKabalDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.TilbakeBehandlingDto;
@@ -233,16 +232,6 @@ public class KlageRestTjeneste {
             var req = (KlageVurderingResultatAksjonspunktMellomlagringDto) obj;
             return AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
-        }
-    }
-
-    public static class TilKabalAbacSupplier implements Function<Object, AbacDataAttributter> {
-
-        @Override
-        public AbacDataAttributter apply(Object obj) {
-            var req = (SendTilKabalDto) obj;
-            return AbacDataAttributter.opprett()
-                .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
         }
     }
 

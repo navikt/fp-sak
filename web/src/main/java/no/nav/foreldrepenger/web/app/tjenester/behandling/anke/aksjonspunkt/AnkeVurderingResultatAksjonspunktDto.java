@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.anke.aksjonspunkt;
 import java.util.UUID;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -16,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
@@ -23,7 +23,6 @@ import no.nav.vedtak.util.InputValideringRegex;
 @JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
 public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktDto {
 
-    @NotNull
     @ValidKodeverk
     @JsonProperty("ankeVurdering")
     private AnkeVurdering ankeVurdering;
@@ -64,6 +63,13 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
     @JsonProperty("erIkkeSignert")
     private boolean erIkkeSignert;
 
+    @JsonProperty("sendTilKabal")
+    private Boolean sendTilKabal;
+
+    @ValidKodeverk
+    @JsonProperty("klageHjemmel")
+    private KlageHjemmel klageHjemmel;
+
     AnkeVurderingResultatAksjonspunktDto() { // NOSONAR
         // For Jackson
     }
@@ -80,7 +86,9 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
                                                  boolean erFristIkkeOverholdt,
                                                  boolean erIkkeKonkret,
                                                  boolean erIkkeSignert,
-                                                 boolean erGodkjentAvMedunderskriver) {
+                                                 boolean erGodkjentAvMedunderskriver,
+                                                 KlageHjemmel klageHjemmel,
+                                                 Boolean sendTilKabal) {
         super(begrunnelse);
         this.ankeVurdering = ankeVurdering;
         this.fritekstTilBrev = fritekstTilBrev;
@@ -93,6 +101,8 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
         this.erIkkeKonkret = erIkkeKonkret;
         this.erIkkeSignert = erIkkeSignert;
         this.erGodkjentAvMedunderskriver = erGodkjentAvMedunderskriver;
+        this.sendTilKabal = sendTilKabal;
+        this.klageHjemmel = klageHjemmel;
     }
 
     public AnkeVurdering getAnkeVurdering() {
@@ -139,4 +149,11 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
         return erIkkeSignert;
     }
 
+    public Boolean getSendTilKabal() {
+        return sendTilKabal;
+    }
+
+    public KlageHjemmel getKlageHjemmel() {
+        return klageHjemmel;
+    }
 }
