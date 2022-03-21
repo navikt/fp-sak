@@ -14,7 +14,6 @@ import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaArbeidsf
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagPrStatusDto;
 import no.nav.folketrygdloven.kalkulator.modell.typer.FaktaVurdering;
-import no.nav.folketrygdloven.kalkulator.modell.typer.Refusjon;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
@@ -195,7 +194,7 @@ public final class KalkulusTilBGMapper {
             .ifPresent(fakta -> builder.medLønnsendringIBeregningsperioden(mapVurdering(fakta)));
         faktaArbeidsforhold.map(FaktaArbeidsforholdDto::getErTidsbegrenset)
             .ifPresent(fakta -> builder.medTidsbegrensetArbeidsforhold(mapVurdering(fakta)));
-        builder.medRefusjonskravPrÅr(fraKalkulus.getRefusjonskravPrÅr());
+        builder.medRefusjonskravPrÅr(fraKalkulus.getInnvilgetRefusjonskravPrÅr());
         builder.medSaksbehandletRefusjonPrÅr(fraKalkulus.getSaksbehandletRefusjonPrÅr());
         builder.medFordeltRefusjonPrÅr(fraKalkulus.getFordeltRefusjonPrÅr());
         fraKalkulus.getRefusjon().ifPresent(ref -> builder.medManueltFordeltRefusjonPrÅr(ref.getManueltFordeltRefusjonPrÅr()));
