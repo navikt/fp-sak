@@ -47,8 +47,8 @@ public class ArbeidOgInntektsmeldingProsessTjeneste {
 
         behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING));
         behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
+        behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING));
         behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 
