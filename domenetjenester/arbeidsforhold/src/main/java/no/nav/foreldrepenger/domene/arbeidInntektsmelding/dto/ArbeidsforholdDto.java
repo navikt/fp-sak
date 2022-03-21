@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
+import no.nav.foreldrepenger.domene.arbeidsforhold.dto.PermisjonDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
 
 public record ArbeidsforholdDto(String arbeidsgiverIdent,
@@ -15,4 +16,5 @@ public record ArbeidsforholdDto(String arbeidsgiverIdent,
                                 AksjonspunktÅrsak årsak,
                                 ArbeidsforholdKomplettVurderingType saksbehandlersVurdering,
                                 PermisjonUtenSluttdatoDto permisjonUtenSluttdatoDto,
+                                PermisjonDto permisjon,
                                 String begrunnelse){}

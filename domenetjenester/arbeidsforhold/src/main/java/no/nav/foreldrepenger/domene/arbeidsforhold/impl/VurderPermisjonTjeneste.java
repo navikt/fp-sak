@@ -1,15 +1,12 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdMangel;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.PermisjonDto;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
@@ -51,23 +48,6 @@ public final class VurderPermisjonTjeneste {
             }
             LeggTilResultat.leggTil(result, AksjonspunktÅrsak.PERMISJON, ya.getArbeidsgiver(), Set.of(ya.getArbeidsforholdRef()));
         }
-    }
-
-    public static List<ArbeidsforholdMangel> finnArbForholdMedPermisjonUtenSluttdatoMangel(BehandlingReferanse behandlingReferanse,
-                                                                                           InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        List<ArbeidsforholdMangel> arbForholdMedPermUtenSluttdato = new ArrayList<>();
-
-        var stp = behandlingReferanse.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        var aktørId = behandlingReferanse.getAktørId();
-        var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(aktørId)).før(stp);
-
-        for (var ya : filter.getYrkesaktiviteter()) {
-            boolean harArbeidsforholdetPermisjonUtenSluttdato = UtledPermisjonSomFørerTilAksjonspunkt.harArbeidsforholdetPermisjonUtenSluttdato(filter, List.of(ya), stp);
-            if (harArbeidsforholdetPermisjonUtenSluttdato) {
-                arbForholdMedPermUtenSluttdato.add(new ArbeidsforholdMangel(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO));
-            }
-        }
-        return arbForholdMedPermUtenSluttdato;
     }
 
     private static boolean harAlleredeTattStillingTilPermisjon(InntektArbeidYtelseGrunnlag grunnlag,

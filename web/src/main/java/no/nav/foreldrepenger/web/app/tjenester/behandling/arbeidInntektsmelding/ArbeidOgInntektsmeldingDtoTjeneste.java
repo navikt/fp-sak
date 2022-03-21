@@ -18,13 +18,13 @@ import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdMangel;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.HåndterePermisjoner;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.ArbeidOgInntektsmeldingDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.ArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektsmeldingDto;
-import no.nav.foreldrepenger.domene.arbeidsforhold.impl.VurderPermisjonTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -68,7 +68,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
             return Optional.empty();
         }
         var mangler = arbeidsforholdInntektsmeldingMangelTjeneste.utledManglerPåArbeidsforholdInntektsmelding(referanse);
-        var mangelPermisjon = VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdatoMangel(referanse, iayGrunnlag);
+        var mangelPermisjon = HåndterePermisjoner.finnArbForholdMedPermisjonUtenSluttdatoMangel(referanse, iayGrunnlag);
         if (!mangelPermisjon.isEmpty()) {
             mangler.addAll(mangelPermisjon);
         }
