@@ -6,7 +6,6 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 
 /**
