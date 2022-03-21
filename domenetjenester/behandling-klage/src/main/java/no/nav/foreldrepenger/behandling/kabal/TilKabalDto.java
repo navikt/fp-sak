@@ -21,6 +21,7 @@ public record TilKabalDto(@NotNull Klager klager,
                           @NotNull LocalDate innsendtTilNav, // Innsendingsdato?
                           @NotNull String kilde, //Fagsystem.FPSAK.getOffisiellKode();
                           @NotNull String kildeReferanse, // Typisk BehandlingUUID
+                          @NotNull String dvhReferanse,
                           @NotNull KlageAnke type,
                           @NotNull KabalYtelse ytelse,
                           Sak fagsak,
@@ -37,9 +38,24 @@ public record TilKabalDto(@NotNull Klager klager,
                                     String kommentar) {
         return new TilKabalDto(klager, forrigeBehandlendeEnhet, tilknyttedeJournalposter,
             brukersHenvendelseMottattNavDato, innsendtTilNav, Fagsystem.FPSAK.getOffisiellKode(),
-            behandling.getUuid().toString(), KlageAnke.KLAGE, mapYtelseType(behandling),
+            behandling.getUuid().toString(), behandling.getUuid().toString(), KlageAnke.KLAGE, mapYtelseType(behandling),
             new Sak(behandling.getFagsak().getSaksnummer().getVerdi(), Fagsystem.FPSAK.getOffisiellKode()),
             hjemler, kommentar);
+    }
+
+    public static TilKabalDto anke(Behandling behandling,
+                                   String kildereferanse,
+                                   @NotNull Klager klager,
+                                   @NotNull String forrigeBehandlendeEnhet, // Førsteinstans
+                                   @NotNull List<DokumentReferanse> tilknyttedeJournalposter,
+                                   @NotNull LocalDate brukersHenvendelseMottattNavDato, // Required Mottattdato?
+                                   @NotNull LocalDate innsendtTilNav, // Innsendingsdato?
+                                   List<String> hjemler) {
+        return new TilKabalDto(klager, forrigeBehandlendeEnhet, tilknyttedeJournalposter,
+            brukersHenvendelseMottattNavDato, innsendtTilNav, Fagsystem.FPSAK.getOffisiellKode(),
+            kildereferanse, behandling.getUuid().toString(), KlageAnke.ANKE, mapYtelseType(behandling),
+            new Sak(behandling.getFagsak().getSaksnummer().getVerdi(), Fagsystem.FPSAK.getOffisiellKode()),
+            hjemler, "");
     }
 
     public static record Sak(@NotNull String fagsakId, @NotNull String fagsystem) {}

@@ -71,7 +71,7 @@ class KabalTjenesteTest {
 
         when(behandlingDokumentRepository.hentHvisEksisterer(behandlingId)).thenReturn(Optional.of(behandlingDokument));
 
-        var dokumentReferanses = kabalTjeneste.finnDokumentReferanser(behandlingId,
+        var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId,
             KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).build());
 
         sjekkResultat(dokumentReferanses, journalpost, TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV);
@@ -87,7 +87,7 @@ class KabalTjenesteTest {
         when(historikkRepository.hentHistorikk(behandlingId)).thenReturn(List.of(historikkInnslag));
         when(behandlingDokumentRepository.hentHvisEksisterer(behandlingId)).thenReturn(Optional.empty());
 
-        var dokumentReferanses = kabalTjeneste.finnDokumentReferanser(behandlingId,
+        var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId,
             KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).build());
 
         sjekkResultat(dokumentReferanses, journalpost, TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV);
@@ -105,7 +105,7 @@ class KabalTjenesteTest {
         when(behandlingDokumentRepository.hentHvisEksisterer(behandlingId)).thenReturn(Optional.empty());
         when(behandlingDokumentRepository.hentHvisEksisterer(påKlagdBehandlingId)).thenReturn(Optional.of(behandlingDokument));
 
-        var dokumentReferanses = kabalTjeneste.finnDokumentReferanser(behandlingId,
+        var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId,
             KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandlingId).build());
 
         sjekkResultat(dokumentReferanses, journalpost, TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK);
@@ -122,7 +122,7 @@ class KabalTjenesteTest {
         when(historikkRepository.hentHistorikk(behandlingId)).thenReturn(List.of());
         when(historikkRepository.hentHistorikk(påKlagdBehandlingId)).thenReturn(List.of(historikkInnslag));
 
-        var dokumentReferanses = kabalTjeneste.finnDokumentReferanser(behandlingId,
+        var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId,
             KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandlingId).build());
 
         sjekkResultat(dokumentReferanses, journalpost, TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK);
@@ -137,7 +137,7 @@ class KabalTjenesteTest {
 
         when(mottatteDokumentRepository.hentMottatteDokument(behandlingId)).thenReturn(List.of(dokumentMottatt));
 
-        var dokumentReferanses = kabalTjeneste.finnDokumentReferanser(behandlingId,
+        var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId,
             KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).build());
 
         sjekkResultat(dokumentReferanses, journalpost, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE);
@@ -154,7 +154,7 @@ class KabalTjenesteTest {
         when(mottatteDokumentRepository.hentMottatteDokument(påKlagdBehandling)).thenReturn(List.of(dokumentMottatt));
         when(mottatteDokumentRepository.hentMottatteDokument(behandlingId)).thenReturn(List.of());
 
-        var dokumentReferanses = kabalTjeneste.finnDokumentReferanser(behandlingId,
+        var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId,
             KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandling).build());
 
         sjekkResultat(dokumentReferanses, journalpost, TilKabalDto.DokumentReferanseType.BRUKERS_SOEKNAD);

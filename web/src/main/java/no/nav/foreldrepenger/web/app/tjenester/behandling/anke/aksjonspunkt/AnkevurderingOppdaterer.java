@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.anke.aksjonspunkt;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.Set;
@@ -7,12 +8,20 @@ import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
+import no.nav.foreldrepenger.behandling.kabal.SendTilKabalTask;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
@@ -24,22 +33,35 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.exception.FunksjonellException;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = AnkeVurderingResultatAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurderingResultatAksjonspunktDto> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AnkevurderingOppdaterer.class);
+    private static final boolean ER_PROD = Environment.current().isProd();
+
     private HistorikkTjenesteAdapter historikkTjenesteAdapter;
     private AnkeVurderingTjeneste ankeVurderingTjeneste;
     private AnkeRepository ankeRepository;
+    private KlageRepository klageRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
+    private ProsessTaskTjeneste prosessTaskTjeneste;
 
     AnkevurderingOppdaterer() {
         // for CDI proxy
@@ -49,34 +71,64 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
     public AnkevurderingOppdaterer(HistorikkTjenesteAdapter historikkTjenesteAdapter,
                                    AnkeVurderingTjeneste ankeVurderingTjeneste,
                                    AnkeRepository ankeRepository,
+                                   KlageRepository klageRepository,
                                    BehandlingRepository behandlingRepository,
+                                   ProsessTaskTjeneste prosessTaskTjeneste,
                                    BehandlingVedtakRepository behandlingVedtakRepository) {
         this.historikkTjenesteAdapter = historikkTjenesteAdapter;
         this.ankeVurderingTjeneste = ankeVurderingTjeneste;
         this.ankeRepository = ankeRepository;
         this.behandlingRepository = behandlingRepository;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
+        this.klageRepository = klageRepository;
+        this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 
     @Override
     public OppdateringResultat oppdater(AnkeVurderingResultatAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        var behandling = param.getBehandling();
+        var ankeBehandling = param.getBehandling();
 
-        var ankeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId());
+        if (!ER_PROD && dto.getSendTilKabal()) {
+            var ankeresultat = ankeRepository.hentAnkeResultat(ankeBehandling.getId());
+            var påAnketKlageBehandlingId = mapPåAnketKlageBehandlingUuid(dto)
+                .or(() ->  ankeresultat.flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId))
+                .orElseThrow(() -> new FunksjonellException("FP-ANKEKLAGE", "Mangler påanket klage", "Velg klagebehandling"))
+            ;
+            var hjemmelFraKlage = klageRepository.hentKlageVurderingResultat(påAnketKlageBehandlingId, KlageVurdertAv.NFP)
+                .map(KlageVurderingResultat::getKlageHjemmel);
+            var klageHjemmel = Optional.ofNullable(dto.getKlageHjemmel())
+                .filter(h -> !KlageHjemmel.UDEFINERT.equals(h))
+                .or(() -> hjemmelFraKlage)
+                .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(ankeBehandling.getFagsakYtelseType()));
+            if (KlageHjemmel.UDEFINERT.equals(klageHjemmel)) {
+                throw new FunksjonellException("FP-HJEMMEL", "Mangler hjemmel", "Velg hjemmel");
+            }
+            ankeRepository.settPåAnketKlageBehandling(ankeBehandling.getId(), påAnketKlageBehandlingId);
+            var tilKabalTask = ProsessTaskData.forProsessTask(SendTilKabalTask.class);
+            tilKabalTask.setBehandling(ankeBehandling.getFagsakId(), ankeBehandling.getId(), ankeBehandling.getAktørId().getId());
+            tilKabalTask.setCallIdFraEksisterende();
+            tilKabalTask.setProperty(SendTilKabalTask.HJEMMEL_KEY, klageHjemmel.getKode());
+            prosessTaskTjeneste.lagre(tilKabalTask);
+            var frist = LocalDateTime.now().plusYears(5);
+            var apVent = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE, Venteårsak.VENT_KABAL, frist);
+            return OppdateringResultat.utenTransisjon().medEkstraAksjonspunktResultat(apVent, AksjonspunktStatus.OPPRETTET).build();
+        }
+
+        var ankeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(ankeBehandling.getId());
         var ankeVurderingResultatHaddeVerdiFørHåndtering = ankeVurderingResultat.isPresent();
 
-        var builder = mapDto(dto, behandling);
+        var builder = mapDto(dto, ankeBehandling);
         var påAnketKlageBehandlingId = mapPåAnketKlageBehandlingUuid(dto).orElse(null);
-        ankeVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, builder, påAnketKlageBehandlingId);
+        ankeVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(ankeBehandling, builder, påAnketKlageBehandlingId);
 
-        opprettHistorikkinnslag(behandling, dto, ankeVurderingResultatHaddeVerdiFørHåndtering, påAnketKlageBehandlingId);
+        opprettHistorikkinnslag(ankeBehandling, dto, ankeVurderingResultatHaddeVerdiFørHåndtering, påAnketKlageBehandlingId);
 
         return OppdateringResultat.utenOveropp();
     }
 
     private AnkeVurderingResultatEntitet.Builder mapDto(AnkeVurderingResultatAksjonspunktDto apDto,
                                                         Behandling behandling) {
-        if (AnkeVurdering.UDEFINERT.equals(apDto.getAnkeVurdering())) {
+        if (apDto.getAnkeVurdering() == null || AnkeVurdering.UDEFINERT.equals(apDto.getAnkeVurdering())) {
             throw new IllegalArgumentException("Må sette resultat på anke når aksjonspunktet skal løses");
         }
         var builder = ankeVurderingTjeneste.hentAnkeVurderingResultatBuilder(behandling);
@@ -119,7 +171,7 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
             dto.getAnkeVurderingOmgjoer().getKode()) : null;
         var omgjørÅrsak = dto.getAnkeOmgjoerArsak() != null ? dto.getAnkeOmgjoerArsak() : null;
 
-        var resultat = konverterAnkeVurderingTilResultatType(ankeVurdering, ankeVurderingOmgjør);
+        var resultat = AnkeVurderingTjeneste.konverterAnkeVurderingTilResultatType(ankeVurdering, ankeVurderingOmgjør);
         var historiebygger = new HistorikkInnslagTekstBuilder();
 
         if (!endreAnke) {
@@ -149,35 +201,6 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
         historiebygger.build(innslag);
 
         historikkTjenesteAdapter.lagInnslag(innslag);
-    }
-
-    private HistorikkResultatType konverterAnkeVurderingTilResultatType(AnkeVurdering vurdering,
-                                                                        AnkeVurderingOmgjør ankeVurderingOmgjør) {
-        if (AnkeVurdering.ANKE_AVVIS.equals(vurdering)) {
-            return HistorikkResultatType.ANKE_AVVIS;
-        }
-        if (AnkeVurdering.ANKE_OMGJOER.equals(vurdering)) {
-            if (AnkeVurderingOmgjør.ANKE_DELVIS_OMGJOERING_TIL_GUNST.equals(ankeVurderingOmgjør)) {
-                return HistorikkResultatType.ANKE_DELVIS_OMGJOERING_TIL_GUNST;
-            }
-            if (AnkeVurderingOmgjør.ANKE_TIL_UGUNST.equals(ankeVurderingOmgjør)) {
-                return HistorikkResultatType.ANKE_TIL_UGUNST;
-            }
-            if (AnkeVurderingOmgjør.ANKE_TIL_GUNST.equals(ankeVurderingOmgjør)) {
-                return HistorikkResultatType.ANKE_TIL_GUNST;
-            }
-            return HistorikkResultatType.ANKE_OMGJOER;
-        }
-        if (AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(vurdering)) {
-            return HistorikkResultatType.ANKE_OPPHEVE_OG_HJEMSENDE;
-        }
-        if (AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV.equals(vurdering)) {
-            return HistorikkResultatType.ANKE_HJEMSENDE;
-        }
-        if (AnkeVurdering.ANKE_STADFESTE_YTELSESVEDTAK.equals(vurdering)) {
-            return HistorikkResultatType.ANKE_STADFESTET_VEDTAK;
-        }
-        return null;
     }
 
     private void finnOgSettOppEndredeHistorikkFelter(AnkeVurderingResultatEntitet ankeVurderingResultat,

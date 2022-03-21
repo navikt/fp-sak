@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntite
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
 
@@ -59,6 +60,19 @@ public class AnkeVurderingTjeneste {
         return eksisterende.map(AnkeVurderingResultatEntitet::builder).orElse(AnkeVurderingResultatEntitet.builder());
     }
 
+    public void oppdaterAnkeMedKabalReferanse(Long ankeBehandlingId, String ref) {
+        ankeRepository.settKabalReferanse(ankeBehandlingId, ref);
+    }
+
+    public void oppdaterAnkeMedPåanketKlage(Long ankeBehandlingId, Long klageBehandlingId) {
+        ankeRepository.settPåAnketKlageBehandling(ankeBehandlingId, klageBehandlingId);
+    }
+
+    public void oppdaterBekreftetVurderingAksjonspunkt(Behandling behandling,
+                                                       AnkeVurderingResultatEntitet.Builder builder) {
+        lagreAnkeVurderingResultat(behandling, builder, true);
+    }
+
     public void oppdaterBekreftetVurderingAksjonspunkt(Behandling behandling,
                                                        AnkeVurderingResultatEntitet.Builder builder,
                                                        Long påAnketKlageBehandlingId) {
@@ -94,6 +108,7 @@ public class AnkeVurderingTjeneste {
         var nyttresultat = builder.medAnkeResultat(ankeResultat).build();
         var eksisterende = hentAnkeVurderingResultat(behandling).orElse(null);
         var endretBeslutterStatus = false;
+        var kabal = ankeResultat.erBehandletAvKabal();
         if (eksisterende == null) {
             nyttresultat.setGodkjentAvMedunderskriver(false);
         } else {
@@ -101,16 +116,18 @@ public class AnkeVurderingTjeneste {
             endretBeslutterStatus = eksisterende.godkjentAvMedunderskriver() && !uendret;
             nyttresultat.setGodkjentAvMedunderskriver(eksisterende.godkjentAvMedunderskriver() && uendret);
         }
-        var tilbakeføres = endretBeslutterStatus &&
+        var tilbakeføres = !kabal && endretBeslutterStatus &&
                 !behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE) &&
                 behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.ANKE);
         ankeRepository.lagreVurderingsResultat(behandling.getId(), nyttresultat);
-        if (erVurderingOppdaterer || tilbakeføres) {
+        if (erVurderingOppdaterer || tilbakeføres || kabal) {
             settBehandlingResultatTypeBasertPaaUtfall(behandling, nyttresultat.getAnkeVurdering());
         }
         if (tilbakeføres) {
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
             tilbakeførBehandling(behandling);
+        } else if (kabal) {
+            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         }
     }
 
@@ -131,5 +148,33 @@ public class AnkeVurderingTjeneste {
                     .medBehandlingResultatType(behandlingResultatType)
                     .buildFor(behandling);
         }
+    }
+
+    public static HistorikkResultatType konverterAnkeVurderingTilResultatType(AnkeVurdering vurdering, AnkeVurderingOmgjør ankeVurderingOmgjør) {
+        if (AnkeVurdering.ANKE_AVVIS.equals(vurdering)) {
+            return HistorikkResultatType.ANKE_AVVIS;
+        }
+        if (AnkeVurdering.ANKE_OMGJOER.equals(vurdering)) {
+            if (AnkeVurderingOmgjør.ANKE_DELVIS_OMGJOERING_TIL_GUNST.equals(ankeVurderingOmgjør)) {
+                return HistorikkResultatType.ANKE_DELVIS_OMGJOERING_TIL_GUNST;
+            }
+            if (AnkeVurderingOmgjør.ANKE_TIL_UGUNST.equals(ankeVurderingOmgjør)) {
+                return HistorikkResultatType.ANKE_TIL_UGUNST;
+            }
+            if (AnkeVurderingOmgjør.ANKE_TIL_GUNST.equals(ankeVurderingOmgjør)) {
+                return HistorikkResultatType.ANKE_TIL_GUNST;
+            }
+            return HistorikkResultatType.ANKE_OMGJOER;
+        }
+        if (AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(vurdering)) {
+            return HistorikkResultatType.ANKE_OPPHEVE_OG_HJEMSENDE;
+        }
+        if (AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV.equals(vurdering)) {
+            return HistorikkResultatType.ANKE_HJEMSENDE;
+        }
+        if (AnkeVurdering.ANKE_STADFESTE_YTELSESVEDTAK.equals(vurdering)) {
+            return HistorikkResultatType.ANKE_STADFESTET_VEDTAK;
+        }
+        return null;
     }
 }

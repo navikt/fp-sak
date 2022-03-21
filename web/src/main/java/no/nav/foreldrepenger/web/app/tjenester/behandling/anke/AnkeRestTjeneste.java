@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.anke;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
 
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -33,7 +32,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.anke.aksjonspunkt.AnkeVurderingResultatAksjonspunktMellomlagringDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -54,8 +58,11 @@ public class AnkeRestTjeneste {
     private static final String MELLOMLAGRE_ANKE_PART_PATH = "/mellomlagre-anke";
     public static final String MELLOMLAGRE_ANKE_PATH = BASE_PATH + MELLOMLAGRE_ANKE_PART_PATH;
 
+    private static final boolean ER_PROD = Environment.current().isProd();
+
     private BehandlingRepository behandlingRepository;
     private AnkeVurderingTjeneste ankeVurderingTjeneste;
+    private KlageRepository klageRepository;
 
     public AnkeRestTjeneste() {
         // for CDI proxy
@@ -63,9 +70,11 @@ public class AnkeRestTjeneste {
 
     @Inject
     public AnkeRestTjeneste(BehandlingRepository behandlingRepository,
-            AnkeVurderingTjeneste ankeVurderingTjeneste) {
+                            KlageRepository klageRepository,
+                            AnkeVurderingTjeneste ankeVurderingTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.ankeVurderingTjeneste = ankeVurderingTjeneste;
+        this.klageRepository = klageRepository;
     }
 
     @GET
@@ -87,11 +96,21 @@ public class AnkeRestTjeneste {
     }
 
     private AnkebehandlingDto mapFra(Behandling behandling) {
-        var dto = new AnkebehandlingDto();
-        var ankeVurdering = mapAnkeVurderingResultatDto(behandling);
-        ankeVurdering.ifPresent(dto::setAnkeVurderingResultat);
+        var vurderingResultat = ankeVurderingTjeneste.hentAnkeVurderingResultat(behandling);
+        var påAnketKlageBehandling = vurderingResultat.map(AnkeVurderingResultatEntitet::getAnkeResultat)
+            .flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId);
+        var påAnketKlageBehandlingUuid = påAnketKlageBehandling.map(behandlingRepository::hentBehandling)
+            .map(Behandling::getUuid).orElse(null);
+        var resultat = vurderingResultat.map(avr -> lagDto(avr, påAnketKlageBehandlingUuid));
+        var klageHjemmel = påAnketKlageBehandling.flatMap(k -> klageRepository.hentKlageVurderingResultat(k, KlageVurdertAv.NFP))
+            .map(KlageVurderingResultat::getKlageHjemmel).orElse(KlageHjemmel.UDEFINERT);
+        var ankeUnderBehandlingKabal = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE);
+        var ankeBehandletAvKabal = vurderingResultat.map(AnkeVurderingResultatEntitet::getAnkeResultat).map(AnkeResultatEntitet::erBehandletAvKabal);
+        var ankeDto = new AnkebehandlingDto(resultat.orElse(null),
+            klageHjemmel, KlageHjemmel.getHjemlerForYtelse(behandling.getFagsakYtelseType()),
+            !ER_PROD, ankeUnderBehandlingKabal, ankeBehandletAvKabal.orElse(false));
 
-        return dto;
+        return ankeDto;
     }
 
     @POST
@@ -143,15 +162,6 @@ public class AnkeRestTjeneste {
     private AnkeVurderingResultatEntitet.Builder mapMellomlagreTekst(AnkeVurderingResultatAksjonspunktMellomlagringDto apDto, Behandling behandling) {
         var builder = ankeVurderingTjeneste.hentAnkeVurderingResultatBuilder(behandling);
         return builder.medFritekstTilBrev(apDto.getFritekstTilBrev());
-    }
-
-    private Optional<AnkeVurderingResultatDto> mapAnkeVurderingResultatDto(Behandling behandling) {
-        var vurderingResultat = ankeVurderingTjeneste.hentAnkeVurderingResultat(behandling);
-        var påAnketKlageBehandling = vurderingResultat.map(AnkeVurderingResultatEntitet::getAnkeResultat)
-            .flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId);
-        var påAnketKlageBehandlingUuid = påAnketKlageBehandling.map(behandlingRepository::hentBehandling)
-            .map(Behandling::getUuid).orElse(null);
-        return vurderingResultat.map(avr -> lagDto(avr, påAnketKlageBehandlingUuid));
     }
 
     private static AnkeVurderingResultatDto lagDto(AnkeVurderingResultatEntitet ankeVurderingResultat,

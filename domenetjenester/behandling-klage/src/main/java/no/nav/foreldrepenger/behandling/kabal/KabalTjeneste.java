@@ -21,6 +21,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentBestiltEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
@@ -46,7 +49,6 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class KabalTjeneste {
@@ -86,37 +88,95 @@ public class KabalTjeneste {
         this.kabalKlient = kabalKlient;
     }
 
-    public void sentKlageTilKabal(Behandling behandling, KlageHjemmel hjemmel) {
-        if (!BehandlingType.KLAGE.equals(behandling.getType())) {
+    public void sendKlageTilKabal(Behandling klageBehandling, KlageHjemmel hjemmel) {
+        if (!BehandlingType.KLAGE.equals(klageBehandling.getType())) {
             throw new IllegalArgumentException("Utviklerfeil: Prøver sende noe annet enn klage/anke til Kabal!");
         }
-        var resultat = klageVurderingTjeneste.hentKlageVurderingResultat(behandling, KlageVurdertAv.NFP).orElseThrow();
+        var resultat = klageVurderingTjeneste.hentKlageVurderingResultat(klageBehandling, KlageVurdertAv.NFP).orElseThrow();
         var brukHjemmel = Optional.ofNullable(hjemmel)
             .or(() -> Optional.ofNullable(resultat.getKlageHjemmel()))
-            .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(behandling.getFagsakYtelseType()));
-        if (KlageHjemmel.UDEFINERT.equals(brukHjemmel)) {
-            throw new TekniskException("FP-Hjemmel", "Utviklerfeil: Mangler hjemmel for behandling " + behandling.getId());
-        }
-        var enhet = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId())
+            .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(klageBehandling.getFagsakYtelseType()));
+        var enhet = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(klageBehandling.getFagsakId())
             .map(Behandling::getBehandlendeEnhet).orElseThrow();
-        var klageMottattDato  = utledDokumentMottattDato(behandling);
-        var klager = utledKlager(behandling, resultat.getKlageResultat());
-        var request = TilKabalDto.klage(behandling, klager, enhet, finnDokumentReferanser(behandling.getId(), resultat.getKlageResultat()),
+        var klageMottattDato  = utledDokumentMottattDato(klageBehandling);
+        var klager = utledKlager(klageBehandling, resultat.getKlageResultat());
+        var request = TilKabalDto.klage(klageBehandling, klager, enhet, finnDokumentReferanserForKlage(klageBehandling.getId(), resultat.getKlageResultat()),
             klageMottattDato, klageMottattDato, List.of(brukHjemmel.getKabal()), resultat.getBegrunnelse());
+        kabalKlient.sendTilKabal(request);
+    }
+
+    public void sendAnkeTilKabal(Behandling ankeBehandling, KlageHjemmel hjemmel) {
+        if (!BehandlingType.ANKE.equals(ankeBehandling.getType())) {
+            throw new IllegalArgumentException("Utviklerfeil: Prøver sende noe annet enn klage/anke til Kabal!");
+        }
+        var ankeResultat = ankeVurderingTjeneste.hentAnkeResultat(ankeBehandling);
+        var klageBehandling = ankeResultat.getPåAnketKlageBehandlingId().map(behandlingRepository::hentBehandling).orElseThrow();
+        var klageResultat = klageVurderingTjeneste.hentEvtOpprettKlageResultat(klageBehandling);
+        var brukHjemmel = Optional.ofNullable(hjemmel)
+            .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(ankeBehandling.getFagsakYtelseType()));
+        var enhet = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(ankeBehandling.getFagsakId())
+            .map(Behandling::getBehandlendeEnhet).orElseThrow();
+        var ankeMottattDato  = utledDokumentMottattDato(ankeBehandling);
+        var klager = utledKlager(ankeBehandling, klageResultat);
+        var bleKlageBehandletKabal = klageResultat.erBehandletAvKabal();
+        var kildereferanse = bleKlageBehandletKabal ? klageBehandling.getUuid().toString() : ankeBehandling.getUuid().toString();
+        var request = TilKabalDto.anke(ankeBehandling, kildereferanse, klager, enhet,
+            finnDokumentReferanserForAnke(ankeBehandling.getId(), ankeResultat, bleKlageBehandletKabal),
+            ankeMottattDato, ankeMottattDato, List.of(brukHjemmel.getKabal()));
         kabalKlient.sendTilKabal(request);
     }
 
     public void lagreKlageUtfallFraKabal(Behandling behandling, KabalUtfall utfall) {
         var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, KlageVurdertAv.NK)
             .medGodkjentAvMedunderskriver(true)
-            .medKlageVurdering(vurderingFraUtfall(utfall))
-            .medKlageVurderingOmgjør(vurderingOmgjørFraUtfall(utfall));
+            .medKlageVurdering(klageVurderingFraUtfall(utfall))
+            .medKlageVurderingOmgjør(klageVurderingOmgjørFraUtfall(utfall));
         klageVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, builder, KlageVurdertAv.NK);
-        opprettHistorikkinnslag(behandling, utfall);
+        opprettHistorikkinnslagKlage(behandling, utfall);
+    }
+
+    public void lagreAnkeUtfallFraKabal(Behandling behandling, KabalUtfall utfall) {
+        var builder = ankeVurderingTjeneste.hentAnkeVurderingResultatBuilder(behandling)
+            .medGodkjentAvMedunderskriver(true)
+            .medAnkeVurdering(ankeVurderingFraUtfall(utfall))
+            .medAnkeVurderingOmgjør(ankeVurderingOmgjørFraUtfall(utfall));
+        ankeVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, builder);
+        opprettHistorikkinnslagAnke(behandling, utfall);
     }
 
     public void fjerneKabalFlagg(Behandling behandling) {
         klageVurderingTjeneste.oppdaterKlageMedKabalReferanse(behandling.getId(), null);
+    }
+
+    public void settKabalReferanse(Behandling behandling, String kabalReferanse) {
+        if (BehandlingType.KLAGE.equals(behandling.getType())) {
+            klageVurderingTjeneste.oppdaterKlageMedKabalReferanse(behandling.getId(), kabalReferanse);
+        } else if (BehandlingType.ANKE.equals(behandling.getType())) {
+            ankeVurderingTjeneste.oppdaterAnkeMedKabalReferanse(behandling.getId(), kabalReferanse);
+        } else {
+            throw new IllegalArgumentException("Utviklerfeil: Kabaloppdatering av behandling med feil type " + behandling.getId());
+        }
+    }
+
+    public void opprettNyttAnkeResultat(Behandling ankeBehandling, String ref, Behandling klageBehandling) {
+        ankeVurderingTjeneste.hentAnkeResultat(ankeBehandling); // Vil opprette dersom mangler
+        ankeVurderingTjeneste.oppdaterAnkeMedKabalReferanse(ankeBehandling.getId(), ref);
+        ankeVurderingTjeneste.oppdaterAnkeMedPåanketKlage(ankeBehandling.getId(), klageBehandling.getId());
+    }
+
+    public Optional<Behandling> finnAnkeBehandling(Long behandlingId, String kabalReferanse) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        if (BehandlingType.KLAGE.equals(behandling.getType())) {
+            return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsakId()).stream()
+                .filter(b -> BehandlingType.ANKE.equals(b.getType()))
+                .filter(b -> Objects.equals(kabalReferanse, ankeVurderingTjeneste.hentAnkeResultat(b).getKabalReferanse()))
+                .filter(b -> !b.erSaksbehandlingAvsluttet())
+                .findFirst();
+        } else if (BehandlingType.ANKE.equals(behandling.getType())) {
+            return Optional.of(behandling);
+        } else {
+            return Optional.empty();
+        }
     }
 
     private TilKabalDto.Klager utledKlager(Behandling behandling, KlageResultatEntitet resultat) {
@@ -144,7 +204,7 @@ public class KabalTjeneste {
             .filter(filterPredicate);
     }
 
-    List<TilKabalDto.DokumentReferanse> finnDokumentReferanser(long behandlingId, KlageResultatEntitet resultat) {
+    List<TilKabalDto.DokumentReferanse> finnDokumentReferanserForKlage(long behandlingId, KlageResultatEntitet resultat) {
         List<TilKabalDto.DokumentReferanse> referanser = new ArrayList<>();
 
         opprettDokumentReferanseFor(behandlingId, TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV, referanser, erKlageOversendtBrevSent(),
@@ -159,6 +219,25 @@ public class KabalTjeneste {
         resultat.getPåKlagdBehandlingId()
             .ifPresent(
                 b -> opprettDokumentReferanseFor(b, TilKabalDto.DokumentReferanseType.BRUKERS_SOEKNAD, referanser, erSøknadDokument()));
+
+        return referanser;
+    }
+
+    List<TilKabalDto.DokumentReferanse> finnDokumentReferanserForAnke(long behandlingId, AnkeResultatEntitet resultat, boolean bleKlageBehandletKabal) {
+        List<TilKabalDto.DokumentReferanse> referanser = new ArrayList<>();
+
+        opprettDokumentReferanseFor(behandlingId, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE, referanser, erKlageEllerAnkeDokument());
+
+        if (!bleKlageBehandletKabal) {
+            resultat.getPåAnketKlageBehandlingId()
+                .ifPresent(b -> opprettDokumentReferanseFor(b, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE, referanser, erKlageEllerAnkeDokument()));
+
+            resultat.getPåAnketKlageBehandlingId()
+                .ifPresent(b -> opprettDokumentReferanseFor(b, TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV, referanser, erKlageOversendtBrevSent(), erKlageOversendtHistorikkInnslagOpprettet()));
+
+            resultat.getPåAnketKlageBehandlingId()
+                .ifPresent(b -> opprettDokumentReferanseFor(b, TilKabalDto.DokumentReferanseType.KLAGE_VEDTAK, referanser, erKlageVedtakDokument(), erVedtakHistorikkInnslagOpprettet()));
+        }
 
         return referanser;
     }
@@ -228,11 +307,15 @@ public class KabalTjeneste {
     }
 
     private Predicate<BehandlingDokumentBestiltEntitet> erKlageOversendtBrevSent() {
-        return d -> DokumentMalType.KLAGE_OVERSENDT.getKode().equals(d.getDokumentMalType());
+        return d -> d.getDokumentMalType() != null && DokumentMalType.erOversendelsesBrev(DokumentMalType.fraKode(d.getDokumentMalType()));
     }
 
     private Predicate<BehandlingDokumentBestiltEntitet> erVedtakDokument() {
         return d -> d.getDokumentMalType() != null && DokumentMalType.erVedtaksBrev(DokumentMalType.fraKode(d.getDokumentMalType()));
+    }
+
+    private Predicate<BehandlingDokumentBestiltEntitet> erKlageVedtakDokument() {
+        return d -> d.getDokumentMalType() != null && DokumentMalType.erKlageVedtaksBrev(DokumentMalType.fraKode(d.getDokumentMalType()));
     }
 
     private Predicate<HistorikkinnslagDokumentLink> erKlageOversendtHistorikkInnslagOpprettet() {
@@ -243,15 +326,15 @@ public class KabalTjeneste {
         return d -> DokumentMalType.VEDTAKSBREV.stream().anyMatch(malType -> d.getLinkTekst().equals(malType.getNavn()));
     }
 
-    private void opprettHistorikkinnslag(Behandling behandling, KabalUtfall utfall) {
-        var klageVurdering = vurderingFraUtfall(utfall);
-        var klageVurderingOmgjør = vurderingOmgjørFraUtfall(utfall);
+    private void opprettHistorikkinnslagKlage(Behandling behandling, KabalUtfall utfall) {
+        var klageVurdering = klageVurderingFraUtfall(utfall);
+        var klageVurderingOmgjør = klageVurderingOmgjørFraUtfall(utfall);
 
         var resultat = KlageVurderingTjeneste.historikkResultatForKlageVurdering(klageVurdering, KlageVurdertAv.NK, klageVurderingOmgjør);
 
         var builder = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.KLAGE_BEH_NK)
-            .medEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_KA, null, resultat.getNavn());;
+            .medEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_KA, null, resultat.getNavn());
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.KLAGE_BEH_NK);
         historikkinnslag.setBehandlingId(behandling.getId());
@@ -261,24 +344,59 @@ public class KabalTjeneste {
         historikkRepository.lagre(historikkinnslag);
     }
 
-    private KlageVurdering vurderingFraUtfall(KabalUtfall utfall) {
+    private void opprettHistorikkinnslagAnke(Behandling behandling, KabalUtfall utfall) {
+        var klageVurdering = ankeVurderingFraUtfall(utfall);
+        var klageVurderingOmgjør = ankeVurderingOmgjørFraUtfall(utfall);
+
+        var resultat = AnkeVurderingTjeneste.konverterAnkeVurderingTilResultatType(klageVurdering, klageVurderingOmgjør);
+
+        var builder = new HistorikkInnslagTekstBuilder()
+            .medHendelse(HistorikkinnslagType.ANKE_BEH)
+            .medEndretFelt(HistorikkEndretFeltType.ANKE_RESULTAT, null, resultat.getNavn());
+        var historikkinnslag = new Historikkinnslag();
+        historikkinnslag.setType(HistorikkinnslagType.ANKE_BEH);
+        historikkinnslag.setBehandlingId(behandling.getId());
+        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
+        builder.build(historikkinnslag);
+
+        historikkRepository.lagre(historikkinnslag);
+    }
+
+    private KlageVurdering klageVurderingFraUtfall(KabalUtfall utfall) {
         return switch (utfall) {
             case STADFESTELSE -> KlageVurdering.STADFESTE_YTELSESVEDTAK;
             case AVVIST -> KlageVurdering.AVVIS_KLAGE;
             case OPPHEVET -> KlageVurdering.OPPHEVE_YTELSESVEDTAK;
-            case MEDHOLD -> KlageVurdering.MEDHOLD_I_KLAGE;
-            case DELVIS_MEDHOLD -> KlageVurdering.MEDHOLD_I_KLAGE;
-            case UGUNST -> KlageVurdering.MEDHOLD_I_KLAGE;
+            case MEDHOLD, DELVIS_MEDHOLD, UGUNST -> KlageVurdering.MEDHOLD_I_KLAGE;
             default -> throw new IllegalStateException("Utviklerfeil forsøker lagre klage med utfall " + utfall);
         };
     }
 
-    private KlageVurderingOmgjør vurderingOmgjørFraUtfall(KabalUtfall utfall) {
+    private KlageVurderingOmgjør klageVurderingOmgjørFraUtfall(KabalUtfall utfall) {
         return switch (utfall) {
             case MEDHOLD -> KlageVurderingOmgjør.GUNST_MEDHOLD_I_KLAGE;
             case DELVIS_MEDHOLD -> KlageVurderingOmgjør.DELVIS_MEDHOLD_I_KLAGE;
             case UGUNST -> KlageVurderingOmgjør.UGUNST_MEDHOLD_I_KLAGE;
             default -> KlageVurderingOmgjør.UDEFINERT;
+        };
+    }
+
+    private AnkeVurdering ankeVurderingFraUtfall(KabalUtfall utfall) {
+        return switch (utfall) {
+            case STADFESTELSE -> AnkeVurdering.ANKE_STADFESTE_YTELSESVEDTAK;
+            case AVVIST -> AnkeVurdering.ANKE_AVVIS;
+            case OPPHEVET -> AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE;
+            case MEDHOLD, DELVIS_MEDHOLD, UGUNST -> AnkeVurdering.ANKE_OMGJOER;
+            default -> throw new IllegalStateException("Utviklerfeil forsøker lagre klage med utfall " + utfall);
+        };
+    }
+
+    private AnkeVurderingOmgjør ankeVurderingOmgjørFraUtfall(KabalUtfall utfall) {
+        return switch (utfall) {
+            case MEDHOLD -> AnkeVurderingOmgjør.ANKE_TIL_GUNST;
+            case DELVIS_MEDHOLD -> AnkeVurderingOmgjør.ANKE_DELVIS_OMGJOERING_TIL_GUNST;
+            case UGUNST -> AnkeVurderingOmgjør.ANKE_TIL_UGUNST;
+            default -> AnkeVurderingOmgjør.UDEFINERT;
         };
     }
 
