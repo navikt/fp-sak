@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
-import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.DokumentProdusertDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -47,7 +46,6 @@ public class BrevRestTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(BrevRestTjeneste.class);
 
     static final String BASE_PATH = "/brev";
-    private static final String DOKUMENT_SENDT_PART_PATH = "/dokument-sendt";
     private static final String VARSEL_REVURDERING_PART_PATH = "/varsel/revurdering";
     public static final String VARSEL_REVURDERING_PATH = BASE_PATH + VARSEL_REVURDERING_PART_PATH;
     private static final String BREV_BESTILL_PART_PATH = "/bestill";
@@ -101,16 +99,6 @@ public class BrevRestTjeneste {
     }
 
     @POST
-    @Path(DOKUMENT_SENDT_PART_PATH)
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(description = "Sjekker om dokument for mal er sendt", tags = "brev")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Boolean harProdusertDokument(@TilpassetAbacAttributt(supplierClass = DokProdusertAbacDataSupplier.class) @Valid DokumentProdusertDto dto) {
-        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
-        return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.fraKode(dto.getDokumentMal())); // NOSONAR
-    }
-
-    @POST
     @Path("/kvittering")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Kvitterer at brevet ble produsert og sendt. BREV_SENT historikk blir lagt og behandling dokument blir oppdatert med journalpostId.", tags = "brev")
@@ -143,15 +131,6 @@ public class BrevRestTjeneste {
                 attributter.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId());
             }
             return attributter;
-        }
-    }
-
-    public static class DokProdusertAbacDataSupplier implements Function<Object, AbacDataAttributter> {
-
-        @Override
-        public AbacDataAttributter apply(Object obj) {
-            var req = (DokumentProdusertDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
         }
     }
 
