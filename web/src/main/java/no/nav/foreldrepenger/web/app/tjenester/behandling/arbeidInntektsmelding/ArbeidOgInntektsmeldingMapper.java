@@ -1,12 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidInntektsmelding;
 
-import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,7 +19,7 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.ArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektsmeldingDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektspostDto;
-import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.PermisjonUtenSluttdatoDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.PermisjonOgMangelDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
@@ -33,7 +30,6 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
-import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
@@ -135,20 +131,12 @@ public class ArbeidOgInntektsmeldingMapper {
                 finnStillingsprosentForPeriode(ya, datoIntervallEntitet).orElse(null),
                 mangelInntektsmelding.orElse(null),
                 vurdering.map(ArbeidsforholdValg::getVurdering).orElse(null),
-                mangelPermisjon.map(mangel -> mapPermisjonUtenSluttdatoHvisFinnes( ya, overstyringAvPermisjon)).orElse(null),
-                HåndterePermisjoner.hentRelevantePermisjonForRelevantAnsettelsesperiode(ya,stp).orElse(null),
+                mapPermisjonOgMangel(ya, stp, mangelPermisjon.orElse(null), overstyringAvPermisjon).orElse(null),
                 vurdering.map(ArbeidsforholdValg::getBegrunnelse).orElse(null)));
     }
 
-    private static PermisjonUtenSluttdatoDto mapPermisjonUtenSluttdatoHvisFinnes(Yrkesaktivitet ya, List<ArbeidsforholdOverstyring> overstyringAvPermisjon) {
-        Permisjon permisjon = hentPermisjonUtenSluttdato(ya).orElse(null);
-        return permisjon != null ? new PermisjonUtenSluttdatoDto(permisjon.getFraOgMed(), permisjon.getPermisjonsbeskrivelseType(), utledBekreftetStatus(ya.getArbeidsforholdRef(), overstyringAvPermisjon)) : null;
-    }
-
-    private static Optional<Permisjon> hentPermisjonUtenSluttdato(Yrkesaktivitet ya) {
-        return ya.getPermisjon().stream()
-                .filter(p-> p.getTilOgMed() == null || TIDENES_ENDE.equals(p.getTilOgMed()))
-                .max(Comparator.comparing(Permisjon::getFraOgMed));
+    private static Optional<PermisjonOgMangelDto> mapPermisjonOgMangel(Yrkesaktivitet ya, LocalDate stp, AksjonspunktÅrsak årsak,  List<ArbeidsforholdOverstyring> overstyringAvPermisjon) {
+        return HåndterePermisjoner.hentPermisjonOgMangel(ya, stp, årsak, utledBekreftetStatus(ya.getArbeidsforholdRef(), overstyringAvPermisjon) );
     }
 
     private static BekreftetPermisjonStatus utledBekreftetStatus(InternArbeidsforholdRef internArbeidsforholdRef, List<ArbeidsforholdOverstyring> overstyringAvPermisjon) {
@@ -239,7 +227,6 @@ public class ArbeidOgInntektsmeldingMapper {
             overstyring.getStillingsprosent() == null ? null : overstyring.getStillingsprosent().getVerdi(),
             null,
             utledSaksbehandlerVurderingOmManueltArbeidsforhold(mangel),
-            null,
             null,
             overstyring.getBegrunnelse());
     }

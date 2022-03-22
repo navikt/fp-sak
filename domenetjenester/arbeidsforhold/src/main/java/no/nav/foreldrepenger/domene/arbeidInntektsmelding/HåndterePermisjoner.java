@@ -12,12 +12,13 @@ import java.util.Optional;
 import java.util.Set;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.PermisjonDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.PermisjonOgMangelDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 
 public class HåndterePermisjoner {
@@ -55,24 +56,25 @@ public class HåndterePermisjoner {
             .anyMatch(p-> p.getTilOgMed() == null || TIDENES_ENDE.equals(p.getTilOgMed()));
     }
 
-    public static Optional<PermisjonDto> hentRelevantePermisjonForRelevantAnsettelsesperiode(Yrkesaktivitet yrkesaktivitet, LocalDate stp) {
+    public static Optional<PermisjonOgMangelDto> hentPermisjonOgMangel(Yrkesaktivitet yrkesaktivitet, LocalDate stp, AksjonspunktÅrsak årsak, BekreftetPermisjonStatus status) {
         return yrkesaktivitet.getPermisjon().stream()
             .filter(HåndterePermisjoner::har100ProsentPermisjonEllerMer)
             .filter(p -> fomErFørStp(stp, p) && tomErLikEllerEtterStp(stp, p))
             .filter(p -> !PERMISJONTYPER_SOM_IKKE_ER_RELEVANTE.contains(p.getPermisjonsbeskrivelseType()))
             .max(Comparator.comparing(Permisjon::getPeriode))
-            .map(HåndterePermisjoner::byggPermisjonDto);
+            .map(p -> byggPermisjonOgMangelDto(p, årsak, status ));
     }
 
     private static boolean harAnsettelsesPerioderSomInkludererStp(YrkesaktivitetFilter filter, LocalDate stp, Yrkesaktivitet ya) {
         return filter.getAnsettelsesPerioder(ya).stream().anyMatch(avtale -> avtale.getPeriode().inkluderer(stp));
     }
-    private static PermisjonDto byggPermisjonDto(Permisjon permisjon) {
-        return new PermisjonDto(
+    private static PermisjonOgMangelDto byggPermisjonOgMangelDto(Permisjon permisjon, AksjonspunktÅrsak årsak, BekreftetPermisjonStatus bekreftetPermisjonStatus) {
+        return new PermisjonOgMangelDto(
             permisjon.getFraOgMed(),
             (permisjon.getTilOgMed() == null) || TIDENES_ENDE.equals(permisjon.getTilOgMed()) ? null : permisjon.getTilOgMed(),
-            permisjon.getProsentsats().getVerdi(),
-            permisjon.getPermisjonsbeskrivelseType());
+            permisjon.getPermisjonsbeskrivelseType(),
+            årsak,
+            bekreftetPermisjonStatus);
     }
     private static boolean har100ProsentPermisjonEllerMer(Permisjon p) {
         return PERMISJON_PROSENTSATS_NØDVENDIG_FOR_Å_UTLØSTE_AKSJONSPUNKT <= p.getProsentsats().getVerdi().intValue();
