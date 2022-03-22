@@ -34,8 +34,9 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseBehandling2021;
-import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.Tid;
@@ -57,6 +58,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     private BehandlingRepository behandlingRepository;
     private YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste;
     private UtsettelseBehandling2021 utsettelse2021;
+    private MinsterettBehandling2022 minsterett2022;
 
     SkjæringstidspunktTjenesteImpl() {
         // CDI
@@ -66,7 +68,8 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     public SkjæringstidspunktTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
                                           YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste,
                                           SkjæringstidspunktUtils utlederUtils,
-                                          UtsettelseBehandling2021 utsettelse2021) {
+                                          UtsettelseBehandling2021 utsettelse2021,
+                                          MinsterettBehandling2022 minsterett2022) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
@@ -76,6 +79,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         this.utlederUtils = utlederUtils;
         this.ytelseMaksdatoTjeneste = ytelseMaksdatoTjeneste;
         this.utsettelse2021 = utsettelse2021;
+        this.minsterett2022 = minsterett2022;
     }
 
     @Override
@@ -90,6 +94,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         var sammenhengendeUttak = utsettelse2021.kreverSammenhengendeUttak(behandling);
+        var utenMinsterett = minsterett2022.utenMinsterett(behandling);
         var førsteUttaksdatoOpt = Optional.ofNullable(førsteUttaksdag(behandling, sammenhengendeUttak));
         var førsteUttaksdato = førsteUttaksdatoOpt.orElseGet(LocalDate::now); // Mangler grunnlag for å angi dato, bruker midlertidig dagens dato pga Dtos etc.
         var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
@@ -99,6 +104,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
         var builder = Skjæringstidspunkt.builder()
             .medKreverSammenhengendeUttak(sammenhengendeUttak)
+            .medUtenMinsterett(utenMinsterett)
             .medFørsteUttaksdato(førsteUttaksdato)
             .medFørsteUttaksdatoGrunnbeløp(førsteUttaksdatoFødselsjustert)
             .medFørsteUttaksdatoSøknad(førsteUttaksdatoOpt.orElse(null))

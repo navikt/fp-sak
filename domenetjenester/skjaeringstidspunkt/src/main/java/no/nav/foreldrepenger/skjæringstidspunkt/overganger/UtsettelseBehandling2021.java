@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.skjæringstidspunkt;
+package no.nav.foreldrepenger.skjæringstidspunkt.overganger;
 
 import java.util.Optional;
 
@@ -37,16 +37,23 @@ public class UtsettelseBehandling2021 {
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
     }
 
-    public boolean kreverSammenhengendeUttak(Long behandlingId) {
-        return familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
-            .or(() -> vedtattFamilieHendelseRelatertFagsak(behandlingRepository.hentBehandling(behandlingId)))
+    public boolean kreverSammenhengendeUttak(Behandling behandling) {
+        return familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .or(() -> vedtattFamilieHendelseRelatertFagsak(behandling))
             .map(utsettelseCore::kreverSammenhengendeUttak)
             .orElse(UtsettelseCore2021.DEFAULT_KREVER_SAMMENHENGENDE_UTTAK);
     }
 
-    public boolean kreverSammenhengendeUttak(Behandling behandling) {
-        return familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
-            .or(() -> vedtattFamilieHendelseRelatertFagsak(behandling))
+    public boolean endringAvSammenhengendeUttak(BehandlingReferanse ref, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag1, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag2) {
+        var sammenhengendeGrunnlag1 = utsettelseCore.kreverSammenhengendeUttak(familieHendelseGrunnlag1);
+        var sammenhengendeGrunnlag2 = utsettelseCore.kreverSammenhengendeUttak(familieHendelseGrunnlag2);
+        var sammenhengendeBehandling = kreverSammenhengendeUttak(ref.getBehandlingId());
+        return sammenhengendeGrunnlag1 != sammenhengendeGrunnlag2 || sammenhengendeBehandling != sammenhengendeGrunnlag1;
+    }
+
+    boolean kreverSammenhengendeUttak(Long behandlingId) {
+        return familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
+            .or(() -> vedtattFamilieHendelseRelatertFagsak(behandlingRepository.hentBehandling(behandlingId)))
             .map(utsettelseCore::kreverSammenhengendeUttak)
             .orElse(UtsettelseCore2021.DEFAULT_KREVER_SAMMENHENGENDE_UTTAK);
     }
@@ -58,12 +65,4 @@ public class UtsettelseBehandling2021 {
             .flatMap(behandlingRepository::finnSisteAvsluttedeIkkeHenlagteBehandling).map(Behandling::getId)
             .flatMap(familieHendelseRepository::hentAggregatHvisEksisterer);
     }
-
-    public boolean endringAvSammenhengendeUttak(BehandlingReferanse ref, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag1, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag2) {
-        var sammenhengendeGrunnlag1 = utsettelseCore.kreverSammenhengendeUttak(familieHendelseGrunnlag1);
-        var sammenhengendeGrunnlag2 = utsettelseCore.kreverSammenhengendeUttak(familieHendelseGrunnlag2);
-        var sammenhengendeBehandling = kreverSammenhengendeUttak(ref.getBehandlingId());
-        return sammenhengendeGrunnlag1 != sammenhengendeGrunnlag2 || sammenhengendeBehandling != sammenhengendeGrunnlag1;
-    }
-
 }

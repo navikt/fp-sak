@@ -29,10 +29,12 @@ import no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp.InngangsvilkårOpptje
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp.OpptjeningsperiodeVilkårTjenesteImpl;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseBehandling2021;
-import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettCore2022;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
 
@@ -40,6 +42,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private OpptjeningsperiodeVilkårTjeneste opptjeningsperiodeVilkårTjeneste;
     private UtsettelseBehandling2021 utsettelse2021;
+    private MinsterettBehandling2022 minsterett2022;
 
     @BeforeEach
     void setUp() {
@@ -49,8 +52,9 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
             new RelatertBehandlingTjeneste(repositoryProvider));
         utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(null), repositoryProvider);
+        minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(null), repositoryProvider);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
-            stputil, utsettelse2021);
+            stputil, utsettelse2021, minsterett2022);
         var beregnMorsMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
             new RelatertBehandlingTjeneste(repositoryProvider));
         opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(

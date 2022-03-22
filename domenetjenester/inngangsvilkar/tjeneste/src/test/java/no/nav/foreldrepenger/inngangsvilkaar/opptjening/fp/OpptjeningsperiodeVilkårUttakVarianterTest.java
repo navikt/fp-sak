@@ -32,10 +32,12 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.OpptjeningsperiodeVilkårTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseBehandling2021;
-import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettCore2022;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 @ExtendWith(MockitoExtension.class)
 public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest {
@@ -44,6 +46,7 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private OpptjeningsperiodeVilkårTjeneste opptjeningsperiodeVilkårTjeneste;
     private UtsettelseBehandling2021 utsettelse2021;
+    private MinsterettBehandling2022 minsterett2022;
     @Mock
     private YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste;
     private SkjæringstidspunktUtils stputil = new SkjæringstidspunktUtils(
@@ -60,9 +63,9 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
         var morsmaksdato = fødselsdato.plusWeeks(31);
         var førsteUttaksdato = morsmaksdato.plusWeeks(4);
         utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(fødselsdato.plusMonths(1)), repositoryProvider);
-
+        minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(fødselsdato.plusMonths(1)), repositoryProvider);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
-            stputil, utsettelse2021);
+            stputil, utsettelse2021, minsterett2022);
         opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
             repositoryProvider.getFamilieHendelseRepository(), ytelseMaksdatoTjeneste);
 
@@ -107,9 +110,9 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
         var morsmaksdato = fødselsdato.plusWeeks(31);
         var førsteUttaksdato = morsmaksdato.minusWeeks(4);
         utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(fødselsdato.plusMonths(1)), repositoryProvider);
-
+        minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(fødselsdato.plusMonths(1)), repositoryProvider);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
-            stputil, utsettelse2021);
+            stputil, utsettelse2021, minsterett2022);
         opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
             repositoryProvider.getFamilieHendelseRepository(), ytelseMaksdatoTjeneste);
 
@@ -154,8 +157,9 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
         var morsmaksdato = fødselsdato.plusWeeks(31);
         var førsteUttaksdato = morsmaksdato.plusWeeks(4);
         utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(fødselsdato.minusMonths(1)), repositoryProvider);
+        minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(fødselsdato.plusMonths(1)), repositoryProvider);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
-            stputil, utsettelse2021);
+            stputil, utsettelse2021, minsterett2022);
         opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
             repositoryProvider.getFamilieHendelseRepository(), ytelseMaksdatoTjeneste);
 
