@@ -44,7 +44,7 @@ public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
 
     private void bestillVedtaksbrev(BehandlingskontrollKontekst kontekst) {
         var bestillBrevDto = brevDto(kontekst);
-        dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
+        dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN);
     }
 
     private BestillBrevDto brevDto(BehandlingskontrollKontekst kontekst) {

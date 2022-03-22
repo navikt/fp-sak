@@ -41,7 +41,6 @@ public class DokumentBestiller {
     }
 
     public void bestillBrev(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
-
         var behandling = bestillBrevDto.getBehandlingUuid() == null ? behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingId())
             : behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid());
         bestillBrev(behandling,

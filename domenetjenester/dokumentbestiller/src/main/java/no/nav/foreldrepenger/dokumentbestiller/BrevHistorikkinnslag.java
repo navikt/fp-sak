@@ -36,10 +36,4 @@ public class BrevHistorikkinnslag {
             .build(historikkinnslag);
         historikkRepository.lagre(historikkinnslag);
     }
-
-    void opprettHistorikkinnslagForManueltBestiltBrev(HistorikkAktør historikkAktør,
-                                                      Behandling behandling,
-                                                      DokumentMalType dokumentMalType) {
-        opprettHistorikkinnslagForBestiltBrevFraKafka(historikkAktør, behandling, dokumentMalType);
-    }
 }

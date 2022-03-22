@@ -39,7 +39,7 @@ public class DokumentBestillerTjenesteTest {
 
         var brevHistorikkinnslag = new BrevHistorikkinnslag(historikkRepositoryMock);
 
-        tjeneste = new DokumentBestillerTjeneste(repositoryProvider.getBehandlingRepository(), null, null, brevHistorikkinnslag, dokumentBestiller);
+        tjeneste = new DokumentBestillerTjeneste(repositoryProvider.getBehandlingRepository(), null, null, dokumentBestiller);
     }
 
     @Test
@@ -53,7 +53,7 @@ public class DokumentBestillerTjenesteTest {
         var bestillBrevDto = new BestillBrevDto(behandling.getId(), behandling.getUuid(), dokumentMalTypeInput, "fritekst");
 
         // Act
-        tjeneste.bestillDokument(bestillBrevDto, historikkAktør, false);
+        tjeneste.bestillDokument(bestillBrevDto, historikkAktør);
 
         // Assert
         verify(dokumentBestiller).bestillBrev(bestillBrevDto, historikkAktør);
@@ -70,7 +70,7 @@ public class DokumentBestillerTjenesteTest {
         var bestillBrevDto = new BestillBrevDto(behandling.getId(), behandling.getUuid(), dokumentMalTypeInput, "fritekst");
 
         // Act
-        tjeneste.bestillDokument(bestillBrevDto, historikkAktør, true);
+        tjeneste.bestillDokument(bestillBrevDto, historikkAktør);
 
         // Assert
         verify(dokumentBestiller).bestillBrev(bestillBrevDto, historikkAktør);

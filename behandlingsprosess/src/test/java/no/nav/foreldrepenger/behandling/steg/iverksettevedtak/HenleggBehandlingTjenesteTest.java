@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipule
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
@@ -107,7 +106,7 @@ public class HenleggBehandlingTjenesteTest {
         // Assert
         verify(historikkRepositoryMock).lagre(any(Historikkinnslag.class));
         verify(repositoryProvider.getBehandlingRepository(), atLeast(2)).lagre(eq(behandling), any(BehandlingLås.class));
-        verify(dokumentBestillerTjenesteMock).bestillDokument(any(BestillBrevDto.class), eq(HistorikkAktør.VEDTAKSLØSNINGEN), eq(false));
+        verify(dokumentBestillerTjenesteMock).bestillDokument(any(BestillBrevDto.class), eq(HistorikkAktør.VEDTAKSLØSNINGEN));
     }
 
     @Test
@@ -121,7 +120,7 @@ public class HenleggBehandlingTjenesteTest {
         // Assert
         verify(historikkRepositoryMock).lagre(any(Historikkinnslag.class));
         verify(repositoryProvider.getBehandlingRepository(), atLeast(2)).lagre(eq(behandling), any(BehandlingLås.class));
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any(), anyBoolean());
+        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any());
     }
 
     @Test
@@ -138,7 +137,7 @@ public class HenleggBehandlingTjenesteTest {
         // Assert
         verify(historikkRepositoryMock).lagre(any(Historikkinnslag.class));
         verify(repositoryProvider.getBehandlingRepository(), atLeastOnce()).lagre(eq(behandling), any(BehandlingLås.class));
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any(), anyBoolean());
+        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any());
         assertThat(aksjonspunkt.getStatus()).isEqualTo(AksjonspunktStatus.AVBRUTT);
     }
 
@@ -153,7 +152,7 @@ public class HenleggBehandlingTjenesteTest {
         // Assert
         verify(historikkRepositoryMock).lagre(any(Historikkinnslag.class));
         verify(repositoryProvider.getBehandlingRepository(), atLeast(2)).lagre(eq(behandling), any(BehandlingLås.class));
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any(), anyBoolean());
+        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any());
     }
 
     @Test

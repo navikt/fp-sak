@@ -21,7 +21,6 @@ public class DokumentBestillerTjeneste {
     private KlageRepository klageRepository;
     private AnkeRepository ankeRepository;
 
-    private BrevHistorikkinnslag brevHistorikkinnslag;
     private DokumentBestiller dokumentBestiller;
 
     public DokumentBestillerTjeneste() {
@@ -32,12 +31,10 @@ public class DokumentBestillerTjeneste {
     public DokumentBestillerTjeneste(BehandlingRepository behandlingRepository,
                                      KlageRepository klageRepository,
                                      AnkeRepository ankeRepository,
-                                     BrevHistorikkinnslag brevHistorikkinnslag,
                                      DokumentBestiller dokumentBestiller) {
         this.behandlingRepository = behandlingRepository;
         this.klageRepository = klageRepository;
         this.ankeRepository = ankeRepository;
-        this.brevHistorikkinnslag = brevHistorikkinnslag;
         this.dokumentBestiller = dokumentBestiller;
     }
 
@@ -55,16 +52,6 @@ public class DokumentBestillerTjeneste {
     }
 
     public void bestillDokument(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
-        bestillDokument(bestillBrevDto, aktør, false);
-    }
-
-    public void bestillDokument(BestillBrevDto bestillBrevDto, HistorikkAktør aktør, boolean manueltBrev) {
-        if (manueltBrev) {
-            var behandling = bestillBrevDto.getBehandlingUuid() == null ? behandlingRepository.hentBehandling(
-                bestillBrevDto.getBehandlingId()) : behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid());
-            brevHistorikkinnslag.opprettHistorikkinnslagForManueltBestiltBrev(aktør, behandling, bestillBrevDto.getBrevmalkode());
-        }
-
         dokumentBestiller.bestillBrev(bestillBrevDto, aktør);
     }
 }

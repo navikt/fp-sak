@@ -49,7 +49,7 @@ public class BrevRestTjenesteTest {
         brevRestTjeneste.bestillDokument(bestillBrevDto);
 
         // Assert
-        verify(dokumentBestillerTjenesteMock).bestillDokument(eq(bestillBrevDto), eq(HistorikkAktør.SAKSBEHANDLER), eq(true));
+        verify(dokumentBestillerTjenesteMock).bestillDokument(eq(bestillBrevDto), eq(HistorikkAktør.SAKSBEHANDLER));
     }
 
     @Test

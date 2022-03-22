@@ -94,7 +94,7 @@ public class KlagevurderingOppdatererTest {
 
         // verifiserer BestillBrevDto
         var brevDtoCaptor = ArgumentCaptor.forClass(BestillBrevDto.class);
-        verify(dokumentBestillerTjeneste).bestillDokument(brevDtoCaptor.capture(), eq(HistorikkAktør.SAKSBEHANDLER), eq(false));
+        verify(dokumentBestillerTjeneste).bestillDokument(brevDtoCaptor.capture(), eq(HistorikkAktør.SAKSBEHANDLER));
         var bestillBrevDto = brevDtoCaptor.getValue();
         assertThat(bestillBrevDto.getBrevmalkode()).isEqualTo(DokumentMalType.KLAGE_OVERSENDT);
         assertThat(bestillBrevDto.getFritekst()).isNull();

@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
-import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingV2Dto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.DokumentProdusertDto;
@@ -81,7 +80,7 @@ public class BrevRestTjeneste {
         var behandlingId = bestillBrevDto.getBehandlingId() == null ? behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid()).getId()
             : bestillBrevDto.getBehandlingId();
         LOG.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.getBrevmalkode(), behandlingId);
-        dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER, true);
+        dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER);
         oppdaterBehandlingBasertPåManueltBrev(bestillBrevDto.getBrevmalkode(), behandlingId);
     }
 
