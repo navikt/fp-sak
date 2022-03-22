@@ -37,7 +37,7 @@ public class DokumentBestillerTjenesteTest {
         this.behandling = scenario.lagMocked();
         this.repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
-        var brevHistorikkinnslag = new BrevHistorikkinnslag(historikkRepositoryMock);
+        var brevHistorikkinnslag = new DokumentBestilt(historikkRepositoryMock);
 
         tjeneste = new DokumentBestillerTjeneste(repositoryProvider.getBehandlingRepository(), null, null, dokumentBestiller);
     }

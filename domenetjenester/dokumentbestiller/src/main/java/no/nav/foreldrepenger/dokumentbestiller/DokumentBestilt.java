@@ -11,21 +11,22 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
-public class BrevHistorikkinnslag {
+public class DokumentBestilt {
     private HistorikkRepository historikkRepository;
 
-    public BrevHistorikkinnslag() {
+    public DokumentBestilt() {
         // for cdi proxy
     }
 
     @Inject
-    public BrevHistorikkinnslag(HistorikkRepository historikkRepository) {
+    public DokumentBestilt(HistorikkRepository historikkRepository) {
         this.historikkRepository = historikkRepository;
     }
 
-    public void opprettHistorikkinnslagForBestiltBrevFraKafka(HistorikkAktør historikkAktør,
-                                                              Behandling behandling,
-                                                              DokumentMalType dokumentMalType) {
+    public void opprettHistorikkinnslag(HistorikkAktør historikkAktør,
+                                        Behandling behandling,
+                                        DokumentMalType dokumentMalType) {
+
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setBehandling(behandling);
         historikkinnslag.setAktør(historikkAktør);
