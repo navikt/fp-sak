@@ -7,19 +7,11 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
 
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum UttakUtsettelseType implements Kodeverdi {
 
     ARBEID("ARBEID", "Arbeid"),
@@ -44,27 +36,14 @@ public enum UttakUtsettelseType implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     UttakUtsettelseType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-    }
-
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static UttakUtsettelseType fraKode(@JsonProperty(value = "kode") Object node) {
-        if (node == null) {
-            return null;
-        }
-        var kode = TempAvledeKode.getVerdi(UttakUtsettelseType.class, node, "kode");
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent UttakUtsettelseType: " + kode);
-        }
-        return ad;
     }
 
     public static Map<String, UttakUtsettelseType> kodeMap() {
@@ -76,13 +55,11 @@ public enum UttakUtsettelseType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -98,6 +75,17 @@ public enum UttakUtsettelseType implements Kodeverdi {
         @Override
         public UttakUtsettelseType convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static UttakUtsettelseType fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent UttakUtsettelseType: " + kode);
+            }
+            return ad;
         }
     }
 }

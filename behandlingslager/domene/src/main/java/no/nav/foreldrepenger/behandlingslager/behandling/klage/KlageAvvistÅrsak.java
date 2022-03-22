@@ -7,20 +7,11 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.ÅrsakskodeMedLovreferanse;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
 
     KLAGET_FOR_SENT("KLAGET_FOR_SENT", "Bruker har klaget for sent",
@@ -49,11 +40,12 @@ public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
         }
     }
 
-    @JsonIgnore
+
     private String navn;
 
+    @JsonValue
     private String kode;
-    @JsonIgnore
+
     private String lovHjemmel;
 
     KlageAvvistÅrsak(String kode) {
@@ -66,19 +58,6 @@ public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
         this.lovHjemmel = lovHjemmel;
     }
 
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static KlageAvvistÅrsak fraKode(@JsonProperty(value = "kode") Object node) {
-        if (node == null) {
-            return null;
-        }
-        var kode = TempAvledeKode.getVerdi(KlageAvvistÅrsak.class, node, "kode");
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent KlageAvvistÅrsak: " + kode);
-        }
-        return ad;
-    }
-
     public static Map<String, KlageAvvistÅrsak> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -88,13 +67,11 @@ public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -115,6 +92,17 @@ public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
         @Override
         public KlageAvvistÅrsak convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static KlageAvvistÅrsak fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent KlageAvvistÅrsak: " + kode);
+            }
+            return ad;
         }
     }
 

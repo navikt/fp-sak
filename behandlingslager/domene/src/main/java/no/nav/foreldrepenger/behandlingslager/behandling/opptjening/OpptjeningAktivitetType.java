@@ -10,16 +10,9 @@ import java.util.stream.Collectors;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
@@ -32,8 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
  * Senere benyttes dette i mapping til bla. Beregningsgrunnlag.
  */
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum OpptjeningAktivitetType implements Kodeverdi {
 
     ARBEIDSAVKLARING("AAP", "Arbeidsavklaringspenger",
@@ -141,21 +132,17 @@ public enum OpptjeningAktivitetType implements Kodeverdi {
     public static final Set<OpptjeningAktivitetType> ANNEN_OPPTJENING = Set.of(VENTELØNN_VARTPENGER, MILITÆR_ELLER_SIVILTJENESTE, ETTERLØNN_SLUTTPAKKE,
         VIDERE_ETTERUTDANNING, UTENLANDSK_ARBEIDSFORHOLD, FRILANS);
 
+    @JsonValue
     private String kode;
 
-    @JsonIgnore
     private String navn;
 
-    @JsonIgnore
     private Set<ArbeidType> arbeidType;
 
-    @JsonIgnore
     private RelatertYtelseType relatertYtelseType;
 
-    @JsonIgnore
     private Set<TemaUnderkategori> temaUnderkategori;
 
-    @JsonIgnore
     private Set<RelatertYtelseType> relaterYtelseType;
 
     OpptjeningAktivitetType(String kode,
@@ -170,12 +157,10 @@ public enum OpptjeningAktivitetType implements Kodeverdi {
         this.temaUnderkategori = temaUnderkategori;
     }
 
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static OpptjeningAktivitetType fraKode(@JsonProperty(value = "kode") Object node) {
-        if (node == null) {
+    public static OpptjeningAktivitetType fraKode(String kode) {
+        if (kode == null) {
             return null;
         }
-        var kode = TempAvledeKode.getVerdi(OpptjeningAktivitetType.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent OpptjeningAktivitetType: " + kode);
@@ -192,13 +177,11 @@ public enum OpptjeningAktivitetType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

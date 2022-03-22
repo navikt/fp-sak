@@ -76,7 +76,7 @@ public class NøkkeltallBehandlingRepository {
     private static NøkkeltallBehandlingVentestatus map(Object record) {
         var queryResultat = (Object[]) record;
         var behandlendeEnhet = (String) queryResultat[0];
-        var behandlingType = BehandlingType.fraKode(queryResultat[1]);
+        var behandlingType = BehandlingType.fraKode((String) queryResultat[1]);
         var status = BehandlingVenteStatus.valueOf((String) queryResultat[2]);
         var førsteUttaksMåned = localDate(queryResultat[3]);
         var antall = (BigDecimal) queryResultat[4];

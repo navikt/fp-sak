@@ -8,20 +8,11 @@ import java.util.Set;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
 
     /**
@@ -58,17 +49,14 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
         }
     }
 
-    @JsonIgnore
     private int behandlingstidFristUker;
-    @JsonIgnore
     private Boolean behandlingstidVarselbrev;
 
-    @JsonIgnore
     private String navn;
 
-    @JsonIgnore
     private String offisiellKode;
 
+    @JsonValue
     private String kode;
 
     BehandlingType(String kode) {
@@ -87,12 +75,10 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
         this.behandlingstidVarselbrev = behandlingstidVarselbrev;
     }
 
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static BehandlingType fraKode(@JsonProperty(value = "kode") Object node) {
-        if (node == null) {
+    public static BehandlingType fraKode(String kode) {
+        if (kode == null) {
             return null;
         }
-        var kode = TempAvledeKode.getVerdi(BehandlingType.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent BehandlingType: " + kode);
@@ -109,13 +95,11 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;

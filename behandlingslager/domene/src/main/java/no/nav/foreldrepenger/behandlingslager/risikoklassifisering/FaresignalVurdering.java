@@ -7,19 +7,10 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum FaresignalVurdering implements Kodeverdi {
 
     INNVIRKNING("INNVIRKNING", "Faresignalene vurderes som reelle"),
@@ -43,9 +34,9 @@ public enum FaresignalVurdering implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     FaresignalVurdering(String kode) {
@@ -57,19 +48,6 @@ public enum FaresignalVurdering implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static FaresignalVurdering fraKode(@JsonProperty(value = "kode") Object node) {
-        if (node == null) {
-            return null;
-        }
-        var kode = TempAvledeKode.getVerdi(FaresignalVurdering.class, node, "kode");
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent FaresignalVurdering: " + kode);
-        }
-        return ad;
-    }
-
     public static Map<String, FaresignalVurdering> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -79,13 +57,11 @@ public enum FaresignalVurdering implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -101,6 +77,17 @@ public enum FaresignalVurdering implements Kodeverdi {
         @Override
         public FaresignalVurdering convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static FaresignalVurdering fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent FaresignalVurdering: " + kode);
+            }
+            return ad;
         }
     }
 }

@@ -7,19 +7,10 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum Venteårsak implements Kodeverdi {
 
     UDEFINERT("-", "Ikke definert"),
@@ -86,9 +77,9 @@ public enum Venteårsak implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     Venteårsak(String kode) {
@@ -100,12 +91,10 @@ public enum Venteårsak implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static Venteårsak fraKode(@JsonProperty(value = "kode") Object node) {
-        if (node == null) {
+    public static Venteårsak fraKode(String kode) {
+        if (kode == null) {
             return null;
         }
-        var kode = TempAvledeKode.getVerdi(Venteårsak.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent Venteårsak: " + kode);
@@ -122,13 +111,11 @@ public enum Venteårsak implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;

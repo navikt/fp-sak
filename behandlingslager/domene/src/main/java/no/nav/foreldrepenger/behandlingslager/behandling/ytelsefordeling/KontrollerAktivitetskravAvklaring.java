@@ -7,17 +7,10 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE,
-    setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public enum KontrollerAktivitetskravAvklaring implements Kodeverdi {
 
     I_AKTIVITET("I_AKTIVITET", "Mor er i aktivitet"),
@@ -38,6 +31,7 @@ public enum KontrollerAktivitetskravAvklaring implements Kodeverdi {
 
     private String navn;
 
+    @JsonValue
     private String kode;
 
     KontrollerAktivitetskravAvklaring(String kode, String navn) {
@@ -50,13 +44,11 @@ public enum KontrollerAktivitetskravAvklaring implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -64,19 +56,6 @@ public enum KontrollerAktivitetskravAvklaring implements Kodeverdi {
 
     public static Map<String, KontrollerAktivitetskravAvklaring> kodeMap() {
         return Collections.unmodifiableMap(KODER);
-    }
-
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static KontrollerAktivitetskravAvklaring fraKode(@JsonProperty(value = "kode") Object node) {
-        if (node == null) {
-            return null;
-        }
-        var kode = TempAvledeKode.getVerdi(KontrollerAktivitetskravAvklaring.class, node, "kode");
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent MorsAktivitet: " + kode);
-        }
-        return ad;
     }
 
     @Converter(autoApply = true)
@@ -89,6 +68,17 @@ public enum KontrollerAktivitetskravAvklaring implements Kodeverdi {
         @Override
         public KontrollerAktivitetskravAvklaring convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static KontrollerAktivitetskravAvklaring fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent MorsAktivitet: " + kode);
+            }
+            return ad;
         }
     }
 }

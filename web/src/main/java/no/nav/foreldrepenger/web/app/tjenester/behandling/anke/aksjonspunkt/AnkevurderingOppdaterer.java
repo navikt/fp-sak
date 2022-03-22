@@ -166,9 +166,8 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
                                          Long påAnketKlageBehandlingId) {
         var ankeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId());
         var ankeResultat = ankeRepository.hentEllerOpprettAnkeResultat(behandling.getId());
-        var ankeVurdering = AnkeVurdering.fraKode(dto.getAnkeVurdering().getKode());
-        var ankeVurderingOmgjør = dto.getAnkeVurderingOmgjoer() != null ? AnkeVurderingOmgjør.fraKode(
-            dto.getAnkeVurderingOmgjoer().getKode()) : null;
+        var ankeVurdering = dto.getAnkeVurdering();
+        var ankeVurderingOmgjør = dto.getAnkeVurderingOmgjoer();
         var omgjørÅrsak = dto.getAnkeOmgjoerArsak() != null ? dto.getAnkeOmgjoerArsak() : null;
 
         var resultat = AnkeVurderingTjeneste.konverterAnkeVurderingTilResultatType(ankeVurdering, ankeVurderingOmgjør);
