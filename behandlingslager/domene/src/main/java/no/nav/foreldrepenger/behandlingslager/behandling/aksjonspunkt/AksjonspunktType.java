@@ -8,18 +8,10 @@ import java.util.Objects;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum AksjonspunktType implements Kodeverdi {
 
     AUTOPUNKT("AUTO", "Autopunkt"),
@@ -40,9 +32,9 @@ public enum AksjonspunktType implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     AksjonspunktType(String kode, String navn) {
@@ -51,30 +43,17 @@ public enum AksjonspunktType implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static AksjonspunktType fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent AksjonspunktType: " + kode);
-        }
-        return ad;
-    }
 
     @Override
     public String getNavn() {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
@@ -102,6 +81,17 @@ public enum AksjonspunktType implements Kodeverdi {
         @Override
         public AksjonspunktType convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static AksjonspunktType fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent AksjonspunktType: " + kode);
+            }
+            return ad;
         }
     }
 

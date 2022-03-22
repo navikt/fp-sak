@@ -7,18 +7,10 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum MedlemskapKildeType implements Kodeverdi {
 
     E500("E500", "E-500"),
@@ -49,9 +41,9 @@ public enum MedlemskapKildeType implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     MedlemskapKildeType(String kode) {
@@ -63,8 +55,7 @@ public enum MedlemskapKildeType implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static MedlemskapKildeType fraKode(@JsonProperty("kode") String kode) {
+    public static MedlemskapKildeType fraKode(String kode) {
         if (kode == null) {
             return null;
         }
@@ -84,13 +75,11 @@ public enum MedlemskapKildeType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

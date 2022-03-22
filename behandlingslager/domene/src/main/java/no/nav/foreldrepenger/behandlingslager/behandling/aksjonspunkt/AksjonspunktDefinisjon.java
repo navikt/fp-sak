@@ -25,13 +25,7 @@ import java.util.stream.Collectors;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -44,8 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
  * Definerer mulige Aksjonspunkter inkludert hvilket Vurderingspunkt de må løses i.
  * Inkluderer også konstanter for å enklere kunne referere til dem i eksisterende logikk.
  */
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum AksjonspunktDefinisjon implements Kodeverdi {
 
     // Gruppe : 500
@@ -499,50 +491,37 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         Map.entry(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.getKode(), Set.of(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktDefinisjon.FORESLÅ_VEDTAK))
     );
 
-    @JsonIgnore
     private AksjonspunktType aksjonspunktType = AksjonspunktType.UDEFINERT;
 
     /**
      * Definerer hvorvidt Aksjonspunktet default krever totrinnsbehandling. Dvs. Beslutter må godkjenne hva
      * Saksbehandler har utført.
      */
-    @JsonIgnore
     private boolean defaultTotrinnBehandling = false;
 
     /**
      * Hvorvidt aksjonspunktet har en frist før det må være løst. Brukes i forbindelse med når Behandling er lagt til
      * Vent.
      */
-    @JsonIgnore
     private String fristPeriode;
 
-    @JsonIgnore
     private VilkårType vilkårType;
 
-    @JsonIgnore
     private SkjermlenkeType skjermlenkeType;
 
-    @JsonIgnore
     private boolean tilbakehoppVedGjenopptakelse;
 
-    @JsonIgnore
     private BehandlingStegType behandlingStegType;
 
-    @JsonIgnore
     private String navn;
 
-    @JsonIgnore
     private Set<YtelseType> ytelseTyper;
 
-    @JsonIgnore
     private VurderingspunktType vurderingspunktType;
 
-    @JsonIgnore
-    private Set<String> utelukkendeAksjonspunkter = Collections.emptySet();
-
-    @JsonIgnore
     private boolean erUtgått = false;
 
+    @JsonValue
     private String kode;
 
     AksjonspunktDefinisjon() {
@@ -659,7 +638,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -673,7 +651,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         return vurderingspunktType;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
@@ -689,8 +666,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         return super.toString() + "('" + getKode() + "')";
     }
 
-    @JsonCreator
-    public static AksjonspunktDefinisjon fraKode(@JsonProperty("kode") String kode) {
+    public static AksjonspunktDefinisjon fraKode(String kode) {
         if (kode == null) {
             return null;
         }

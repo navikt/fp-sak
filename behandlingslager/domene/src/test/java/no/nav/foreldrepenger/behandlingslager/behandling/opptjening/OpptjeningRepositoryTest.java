@@ -138,14 +138,4 @@ public class OpptjeningRepositoryTest extends EntityManagerAwareTest {
         assertThat(næring.getNavn()).isNotEmpty();
     }
 
-    @Test
-    public void getOpptjeningAktivitetKlassifisering() {
-        // Act
-        var kode = OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT.getKode();
-        var resultat = OpptjeningAktivitetKlassifisering.fraKode(kode);
-
-        // Assert
-        assertThat(resultat.getKode()).isEqualTo(kode);
-        assertThat(resultat.getNavn()).isNotEmpty();
-    }
 }

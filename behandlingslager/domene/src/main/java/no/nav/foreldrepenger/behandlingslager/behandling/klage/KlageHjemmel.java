@@ -15,20 +15,11 @@ import java.util.stream.Collectors;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum KlageHjemmel implements Kodeverdi {
 
     MEDLEM("14-02", "14-2 Medlemskap", "FTRL_14_2", Set.of(ES, FP, SVP)),
@@ -68,14 +59,13 @@ public enum KlageHjemmel implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
+
     private String navn;
 
+    @JsonValue
     private String kode;
 
-    @JsonIgnore
     private String kabal;
-    @JsonIgnore
     private Set<FagsakYtelseType.YtelseType> ytelser;
 
     KlageHjemmel(String kode) {
@@ -89,12 +79,10 @@ public enum KlageHjemmel implements Kodeverdi {
         this.ytelser = ytelser;
     }
 
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static KlageHjemmel fraKode(@JsonProperty(value = "kode") Object node) {
-        if (node == null) {
+    public static KlageHjemmel fraKode(String kode) {
+        if (kode == null) {
             return null;
         }
-        var kode = TempAvledeKode.getVerdi(KlageHjemmel.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent KlageHjemmel: " + kode);
@@ -111,13 +99,11 @@ public enum KlageHjemmel implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

@@ -7,18 +7,10 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum KlageVurdertAv implements Kodeverdi {
 
     NFP("NFP", "NAV Familie- og Pensjonsytelser"),
@@ -37,9 +29,9 @@ public enum KlageVurdertAv implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     KlageVurdertAv(String kode, String navn) {
@@ -47,17 +39,6 @@ public enum KlageVurdertAv implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static KlageVurdertAv fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent KlageVurdertAv: " + kode);
-        }
-        return ad;
-    }
 
     public static Map<String, KlageVurdertAv> kodeMap() {
         return Collections.unmodifiableMap(KODER);
@@ -68,13 +49,11 @@ public enum KlageVurdertAv implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -90,6 +69,17 @@ public enum KlageVurdertAv implements Kodeverdi {
         @Override
         public KlageVurdertAv convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static KlageVurdertAv fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent KlageVurdertAv: " + kode);
+            }
+            return ad;
         }
     }
 }

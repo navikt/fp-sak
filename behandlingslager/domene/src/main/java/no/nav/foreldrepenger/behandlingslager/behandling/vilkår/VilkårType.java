@@ -1,26 +1,19 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
-
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
 public enum VilkårType implements Kodeverdi {
 
     FØDSELSVILKÅRET_MOR(VilkårTypeKoder.FP_VK_1,
@@ -139,15 +132,13 @@ public enum VilkårType implements Kodeverdi {
     private static final Map<Avslagsårsak, Set<VilkårType>> INDEKS_AVSLAGSÅRSAK_VILKÅR = new LinkedHashMap<>(); // NOSONAR
     public static final String KODEVERK = "VILKAR_TYPE";
 
-    @JsonIgnore
     private Map<FagsakYtelseType, String> lovReferanser = Map.of();
 
-    @JsonIgnore
     private String navn;
 
-    @JsonIgnore
     private Set<Avslagsårsak> avslagsårsaker;
 
+    @JsonValue
     private String kode;
 
     VilkårType(String kode,
@@ -175,19 +166,6 @@ public enum VilkårType implements Kodeverdi {
         return navn;
     }
 
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static VilkårType fraKode(@JsonProperty(value = "kode") Object node) {
-        if (node == null) {
-            return null;
-        }
-        var kode = TempAvledeKode.getVerdi(VilkårType.class, node, "kode");
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent VilkårType: " + kode);
-        }
-        return ad;
-    }
-
     public static Map<String, VilkårType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -204,13 +182,11 @@ public enum VilkårType implements Kodeverdi {
         return INDEKS_AVSLAGSÅRSAK_VILKÅR.get(avslagsårsak);
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -237,6 +213,17 @@ public enum VilkårType implements Kodeverdi {
         @Override
         public VilkårType convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static VilkårType fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent VilkårType: " + kode);
+            }
+            return ad;
         }
     }
 

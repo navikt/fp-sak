@@ -45,7 +45,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -311,7 +310,7 @@ public class BehandlingRestTjeneste {
         throws URISyntaxException {
         var saksnummer = new Saksnummer(Long.toString(dto.getSaksnummer()));
         var funnetFagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, true);
-        var kode = BehandlingType.fraKode(dto.getBehandlingType().getKode());
+        var kode = dto.getBehandlingType();
 
         if (funnetFagsak.isEmpty()) {
             return notFound(saksnummer);
@@ -339,7 +338,7 @@ public class BehandlingRestTjeneste {
 
         }
         if (BehandlingType.REVURDERING.equals(kode)) {
-            var behandlingÅrsakType = BehandlingÅrsakType.fraKode(dto.getBehandlingArsakType().getKode());
+            var behandlingÅrsakType = dto.getBehandlingArsakType();
             var behandling = behandlingsoppretterTjeneste.opprettRevurdering(fagsak, behandlingÅrsakType);
             var gruppe = behandlingsprosessTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), Optional.of(gruppe));

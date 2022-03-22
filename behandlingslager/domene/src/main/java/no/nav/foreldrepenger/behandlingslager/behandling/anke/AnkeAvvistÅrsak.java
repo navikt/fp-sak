@@ -1,21 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.anke;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum AnkeAvvistÅrsak implements Kodeverdi {
 
     ANKE_FOR_SENT("ANKE_FOR_SENT", "Bruker har anket for sent"),
@@ -27,21 +15,11 @@ public enum AnkeAvvistÅrsak implements Kodeverdi {
     UDEFINERT("-", "Udefinert"),
     ;
 
-    private static final Map<String, AnkeAvvistÅrsak> KODER = new LinkedHashMap<>();
-
     public static final String KODEVERK = "ANKE_AVVIST_AARSAK";
 
-    static {
-        for (var v : values()) {
-            if (KODER.putIfAbsent(v.kode, v) != null) {
-                throw new IllegalArgumentException("Duplikat : " + v.kode);
-            }
-        }
-    }
-
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     AnkeAvvistÅrsak(String kode, String navn) {
@@ -49,34 +27,16 @@ public enum AnkeAvvistÅrsak implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static AnkeAvvistÅrsak fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent AnkeAvvistÅrsak: " + kode);
-        }
-        return ad;
-    }
-
-    public static Map<String, AnkeAvvistÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

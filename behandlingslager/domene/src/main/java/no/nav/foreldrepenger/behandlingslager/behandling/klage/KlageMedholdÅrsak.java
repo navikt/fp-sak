@@ -7,19 +7,10 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum KlageMedholdÅrsak implements Kodeverdi {
 
     NYE_OPPLYSNINGER("NYE_OPPLYSNINGER", "Nytt faktum"),
@@ -41,9 +32,9 @@ public enum KlageMedholdÅrsak implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     KlageMedholdÅrsak(String kode) {
@@ -55,19 +46,6 @@ public enum KlageMedholdÅrsak implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static KlageMedholdÅrsak fraKode(@JsonProperty(value = "kode") Object node) {
-        if (node == null) {
-            return null;
-        }
-        var kode = TempAvledeKode.getVerdi(KlageMedholdÅrsak.class, node, "kode");
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent KlageMedholdÅrsak: " + kode);
-        }
-        return ad;
-    }
-
     public static Map<String, KlageMedholdÅrsak> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -77,13 +55,11 @@ public enum KlageMedholdÅrsak implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -99,6 +75,17 @@ public enum KlageMedholdÅrsak implements Kodeverdi {
         @Override
         public KlageMedholdÅrsak convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static KlageMedholdÅrsak fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent KlageMedholdÅrsak: " + kode);
+            }
+            return ad;
         }
     }
 }

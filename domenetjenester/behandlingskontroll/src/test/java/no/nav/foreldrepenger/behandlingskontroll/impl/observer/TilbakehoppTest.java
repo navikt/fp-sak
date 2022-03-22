@@ -231,10 +231,10 @@ public class TilbakehoppTest {
 
     private BehandlingStegStatus getBehandlingStegStatus(StegPort fra) {
         BehandlingStegStatus fraStatus;
-        var fraPort = fra.port().getDbKode();
-        if (fraPort.equals(VurderingspunktType.INN.getDbKode())) {
+        var fraPort = fra.port();
+        if (fraPort.equals(VurderingspunktType.INN)) {
             fraStatus = BehandlingStegStatus.INNGANG;
-        } else if (fraPort.equals(VurderingspunktType.UT.getDbKode())) {
+        } else if (fraPort.equals(VurderingspunktType.UT)) {
             fraStatus = BehandlingStegStatus.UTGANG;
         } else {
             throw new IllegalStateException("BehandlingStegStatus " + fraPort + " ikke støttet i testen");

@@ -148,10 +148,10 @@ public class FremoverhoppTest {
     private Aksjonspunkt utførFremoverhoppReturnerAksjonspunkt(StegPort fra, BehandlingStegType til, Aksjonspunkt ap) {
 
         BehandlingStegStatus fraStatus;
-        var fraPort = fra.port().getDbKode();
-        if (fraPort.equals(VurderingspunktType.INN.getDbKode())) {
+        var fraPort = fra.port();
+        if (fraPort.equals(VurderingspunktType.INN)) {
             fraStatus = BehandlingStegStatus.INNGANG;
-        } else if (fraPort.equals(VurderingspunktType.UT.getDbKode())) {
+        } else if (fraPort.equals(VurderingspunktType.UT)) {
             fraStatus = BehandlingStegStatus.UTGANG;
         } else {
             throw new IllegalStateException("BehandlingStegStatus " + fraPort + " ikke støttet i testen");
