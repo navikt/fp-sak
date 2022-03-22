@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -42,6 +43,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 
 class ArbeidOgInntektsmeldingMapperTest {
     private AbakusInMemoryInntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+    private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now().minusDays(20);
 
     @Test
     void skal_teste_mapping_av_inntektsmelding_med_ref_og_kontakt() {
@@ -148,7 +150,7 @@ class ArbeidOgInntektsmeldingMapperTest {
 
         var yrkesaktivitet = lagYrkesAktivitetMedPermisjon(arbeidsgiver, BigDecimal.valueOf(100),
             LocalDate.now().minusWeeks(1), LocalDate.now().plusMonths(1), arbeidsforholdId,
-            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD).build();
+            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null).build();
 
 
         List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, arbeidsforholdId, arbeidsforholdReferanse));
@@ -161,8 +163,8 @@ class ArbeidOgInntektsmeldingMapperTest {
         //Assert
         assertThat(arbeidsforholdDto).isNotNull();
         assertThat(arbeidsforholdDto.internArbeidsforholdId()).isEqualTo(arbeidsforholdId.getReferanse());
-        assertThat(arbeidsforholdDto.permisjonUtenSluttdatoDto().permisjonFom()).isEqualTo(LocalDate.now());
-        assertThat(arbeidsforholdDto.permisjonUtenSluttdatoDto().permisjonStatus()).isNull();
+        assertThat(arbeidsforholdDto.permisjonOgMangel().permisjonFom()).isEqualTo(LocalDate.now().minusDays(20));
+        assertThat(arbeidsforholdDto.permisjonOgMangel().permisjonStatus()).isNull();
     }
 
     @Test
@@ -176,7 +178,7 @@ class ArbeidOgInntektsmeldingMapperTest {
 
         var yrkesaktivitet = lagYrkesAktivitetMedPermisjon(arbeidsgiver, BigDecimal.valueOf(100),
             LocalDate.now().minusWeeks(1), LocalDate.now().plusMonths(1), internArbeidsforholdRef,
-            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD).build();
+            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null).build();
 
 
         List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, internArbeidsforholdRef, arbeidsforholdReferanse));
@@ -196,8 +198,36 @@ class ArbeidOgInntektsmeldingMapperTest {
         //Assert
         assertThat(arbeidsforholdDto).isNotNull();
         assertThat(arbeidsforholdDto.internArbeidsforholdId()).isEqualTo(internArbeidsforholdRef.getReferanse());
-        assertThat(arbeidsforholdDto.permisjonUtenSluttdatoDto().permisjonFom()).isEqualTo(LocalDate.now());
-        assertThat(arbeidsforholdDto.permisjonUtenSluttdatoDto().permisjonStatus()).isEqualTo(BekreftetPermisjonStatus.BRUK_PERMISJON);
+        assertThat(arbeidsforholdDto.permisjonOgMangel().permisjonFom()).isEqualTo(SKJÆRINGSTIDSPUNKT);
+        assertThat(arbeidsforholdDto.permisjonOgMangel().permisjonStatus()).isEqualTo(BekreftetPermisjonStatus.BRUK_PERMISJON);
+    }
+
+    @Test
+    void mapping_av_permisjon_uten_mangel() {
+        //Arrange
+        var internArbeidsforholdRef = InternArbeidsforholdRef.nyRef();
+        var arbeidsforholdReferanse = internArbeidsforholdRef.getReferanse();
+        var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer(OrgNummer.KUNSTIG_ORG),arbeidsforholdReferanse);
+
+        var arbeidsgiver = lagVirksomhetArbeidsgiver(aktivitet.getArbeidsgiverIdentifikator());
+
+        var yrkesaktivitet = lagYrkesAktivitetMedPermisjon(arbeidsgiver, BigDecimal.valueOf(100),
+            LocalDate.now().minusWeeks(1), LocalDate.now().plusMonths(1), internArbeidsforholdRef,
+            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, LocalDate.now().plusMonths(8)).build();
+
+
+        List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, internArbeidsforholdRef, arbeidsforholdReferanse));
+        LocalDate stp = LocalDate.now().minusDays(3);
+
+
+        //Act
+        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, yrkesaktivitet, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()).orElse(null);
+
+        //Assert
+        assertThat(arbeidsforholdDto).isNotNull();
+        assertThat(arbeidsforholdDto.internArbeidsforholdId()).isEqualTo(internArbeidsforholdRef.getReferanse());
+        assertThat(arbeidsforholdDto.permisjonOgMangel().permisjonFom()).isEqualTo(SKJÆRINGSTIDSPUNKT);
+        assertThat(arbeidsforholdDto.permisjonOgMangel().permisjonStatus()).isNull();
     }
 
     private ArbeidsforholdReferanse lagReferanser(Arbeidsgiver arbeidsgiver1, InternArbeidsforholdRef arbeidsforholdRef2, String eksternReferanse2) {
@@ -238,15 +268,16 @@ class ArbeidOgInntektsmeldingMapperTest {
     }
 
     private YrkesaktivitetBuilder lagYrkesAktivitetMedPermisjon(Arbeidsgiver virksomhet,
-                                                                     BigDecimal stillingsprosent,
-                                                                     LocalDate fraOgMed,
-                                                                     LocalDate tilOgMed,
-                                                                     InternArbeidsforholdRef arbeidsforholdId,
-                                                                     ArbeidType arbeidType) {
+                                                                BigDecimal stillingsprosent,
+                                                                LocalDate fraOgMed,
+                                                                LocalDate tilOgMed,
+                                                                InternArbeidsforholdRef arbeidsforholdId,
+                                                                ArbeidType arbeidType,
+                                                                LocalDate permisjonTom) {
         var yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
         var permisjonsBuilder = YrkesaktivitetBuilder.nyPermisjonBuilder()
-            .medPeriode(LocalDate.now().minusDays(10), null)
-            .medPeriode(LocalDate.now(), null)
+            .medPeriode(SKJÆRINGSTIDSPUNKT, permisjonTom)
+            .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.VELFERDSPERMISJON)
             .medProsentsats(BigDecimal.valueOf(100));
 
         var aktivitetsAvtale = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()

@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.aksjonspunkt;
 
 import static java.util.Collections.emptyList;
 import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettListeForAksjonspunkt;
-import static no.nav.foreldrepenger.domene.arbeidsforhold.impl.VurderPermisjonTjeneste.finnArbForholdMedPermisjonUtenSluttdatoMangel;
+import static no.nav.foreldrepenger.domene.arbeidInntektsmelding.HåndterePermisjoner.finnArbForholdMedPermisjonUtenSluttdatoMangel;
 
 import java.util.List;
 

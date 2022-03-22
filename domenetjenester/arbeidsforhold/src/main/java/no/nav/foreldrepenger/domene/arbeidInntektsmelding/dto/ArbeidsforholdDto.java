@@ -14,5 +14,5 @@ public record ArbeidsforholdDto(String arbeidsgiverIdent,
                                 BigDecimal stillingsprosent,
                                 AksjonspunktÅrsak årsak,
                                 ArbeidsforholdKomplettVurderingType saksbehandlersVurdering,
-                                PermisjonUtenSluttdatoDto permisjonUtenSluttdatoDto,
+                                PermisjonOgMangelDto permisjonOgMangel,
                                 String begrunnelse){}
