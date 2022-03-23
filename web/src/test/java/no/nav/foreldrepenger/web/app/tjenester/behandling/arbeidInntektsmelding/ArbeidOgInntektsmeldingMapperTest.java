@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.Kont
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ArbeidsgiverIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
+import no.nav.vedtak.konfig.Tid;
 
 class ArbeidOgInntektsmeldingMapperTest {
     private AbakusInMemoryInntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
@@ -165,6 +166,43 @@ class ArbeidOgInntektsmeldingMapperTest {
         assertThat(arbeidsforholdDto.internArbeidsforholdId()).isEqualTo(arbeidsforholdId.getReferanse());
         assertThat(arbeidsforholdDto.permisjonOgMangel().permisjonFom()).isEqualTo(LocalDate.now().minusDays(20));
         assertThat(arbeidsforholdDto.permisjonOgMangel().permisjonStatus()).isNull();
+    }
+
+    @Test
+    void mapping_av_yrkesaktivitet_med_overlappende_aktivitetsavtaler() {
+        //Arrange
+        var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
+        var arbeidsforholdReferanse = arbeidsforholdId.getReferanse();
+        var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer(OrgNummer.KUNSTIG_ORG),arbeidsforholdReferanse);
+
+        var yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aktivitetsAvtale1 = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1), Tid.TIDENES_ENDE))
+            .medProsentsats(BigDecimal.valueOf(100));
+        var aktivitetsAvtale2 = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(6), Tid.TIDENES_ENDE))
+            .medProsentsats(BigDecimal.valueOf(50));
+
+        var ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(3), Tid.TIDENES_ENDE));
+        yrkesaktivitetBuilder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999"))
+            .medArbeidsforholdId(arbeidsforholdId)
+            .leggTilAktivitetsAvtale(aktivitetsAvtale1)
+            .leggTilAktivitetsAvtale(aktivitetsAvtale2)
+            .leggTilAktivitetsAvtale(ansettelsesperiode);
+
+        var arbeidsgiver = lagVirksomhetArbeidsgiver(aktivitet.getArbeidsgiverIdentifikator());
+
+
+        List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, arbeidsforholdId, arbeidsforholdReferanse));
+
+        //Act
+        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, SKJÆRINGSTIDSPUNKT, yrkesaktivitetBuilder.build(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList()).orElse(null);
+
+        //Assert
+        assertThat(arbeidsforholdDto).isNotNull();
+        assertThat(arbeidsforholdDto.stillingsprosent().intValue()).isEqualTo(50);
     }
 
     @Test
