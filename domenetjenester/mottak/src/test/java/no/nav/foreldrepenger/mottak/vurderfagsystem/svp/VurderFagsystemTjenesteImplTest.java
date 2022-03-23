@@ -83,7 +83,7 @@ public class VurderFagsystemTjenesteImplTest {
         when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(Collections.emptyList());
 
         var result = tjeneste.vurderFagsystem(vurderFagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class VurderFagsystemTjenesteImplTest {
         lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling2.getId())).thenReturn(Optional.of(familieHendelse2));
 
         var result = tjeneste.vurderFagsystem(vurderFagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
     }
 
     @Test
@@ -131,7 +131,7 @@ public class VurderFagsystemTjenesteImplTest {
         lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
 
         var result = tjeneste.vurderFagsystem(vurderFagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
     }
 
     @Test
@@ -152,7 +152,7 @@ public class VurderFagsystemTjenesteImplTest {
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
 
         var result = tjeneste.vurderFagsystem(vurderFagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer().filter(fagsak1.getSaksnummer()::equals)).isPresent();
     }
 
@@ -174,7 +174,7 @@ public class VurderFagsystemTjenesteImplTest {
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
 
         var result = tjeneste.vurderFagsystem(vurderFagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
     }
 
     @Test
@@ -195,7 +195,7 @@ public class VurderFagsystemTjenesteImplTest {
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
 
         var result = tjeneste.vurderFagsystem(vurderFagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer()).isEmpty();
     }
 
@@ -222,7 +222,7 @@ public class VurderFagsystemTjenesteImplTest {
         lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling2.getId())).thenReturn(Optional.of(familieHendelse2));
 
         var result = tjeneste.vurderFagsystem(vurderFagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
     }
 
     @Test
@@ -245,7 +245,7 @@ public class VurderFagsystemTjenesteImplTest {
         lenient().when(svangerskapspengerRepository.hentGrunnlag(behandling1.getId())).thenReturn(Optional.of(svpGrunnlagEntitet));
 
         var result = tjeneste.vurderFagsystem(vurderFagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
     }
 
     @Test
@@ -265,7 +265,7 @@ public class VurderFagsystemTjenesteImplTest {
         lenient().when(svangerskapspengerRepository.hentGrunnlag(behandling1.getId())).thenReturn(Optional.empty());
 
         var result = tjeneste.vurderFagsystem(vurderFagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer().get()).isEqualTo(fagsak1.getSaksnummer());
     }
 
@@ -286,7 +286,7 @@ public class VurderFagsystemTjenesteImplTest {
         lenient().when(svangerskapspengerRepository.hentGrunnlag(behandling1.getId())).thenReturn(Optional.empty());
 
         var result = tjeneste.vurderFagsystem(vurderFagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer().get()).isEqualTo(fagsak1.getSaksnummer());
     }
 
@@ -307,7 +307,7 @@ public class VurderFagsystemTjenesteImplTest {
         lenient().when(mottatteDokumentTjeneste.harFristForInnsendingAvDokGåttUt(any())).thenReturn(true);
 
         var result = tjeneste.vurderFagsystem(vurderFagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
     }
 
     private VurderFagsystem lagVurderfagsystem() {

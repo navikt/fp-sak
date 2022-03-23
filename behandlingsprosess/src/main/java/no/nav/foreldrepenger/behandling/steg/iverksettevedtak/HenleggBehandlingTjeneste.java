@@ -16,14 +16,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveSendTilInfotrygdTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -35,7 +33,6 @@ public class HenleggBehandlingTjeneste {
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private ProsessTaskTjeneste taskTjeneste;
     private SøknadRepository søknadRepository;
-    private FagsakRepository fagsakRepository;
     private HistorikkRepository historikkRepository;
 
 
@@ -53,7 +50,6 @@ public class HenleggBehandlingTjeneste {
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.taskTjeneste = taskTjeneste;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
-        this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
     }
 
@@ -75,9 +71,6 @@ public class HenleggBehandlingTjeneste {
                 || BehandlingResultatType.HENLAGT_KLAGE_TRUKKET.equals(årsakKode)
                 || BehandlingResultatType.HENLAGT_INNSYN_TRUKKET.equals(årsakKode)) {
             sendHenleggelsesbrev(behandling.getId(), behandling.getUuid(), HistorikkAktør.VEDTAKSLØSNINGEN);
-        } else if (BehandlingResultatType.MANGLER_BEREGNINGSREGLER.equals(årsakKode)) {
-            fagsakRepository.fagsakSkalBehandlesAvInfotrygd(behandling.getFagsakId());
-            opprettOppgaveTilInfotrygd(behandling);
         }
         lagHistorikkinnslagForHenleggelse(behandlingId, årsakKode, begrunnelse, HistorikkAktør.SAKSBEHANDLER);
 
@@ -92,13 +85,6 @@ public class HenleggBehandlingTjeneste {
 
     public void lagHistorikkInnslagForHenleggelseFraSteg(Long behandlingId, BehandlingResultatType årsakKode, String begrunnelse) {
         lagHistorikkinnslagForHenleggelse(behandlingId, årsakKode, begrunnelse, HistorikkAktør.VEDTAKSLØSNINGEN);
-    }
-
-    private void opprettOppgaveTilInfotrygd(Behandling behandling) {
-        var data = ProsessTaskData.forProsessTask(OpprettOppgaveSendTilInfotrygdTask.class);
-        data.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        data.setCallIdFraEksisterende();
-        taskTjeneste.lagre(data);
     }
 
     private void håndterHenleggelseUtenOppgitteSøknadsopplysninger(Behandling behandling, BehandlingskontrollKontekst kontekst) {

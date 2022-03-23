@@ -7,18 +7,10 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum HistorikkResultatType implements Kodeverdi {
 
     UDEFINIERT("-", "Ikke definert"),
@@ -55,9 +47,9 @@ public enum HistorikkResultatType implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
-    private String navn;
 
+    private String navn;
+    @JsonValue
     private String kode;
 
     HistorikkResultatType(String kode) {
@@ -69,18 +61,6 @@ public enum HistorikkResultatType implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static HistorikkResultatType fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent HistorikkResultatType: " + kode);
-        }
-        return ad;
-    }
-
     public static Map<String, HistorikkResultatType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -90,13 +70,11 @@ public enum HistorikkResultatType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -112,6 +90,17 @@ public enum HistorikkResultatType implements Kodeverdi {
         @Override
         public HistorikkResultatType convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static HistorikkResultatType fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent HistorikkResultatType: " + kode);
+            }
+            return ad;
         }
     }
 }

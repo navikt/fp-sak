@@ -63,7 +63,7 @@ public class Fagsak extends BaseEntitet {
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "til_infotrygd", nullable = false)
-    private boolean skalTilInfotrygd = false;
+    private boolean stengt = false;
 
     @Version
     @Column(name = "versjon", nullable = false)
@@ -204,12 +204,12 @@ public class Fagsak extends BaseEntitet {
         this.fagsakStatus = fagsakStatus;
     }
 
-    public boolean getSkalTilInfotrygd() {
-        return skalTilInfotrygd;
+    public boolean erStengt() {
+        return stengt;
     }
 
-    public void setSkalTilInfotrygd(boolean tilInfotrygd) {
-        this.skalTilInfotrygd = tilInfotrygd;
+    public void setStengt(boolean tilInfotrygd) {
+        this.stengt = tilInfotrygd;
     }
 
     public long getVersjon() {

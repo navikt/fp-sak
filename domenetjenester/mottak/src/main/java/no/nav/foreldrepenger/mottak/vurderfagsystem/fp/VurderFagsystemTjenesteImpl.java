@@ -46,7 +46,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             .collect(Collectors.toList());
 
         if (matchendeFagsaker.size() == 1) {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(matchendeFagsaker.get(0));
+            return new BehandlendeFagsystem(VEDTAKSLØSNING, matchendeFagsaker.get(0));
         }
         if (matchendeFagsaker.size() > 1) {
             LOG.info("VurderFagsystem FP strukturert søknad flere matchende saker {}", matchendeFagsaker);
@@ -59,7 +59,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             .collect(Collectors.toList());
 
         if (relevanteFagsaker.size() == 1) {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(relevanteFagsaker.get(0));
+            return new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0));
         }
         if (relevanteFagsaker.size() > 1) {
             LOG.info("VurderFagsystem FP strukturert søknad flere relevante saker {}", relevanteFagsaker);
@@ -103,7 +103,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         }
 
         var vurdering = fellesUtils.standardUstrukturertDokumentVurdering(kompatibleFagsaker).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
-        if (MANUELL_VURDERING.equals(vurdering.getBehandlendeSystem())) {
+        if (MANUELL_VURDERING.equals(vurdering.behandlendeSystem())) {
             LOG.info("VurderFagsystem FP ustrukturert vurdert til manuell behandling b for {}", vurderFagsystem.getAktørId());
         }
         return vurdering;

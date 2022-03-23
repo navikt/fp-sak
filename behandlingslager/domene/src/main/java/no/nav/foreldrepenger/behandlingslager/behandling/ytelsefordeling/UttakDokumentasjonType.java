@@ -7,18 +7,11 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum UttakDokumentasjonType implements Kodeverdi {
 
     UTEN_OMSORG("UTEN_OMSORG", "Søker har ikke omsorg for barnet"),
@@ -48,9 +41,9 @@ public enum UttakDokumentasjonType implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
-    private String navn;
 
+    private String navn;
+    @JsonValue
     private String kode;
 
     UttakDokumentasjonType(String kode, String navn) {
@@ -58,17 +51,6 @@ public enum UttakDokumentasjonType implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static UttakDokumentasjonType fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent UttakDokumentasjonType: " + kode);
-        }
-        return ad;
-    }
     public static Map<String, UttakDokumentasjonType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -78,13 +60,11 @@ public enum UttakDokumentasjonType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -100,6 +80,17 @@ public enum UttakDokumentasjonType implements Kodeverdi {
         @Override
         public UttakDokumentasjonType convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static UttakDokumentasjonType fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent UttakDokumentasjonType: " + kode);
+            }
+            return ad;
         }
     }
 }

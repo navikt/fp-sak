@@ -175,7 +175,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         // Arrange
         var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         var behandling = scenario.lagre(repositoryProvider);
-        behandling.getFagsak().setSkalTilInfotrygd(true);
+        behandling.getFagsak().setStengt(true);
         lagBehandlingsresultat(behandling);
 
         // Act
@@ -193,7 +193,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         var behandling = scenario.lagre(repositoryProvider);
         var revurdering = lagRevurdering(behandling);
         inngangsvilkårOgUttak(revurdering, VilkårUtfallType.IKKE_OPPFYLT);
-        revurdering.getFagsak().setSkalTilInfotrygd(true);
+        revurdering.getFagsak().setStengt(true);
 
         // Act
         foreslåBehandlingresultat(revurdering);

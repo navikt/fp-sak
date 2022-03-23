@@ -106,7 +106,7 @@ public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest
         var behandling = opprettBehandling(
             FagsakYtelseType.FORELDREPENGER,
             BehandlingType.FØRSTEGANGSSØKNAD,
-            BehandlingResultatType.MANGLER_BEREGNINGSREGLER,
+            BehandlingResultatType.HENLAGT_SØKNAD_MANGLER,
             null,
             VedtakResultatType.UDEFINERT,
             DATO_ETTER_INNSENDINGSFRISTEN);

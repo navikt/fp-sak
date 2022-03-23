@@ -7,13 +7,7 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -21,8 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum SkjermlenkeType implements Kodeverdi {
 
     ANKE_MERKNADER("ANKE_MERKNADER", "Anke merknader"),
@@ -84,9 +76,9 @@ public enum SkjermlenkeType implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
-    private String navn;
 
+    private String navn;
+    @JsonValue
     private String kode;
 
     SkjermlenkeType(String kode) {
@@ -98,8 +90,7 @@ public enum SkjermlenkeType implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static SkjermlenkeType fraKode(@JsonProperty("kode") String kode) {
+    public static SkjermlenkeType fraKode(String kode) {
         if (kode == null) {
             return null;
         }
@@ -114,13 +105,11 @@ public enum SkjermlenkeType implements Kodeverdi {
         return Collections.unmodifiableMap(KODER);
     }
 
-    @JsonProperty
     @Override
     public String getNavn() {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

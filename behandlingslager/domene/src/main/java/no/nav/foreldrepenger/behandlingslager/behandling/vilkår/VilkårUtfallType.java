@@ -7,18 +7,10 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum VilkårUtfallType implements Kodeverdi {
     OPPFYLT("OPPFYLT", "Oppfylt"),
     IKKE_OPPFYLT("IKKE_OPPFYLT", "Ikke oppfylt"),
@@ -32,9 +24,9 @@ public enum VilkårUtfallType implements Kodeverdi {
 
     public static final String KODEVERK = "VILKAR_UTFALL_TYPE";
 
-    @JsonIgnore
-    private String navn;
 
+    private String navn;
+    @JsonValue
     private String kode;
 
     VilkårUtfallType(String kode) {
@@ -44,18 +36,6 @@ public enum VilkårUtfallType implements Kodeverdi {
     VilkårUtfallType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-    }
-
-    @JsonCreator
-    public static VilkårUtfallType fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent VilkårUtfallType: " + kode);
-        }
-        return ad;
     }
 
     public static Map<String, VilkårUtfallType> kodeMap() {
@@ -72,13 +52,11 @@ public enum VilkårUtfallType implements Kodeverdi {
     }
 
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -102,6 +80,17 @@ public enum VilkårUtfallType implements Kodeverdi {
         @Override
         public VilkårUtfallType convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static VilkårUtfallType fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent VilkårUtfallType: " + kode);
+            }
+            return ad;
         }
     }
 

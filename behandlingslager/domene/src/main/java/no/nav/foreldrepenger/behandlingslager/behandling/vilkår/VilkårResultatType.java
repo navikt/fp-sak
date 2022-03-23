@@ -8,19 +8,11 @@ import java.util.Set;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.vedtak.exception.TekniskException;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum VilkårResultatType implements Kodeverdi {
      INNVILGET("INNVILGET", "Innvilget"),
      AVSLÅTT("AVSLAATT", "Avslått"),
@@ -34,9 +26,9 @@ public enum VilkårResultatType implements Kodeverdi {
 
     public static final String KODEVERK = "VILKAR_RESULTAT_TYPE";
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     VilkårResultatType(String kode) {
@@ -48,18 +40,6 @@ public enum VilkårResultatType implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static VilkårResultatType fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent VilkårResultatType: " + kode);
-        }
-        return ad;
-    }
-
     public static Map<String, VilkårResultatType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -69,13 +49,11 @@ public enum VilkårResultatType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -126,6 +104,17 @@ public enum VilkårResultatType implements Kodeverdi {
         @Override
         public VilkårResultatType convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static VilkårResultatType fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent VilkårResultatType: " + kode);
+            }
+            return ad;
         }
     }
 

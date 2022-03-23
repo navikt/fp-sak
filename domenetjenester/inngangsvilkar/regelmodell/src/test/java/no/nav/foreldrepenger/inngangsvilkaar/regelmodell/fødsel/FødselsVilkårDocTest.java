@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import no.nav.foreldrepenger.felles.integrasjon.rest.DefaultJsonMapper;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelKjønn;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.fpsak.nare.doc.RuleDescriptionDigraph;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class FødselsVilkårDocTest {
 

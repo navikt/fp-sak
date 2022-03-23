@@ -7,18 +7,10 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum HistorikkEndretFeltType implements Kodeverdi {
 
     UDEFINIERT("-", "Ikke definert"),
@@ -157,9 +149,10 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
+
     private String navn;
 
+    @JsonValue
     private String kode;
 
     HistorikkEndretFeltType(String kode) {
@@ -171,8 +164,7 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static HistorikkEndretFeltType fraKode(@JsonProperty("kode") String kode) {
+    public static HistorikkEndretFeltType fraKode(String kode) {
         if (kode == null) {
             return null;
         }
@@ -192,13 +184,11 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

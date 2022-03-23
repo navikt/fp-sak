@@ -73,7 +73,7 @@ public class FagsakRepository {
     }
 
     public List<Fagsak> hentForBruker(AktørId aktørId) {
-        var query = entityManager.createQuery("from Fagsak where navBruker.aktørId=:aktørId and skalTilInfotrygd=:ikkestengt",
+        var query = entityManager.createQuery("from Fagsak where navBruker.aktørId=:aktørId and stengt=:ikkestengt",
                 Fagsak.class);
         query.setParameter("aktørId", aktørId); // NOSONAR
         query.setParameter("ikkestengt", false); // NOSONAR
@@ -81,7 +81,7 @@ public class FagsakRepository {
     }
 
     public List<Fagsak> hentForBrukerMulti(Set<AktørId> aktørId) {
-        var query = entityManager.createQuery("from Fagsak where navBruker.aktørId in (:aktørId) and skalTilInfotrygd=:ikkestengt",
+        var query = entityManager.createQuery("from Fagsak where navBruker.aktørId in (:aktørId) and stengt=:ikkestengt",
                 Fagsak.class);
         query.setParameter("aktørId", aktørId); // NOSONAR
         query.setParameter("ikkestengt", false); // NOSONAR
@@ -200,16 +200,16 @@ public class FagsakRepository {
         return new Saksnummer(String.valueOf(singleResult.longValue()));
     }
 
-    public void fagsakSkalBehandlesAvInfotrygd(Long fagsakId) {
+    public void fagsakSkalStengesForBruk(Long fagsakId) {
         var fagsak = finnEksaktFagsak(fagsakId);
-        fagsak.setSkalTilInfotrygd(true);
+        fagsak.setStengt(true);
         entityManager.persist(fagsak);
         entityManager.flush();
     }
 
     public void fagsakSkalGjenåpnesForBruk(Long fagsakId) {
         var fagsak = finnEksaktFagsak(fagsakId);
-        fagsak.setSkalTilInfotrygd(false);
+        fagsak.setStengt(false);
         entityManager.persist(fagsak);
         entityManager.flush();
     }

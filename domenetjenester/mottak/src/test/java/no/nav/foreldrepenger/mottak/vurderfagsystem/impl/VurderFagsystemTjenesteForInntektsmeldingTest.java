@@ -114,7 +114,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
         lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
 
         var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer()).isNotEmpty();
     }
 
@@ -143,7 +143,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
         when(grunnlagRepository.hentAggregatHvisEksisterer(anyLong())).thenReturn(Optional.of(grunnlag));
 
         var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
         assertThat(result.getSaksnummer()).isEmpty();
     }
 
@@ -172,7 +172,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
         when(grunnlagRepository.hentAggregatHvisEksisterer(anyLong())).thenReturn(Optional.of(grunnlag));
 
         var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer()).isNotEmpty();
     }
 
@@ -205,7 +205,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
             .thenReturn(Optional.of(lagBeregningsresultatGradert(LocalDate.now().minusMonths(12), LocalDate.now().minusMonths(1))));
 
         var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
         assertThat(result.getSaksnummer()).isEmpty();
     }
 
@@ -230,7 +230,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
             .thenReturn(Optional.of(lagBeregningsresultatGradert(LocalDate.now().minusMonths(12), LocalDate.now().plusMonths(2))));
 
         var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer()).isNotEmpty();
     }
 
@@ -255,7 +255,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
             .thenReturn(Optional.of(lagBeregningsresultatGradert(LocalDate.now().minusMonths(12), LocalDate.now().minusMonths(1))));
 
         var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
         assertThat(result.getSaksnummer()).isEmpty();
     }
 
@@ -293,7 +293,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
     }
 
     @Test
-    public void skalReturnereInfotrygdNårBrukerIkkeHarSakIVL() {
+    public void skalReturnereVLNårBrukerIkkeHarSakIVL() {
         var fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_NY, BehandlingTema.FORELDREPENGER,
                 LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
@@ -303,7 +303,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(Collections.emptyList());
 
         var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VURDER_INFOTRYGD);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer()).isEmpty();
     }
 
@@ -325,7 +325,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
         lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
 
         var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer()).isNotEmpty();
     }
 }

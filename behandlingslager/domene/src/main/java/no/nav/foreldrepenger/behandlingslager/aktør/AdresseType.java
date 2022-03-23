@@ -3,25 +3,16 @@ package no.nav.foreldrepenger.behandlingslager.aktør;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum AdresseType implements Kodeverdi, MedOffisiellKode {
 
     BOSTEDSADRESSE("BOSTEDSADRESSE", "Bostedsadresse", "BOAD"),
@@ -44,11 +35,11 @@ public enum AdresseType implements Kodeverdi, MedOffisiellKode {
         }
     }
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
-    @JsonIgnore
+
     private String offisiellKode;
 
     AdresseType(String kode) {
@@ -61,39 +52,20 @@ public enum AdresseType implements Kodeverdi, MedOffisiellKode {
         this.offisiellKode = offisiellKode;
     }
 
-    @JsonCreator
-    public static AdresseType fraKode(@JsonProperty("kode") String kode) {
-        var ad = fraKodeOptional(kode);
-        if (ad.isEmpty()) {
-            throw new IllegalArgumentException("Ukjent RelasjonsRolleType: " + kode);
-        }
-        return ad.get();
-    }
-
     public static Map<String, AdresseType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
-
-    public static Optional<AdresseType> fraKodeOptional(String kode) {
-        if (kode == null) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(KODER.get(kode));
-    }
-
 
     @Override
     public String getNavn() {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -116,6 +88,16 @@ public enum AdresseType implements Kodeverdi, MedOffisiellKode {
             return dbData == null ? null : fraKode(dbData);
         }
 
+        private static AdresseType fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent RelasjonsRolleType: " + kode);
+            }
+            return ad;
+        }
     }
 
     private static final Set<AdresseType> UTLANDSTYPER = Set.of(POSTADRESSE_UTLAND, MIDLERTIDIG_POSTADRESSE_UTLAND);

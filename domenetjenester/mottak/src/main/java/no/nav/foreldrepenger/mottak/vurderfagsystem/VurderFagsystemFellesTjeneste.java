@@ -46,7 +46,7 @@ public class VurderFagsystemFellesTjeneste {
         if (vurderFagsystem.getJournalpostId().isPresent()) {
             var journalpost = fagsakTjeneste.hentJournalpost(vurderFagsystem.getJournalpostId().get());
             if (journalpost.isPresent()) {
-                return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(journalpost.get().getFagsak().getSaksnummer());
+                return new BehandlendeFagsystem(VEDTAKSLØSNING, journalpost.get().getFagsak().getSaksnummer());
             }
         }
         // Endringssøknader og evt ettersendte vedlegg
@@ -70,10 +70,10 @@ public class VurderFagsystemFellesTjeneste {
 
     private BehandlendeFagsystem vurderSøknadMedSaksnummer(Saksnummer saksnummer) {
         var sak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false);
-        if (sak.isEmpty() || sak.map(Fagsak::getSkalTilInfotrygd).orElse(Boolean.FALSE)) {
+        if (sak.isEmpty() || sak.map(Fagsak::erStengt).orElse(Boolean.FALSE)) {
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
-        return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(saksnummer);
+        return new BehandlendeFagsystem(VEDTAKSLØSNING, saksnummer);
     }
 
     private BehandlendeFagsystem håndterHenvendelse(VurderFagsystem vurderFagsystem, FagsakYtelseType ytelseType, List<Fagsak> alleBrukersFagsaker) {
@@ -97,7 +97,7 @@ public class VurderFagsystemFellesTjeneste {
         if (vurderFagsystem.getJournalpostId().isPresent()) {
             var journalpost = fagsakTjeneste.hentJournalpost(vurderFagsystem.getJournalpostId().get());
             if (journalpost.isPresent()) {
-                return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(journalpost.get().getFagsak().getSaksnummer());
+                return new BehandlendeFagsystem(VEDTAKSLØSNING, journalpost.get().getFagsak().getSaksnummer());
             }
         }
         // Endringssøknader og evt ettersendte vedlegg

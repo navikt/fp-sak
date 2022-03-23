@@ -10,18 +10,10 @@ import java.util.stream.Collectors;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum PersonstatusType implements Kodeverdi {
 
     ADNR("ADNR", "Aktivt D-nummer", false),
@@ -52,12 +44,11 @@ public enum PersonstatusType implements Kodeverdi {
 
     public static final String KODEVERK = "PERSONSTATUS_TYPE";
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
-    @JsonIgnore
     private boolean fortsettBehandling;
 
     PersonstatusType(String kode, String navn, boolean fortsettBehandling) {
@@ -71,18 +62,6 @@ public enum PersonstatusType implements Kodeverdi {
     }
 
 
-    @JsonCreator
-    public static PersonstatusType fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent PersonstatusType: " + kode);
-        }
-        return ad;
-    }
-
     public static Map<String, PersonstatusType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -92,13 +71,11 @@ public enum PersonstatusType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -122,6 +99,17 @@ public enum PersonstatusType implements Kodeverdi {
         @Override
         public PersonstatusType convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static PersonstatusType fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent PersonstatusType: " + kode);
+            }
+            return ad;
         }
     }
 

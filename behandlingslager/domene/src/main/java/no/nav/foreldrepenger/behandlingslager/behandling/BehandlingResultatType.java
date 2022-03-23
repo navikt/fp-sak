@@ -8,20 +8,12 @@ import java.util.Set;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum BehandlingResultatType implements Kodeverdi {
 
     IKKE_FASTSATT("IKKE_FASTSATT", "Ikke fastsatt"),
@@ -36,6 +28,7 @@ public enum BehandlingResultatType implements Kodeverdi {
     FORELDREPENGER_ENDRET("FORELDREPENGER_ENDRET", "Sak er endret"),
     FORELDREPENGER_SENERE("FORELDREPENGER_SENERE", "Sak er endret"),
     INGEN_ENDRING("INGEN_ENDRING", "Ingen endring"),
+    @Deprecated // Tidligere brukt ifm flytting til infotrygd ved feilopprettede saker
     MANGLER_BEREGNINGSREGLER("MANGLER_BEREGNINGSREGLER", "Mangler beregningsregler"),
 
     // Klage
@@ -97,9 +90,8 @@ public enum BehandlingResultatType implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
     private String navn;
-
+    @JsonValue
     private String kode;
 
     BehandlingResultatType(String kode) {
@@ -111,8 +103,7 @@ public enum BehandlingResultatType implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static BehandlingResultatType fraKode(@JsonProperty("kode") String kode) {
+    public static BehandlingResultatType fraKode(String kode) {
         if (kode == null) {
             return null;
         }
@@ -132,13 +123,11 @@ public enum BehandlingResultatType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;

@@ -7,18 +7,10 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum ArbeidsforholdIkkeOppfyltÅrsak implements Kodeverdi {
 
     // Se også Periode ikke oppfylt - der brukes 8304-83011 + 8313+8314
@@ -41,9 +33,8 @@ public enum ArbeidsforholdIkkeOppfyltÅrsak implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
     private String navn;
-
+    @JsonValue
     private String kode;
 
     ArbeidsforholdIkkeOppfyltÅrsak(String kode) {
@@ -55,8 +46,7 @@ public enum ArbeidsforholdIkkeOppfyltÅrsak implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static ArbeidsforholdIkkeOppfyltÅrsak fraKode(@JsonProperty("kode") String kode) {
+    public static ArbeidsforholdIkkeOppfyltÅrsak fraKode(String kode) {
         if (kode == null) {
             return null;
         }
@@ -76,13 +66,11 @@ public enum ArbeidsforholdIkkeOppfyltÅrsak implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

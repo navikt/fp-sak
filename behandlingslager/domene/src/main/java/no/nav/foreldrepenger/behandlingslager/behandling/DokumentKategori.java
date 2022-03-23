@@ -9,19 +9,11 @@ import java.util.Objects;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum DokumentKategori implements Kodeverdi, MedOffisiellKode {
 
     UDEFINERT("-", "Ikke definert", null),
@@ -45,30 +37,16 @@ public enum DokumentKategori implements Kodeverdi, MedOffisiellKode {
 
     private static final Map<String, DokumentKategori> KODER = new LinkedHashMap<>();
 
-    @JsonIgnore
     private String navn;
 
-    @JsonIgnore
     private String offisiellKode;
-
+    @JsonValue
     private String kode;
 
     DokumentKategori(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;
-    }
-
-    @JsonCreator
-    public static DokumentKategori fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent DokumentKategori: " + kode);
-        }
-        return ad;
     }
 
     public static Map<String, DokumentKategori> kodeMap() {
@@ -80,13 +58,11 @@ public enum DokumentKategori implements Kodeverdi, MedOffisiellKode {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -115,6 +91,17 @@ public enum DokumentKategori implements Kodeverdi, MedOffisiellKode {
         @Override
         public DokumentKategori convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static DokumentKategori fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent DokumentKategori: " + kode);
+            }
+            return ad;
         }
     }
 

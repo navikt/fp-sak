@@ -7,8 +7,6 @@ import java.util.Objects;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
 public enum Alvorlighetsgrad {
     OK("00"),
     OK_MED_MERKNAD("04"),

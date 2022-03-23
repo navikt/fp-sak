@@ -1,24 +1,16 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
-
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
 public enum ArbeidsforholdKomplettVurderingType implements Kodeverdi {
 
     KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING("KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING", "Saksbehandler kontakter arbeidsgiver for å avklare manglende inntektsmelding"),
@@ -47,27 +39,14 @@ public enum ArbeidsforholdKomplettVurderingType implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     ArbeidsforholdKomplettVurderingType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-    }
-
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static ArbeidsforholdKomplettVurderingType fraKode(@JsonProperty(value = "kode") Object node) {
-        if (node == null) {
-            return null;
-        }
-        var kode = TempAvledeKode.getVerdi(ArbeidsforholdKomplettVurderingType.class, node, "kode");
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent ArbeidsforholdKomplettVurderingType: " + kode);
-        }
-        return ad;
     }
 
     public static Map<String, ArbeidsforholdKomplettVurderingType> kodeMap() {
@@ -79,13 +58,11 @@ public enum ArbeidsforholdKomplettVurderingType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -102,6 +79,17 @@ public enum ArbeidsforholdKomplettVurderingType implements Kodeverdi {
         @Override
         public ArbeidsforholdKomplettVurderingType convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static ArbeidsforholdKomplettVurderingType fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent ArbeidsforholdKomplettVurderingType: " + kode);
+            }
+            return ad;
         }
     }
 }

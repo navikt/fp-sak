@@ -11,13 +11,7 @@ import java.util.Set;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
@@ -27,8 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
  * Kommer kun til anvendelse dersom det oppstår aksjonspunkter eller noe må legges på vent i et steg. Hvis ikke
  * flyter et rett igjennom til UTFØRT.
  */
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum BehandlingStegStatus implements Kodeverdi {
 
 
@@ -52,9 +44,8 @@ public enum BehandlingStegStatus implements Kodeverdi {
 
     public static final String KODEVERK = "BEHANDLING_STEG_STATUS"; //$NON-NLS-1$
 
-    @JsonIgnore
     private String navn;
-
+    @JsonValue
     private String kode;
 
     BehandlingStegStatus(String kode) {
@@ -64,18 +55,6 @@ public enum BehandlingStegStatus implements Kodeverdi {
     BehandlingStegStatus(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-    }
-
-    @JsonCreator
-    public static BehandlingStegStatus fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent BehandlingStegStatus: " + kode);
-        }
-        return ad;
     }
 
     @Override
@@ -107,13 +86,11 @@ public enum BehandlingStegStatus implements Kodeverdi {
         return Collections.unmodifiableMap(KODER);
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -137,6 +114,17 @@ public enum BehandlingStegStatus implements Kodeverdi {
         @Override
         public BehandlingStegStatus convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static BehandlingStegStatus fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent BehandlingStegStatus: " + kode);
+            }
+            return ad;
         }
     }
 

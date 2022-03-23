@@ -1,24 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum Tema implements Kodeverdi, MedOffisiellKode {
 
     FOR("FOR", "Foreldre- og Svangerskapspenger", "FOR"),
@@ -28,14 +17,10 @@ public enum Tema implements Kodeverdi, MedOffisiellKode {
 
     public static final String KODEVERK = "TEMA";
 
-    private static final Map<String, Tema> KODER = new LinkedHashMap<>();
-
-    @JsonIgnore
     private String navn;
 
-    @JsonIgnore
     private String offisiellKode;
-
+    @JsonValue
     private String kode;
 
     Tema(String kode, String navn, String offisiellKode) {
@@ -44,34 +29,16 @@ public enum Tema implements Kodeverdi, MedOffisiellKode {
         this.offisiellKode = offisiellKode;
     }
 
-    @JsonCreator
-    public static Tema fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent Tema: " + kode);
-        }
-        return ad;
-    }
-
-    public static Map<String, Tema> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -82,16 +49,8 @@ public enum Tema implements Kodeverdi, MedOffisiellKode {
         return offisiellKode;
     }
 
-    static {
-        for (var v : values()) {
-            if (KODER.putIfAbsent(v.kode, v) != null) {
-                throw new IllegalArgumentException("Duplikat : " + v.kode);
-            }
-        }
-    }
-
     public static Tema finnForKodeverkEiersKode(String tema) {
-        return List.of(values()).stream().filter(k -> Objects.equals(k.offisiellKode, tema)).findFirst().orElse(UDEFINERT);
+        return Stream.of(values()).filter(k -> Objects.equals(k.offisiellKode, tema)).findFirst().orElse(UDEFINERT);
     }
 
 }

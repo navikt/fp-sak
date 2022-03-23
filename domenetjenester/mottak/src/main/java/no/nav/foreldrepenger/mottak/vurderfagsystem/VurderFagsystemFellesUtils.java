@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.vurderfagsystem;
 
 import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING;
 import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING;
-import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeSystem.VURDER_INFOTRYGD;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -258,13 +257,13 @@ public class VurderFagsystemFellesUtils {
             LOG.info("VurderFagsystem FP IM manuell pga nylige saker av type {} startdatoIM {} im-saker {}", SorteringSaker.INNTEKTSMELDING_MISMATCH, startdatoIM, tvilssakerIM);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
-        return sorterteSaker.getOrDefault(SorteringSaker.TOM_SAK, List.of()).isEmpty() ?  new BehandlendeFagsystem(VURDER_INFOTRYGD) :
-            new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(sorterteSaker.get(SorteringSaker.TOM_SAK).get(0).getSaksnummer());
+        return sorterteSaker.getOrDefault(SorteringSaker.TOM_SAK, List.of()).isEmpty() ?  new BehandlendeFagsystem(VEDTAKSLØSNING) :
+            new BehandlendeFagsystem(VEDTAKSLØSNING, sorterteSaker.get(SorteringSaker.TOM_SAK).get(0).getSaksnummer());
     }
 
     private BehandlendeFagsystem behandlendeFagsystemFraFagsaker(List<Fagsak> saker, SorteringSaker sortering, VurderFagsystem vurderFagsystem) {
         if (saker.size() == 1) {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(saker.get(0).getSaksnummer());
+            return new BehandlendeFagsystem(VEDTAKSLØSNING, saker.get(0).getSaksnummer());
         }
         if (saker.size() > 1) {
             LOG.info("VurderFagsystem FP IM manuell pga flere saker av type {} for {}", sortering, vurderFagsystem.getAktørId());
@@ -346,14 +345,14 @@ public class VurderFagsystemFellesUtils {
     public Optional<BehandlendeFagsystem> standardUstrukturertDokumentVurdering(List<Fagsak> sakerTilVurdering) {
         var åpneFagsaker = finnÅpneSaker(sakerTilVurdering);
         if (åpneFagsaker.size() == 1) {
-            return Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(åpneFagsaker.get(0).getSaksnummer()));
+            return Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING, åpneFagsaker.get(0).getSaksnummer()));
         }
         if (åpneFagsaker.size() > 1) {
             return Optional.of(new BehandlendeFagsystem(MANUELL_VURDERING));
         }
         var avslagDokumentasjon = harSakMedAvslagGrunnetManglendeDok(sakerTilVurdering);
         if (avslagDokumentasjon.size() == 1) {
-            return Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(avslagDokumentasjon.get(0).getSaksnummer()));
+            return Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING, avslagDokumentasjon.get(0).getSaksnummer()));
         }
         return Optional.empty();
     }
@@ -363,7 +362,7 @@ public class VurderFagsystemFellesUtils {
             .filter(this::harÅpenEllerNyligAvsluttetKlageEllerAnkeBehandlingKlageinstans)
             .collect(Collectors.toList());
         return åpneFagsaker.size() != 1 ? Optional.empty() :
-            Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(åpneFagsaker.get(0).getSaksnummer()));
+            Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING, åpneFagsaker.get(0).getSaksnummer()));
     }
 
     public Optional<BehandlendeFagsystem> vurderFagsystemKlageAnke(BehandlingTema behandlingTema, List<Fagsak> sakerTilVurdering) {
@@ -410,14 +409,14 @@ public class VurderFagsystemFellesUtils {
                 .max(Comparator.naturalOrder()).orElseGet(LocalDateTime::now).minusMonths(12);
             var fagsakerSisteÅret = behandlinger.stream().map(Behandling::getFagsak).filter(f -> f.getOpprettetTidspunkt().isAfter(sistOpprettetSakMinusÅr)).collect(Collectors.toList());
             if (fagsakerSisteÅret.size() == 1) { // Første element i fordelingslogikk klage
-                return Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(fagsakerSisteÅret.get(0).getSaksnummer()));
+                return Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING, fagsakerSisteÅret.get(0).getSaksnummer()));
             }
             var saker = sakerTilVurdering.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList());
             var sakerMedKlage = sakerTilVurdering.stream().filter(f -> behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(f.getId(), BehandlingType.KLAGE).isPresent()).count();
             LOG.info("VFS-KLAGE flere saker - antall saker {} saker med klage {} saksnummer {}", sakerTilVurdering.size(), sakerMedKlage, saker);
         }
         return behandlinger.size() != 1 ? Optional.empty() :
-            Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(behandlinger.get(0).getFagsak().getSaksnummer()));
+            Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING, behandlinger.get(0).getFagsak().getSaksnummer()));
     }
 
     public static boolean erSøknad(VurderFagsystem vurderFagsystem) {
