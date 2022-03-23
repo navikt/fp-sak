@@ -159,7 +159,13 @@ public class ArbeidOgInntektsmeldingMapper {
     }
 
     private static Optional<BigDecimal> finnStillingsprosentForPeriode(Yrkesaktivitet ya, DatoIntervallEntitet datoIntervallEntitet) {
-        return ya.getStillingsprosentFor(datoIntervallEntitet.getFomDato()).map(Stillingsprosent::getVerdi);
+        return ya.getAlleAktivitetsAvtaler().stream()
+            .filter(aa -> aa.getPeriode().overlapper(datoIntervallEntitet) && aa.getProsentsats() != null && !aa.getProsentsats().erNulltall())
+            .map(AktivitetsAvtale::getProsentsats)
+            .map(Stillingsprosent::getVerdi)
+            .reduce(BigDecimal::add)
+            .stream()
+            .findFirst();
     }
 
     private static Optional<String> finnEksternRef(InternArbeidsforholdRef arbeidsforholdRef, Collection<ArbeidsforholdReferanse> arbeidsforholdReferanser) {
