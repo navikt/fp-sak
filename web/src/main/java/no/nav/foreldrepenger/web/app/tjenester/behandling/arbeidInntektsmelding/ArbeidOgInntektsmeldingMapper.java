@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -159,13 +160,13 @@ public class ArbeidOgInntektsmeldingMapper {
     }
 
     private static Optional<BigDecimal> finnStillingsprosentForPeriode(Yrkesaktivitet ya, DatoIntervallEntitet datoIntervallEntitet) {
-        return ya.getAlleAktivitetsAvtaler().stream()
-            .filter(aa -> aa.getPeriode().overlapper(datoIntervallEntitet) && aa.getProsentsats() != null && !aa.getProsentsats().erNulltall())
-            .map(AktivitetsAvtale::getProsentsats)
-            .map(Stillingsprosent::getVerdi)
-            .reduce(BigDecimal::add)
+        return ya.getAlleAktivitetsAvtaler()
             .stream()
-            .findFirst();
+            .filter(aa -> !aa.erAnsettelsesPeriode() && aa.getPeriode().overlapper(datoIntervallEntitet))
+            .filter(aa -> aa.getProsentsats() != null && !aa.getProsentsats().erNulltall())
+            .max(Comparator.comparing(AktivitetsAvtale::getPeriode))
+            .map(AktivitetsAvtale::getProsentsats)
+            .map(Stillingsprosent::getVerdi);
     }
 
     private static Optional<String> finnEksternRef(InternArbeidsforholdRef arbeidsforholdRef, Collection<ArbeidsforholdReferanse> arbeidsforholdReferanser) {
@@ -178,6 +179,7 @@ public class ArbeidOgInntektsmeldingMapper {
 
     private static Optional<DatoIntervallEntitet> finnRelevantAnsettelsesperiode(Yrkesaktivitet ya, LocalDate stp) {
         return ya.getAlleAktivitetsAvtaler().stream()
+            .filter(AktivitetsAvtale::erAnsettelsesPeriode)
             .filter(aa -> aa.getPeriode().inkluderer(stp) || aa.getPeriode().getFomDato().isAfter(stp))
             .map(AktivitetsAvtale::getPeriode)
             .max(DatoIntervallEntitet::compareTo);
