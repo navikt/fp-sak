@@ -42,9 +42,9 @@
         <jupiter.version>5.7.2</jupiter.version>
         <fp-uttak.version>11.4.3</fp-uttak.version>
         <svp-uttak.version>2.3.1</svp-uttak.version>
-        <felles.version>4.1.21</felles.version>
+        <felles.version>4.1.22</felles.version>
         <prosesstask.version>3.1.7</prosesstask.version>
-        <fp-jms.version>2.1.2</fp-jms.version>
+        <fp-jms.version>2.1.3</fp-jms.version>
 
         <fp-kontrakter.version>6.1.19</fp-kontrakter.version>
         <fp-tidsserie.version>2.5.8</fp-tidsserie.version>
