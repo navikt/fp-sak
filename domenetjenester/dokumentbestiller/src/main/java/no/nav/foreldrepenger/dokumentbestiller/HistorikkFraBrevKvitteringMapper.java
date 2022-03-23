@@ -17,7 +17,8 @@ public class HistorikkFraBrevKvitteringMapper {
     protected static final String FP_FORMIDLING_SYSTEM = "FP-FORMIDLING";
 
     static Historikkinnslag opprettHistorikkInnslag(DokumentProdusertDto kvittering, long behandlingId, long fagsakId) {
-        var nyttHistorikkInnslag = new Historikkinnslag.Builder().medFagsakId(fagsakId)
+        var nyttHistorikkInnslag = new Historikkinnslag.Builder()
+            .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
             .medUuid(kvittering.dokumentbestillingUuid())
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
@@ -37,7 +38,8 @@ public class HistorikkFraBrevKvitteringMapper {
     }
 
     private static HistorikkinnslagDokumentLink mapDokumentlink(String dokumentMal, String dokumentId, String journalpostId, Historikkinnslag historikkinnslag) {
-        var builder = new HistorikkinnslagDokumentLink.Builder().medLinkTekst(DokumentMalType.fraKode(dokumentMal).getNavn())
+        var builder = new HistorikkinnslagDokumentLink.Builder()
+            .medLinkTekst(DokumentMalType.fraKode(dokumentMal).getNavn())
             .medHistorikkinnslag(historikkinnslag)
             .medDokumentId(dokumentId);
         if (JournalpostId.erGyldig(journalpostId)) {

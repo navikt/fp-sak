@@ -41,16 +41,16 @@ public class KodeverdiValidator implements ConstraintValidator<ValidKodeverk, Ko
         return ok;
     }
 
-    private boolean erTomEllerNull(String str) {
-        return (Objects.equals(null, str) || str.isEmpty());
+    private boolean erIkkeNullEllerTom(String str) {
+        return (!Objects.isNull( str) && !str.isEmpty());
     }
 
     private boolean gyldigKode(String kode) {
-        return (!erTomEllerNull(kode) && gyldigLengde(kode, 1, 100) && kodeverkPattern.matcher(kode).matches());
+        return (erIkkeNullEllerTom(kode) && gyldigLengde(kode, 1, 100) && kodeverkPattern.matcher(kode).matches());
     }
 
     private boolean gyldigKodeverk(String kodeverk) {
-        return (!erTomEllerNull(kodeverk) && gyldigLengde(kodeverk, 0, 256) && kodeverkPattern.matcher(kodeverk).matches());
+        return (erIkkeNullEllerTom(kodeverk) && gyldigLengde(kodeverk, 0, 256) && kodeverkPattern.matcher(kodeverk).matches());
     }
 
     private boolean gyldigLengde(String str, int min, int max) {

@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -36,7 +35,7 @@ public class IverksetteInnsynVedtakStegFellesTest {
 
         var argumentCaptor = ArgumentCaptor.forClass(BestillBrevDto.class);
         verify(dokumentBestillerTjeneste, times(1))
-                .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class), ArgumentMatchers.anyBoolean());
+                .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
     }
 
     @Test
@@ -53,7 +52,7 @@ public class IverksetteInnsynVedtakStegFellesTest {
 
         var argumentCaptor = ArgumentCaptor.forClass(BestillBrevDto.class);
         verify(dokumentBestillerTjeneste, times(1))
-                .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class), ArgumentMatchers.anyBoolean());
+                .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
 
         assertThat(argumentCaptor.getValue().getFritekst()).isEqualTo(" ");
     }
@@ -73,7 +72,7 @@ public class IverksetteInnsynVedtakStegFellesTest {
 
         var argumentCaptor = ArgumentCaptor.forClass(BestillBrevDto.class);
         verify(dokumentBestillerTjeneste, times(1))
-                .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class), ArgumentMatchers.anyBoolean());
+                .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
 
         assertThat(argumentCaptor.getValue().getFritekst()).isEqualTo(begrunnelse);
     }

@@ -119,7 +119,7 @@ public class HenleggBehandlingTjeneste {
 
     private void sendHenleggelsesbrev(long behandlingId, UUID behandlingUuid, HistorikkAktør aktør) {
         var bestillBrevDto = new BestillBrevDto(behandlingId, behandlingUuid, DokumentMalType.INFO_OM_HENLEGGELSE);
-        dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, aktør, false);
+        dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, aktør);
     }
 
     private void lagHistorikkinnslagForHenleggelse(Long behandlingsId, BehandlingResultatType aarsak, String begrunnelse, HistorikkAktør aktør) {

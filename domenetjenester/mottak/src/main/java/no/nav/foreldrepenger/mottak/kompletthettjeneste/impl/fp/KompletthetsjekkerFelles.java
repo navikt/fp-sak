@@ -197,7 +197,7 @@ public class KompletthetsjekkerFelles {
     private void sendEtterlysInntektsmeldingBrev(Long behandlingId, UUID behandlingUuid) {
         if (!erSendtBrev(behandlingId, DokumentMalType.ETTERLYS_INNTEKTSMELDING)) {
             var bestillBrevDto = new BestillBrevDto(behandlingId,behandlingUuid, DokumentMalType.ETTERLYS_INNTEKTSMELDING, null, null);
-            dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
+            dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN);
         }
     }
 
