@@ -163,7 +163,7 @@ public class ArbeidOgInntektsmeldingMapper {
         return ya.getAlleAktivitetsAvtaler()
             .stream()
             .filter(aa -> !aa.erAnsettelsesPeriode() && aa.getPeriode().overlapper(datoIntervallEntitet))
-            .filter(aa -> aa.getProsentsats() != null && !aa.getProsentsats().erNulltall())
+            .filter(aa -> aa.getProsentsats() != null && aa.getProsentsats().getVerdi() != null)
             .max(Comparator.comparing(AktivitetsAvtale::getPeriode))
             .map(AktivitetsAvtale::getProsentsats)
             .map(Stillingsprosent::getVerdi);
