@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseBehandling2021;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
 
 @ApplicationScoped
 @GrunnlagRef("FamilieHendelseGrunnlag")

@@ -37,8 +37,10 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseBehandling2021;
-import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettCore2022;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
 
@@ -46,12 +48,14 @@ public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest 
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private SkjæringstidspunktUtils stputil = new SkjæringstidspunktUtils(Period.parse("P4M"), Period.parse("P1Y"));
     private UtsettelseBehandling2021 utsettelse2021;
+    private MinsterettBehandling2022 minsterett2022;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusMonths(1)), repositoryProvider);
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, stputil, utsettelse2021);
+        minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(LocalDate.now().minusMonths(1)), repositoryProvider);
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, stputil, utsettelse2021, minsterett2022);
     }
 
     @Test
@@ -202,7 +206,7 @@ public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest 
     public void skal_finne_fud_søkt_utsettelse_fra_start() {
         // Sikre fritt uttak
         utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusMonths(12)), repositoryProvider);
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, stputil, utsettelse2021);
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, stputil, utsettelse2021, minsterett2022);
 
 
         var skjæringstidspunktOriginal = VirkedagUtil.fomVirkedag(YearMonth.from(LocalDate.now()).atEndOfMonth().plusDays(1));

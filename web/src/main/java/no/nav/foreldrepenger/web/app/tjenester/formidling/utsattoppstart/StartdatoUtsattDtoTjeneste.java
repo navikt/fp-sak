@@ -9,7 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 @ApplicationScoped
 public class StartdatoUtsattDtoTjeneste {

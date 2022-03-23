@@ -19,6 +19,7 @@ public class Skjæringstidspunkt {
     private LocalDateInterval utledetMedlemsintervall;
     private boolean gjelderFødsel = true;
     private boolean kreverSammenhengendeUttak;
+    private boolean utenMinsterett;
 
     private Skjæringstidspunkt() {
         // hide constructor
@@ -89,9 +90,14 @@ public class Skjæringstidspunkt {
         return this.gjelderFødsel;
     }
 
-    /** Skal behandles etter nytt regelverk for uttak anno 2021. */
+    /** Skal behandles etter nytt regelverk for uttak anno 2021. True = gamle regler */
     public boolean kreverSammenhengendeUttak() {
         return this.kreverSammenhengendeUttak;
+    }
+
+    /** Skal behandles etter nytt regelverk for balansert arbeids/familieliv 2022. True = gamle regler */
+    public boolean utenMinsterett() {
+        return utenMinsterett;
     }
 
     @Override
@@ -180,6 +186,11 @@ public class Skjæringstidspunkt {
 
         public Builder medKreverSammenhengendeUttak(boolean sammenhengendeUttak) {
             kladd.kreverSammenhengendeUttak = sammenhengendeUttak;
+            return this;
+        }
+
+        public Builder medUtenMinsterett(boolean utenMinsterett) {
+            kladd.utenMinsterett = utenMinsterett;
             return this;
         }
 

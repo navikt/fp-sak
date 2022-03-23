@@ -27,9 +27,10 @@ import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjen
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseBehandling2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class UttakInputTjenesteTest {
@@ -46,7 +47,7 @@ public class UttakInputTjenesteTest {
         tjeneste = new UttakInputTjeneste(repositoryProvider, new HentOgLagreBeregningsgrunnlagTjeneste(entityManager),
                 new AbakusInMemoryInntektArbeidYtelseTjeneste(), new SkjæringstidspunktTjenesteImpl(repositoryProvider,
                         new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
-                        new SkjæringstidspunktUtils(), mock(UtsettelseBehandling2021.class)),
+                        new SkjæringstidspunktUtils(), mock(UtsettelseBehandling2021.class), mock(MinsterettBehandling2022.class)),
                 mock(MedlemTjeneste.class), andelGraderingTjeneste);
     }
 

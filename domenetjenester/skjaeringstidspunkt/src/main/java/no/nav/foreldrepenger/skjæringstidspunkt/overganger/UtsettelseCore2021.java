@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.skjæringstidspunkt;
+package no.nav.foreldrepenger.skjæringstidspunkt.overganger;
 
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.SØKNADSFRIST;
 
@@ -26,17 +26,17 @@ import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 /*
- * OBSOBSOBS: Endelig ikrafttredelse dato og overgangs vedtas først i Statsråd, etter Stortingets behandling av P127L20/21
+ * OBSOBSOBS: Endelig ikrafttredelse dato og overgangs vedtas først i Statsråd, etter Stortingets behandling av Prop 127L20/21
  * Klasse for styring av ikrafttredelese nytt regelverk for uttak
  * Metode for å gi ikrafttredelsesdato avhengig av miljø
  * Metode for å vurdere om en Familiehendelse skal vurderes etter nye eller gamle regler. Vil bli oppdatert
- * TODO: Etter dato passert og overgang -> flytt til sentral konfigklasse - skal ikke lenger ha miljøavvik
+ * TODO: Etter dato passert og overgang for testcases -> flytt til sentral konfigklasse - skal ikke lenger ha miljøavvik
  */
 @ApplicationScoped
 public class UtsettelseCore2021 {
 
     private static final Period SENESTE_UTTAK_FØR_TERMIN = Period.ofWeeks(3);
-    public static final boolean DEFAULT_KREVER_SAMMENHENGENDE_UTTAK = true;
+    public static final boolean DEFAULT_KREVER_SAMMENHENGENDE_UTTAK = false;
 
     private static final String PROP_NAME_DATO = "dato.for.nye.uttaksregler";
     private static final LocalDate DATO_FOR_PROD = LocalDate.of(2021,10,1); // LA STÅ.
@@ -64,13 +64,6 @@ public class UtsettelseCore2021 {
         if (gjeldendeFH == null || gjeldendeFH.getSkjæringstidspunkt() == null) return true;
         if (gjeldendeFH.getSkjæringstidspunkt().isBefore(ikrafttredelseDato)) return true;
         return LocalDate.now().isBefore(ikrafttredelseDato);
-    }
-
-    public boolean usikkertFrittUttak(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        if (familieHendelseGrunnlag == null) return true;
-        var bekreftetFamilieHendelse = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon()
-            .filter(fh -> !FamilieHendelseType.TERMIN.equals(fh.getType()));
-        return bekreftetFamilieHendelse.isEmpty();
     }
 
     public static LocalDate førsteUttaksDatoForBeregning(RelasjonsRolleType rolle, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag, LocalDate førsteUttaksdato) {

@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseBehandling2021;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
 
 public class StartpunktUtlederFamilieHendelseTest {
 
