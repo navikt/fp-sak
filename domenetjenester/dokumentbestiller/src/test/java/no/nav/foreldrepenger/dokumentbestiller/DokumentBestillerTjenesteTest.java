@@ -21,7 +21,6 @@ public class DokumentBestillerTjenesteTest {
     @Mock
     private DokumentBestiller dokumentBestiller;
 
-
     private Behandling behandling;
     private BehandlingRepositoryProvider repositoryProvider;
     private DokumentBestillerTjeneste tjeneste;
