@@ -46,9 +46,9 @@ public class ArbeidsforholdInntektsmeldingsMangelUtleder {
             if (!erEndringssøknad) {
                 mangler.addAll(lagArbeidsforholdMedMangel(inntektsmeldingRegisterTjeneste
                     .utledManglendeInntektsmeldingerFraGrunnlag(referanse, erEndringssøknad), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
+                mangler.addAll(lagArbeidsforholdMedMangel(InntektsmeldingUtenArbeidsforholdTjeneste
+                    .utledManglendeArbeidsforhold(iayGrunnlag.get(), referanse.getAktørId(), referanse.getUtledetSkjæringstidspunkt()), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
             }
-            mangler.addAll(lagArbeidsforholdMedMangel(InntektsmeldingUtenArbeidsforholdTjeneste
-                .utledManglendeArbeidsforhold(iayGrunnlag.get(), referanse.getAktørId(), referanse.getUtledetSkjæringstidspunkt()), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
         }
         return mangler;
     }

@@ -41,6 +41,7 @@ import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.KontaktinformasjonIM;
+import no.nav.vedtak.konfig.Tid;
 
 public class ArbeidOgInntektsmeldingMapper {
     private static final Set<AksjonspunktÅrsak> MANGEL_INNTEKTSMELDING = Set.of(AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING, AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD);
@@ -129,7 +130,7 @@ public class ArbeidOgInntektsmeldingMapper {
                 finnEksternRef(ya.getArbeidsforholdRef(), arbeidsforholdReferanser).orElse(null),
                 datoIntervallEntitet.getFomDato(),
                 datoIntervallEntitet.getTomDato(),
-                finnStillingsprosentForPeriode(ya, datoIntervallEntitet).orElse(null),
+                finnStillingsprosent(ya, datoIntervallEntitet).orElse(null),
                 mangelInntektsmelding.orElse(null),
                 vurdering.map(ArbeidsforholdValg::getVurdering).orElse(null),
                 mapPermisjonOgMangel(ya, stp, mangelPermisjon.orElse(null), overstyringAvPermisjon).orElse(null),
@@ -159,10 +160,19 @@ public class ArbeidOgInntektsmeldingMapper {
 
     }
 
-    private static Optional<BigDecimal> finnStillingsprosentForPeriode(Yrkesaktivitet ya, DatoIntervallEntitet datoIntervallEntitet) {
+    private static Optional<BigDecimal> finnStillingsprosent(Yrkesaktivitet ya, DatoIntervallEntitet ansettelsesperiode) {
+        var stillingsprosentForAnsettelsesperiode = finnSisteStillingsprosentForPeriode(ya, ansettelsesperiode);
+        if (stillingsprosentForAnsettelsesperiode.isPresent()) {
+            return stillingsprosentForAnsettelsesperiode;
+        }
+        // Av og til overlapper ikke ansettelsesperioden med periode for stillingsprosent, henter da den siste som finnes
+        return finnSisteStillingsprosentForPeriode(ya, DatoIntervallEntitet.fraOgMedTilOgMed(Tid.TIDENES_BEGYNNELSE, Tid.TIDENES_ENDE));
+    }
+
+    private static Optional<BigDecimal> finnSisteStillingsprosentForPeriode(Yrkesaktivitet ya, DatoIntervallEntitet periode) {
         return ya.getAlleAktivitetsAvtaler()
             .stream()
-            .filter(aa -> !aa.erAnsettelsesPeriode() && aa.getPeriode().overlapper(datoIntervallEntitet))
+            .filter(aa -> !aa.erAnsettelsesPeriode() && aa.getPeriode().overlapper(periode))
             .filter(aa -> aa.getProsentsats() != null && aa.getProsentsats().getVerdi() != null)
             .max(Comparator.comparing(AktivitetsAvtale::getPeriode))
             .map(AktivitetsAvtale::getProsentsats)
