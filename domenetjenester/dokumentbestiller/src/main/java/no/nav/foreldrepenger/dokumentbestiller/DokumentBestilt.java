@@ -25,7 +25,7 @@ public class DokumentBestilt {
 
     public void opprettHistorikkinnslag(HistorikkAktør historikkAktør,
                                         Behandling behandling,
-                                        DokumentMalType dokumentMalType) {
+                                        DokumentMalType dokumentMal) {
 
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setBehandling(behandling);
@@ -33,7 +33,7 @@ public class DokumentBestilt {
         historikkinnslag.setType(HistorikkinnslagType.BREV_BESTILT);
 
         new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.BREV_BESTILT)
-            .medBegrunnelse(dokumentMalType.getNavn())
+            .medBegrunnelse(dokumentMal.getNavn())
             .build(historikkinnslag);
         historikkRepository.lagre(historikkinnslag);
     }

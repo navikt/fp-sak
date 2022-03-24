@@ -102,7 +102,7 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
             case SELVSTENDIG_NÆRINGSDRIVENDE -> AktivitetStatusDto.SELVSTENDIG_NÆRINGSDRIVENDE;
             case KOMBINERT_AT_FL -> AktivitetStatusDto.KOMBINERT_AT_FL;
             case KOMBINERT_AT_SN -> AktivitetStatusDto.KOMBINERT_AT_SN;
-            case KOMBINERT_FL_SN -> AktivitetStatusDto.KOMBINERT_AT_SN;
+            case KOMBINERT_FL_SN -> AktivitetStatusDto.KOMBINERT_FL_SN;
             case KOMBINERT_AT_FL_SN -> AktivitetStatusDto.KOMBINERT_AT_FL_SN;
             case BRUKERS_ANDEL -> AktivitetStatusDto.BRUKERS_ANDEL;
             case KUN_YTELSE -> AktivitetStatusDto.KUN_YTELSE;

@@ -2,85 +2,50 @@ package no.nav.foreldrepenger.dokumentbestiller;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum DokumentMalType implements Kodeverdi {
 
-    FRITEKSTBREV("FRITEK", "Fritekstbrev"),
-    ENGANGSSTØNAD_INNVILGELSE("INNVES", "Innvilget engangsstønad"),
-    ENGANGSSTØNAD_AVSLAG("AVSLES", "Avslag engangsstønad"),
-    FORELDREPENGER_INNVILGELSE("INVFOR", "Innvilgelsesbrev Foreldrepenger"),
-    FORELDREPENGER_AVSLAG("AVSFOR", "Avslagsbrev Foreldrepenger"),
-    FORELDREPENGER_OPPHØR("OPPFOR", "Opphør Foreldrepenger"),
-    FORELDREPENGER_ANNULLERT("ANUFOR", "Annullering av Foreldrepenger"),
-    FORELDREPENGER_INFO_TIL_ANNEN_FORELDER("INFOAF", "Informasjonsbrev til den andre forelderen"),
-    SVANGERSKAPSPENGER_INNVILGELSE("INVSVP", "Innvilgelsesbrev svangerskapspenger"),
-    SVANGERSKAPSPENGER_OPPHØR("OPPSVP", "Opphør svangerskapspenger"),
-    SVANGERSKAPSPENGER_AVSLAG("AVSSVP", "Avslag svangerskapspenger"),
-    INNHENTE_OPPLYSNINGER("INNOPP", "Innhente opplysninger"),
-    VARSEL_OM_REVURDERING("VARREV", "Varsel om revurdering"),
-    INFO_OM_HENLEGGELSE("IOHENL", "Behandling henlagt"),
-    INNSYN_SVAR("INNSYN", "Svar på innsynskrav"),
-    IKKE_SØKT("IKKESO", "Ikke mottatt søknad"),
-    INGEN_ENDRING("INGEND", "Uendret utfall"),
-    FORLENGET_SAKSBEHANDLINGSTID("FORSAK", "Forlenget saksbehandlingstid"),
-    FORLENGET_SAKSBEHANDLINGSTID_MEDL("FORMED", "Forlenget saksbehandlingstid - medlemskap"),
-    FORLENGET_SAKSBEHANDLINGSTID_TIDLIG("FORTID", "Forlenget saksbehandlingstid - Tidlig søknad"),
-    KLAGE_AVVIST("KGEAVV", "Vedtak om avvist klage"),
-    KLAGE_HJEMSENDT("KGEHJE", "Klage hjemsendt/opphevet"),
-    KLAGE_OMGJORT("KGEOMG", "Vedtak om omgjøring av klage"),
-    KLAGE_OVERSENDT("KGEOVE", "Klage oversendt til klageinstans"),
-    KLAGE_STADFESTET("KGESTA", "Vedtak om stadfestelse"),
-    ANKE_OMGJORT("ANKOMG", "Vedtak om omgjøring i ankesak"),
-    ANKE_OPPHEVET("ANKOPP", "Ankebrev om beslutning om oppheving"),
-    ETTERLYS_INNTEKTSMELDING("ELYSIM", "Etterlys inntektsmelding"),
-
-    // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
-    @Deprecated FRITEKSTBREV_DOK("FRITKS", "Fritekstbrev"),
-    @Deprecated ENGANGSSTØNAD_INNVILGELSE_DOK("POSVED", "Positivt vedtaksbrev"),
-    @Deprecated ENGANGSSTØNAD_AVSLAG_DOK("AVSLAG", "Avslagsbrev"),
-    @Deprecated FORELDREPENGER_INNVILGELSE_DOK("INNVFP", "Innvilgelsesbrev Foreldrepenger"),
-    @Deprecated FORELDREPENGER_AVSLAG_DOK("AVSLFP", "Avslagsbrev Foreldrepenger"),
-    @Deprecated FORELDREPENGER_OPPHØR_DOK("OPPHOR", "Opphør brev"),
-    @Deprecated FORELDREPENGER_INFOBREV_TIL_ANNEN_FORELDER_DOK("INAFOR", "Informasjonsbrev til den andre forelderen"),
-    @Deprecated SVANGERSKAPSPENGER_INNVILGELSE_FRITEKST("INNSVP", "Innvilgelsesbrev svangerskapspenger"),
-    @Deprecated INNHENTE_OPPLYSNINGER_DOK("INNHEN", "Innhent dokumentasjon"),
-    @Deprecated VARSEL_OM_REVURDERING_DOK("REVURD", "Varsel om revurdering"),
-    @Deprecated INFO_OM_HENLEGGELSE_DOK("HENLEG", "Behandling henlagt"),
-    @Deprecated INNSYN_SVAR_DOK("INSSKR", "Svar på innsynskrav"),
-    @Deprecated IKKE_SØKT_DOK("INNTID", "Ikke mottatt søknad"),
-    @Deprecated INGEN_ENDRING_DOK("UENDRE", "Uendret utfall"),
-    @Deprecated FORLENGET_SAKSBEHANDLINGSTID_DOK("FORLEN", "Forlenget saksbehandlingstid"),
-    @Deprecated FORLENGET_SAKSBEHANDLINGSTID_MEDL_DOK("FORLME", "Forlenget saksbehandlingstid - medlemskap"),
-    @Deprecated FORLENGET_SAKSBEHANDLINGSTID_TIDLIG_DOK("FORLTS", "Forlenget saksbehandlingstid - Tidlig søknad"),
-    @Deprecated KLAGE_AVVIST_DOK("KLAGAV", "Vedtak om avvist klage"),
-    @Deprecated KLAGE_AVVIST_FRITEKST("KAVVIS", "Vedtak om avvist klage"),
-    @Deprecated KLAGE_HJEMSENDT_DOK("KLAGNY", "Vedtak opphevet, sendt til ny behandling"),
-    @Deprecated KLAGE_HJEMSENDT_FRITEKST("KHJEMS", "Klage hjemsendt/opphevet"),
-    @Deprecated KLAGE_OMGJORT_DOK("VEDMED", "Vedtak om medhold"),
-    @Deprecated KLAGE_OMGJORT_FRITEKST("KOMGJO", "Vedtak om omgjøring av klage"),
-    @Deprecated KLAGE_OVERSENDT_DOK("KLAGOV", "Overføring til NAV Klageinstans"),
-    @Deprecated KLAGE_OVERSENDT_FRITEKST("KOVKLA", "Klage oversendt til klageinstans"),
-    @Deprecated KLAGE_STADFESTET_DOK("KLAGVE", "Vedtak om stadfestelse"),
-    @Deprecated KLAGE_STADFESTET_FRITEKST("KSTADF", "Vedtak om stadfestelse"),
-    @Deprecated ANKE_OMGJORT_FRITEKST("VEDOGA", "Vedtak om omgjøring i ankesak"),
-    @Deprecated ANKE_OPPHEVET_FRITEKST("ANKEBO", "Ankebrev om beslutning om oppheving"),
-    @Deprecated ETTERLYS_INNTEKTSMELDING_FRITEKST("INNLYS", "Etterlys inntektsmelding"),
+    FRITEKSTBREV("FRITEK"),
+    ENGANGSSTØNAD_INNVILGELSE("INNVES"),
+    ENGANGSSTØNAD_AVSLAG("AVSLES"),
+    FORELDREPENGER_INNVILGELSE("INVFOR"),
+    FORELDREPENGER_AVSLAG("AVSFOR"),
+    FORELDREPENGER_OPPHØR("OPPFOR"),
+    FORELDREPENGER_ANNULLERT("ANUFOR"),
+    FORELDREPENGER_INFO_TIL_ANNEN_FORELDER("INFOAF"),
+    SVANGERSKAPSPENGER_INNVILGELSE("INVSVP"),
+    SVANGERSKAPSPENGER_OPPHØR("OPPSVP"),
+    SVANGERSKAPSPENGER_AVSLAG("AVSSVP"),
+    INNHENTE_OPPLYSNINGER("INNOPP"),
+    VARSEL_OM_REVURDERING("VARREV"),
+    INFO_OM_HENLEGGELSE("IOHENL"),
+    INNSYN_SVAR("INNSYN"),
+    IKKE_SØKT("IKKESO"),
+    INGEN_ENDRING("INGEND"),
+    FORLENGET_SAKSBEHANDLINGSTID("FORSAK"),
+    FORLENGET_SAKSBEHANDLINGSTID_MEDL("FORMED"),
+    FORLENGET_SAKSBEHANDLINGSTID_TIDLIG("FORTID"),
+    KLAGE_AVVIST("KGEAVV"),
+    KLAGE_HJEMSENDT("KGEHJE"),
+    KLAGE_OMGJORT("KGEOMG"),
+    KLAGE_OVERSENDT("KGEOVE"),
+    KLAGE_STADFESTET("KGESTA"),
+    ANKE_OMGJORT("ANKOMG"),
+    ANKE_OPPHEVET("ANKOPP"),
+    ETTERLYS_INNTEKTSMELDING("ELYSIM")
     ;
 
     public static final Set<DokumentMalType> VEDTAKSBREV = Set.of(ENGANGSSTØNAD_INNVILGELSE, ENGANGSSTØNAD_AVSLAG, FORELDREPENGER_INNVILGELSE,
-        FORELDREPENGER_AVSLAG, FORELDREPENGER_OPPHØR, SVANGERSKAPSPENGER_INNVILGELSE, SVANGERSKAPSPENGER_AVSLAG, SVANGERSKAPSPENGER_OPPHØR,
-        ENGANGSSTØNAD_INNVILGELSE_DOK, ENGANGSSTØNAD_AVSLAG_DOK, FORELDREPENGER_INNVILGELSE_DOK, FORELDREPENGER_AVSLAG_DOK, FORELDREPENGER_OPPHØR_DOK, SVANGERSKAPSPENGER_INNVILGELSE_FRITEKST);
+        FORELDREPENGER_AVSLAG, FORELDREPENGER_OPPHØR, SVANGERSKAPSPENGER_INNVILGELSE, SVANGERSKAPSPENGER_AVSLAG, SVANGERSKAPSPENGER_OPPHØR);
 
-    public static final Set<DokumentMalType> KLAGE_VEDTAKSBREV = Set.of(KLAGE_STADFESTET, KLAGE_AVVIST, KLAGE_HJEMSENDT, KLAGE_OMGJORT,
-        KLAGE_AVVIST_DOK, KLAGE_AVVIST_FRITEKST, KLAGE_HJEMSENDT_DOK, KLAGE_HJEMSENDT_FRITEKST, KLAGE_OMGJORT_DOK,
-        KLAGE_OMGJORT_FRITEKST, KLAGE_STADFESTET_DOK, KLAGE_STADFESTET_FRITEKST);
+    public static final Set<DokumentMalType> KLAGE_VEDTAKSBREV = Set.of(KLAGE_STADFESTET, KLAGE_AVVIST, KLAGE_HJEMSENDT, KLAGE_OMGJORT);
 
     private static final Map<String, DokumentMalType> KODER = new LinkedHashMap<>();
 
@@ -92,15 +57,11 @@ public enum DokumentMalType implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
-    private String navn;
-
     @JsonValue
     private String kode;
 
-    DokumentMalType(String kode, String navn) {
+    DokumentMalType(String kode) {
         this.kode = kode;
-        this.navn = navn;
     }
 
     @Override
@@ -115,7 +76,7 @@ public enum DokumentMalType implements Kodeverdi {
 
     @Override
     public String getNavn() {
-        return navn;
+        return utledDokumentTittel(this);
     }
 
     public static DokumentMalType fraKode(String kode) {
@@ -134,9 +95,41 @@ public enum DokumentMalType implements Kodeverdi {
         return KLAGE_VEDTAKSBREV.contains(brev);
     }
 
-    public static boolean erOversendelsesBrev(DokumentMalType brev) {
-        return Set.of(DokumentMalType.KLAGE_OVERSENDT, KLAGE_OVERSENDT_DOK, KLAGE_OVERSENDT_FRITEKST).contains(brev);
+    public static String utledDokumentTittel(String malKode) {
+        Objects.requireNonNull(malKode);
+        return utledDokumentTittel(fraKode(malKode));
     }
 
-
+    private static String utledDokumentTittel(DokumentMalType mal) {
+        return switch (mal) {
+            case FRITEKSTBREV -> "Fritekstbrev";
+            case ENGANGSSTØNAD_INNVILGELSE -> "Innvilget engangsstønad";
+            case ENGANGSSTØNAD_AVSLAG -> "Avslag engangsstønad";
+            case FORELDREPENGER_INNVILGELSE -> "Innvilgelsesbrev foreldrepenger";
+            case FORELDREPENGER_AVSLAG -> "Avslagsbrev foreldrepenger";
+            case FORELDREPENGER_OPPHØR -> "Opphør foreldrepenger";
+            case FORELDREPENGER_ANNULLERT -> "Annullering av foreldrepenger";
+            case FORELDREPENGER_INFO_TIL_ANNEN_FORELDER -> "Informasjonsbrev til den andre forelderen";
+            case SVANGERSKAPSPENGER_INNVILGELSE -> "Innvilgelsesbrev svangerskapspenger";
+            case SVANGERSKAPSPENGER_AVSLAG -> "Avslag svangerskapspenger";
+            case SVANGERSKAPSPENGER_OPPHØR -> "Opphør svangerskapspenger";
+            case INNHENTE_OPPLYSNINGER -> "Innhente opplysninger";
+            case VARSEL_OM_REVURDERING -> "Varsel om revurdering";
+            case INFO_OM_HENLEGGELSE -> "Behandling henlagt";
+            case INNSYN_SVAR -> "Svar på innsynskrav";
+            case IKKE_SØKT -> "Ikke mottatt søknad";
+            case INGEN_ENDRING -> "Uendret utfall";
+            case FORLENGET_SAKSBEHANDLINGSTID -> "Forlenget saksbehandlingstid";
+            case FORLENGET_SAKSBEHANDLINGSTID_MEDL -> "Forlenget saksbehandlingstid - medlemskap";
+            case FORLENGET_SAKSBEHANDLINGSTID_TIDLIG -> "Forlenget saksbehandlingstid - tidlig søknad";
+            case KLAGE_AVVIST -> "Vedtak om avvist klage";
+            case KLAGE_HJEMSENDT -> "Klage hjemsendt/opphevet";
+            case KLAGE_OMGJORT -> "Vedtak om omgjøring av klage";
+            case KLAGE_OVERSENDT -> "Klage oversendt til klageinstans";
+            case KLAGE_STADFESTET -> "Vedtak om stadfestelse";
+            case ANKE_OMGJORT -> "Vedtak om omgjøring i ankesak";
+            case ANKE_OPPHEVET -> "Ankebrev om beslutning om oppheving";
+            case ETTERLYS_INNTEKTSMELDING -> "Etterlys inntektsmelding";
+        };
+    }
 }

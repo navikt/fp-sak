@@ -307,7 +307,7 @@ public class KabalTjeneste {
     }
 
     private Predicate<BehandlingDokumentBestiltEntitet> erKlageOversendtBrevSent() {
-        return d -> d.getDokumentMalType() != null && DokumentMalType.erOversendelsesBrev(DokumentMalType.fraKode(d.getDokumentMalType()));
+        return d -> d.getDokumentMalType() != null && DokumentMalType.KLAGE_OVERSENDT.getKode().equals(d.getDokumentMalType());
     }
 
     private Predicate<BehandlingDokumentBestiltEntitet> erVedtakDokument() {
