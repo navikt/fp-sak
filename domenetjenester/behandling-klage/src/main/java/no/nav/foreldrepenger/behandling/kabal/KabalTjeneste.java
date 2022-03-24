@@ -424,9 +424,9 @@ public class KabalTjeneste {
         new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.BREV_SENT).medBegrunnelse("").build(historikkInnslag);
 
         var doklink = new HistorikkinnslagDokumentLink.Builder().medHistorikkinnslag(historikkInnslag)
-            .medLinkTekst(journalPost.getTittel())
-            .medDokumentId(journalPost.getDokumentId())
-            .medJournalpostId(journalPost.getJournalpostId())
+            .medLinkTekst(journalPost.tittel())
+            .medDokumentId(journalPost.dokumentId())
+            .medJournalpostId(journalPost.journalpostId())
             .build();
         historikkInnslag.setDokumentLinker(List.of(doklink));
 

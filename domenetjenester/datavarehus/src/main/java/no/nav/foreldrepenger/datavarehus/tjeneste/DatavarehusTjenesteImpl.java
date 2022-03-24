@@ -288,12 +288,14 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
     private boolean gjelderKlageVurderingResultat(Aksjonspunkt a) {
         return AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.equals(a.getAksjonspunktDefinisjon())
-            || AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK.equals(a.getAksjonspunktDefinisjon());
+            || AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK.equals(a.getAksjonspunktDefinisjon())
+            || AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE.equals(a.getAksjonspunktDefinisjon());
     }
 
     private boolean gjelderAnkeVurderingResultat(Aksjonspunkt a) {
         return AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE.equals(a.getAksjonspunktDefinisjon())
-            || AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE_MERKNADER.equals(a.getAksjonspunktDefinisjon());
+            || AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE_MERKNADER.equals(a.getAksjonspunktDefinisjon())
+            || AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE.equals(a.getAksjonspunktDefinisjon());
     }
 
 }

@@ -148,7 +148,6 @@ public class DokumentArkivTjeneste {
             .tittel()
             .dokumenter(new DokumentInfoResponseProjection()
                 .dokumentInfoId()
-                .tittel()
                 .dokumentvarianter(new DokumentvariantResponseProjection().variantformat()));
 
         var resultat = safKlient.hentJournalpostInfo(query, projection);
@@ -156,16 +155,13 @@ public class DokumentArkivTjeneste {
         return Optional.ofNullable(resultat)
             .map(Journalpost::getDokumenter).orElse(List.of()).stream()
             .filter(d -> d.getDokumentvarianter().stream().filter(Objects::nonNull).anyMatch(v -> Variantformat.ARKIV.equals(v.getVariantformat())))
-            .map(d -> mapTilArkivDokumentUtgående(journalpostId, d))
+            .map(d -> mapTilArkivDokumentUtgående(resultat, d))
             .findFirst();
     }
 
-    private ArkivDokumentUtgående mapTilArkivDokumentUtgående(JournalpostId journalpostId, DokumentInfo dokumentInfo) {
-        return ArkivDokumentUtgående.Builder.ny()
-            .medJournalpostId(journalpostId)
-            .medDokumentId(dokumentInfo.getDokumentInfoId())
-            .medTittel(dokumentInfo.getTittel())
-            .build();
+    private ArkivDokumentUtgående mapTilArkivDokumentUtgående(Journalpost journalpost, DokumentInfo dokumentInfo) {
+        return new ArkivDokumentUtgående(journalpost.getTittel(), new JournalpostId(journalpost.getJournalpostId()),
+            dokumentInfo.getDokumentInfoId());
     }
 
     public Set<DokumentTypeId> hentDokumentTypeIdForSak(Saksnummer saksnummer, LocalDate mottattEtterDato) {
