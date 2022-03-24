@@ -132,11 +132,11 @@ public class DokumentBehandlingTjeneste {
 
     public void kvitterBrevSent(DokumentProdusertDto kvittering) {
         var behandling = behandlingRepository.hentBehandling(kvittering.behandlingUuid());
-        var historikkInnslag = HistorikkFraBrevKvitteringMapper.opprettHistorikkInnslag(kvittering, behandling.getId(), behandling.getFagsakId());
-        if (historikkRepository.finnesUuidAllerede(historikkInnslag.getUuid())) {
-            LOG.info("Oppdaget duplikat historikkinnslag: {}, lagrer ikke.", historikkInnslag.getUuid());
+        if (historikkRepository.finnesUuidAllerede(kvittering.dokumentbestillingUuid())) {
+            LOG.warn("Oppdaget duplikat historikkinnslag: {}, lagrer ikke.", kvittering.dokumentbestillingUuid());
             return;
         }
+        var historikkInnslag = HistorikkFraBrevKvitteringMapper.opprettHistorikkInnslag(kvittering, behandling.getId(), behandling.getFagsakId());
         historikkRepository.lagre(historikkInnslag);
         oppdaterDokumentBestillingMedJournalpostId(kvittering.dokumentbestillingUuid(), kvittering.journalpostId());
     }

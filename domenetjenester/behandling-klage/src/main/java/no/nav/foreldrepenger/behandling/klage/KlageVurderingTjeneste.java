@@ -165,7 +165,6 @@ public class KlageVurderingTjeneste {
 
     private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, KlageVurdering klageVurdering, KlageVurdertAv vurdertAv) {
         if (skalBehandlesAvKlageInstans(vurdertAv, klageVurdering) && !Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde())
-            && !dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT_FRITEKST)
             && !dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT)) {
 
             var bestillBrevDto = new BestillBrevDto(behandling.getId(), behandling.getUuid(), DokumentMalType.KLAGE_OVERSENDT);

@@ -39,7 +39,7 @@ public class HistorikkFraBrevKvitteringMapper {
 
     private static HistorikkinnslagDokumentLink mapDokumentlink(String dokumentMal, String dokumentId, String journalpostId, Historikkinnslag historikkinnslag) {
         var builder = new HistorikkinnslagDokumentLink.Builder()
-            .medLinkTekst(DokumentMalType.fraKode(dokumentMal).getNavn())
+            .medLinkTekst(DokumentMalType.utledDokumentTittel(dokumentMal))
             .medHistorikkinnslag(historikkinnslag)
             .medDokumentId(dokumentId);
         if (JournalpostId.erGyldig(journalpostId)) {
