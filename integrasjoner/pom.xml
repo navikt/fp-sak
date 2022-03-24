@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>no.nav.foreldrepenger</groupId>
-        <artifactId>fpsak</artifactId>
+        <artifactId>fpsak</artifactId>am
         <version>${revision}${sha1}${changelist}</version>
     </parent>
 

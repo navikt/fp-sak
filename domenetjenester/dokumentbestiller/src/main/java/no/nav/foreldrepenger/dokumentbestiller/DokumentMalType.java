@@ -47,6 +47,10 @@ public enum DokumentMalType implements Kodeverdi {
 
     public static final Set<DokumentMalType> KLAGE_VEDTAKSBREV = Set.of(KLAGE_STADFESTET, KLAGE_AVVIST, KLAGE_HJEMSENDT, KLAGE_OMGJORT);
 
+    public static final Set<DokumentMalType> MANUELLE_BREV = Set.of(INNHENTE_OPPLYSNINGER,
+        VARSEL_OM_REVURDERING, FORLENGET_SAKSBEHANDLINGSTID_MEDL,
+        FORLENGET_SAKSBEHANDLINGSTID, ETTERLYS_INNTEKTSMELDING);
+
     private static final Map<String, DokumentMalType> KODER = new LinkedHashMap<>();
 
     static {

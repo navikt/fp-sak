@@ -193,8 +193,9 @@ public class BehandlingDtoTjeneste {
         }
 
         // Brev
-        dto.leggTil(ResourceLink.get("/fpformidling/api/brev/maler", "brev-maler", uuidDto));
+        dto.leggTil(get(BrevRestTjeneste.BREV_MALER_PATH, "fpsak-brev-maler", uuidDto));
         dto.leggTil(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill", new BestillBrevDto()));
+        dto.leggTil(ResourceLink.get("/fpformidling/api/brev/maler", "brev-maler", uuidDto));
 
         return dto;
     }

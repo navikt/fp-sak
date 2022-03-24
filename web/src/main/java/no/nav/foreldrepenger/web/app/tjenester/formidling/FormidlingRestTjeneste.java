@@ -41,7 +41,6 @@ public class FormidlingRestTjeneste {
 
     public static final String BASE_PATH = "/formidling";
     public static final String RESSURSER_PART_PATH = "/ressurser";
-    public static final String RESSURSER_PATH = BASE_PATH + RESSURSER_PART_PATH;
     public static final String DOKMAL_INNVFP_PART_PATH = "/dokumentmal/innvfp";
     public static final String DOKMAL_INNVFP_PATH = BASE_PATH + DOKMAL_INNVFP_PART_PATH;
     public static final String UTSATT_START_PART_PATH = "/utsattstart";
