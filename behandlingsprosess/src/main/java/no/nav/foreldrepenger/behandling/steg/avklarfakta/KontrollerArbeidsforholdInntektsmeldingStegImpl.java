@@ -14,9 +14,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.aksjonspunkt.AksjonspunktUtlederForArbeidsforholdInntektsmelding;
@@ -57,7 +55,7 @@ class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbei
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         // Hvis behandlingen har løst 5080 skal den ikke også få utledet 5085, tidlig return.
-        if (harÅpentEllerLøst5080(behandling)) {
+        if (behandling.harÅpentEllerLøstAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD)) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 
@@ -69,10 +67,5 @@ class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbei
 
         List<AksjonspunktResultat> aksjonspuntker = new ArrayList<>(utleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref)));
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspuntker);
-    }
-
-    private Boolean harÅpentEllerLøst5080(Behandling behandling) {
-        return behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD)
-            .map(ap -> ap.getStatus().equals(AksjonspunktStatus.OPPRETTET) || ap.getStatus().equals(AksjonspunktStatus.UTFØRT)).orElse(false);
     }
 }
