@@ -48,8 +48,6 @@ public class OppgaveTjeneste {
     private static final int DEFAULT_OPPGAVEFRIST_DAGER = 1;
     private static final String DEFAULT_OPPGAVEBESKRIVELSE = "Må behandle sak i VL!";
 
-    private static final String FORELDREPENGESAK_MÅ_FLYTTES_TIL_INFOTRYGD = "Foreldrepengesak må flyttes til Infotrygd";
-
     private static final String NØS_ANSVARLIG_ENHETID = "4151";
     private static final String NØS_BEH_TEMA = "ab0273";
     private static final String NØS_TEMA = "STO";
@@ -296,23 +294,6 @@ public class OppgaveTjeneste {
         var behandlingId = statusEvent.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         opprettTaskAvsluttOppgave(behandling);
-    }
-
-    /*
-     * Spesielle oppgavetyper - flytting til Infotrygd og behandling i NØS
-     */
-    public String opprettOppgaveSakSkalTilInfotrygd(Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var fagsak = behandling.getFagsak();
-
-        var orequest = createRestRequestBuilder(fagsak.getSaksnummer(), fagsak.getAktørId(), behandling.getBehandlendeEnhet(),
-            FORELDREPENGESAK_MÅ_FLYTTES_TIL_INFOTRYGD,
-            Prioritet.NORM, DEFAULT_OPPGAVEFRIST_DAGER)
-            .medBehandlingstema(BehandlingTema.fraFagsak(fagsak, null).getOffisiellKode())
-            .medOppgavetype(Oppgavetyper.BEHANDLE_SAK_IT.getKode());
-        var oppgave = restKlient.opprettetOppgave(orequest.build());
-        LOG.info("FPSAK GOSYS opprettet BEH/IT oppgave {}", oppgave);
-        return oppgave.getId().toString();
     }
 
     public String opprettOppgaveStopUtbetalingAvARENAYtelse(long behandlingId, LocalDate førsteUttaksdato) {

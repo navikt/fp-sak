@@ -7,18 +7,10 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
 
     OMSORGSVILKÅRET("FP_VK_5", "Omsorgsvilkår §14-17 tredje ledd"),
@@ -34,9 +26,9 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
 
     public static final String KODEVERK = "OMSORGSOVERTAKELSE_VILKAR";
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     OmsorgsovertakelseVilkårType(String kode) {
@@ -48,18 +40,6 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static OmsorgsovertakelseVilkårType fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent OmsorgsovertakelseVilkårType: " + kode);
-        }
-        return ad;
-    }
-
     public static Map<String, OmsorgsovertakelseVilkårType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -69,13 +49,11 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -99,6 +77,17 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
         @Override
         public OmsorgsovertakelseVilkårType convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static OmsorgsovertakelseVilkårType fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent OmsorgsovertakelseVilkårType: " + kode);
+            }
+            return ad;
         }
     }
 }

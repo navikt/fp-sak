@@ -1,28 +1,22 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderingspunktType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus.IVERKSETTER_VEDTAK;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus.UTREDES;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus.IVERKSETTER_VEDTAK;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus.UTREDES;
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderingspunktType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
 public enum BehandlingStegType implements Kodeverdi {
 
     // Steg koder som deles av alle ytelser
@@ -105,12 +99,11 @@ public enum BehandlingStegType implements Kodeverdi {
     /**
      * Definisjon av hvilken status behandlingen skal rapporteres som når dette steget er aktivt.
      */
-    @JsonIgnore
     private BehandlingStatus definertBehandlingStatus;
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     BehandlingStegType(String kode) {
@@ -139,7 +132,6 @@ public enum BehandlingStegType implements Kodeverdi {
         return AksjonspunktDefinisjon.finnAksjonspunktDefinisjoner(this, type);
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -150,14 +142,12 @@ public enum BehandlingStegType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonCreator
-    public static BehandlingStegType fraKode(@JsonProperty("kode") String kode) {
+    public static BehandlingStegType fraKode(String kode) {
         if (kode == null) {
             return null;
         }

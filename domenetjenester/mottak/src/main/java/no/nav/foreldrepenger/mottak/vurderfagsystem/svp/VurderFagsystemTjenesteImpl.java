@@ -74,7 +74,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         if (relevanteFagsaker.isEmpty()) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
-        return relevanteFagsaker.get(0).erÅpen() ? new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(relevanteFagsaker.get(0).getSaksnummer()):
+        return relevanteFagsaker.get(0).erÅpen() ? new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0).getSaksnummer()):
             new BehandlendeFagsystem(MANUELL_VURDERING);
     }
 
@@ -144,10 +144,10 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
     private BehandlendeFagsystem vurderFørstegangsbehandling(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
         if (vurderFagsystem.erInntektsmelding() || fagsakManglerSøknad(fagsak)) {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(fagsak.getSaksnummer());
+            return new BehandlendeFagsystem(VEDTAKSLØSNING, fagsak.getSaksnummer());
         }
         if (fellesUtils.finnGjeldendeFamilieHendelseSVP(fagsak).map(this::hendelseDatoIPeriode).orElse(Boolean.TRUE)) {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(fagsak.getSaksnummer());
+            return new BehandlendeFagsystem(VEDTAKSLØSNING, fagsak.getSaksnummer());
         }
         return new BehandlendeFagsystem(MANUELL_VURDERING);
     }

@@ -1,18 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
@@ -21,8 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum BehandlingTema implements Kodeverdi, MedOffisiellKode {
 
     ENGANGSSTØNAD("ENGST", "Engangsstønad", "ab0327"),
@@ -36,24 +25,12 @@ public enum BehandlingTema implements Kodeverdi, MedOffisiellKode {
 
     ;
 
-    private static final Map<String, BehandlingTema> KODER = new LinkedHashMap<>();
-
     public static final String KODEVERK = "BEHANDLING_TEMA";
 
-    static {
-        for (var v : values()) {
-            if (KODER.putIfAbsent(v.kode, v) != null) {
-                throw new IllegalArgumentException("Duplikat : " + v.kode);
-            }
-        }
-    }
-
-    @JsonIgnore
     private String navn;
 
-    @JsonIgnore
     private String offisiellKode;
-
+    @JsonValue
     private String kode;
 
 
@@ -68,34 +45,16 @@ public enum BehandlingTema implements Kodeverdi, MedOffisiellKode {
     }
 
 
-    @JsonCreator
-    public static BehandlingTema fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent BehandlingTema: " + kode);
-        }
-        return ad;
-    }
-
-    public static Map<String, BehandlingTema> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

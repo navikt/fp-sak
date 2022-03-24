@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.iverksettevedtak;
 
+import java.util.Optional;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -33,11 +35,9 @@ public class HenleggFlyttFagsakTask extends BehandlingProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
-        var henleggelseType = BehandlingResultatType.MANGLER_BEREGNINGSREGLER;
-
-        if (prosessTaskData.getPropertyValue(HENLEGGELSE_TYPE_KEY) != null) {
-            henleggelseType = BehandlingResultatType.fraKode(prosessTaskData.getPropertyValue(HENLEGGELSE_TYPE_KEY));
-        }
+        var henleggelseType = Optional.ofNullable(prosessTaskData.getPropertyValue(HENLEGGELSE_TYPE_KEY))
+            .map(BehandlingResultatType::fraKode)
+            .orElseThrow();
 
         henleggBehandlingTjeneste.henleggBehandlingAvbrytAutopunkter(behandlingId, henleggelseType, "Forvaltning");
     }

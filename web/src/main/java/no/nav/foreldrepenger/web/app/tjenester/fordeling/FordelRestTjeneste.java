@@ -142,7 +142,7 @@ public class FordelRestTjeneste {
             @Parameter(description = "Saksnummeret det skal hentes saksinformasjon om") @Valid AbacSaksnummerDto saksnummerDto) {
         ensureCallId();
         var optFagsak = fagsakTjeneste.finnFagsakGittSaksnummer(new Saksnummer(saksnummerDto.getSaksnummer()), false);
-        if (optFagsak.isEmpty() || optFagsak.get().getSkalTilInfotrygd()) {
+        if (optFagsak.isEmpty() || optFagsak.get().erStengt()) {
             return null;
         }
         final var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(optFagsak.get().getId());
@@ -263,9 +263,8 @@ public class FordelRestTjeneste {
         } else {
             dto = new BehandlendeFagsystemDto();
         }
-        switch (behandlendeFagsystem.getBehandlendeSystem()) {
+        switch (behandlendeFagsystem.behandlendeSystem()) {
             case VEDTAKSLØSNING -> dto.setBehandlesIVedtaksløsningen(true);
-            case VURDER_INFOTRYGD -> dto.setSjekkMotInfotrygd(true);
             case MANUELL_VURDERING -> dto.setManuellVurdering(true);
         }
         return dto;

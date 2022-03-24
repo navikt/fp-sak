@@ -231,21 +231,6 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lage_request_som_inneholder_verdier_i_forbindelse_med_manglende_regler() {
-        var behandling = lagBehandling();
-        var captor = ArgumentCaptor.forClass(OpprettOppgave.class);
-        when(oppgaveRestKlient.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
-
-        var oppgaveId = tjeneste.opprettOppgaveSakSkalTilInfotrygd(behandling.getId());
-
-        var request = captor.getValue();
-        assertThat(request.getSaksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
-        assertThat(request.getOppgavetype()).isEqualTo(Oppgavetyper.BEHANDLE_SAK_IT.getKode());
-        assertThat(request.getBeskrivelse()).isEqualTo("Foreldrepengesak må flyttes til Infotrygd");
-        assertThat(oppgaveId).isEqualTo(OPPGAVE.getId().toString());
-    }
-
-    @Test
     public void skal_opprette_oppgave_med_prioritet_og_beskrivelse() {
         var behandling = lagBehandling();
         var forventetFrist = VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1));

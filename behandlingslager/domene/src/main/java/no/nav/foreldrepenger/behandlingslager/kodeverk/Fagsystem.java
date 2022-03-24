@@ -7,16 +7,8 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum Fagsystem implements Kodeverdi, MedOffisiellKode {
 
     FPSAK("FPSAK", "Vedtaksløsning Foreldrepenger", "FS36"),
@@ -42,12 +34,10 @@ public enum Fagsystem implements Kodeverdi, MedOffisiellKode {
 
     private static final Map<String, Fagsystem> KODER = new LinkedHashMap<>();
 
-    @JsonIgnore
     private String navn;
 
-    @JsonIgnore
     private String offisiellKode;
-
+    @JsonValue
     private String kode;
 
     Fagsystem() {
@@ -64,8 +54,7 @@ public enum Fagsystem implements Kodeverdi, MedOffisiellKode {
         this.offisiellKode = offisiellKode;
     }
 
-    @JsonCreator
-    public static Fagsystem fraKode(@JsonProperty("kode") String kode) {
+    public static Fagsystem fraKode(String kode) {
         if (kode == null) {
             return null;
         }
@@ -90,13 +79,11 @@ public enum Fagsystem implements Kodeverdi, MedOffisiellKode {
         return offisiellKode;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

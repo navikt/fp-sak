@@ -100,15 +100,15 @@ class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresu
         } else {
             var resultatBuilder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
                     .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
-            if (skalTilInfoTrygd(ref)) {
+            if (sakErStengt(ref)) {
                 resultatBuilder.medVedtaksbrev(Vedtaksbrev.INGEN);
             }
         }
     }
 
-    private boolean skalTilInfoTrygd(BehandlingReferanse ref) {
+    private boolean sakErStengt(BehandlingReferanse ref) {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(ref.getSaksnummer()).orElseThrow();
-        return fagsak.getSkalTilInfotrygd();
+        return fagsak.erStengt();
     }
 
     private boolean erVarselOmRevurderingSendt(BehandlingReferanse ref) {

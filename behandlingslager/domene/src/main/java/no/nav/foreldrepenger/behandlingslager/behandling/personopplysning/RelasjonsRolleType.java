@@ -9,18 +9,10 @@ import java.util.Set;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum RelasjonsRolleType implements Kodeverdi {
 
     EKTE("EKTE", "Ektefelle til"),
@@ -50,9 +42,9 @@ public enum RelasjonsRolleType implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
-    private String navn;
 
+    private String navn;
+    @JsonValue
     private String kode;
 
     RelasjonsRolleType(String kode, String navn) {
@@ -60,8 +52,7 @@ public enum RelasjonsRolleType implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static RelasjonsRolleType fraKode(@JsonProperty("kode") String kode) {
+    public static RelasjonsRolleType fraKode(String kode) {
         return Optional.ofNullable(kode).map(KODER::get)
             .orElseThrow(() -> new IllegalArgumentException("Ukjent RelasjonsRolleType: " + kode));
     }
@@ -75,13 +66,11 @@ public enum RelasjonsRolleType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

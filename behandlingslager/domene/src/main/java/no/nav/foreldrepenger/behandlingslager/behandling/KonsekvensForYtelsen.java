@@ -7,18 +7,10 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum KonsekvensForYtelsen implements Kodeverdi{
 
 
@@ -36,27 +28,15 @@ public enum KonsekvensForYtelsen implements Kodeverdi{
 
     public static final String KODEVERK = "KONSEKVENS_FOR_YTELSEN";
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     KonsekvensForYtelsen(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }
-    @JsonCreator
-    public static KonsekvensForYtelsen fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent KonsekvensForYtelsen: " + kode);
-        }
-        return ad;
-    }
-
     public static Map<String, KonsekvensForYtelsen> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -66,13 +46,11 @@ public enum KonsekvensForYtelsen implements Kodeverdi{
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -97,6 +75,19 @@ public enum KonsekvensForYtelsen implements Kodeverdi{
         public KonsekvensForYtelsen convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
         }
+
+        private static KonsekvensForYtelsen fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent KonsekvensForYtelsen: " + kode);
+            }
+            return ad;
+        }
+
+
     }
 
 

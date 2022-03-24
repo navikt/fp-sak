@@ -167,7 +167,7 @@ public class FagsakRestTjeneste {
             .map(bt -> new BehandlingOpprettingDto(bt, behandlingsoppretterTjeneste.kanOppretteNyBehandlingAvType(fagsakId, bt)))
             .collect(Collectors.toList());
 
-        var dto = new SakRettigheterDto(fagsak.map(Fagsak::getSkalTilInfotrygd).orElse(false), oppretting, List.of());
+        var dto = new SakRettigheterDto(fagsak.filter(Fagsak::erStengt).isPresent(), oppretting, List.of());
         return Response.ok(dto).build();
     }
 

@@ -7,18 +7,10 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum FarSøkerType implements Kodeverdi {
     ADOPTERER_ALENE("ADOPTERER_ALENE", "Adopterer barnet eller barna alene"),
     ANDRE_FORELDER_DØD("ANDRE_FORELDER_DØD", "Den andre forelderen er død"),
@@ -40,9 +32,8 @@ public enum FarSøkerType implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
     private String navn;
-
+    @JsonValue
     private String kode;
 
     FarSøkerType(String kode) {
@@ -54,8 +45,7 @@ public enum FarSøkerType implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static FarSøkerType fraKode(@JsonProperty("kode") String kode) {
+    public static FarSøkerType fraKode(String kode) {
         if (kode == null) {
             return null;
         }
@@ -75,13 +65,11 @@ public enum FarSøkerType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;

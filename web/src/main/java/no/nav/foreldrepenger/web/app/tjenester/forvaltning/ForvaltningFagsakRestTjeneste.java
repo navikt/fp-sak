@@ -28,17 +28,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
-import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggFlyttFagsakTask;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -50,7 +46,6 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.KobleFagsakerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.OverstyrDekningsgradDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -124,55 +119,6 @@ public class ForvaltningFagsakRestTjeneste {
     }
 
     @POST
-    @Path("/flyttFagsakTilInfotrygd")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Steng fagsak og flytt til Infotrygd", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Flyttet fagsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response flyttFagsakTilInfotrygd(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
-        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
-        if (fagsak == null || FagsakStatus.LØPENDE.equals(fagsak.getStatus()) || FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        if (FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
-            if (!fagsak.getSkalTilInfotrygd()) {
-                LOG.info("Flagger Infotrygd for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
-                fagsakRepository.fagsakSkalBehandlesAvInfotrygd(fagsak.getId());
-            }
-            return Response.ok().build();
-        }
-        var behandlinger = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId());
-        if (behandlinger.isEmpty()) {
-            var avslutning = avsluttFagsakUtenBehandling(saksnummerDto);
-            if (Response.Status.OK.equals(avslutning.getStatusInfo()) && !fagsak.getSkalTilInfotrygd()) {
-                LOG.info("Flagger Infotrygd for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
-                fagsakRepository.fagsakSkalBehandlesAvInfotrygd(fagsak.getId());
-            } else {
-                return avslutning;
-            }
-        } else {
-            LOG.info("Henlegger behandlinger og flagger Infotrygd for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
-            behandlinger.forEach(behandling -> opprettHenleggelseTask(behandling, BehandlingResultatType.MANGLER_BEREGNINGSREGLER));
-        }
-        return Response.ok().build();
-    }
-
-    private void opprettHenleggelseTask(Behandling behandling, BehandlingResultatType henleggelseType) {
-        var prosessTaskData = ProsessTaskData.forProsessTask(HenleggFlyttFagsakTask.class);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setProperty(HenleggFlyttFagsakTask.HENLEGGELSE_TYPE_KEY, henleggelseType.getKode());
-        prosessTaskData.setCallIdFraEksisterende();
-
-        taskTjeneste.lagre(prosessTaskData);
-    }
-
-    @POST
     @Path("/stengFagsakForVidereBruk")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -189,9 +135,9 @@ public class ForvaltningFagsakRestTjeneste {
         if (fagsak == null || !FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        if (!fagsak.getSkalTilInfotrygd()) {
+        if (!fagsak.erStengt()) {
             LOG.info("Stenger fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
-            fagsakRepository.fagsakSkalBehandlesAvInfotrygd(fagsak.getId());
+            fagsakRepository.fagsakSkalStengesForBruk(fagsak.getId());
         }
         return Response.ok().build();
     }
@@ -210,10 +156,10 @@ public class ForvaltningFagsakRestTjeneste {
         @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
-        if (fagsak == null || !fagsak.getSkalTilInfotrygd()) {
+        if (fagsak == null || !fagsak.erStengt()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        if (fagsak.getSkalTilInfotrygd()) {
+        if (fagsak.erStengt()) {
             LOG.info("Gjenåpner fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
             fagsakRepository.fagsakSkalGjenåpnesForBruk(fagsak.getId());
         }
@@ -325,7 +271,7 @@ public class ForvaltningFagsakRestTjeneste {
         @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
-        if (fagsak == null || fagsak.getSkalTilInfotrygd()) {
+        if (fagsak == null || fagsak.erStengt()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         var eksisterendeAktørId = fagsak.getAktørId();

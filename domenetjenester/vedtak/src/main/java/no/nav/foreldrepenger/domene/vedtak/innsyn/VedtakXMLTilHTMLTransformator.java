@@ -5,7 +5,7 @@ import static no.nav.foreldrepenger.domene.vedtak.innsyn.TransformerVedtakXmlFei
 import static no.nav.foreldrepenger.domene.vedtak.innsyn.TransformerVedtakXmlFeil.ukjentNamespace;
 import static no.nav.foreldrepenger.domene.vedtak.innsyn.TransformerVedtakXmlFeil.uventetFeilVedParsingAvVedtaksXml;
 import static no.nav.foreldrepenger.domene.vedtak.innsyn.TransformerVedtakXmlFeil.vedtakXmlValiderteIkke;
-import static no.nav.vedtak.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
+import static no.nav.foreldrepenger.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

@@ -65,8 +65,7 @@ public class FordelRestTjenesteTest {
     public void skalReturnereFagsystemVedtaksløsning() {
         var saksnummer = new Saksnummer("12345");
         var innDto = new AbacVurderFagsystemDto("1234", true, AKTØR_ID_MOR.getId(), "ab0047");
-        var behandlendeFagsystem = new BehandlendeFagsystem(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
-        behandlendeFagsystem = behandlendeFagsystem.medSaksnummer(saksnummer);
+        var behandlendeFagsystem = new BehandlendeFagsystem(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING, saksnummer);
 
         when(vurderFagsystemTjenesteMock.vurderFagsystem(any(VurderFagsystem.class))).thenReturn(behandlendeFagsystem);
 
@@ -83,8 +82,7 @@ public class FordelRestTjenesteTest {
         var journalpostId = new JournalpostId("1234");
         var innDto = new AbacVurderFagsystemDto(journalpostId.getVerdi(), false, AKTØR_ID_MOR.getId(), "ab0047");
         innDto.setDokumentTypeIdOffisiellKode(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL.getOffisiellKode());
-        var behandlendeFagsystem = new BehandlendeFagsystem(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
-        behandlendeFagsystem = behandlendeFagsystem.medSaksnummer(saksnummer);
+        var behandlendeFagsystem = new BehandlendeFagsystem(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING, saksnummer);
 
         when(vurderFagsystemTjenesteMock.vurderFagsystem(any(VurderFagsystem.class))).thenReturn(behandlendeFagsystem);
 
@@ -112,7 +110,7 @@ public class FordelRestTjenesteTest {
         final var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
         scenario.medSaksnummer(saknr).medSøknadHendelse().medFødselsDato(LocalDate.now());
         var behandling = scenario.lagre(repositoryProvider);
-        repositoryProvider.getFagsakRepository().fagsakSkalBehandlesAvInfotrygd(behandling.getFagsakId());
+        repositoryProvider.getFagsakRepository().fagsakSkalStengesForBruk(behandling.getFagsakId());
         var result = fordelRestTjeneste.fagsak(new AbacSaksnummerDto("1"));
 
         assertThat(result).isNull();

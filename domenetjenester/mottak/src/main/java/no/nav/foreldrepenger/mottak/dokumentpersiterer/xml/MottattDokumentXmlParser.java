@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.mottak.dokumentpersiterer.xml;
 
-import static no.nav.vedtak.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
+import static no.nav.foreldrepenger.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -8,18 +8,10 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum HistorikkinnslagType implements Kodeverdi {
 
     //12.10.2020 Maltypen brukes ikke i frontend, kanskje i usynk
@@ -113,9 +105,9 @@ public enum HistorikkinnslagType implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     HistorikkinnslagType(String kode, String navn, String mal) {
@@ -124,8 +116,7 @@ public enum HistorikkinnslagType implements Kodeverdi {
         this.mal = mal;
     }
 
-    @JsonCreator
-    public static HistorikkinnslagType fraKode(@JsonProperty("kode") String kode) {
+    public static HistorikkinnslagType fraKode(String kode) {
         if (kode == null) {
             return null;
         }
@@ -145,13 +136,11 @@ public enum HistorikkinnslagType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

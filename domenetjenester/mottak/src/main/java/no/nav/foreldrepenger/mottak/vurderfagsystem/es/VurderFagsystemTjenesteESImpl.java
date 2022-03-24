@@ -44,7 +44,7 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
             .collect(Collectors.toList());
 
         if (matchendeFagsaker.size() == 1) {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(matchendeFagsaker.get(0));
+            return new BehandlendeFagsystem(VEDTAKSLØSNING, matchendeFagsaker.get(0));
         }
         if (matchendeFagsaker.size() > 1) {
             LOG.info("VurderFagsystem ES strukturert søknad flere matchende saker {}", matchendeFagsaker);
@@ -57,7 +57,7 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
             .collect(Collectors.toList());
 
         if (passendeFagsaker.size() == 1) {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(passendeFagsaker.get(0));
+            return new BehandlendeFagsystem(VEDTAKSLØSNING, passendeFagsaker.get(0));
         }
         if (passendeFagsaker.size() > 1) {
             LOG.info("VurderFagsystem ES strukturert søknad flere relevante saker {}", passendeFagsaker);

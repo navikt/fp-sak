@@ -7,19 +7,10 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-/** Fra offisielt kodeverk (kodeverkklienten). */
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum SivilstandType implements Kodeverdi {
 
     ENKEMANN("ENKE", "Enke/-mann"),
@@ -48,8 +39,9 @@ public enum SivilstandType implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
+
     private String navn;
+    @JsonValue
     private String kode;
 
     SivilstandType(String kode, String navn) {
@@ -57,13 +49,11 @@ public enum SivilstandType implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
@@ -72,18 +62,6 @@ public enum SivilstandType implements Kodeverdi {
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @JsonCreator
-    public static SivilstandType fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent FagsakYtelseType: " + kode);
-        }
-        return ad;
     }
 
     public static Map<String, SivilstandType> kodeMap() {
@@ -101,6 +79,17 @@ public enum SivilstandType implements Kodeverdi {
         @Override
         public SivilstandType convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static SivilstandType fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent FagsakYtelseType: " + kode);
+            }
+            return ad;
         }
     }
 

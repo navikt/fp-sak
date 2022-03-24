@@ -14,13 +14,7 @@ import java.util.stream.Collectors;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
@@ -34,8 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
  * Trenger man ny strukturerte dokument innen domenet Foreldrepenger - innfør en kode Fnnnnn og bli enig om tittel (evt bruk av journalpost-metadata)
  */
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
 
     // Søknader
@@ -105,12 +97,10 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
 
     private static final Map<String, DokumentTypeId> KODER = new LinkedHashMap<>();
 
-    @JsonIgnore
     private String navn;
 
-    @JsonIgnore
     private String offisiellKode;
-
+    @JsonValue
     private String kode;
 
     DokumentTypeId(String kode, String offisiellKode, String navn) {
@@ -119,8 +109,7 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
         this.offisiellKode = offisiellKode;
     }
 
-    @JsonCreator
-    public static DokumentTypeId fraKode(@JsonProperty("kode") String kode) {
+    public static DokumentTypeId fraKode(String kode) {
         if (kode == null) {
             return null;
         }
@@ -147,13 +136,11 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

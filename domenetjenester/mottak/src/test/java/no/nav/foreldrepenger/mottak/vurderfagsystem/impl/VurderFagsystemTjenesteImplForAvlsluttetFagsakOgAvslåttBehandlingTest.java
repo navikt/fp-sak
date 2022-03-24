@@ -84,7 +84,7 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
         var resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
 
         // Assert
-        assertThat(resultat.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
+        assertThat(resultat.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
         assertThat(resultat.getSaksnummer()).isEmpty();
     }
 
@@ -101,7 +101,7 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
         var resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
 
         // Assert
-        assertThat(resultat.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(resultat.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(resultat.getSaksnummer()).isEqualTo(Optional.of(behandling.getFagsak().getSaksnummer()));
     }
 
@@ -119,7 +119,7 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
         var resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
 
         // Assert
-        assertThat(resultat.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(resultat.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(resultat.getSaksnummer()).isEqualTo(Optional.of(behandling.getFagsak().getSaksnummer()));
     }
 
@@ -135,7 +135,7 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
         var resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
 
         // Assert
-        assertThat(resultat.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
+        assertThat(resultat.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
         assertThat(resultat.getSaksnummer()).isEmpty();
     }
 
@@ -151,7 +151,7 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
         var resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
 
         // Assert
-        assertThat(resultat.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
+        assertThat(resultat.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
         assertThat(resultat.getSaksnummer()).isEmpty();
     }
 
@@ -165,7 +165,7 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
         var resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
 
         // Assert
-        assertThat(resultat.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(resultat.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(resultat.getSaksnummer()).isPresent();
         assertThat(resultat.getSaksnummer().get()).isEqualTo(behandling.getFagsak().getSaksnummer());
     }

@@ -48,7 +48,7 @@ public class VurderFagsystemFellesTjenesteTest {
         when(fagsakTjenesteMock.hentJournalpost(any())).thenReturn(Optional.of(journalpost));
 
         var result = vurderFagsystemFellesTjeneste.vurderFagsystem(vurderFagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer().get()).isEqualTo(fagsakFødselES.getSaksnummer());
     }
 }

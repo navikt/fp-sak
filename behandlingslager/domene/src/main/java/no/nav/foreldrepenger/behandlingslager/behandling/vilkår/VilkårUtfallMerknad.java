@@ -7,18 +7,10 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum VilkårUtfallMerknad implements Kodeverdi {
 
     VM_1001("1001", "Søknad er sendt før 26. svangerskapsuke er passert og barnet er ikke født"),
@@ -61,9 +53,8 @@ public enum VilkårUtfallMerknad implements Kodeverdi {
 
     public static final String KODEVERK = "VILKAR_UTFALL_MERKNAD";
 
-    @JsonIgnore
     private String navn;
-
+    @JsonValue
     private String kode;
 
     VilkårUtfallMerknad(String kode) {
@@ -75,8 +66,7 @@ public enum VilkårUtfallMerknad implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static VilkårUtfallMerknad fraKode(@JsonProperty("kode") String kode) {
+    public static VilkårUtfallMerknad fraKode(String kode) {
         if (kode == null) {
             return null;
         }
@@ -96,13 +86,11 @@ public enum VilkårUtfallMerknad implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

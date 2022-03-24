@@ -110,7 +110,7 @@ class FagsakRepositoryStub extends FagsakRepository {
     }
 
     @Override
-    public void fagsakSkalBehandlesAvInfotrygd(Long fagsakId) {
+    public void fagsakSkalStengesForBruk(Long fagsakId) {
         throw new IkkeImplementertForTestException();
     }
 
