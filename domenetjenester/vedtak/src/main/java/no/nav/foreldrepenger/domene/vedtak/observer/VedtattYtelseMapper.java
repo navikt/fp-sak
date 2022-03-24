@@ -15,6 +15,7 @@ import no.nav.abakus.vedtak.ytelse.Desimaltall;
 import no.nav.abakus.vedtak.ytelse.Periode;
 import no.nav.abakus.vedtak.ytelse.v1.anvisning.Anvisning;
 import no.nav.abakus.vedtak.ytelse.v1.anvisning.AnvistAndel;
+import no.nav.abakus.vedtak.ytelse.v1.anvisning.Inntektklasse;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -52,7 +53,7 @@ class VedtattYtelseMapper {
     List<Anvisning> mapForeldrepenger(BeregningsresultatEntitet tilkjent) {
         return tilkjent.getBeregningsresultatPerioder().stream()
             .filter(periode -> periode.getDagsats() > 0)
-            .map(p -> mapForeldrepengerPeriode(p))
+            .map(this::mapForeldrepengerPeriode)
             .collect(Collectors.toList());
     }
 
@@ -125,8 +126,24 @@ class VedtattYtelseMapper {
             new Desimaltall(finnTotalBeløp(e.getValue())),
             finnUtbetalingsgrad(e.getValue()),
             new Desimaltall(finnRefusjonsgrad(e.getValue())),
-            no.nav.abakus.iaygrunnlag.kodeverk.Inntektskategori.fraKode(e.getKey().inntektskategori().getKode())
+            mapInntektklasse(e.getKey().inntektskategori())
         );
+    }
+
+    private static Inntektklasse mapInntektklasse(Inntektskategori inntektskategori) {
+        return switch(inntektskategori) {
+            case ARBEIDSTAKER -> Inntektklasse.ARBEIDSTAKER;
+            case ARBEIDSTAKER_UTEN_FERIEPENGER -> Inntektklasse.ARBEIDSTAKER_UTEN_FERIEPENGER;
+            case FRILANSER -> Inntektklasse.FRILANSER;
+            case SELVSTENDIG_NÆRINGSDRIVENDE -> Inntektklasse.SELVSTENDIG_NÆRINGSDRIVENDE;
+            case DAGPENGER -> Inntektklasse.DAGPENGER;
+            case ARBEIDSAVKLARINGSPENGER -> Inntektklasse.ARBEIDSAVKLARINGSPENGER;
+            case SJØMANN -> Inntektklasse.MARITIM;
+            case DAGMAMMA -> Inntektklasse.DAGMAMMA;
+            case JORDBRUKER -> Inntektklasse.JORDBRUKER;
+            case FISKER -> Inntektklasse.FISKER;
+            default -> Inntektklasse.INGEN;
+        };
     }
 
     private static BigDecimal finnRefusjonsgrad(List<BeregningsresultatAndel> resultatAndeler) {

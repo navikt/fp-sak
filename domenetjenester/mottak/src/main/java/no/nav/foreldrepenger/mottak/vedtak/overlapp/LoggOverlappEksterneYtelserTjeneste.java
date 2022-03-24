@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
 import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.abakus.vedtak.ytelse.Desimaltall;
+import no.nav.abakus.vedtak.ytelse.Kildesystem;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -129,7 +130,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
             .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
             .forEach(b -> {
                 var fpTimeline = getTidslinjeForBehandling(b.getId(), b.getFagsakYtelseType());
-                var overlapp = finnGradertOverlapp(fpTimeline, Fagsystem.K9SAK.getKode(), ytelse.getType().getKode(),
+                var overlapp = finnGradertOverlapp(fpTimeline, Fagsystem.K9SAK.getKode(), mapAbakusYtelseType(ytelse),
                     ytelse.getSaksnummer(), ytelseTidslinje);
                 overlapp.stream()
                     .map(builder -> builder.medSaksnummer(b.getFagsak().getSaksnummer())
@@ -138,6 +139,17 @@ public class LoggOverlappEksterneYtelserTjeneste {
                     .forEach(overlappRepository::lagre);
 
             });
+    }
+
+    private String mapAbakusYtelseType(YtelseV1 ytelse) {
+        if (ytelse.getYtelse() == null) {
+            return ytelse.getType().getKode();
+        }
+        return switch (ytelse.getYtelse()) {
+            case PLEIEPENGER_SYKT_BARN -> "PSB";
+            case PLEIEPENGER_NÆRSTÅENDE -> "PPN";
+            default -> ytelse.getYtelse().name();
+        };
     }
 
     private List<OverlappVedtak.Builder> loggOverlappendeYtelser(Long behandlingId,
@@ -254,7 +266,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
         var infotrygdSPGrunnlag = infotrygdSPGrTjeneste.hentGrunnlag(ident.getIdent(),
             førsteUttaksDatoFP.minusMonths(1), førsteUttaksDatoFP.plusYears(3));
         overlappene.addAll(
-            finnGradertOverlapp(perioderFp, Fagsystem.INFOTRYGD.getKode(), YtelseType.SYKEPENGER.getKode(), null,
+            finnGradertOverlapp(perioderFp, Fagsystem.INFOTRYGD.getKode(), "SP", null,
                 finnTidslinjeFraGrunnlagene(infotrygdSPGrunnlag)));
     }
 
@@ -267,10 +279,10 @@ public class LoggOverlappEksterneYtelserTjeneste {
                     AbakusTjeneste.lagRequestForHentVedtakFom(aktørId, førsteUttaksDatoFP.minusYears(1)))
                 .stream()
                 .map(y -> (YtelseV1) y)
-                .filter(y -> Fagsystem.K9SAK.equals(y.getFagsystem()))
+                .filter(y -> Fagsystem.K9SAK.equals(y.getFagsystem()) || (y.getKildesystem() != null && Kildesystem.K9SAK.equals(y.getKildesystem())))
                 .forEach(y -> {
                     var ytelseTidslinje = lagTidslinjeforYtelseV1(y);
-                    overlappene.addAll(finnGradertOverlapp(perioderFp, Fagsystem.K9SAK.getKode(), y.getType().getKode(),
+                    overlappene.addAll(finnGradertOverlapp(perioderFp, Fagsystem.K9SAK.getKode(),  mapAbakusYtelseType(y),
                         y.getSaksnummer(), ytelseTidslinje));
                 });
         } catch (Exception e) {
@@ -295,7 +307,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
                 var ytelseTidslinje = new LocalDateTimeline<>(graderteSegments,
                     LoggOverlappEksterneYtelserTjeneste::max).compress(this::like, this::kombiner);
                 overlappene.addAll(
-                    finnGradertOverlapp(perioderFp, Fagsystem.VLSP.getKode(), YtelseType.SYKEPENGER.getKode(),
+                    finnGradertOverlapp(perioderFp, Fagsystem.VLSP.getKode(), "SP",
                         y.vedtaksreferanse(), ytelseTidslinje));
             });
         }
