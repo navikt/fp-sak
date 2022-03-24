@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandling.kabal;
 
 import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -32,6 +33,8 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
     public static final String UTFALL_KEY = "utfall";
     public static final String JOURNALPOST_KEY = "journalpostId";
     public static final String KABALREF_KEY = "kabalReferanse";
+
+    private static Set<KabalUtfall> UTEN_VURDERING = Set.of(KabalUtfall.TRUKKET, KabalUtfall.RETUR);
 
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -83,6 +86,9 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         kabalTjeneste.settKabalReferanse(behandling, ref);
+        if (!UTEN_VURDERING.contains(utfall)) {
+            kabalTjeneste.lagreKlageUtfallFraKabal(behandling, utfall);
+        }
         var journalpost = Optional.ofNullable(prosessTaskData.getPropertyValue(JOURNALPOST_KEY))
             .map(JournalpostId::new)
             .flatMap(j -> dokumentArkivTjeneste.hentUtgåendeJournalpostForSak(j));
@@ -100,8 +106,6 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
                 kabalTjeneste.fjerneKabalFlagg(behandling);
                 behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.KLAGE_NFP);
                 endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(behandling);
-            } else {
-                kabalTjeneste.lagreKlageUtfallFraKabal(behandling, utfall);
             }
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
         }
@@ -140,14 +144,12 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             }
             behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
             kabalTjeneste.lagHistorikkinnslagForHenleggelse(behandlingId, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
+        } else if (KabalUtfall.RETUR.equals(utfall)) {
+            throw new IllegalStateException("KABAL sender ankeutfall RETUR sak " + ankeBehandling.getFagsak().getSaksnummer().getVerdi());
         } else {
+            kabalTjeneste.lagreAnkeUtfallFraKabal(ankeBehandling, utfall);
             if (ankeBehandling.isBehandlingPåVent()) { // Autopunkt
                 behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(ankeBehandling, kontekst);
-            }
-            if (KabalUtfall.RETUR.equals(utfall)) {
-                throw new IllegalStateException("KABAL sender ankeutfall RETUR sak " + ankeBehandling.getFagsak().getSaksnummer().getVerdi());
-            } else {
-                kabalTjeneste.lagreAnkeUtfallFraKabal(ankeBehandling, utfall);
             }
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(ankeBehandling);
         }
