@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.BrevmalDto;
 
-@ApplicationScoped
+@Dependent
 public class BrevmalTjeneste {
     private DokumentBehandlingTjeneste dokumentTjeneste;
 
@@ -30,15 +30,13 @@ public class BrevmalTjeneste {
 
     public List<BrevmalDto> hentBrevmalerFor(Behandling behandling) {
         var kandidater = new HashSet<>(DokumentMalType.MANUELLE_BREV);
-        var ikkeRelevant = filtrerUtilgjengeligBrevmaler(behandling.getFagsakYtelseType(), behandling.getType(), behandling.erManueltOpprettet());
+        var ikkeRelevant = finnIrrelevanteMaler(behandling.getFagsakYtelseType(), behandling.getType(), behandling.erManueltOpprettet());
         kandidater.removeAll(ikkeRelevant);
         return mapTilDto(behandling, kandidater);
     }
 
     // Fjerner dokumentmaler som ikke er tilgjengelig for manuell utsendelse, og for ulike behandlingstyper
-    Set<DokumentMalType> filtrerUtilgjengeligBrevmaler(FagsakYtelseType ytelseType,
-                                                       BehandlingType behandlingType,
-                                                       boolean erBehandlingManueltOpprettet) {
+    Set<DokumentMalType> finnIrrelevanteMaler(FagsakYtelseType ytelseType, BehandlingType behandlingType, boolean erBehandlingManueltOpprettet) {
         Set<DokumentMalType> fjernes = new HashSet<>();
 
         if (BehandlingType.REVURDERING.equals(behandlingType)) {
@@ -67,6 +65,17 @@ public class BrevmalTjeneste {
         return fjernes;
     }
 
+    /*
+     * Markerer som ikke tilgjengelige de brevmaler som ikke er aktuelle i behandlingen
+     */
+    private List<BrevmalDto> mapTilDto(Behandling behandling, Set<DokumentMalType> dokumentMaler) {
+        return dokumentMaler.stream()
+            .map(dokumentMal -> new BrevmalDto(dokumentMal.getKode(), dokumentMal.getNavn(),
+                sjekkOmDokumentSkalVæreTilgjengeligForSaksbehandler(behandling, dokumentMal)))
+            .sorted(Comparator.comparing(BrevmalDto::tilgjengelig).thenComparing(BrevmalDto::kode).reversed())
+            .toList();
+    }
+
     boolean sjekkOmDokumentSkalVæreTilgjengeligForSaksbehandler(Behandling behandling, DokumentMalType dokumentMal) {
         return switch (dokumentMal) {
             case VARSEL_OM_REVURDERING, FORLENGET_SAKSBEHANDLINGSTID_MEDL -> erÅpenBehandlingOgDokumentIkkeBestilt(behandling, dokumentMal);
@@ -85,17 +94,6 @@ public class BrevmalTjeneste {
 
     private boolean erIkkeDokumentBestilt(long behandlingId, DokumentMalType dokumentMal) {
         return !dokumentTjeneste.erDokumentBestilt(behandlingId, dokumentMal);
-    }
-
-    /*
-     * Markerer som ikke tilgjengelige de brevmaler som ikke er aktuelle i behandlingen
-     */
-    private List<BrevmalDto> mapTilDto(Behandling behandling, Set<DokumentMalType> dokumentMaler) {
-        return dokumentMaler.stream()
-            .map(dokumentMal -> new BrevmalDto(dokumentMal.getKode(), dokumentMal.getNavn(),
-                sjekkOmDokumentSkalVæreTilgjengeligForSaksbehandler(behandling, dokumentMal)))
-            .sorted(Comparator.comparing(BrevmalDto::tilgjengelig).thenComparing(BrevmalDto::kode).reversed())
-            .toList();
     }
 
 }
