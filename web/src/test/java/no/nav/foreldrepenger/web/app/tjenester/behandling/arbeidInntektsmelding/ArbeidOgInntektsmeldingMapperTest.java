@@ -206,6 +206,39 @@ class ArbeidOgInntektsmeldingMapperTest {
     }
 
     @Test
+    void mapping_av_yrkesaktivitet_med_stillingsprosent_utenfor_ansettelsesperiode() {
+        //Arrange
+        var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
+        var arbeidsforholdReferanse = arbeidsforholdId.getReferanse();
+        var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer(OrgNummer.KUNSTIG_ORG),arbeidsforholdReferanse);
+
+        var yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aktivitetsAvtale1 = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.plusYears(1), Tid.TIDENES_ENDE))
+            .medProsentsats(BigDecimal.valueOf(50));
+        var ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(3), SKJÆRINGSTIDSPUNKT.plusMonths(11)));
+        yrkesaktivitetBuilder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999"))
+            .medArbeidsforholdId(arbeidsforholdId)
+            .leggTilAktivitetsAvtale(aktivitetsAvtale1)
+            .leggTilAktivitetsAvtale(ansettelsesperiode);
+
+        var arbeidsgiver = lagVirksomhetArbeidsgiver(aktivitet.getArbeidsgiverIdentifikator());
+
+
+        List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, arbeidsforholdId, arbeidsforholdReferanse));
+
+        //Act
+        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, SKJÆRINGSTIDSPUNKT, yrkesaktivitetBuilder.build(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList()).orElse(null);
+
+        //Assert
+        assertThat(arbeidsforholdDto).isNotNull();
+        assertThat(arbeidsforholdDto.stillingsprosent()).isNotNull();
+        assertThat(arbeidsforholdDto.stillingsprosent().intValue()).isEqualTo(50);
+    }
+
+    @Test
     void mapping_av_arbeidsforhold_med_permisjon_uten_sluttdato_hvor_aksjonspunkt_er_bekreftet() {
         //Arrange
         var internArbeidsforholdRef = InternArbeidsforholdRef.nyRef();
