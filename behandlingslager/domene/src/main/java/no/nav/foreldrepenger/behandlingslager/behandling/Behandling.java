@@ -45,6 +45,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -591,12 +592,6 @@ public class Behandling extends BaseEntitet {
                 .collect(Collectors.toList());
     }
 
-    public List<Aksjonspunkt> getBehandledeAksjonspunkter() {
-        return getAksjonspunkterStream()
-                .filter(Aksjonspunkt::erUtført)
-                .collect(Collectors.toList());
-    }
-
     public List<Aksjonspunkt> getÅpneAksjonspunkter(AksjonspunktType aksjonspunktType) {
         return getÅpneAksjonspunkterStream()
                 .filter(ad -> Objects.equals(aksjonspunktType, ad.getAksjonspunktDefinisjon().getAksjonspunktType()))
@@ -618,6 +613,11 @@ public class Behandling extends BaseEntitet {
     public boolean harAksjonspunktMedType(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         return getAksjonspunkterStream()
                 .anyMatch(ap -> aksjonspunktDefinisjon.equals(ap.getAksjonspunktDefinisjon()));
+    }
+
+    public boolean harÅpentEllerLøstAksjonspunktMedType(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+        return getAksjonspunktMedDefinisjonOptional(aksjonspunktDefinisjon)
+                .map(ap -> ap.getStatus().equals(AksjonspunktStatus.OPPRETTET) || ap.getStatus().equals(AksjonspunktStatus.UTFØRT)).orElse(false);
     }
 
     public boolean harÅpentAksjonspunktMedType(AksjonspunktDefinisjon aksjonspunktDefinisjon) {

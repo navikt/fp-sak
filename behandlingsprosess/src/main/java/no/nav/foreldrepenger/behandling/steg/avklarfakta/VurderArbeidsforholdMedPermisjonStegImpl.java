@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.aksjonspunkt.AksjonspunktUtlederForArbForholdMedPermisjoner;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdInntektsmeldingToggleTjeneste;
@@ -43,8 +44,15 @@ public class VurderArbeidsforholdMedPermisjonStegImpl implements VurderArbeidsfo
         if (!ArbeidsforholdInntektsmeldingToggleTjeneste.erTogglePå()) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
+
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
+
+        // Hvis behandlingen har løst 5080 skal den ikke også få utledet 5041, tidlig return.
+        if (behandling.harÅpentEllerLøstAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD)) {
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
+        }
+
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
         var aksjonspunktResultat = utlederArbForholdMedPermisjoner.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref));
