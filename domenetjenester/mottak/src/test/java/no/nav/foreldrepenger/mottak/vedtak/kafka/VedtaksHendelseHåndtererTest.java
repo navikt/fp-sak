@@ -25,7 +25,10 @@ import no.nav.abakus.iaygrunnlag.kodeverk.YtelseStatus;
 import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.abakus.vedtak.ytelse.Aktør;
 import no.nav.abakus.vedtak.ytelse.Desimaltall;
+import no.nav.abakus.vedtak.ytelse.Kildesystem;
 import no.nav.abakus.vedtak.ytelse.Periode;
+import no.nav.abakus.vedtak.ytelse.Status;
+import no.nav.abakus.vedtak.ytelse.Ytelser;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
 import no.nav.abakus.vedtak.ytelse.v1.anvisning.Anvisning;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
@@ -450,12 +453,15 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         var ytelse = new YtelseV1();
         ytelse.setFagsystem(Fagsystem.FPSAK);
+        ytelse.setKildesystem(Kildesystem.FPSAK);
         ytelse.setSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi());
         ytelse.setVedtattTidspunkt(vedtak.getVedtakstidspunkt());
         ytelse.setVedtakReferanse(behandling.getUuid().toString());
         ytelse.setAktør(aktør);
         ytelse.setType(map(behandling.getFagsakYtelseType()));
         ytelse.setStatus(map(behandling.getFagsak().getStatus()));
+        ytelse.setYtelse(mapYtelser(behandling.getFagsakYtelseType()));
+        ytelse.setYtelseStatus(mapStatus(behandling.getFagsak().getStatus()));
         ytelse.setPeriode(null);
         ytelse.setAnvist(null);
         return ytelse;
@@ -463,13 +469,16 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
     private YtelseV1 genererYtelseAbakus(YtelseType type, Aktør aktør, Periode periode, List<Anvisning> anvist) {
         var ytelse = new YtelseV1();
-        ytelse.setFagsystem(Fagsystem.FPABAKUS);
+        ytelse.setFagsystem(Fagsystem.K9SAK);
+        ytelse.setKildesystem(Kildesystem.K9SAK);
         ytelse.setSaksnummer("6T5NM");
         ytelse.setVedtattTidspunkt(LocalDateTime.now());
         ytelse.setVedtakReferanse("1001-ABC");
         ytelse.setAktør(aktør);
         ytelse.setType(type);
+        ytelse.setYtelse(mapYtelseType(type));
         ytelse.setStatus(YtelseStatus.LØPENDE);
+        ytelse.setYtelseStatus(Status.LØPENDE);
         ytelse.setPeriode(periode);
         ytelse.setAnvist(anvist);
         return ytelse;
@@ -491,29 +500,52 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     }
 
     private YtelseType map(FagsakYtelseType type) {
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(type)) {
-            return YtelseType.ENGANGSTØNAD;
-        }
-        if (FagsakYtelseType.FORELDREPENGER.equals(type)) {
-            return YtelseType.FORELDREPENGER;
-        }
-        return YtelseType.SVANGERSKAPSPENGER;
+        return switch (type) {
+            case ENGANGSTØNAD -> YtelseType.ENGANGSTØNAD;
+            case FORELDREPENGER -> YtelseType.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> YtelseType.SVANGERSKAPSPENGER;
+            default -> throw new IllegalStateException("Ukjent ytelsestype " + type);
+        };
+    }
+
+    private Ytelser mapYtelser(FagsakYtelseType type) {
+        return switch (type) {
+            case ENGANGSTØNAD -> Ytelser.ENGANGSTØNAD;
+            case FORELDREPENGER -> Ytelser.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> Ytelser.SVANGERSKAPSPENGER;
+            default -> throw new IllegalStateException("Ukjent ytelsestype " + type);
+        };
+    }
+
+    private Ytelser mapYtelseType(YtelseType type) {
+        return switch (type) {
+            case ENGANGSTØNAD -> Ytelser.ENGANGSTØNAD;
+            case FORELDREPENGER -> Ytelser.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> Ytelser.SVANGERSKAPSPENGER;
+            case OMSORGSPENGER -> Ytelser.OMSORGSPENGER;
+            case PLEIEPENGER_SYKT_BARN -> Ytelser.PLEIEPENGER_SYKT_BARN;
+            case PLEIEPENGER_NÆRSTÅENDE -> Ytelser.PLEIEPENGER_NÆRSTÅENDE;
+            case OPPLÆRINGSPENGER -> Ytelser.OPPLÆRINGSPENGER;
+            case FRISINN -> Ytelser.FRISINN;
+            default -> throw new IllegalStateException("Ukjent ytelsestype " + type);
+        };
     }
 
     private YtelseStatus map(FagsakStatus kode) {
-        YtelseStatus typeKode;
-        if (FagsakStatus.OPPRETTET.equals(kode)) {
-            typeKode = YtelseStatus.OPPRETTET;
-        } else if (FagsakStatus.UNDER_BEHANDLING.equals(kode)) {
-            typeKode = YtelseStatus.UNDER_BEHANDLING;
-        } else if (FagsakStatus.LØPENDE.equals(kode)) {
-            typeKode = YtelseStatus.LØPENDE;
-        } else if (FagsakStatus.AVSLUTTET.equals(kode)) {
-            typeKode = YtelseStatus.AVSLUTTET;
-        } else {
-            typeKode = YtelseStatus.OPPRETTET;
-        }
-        return typeKode;
+        return switch (kode) {
+            case OPPRETTET -> YtelseStatus.OPPRETTET;
+            case UNDER_BEHANDLING -> YtelseStatus.UNDER_BEHANDLING;
+            case LØPENDE -> YtelseStatus.LØPENDE;
+            case AVSLUTTET -> YtelseStatus.AVSLUTTET;
+        };
+    }
+
+    private Status mapStatus(FagsakStatus kode) {
+        return switch (kode) {
+            case OPPRETTET, UNDER_BEHANDLING -> Status.UNDER_BEHANDLING;
+            case LØPENDE -> Status.LØPENDE;
+            case AVSLUTTET -> Status.AVSLUTTET;
+        };
     }
 
 }

@@ -28,6 +28,8 @@ import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
 import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.abakus.iaygrunnlag.request.InnhentRegisterdataRequest;
 import no.nav.abakus.iaygrunnlag.request.RegisterdataType;
+import no.nav.abakus.vedtak.ytelse.Kildesystem;
+import no.nav.abakus.vedtak.ytelse.Ytelser;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
@@ -161,8 +163,8 @@ public class RegisterdataInnhenter {
 
         var potensielleVedtak = abakusTjeneste.hentVedtakForAktørId(request).stream()
             .map(y -> (YtelseV1)y)
-            .filter(y -> Fagsystem.K9SAK.equals(y.getFagsystem()))
-            .filter(y -> YtelseType.PLEIEPENGER_SYKT_BARN.equals(y.getType()))
+            .filter(y -> Fagsystem.K9SAK.equals(y.getFagsystem()) || (y.getKildesystem() != null && Kildesystem.K9SAK.equals(y.getKildesystem())))
+            .filter(y -> YtelseType.PLEIEPENGER_SYKT_BARN.equals(y.getType())  || (y.getYtelse() != null && Ytelser.PLEIEPENGER_SYKT_BARN.equals(y.getYtelse())))
             .filter(y -> y.getTilleggsopplysninger() != null && !y.getTilleggsopplysninger().isBlank())
             .collect(Collectors.toList());
 

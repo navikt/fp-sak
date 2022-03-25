@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -19,7 +20,9 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
 import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
+import no.nav.abakus.vedtak.ytelse.Kildesystem;
 import no.nav.abakus.vedtak.ytelse.Ytelse;
+import no.nav.abakus.vedtak.ytelse.Ytelser;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -57,7 +60,10 @@ public class VedtaksHendelseHåndterer {
             YtelseType.ENGANGSTØNAD, FagsakYtelseType.ENGANGSTØNAD,
             YtelseType.FORELDREPENGER, FagsakYtelseType.FORELDREPENGER,
             YtelseType.SVANGERSKAPSPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
-    private static final Set<YtelseType> DB_LOGGES = Set.of(YtelseType.FRISINN, YtelseType.OMSORGSPENGER);
+    private static final Map<Ytelser, FagsakYtelseType> YTELSER_MAP = Map.of(
+        Ytelser.ENGANGSTØNAD, FagsakYtelseType.ENGANGSTØNAD,
+        Ytelser.FORELDREPENGER, FagsakYtelseType.FORELDREPENGER,
+        Ytelser.SVANGERSKAPSPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
     private static final Set<FagsakYtelseType> VURDER_OVERLAPP = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
     private static final boolean isProd = Environment.current().isProd();
 
@@ -100,40 +106,54 @@ public class VedtaksHendelseHåndterer {
             return;
         var ytelse = (YtelseV1) mottattVedtak;
 
-        if (Fagsystem.FPSAK.equals(ytelse.getFagsystem())) {
+        if (Fagsystem.FPSAK.equals(ytelse.getFagsystem()) || (ytelse.getKildesystem() != null && Kildesystem.FPSAK.equals(ytelse.getKildesystem()))) {
             oprettTasksForFpsakVedtak(ytelse);
-        } else if (DB_LOGGES.contains(ytelse.getType())) {
+        } else if (skalLoggeOverlappDB(ytelse)) {
             var fagsaker = getFagsakerFor(ytelse);
             loggVedtakOverlapp(ytelse, fagsaker);
-        } else if (YtelseType.PLEIEPENGER_SYKT_BARN == ytelse.getType()) {
+        } else if (YtelseType.PLEIEPENGER_SYKT_BARN.equals(ytelse.getType()) || (ytelse.getYtelse() != null && Ytelser.PLEIEPENGER_SYKT_BARN.equals(ytelse.getYtelse()))) {
             var fagsaker = getFagsakerFor(ytelse);
             var callID = UUID.randomUUID();
             fagsakerMedVedtakOverlapp(ytelse, fagsaker)
                 .forEach(f -> opprettHåndterOverlappTaskPleiepenger(f, callID));
         } else {
-            LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getFagsystem(), ytelse.getSaksnummer(), ytelse.getType());
+            var system = Optional.ofNullable(ytelse.getKildesystem()).map(Kildesystem::name)
+                .orElseGet(() -> Optional.ofNullable(ytelse.getFagsystem()).map(Fagsystem::getKode).orElse(null));
+            var ytelseTypeTekst = Optional.ofNullable(ytelse.getYtelse()).map(Ytelser::name)
+                .orElseGet(() -> Optional.ofNullable(ytelse.getType()).map(YtelseType::getKode).orElse(null));
+            LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", system,
+                ytelse.getSaksnummer(), ytelseTypeTekst);
             var fagsaker = getFagsakerFor(ytelse);
             LOG.info("Vedtatt-Ytelse VL har disse sakene for bruker med vedtak {} - saker {}",
-                ytelse.getType(), fagsaker.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList()));
+                ytelseTypeTekst, fagsaker.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList()));
 
             var fagsakerMedOverlapp = fagsakerMedVedtakOverlapp(ytelse, fagsaker);
             if (!fagsakerMedOverlapp.isEmpty()) {
                 var overlappSaksnummerList =
                     fagsakerMedOverlapp.stream().map(Fagsak::getSaksnummer).map(Saksnummer::getVerdi).collect(Collectors.toList());
                 var beskrivelse = String.format("Vedtak om %s sak %s overlapper saker i VL: %s",
-                    ytelse.getType().getNavn(), ytelse.getSaksnummer(), String.join(", ", overlappSaksnummerList));
+                    ytelseTypeTekst, ytelse.getSaksnummer(), String.join(", ", overlappSaksnummerList));
                 LOG.warn("Vedtatt-Ytelse KONTAKT PRODUKTEIER UMIDDELBART! - {}", beskrivelse);
                 loggVedtakOverlapp(ytelse, fagsakerMedOverlapp);
             }
         }
     }
 
+    private boolean skalLoggeOverlappDB(YtelseV1 ytelse) {
+        return Set.of(YtelseType.FRISINN, YtelseType.OMSORGSPENGER).contains(ytelse.getType())
+            || (ytelse.getYtelse() != null && Set.of(Ytelser.FRISINN, Ytelser.OMSORGSPENGER).contains(ytelse.getYtelse()));
+    }
+
     private void oprettTasksForFpsakVedtak(YtelseV1 ytelse) {
-        var fagsakYtelseType = YTELSE_TYPE_MAP.getOrDefault(ytelse.getType(), FagsakYtelseType.UDEFINERT);
+        var fagsakYtelseType = Optional.ofNullable(ytelse.getYtelse()).map(YTELSER_MAP::get)
+            .orElseGet(() -> Optional.ofNullable(ytelse.getType()).map(YTELSE_TYPE_MAP::get).orElse(FagsakYtelseType.UDEFINERT));
 
         if (!VURDER_OVERLAPP.contains(fagsakYtelseType)) {
             if (FagsakYtelseType.UDEFINERT.equals(fagsakYtelseType)) {
-                LOG.error("Vedtatt-Ytelse Utviklerfeil: ukjent ytelsestype for innkommende vedtak {}", ytelse.getType());
+                var ytelseTypeTekst = Optional.ofNullable(ytelse.getYtelse()).map(Ytelser::name)
+                    .orElseGet(() -> Optional.ofNullable(ytelse.getType()).map(YtelseType::getKode).orElse(null));
+
+                LOG.error("Vedtatt-Ytelse Utviklerfeil: ukjent ytelsestype for innkommende vedtak {}", ytelseTypeTekst);
             }
             return;
         }
