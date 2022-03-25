@@ -400,7 +400,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             List.of(new Barn()), 1);
         var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
             new FamilieHendelser().medBekreftetHendelse(bekreftetFamilieHendelse))
-            .medAnnenpart(new Annenpart(false, morsBehandling.getId(), LocalDateTime.now()));
+            .medAnnenpart(new Annenpart(morsBehandling.getId(), LocalDateTime.now()));
         var input = new UttakInput(ref, iayGrunnlag, fpGrunnlag).medBeregningsgrunnlagStatuser(
             beregningsandelTjeneste.hentStatuser());
         var grunnlag = grunnlagBygger.byggGrunnlag(input);

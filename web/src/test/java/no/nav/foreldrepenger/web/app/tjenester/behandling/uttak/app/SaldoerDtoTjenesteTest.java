@@ -433,7 +433,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(
-            input(behandlingFar, new Annenpart(false, behandlingMor.getId(), fødseldato.atStartOfDay()), fødseldato));
+            input(behandlingFar, new Annenpart(behandlingMor.getId(), fødseldato.atStartOfDay()), fødseldato));
 
         // Assert
         var fbDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FLERBARNSDAGER);
@@ -553,7 +553,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(
-            input(behandlingFar, new Annenpart(false, behandlingMor.getId(), fødseldato.atStartOfDay()), fødseldato));
+            input(behandlingFar, new Annenpart(behandlingMor.getId(), fødseldato.atStartOfDay()), fødseldato));
 
         // Assert
         var fpffDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL);
@@ -605,7 +605,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(
-            input(behandlingFar, new Annenpart(false, behandlingMor.getId(), fødseldato.atStartOfDay()), fødseldato));
+            input(behandlingFar, new Annenpart(behandlingMor.getId(), fødseldato.atStartOfDay()), fødseldato));
 
         // Assert
         var fpffDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL);
@@ -700,7 +700,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(
-            input(behandlingFar, new Annenpart(false, behandlingMor.getId(), fødseldato.atStartOfDay()), fødseldato));
+            input(behandlingFar, new Annenpart(behandlingMor.getId(), fødseldato.atStartOfDay()), fødseldato));
 
         // Assert
         var fpffDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL);
@@ -754,7 +754,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(
-            input(behandlingFar, new Annenpart(false, behandlingMor.getId(), fødseldato.atStartOfDay()), fødseldato));
+            input(behandlingFar, new Annenpart(behandlingMor.getId(), fødseldato.atStartOfDay()), fødseldato));
 
         // Assert
         var fpffDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL);

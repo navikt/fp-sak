@@ -19,6 +19,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
@@ -53,6 +55,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private BehandlingVedtakRepository behandlingVedtakRepository;
+    private PersonopplysningRepository personopplysningRepository;
     private SøknadRepository søknadRepository;
     private PleiepengerRepository pleiepengerRepository;
     private UføretrygdRepository uføretrygdRepository;
@@ -68,6 +71,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         this.behandlingVedtakRepository = behandlingRepositoryProvider.getBehandlingVedtakRepository();
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
+        this.personopplysningRepository = behandlingRepositoryProvider.getPersonopplysningRepository();
         this.søknadRepository = grunnlagRepositoryProvider.getSøknadRepository();
         this.pleiepengerRepository = grunnlagRepositoryProvider.getPleiepengerRepository();
         this.uføretrygdRepository = grunnlagRepositoryProvider.getUføretrygdRepository();
@@ -93,9 +97,15 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var erBerørtBehandling = SpesialBehandling.erBerørtBehandling(behandling) && SpesialBehandling.skalUttakVurderes(behandling);
         var originalBehandling = originalBehandling(behandling);
+        var harAnnenForelderES = personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandlingId)
+            .map(OppgittAnnenPartEntitet::getAktørId)
+            .filter(a -> annenpartHarInnvilgetES(familiehendelser, a))
+            .isPresent();
+
         var grunnlag = new ForeldrepengerGrunnlag()
             .medErBerørtBehandling(erBerørtBehandling)
             .medFamilieHendelser(familiehendelser)
+            .medOppgittAnnenForelderHarEngangsstønadForSammeBarn(harAnnenForelderES)
             .medOriginalBehandling(originalBehandling.orElse(null))
             .medPleiepengerGrunnlag(pleiepengerGrunnlag(ref).orElse(null))
             .medUføretrygdGrunnlag(uføretrygdGrunnlag(ref).orElse(null))
@@ -135,8 +145,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
                 var opprettetTidspunkt = Optional.ofNullable(søknadRepository.hentSøknad(annenPartBehandling.get().getId()))
                     .map(SøknadEntitet::getOpprettetTidspunkt).orElse(annenPartBehandling.get().getOpprettetTidspunkt());
                 return Optional.of(
-                    new Annenpart(annenpartHarInnvilgetES(familiehendelser, relatertFagsak.get().getAktørId()),
-                        annenPartBehandling.get().getId(), opprettetTidspunkt));
+                    new Annenpart(annenPartBehandling.get().getId(), opprettetTidspunkt));
             }
         }
         return Optional.empty();
