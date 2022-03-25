@@ -12,6 +12,7 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     private FamilieHendelser familieHendelser;
     private OriginalBehandling originalBehandling;
     private Annenpart annenpart;
+    private boolean oppgittAnnenForelderHarEngangsstønadForSammeBarn;
     private PleiepengerGrunnlagEntitet pleiepengerGrunnlag;
     private UføretrygdGrunnlagEntitet uføretrygdGrunnlag;
     private NesteSakGrunnlagEntitet nesteSakEntitet;
@@ -25,6 +26,7 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
         this.familieHendelser = foreldrepengerGrunnlag.familieHendelser;
         this.originalBehandling = foreldrepengerGrunnlag.originalBehandling;
         this.annenpart = foreldrepengerGrunnlag.annenpart;
+        this.oppgittAnnenForelderHarEngangsstønadForSammeBarn = foreldrepengerGrunnlag.oppgittAnnenForelderHarEngangsstønadForSammeBarn;
         this.pleiepengerGrunnlag = foreldrepengerGrunnlag.pleiepengerGrunnlag;
         this.uføretrygdGrunnlag = foreldrepengerGrunnlag.uføretrygdGrunnlag;
         this.nesteSakEntitet = foreldrepengerGrunnlag.nesteSakEntitet;
@@ -32,6 +34,10 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
 
     public boolean isBerørtBehandling() {
         return berørtBehandling;
+    }
+
+    public boolean isOppgittAnnenForelderHarEngangsstønadForSammeBarn() {
+        return oppgittAnnenForelderHarEngangsstønadForSammeBarn;
     }
 
     public FamilieHendelser getFamilieHendelser() {
@@ -61,6 +67,12 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     public ForeldrepengerGrunnlag medErBerørtBehandling(boolean berørtBehandling) {
         var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
         nyttGrunnlag.berørtBehandling = berørtBehandling;
+        return nyttGrunnlag;
+    }
+
+    public ForeldrepengerGrunnlag medOppgittAnnenForelderHarEngangsstønadForSammeBarn(boolean harEngangsstønad) {
+        var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
+        nyttGrunnlag.oppgittAnnenForelderHarEngangsstønadForSammeBarn = harEngangsstønad;
         return nyttGrunnlag;
     }
 

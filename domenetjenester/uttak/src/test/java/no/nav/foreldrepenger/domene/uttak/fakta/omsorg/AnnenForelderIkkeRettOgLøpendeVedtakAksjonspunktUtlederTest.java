@@ -70,7 +70,7 @@ public class AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtlederTest {
         kobleSaker(morBehandling, farBehandling);
 
         var resultat = utleder.utledAksjonspunkterFor(
-            input(farBehandling, new Annenpart(false, morBehandling.getId(), LocalDate.of(2019, 3, 29).atStartOfDay())));
+            input(farBehandling, new Annenpart(morBehandling.getId(), LocalDate.of(2019, 3, 29).atStartOfDay())));
 
         assertThat(resultat).hasSize(1);
     }
@@ -93,7 +93,7 @@ public class AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtlederTest {
         kobleSaker(morBehandling, farBehandling);
 
         var resultat = utleder.utledAksjonspunkterFor(
-            input(farBehandling, new Annenpart(false, morBehandling.getId(), LocalDate.of(2019, 3, 29).atStartOfDay())));
+            input(farBehandling, new Annenpart(morBehandling.getId(), LocalDate.of(2019, 3, 29).atStartOfDay())));
 
         assertThat(resultat).isEmpty();
     }

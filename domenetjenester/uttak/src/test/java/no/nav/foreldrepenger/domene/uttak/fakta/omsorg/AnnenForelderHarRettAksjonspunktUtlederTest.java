@@ -62,11 +62,12 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
     }
 
     private UttakInput lagInput(Behandling behandling, FamilieHendelser familieHendelser) {
-        return lagInput(behandling, familieHendelser, null);
+        return lagInput(behandling, familieHendelser, null, false);
     }
 
-    private UttakInput lagInput(Behandling behandling, FamilieHendelser familieHendelser, Annenpart annenpart) {
+    private UttakInput lagInput(Behandling behandling, FamilieHendelser familieHendelser, Annenpart annenpart, boolean annenForelderES) {
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser)
+            .medOppgittAnnenForelderHarEngangsstønadForSammeBarn(annenForelderES)
             .medAnnenpart(annenpart);
         return new UttakInput(BehandlingReferanse.fra(behandling, lagSkjæringstidspunkt(LocalDate.now())), null,
             ytelsespesifiktGrunnlag);
@@ -113,7 +114,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse)
             .medBekreftetHendelse(familieHendelse);
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(
-            lagInput(behandling, familieHendelser, new Annenpart(true, morEngang.getId(), fødselsdato.atStartOfDay())));
+            lagInput(behandling, familieHendelser, null, true));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -137,7 +138,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse)
             .medBekreftetHendelse(familieHendelse);
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(
-            lagInput(behandling, familieHendelser, new Annenpart(false, morEngang.getId(), fødselsdato.atStartOfDay())));
+            lagInput(behandling, familieHendelser,null, false));
 
         // Assert
         assertThat(aksjonspunktResultater).containsExactly(AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT);
@@ -165,7 +166,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
             .medRegisterUføretrygd(false, null, null).medOverstyrtUføretrygd(true);
 
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(
-            lagInputUføre(behandling, familieHendelser, new Annenpart(true, morEngang.getId(), fødselsdato.atStartOfDay()), uføreBuilder));
+            lagInputUføre(behandling, familieHendelser, null, true, uføreBuilder));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -193,16 +194,17 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
             .medRegisterUføretrygd(false, null, null);
 
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(
-            lagInputUføre(behandling, familieHendelser, new Annenpart(true, morEngang.getId(), fødselsdato.atStartOfDay()), uføreBuilder));
+            lagInputUføre(behandling, familieHendelser, null, true, uføreBuilder));
 
         // Assert
         assertThat(aksjonspunktResultater).containsExactly(AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT);
     }
 
 
-    private UttakInput lagInputUføre(Behandling behandling, FamilieHendelser familieHendelser, Annenpart annenpart,
+    private UttakInput lagInputUføre(Behandling behandling, FamilieHendelser familieHendelser, Annenpart annenpart, boolean annenForelderES,
                                      UføretrygdGrunnlagEntitet.Builder uføreBuilder) {
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser)
+            .medOppgittAnnenForelderHarEngangsstønadForSammeBarn(annenForelderES)
             .medAnnenpart(null).medUføretrygdGrunnlag(uføreBuilder.build()).medAnnenpart(annenpart);
         return new UttakInput(BehandlingReferanse.fra(behandling, lagSkjæringstidspunkt(LocalDate.now())), null,
             ytelsespesifiktGrunnlag);

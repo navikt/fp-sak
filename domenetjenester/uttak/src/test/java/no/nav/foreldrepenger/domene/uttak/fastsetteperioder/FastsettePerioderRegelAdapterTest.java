@@ -798,7 +798,7 @@ public class FastsettePerioderRegelAdapterTest {
         var ref = BehandlingReferanse.fra(morBehandlingRevurdering, fødselsdato);
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medErBerørtBehandling(true)
             .medFamilieHendelser(familieHendelser)
-            .medAnnenpart(new Annenpart(false, farBehandling.getId(), fødselsdato.atStartOfDay()))
+            .medAnnenpart(new Annenpart(farBehandling.getId(), fødselsdato.atStartOfDay()))
             .medOriginalBehandling(new OriginalBehandling(morBehandling.getId(), null));
         var input = new UttakInput(ref, tomIay(), ytelsespesifiktGrunnlag)
             .medBeregningsgrunnlagStatuser(andelTjeneste.hentStatuser())
