@@ -122,7 +122,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         Optional<LocalDate> morsMaksDato = !sammenhengendeUttak ? Optional.empty() :
             ytelseMaksdatoTjeneste.beregnMorsMaksdato(behandling.getFagsak().getSaksnummer(), behandling.getFagsak().getRelasjonsRolleType());
         var utledetSkjæringstidspunkt = utlederUtils.utledSkjæringstidspunktFraBehandling(behandling, førsteUttaksdato,
-            familieHendelseGrunnlag, morsMaksDato);
+            familieHendelseGrunnlag, morsMaksDato, utenMinsterett);
 
         return builder.medUtledetSkjæringstidspunkt(utledetSkjæringstidspunkt)
             .medUtledetMedlemsintervall(utledYtelseintervall(behandling, utledetSkjæringstidspunkt, sammenhengendeUttak))

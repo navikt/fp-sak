@@ -19,7 +19,8 @@ import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.OpptjeningsperiodeVilkårTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.FagsakÅrsak;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.FagsakÅrsak;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.LovVersjoner;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp.RegelFastsettOpptjeningsperiode;
@@ -62,6 +63,7 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
         final var hendelse = hendelseAggregat.getGjeldendeVersjon();
         final var sammenhengendeUttak = ref.getSkjæringstidspunkt().kreverSammenhengendeUttak();
         final var førsteUttaksdato = ref.getSkjæringstidspunkt().getFørsteUttaksdato();
+        final var lovversjon = ref.getSkjæringstidspunkt().utenMinsterett() ? LovVersjoner.KLASSISK : LovVersjoner.PROP15L2122;
 
         var fagsakÅrsak = finnFagsakÅrsak(hendelse);
         var søkerRolle =  finnFagsakSøkerRolle(ref);
@@ -90,7 +92,8 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
             førsteUttaksdato,
             hendelsedato,
             termindato.orElse(null),
-            morsMaksdato.orElse(null)
+            morsMaksdato.orElse(null),
+            lovversjon
         );
         return grunnlag;
     }

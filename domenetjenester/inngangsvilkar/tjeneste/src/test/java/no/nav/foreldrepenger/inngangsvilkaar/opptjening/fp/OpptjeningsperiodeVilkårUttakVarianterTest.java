@@ -87,7 +87,7 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
             .relasjonTil(søkerAktørId, RelasjonsRolleType.MORA, null)
             .build();
         var søker = builderForRegisteropplysninger.medPersonas()
-            .kvinne(søkerAktørId, SivilstandType.GIFT)
+            .mann(søkerAktørId, SivilstandType.GIFT)
             .statsborgerskap(Landkoder.NOR)
             .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, true)
             .build();
@@ -134,7 +134,7 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
             .relasjonTil(søkerAktørId, RelasjonsRolleType.MORA, null)
             .build();
         var søker = builderForRegisteropplysninger.medPersonas()
-            .kvinne(søkerAktørId, SivilstandType.GIFT)
+            .mann(søkerAktørId, SivilstandType.GIFT)
             .statsborgerskap(Landkoder.NOR)
             .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, true)
             .build();
@@ -181,7 +181,7 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
             .relasjonTil(søkerAktørId, RelasjonsRolleType.MORA, null)
             .build();
         var søker = builderForRegisteropplysninger.medPersonas()
-            .kvinne(søkerAktørId, SivilstandType.GIFT)
+            .mann(søkerAktørId, SivilstandType.GIFT)
             .statsborgerskap(Landkoder.NOR)
             .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, true)
             .build();
@@ -195,6 +195,53 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(ref.getSkjæringstidspunkt().kreverSammenhengendeUttak()).isFalse();
+        assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(førsteUttaksdato.minusDays(1));
+    }
+
+    @Test
+    public void skal_fastsette_periode_til_første_uttak_far_wlb() {
+        var fødselsdato = LocalDate.now();
+        var termindato = LocalDate.now();
+        var førsteUttaksdato = termindato.minusDays(3);
+        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(fødselsdato.minusYears(1)), repositoryProvider);
+        minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(fødselsdato.minusYears(1)), repositoryProvider);
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
+            stputil, utsettelse2021, minsterett2022);
+        opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
+            repositoryProvider.getFamilieHendelseRepository(), ytelseMaksdatoTjeneste);
+
+        var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
+            .medPeriode(førsteUttaksdato, førsteUttaksdato.plusDays(8))
+            .medPeriodeType(UttakPeriodeType.FEDREKVOTE);
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder.build()), true));
+        scenario.medBekreftetHendelse().medFødselsDato(fødselsdato).medAntallBarn(1)
+            .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder().medTermindato(termindato));
+        scenario.medSøknadHendelse().medFødselsDato(fødselsdato).medAntallBarn(1)
+            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(termindato));
+        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        var barnAktørId = AktørId.dummy();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
+
+        var fødtBarn = builderForRegisteropplysninger.medPersonas()
+            .fødtBarn(barnAktørId, fødselsdato)
+            .relasjonTil(søkerAktørId, RelasjonsRolleType.MORA, null)
+            .build();
+        var søker = builderForRegisteropplysninger.medPersonas()
+            .kvinne(søkerAktørId, SivilstandType.GIFT)
+            .statsborgerskap(Landkoder.NOR)
+            .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, true)
+            .build();
+        scenario.medRegisterOpplysninger(søker);
+        scenario.medRegisterOpplysninger(fødtBarn);
+        var behandling = scenario.lagre(repositoryProvider);
+
+        var ref = lagRef(behandling);
+        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste)
+            .vurderVilkår(ref);
+
+        var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
+        assertThat(ref.getSkjæringstidspunkt().utenMinsterett()).isFalse();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(førsteUttaksdato.minusDays(1));
     }
 

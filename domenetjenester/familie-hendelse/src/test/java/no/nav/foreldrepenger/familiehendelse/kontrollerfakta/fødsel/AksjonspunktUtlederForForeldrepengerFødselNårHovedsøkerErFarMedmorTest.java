@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -25,10 +26,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Sivils
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.vedtak.konfig.Tid;
 
 public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest extends EntityManagerAwareTest {
 
@@ -36,11 +44,14 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
     private static final LocalDate FØDSEL_17_SIDEN = LocalDate.now().minusDays(27);
 
     private static final AktørId GITT_AKTØR_ID = AktørId.dummy();
+    private static final String ORG_NR = "55555555";
 
     private BehandlingRepositoryProvider repositoryProvider;
 
     private AksjonspunktUtlederForForeldrepengerFødsel apUtleder;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+
+    private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
 
     @BeforeEach
     public void oppsett() {
@@ -62,7 +73,11 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
     }
 
     private AksjonspunktUtlederInput lagInput(Behandling behandling) {
-        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling));
+        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtenMinsterett(true).medUtledetSkjæringstidspunkt(LocalDate.now()).build()));
+    }
+
+    private AksjonspunktUtlederInput lagInputMedMinsterettFar(Behandling behandling) {
+        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build()));
     }
 
     @Test
@@ -85,6 +100,28 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
         assertThat(utledeteAksjonspunkter).hasSize(2);
         assertThat(utledeteAksjonspunkter.get(0).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_TERMINBEKREFTELSE);
         assertThat(utledeteAksjonspunkter.get(1).getAksjonspunktDefinisjon()).isEqualTo(VURDER_OM_VILKÅR_FOR_SYKDOM_OPPFYLT);
+    }
+
+    @Test
+    public void sjekk_aksjonspunkter_når_søker_oppgir_termindato_wlb() {
+        var behandling = opprettBehandlingMedOppgittTerminOgBehandlingType(TERMINDAT0_NÅ);
+        var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInputMedMinsterettFar(behandling));
+
+        assertThat(utledeteAksjonspunkter).hasSize(1);
+        assertThat(utledeteAksjonspunkter.get(0).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_TERMINBEKREFTELSE);
+    }
+
+    @Test
+    public void ingen_aksjonspunkter_dersom_løpende_arbeid() {
+        //Arrange
+        var behandling = opprettBehandlingMedOppgittTerminOgArbeidsForhold(TERMINDAT0_NÅ, Tid.TIDENES_ENDE);
+        var apUtleder = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(iayTjeneste, familieHendelseTjeneste));
+        //Act
+        var param = lagInputMedMinsterettFar(behandling);
+        var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(param);
+        //Assert
+        assertThat(utledeteAksjonspunkter).isEmpty();
+        verify(apUtleder).erSøkerRegistrertArbeidstakerMedLøpendeArbeidsforholdIAARegisteret(param);
     }
 
     @Test
@@ -129,6 +166,21 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
         return scenario.lagre(repositoryProvider);
     }
 
+    private Behandling opprettBehandlingMedOppgittTerminOgArbeidsForhold(LocalDate termindato, LocalDate tilOgMed) {
+        var scenario = ScenarioFarSøkerForeldrepenger
+            .forFødselMedGittAktørId(GITT_AKTØR_ID);
+        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+            .medUtstedtDato(LocalDate.now())
+            .medTermindato(termindato)
+            .medNavnPå("LEGEN MIN"));
+        leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
+        var behandling = scenario.lagre(repositoryProvider);
+        final var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        lagAktørArbeid(inntektArbeidYtelseAggregatBuilder, GITT_AKTØR_ID, ORG_NR, tilOgMed);
+        iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);
+        return behandling;
+    }
+
     private Behandling opprettBehandlingMedOppgittFødsel(LocalDate fødseldato) {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(fødseldato);
@@ -146,5 +198,22 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
         scenario.medRegisterOpplysninger(søker);
     }
 
+    private void lagAktørArbeid(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder, AktørId aktørId, String orgNr, LocalDate tilOgMed) {
+        var aktørArbeidBuilder =
+            inntektArbeidYtelseAggregatBuilder.getAktørArbeidBuilder(aktørId);
+
+        var yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(Opptjeningsnøkkel.forOrgnummer(orgNr),
+            ArbeidType.FORENKLET_OPPGJØRSORDNING);
+        var aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
+
+        yrkesaktivitetBuilder.leggTilAktivitetsAvtale(aktivitetsAvtaleBuilder
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now().minusMonths(50), tilOgMed)));
+
+        yrkesaktivitetBuilder.medArbeidType(ArbeidType.FORENKLET_OPPGJØRSORDNING);
+
+        yrkesaktivitetBuilder.medArbeidsgiver(Arbeidsgiver.virksomhet(ORG_NR));
+        aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
+        inntektArbeidYtelseAggregatBuilder.leggTilAktørArbeid(aktørArbeidBuilder);
+    }
 
 }
