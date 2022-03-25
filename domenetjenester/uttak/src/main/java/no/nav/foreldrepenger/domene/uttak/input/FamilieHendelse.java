@@ -86,7 +86,11 @@ public class FamilieHendelse {
     }
 
     public boolean erAlleBarnDøde() {
-        return getBarna().stream().allMatch(b -> b.getDødsdato().isPresent());
+        var barna = getBarna();
+        if (barna.isEmpty()) {
+            return false;
+        }
+        return barna.stream().allMatch(b -> b.getDødsdato().isPresent());
     }
 
     public boolean gjelderFødsel() {
