@@ -103,12 +103,12 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AVKLAR_OPPHOLDSRETT(AksjonspunktKodeDefinisjon.AVKLAR_OPPHOLDSRETT_KODE,
             AksjonspunktType.MANUELL, "Avklar oppholdsrett.", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN,
             VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, ENTRINN, EnumSet.of(ES, FP, SVP)),
-    VARSEL_REVURDERING_ETTERKONTROLL(
+    VARSEL_REVURDERING_ETTERKONTROLL( // Brukes ikke lenger
             AksjonspunktKodeDefinisjon.VARSEL_REVURDERING_ETTERKONTROLL_KODE, AksjonspunktType.MANUELL, "Varsel om revurdering ved automatisk etterkontroll",
             BehandlingStegType.VARSEL_REVURDERING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP)),
-    VARSEL_REVURDERING_MANUELL(
+    VARSEL_REVURDERING_MANUELL( // Kun ES
             AksjonspunktKodeDefinisjon.VARSEL_REVURDERING_MANUELL_KODE, AksjonspunktType.MANUELL, "Varsel om revurdering opprettet manuelt",
-            BehandlingStegType.VARSEL_REVURDERING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP)),
+            BehandlingStegType.VARSEL_REVURDERING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES)),
     SJEKK_MANGLENDE_FØDSEL(AksjonspunktKodeDefinisjon.SJEKK_MANGLENDE_FØDSEL_KODE,
             AksjonspunktType.MANUELL, "Sjekk manglende fødsel", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.INN,
             VilkårType.FØDSELSVILKÅRET_MOR, SkjermlenkeType.FAKTA_OM_FOEDSEL, ENTRINN, EnumSet.of(ES, FP)),
