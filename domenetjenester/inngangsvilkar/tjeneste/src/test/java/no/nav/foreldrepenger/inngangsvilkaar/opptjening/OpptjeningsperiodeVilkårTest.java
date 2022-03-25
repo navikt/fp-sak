@@ -164,7 +164,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
             .build();
 
         var søker = builderForRegisteropplysninger.medPersonas()
-            .kvinne(søkerAktørId, SivilstandType.GIFT)
+            .mann(søkerAktørId, SivilstandType.GIFT)
             .statsborgerskap(Landkoder.NOR)
             .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, true)
             .build();

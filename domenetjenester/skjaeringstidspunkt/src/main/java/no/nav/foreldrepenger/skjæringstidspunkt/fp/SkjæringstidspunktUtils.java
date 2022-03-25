@@ -17,7 +17,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.FagsakÅrsak;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.FagsakÅrsak;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.LovVersjoner;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp.RegelFastsettOpptjeningsperiode;
@@ -87,16 +88,15 @@ public class SkjæringstidspunktUtils {
 
     LocalDate utledSkjæringstidspunktFraBehandling(Behandling behandling, LocalDate førsteUttaksDato,
                                                    Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag,
-                                                   Optional<LocalDate> morsMaksDato) {
+                                                   Optional<LocalDate> morsMaksDato, boolean utenMinsterett) {
 
-        if (familieHendelseGrunnlag.isPresent()) {
-            return evaluerSkjæringstidspunktOpptjening(behandling, førsteUttaksDato, familieHendelseGrunnlag.get(), morsMaksDato);
-        }
-        return førsteUttaksDato;
+        return familieHendelseGrunnlag
+            .map(g -> evaluerSkjæringstidspunktOpptjening(behandling, førsteUttaksDato,g, morsMaksDato, utenMinsterett))
+            .orElse(førsteUttaksDato);
     }
 
     private LocalDate evaluerSkjæringstidspunktOpptjening(Behandling behandling, LocalDate førsteUttaksDato,
-                                                          FamilieHendelseGrunnlagEntitet fhGrunnlag, Optional<LocalDate> morsMaksDato) {
+                                                          FamilieHendelseGrunnlagEntitet fhGrunnlag, Optional<LocalDate> morsMaksDato, boolean utenMinsterett) {
         final var gjeldendeHendelseDato = fhGrunnlag.getGjeldendeVersjon().getGjelderFødsel() ? fhGrunnlag.finnGjeldendeFødselsdato()
             : fhGrunnlag.getGjeldendeVersjon().getSkjæringstidspunkt();
         final var gjeldendeTermindato = fhGrunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
@@ -117,7 +117,8 @@ public class SkjæringstidspunktUtils {
             førsteUttaksDato,
             hendelsedato,
             gjeldendeTermindato.orElse(null),
-            morsMaksDato.orElse(null)
+            morsMaksDato.orElse(null),
+            utenMinsterett ? LovVersjoner.KLASSISK : LovVersjoner.PROP15L2122
         );
 
         final var fastsettPeriode = new RegelFastsettOpptjeningsperiode();

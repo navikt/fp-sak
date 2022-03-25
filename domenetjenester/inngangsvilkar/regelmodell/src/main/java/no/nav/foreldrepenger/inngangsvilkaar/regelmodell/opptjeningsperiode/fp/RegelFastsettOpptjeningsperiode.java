@@ -26,7 +26,7 @@ public class RegelFastsettOpptjeningsperiode implements RuleService<Opptjeningsp
 
     @Override
     public Evaluation evaluer(OpptjeningsperiodeGrunnlag input, Object outputContainer) {
-        var mellomregning = new OpptjeningsperiodeMellomregning(input, OpptjeningsperiodevilkårParametre.vilkårparametreForeldrepenger());
+        var mellomregning = new OpptjeningsperiodeMellomregning(input, OpptjeningsperiodevilkårParametre.vilkårparametreForeldrepenger(input.lovVersjonDefaultKlassisk()));
         var evaluation = getSpecification().evaluate(mellomregning);
 
         ((OpptjeningsPeriode) outputContainer).setOpptjeningsperiodeFom(mellomregning.getOpptjeningsperiodeFom());

@@ -8,7 +8,6 @@ import java.time.Month;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.FagsakÅrsak;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp.RegelFastsettOpptjeningsperiode;
 
 public class RegelFastsettOpptjeningsperiodeTest {
@@ -77,7 +76,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
         var omsorgsDato = LocalDate.of(2018, Month.JANUARY, 15);
         var uttaksDato = LocalDate.of(2018, Month.FEBRUARY, 1);
         var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.ADOPSJON, RegelSøkerRolle.FARA,
-            uttaksDato, omsorgsDato, null, null);
+            uttaksDato, omsorgsDato, null, null, LovVersjoner.KLASSISK);
 
         // Act
         var resultat = new OpptjeningsPeriode();
@@ -92,7 +91,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
         var omsorgsDato = LocalDate.of(2018, Month.FEBRUARY, 1);
         var uttaksDato = LocalDate.of(2018, Month.JANUARY, 15);
         var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.ADOPSJON, RegelSøkerRolle.FARA,
-            uttaksDato, omsorgsDato, null, null);
+            uttaksDato, omsorgsDato, null, null, LovVersjoner.KLASSISK);
 
         // Act
         var resultat = new OpptjeningsPeriode();
@@ -108,7 +107,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
         var uttaksDato = LocalDate.of(2018, Month.DECEMBER, 15);
         var morsMaksDato = uttaksDato.minusDays(2);
         var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.FARA,
-            uttaksDato, fødselsdato, fødselsdato, morsMaksDato);
+            uttaksDato, fødselsdato, fødselsdato, morsMaksDato, LovVersjoner.KLASSISK);
 
         // Act
         var resultat = new OpptjeningsPeriode();
@@ -124,7 +123,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
         var uttaksDato = LocalDate.of(2018, Month.DECEMBER, 15);
         var morsMaksDato = uttaksDato.plusWeeks(7);
         var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.FARA,
-            uttaksDato, fødselsdato, fødselsdato, morsMaksDato);
+            uttaksDato, fødselsdato, fødselsdato, morsMaksDato, LovVersjoner.KLASSISK);
 
         // Act
         var resultat = new OpptjeningsPeriode();
@@ -139,13 +138,103 @@ public class RegelFastsettOpptjeningsperiodeTest {
         var fødselsdato = LocalDate.of(2018, Month.FEBRUARY, 1);
         var uttaksDato = fødselsdato.minusDays(1);
         var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.FARA,
-            uttaksDato, fødselsdato, fødselsdato, null);
+            uttaksDato, fødselsdato, fødselsdato, null, LovVersjoner.KLASSISK);
 
         // Act
         var resultat = new OpptjeningsPeriode();
         new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, resultat);
         // Assert
         assertSkjæringsdato(resultat, fødselsdato);
+    }
+
+    @Test
+    public void farFørFødselUtenTermnJusterTilFødsel() {
+        // Arrange
+        var fødselsdato = LocalDate.of(2022, Month.AUGUST, 3);
+        var uttaksDato = fødselsdato.minusWeeks(3);
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.FARA,
+            uttaksDato, fødselsdato, null, null, LovVersjoner.PROP15L2122);
+
+        // Act
+        var resultat = new OpptjeningsPeriode();
+        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, resultat);
+        // Assert
+        assertSkjæringsdato(resultat, fødselsdato);
+    }
+
+    @Test
+    public void farEtterFødselBeholdUttakEnUkeEtter() {
+        // Arrange
+        var fødselsdato = LocalDate.of(2022, Month.AUGUST, 3);
+        var uttaksDato = fødselsdato.plusWeeks(1);
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.FARA,
+            uttaksDato, fødselsdato, null, null, LovVersjoner.PROP15L2122);
+
+        // Act
+        var resultat = new OpptjeningsPeriode();
+        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, resultat);
+        // Assert
+        assertSkjæringsdato(resultat, fødselsdato.plusWeeks(1));
+    }
+
+    @Test
+    public void farTerminFørFødselBeholdUttakEnUkeFør() {
+        // Arrange
+        var fødselsdato = LocalDate.of(2022, Month.AUGUST, 10);
+        var uttaksDato = fødselsdato.minusWeeks(1);
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.FARA,
+            uttaksDato, fødselsdato, fødselsdato.minusDays(2), null, LovVersjoner.PROP15L2122);
+
+        // Act
+        var resultat = new OpptjeningsPeriode();
+        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, resultat);
+        // Assert
+        assertSkjæringsdato(resultat, fødselsdato.minusWeeks(1));
+    }
+
+    @Test
+    public void farTerminFørFødselJusterTilToUker() {
+        // Arrange
+        var fødselsdato = LocalDate.of(2022, Month.AUGUST, 10);
+        var uttaksDato = fødselsdato.minusWeeks(4);
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.FARA,
+            uttaksDato, fødselsdato, fødselsdato.minusDays(2), null, LovVersjoner.PROP15L2122);
+
+        // Act
+        var resultat = new OpptjeningsPeriode();
+        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, resultat);
+        // Assert
+        assertSkjæringsdato(resultat, fødselsdato.minusWeeks(2).minusDays(2));
+    }
+
+    @Test
+    public void farTerminEtterFødselBeholdUttakEnUkeFør() {
+        // Arrange
+        var fødselsdato = LocalDate.of(2022, Month.AUGUST, 10);
+        var uttaksDato = fødselsdato.minusWeeks(1);
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.FARA,
+            uttaksDato, fødselsdato, fødselsdato.plusDays(2), null, LovVersjoner.PROP15L2122);
+
+        // Act
+        var resultat = new OpptjeningsPeriode();
+        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, resultat);
+        // Assert
+        assertSkjæringsdato(resultat, fødselsdato.minusWeeks(1));
+    }
+
+    @Test
+    public void farTerminEtterFødselJusterTilToUker() {
+        // Arrange
+        var fødselsdato = LocalDate.of(2022, Month.AUGUST, 10);
+        var uttaksDato = fødselsdato.minusWeeks(3);
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.FARA,
+            uttaksDato, fødselsdato, fødselsdato.plusDays(2), null, LovVersjoner.PROP15L2122);
+
+        // Act
+        var resultat = new OpptjeningsPeriode();
+        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, resultat);
+        // Assert
+        assertSkjæringsdato(resultat, fødselsdato.minusWeeks(2).plusDays(2));
     }
 
     private void assertSkjæringsdato(OpptjeningsPeriode resultat, LocalDate expectedSTP) {
@@ -157,7 +246,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
 
     private OpptjeningsperiodeGrunnlag opprettOpptjeningsperiodeGrunnlagForMorFødsel(LocalDate terminDato, LocalDate hendelsesDato, LocalDate uttaksDato) {
         var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.MORA,
-            uttaksDato, hendelsesDato, terminDato, null);
+            uttaksDato, hendelsesDato, terminDato, null, LovVersjoner.KLASSISK);
         return regelmodell;
     }
 }

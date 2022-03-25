@@ -36,12 +36,12 @@ public class AksjonspunktUtlederForForeldrepengerFødsel extends AksjonspunktUtl
 
     @Override
     protected List<AksjonspunktResultat> utledAksjonspunkterForTerminbekreftelse(AksjonspunktUtlederInput param) {
-        return RelasjonsRolleType.erMor(param.getRelasjonsRolleType()) ? utledAksjonspunkterForMor(param)
-            : utledAksjonspunkterForFarMedmor();
+        return !RelasjonsRolleType.erMor(param.getRelasjonsRolleType()) && param.getSkjæringstidspunkt().utenMinsterett() ?
+            utledAksjonspunkterForFarMedmor() : utledAksjonspunkterForMor(param);
     }
 
     /**
-     * Utleder aksjonspunkter for far/medmor som hovedsøker
+     * Utleder aksjonspunkter for far/medmor som hovedsøker for tilfelle før Prop15L21/22
      */
     private List<AksjonspunktResultat> utledAksjonspunkterForFarMedmor() {
         List<AksjonspunktResultat> aksjonspunktResultater = new ArrayList<>();

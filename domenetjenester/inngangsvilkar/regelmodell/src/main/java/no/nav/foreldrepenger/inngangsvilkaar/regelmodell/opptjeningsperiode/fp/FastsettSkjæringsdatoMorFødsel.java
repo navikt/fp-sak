@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeMellomregning;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
@@ -22,20 +23,19 @@ public class FastsettSkjæringsdatoMorFødsel extends LeafSpecification<Opptjeni
     public Evaluation evaluate(OpptjeningsperiodeMellomregning regelmodell) {
         var skjæringsDatoOpptjening = regelmodell.getGrunnlag().førsteUttaksDato();
 
-        var terminDato = regelmodell.getGrunnlag().terminDato();
+        var terminDato = Optional.ofNullable(regelmodell.getGrunnlag().terminDato());
+        var tidligsteUttakFørTermin = terminDato.map(t -> t.minus(regelmodell.getRegelParametre().morTidligsteUttakFørTerminPeriode()));
+        var senesteUttakFørTermin = terminDato.map(t -> t.minus(regelmodell.getRegelParametre().morSenesteUttakFørTerminPeriode()));
         var hendelsesDato = regelmodell.getGrunnlag().hendelsesDato();
 
-        var tidligsteUttakDato = hendelsesDato.minus(regelmodell.getRegelParametre().tidligsteUttakFørFødselPeriode());
-        if (terminDato != null && terminDato.isBefore(hendelsesDato)) {
-            tidligsteUttakDato = terminDato.minus(regelmodell.getRegelParametre().tidligsteUttakFørFødselPeriode());
-        }
+        var tidligsteUttakDato = tidligsteUttakFørTermin.isPresent() && tidligsteUttakFørTermin.get().isBefore(hendelsesDato) ? tidligsteUttakFørTermin.get() : hendelsesDato;
 
         if (skjæringsDatoOpptjening.isBefore(tidligsteUttakDato)) {
             skjæringsDatoOpptjening = tidligsteUttakDato;
         }
 
-        if (terminDato != null && skjæringsDatoOpptjening.isAfter(terminDato.minusWeeks(3))) {
-            skjæringsDatoOpptjening = terminDato.minusWeeks(3);
+        if (senesteUttakFørTermin.isPresent() && skjæringsDatoOpptjening.isAfter(senesteUttakFørTermin.get())) {
+            skjæringsDatoOpptjening = senesteUttakFørTermin.get();
         }
         // Tilfelle fødsel mer enn tre uker før termindato
         if (skjæringsDatoOpptjening.isAfter(hendelsesDato)) {

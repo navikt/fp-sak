@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeMellomregning;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
@@ -22,8 +23,14 @@ public class FastsettSkjæringsdatoAnnenFødsel extends LeafSpecification<Opptje
     public Evaluation evaluate(OpptjeningsperiodeMellomregning regelmodell) {
         var skjæringsDatoOpptjening = regelmodell.getGrunnlag().førsteUttaksDato();
 
-        if (skjæringsDatoOpptjening.isBefore(regelmodell.getGrunnlag().hendelsesDato())) {
-            skjæringsDatoOpptjening = regelmodell.getGrunnlag().hendelsesDato();
+        var terminDato = Optional.ofNullable(regelmodell.getGrunnlag().terminDato());
+        var tidligsteUttakFørTermin = terminDato.map(t -> t.minus(regelmodell.getRegelParametre().annenTidligsteUttakFørTerminPeriode()));
+        var hendelsesDato = regelmodell.getGrunnlag().hendelsesDato();
+
+        var tidligsteUttakDato = tidligsteUttakFørTermin.isPresent() && tidligsteUttakFørTermin.get().isBefore(hendelsesDato) ? tidligsteUttakFørTermin.get() : hendelsesDato;
+
+        if (skjæringsDatoOpptjening.isBefore(tidligsteUttakDato)) {
+            skjæringsDatoOpptjening = tidligsteUttakDato;
         }
 
         var morsMaksdato = regelmodell.getGrunnlag().morsMaksdatoOpt();
