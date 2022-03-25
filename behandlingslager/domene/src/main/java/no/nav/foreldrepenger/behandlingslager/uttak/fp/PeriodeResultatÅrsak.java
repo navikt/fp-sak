@@ -277,7 +277,7 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
             ADOPSJONSVILKÅRET_IKKE_OPPFYLT,
             FORELDREANSVARSVILKÅRET_IKKE_OPPFYLT,
             OPPTJENINGSVILKÅRET_IKKE_OPPFYLT,
-            BARN_OVER_3_ÅR, STØNADSPERIODE_NYTT_BARN);
+            STØNADSPERIODE_NYTT_BARN);
     }
 
     public static Set<PeriodeResultatÅrsak> årsakerTilAvslagPgaAnnenpart() {
