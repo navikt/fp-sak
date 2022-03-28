@@ -10,11 +10,12 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 
-@BehandlingStegRef(kode = "VURDERSRB")
+@BehandlingStegRef(kode = BehandlingStegKoder.SØKERS_RELASJON_TIL_BARN_KODE)
 @BehandlingTypeRef
 @FagsakYtelseTypeRef
 @ApplicationScoped

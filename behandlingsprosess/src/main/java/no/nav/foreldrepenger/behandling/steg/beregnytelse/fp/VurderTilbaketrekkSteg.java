@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -24,7 +25,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.AksjonspunktutlederTilbaketrekk;
 import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.KopierUtbetResultatTjeneste;
 
-@BehandlingStegRef(kode = "VURDER_TILBAKETREKK")
+@BehandlingStegRef(kode = BehandlingStegKoder.VURDER_TILBAKETREKK_KODE)
 @BehandlingTypeRef("BT-004")
 @FagsakYtelseTypeRef("FP")
 @FagsakYtelseTypeRef("SVP")

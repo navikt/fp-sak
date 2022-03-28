@@ -7,19 +7,11 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum Oppgavetyper implements Kodeverdi, MedOffisiellKode {
 
     BEHANDLE_SAK_VL("BEH_SAK_VL", "Behandle sak i VL"),
@@ -37,26 +29,14 @@ public enum Oppgavetyper implements Kodeverdi, MedOffisiellKode {
 
     private static final Map<String, Oppgavetyper> KODER = new LinkedHashMap<>();
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     Oppgavetyper(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-    }
-
-    @JsonCreator
-    public static Oppgavetyper fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent OppgaveÅrsak: " + kode);
-        }
-        return ad;
     }
 
     public static Map<String, Oppgavetyper> kodeMap() {
@@ -68,13 +48,11 @@ public enum Oppgavetyper implements Kodeverdi, MedOffisiellKode {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -103,6 +81,17 @@ public enum Oppgavetyper implements Kodeverdi, MedOffisiellKode {
         @Override
         public Oppgavetyper convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static Oppgavetyper fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent OppgaveÅrsak: " + kode);
+            }
+            return ad;
         }
     }
 

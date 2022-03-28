@@ -18,28 +18,17 @@ package no.nav.foreldrepenger.behandlingslager.virksomhet;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum ArbeidType implements Kodeverdi, MedOffisiellKode {
 
     ETTERLØNN_SLUTTPAKKE("ETTERLØNN_SLUTTPAKKE", "Etterlønn eller sluttpakke", null, true),
@@ -90,12 +79,11 @@ public enum ArbeidType implements Kodeverdi, MedOffisiellKode {
         }
     }
 
+    @JsonValue
     private String kode;
 
-    @JsonIgnore
     private String navn;
 
-    @JsonIgnore
     private String offisiellKode;
 
     private boolean visGui;
@@ -111,16 +99,10 @@ public enum ArbeidType implements Kodeverdi, MedOffisiellKode {
         this.offisiellKode = offisiellKode;
     }
 
-    public static ArbeidType finnForKodeverkEiersKode(String offisiellDokumentType) {
-        return List.of(values()).stream().filter(k -> Objects.equals(k.offisiellKode, offisiellDokumentType)).findFirst().orElse(UDEFINERT);
-    }
-
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static ArbeidType fraKode(@JsonProperty(value = "kode") Object node) {
-        if (node == null) {
+    public static ArbeidType fraKode(String kode) {
+        if (kode == null) {
             return null;
         }
-        var kode = TempAvledeKode.getVerdi(ArbeidType.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent ArbeidType: " + kode);
@@ -136,13 +118,11 @@ public enum ArbeidType implements Kodeverdi, MedOffisiellKode {
         return visGui;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;

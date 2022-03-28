@@ -1,5 +1,12 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
+import java.util.Collections;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
@@ -9,6 +16,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -17,14 +25,8 @@ import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 @FagsakYtelseTypeRef("FP")
-@BehandlingStegRef(kode = "FORS_BESTEBEREGNING")
+@BehandlingStegRef(kode = BehandlingStegKoder.FORESLÅ_BESTEBEREGNING_KODE)
 @BehandlingTypeRef
 @ApplicationScoped
 public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {

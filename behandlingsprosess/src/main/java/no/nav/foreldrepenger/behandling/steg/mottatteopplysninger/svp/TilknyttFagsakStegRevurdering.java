@@ -9,8 +9,9 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 
-@BehandlingStegRef(kode = "INSØK")
+@BehandlingStegRef(kode = BehandlingStegKoder.INNHENT_SØKNADOPP_KODE)
 @BehandlingTypeRef("BT-004")
 @FagsakYtelseTypeRef("SVP")
 @ApplicationScoped

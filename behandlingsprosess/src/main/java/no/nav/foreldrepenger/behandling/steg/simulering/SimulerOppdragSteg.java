@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -34,7 +35,7 @@ import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResul
 import no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste.SimuleringIntegrasjonTjeneste;
 import no.nav.vedtak.exception.TekniskException;
 
-@BehandlingStegRef(kode = "SIMOPP")
+@BehandlingStegRef(kode = BehandlingStegKoder.SIMULER_OPPDRAG_KODE)
 @BehandlingTypeRef
 @FagsakYtelseTypeRef
 @ApplicationScoped

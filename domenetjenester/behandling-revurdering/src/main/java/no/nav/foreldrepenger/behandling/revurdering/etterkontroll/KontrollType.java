@@ -7,18 +7,10 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum KontrollType implements Kodeverdi {
 
     MANGLENDE_FØDSEL("MANGLENDE_FØDSEL", "Kontroll manglende fødsel"),
@@ -28,9 +20,9 @@ public enum KontrollType implements Kodeverdi {
     private static final String KODEVERK = "ETTERKONTROLL_TYPE";
     private static final Map<String, KontrollType> KODER = new LinkedHashMap<>();
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     KontrollType(String kode) {
@@ -42,18 +34,6 @@ public enum KontrollType implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static KontrollType fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent KontrollType: " + kode);
-        }
-        return ad;
-    }
-
     public static Map<String, KontrollType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -63,13 +43,11 @@ public enum KontrollType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
@@ -93,6 +71,17 @@ public enum KontrollType implements Kodeverdi {
         @Override
         public KontrollType convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static KontrollType fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent KontrollType: " + kode);
+            }
+            return ad;
         }
     }
 

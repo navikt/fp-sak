@@ -4,19 +4,11 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
-@JsonFormat(shape = Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum NæringsinntektType implements Kodeverdi, MedOffisiellKode, YtelseType {
 
     VEDERLAG_DAGMAMMA_I_EGETHJEM("VEDERLAG_DAGMAMMA_I_EGETHJEM", "Vederlag dagmamma i egethjem", "vederlagDagmammaIEgetHjem"),
@@ -46,12 +38,10 @@ public enum NæringsinntektType implements Kodeverdi, MedOffisiellKode, YtelseTy
         }
     }
 
-    @JsonIgnore
     private String navn;
 
-    @JsonIgnore
     private String offisiellKode;
-
+    @JsonValue
     private String kode;
 
     NæringsinntektType(String kode, String navn, String offisiellKode) {
@@ -60,8 +50,7 @@ public enum NæringsinntektType implements Kodeverdi, MedOffisiellKode, YtelseTy
         this.offisiellKode = offisiellKode;
     }
 
-    @JsonCreator
-    public static NæringsinntektType fraKode(@JsonProperty("kode") String kode) {
+    public static NæringsinntektType fraKode(String kode) {
         if (kode == null) {
             return null;
         }
@@ -86,13 +75,11 @@ public enum NæringsinntektType implements Kodeverdi, MedOffisiellKode, YtelseTy
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
