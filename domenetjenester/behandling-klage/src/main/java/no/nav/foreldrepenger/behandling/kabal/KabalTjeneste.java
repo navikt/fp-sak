@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandling.kabal;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -21,6 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
@@ -100,8 +103,11 @@ public class KabalTjeneste {
             .map(Behandling::getBehandlendeEnhet).orElseThrow();
         var klageMottattDato  = utledDokumentMottattDato(klageBehandling);
         var klager = utledKlager(klageBehandling, resultat.getKlageResultat());
+        var sakMottattKaDato = klageBehandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA)
+            .map(Aksjonspunkt::getOpprettetTidspunkt).map(LocalDateTime::toLocalDate)
+            .orElse(LocalDate.now());
         var request = TilKabalDto.klage(klageBehandling, klager, enhet, finnDokumentReferanserForKlage(klageBehandling.getId(), resultat.getKlageResultat()),
-            klageMottattDato, klageMottattDato, List.of(brukHjemmel.getKabal()), resultat.getBegrunnelse());
+            klageMottattDato, klageMottattDato, sakMottattKaDato, List.of(brukHjemmel.getKabal()), resultat.getBegrunnelse());
         kabalKlient.sendTilKabal(request);
     }
 
@@ -120,9 +126,12 @@ public class KabalTjeneste {
         var klager = utledKlager(ankeBehandling, klageResultat);
         var bleKlageBehandletKabal = klageResultat.erBehandletAvKabal();
         var kildereferanse = bleKlageBehandletKabal ? klageBehandling.getUuid().toString() : ankeBehandling.getUuid().toString();
+        var sakMottattKaDato = klageBehandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE)
+            .map(Aksjonspunkt::getOpprettetTidspunkt).map(LocalDateTime::toLocalDate)
+            .orElse(LocalDate.now());
         var request = TilKabalDto.anke(ankeBehandling, kildereferanse, klager, enhet,
             finnDokumentReferanserForAnke(ankeBehandling.getId(), ankeResultat, bleKlageBehandletKabal),
-            ankeMottattDato, ankeMottattDato, List.of(brukHjemmel.getKabal()));
+            ankeMottattDato, ankeMottattDato, sakMottattKaDato, List.of(brukHjemmel.getKabal()));
         kabalKlient.sendTilKabal(request);
     }
 

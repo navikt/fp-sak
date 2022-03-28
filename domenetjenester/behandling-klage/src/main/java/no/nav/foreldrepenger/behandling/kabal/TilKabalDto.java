@@ -23,6 +23,7 @@ public record TilKabalDto(@NotNull Klager klager,
                           @NotNull String dvhReferanse,
                           @NotNull KlageAnke type,
                           @NotNull KabalYtelse ytelse,
+                          @NotNull LocalDate sakMottattKaDato, // Dagen KA skal ha fått vite om behandlingen
                           Sak fagsak,
                           List<String> hjemler,
                           String kommentar) {
@@ -33,11 +34,13 @@ public record TilKabalDto(@NotNull Klager klager,
                                     @NotNull List<DokumentReferanse> tilknyttedeJournalposter,
                                     @NotNull LocalDate brukersHenvendelseMottattNavDato, // Required Mottattdato?
                                     @NotNull LocalDate innsendtTilNav, // Innsendingsdato?
+                                    @NotNull LocalDate sakMottattKaDato, // Dagen KA skal ha fått vite om behandlingen
                                     List<String> hjemler,
                                     String kommentar) {
         return new TilKabalDto(klager, forrigeBehandlendeEnhet, tilknyttedeJournalposter,
-            brukersHenvendelseMottattNavDato, innsendtTilNav, Fagsystem.FPSAK.getOffisiellKode(),
-            behandling.getUuid().toString(), behandling.getUuid().toString(), KlageAnke.KLAGE, mapYtelseType(behandling),
+            brukersHenvendelseMottattNavDato, innsendtTilNav,
+            Fagsystem.FPSAK.getOffisiellKode(), behandling.getUuid().toString(), behandling.getUuid().toString(),
+            KlageAnke.KLAGE, mapYtelseType(behandling), sakMottattKaDato,
             new Sak(behandling.getFagsak().getSaksnummer().getVerdi(), Fagsystem.FPSAK.getOffisiellKode()),
             hjemler, kommentar);
     }
@@ -49,10 +52,12 @@ public record TilKabalDto(@NotNull Klager klager,
                                    @NotNull List<DokumentReferanse> tilknyttedeJournalposter,
                                    @NotNull LocalDate brukersHenvendelseMottattNavDato, // Required Mottattdato?
                                    @NotNull LocalDate innsendtTilNav, // Innsendingsdato?
+                                   @NotNull LocalDate sakMottattKaDato, // Dagen KA skal ha fått vite om behandlingen
                                    List<String> hjemler) {
         return new TilKabalDto(klager, forrigeBehandlendeEnhet, tilknyttedeJournalposter,
-            brukersHenvendelseMottattNavDato, innsendtTilNav, Fagsystem.FPSAK.getOffisiellKode(),
-            kildereferanse, behandling.getUuid().toString(), KlageAnke.ANKE, mapYtelseType(behandling),
+            brukersHenvendelseMottattNavDato, innsendtTilNav,
+            Fagsystem.FPSAK.getOffisiellKode(), kildereferanse, behandling.getUuid().toString(),
+            KlageAnke.ANKE, mapYtelseType(behandling), sakMottattKaDato,
             new Sak(behandling.getFagsak().getSaksnummer().getVerdi(), Fagsystem.FPSAK.getOffisiellKode()),
             hjemler, "");
     }
