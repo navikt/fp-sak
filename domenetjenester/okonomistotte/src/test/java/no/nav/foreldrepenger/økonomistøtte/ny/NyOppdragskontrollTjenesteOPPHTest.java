@@ -334,7 +334,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var originaltOppdrag = Oppdragskontroll.builder().medBehandlingId(BEHANDLING_ID).medSaksnummer(SAKSNUMMER).medProsessTaskId(PROSESS_TASK_ID).medVenterKvittering(Boolean.FALSE).build();
         var oppdragAg = Oppdrag110.builder()
             .medKodeEndring(KodeEndring.NY)
-            .medKodeFagomrade(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER)
+            .medKodeFagomrade(KodeFagområde.FPREF)
             .medFagSystemId(Long.parseLong(SAKSNUMMER.getVerdi() + "100"))
             .medOppdragGjelderId(BRUKER_FNR)
             .medSaksbehId(ANSVARLIG_SAKSBEHANDLER)
@@ -647,6 +647,6 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
     }
 
     private boolean gjelderFagområdeBruker(Oppdrag110 oppdrag110) {
-        return KodeFagområde.FORELDREPENGER_BRUKER.equals(oppdrag110.getKodeFagomrade());
+        return KodeFagområde.FP.equals(oppdrag110.getKodeFagomrade());
     }
 }

@@ -17,7 +17,7 @@ public class OppdragKvitteringEntityTest {
     private OppdragKvittering oppdragKvittering;
     private OppdragKvittering oppdragKvittering_2;
 
-    private static final KodeFagområde KODEFAGOMRADE = KodeFagområde.FORELDREPENGER_BRUKER;
+    private static final KodeFagområde KODEFAGOMRADE = KodeFagområde.FP;
     private static final Alvorlighetsgrad ALVORLIGHETSGRAD = Alvorlighetsgrad.OK;
     private static final String BESKR_MELDING = "Beskr melding";
     private static final String MELDING_KODE = "Melding kode";

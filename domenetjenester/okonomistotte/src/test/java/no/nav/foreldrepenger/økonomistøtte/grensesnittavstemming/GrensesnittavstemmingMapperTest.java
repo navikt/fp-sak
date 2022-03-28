@@ -54,11 +54,11 @@ public class GrensesnittavstemmingMapperTest {
         oppdr110Builder = Oppdrag110.builder();
         oppdrLinje150Builder = Oppdragslinje150.builder();
         oppdragKvitteringBuilder = OppdragKvittering.builder();
-        kodeFagområde = KodeFagområde.FORELDREPENGER_ARBEIDSGIVER;
+        kodeFagområde = KodeFagområde.FPREF;
         var oppdragskontroll = opprettOppdrag(null, kodeFagområde);
 
         oppdragsliste = Collections.singletonList(oppdragskontroll.getOppdrag110Liste().get(0));
-        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.getKode());
+        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.name());
     }
 
     private Oppdragskontroll opprettOppdrag(Alvorlighetsgrad status, KodeFagområde fagområde) {
@@ -117,7 +117,7 @@ public class GrensesnittavstemmingMapperTest {
             oppdrag = opprettOppdrag(Alvorlighetsgrad.OK_MED_MERKNAD, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
         }
-        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.getKode());
+        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.name());
     }
 
     private void setupForStørreDatamengder(KodeFagområde kodeFagområde) {
@@ -136,27 +136,27 @@ public class GrensesnittavstemmingMapperTest {
             oppdrag = opprettOppdrag(Alvorlighetsgrad.OK_MED_MERKNAD, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
         }
-        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.getKode());
+        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.name());
     }
 
     private void opprettOppdragMedFlereOppdrag110ForForskjelligeFagområder() {
         oppdragsliste = new ArrayList<>();
 
-        var oppdrag = opprettOppdrag(Alvorlighetsgrad.OK, KodeFagområde.FORELDREPENGER_BRUKER);
+        var oppdrag = opprettOppdrag(Alvorlighetsgrad.OK, KodeFagområde.FP);
         var oppdrag2 = opprettOppdrag(Alvorlighetsgrad.OK, kodeFagområde);
-        var oppdrag3 = opprettOppdrag(Alvorlighetsgrad.OK, KodeFagområde.ENGANGSSTØNAD);
+        var oppdrag3 = opprettOppdrag(Alvorlighetsgrad.OK, KodeFagområde.REFUTG);
         oppdrag.getOppdrag110Liste().add(oppdrag2.getOppdrag110Liste().get(0));
         oppdrag.getOppdrag110Liste().add(oppdrag3.getOppdrag110Liste().get(0));
 
         oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
-        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.getKode());
+        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.name());
     }
 
     @Test
     public void testDatameldingXMLvedStoreDatamengder() {
         // Arrange
-        setupForStoreDatamengder(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
+        setupForStoreDatamengder(KodeFagområde.FPREF);
         // Act
         var meldinger = grensesnittavstemmingMapper.lagDatameldinger();
         // Assert
@@ -210,7 +210,7 @@ public class GrensesnittavstemmingMapperTest {
     @Test
     public void testDatameldingVedStoreDatamengder() {
         // Arrange
-        var kodeFagområde = KodeFagområde.ENGANGSSTØNAD;
+        var kodeFagområde = KodeFagområde.REFUTG;
         setupForStoreDatamengder(kodeFagområde);
         // Act
         var avstemmingsdataListe = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
@@ -224,7 +224,7 @@ public class GrensesnittavstemmingMapperTest {
     @Test
     public void testAtSisteDataHarInnslag() {
         // Arrange
-        setupForStørreDatamengder(KodeFagområde.FORELDREPENGER_BRUKER);
+        setupForStørreDatamengder(KodeFagområde.FP);
         // Act
         var avstemmingsdataListe = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
         // Assert
@@ -239,7 +239,7 @@ public class GrensesnittavstemmingMapperTest {
         var avstemmingsdataListe = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
         // Assert
         assertThat(avstemmingsdataListe).hasSize(1);
-        assertThat(avstemmingsdataListe.get(avstemmingsdataListe.size() - 1).getAksjon().getUnderkomponentKode()).isEqualTo(kodeFagområde.getKode());
+        assertThat(avstemmingsdataListe.get(avstemmingsdataListe.size() - 1).getAksjon().getUnderkomponentKode()).isEqualTo(kodeFagområde.name());
     }
 
     @Test
@@ -259,7 +259,7 @@ public class GrensesnittavstemmingMapperTest {
         oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
         //Act
-        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.getKode());
+        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.name());
 
         var avstemmingsdata = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
 
@@ -306,12 +306,12 @@ public class GrensesnittavstemmingMapperTest {
         assertThat(aksjon).isNotNull();
         assertThat(aksjon.getAksjonType()).isEqualTo(aksjonType);
         assertThat(aksjon.getAvleverendeAvstemmingId()).isNotNull();
-        assertThat(aksjon.getAvleverendeKomponentKode()).isEqualTo(ØkonomiKodekomponent.VLFP.getKode());
+        assertThat(aksjon.getAvleverendeKomponentKode()).isEqualTo(ØkonomiKodekomponent.VLFP.name());
         assertThat(aksjon.getAvstemmingType()).isEqualTo(AvstemmingType.GRSN);
         assertThat(aksjon.getBrukerId()).isEqualTo(GrensesnittavstemmingMapper.BRUKER_ID_FOR_VEDTAKSLØSNINGEN);
         assertThat(aksjon.getKildeType()).isEqualTo(KildeType.AVLEV);
-        assertThat(aksjon.getMottakendeKomponentKode()).isEqualTo(ØkonomiKodekomponent.OS.getKode());
-        assertThat(aksjon.getUnderkomponentKode()).isEqualTo(kodeFagområde.getKode());
+        assertThat(aksjon.getMottakendeKomponentKode()).isEqualTo(ØkonomiKodekomponent.OS.name());
+        assertThat(aksjon.getUnderkomponentKode()).isEqualTo(kodeFagområde.name());
     }
 
     //    ---------------------------------------------

@@ -357,7 +357,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         //Oppdrag110 for Bruker
         var oppdrag110ForBruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdrag110Liste);
         //TODO - sjekk om 116 sakal være med assertThat(oppdrag110ForBruker.getOmpostering116()).isNotPresent();
-        assertThat(oppdrag110ForBruker.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
+        assertThat(oppdrag110ForBruker.getKodeFagomrade()).isEqualTo(KodeFagområde.FP);
         assertThat(oppdrag110ForBruker.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         //Oppdragslinje150 for Bruker
         var opp150ListeForBruker = oppdrag110ForBruker.getOppdragslinje150Liste();
@@ -421,11 +421,11 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         //Oppdrag110 for Bruker
         var oppdrag110ForBruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdrag110Liste);
         // TODO ID116?? assertThat(oppdrag110ForBruker.getOmpostering116()).isNotPresent();
-        assertThat(oppdrag110ForBruker.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
+        assertThat(oppdrag110ForBruker.getKodeFagomrade()).isEqualTo(KodeFagområde.FP);
         assertThat(oppdrag110ForBruker.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         //Oppdrag110 for Arbeidsgiver
         var oppdrag110ForArbeidsgiver = OppdragskontrollTestVerktøy.getOppdrag110ForArbeidsgiver(oppdrag110Liste, virksomhet);
-        assertThat(oppdrag110ForArbeidsgiver.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
+        assertThat(oppdrag110ForArbeidsgiver.getKodeFagomrade()).isEqualTo(KodeFagområde.FPREF);
         assertThat(oppdrag110ForArbeidsgiver.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         //Oppdragslinje150 for Bruker
         var opp150ListeForBruker = oppdrag110ForBruker.getOppdragslinje150Liste();
@@ -506,7 +506,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         assertThat(oppdrag110Liste).hasSize(1);
         //Oppdrag110 for Arbeidsgivere
         assertThat(oppdrag110Liste).allSatisfy(oppdrag110ForArbeidsgiver -> {
-            assertThat(oppdrag110ForArbeidsgiver.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
+            assertThat(oppdrag110ForArbeidsgiver.getKodeFagomrade()).isEqualTo(KodeFagområde.FPREF);
             assertThat(oppdrag110ForArbeidsgiver.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         });
         //Oppdragslinje150 for Arbeidsgiver#1

@@ -269,7 +269,7 @@ class OppdragInputTjenesteTest {
     private Oppdrag110 lagOppdrag(Oppdragskontroll oppdragskontroll, Saksnummer saksnummer) {
         return Oppdrag110.builder()
             .medKodeEndring(KodeEndring.NY)
-            .medKodeFagomrade(KodeFagområde.ENGANGSSTØNAD)
+            .medKodeFagomrade(KodeFagområde.REFUTG)
             .medOppdragGjelderId(saksnummer.getVerdi())
             .medSaksbehId("Z100000")
             .medAvstemming(Avstemming.ny())

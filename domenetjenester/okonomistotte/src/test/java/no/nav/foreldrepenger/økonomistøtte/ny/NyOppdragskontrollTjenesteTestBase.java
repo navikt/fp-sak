@@ -404,7 +404,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
                 var opp110 = refusjonsinfo156.get().getOppdragslinje150().getOppdrag110();
                 assertThat(opp110.getKodeEndring()).isEqualTo(KodeEndring.NY);
             } else {
-                assertThat(oppdr110Revurd.getKodeEndring()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER
+                assertThat(oppdr110Revurd.getKodeEndring()).isEqualTo(KodeFagområde.FP
                     .equals(
                         oppdr110Revurd.getKodeFagomrade()) ? KodeEndring.ENDR : KodeEndring.ENDR);
             }

@@ -31,14 +31,12 @@ public class ØkonomioppdragRepository {
         this.entityManager = entityManager;
     }
 
-
     public Oppdragskontroll hentOppdragskontroll(long oppdragskontrollId) {
         var query = entityManager.createQuery(
             "from Oppdragskontroll where id=:oppdragskontrollId", Oppdragskontroll.class); //$NON-NLS-1$
         query.setParameter("oppdragskontrollId", oppdragskontrollId); //$NON-NLS-1$
         return hentEksaktResultat(query);
     }
-
 
     public List<Oppdrag110> hentOppdrag110ForPeriodeOgFagområde(LocalDate fomDato, LocalDate tomDato, KodeFagområde fagområde) {
         Objects.requireNonNull(fomDato, "fomDato");

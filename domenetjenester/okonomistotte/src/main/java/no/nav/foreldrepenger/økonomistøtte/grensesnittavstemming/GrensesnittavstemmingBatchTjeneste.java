@@ -37,7 +37,7 @@ public class GrensesnittavstemmingBatchTjeneste implements BatchTjeneste {
     }
 
     private void utførGrensesnittavstemming(LocalDate fomDato, LocalDate tomDato, String fagområde) {
-        var oppdragsliste = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(fomDato, tomDato, KodeFagområde.fraKode(fagområde));
+        var oppdragsliste = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(fomDato, tomDato, KodeFagområde.valueOf(fagområde));
         if (oppdragsliste.isEmpty()) {
             LOG.info("Ingen oppdrag funnet for periode {} - {} for fagområde {}. Grensesnittavstemming ikke utført.", fomDato, tomDato, fagområde); //NOSONAR
             return;

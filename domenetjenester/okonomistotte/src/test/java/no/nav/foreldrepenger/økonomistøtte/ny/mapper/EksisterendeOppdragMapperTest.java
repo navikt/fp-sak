@@ -165,7 +165,7 @@ public class EksisterendeOppdragMapperTest {
     private Oppdrag110 lagOppdrag110(Oppdragskontroll oppdragskontroll, FagsystemId fagsystemId) {
         return Oppdrag110.builder()
             .medKodeEndring(KodeEndring.NY)
-            .medKodeFagomrade(KodeFagområde.FORELDREPENGER_BRUKER)
+            .medKodeFagomrade(KodeFagområde.FP)
             .medOppdragGjelderId(frnBruker)
             .medSaksbehId("Z100000")
             .medAvstemming(Avstemming.ny())

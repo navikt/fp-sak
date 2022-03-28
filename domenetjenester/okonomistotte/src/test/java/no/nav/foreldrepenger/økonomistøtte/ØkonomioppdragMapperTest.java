@@ -198,11 +198,11 @@ public class ØkonomioppdragMapperTest {
             var oppdrag110Generert = oppdrag.getOppdrag110();
             assertThat(oppdrag110Generert.getKodeAksjon()).isEqualTo(KODE_AKSJON);
             assertThat(oppdrag110Generert.getKodeEndring()).isEqualTo(oppdrag110.getKodeEndring().name());
-            assertThat(oppdrag110Generert.getKodeFagomraade()).isEqualTo(oppdrag110.getKodeFagomrade().getKode());
+            assertThat(oppdrag110Generert.getKodeFagomraade()).isEqualTo(oppdrag110.getKodeFagomrade().name());
             assertThat(oppdrag110Generert.getUtbetFrekvens()).isEqualTo(UTBET_FREKVENS);
 
             var avstemming115Generert = oppdrag110Generert.getAvstemming115();
-            assertThat(avstemming115Generert.getKodeKomponent()).isEqualTo(ØkonomiKodekomponent.VLFP.getKode());
+            assertThat(avstemming115Generert.getKodeKomponent()).isEqualTo(ØkonomiKodekomponent.VLFP.name());
             assertThat(avstemming115Generert.getNokkelAvstemming()).isEqualTo(oppdrag110.getAvstemming().getNøkkel());
             assertThat(avstemming115Generert.getTidspktMelding()).isEqualTo(oppdrag110.getAvstemming().getTidspunkt());
 
@@ -266,7 +266,7 @@ public class ØkonomioppdragMapperTest {
     private List<Refusjonsinfo156> buildRefusjonsinfo156(List<Oppdragslinje150> oppdragslinje150Liste) {
         List<Refusjonsinfo156> refusjonsinfo156Liste = new ArrayList<>();
         var oppdragslinje150List = oppdragslinje150Liste.stream().
-            filter(oppdragslinje150 -> oppdragslinje150.getOppdrag110().getKodeFagomrade().getKode().equals("FPREF")).collect(Collectors.toList());
+            filter(oppdragslinje150 -> oppdragslinje150.getOppdrag110().getKodeFagomrade().name().equals("FPREF")).collect(Collectors.toList());
         for (var opp150 : oppdragslinje150List) {
             refusjonsinfo156Liste.add(buildRefusjonsinfo156(opp150));
         }
@@ -353,7 +353,7 @@ public class ØkonomioppdragMapperTest {
 
         var oppdrag110_1 = Oppdrag110.builder()
             .medKodeEndring(KodeEndring.NY)
-            .medKodeFagomrade(gjelderFP ? KodeFagområde.FORELDREPENGER_BRUKER : KodeFagområde.ENGANGSSTØNAD)
+            .medKodeFagomrade(gjelderFP ? KodeFagområde.FP : KodeFagområde.REFUTG)
             .medFagSystemId(44L)
             .medOppdragGjelderId("12345678901")
             .medSaksbehId("J5624215")
@@ -371,7 +371,7 @@ public class ØkonomioppdragMapperTest {
         if (gjelderFP) {
             var oppdrag110_2 = Oppdrag110.builder()
                 .medKodeEndring(KodeEndring.NY)
-                .medKodeFagomrade(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER)
+                .medKodeFagomrade(KodeFagområde.FPREF)
                 .medFagSystemId(55L)
                 .medOppdragGjelderId("12345678901")
                 .medSaksbehId("J5624215")

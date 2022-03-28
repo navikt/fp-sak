@@ -57,7 +57,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         // Assert
 
         var oppdragListe = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now(),
-            LocalDate.now(), KodeFagområde.ENGANGSSTØNAD);
+            LocalDate.now(), KodeFagområde.REFUTG);
         assertThat(oppdragListe.stream().map(o -> o.getOppdragskontroll().getBehandlingId())).contains(behandlingId);
     }
 
@@ -115,7 +115,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     public void lagreOgSøkeOppOppdragskontrollForPeriodeUtenResultat() {
         //Testene kjøres ikke mot tom db
         var førSize = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now().minusDays(1),
-            LocalDate.now().minusDays(1), KodeFagområde.ENGANGSSTØNAD).size();
+            LocalDate.now().minusDays(1), KodeFagområde.REFUTG).size();
         // Arrange
         var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
 
@@ -125,7 +125,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         // Assert
 
         var oppdragListe = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now().minusDays(1),
-            LocalDate.now().minusDays(1), KodeFagområde.ENGANGSSTØNAD).size();
+            LocalDate.now().minusDays(1), KodeFagområde.REFUTG).size();
         assertThat(oppdragListe).isEqualTo(førSize);
     }
 

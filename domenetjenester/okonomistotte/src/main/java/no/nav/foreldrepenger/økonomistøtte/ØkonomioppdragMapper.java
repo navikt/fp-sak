@@ -90,7 +90,7 @@ public class ØkonomioppdragMapper {
 
         oppdrag110.setKodeAksjon(KODE_AKSJON);
         oppdrag110.setKodeEndring(okoOppdrag110.getKodeEndring().name());
-        oppdrag110.setKodeFagomraade(kodeFagområde.getKode());
+        oppdrag110.setKodeFagomraade(kodeFagområde.name());
         oppdrag110.setFagsystemId(String.valueOf(okoOppdrag110.getFagsystemId()));
         oppdrag110.setUtbetFrekvens(UTBET_FREKVENS);
         oppdrag110.setOppdragGjelderId(okoOppdrag110.getOppdragGjelderId());
@@ -120,7 +120,7 @@ public class ØkonomioppdragMapper {
         final var avstemming115 =
             objectFactory.createAvstemming115();
 
-        avstemming115.setKodeKomponent(ØkonomiKodekomponent.VLFP.getKode());
+        avstemming115.setKodeKomponent(ØkonomiKodekomponent.VLFP.name());
         avstemming115.setNokkelAvstemming(avstemming.getNøkkel());
         avstemming115.setTidspktMelding(avstemming.getTidspunkt());
 

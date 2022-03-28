@@ -16,7 +16,7 @@ public class Oppdrag110EntityTest {
     private Oppdrag110 oppdrag110_2;
 
     private static final KodeEndring KODEENDRING = KodeEndring.ENDR;
-    private static final KodeFagområde KODEFAGOMRADE = KodeFagområde.ENGANGSSTØNAD;
+    private static final KodeFagområde KODEFAGOMRADE = KodeFagområde.REFUTG;
     private static final Long FAGSYSTEMID = 250L;
     private static final String OPPDRAGGJELDERID = "1";
     private static final String SAKSBEHID = "Z1236525";

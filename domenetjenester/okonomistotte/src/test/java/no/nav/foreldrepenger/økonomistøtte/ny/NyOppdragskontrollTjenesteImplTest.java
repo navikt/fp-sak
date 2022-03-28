@@ -56,7 +56,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
 
             // Verifiser andeler
             var mottakere110 = ok.getOppdrag110Liste();
-            varifiserMottakere110(mottakere110, gruppertYtelse.getNøkler().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER, KodeFagområde.FORELDREPENGER_ARBEIDSGIVER));
+            varifiserMottakere110(mottakere110, gruppertYtelse.getNøkler().size(), List.of(KodeFagområde.FP, KodeFagområde.FPREF));
 
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_REFUSJON_AG));
@@ -94,7 +94,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
 
             // Verifiser andeler
             var mottakere110 = ok.getOppdrag110Liste();
-            varifiserMottakere110(mottakere110, gruppertYtelse.getNøkler().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER));
+            varifiserMottakere110(mottakere110, gruppertYtelse.getNøkler().size(), List.of(KodeFagområde.FP));
 
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER));
@@ -138,7 +138,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
 
             // Verifiser andeler
             var mottakere110 = ok.getOppdrag110Liste();
-            varifiserMottakere110(mottakere110, gruppertYtelse.getNøkler().size(), List.of(KodeFagområde.SVANGERSKAPSPENGER_BRUKER));
+            varifiserMottakere110(mottakere110, gruppertYtelse.getNøkler().size(), List.of(KodeFagområde.SVP));
 
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.SVP_ARBEDISTAKER));
@@ -169,7 +169,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
 
             // Verifiser andeler
             var mottakere110 = ok.getOppdrag110Liste();
-            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER, KodeFagområde.FORELDREPENGER_ARBEIDSGIVER));
+            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FP, KodeFagområde.FPREF));
 
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_REFUSJON_AG, KodeKlassifik.FERIEPENGER_BRUKER, KodeKlassifik.FPF_FERIEPENGER_AG));
@@ -198,7 +198,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
 
             // Verifiser andeler
             var mottakere110 = ok.getOppdrag110Liste();
-            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER, KodeFagområde.FORELDREPENGER_ARBEIDSGIVER));
+            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FP, KodeFagområde.FPREF));
 
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_REFUSJON_AG, KodeKlassifik.FPF_SELVSTENDIG));
@@ -287,7 +287,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
 
             // Verifiser andeler
             var mottakere110 = ok.getOppdrag110Liste();
-            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER, KodeFagområde.FORELDREPENGER_ARBEIDSGIVER));
+            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FP, KodeFagområde.FPREF));
 
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_REFUSJON_AG, KodeKlassifik.FPF_SELVSTENDIG));
