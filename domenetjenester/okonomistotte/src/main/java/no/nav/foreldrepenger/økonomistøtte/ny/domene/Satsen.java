@@ -10,7 +10,7 @@ public class Satsen {
         return new Satsen(SatsType.DAG, sats);
     }
     public static Satsen engang(long sats) {
-        return new Satsen(SatsType.ENGANG, sats);
+        return new Satsen(SatsType.ENG, sats);
     }
 
     public Satsen(SatsType satsType, long sats) {

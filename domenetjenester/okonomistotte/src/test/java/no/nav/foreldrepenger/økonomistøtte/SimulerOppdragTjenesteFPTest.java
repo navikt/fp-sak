@@ -95,7 +95,7 @@ public class SimulerOppdragTjenesteFPTest {
             .medDelytelseId(1L)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(Sats.på(1122L))
-            .medTypeSats(TypeSats.DAGLIG)
+            .medTypeSats(TypeSats.DAG)
             .medUtbetalesTilId("123456789")
             .medKodeKlassifik(KodeKlassifik.FPF_ARBEIDSTAKER)
             .medOppdrag110(oppdrag110)

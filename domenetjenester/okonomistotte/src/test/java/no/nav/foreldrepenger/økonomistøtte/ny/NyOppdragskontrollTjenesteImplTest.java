@@ -661,7 +661,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
         assertThat(oppdragLinjer150.stream()).allSatisfy(periode150 -> {
             assertThat(periode150.getKodeKlassifik()).isIn(forventetKodeKlasifikk);
             assertThat(periode150.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.NY);
-            assertThat(periode150.getTypeSats()).isEqualTo(periode150.getKodeKlassifik().gjelderFeriepenger() ? TypeSats.ENGANG : TypeSats.DAGLIG);
+            assertThat(periode150.getTypeSats()).isEqualTo(periode150.getKodeKlassifik().gjelderFeriepenger() ? TypeSats.ENG : TypeSats.DAG);
             assertThat(periode150.getVedtakId()).isEqualTo(VEDTAKSDATO.toString());
             if (!periode150.getKodeKlassifik().gjelderFeriepenger()) {
                 assertThat(periode150.getUtbetalingsgrad()).isNotNull();

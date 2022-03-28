@@ -15,7 +15,7 @@ public class Oppdrag110EntityTest {
     private Oppdrag110 oppdrag110;
     private Oppdrag110 oppdrag110_2;
 
-    private static final KodeEndring KODEENDRING = KodeEndring.ENDRING;
+    private static final KodeEndring KODEENDRING = KodeEndring.ENDR;
     private static final KodeFagområde KODEFAGOMRADE = KodeFagområde.ENGANGSSTØNAD;
     private static final Long FAGSYSTEMID = 250L;
     private static final String OPPDRAGGJELDERID = "1";
@@ -110,7 +110,7 @@ public class Oppdrag110EntityTest {
         assertThat(oppdrag110).isEqualTo(oppdrag110_2);
         assertThat(oppdrag110_2).isEqualTo(oppdrag110);
 
-        oppdrag110_2 = oppdrag110Builder.medKodeEndring(KodeEndring.UENDRET).build();
+        oppdrag110_2 = oppdrag110Builder.medKodeEndring(KodeEndring.UEND).build();
         assertThat(oppdrag110).isNotEqualTo(oppdrag110_2);
         assertThat(oppdrag110_2).isNotEqualTo(oppdrag110);
     }
@@ -119,7 +119,7 @@ public class Oppdrag110EntityTest {
     public void skal_bruke_KodeEndring_i_equalsOgHashCode() {
         oppdrag110Builder = lagBuilderMedPaakrevdeFelter();
         oppdrag110 = oppdrag110Builder.build();
-        oppdrag110Builder.medKodeEndring(KodeEndring.UENDRET);
+        oppdrag110Builder.medKodeEndring(KodeEndring.UEND);
         oppdrag110_2 = oppdrag110Builder.build();
 
         assertThat(oppdrag110).isNotEqualTo(oppdrag110_2);

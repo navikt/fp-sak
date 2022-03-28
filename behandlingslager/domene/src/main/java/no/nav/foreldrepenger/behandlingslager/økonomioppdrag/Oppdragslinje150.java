@@ -1,4 +1,3 @@
-
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
 import java.time.LocalDate;
@@ -10,6 +9,8 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -41,7 +42,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OKO_OPPDRAG_LINJE_150")
     private Long id;
 
-    @Convert(converter = KodeEndringLinje.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "kode_endring_linje", nullable = false)
     private KodeEndringLinje kodeEndringLinje;
 
@@ -56,17 +57,14 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     private KodeKlassifik kodeKlassifik;
 
     @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "fomDato", column = @Column(name = "dato_vedtak_fom", nullable = false)),
-        @AttributeOverride(name = "tomDato", column = @Column(name = "dato_vedtak_tom", nullable = false))
-    })
+    @AttributeOverrides({@AttributeOverride(name = "fomDato", column = @Column(name = "dato_vedtak_fom", nullable = false)), @AttributeOverride(name = "tomDato", column = @Column(name = "dato_vedtak_tom", nullable = false))})
     private DatoIntervallEntitet vedtakPeriode;
 
     @Embedded
     @AttributeOverrides(@AttributeOverride(name = "sats", column = @Column(name = "sats", nullable = false)))
     private Sats sats;
 
-    @Convert(converter = TypeSats.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "type_sats", nullable = false)
     private TypeSats typeSats;
 
@@ -77,7 +75,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @Embedded
     private Utbetalingsgrad utbetalingsgrad;
 
-    @Convert(converter = KodeStatusLinje.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "kode_status_linje")
     private KodeStatusLinje kodeStatusLinje;
 
@@ -96,7 +94,8 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdragslinje150")
     private Refusjonsinfo156 refusjonsinfo156;
 
-    protected Oppdragslinje150() {}
+    protected Oppdragslinje150() {
+    }
 
     public static Builder builder() {
         return new Builder();
@@ -196,25 +195,19 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             return false;
         }
         var oppdrlinje150 = (Oppdragslinje150) object;
-        return Objects.equals(kodeEndringLinje, oppdrlinje150.getKodeEndringLinje())
-            && Objects.equals(kodeStatusLinje, oppdrlinje150.getKodeStatusLinje())
-            && Objects.equals(datoStatusFom, oppdrlinje150.getDatoStatusFom())
-            && Objects.equals(vedtakId, oppdrlinje150.getVedtakId())
-            && Objects.equals(delytelseId, oppdrlinje150.getDelytelseId())
-            && Objects.equals(kodeKlassifik, oppdrlinje150.getKodeKlassifik())
-            && Objects.equals(vedtakPeriode, oppdrlinje150.vedtakPeriode)
-            && Objects.equals(sats, oppdrlinje150.getSats())
-            && Objects.equals(typeSats, oppdrlinje150.getTypeSats())
-            && Objects.equals(utbetalesTilId, oppdrlinje150.getUtbetalesTilId())
-            && Objects.equals(refFagsystemId, oppdrlinje150.getRefFagsystemId())
-            && Objects.equals(refDelytelseId, oppdrlinje150.getRefDelytelseId())
-            && Objects.equals(utbetalingsgrad, oppdrlinje150.getUtbetalingsgrad());
+        return Objects.equals(kodeEndringLinje, oppdrlinje150.getKodeEndringLinje()) && Objects.equals(kodeStatusLinje,
+            oppdrlinje150.getKodeStatusLinje()) && Objects.equals(datoStatusFom, oppdrlinje150.getDatoStatusFom()) && Objects.equals(vedtakId,
+            oppdrlinje150.getVedtakId()) && Objects.equals(delytelseId, oppdrlinje150.getDelytelseId()) && Objects.equals(kodeKlassifik,
+            oppdrlinje150.getKodeKlassifik()) && Objects.equals(vedtakPeriode, oppdrlinje150.vedtakPeriode) && Objects.equals(sats,
+            oppdrlinje150.getSats()) && Objects.equals(typeSats, oppdrlinje150.getTypeSats()) && Objects.equals(utbetalesTilId,
+            oppdrlinje150.getUtbetalesTilId()) && Objects.equals(refFagsystemId, oppdrlinje150.getRefFagsystemId()) && Objects.equals(refDelytelseId,
+            oppdrlinje150.getRefDelytelseId()) && Objects.equals(utbetalingsgrad, oppdrlinje150.getUtbetalingsgrad());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(kodeEndringLinje, kodeStatusLinje, datoStatusFom, vedtakId, delytelseId, kodeKlassifik,
-            vedtakPeriode, sats, typeSats, utbetalesTilId, refFagsystemId, refDelytelseId, utbetalingsgrad);
+        return Objects.hash(kodeEndringLinje, kodeStatusLinje, datoStatusFom, vedtakId, delytelseId, kodeKlassifik, vedtakPeriode, sats, typeSats,
+            utbetalesTilId, refFagsystemId, refDelytelseId, utbetalingsgrad);
     }
 
     @Override

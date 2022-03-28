@@ -118,7 +118,7 @@ public class GrensesnittavstemmingBatchTjenesteTest {
             .medKodeKlassifik(KodeKlassifik.ES_FØDSEL)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(Sats.på(654L))
-            .medTypeSats(TypeSats.ENGANG)
+            .medTypeSats(TypeSats.ENG)
             .medUtbetalesTilId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
             .medOppdrag110(o110)
             .build();

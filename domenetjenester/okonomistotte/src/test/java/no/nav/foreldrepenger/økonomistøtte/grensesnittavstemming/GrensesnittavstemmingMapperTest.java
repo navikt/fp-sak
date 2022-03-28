@@ -319,15 +319,15 @@ public class GrensesnittavstemmingMapperTest {
     private Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110) {
 
         return oppdrLinje150Builder
-            .medKodeEndringLinje(KodeEndringLinje.ENDRING)
-            .medKodeStatusLinje(KodeStatusLinje.OPPHØR)
+            .medKodeEndringLinje(KodeEndringLinje.ENDR)
+            .medKodeStatusLinje(KodeStatusLinje.OPPH)
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("345")
             .medDelytelseId(64L)
             .medKodeKlassifik(KodeKlassifik.ES_FØDSEL)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(Sats.på(61122L))
-            .medTypeSats(TypeSats.ENGANG)
+            .medTypeSats(TypeSats.ENG)
             .medUtbetalesTilId("123456789")
             .medOppdrag110(oppdrag110)
             .build();

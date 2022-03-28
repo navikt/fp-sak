@@ -269,15 +269,15 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
             .medKodeKlassifik(finnKodeKlassifik(erBruker))
             .medVedtakFomOgTom(datoVedtakFom, datoVedtakTom)
             .medSats(Sats.på(1000L))
-            .medTypeSats(TypeSats.DAGLIG)
+            .medTypeSats(TypeSats.DAG)
             .medUtbetalesTilId("456")
             .medRefFagsystemId(678L)
             .medRefDelytelseId(789L)
             .medOppdrag110(byggOppdrag110());
         if (gjelderOpphør) {
             builder
-                .medKodeEndringLinje(KodeEndringLinje.ENDRING)
-                .medKodeStatusLinje(KodeStatusLinje.OPPHØR);
+                .medKodeEndringLinje(KodeEndringLinje.ENDR)
+                .medKodeStatusLinje(KodeStatusLinje.OPPH);
         }
         return builder.build();
     }

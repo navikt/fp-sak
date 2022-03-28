@@ -334,8 +334,8 @@ public class OppdragskontrollTestVerktøy {
      */
     private static void verifiserOpphørForrigeOppdrag(List<Oppdragslinje150> originaltOpp150Liste, List<LocalDate> opphørsdatoVerdierForFeriepenger, Oppdragslinje150 opp150Revurd, Oppdragslinje150 originaltOpp150) {
         assertThat(opp150Revurd.getDelytelseId()).isEqualTo(originaltOpp150.getDelytelseId());
-        assertThat(opp150Revurd.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.ENDRING);
-        assertThat(opp150Revurd.getKodeStatusLinje()).isEqualTo(KodeStatusLinje.OPPHØR);
+        assertThat(opp150Revurd.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.ENDR);
+        assertThat(opp150Revurd.getKodeStatusLinje()).isEqualTo(KodeStatusLinje.OPPH);
         assertThat(opp150Revurd.getRefDelytelseId()).isNull();
         assertThat(opp150Revurd.getRefFagsystemId()).isNull();
         if (erOpp150ForFeriepenger(opp150Revurd)) {
@@ -354,15 +354,15 @@ public class OppdragskontrollTestVerktøy {
         assertThat(opp150RevurdListe).anySatisfy(opp150 ->
             assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_FERIEPENGER_AG));
         assertThat(opp150RevurdListe).anySatisfy(opp150 ->
-            assertThat(opp150.getTypeSats()).isEqualTo(TypeSats.ENGANG));
+            assertThat(opp150.getTypeSats()).isEqualTo(TypeSats.ENG));
         var opp150FeriepgBrukerList = opp150RevurdListe.stream().filter(o150 -> o150.getUtbetalesTilId() != null)
             .filter(opp150 -> opp150.getKodeKlassifik().equals(KodeKlassifik.FERIEPENGER_BRUKER))
             .filter(Oppdragslinje150::gjelderOpphør).collect(Collectors.toList());
         var opp150ArbeidsgiverList = opp150RevurdListe.stream()
             .filter(opp150 -> opp150.getKodeKlassifik().equals(KodeKlassifik.FPF_FERIEPENGER_AG)).collect(Collectors.toList());
         assertThat(opp150FeriepgBrukerList).anySatisfy(opp150 ->
-            assertThat(opp150.getKodeStatusLinje()).isEqualTo(KodeStatusLinje.OPPHØR));
+            assertThat(opp150.getKodeStatusLinje()).isEqualTo(KodeStatusLinje.OPPH));
         assertThat(opp150ArbeidsgiverList).anySatisfy(opp150 ->
-            assertThat(opp150.getKodeStatusLinje()).isEqualTo(KodeStatusLinje.OPPHØR));
+            assertThat(opp150.getKodeStatusLinje()).isEqualTo(KodeStatusLinje.OPPH));
     }
 }

@@ -26,7 +26,7 @@ public class Ytelse {
                 continue;
             }
 
-            if (ytelsePeriode.getPeriode().getFom().isBefore(fom) && ytelsePeriode.getSats().getSatsType() != SatsType.ENGANG) {
+            if (ytelsePeriode.getPeriode().getFom().isBefore(fom) && ytelsePeriode.getSats().getSatsType() != SatsType.ENG) {
                     resultat.add(ytelsePeriode.fraOgMed(fom));
             } else {
                 resultat.add(ytelsePeriode);

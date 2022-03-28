@@ -406,7 +406,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
             } else {
                 assertThat(oppdr110Revurd.getKodeEndring()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER
                     .equals(
-                        oppdr110Revurd.getKodeFagomrade()) ? KodeEndring.ENDRING : KodeEndring.ENDRING);
+                        oppdr110Revurd.getKodeFagomrade()) ? KodeEndring.ENDR : KodeEndring.ENDR);
             }
             assertThat(oppdr110Revurd.getOppdragslinje150Liste()).isNotEmpty();
             var nyMottaker = erMottakerNy(oppdr110Revurd);

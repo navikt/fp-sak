@@ -154,14 +154,14 @@ public class Oppdragslinje150Dto extends SporingDto {
         oppdragslinje150Dto.delytelseId = oppdragslinje150.getDelytelseId();
         oppdragslinje150Dto.refDelytelseId = oppdragslinje150.getRefDelytelseId();
         oppdragslinje150Dto.refFagsystemId = oppdragslinje150.getRefFagsystemId();
-        oppdragslinje150Dto.kodeEndringLinje = oppdragslinje150.getKodeEndringLinje().getKode();
-        oppdragslinje150Dto.kodeStatusLinje = oppdragslinje150.getKodeStatusLinje().getKode();
+        oppdragslinje150Dto.kodeEndringLinje = oppdragslinje150.getKodeEndringLinje().name();
+        oppdragslinje150Dto.kodeStatusLinje = oppdragslinje150.getKodeStatusLinje().name();
         oppdragslinje150Dto.datoStatusFom = oppdragslinje150.getDatoStatusFom();
         oppdragslinje150Dto.datoVedtakFom = oppdragslinje150.getDatoVedtakFom();
         oppdragslinje150Dto.datoVedtakTom = oppdragslinje150.getDatoVedtakTom();
         oppdragslinje150Dto.kodeKlassifik = oppdragslinje150.getKodeKlassifik();
         oppdragslinje150Dto.sats = oppdragslinje150.getSats().getVerdi().longValue();
-        oppdragslinje150Dto.typeSats = oppdragslinje150.getTypeSats().getKode();
+        oppdragslinje150Dto.typeSats = oppdragslinje150.getTypeSats().name();
         oppdragslinje150Dto.utbetalingsgrad = oppdragslinje150.getUtbetalingsgrad().getVerdi();
         oppdragslinje150Dto.refusjonInfo156 = oppdragslinje150.getRefusjonsinfo156() != null ? RefusjonInfo156Dto.fraDomene(oppdragslinje150.getRefusjonsinfo156()) : null;
         return oppdragslinje150Dto;

@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Oppdrag;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragLinje;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.SatsType;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.MottakerOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.ny.util.OppdragOrgnrUtil;
@@ -91,7 +92,7 @@ public class OppdragMapper {
         if (oppdragErTilNyMottaker(oppdrag.getBetalingsmottaker())) {
             return KodeEndring.NY;
         }
-        return KodeEndring.ENDRING;
+        return KodeEndring.ENDR;
     }
 
     Oppdragslinje150 mapTilOppdragslinje150(Oppdrag110 oppdrag110, KjedeNøkkel kjedeNøkkel, OppdragLinje linje, LocalDate vedtaksdato) {
@@ -101,12 +102,12 @@ public class OppdragMapper {
             .medKodeKlassifik(kjedeNøkkel.getKlassekode())
             .medVedtakFomOgTom(linje.getPeriode().getFom(), linje.getPeriode().getTom())
             .medSats(Sats.på(linje.getSats().getSats()))
-            .medTypeSats(TypeSats.fraKode(linje.getSats().getSatsType().getKode()))
+            .medTypeSats(mapTypeSatsFraDomene(linje.getSats().getSatsType()))
             .medVedtakId(vedtaksdato.toString());
 
         if (linje.erOpphørslinje()) {
-            builder.medKodeEndringLinje(KodeEndringLinje.ENDRING);
-            builder.medKodeStatusLinje(KodeStatusLinje.OPPHØR);
+            builder.medKodeEndringLinje(KodeEndringLinje.ENDR);
+            builder.medKodeStatusLinje(KodeStatusLinje.OPPH);
             builder.medDatoStatusFom(linje.getOpphørFomDato());
         } else {
             builder.medKodeEndringLinje(KodeEndringLinje.NY);
@@ -124,6 +125,13 @@ public class OppdragMapper {
         }
 
         return builder.build();
+    }
+
+    private TypeSats mapTypeSatsFraDomene(SatsType satsType) {
+        return switch (satsType) {
+            case DAG -> TypeSats.DAG;
+            case ENG -> TypeSats.ENG;
+        };
     }
 
     private Ompostering116 opprettOmpostering116(Oppdrag oppdrag, boolean brukInntrekk) {
