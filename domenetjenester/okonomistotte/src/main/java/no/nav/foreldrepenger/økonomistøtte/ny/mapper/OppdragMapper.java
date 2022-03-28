@@ -139,9 +139,7 @@ public class OppdragMapper {
     private LocalDate finnDatoOmposterFom(Oppdrag oppdrag) {
         var endringsdato = oppdrag.getEndringsdato();
         var korrigeringsdato = hentFørsteUtbetalingsdatoFraForrige(oppdrag);
-        return korrigeringsdato != null && endringsdato.isBefore(korrigeringsdato)
-            ? korrigeringsdato
-            : endringsdato;
+        return korrigeringsdato != null ? korrigeringsdato : endringsdato;
     }
 
     private LocalDate hentFørsteUtbetalingsdatoFraForrige(Oppdrag nyttOppdrag) {

@@ -130,7 +130,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(oppdrag110Bruker.getOmpostering116()).isPresent();
         var ompostering116 = oppdrag110Bruker.getOmpostering116().get();
         assertThat(ompostering116.getOmPostering()).isTrue();
-        assertThat(ompostering116.getDatoOmposterFom()).isEqualTo(b1Periode_2.getBeregningsresultatPeriodeFom());
+        assertThat(ompostering116.getDatoOmposterFom()).isEqualTo(b1Periode_1.getBeregningsresultatPeriodeFom());
         //Arbeidsgiver
         var oppdrag110Arbeidsgiver = OppdragskontrollTestVerktøy.getOppdrag110ForArbeidsgiver(oppdragRevurdering.getOppdrag110Liste(), virksomhet);
         assertThat(oppdrag110Arbeidsgiver.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
