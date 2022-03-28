@@ -20,9 +20,9 @@ class ØkonomiOppdragUtils {
 
     static TypeSats hentTypeSats(Boolean gjelderFP) {
         if (gjelderFP) {
-            return TypeSats.DAGLIG;
+            return TypeSats.DAG;
         }
-        return TypeSats.ENGANG;
+        return TypeSats.ENG;
     }
 
     static KodeKlassifik hentKodeKlassifik(Boolean gjelderFP) {

@@ -116,7 +116,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
         // Assert 2: Revurdering
         assertThat(oppdragRevurdering).isPresent();
         var originalOppdragslinje150 = originaltOppdrag110.getOppdragslinje150Liste().get(0);
-        var oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering.get(), KodeEndring.ENDRING,
+        var oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering.get(), KodeEndring.ENDR,
             originaltOppdrag110.getFagsystemId());
         verifiserOppdragslinje150(oppdragslinje150, KodeEndringLinje.NY, null,
             originalOppdragslinje150.getDelytelseId() + 1, originalOppdragslinje150.getDelytelseId(),
@@ -144,9 +144,9 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
         // Assert 2: Revurdering
         assertThat(oppdragRevurdering).isPresent();
         var originalOppdragslinje150 = originaltOppdrag110.getOppdragslinje150Liste().get(0);
-        var oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering.get(), KodeEndring.ENDRING,
+        var oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering.get(), KodeEndring.ENDR,
             originaltOppdrag110.getFagsystemId());
-        verifiserOppdragslinje150(oppdragslinje150, KodeEndringLinje.ENDRING, KodeStatusLinje.OPPHØR,
+        verifiserOppdragslinje150(oppdragslinje150, KodeEndringLinje.ENDR, KodeStatusLinje.OPPH,
             originalOppdragslinje150.getDelytelseId(), null, null, SATS_ES);
     }
 
@@ -179,13 +179,13 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
         var oppdrag110 = førsteOppdrag.getOppdrag110Liste().get(0);
         assertThat(oppdrag110.getOppdragslinje150Liste()).hasSize(1);
         var førstegangsOpp150 = oppdrag110.getOppdragslinje150Liste().get(0);
-        var andreRevurderingopp150 = verifiserOppdrag110(oppdragAndreRevurdering.get(), KodeEndring.ENDRING,
+        var andreRevurderingopp150 = verifiserOppdrag110(oppdragAndreRevurdering.get(), KodeEndring.ENDR,
             oppdrag110.getFagsystemId());
         assertThat(andreRevurderingopp150.getDatoVedtakFom()).isEqualTo(førstegangsOpp150.getDatoVedtakFom());
         assertThat(andreRevurderingopp150.getDatoVedtakTom()).isEqualTo(førstegangsOpp150.getDatoVedtakTom());
         assertThat(andreRevurderingopp150.getDatoStatusFom()).isEqualTo(førstegangsOpp150.getDatoVedtakFom());
 
-        verifiserOppdragslinje150(andreRevurderingopp150, KodeEndringLinje.ENDRING, KodeStatusLinje.OPPHØR,
+        verifiserOppdragslinje150(andreRevurderingopp150, KodeEndringLinje.ENDR, KodeStatusLinje.OPPH,
             førstegangsOpp150.getDelytelseId(), null, null, SATS_ES);
     }
 
@@ -236,7 +236,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
             assertThat(oppdragslinje150.getDatoVedtakFom()).isEqualTo(VEDTAKSDATO);
             assertThat(oppdragslinje150.getDatoVedtakTom()).isEqualTo(VEDTAKSDATO);
             assertThat(oppdragslinje150.getSats().getVerdi()).isEqualTo(SATS_ES);
-            assertThat(oppdragslinje150.getTypeSats()).isEqualTo(TypeSats.ENGANG);
+            assertThat(oppdragslinje150.getTypeSats()).isEqualTo(TypeSats.ENG);
             assertThat(oppdragslinje150.getUtbetalesTilId()).isEqualTo(BRUKER_FNR);
             assertThat(oppdragslinje150.getOppdrag110()).isEqualTo(oppdrag110);
         }

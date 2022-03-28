@@ -245,7 +245,7 @@ class OppdragInputTjenesteTest {
 
         assertThat(ytelse.getPerioder()).allSatisfy(ytelsePeriode -> {
             assertThat(ytelsePeriode.getSats().getSats()).isEqualTo(TILKJENT_YTELSE);
-            assertThat(ytelsePeriode.getSats().getSatsType()).isEqualTo(SatsType.ENGANG);
+            assertThat(ytelsePeriode.getSats().getSatsType()).isEqualTo(SatsType.ENG);
             assertThat(ytelsePeriode.getPeriode().getFom()).isEqualTo(forventetVedtakstado);
             assertThat(ytelsePeriode.getPeriode().getTom()).isEqualTo(forventetVedtakstado);
         });
@@ -285,7 +285,7 @@ class OppdragInputTjenesteTest {
             .medDelytelseId(Long.parseLong(oppdrag110.getFagsystemId() + "100"))
             .medVedtakFomOgTom(vedtaksdato, vedtaksdato)
             .medSats(Sats.på(1122L))
-            .medTypeSats(TypeSats.ENGANG)
+            .medTypeSats(TypeSats.ENG)
             .medUtbetalesTilId("123456789")
             .medKodeKlassifik(KodeKlassifik.ES_FØDSEL)
             .medOppdrag110(oppdrag110)

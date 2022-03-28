@@ -28,7 +28,7 @@ public class Oppdragslinje150EntityTest {
     private static final LocalDate DATOVEDTAKFOM = LocalDate.now().minusDays(10);
     private static final LocalDate DATOVEDTAKTOM = LocalDate.now().minusDays(8);
     private static final Sats SATS = Sats.på(50000);
-    private static final TypeSats TYPESATS = TypeSats.ENGANG;
+    private static final TypeSats TYPESATS = TypeSats.ENG;
     private static final String SAKSBEHID = "Z1236524";
     private static final String UTBETALESTILID = "456";
     private static final Long REFFAGSYSTEMID = 678L;
@@ -141,7 +141,7 @@ public class Oppdragslinje150EntityTest {
     public void skal_bruke_KodeEndringLinje_i_equalsOgHashCode() {
         oppdragslinje150Builder = lagBuilderMedPaakrevdeFelter();
         oppdragslinje150 = oppdragslinje150Builder.build();
-        oppdragslinje150Builder.medKodeEndringLinje(KodeEndringLinje.ENDRING);
+        oppdragslinje150Builder.medKodeEndringLinje(KodeEndringLinje.ENDR);
         oppdragslinje150_2 = oppdragslinje150Builder.build();
 
         assertThat(oppdragslinje150).isNotEqualTo(oppdragslinje150_2);
@@ -153,7 +153,7 @@ public class Oppdragslinje150EntityTest {
     public void skal_bruke_KodeStatusLinje_i_equalsOgHashCode() {
         oppdragslinje150Builder = lagBuilderMedPaakrevdeFelter();
         oppdragslinje150 = oppdragslinje150Builder.build();
-        oppdragslinje150Builder.medKodeStatusLinje(KodeStatusLinje.OPPHØR);
+        oppdragslinje150Builder.medKodeStatusLinje(KodeStatusLinje.OPPH);
         oppdragslinje150_2 = oppdragslinje150Builder.build();
 
         assertThat(oppdragslinje150).isNotEqualTo(oppdragslinje150_2);

@@ -24,15 +24,15 @@ public class OppdragTestDataHelper {
         var oppdrLinje150Builder = Oppdragslinje150.builder();
 
         return oppdrLinje150Builder
-            .medKodeEndringLinje(KodeEndringLinje.ENDRING)
-            .medKodeStatusLinje(KodeStatusLinje.OPPHØR)
+            .medKodeEndringLinje(KodeEndringLinje.ENDR)
+            .medKodeStatusLinje(KodeStatusLinje.OPPH)
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("456")
             .medDelytelseId(64L)
             .medKodeKlassifik(KodeKlassifik.ES_FØDSEL)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(Sats.på(61122L))
-            .medTypeSats(TypeSats.DAGLIG)
+            .medTypeSats(TypeSats.DAG)
             .medUtbetalesTilId("123456789")
             .medOppdrag110(oppdrag110)
             .medUtbetalingsgrad(Utbetalingsgrad._100)

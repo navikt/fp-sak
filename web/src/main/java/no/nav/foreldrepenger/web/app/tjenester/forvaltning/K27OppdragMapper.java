@@ -56,7 +56,7 @@ final class K27OppdragMapper {
         var nyOppdrag110 = Oppdrag110.builder()
             .medOppdragskontroll(oppdragskontroll)
             .medAvstemming(oppdrag110.getAvstemming())
-            .medKodeEndring(KodeEndring.ENDRING)
+            .medKodeEndring(KodeEndring.ENDR)
             .medKodeFagomrade(oppdrag110.getKodeFagomrade())
             .medOppdragGjelderId(oppdrag110.getOppdragGjelderId())
             .medFagSystemId(oppdrag110.getFagsystemId())

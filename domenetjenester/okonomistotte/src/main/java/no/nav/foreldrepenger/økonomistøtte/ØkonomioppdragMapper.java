@@ -89,7 +89,7 @@ public class ØkonomioppdragMapper {
         var kodeFagområde = okoOppdrag110.getKodeFagomrade();
 
         oppdrag110.setKodeAksjon(KODE_AKSJON);
-        oppdrag110.setKodeEndring(okoOppdrag110.getKodeEndring().getKode());
+        oppdrag110.setKodeEndring(okoOppdrag110.getKodeEndring().name());
         oppdrag110.setKodeFagomraade(kodeFagområde.getKode());
         oppdrag110.setFagsystemId(String.valueOf(okoOppdrag110.getFagsystemId()));
         oppdrag110.setUtbetFrekvens(UTBET_FREKVENS);
@@ -142,9 +142,9 @@ public class ØkonomioppdragMapper {
         List<OppdragsLinje150> oppdragsLinje150Liste = new ArrayList<>();
         for (var okoOppdrlinje150 : okoOppdrlinje150Liste) {
             var oppdragsLinje150 = objectFactory.createOppdragsLinje150();
-            oppdragsLinje150.setKodeEndringLinje(okoOppdrlinje150.getKodeEndringLinje().getKode());
+            oppdragsLinje150.setKodeEndringLinje(okoOppdrlinje150.getKodeEndringLinje().name());
             if (okoOppdrlinje150.gjelderOpphør()) {
-                oppdragsLinje150.setKodeStatusLinje(TkodeStatusLinje.fromValue(okoOppdrlinje150.getKodeStatusLinje().getKode()));
+                oppdragsLinje150.setKodeStatusLinje(TkodeStatusLinje.fromValue(okoOppdrlinje150.getKodeStatusLinje().name()));
             }
             if (okoOppdrlinje150.getDatoStatusFom() != null) {
                 oppdragsLinje150.setDatoStatusFom(toXmlGregCal(okoOppdrlinje150.getDatoStatusFom()));
@@ -156,7 +156,7 @@ public class ØkonomioppdragMapper {
             oppdragsLinje150.setDatoVedtakTom(toXmlGregCal(okoOppdrlinje150.getDatoVedtakTom()));
             oppdragsLinje150.setSats(BigDecimal.valueOf(okoOppdrlinje150.getSats().getVerdi()));
             oppdragsLinje150.setFradragTillegg(TfradragTillegg.fromValue(FRADRAG_TILLEGG));
-            oppdragsLinje150.setTypeSats(okoOppdrlinje150.getTypeSats().getKode());
+            oppdragsLinje150.setTypeSats(okoOppdrlinje150.getTypeSats().name());
             oppdragsLinje150.setBrukKjoreplan(BRUK_KJOREPLAN);
             oppdragsLinje150.setSaksbehId(saksbehId);
             oppdragsLinje150.setUtbetalesTilId(okoOppdrlinje150.getUtbetalesTilId());

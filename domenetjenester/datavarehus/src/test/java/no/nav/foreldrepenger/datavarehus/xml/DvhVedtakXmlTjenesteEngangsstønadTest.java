@@ -276,15 +276,15 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     private Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110, Long delytelseId) {
 
         return Oppdragslinje150.builder()
-                .medKodeEndringLinje(KodeEndringLinje.ENDRING)
-                .medKodeStatusLinje(KodeStatusLinje.OPPHØR)
+                .medKodeEndringLinje(KodeEndringLinje.ENDR)
+                .medKodeStatusLinje(KodeStatusLinje.OPPH)
                 .medDatoStatusFom(LocalDate.now())
                 .medVedtakId("345")
                 .medDelytelseId(delytelseId)
                 .medKodeKlassifik(KodeKlassifik.FPA_SELVSTENDIG)
                 .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
                 .medSats(Sats.på(61122L))
-                .medTypeSats(TypeSats.DAGLIG)
+                .medTypeSats(TypeSats.DAG)
                 .medUtbetalesTilId("123456789")
                 .medOppdrag110(oppdrag110)
                 .medRefDelytelseId(1L)

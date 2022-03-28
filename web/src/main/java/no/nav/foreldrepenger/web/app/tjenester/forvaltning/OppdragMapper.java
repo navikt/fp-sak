@@ -49,11 +49,7 @@ public class OppdragMapper {
     }
 
     private LocalDate finnSisteDato() {
-        return dto.getOppdragslinjer()
-            .stream()
-            .map(OppdragslinjePatchDto::getTom)
-            .max(LocalDate::compareTo)
-            .orElseThrow();
+        return dto.getOppdragslinjer().stream().map(OppdragslinjePatchDto::getTom).max(LocalDate::compareTo).orElseThrow();
     }
 
     private void mapOppdragslinje(Oppdrag110 oppdrag110, OppdragslinjePatchDto linje) {
@@ -61,16 +57,16 @@ public class OppdragMapper {
             .medOppdrag110(oppdrag110)
             .medVedtakFomOgTom(linje.getFom(), linje.getTom())
             .medSats(Sats.på(linje.getSats()))
-            .medTypeSats(TypeSats.fraKode(linje.getSatsType()))
+            .medTypeSats(TypeSats.valueOf(linje.getSatsType()))
             .medDelytelseId(linje.getDelytelseId())
             .medRefDelytelseId(linje.getRefDelytelseId())
             .medRefFagsystemId(linje.getRefFagsystemId())
             .medVedtakId(behandlingVedtak.getVedtaksdato().toString())
-            .medKodeEndringLinje(KodeEndringLinje.fraKode(linje.getKodeEndring()))
+            .medKodeEndringLinje(KodeEndringLinje.valueOf(linje.getKodeEndring()))
             .medKodeKlassifik(KodeKlassifik.fraKode(linje.getKodeKlassifik()));
         if (linje.getOpphørFom() != null) {
             builder.medDatoStatusFom(linje.getOpphørFom());
-            builder.medKodeStatusLinje(KodeStatusLinje.OPPHØR);
+            builder.medKodeStatusLinje(KodeStatusLinje.OPPH);
         }
         if (dto.erBrukerMottaker()) {
             builder.medUtbetalesTilId(fnrBruker);
@@ -90,7 +86,7 @@ public class OppdragMapper {
         return Oppdrag110.builder()
             .medOppdragskontroll(oppdragskontroll)
             .medAvstemming(Avstemming.ny())
-            .medKodeEndring(KodeEndring.fraKode(dto.getKodeEndring()))
+            .medKodeEndring(KodeEndring.valueOf(dto.getKodeEndring()))
             .medKodeFagomrade(utledFagområde(behandling, dto.erBrukerMottaker()))
             .medOppdragGjelderId(fnrBruker)
             .medFagSystemId(dto.getFagsystemId())
@@ -102,8 +98,7 @@ public class OppdragMapper {
     private Ompostering116 mapOmpostering116() {
         if (dto.taMedOmpostering116()) {
             var erAvslåttInntrekk = dto.getOmposterFom() == null;
-            var builder = new Ompostering116.Builder()
-                .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
+            var builder = new Ompostering116.Builder().medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
                 .medOmPostering(!erAvslåttInntrekk);
             if (!erAvslåttInntrekk) {
                 builder.medDatoOmposterFom(dto.getOmposterFom());

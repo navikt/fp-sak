@@ -346,7 +346,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
             .medKodeKlassifik(KodeKlassifik.FPF_REFUSJON_AG)
             .medVedtakFomOgTom(stønadsdatoFom, stønadsdatoTom)
             .medSats(Sats.på(1500))
-            .medTypeSats(TypeSats.DAGLIG)
+            .medTypeSats(TypeSats.DAG)
             .medDelytelseId(Long.parseLong(SAKSNUMMER.getVerdi() + "100100"))
             .medUtbetalingsgrad(Utbetalingsgrad._100)
             .medOppdrag110(oppdragAg).build();
@@ -490,14 +490,14 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         // Assert
         var oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdragRevurdering.getOppdrag110Liste());
-        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         assertThat(oppdrag110Bruker.getOmpostering116()).isNotPresent();
     }
 
     private void verifiserOppdrag110OgOppdragslinje150(Oppdragskontroll oppdragskontroll, List<Oppdrag110> originaltOpp110Liste, boolean medFlereKlassekode) {
         var nyOppdr110Liste = oppdragskontroll.getOppdrag110Liste();
         for (var oppdr110Revurd : nyOppdr110Liste) {
-            assertThat(oppdr110Revurd.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+            assertThat(oppdr110Revurd.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
             assertThat(oppdr110Revurd.getOppdragslinje150Liste()).isNotEmpty();
             assertThat(originaltOpp110Liste).anySatisfy(oppdrag110 ->
                 assertThat(oppdrag110.getFagsystemId()).isEqualTo(oppdr110Revurd.getFagsystemId()));
@@ -532,7 +532,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         assertThat(nyOppdr110Bruker).isPresent();
         assertThat(nyOppdr110Bruker).hasValueSatisfying(opp110 ->
         {
-            assertThat(opp110.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+            assertThat(opp110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
             assertThat(opp110.getOppdragslinje150Liste()).isNotEmpty();
             assertThat(originaltOpp110Liste).anySatisfy(oppdrag110 ->
                 assertThat(oppdrag110.getFagsystemId()).isEqualTo(nyOppdr110Bruker.get().getFagsystemId()));
@@ -556,8 +556,8 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
             assertThat(revurderingOpp150Bruker.getDelytelseId()).isEqualTo(originaltOpp150Bruker.getDelytelseId());
             assertThat(revurderingOpp150Bruker.getRefDelytelseId()).isNull();
             assertThat(revurderingOpp150Bruker.getRefFagsystemId()).isNull();
-            assertThat(revurderingOpp150Bruker.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.ENDRING);
-            assertThat(revurderingOpp150Bruker.getKodeStatusLinje()).isEqualTo(KodeStatusLinje.OPPHØR);
+            assertThat(revurderingOpp150Bruker.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.ENDR);
+            assertThat(revurderingOpp150Bruker.getKodeStatusLinje()).isEqualTo(KodeStatusLinje.OPPH);
             var førsteDatoVedtakFom = OppdragskontrollTestVerktøy.finnFørsteDatoVedtakFom(originaltOpp150BrukerListe, originaltOpp150Bruker);
             var datoStatusFom = førsteDatoVedtakFom.isAfter(endringsdato) ? førsteDatoVedtakFom : endringsdato;
             assertThat(revurderingOpp150Bruker.getDatoStatusFom()).isEqualTo(revurderingOpp150Bruker.getKodeKlassifik().equals(KodeKlassifik.FERIEPENGER_BRUKER)
@@ -573,7 +573,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSameSizeAs(originaltOppdrag110Liste);
         for (var ix110 = 0; ix110 < nyOppdr110Liste.size(); ix110++) {
-            assertThat(nyOppdr110Liste.get(ix110).getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+            assertThat(nyOppdr110Liste.get(ix110).getKodeEndring()).isEqualTo(KodeEndring.ENDR);
             assertThat(nyOppdr110Liste.get(ix110).getFagsystemId()).isEqualTo(originaltOppdrag110Liste.get(ix110).getFagsystemId());
             assertThat(nyOppdr110Liste.get(ix110).getOppdragslinje150Liste()).isNotEmpty();
         }
@@ -593,8 +593,8 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
             for (var klassifikasjon : klassifikasjoner) {
                 var opphørslinje = nyttOppdrag.getOppdragslinje150Liste().stream()
                     .filter(opp150 -> klassifikasjon.equals(opp150.getKodeKlassifik()))
-                    .filter(opp150 -> KodeEndringLinje.ENDRING.equals(opp150.getKodeEndringLinje()))
-                    .filter(opp150 -> KodeStatusLinje.OPPHØR.equals(opp150.getKodeStatusLinje()))
+                    .filter(opp150 -> KodeEndringLinje.ENDR.equals(opp150.getKodeEndringLinje()))
+                    .filter(opp150 -> KodeStatusLinje.OPPH.equals(opp150.getKodeStatusLinje()))
                     .findFirst();
                 assertThat(opphørslinje)
                     .as("Mangler oppdragslinje med opphør for klassifikasjon %s i oppdrag %s", klassifikasjon,
@@ -621,8 +621,8 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
             assertThat(sisteOriginaltOppdragsLinje.getDelytelseId()).isEqualTo(sisteNyOppdragsLinje.getDelytelseId());
             assertThat(sisteNyOppdragsLinje.getRefDelytelseId()).isNull();
             assertThat(sisteNyOppdragsLinje.getRefFagsystemId()).isNull();
-            assertThat(sisteNyOppdragsLinje.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.ENDRING);
-            assertThat(sisteNyOppdragsLinje.getKodeStatusLinje()).isEqualTo(KodeStatusLinje.OPPHØR);
+            assertThat(sisteNyOppdragsLinje.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.ENDR);
+            assertThat(sisteNyOppdragsLinje.getKodeStatusLinje()).isEqualTo(KodeStatusLinje.OPPH);
         }
     }
 
@@ -639,8 +639,8 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
             assertThat(nyOpp150.getDelytelseId()).isEqualTo(originaltOpp150.getDelytelseId());
             assertThat(nyOpp150.getRefDelytelseId()).isNull();
             assertThat(nyOpp150.getRefFagsystemId()).isNull();
-            assertThat(nyOpp150.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.ENDRING);
-            assertThat(nyOpp150.getKodeStatusLinje()).isEqualTo(KodeStatusLinje.OPPHØR);
+            assertThat(nyOpp150.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.ENDR);
+            assertThat(nyOpp150.getKodeStatusLinje()).isEqualTo(KodeStatusLinje.OPPH);
             assertThat(nyOpp150.getSats()).isEqualTo(originaltOpp150.getSats());
         }
         return nyOpp150Liste;

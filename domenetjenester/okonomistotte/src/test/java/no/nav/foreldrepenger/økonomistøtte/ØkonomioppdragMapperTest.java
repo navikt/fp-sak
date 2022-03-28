@@ -197,7 +197,7 @@ public class ØkonomioppdragMapperTest {
 
             var oppdrag110Generert = oppdrag.getOppdrag110();
             assertThat(oppdrag110Generert.getKodeAksjon()).isEqualTo(KODE_AKSJON);
-            assertThat(oppdrag110Generert.getKodeEndring()).isEqualTo(oppdrag110.getKodeEndring().getKode());
+            assertThat(oppdrag110Generert.getKodeEndring()).isEqualTo(oppdrag110.getKodeEndring().name());
             assertThat(oppdrag110Generert.getKodeFagomraade()).isEqualTo(oppdrag110.getKodeFagomrade().getKode());
             assertThat(oppdrag110Generert.getUtbetFrekvens()).isEqualTo(UTBET_FREKVENS);
 
@@ -217,8 +217,8 @@ public class ØkonomioppdragMapperTest {
             var ix = 0;
             for (var oppdragsLinje150Generert : oppdragsLinje150GenerertListe) {
                 var oppdragslinje150 = oppdrag110.getOppdragslinje150Liste().get(ix);
-                assertThat(oppdragsLinje150Generert.getKodeEndringLinje()).isEqualTo(oppdragslinje150.getKodeEndringLinje().getKode());
-                assertThat(oppdragsLinje150Generert.getKodeStatusLinje()).isEqualTo(TkodeStatusLinje.fromValue(oppdragslinje150.getKodeStatusLinje().getKode()));
+                assertThat(oppdragsLinje150Generert.getKodeEndringLinje()).isEqualTo(oppdragslinje150.getKodeEndringLinje().name());
+                assertThat(oppdragsLinje150Generert.getKodeStatusLinje()).isEqualTo(TkodeStatusLinje.fromValue(oppdragslinje150.getKodeStatusLinje().name()));
                 assertThat(oppdragsLinje150Generert.getDatoStatusFom()).isEqualTo(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(oppdragslinje150.getDatoStatusFom()));
                 assertThat(oppdragsLinje150Generert.getVedtakId()).isEqualTo(String.valueOf(oppdragslinje150.getVedtakId()));
                 assertThat(oppdragsLinje150Generert.getDelytelseId()).isEqualTo(String.valueOf(oppdragslinje150.getDelytelseId()));
@@ -227,7 +227,7 @@ public class ØkonomioppdragMapperTest {
                 assertThat(oppdragsLinje150Generert.getDatoVedtakTom()).isEqualTo(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(oppdragslinje150.getDatoVedtakTom()));
                 assertThat(oppdragsLinje150Generert.getSats()).isEqualTo(BigDecimal.valueOf(oppdragslinje150.getSats().getVerdi()));
                 assertThat(oppdragsLinje150Generert.getFradragTillegg()).isEqualTo(TfradragTillegg.fromValue(FRADRAG_TILLEGG));
-                assertThat(oppdragsLinje150Generert.getTypeSats()).isEqualTo(oppdragslinje150.getTypeSats().getKode());
+                assertThat(oppdragsLinje150Generert.getTypeSats()).isEqualTo(oppdragslinje150.getTypeSats().name());
                 assertThat(oppdragsLinje150Generert.getBrukKjoreplan()).isEqualTo(BRUK_KJØREPLAN);
                 assertThat(oppdragsLinje150Generert.getSaksbehId()).isEqualTo(oppdrag110.getSaksbehId());
                 assertThat(oppdragsLinje150Generert.getUtbetalesTilId()).isEqualTo(oppdragslinje150.getUtbetalesTilId());
@@ -309,7 +309,7 @@ public class ØkonomioppdragMapperTest {
             var kodeKlassifik = finnKodeKlassifikVerdi(oppdrag110);
             var oppdragslinje150 = builder
                 .medKodeKlassifik(gjelderFP ? kodeKlassifik : KodeKlassifik.ES_FØDSEL)
-                .medTypeSats(gjelderFP ? TypeSats.DAGLIG : TypeSats.ENGANG)
+                .medTypeSats(gjelderFP ? TypeSats.DAG : TypeSats.ENG)
                 .medOppdrag110(oppdrag110)
                 .build();
             opp150Liste.add(oppdragslinje150);
@@ -322,7 +322,7 @@ public class ØkonomioppdragMapperTest {
         var kodeKlassifik = oppdrag110.getKodeFagomrade().equals("FP") ? KodeKlassifik.FERIEPENGER_BRUKER : KodeKlassifik.FPF_FERIEPENGER_AG;
         return builder
             .medKodeKlassifik(kodeKlassifik)
-            .medTypeSats(TypeSats.ENGANG)
+            .medTypeSats(TypeSats.ENG)
             .medUtbetalingsgrad(Utbetalingsgrad._100)
             .medOppdrag110(oppdrag110)
             .build();
@@ -337,8 +337,8 @@ public class ØkonomioppdragMapperTest {
 
     private Oppdragslinje150.Builder settFellesFelterIOpp150(Long delytelseId) {
         return Oppdragslinje150.builder()
-            .medKodeEndringLinje(KodeEndringLinje.ENDRING)
-            .medKodeStatusLinje(KodeStatusLinje.OPPHØR)
+            .medKodeEndringLinje(KodeEndringLinje.ENDR)
+            .medKodeStatusLinje(KodeStatusLinje.OPPH)
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("345")
             .medDelytelseId(delytelseId)

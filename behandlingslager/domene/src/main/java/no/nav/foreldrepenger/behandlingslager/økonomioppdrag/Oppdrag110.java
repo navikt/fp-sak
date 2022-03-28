@@ -11,6 +11,8 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -43,7 +45,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OKO_OPPDRAG_110")
     private Long id;
 
-    @Convert(converter = KodeEndring.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "kode_endring", nullable = false)
     private KodeEndring kodeEndring;
 

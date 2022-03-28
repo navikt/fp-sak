@@ -88,7 +88,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
 
         // Assert
         var oppdrag110 = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdragRevurdering.getOppdrag110Liste());
-        assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+        assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         assertThat(oppdrag110.getOmpostering116()).isPresent();
         var ompostering116 = oppdrag110.getOmpostering116().get();
         assertThat(ompostering116.getOmPostering()).isFalse();
@@ -126,14 +126,14 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         // Assert
         //Bruker
         var oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdragRevurdering.getOppdrag110Liste());
-        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         assertThat(oppdrag110Bruker.getOmpostering116()).isPresent();
         var ompostering116 = oppdrag110Bruker.getOmpostering116().get();
         assertThat(ompostering116.getOmPostering()).isTrue();
-        assertThat(ompostering116.getDatoOmposterFom()).isEqualTo(b1Periode_2.getBeregningsresultatPeriodeFom());
+        assertThat(ompostering116.getDatoOmposterFom()).isEqualTo(b1Periode_1.getBeregningsresultatPeriodeFom());
         //Arbeidsgiver
         var oppdrag110Arbeidsgiver = OppdragskontrollTestVerktøy.getOppdrag110ForArbeidsgiver(oppdragRevurdering.getOppdrag110Liste(), virksomhet);
-        assertThat(oppdrag110Arbeidsgiver.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+        assertThat(oppdrag110Arbeidsgiver.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         assertThat(oppdrag110Arbeidsgiver.getOmpostering116()).isNotPresent();
     }
 
@@ -612,7 +612,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var oppdrag110Liste = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdrag110Liste).hasSize(2);
         var oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdrag110Liste);
-        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         var oppdrag110Arbeidsgiver = OppdragskontrollTestVerktøy.getOppdrag110ForArbeidsgiver(oppdrag110Liste, virksomhet);
         assertThat(oppdrag110Arbeidsgiver.getKodeEndring()).isEqualTo(KodeEndring.NY);
 
@@ -1166,7 +1166,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(originaltOppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
         assertThat(originaltOppdrag110.getKodeEndring()).isEqualTo(KodeEndring.NY);
         assertThat(revurderingOppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
-        assertThat(revurderingOppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+        assertThat(revurderingOppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         var revurderingOpp150Liste = revurderingOppdrag110.getOppdragslinje150Liste();
         assertThat(revurderingOpp150Liste).hasSize(2);
         var opp150Opphør = revurderingOpp150Liste.get(0);
@@ -1217,7 +1217,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(revurderingOppdrag110Liste).hasSize(2);
         assertThat(revurderingOppdrag110Liste).allSatisfy(oppdrag110 -> {
                 assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
-                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
             }
         );
         var revurderingOpp150Liste = revurderingOppdrag110Liste.stream()
@@ -1281,7 +1281,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(revurderingOppdrag110Liste).hasSize(2);
         assertThat(revurderingOppdrag110Liste).allSatisfy(oppdrag110 -> {
                 assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
-                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
             }
         );
         var revurderingOpp150Liste = revurderingOppdrag110Liste.stream()
@@ -1344,7 +1344,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(revurderingOppdrag110Liste).hasSize(2);
         assertThat(revurderingOppdrag110Liste).allSatisfy(oppdrag110 -> {
                 assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
-                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
             }
         );
         var revurderingOpp150Liste = revurderingOppdrag110Liste.stream()
@@ -1405,7 +1405,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(revurderingOppdrag110Liste).hasSize(2);
         assertThat(revurderingOppdrag110Liste).allSatisfy(oppdrag110 -> {
                 assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
-                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
             }
         );
         var revurderingOpp150Liste = revurderingOppdrag110Liste.stream()
@@ -1488,7 +1488,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         //Oppdrag110 for Bruker
         var oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(revurderingOppdrag110Liste);
         assertThat(oppdrag110Bruker.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
-        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
 
         //Oppdragslinj150 for Bruker
         var revurderingOpp150ListeForBruker = oppdrag110Bruker.getOppdragslinje150Liste();
@@ -1557,7 +1557,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         //Oppdrag110 for Bruker
         var oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(revurderingOppdrag110Liste);
         assertThat(oppdrag110Bruker.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
-        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         //Oppdragslinj150 for Bruker
         var revurderingOpp150ListeForBruker = oppdrag110Bruker.getOppdragslinje150Liste();
         assertThat(revurderingOpp150ListeForBruker).hasSize(2);
@@ -1625,7 +1625,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var oppdrag110ListeForBrukerIRevurdering = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdrag110ListeForBrukerIRevurdering).hasSize(1);
         assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
-        assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+        assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         //Oppdragslinje150 for bruker i revurdering
         var opp150ListeForBrukerIRevurdering = oppdrag110ListeForBrukerIRevurdering.get(0).getOppdragslinje150Liste();
         assertThat(opp150ListeForBrukerIRevurdering).hasSize(4);
@@ -1702,7 +1702,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var oppdrag110ListeForBrukerIRevurdering = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdrag110ListeForBrukerIRevurdering).hasSize(1);
         assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
-        assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+        assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         //Oppdragslinje150 for bruker i revurdering
         var opp150ListeForBrukerIRevurdering = oppdrag110ListeForBrukerIRevurdering.get(0).getOppdragslinje150Liste();
         assertThat(opp150ListeForBrukerIRevurdering).hasSize(2);
@@ -1775,7 +1775,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(revurderingOppdrag110Liste).hasSize(2);
         assertThat(revurderingOppdrag110Liste).allSatisfy(oppdrag110 -> {
                 assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
-                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
             }
         );
         var revurderingOpp150Arbgvr1 = OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(revurderingOppdrag110Liste, virksomhet);
@@ -2220,7 +2220,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         // Assert : Revurdering
         var oppdra110BrukerList = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdra110BrukerList).hasSize(1);
-        assertThat(oppdra110BrukerList.get(0).getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+        assertThat(oppdra110BrukerList.get(0).getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         var alleOpp150BrukerListe = oppdra110BrukerList.get(0).getOppdragslinje150Liste();
         assertThat(alleOpp150BrukerListe).hasSize(3);
         assertThat(alleOpp150BrukerListe).anySatisfy(opp150 ->
@@ -2280,7 +2280,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         // Assert : Revurdering
         var oppdra110BrukerList = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdra110BrukerList).hasSize(1);
-        assertThat(oppdra110BrukerList.get(0).getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+        assertThat(oppdra110BrukerList.get(0).getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         var alleOpp150BrukerListe = oppdra110BrukerList.get(0).getOppdragslinje150Liste();
         assertThat(alleOpp150BrukerListe).hasSize(3);
         assertThat(alleOpp150BrukerListe).anySatisfy(opp150 ->
@@ -2334,7 +2334,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         // Assert : Revurdering
         var oppdra110BrukerList = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdra110BrukerList).hasSize(1);
-        assertThat(oppdra110BrukerList.get(0).getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+        assertThat(oppdra110BrukerList.get(0).getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         var alleOpp150BrukerListe = oppdra110BrukerList.get(0).getOppdragslinje150Liste();
         assertThat(alleOpp150BrukerListe).hasSize(3);
         assertThat(alleOpp150BrukerListe).anySatisfy(opp150 ->

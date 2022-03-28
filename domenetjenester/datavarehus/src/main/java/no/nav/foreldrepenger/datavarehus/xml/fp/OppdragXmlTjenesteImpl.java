@@ -54,7 +54,7 @@ public class OppdragXmlTjenesteImpl implements OppdragXmlTjeneste {
         var refDelytelseId = oppdragsLinje150.getRefDelytelseId();
         VedtakXmlUtil.lagDateOpplysning(oppdragsLinje150.getDatoStatusFom()).ifPresent(oppdragslinje::setStatusFom);
         if (!Objects.isNull(oppdragsLinje150.getKodeStatusLinje())) {
-            oppdragslinje.setKodeStatusLinje(VedtakXmlUtil.lagStringOpplysning(oppdragsLinje150.getKodeStatusLinje().getKode()));
+            oppdragslinje.setKodeStatusLinje(VedtakXmlUtil.lagStringOpplysning(oppdragsLinje150.getKodeStatusLinje().name()));
         }
         if(refDelytelseId !=null) {
             oppdragslinje.setRefDelytelseId(VedtakXmlUtil.lagLongOpplysning(refDelytelseId));

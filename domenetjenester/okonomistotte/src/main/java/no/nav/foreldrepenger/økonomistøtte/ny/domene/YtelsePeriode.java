@@ -141,7 +141,7 @@ public class YtelsePeriode {
     public long summerYtelse() {
         return switch (verdi.getSats().getSatsType()) {
             case DAG -> verdi.getSats().getSats() * Virkedager.beregnAntallVirkedager(periode.getFom(), periode.getTom());
-            case ENGANG -> verdi.getSats().getSats();
+            case ENG -> verdi.getSats().getSats();
             default -> throw new IllegalArgumentException("Ikke-støttet sats-type: " + verdi.getSats().getSatsType());
         };
     }

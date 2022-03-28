@@ -18,6 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.økonomistøtte.OppdragKvitteringTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.DelytelseId;
@@ -25,9 +27,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragKjede;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragLinje;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.SatsType;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
-import no.nav.foreldrepenger.konfig.Environment;
 
 
 public class EksisterendeOppdragMapper {
@@ -99,7 +99,10 @@ public class EksisterendeOppdragMapper {
         return nøkkel;
     }
 
-    private static void validerNøkkelKonsistentGjennomKjeden(Map<DelytelseId, KjedeNøkkel> nøkkelMap, KjedeNøkkel nøkkel, DelytelseId delytelseId, DelytelseId refDelytelseId) {
+    private static void validerNøkkelKonsistentGjennomKjeden(Map<DelytelseId, KjedeNøkkel> nøkkelMap,
+                                                             KjedeNøkkel nøkkel,
+                                                             DelytelseId delytelseId,
+                                                             DelytelseId refDelytelseId) {
         if (refDelytelseId != null && !nøkkel.equals(nøkkelMap.get(refDelytelseId))) {
             if (Environment.current().isProd()) {
                 //må kunne takle hvis dette finnes (gjør det i k9-oppdrag i hvert fall)
@@ -140,21 +143,24 @@ public class EksisterendeOppdragMapper {
         if (linje.getDatoStatusFom() == null) {
             return null;
         }
-        if (KodeStatusLinje.OPPHØR.equals(linje.getKodeStatusLinje())) {
+        if (KodeStatusLinje.OPPH.equals(linje.getKodeStatusLinje())) {
             return linje.getDatoStatusFom();
         }
         throw new IllegalStateException("Fikk ikke-støttet kodeStatus=" + linje.getKodeStatusLinje());
     }
 
     private static no.nav.foreldrepenger.økonomistøtte.ny.domene.Utbetalingsgrad mapUtbetalingsgrad(Oppdragslinje150 linje) {
-        return Optional.ofNullable(linje.getUtbetalingsgrad()).map(Utbetalingsgrad::getVerdi).map(no.nav.foreldrepenger.økonomistøtte.ny.domene.Utbetalingsgrad::new).orElse(null);
+        return Optional.ofNullable(linje.getUtbetalingsgrad())
+            .map(Utbetalingsgrad::getVerdi)
+            .map(no.nav.foreldrepenger.økonomistøtte.ny.domene.Utbetalingsgrad::new)
+            .orElse(null);
     }
 
     private static Satsen mapSats(Oppdragslinje150 linje) {
-        if (linje.getTypeSats().getKode().equals(SatsType.DAG.getKode())) {
+        if (linje.getTypeSats().equals(TypeSats.DAG)) {
             return Satsen.dagsats(linje.getSats().getVerdi().longValue());
         }
-        if (linje.getTypeSats().getKode().equals(SatsType.ENGANG.getKode())) {
+        if (linje.getTypeSats().equals(TypeSats.ENG)) {
             return Satsen.engang(linje.getSats().getVerdi().longValue());
         }
         throw new IllegalArgumentException("Ikke-støttet satstype: " + linje.getTypeSats());
@@ -162,9 +168,8 @@ public class EksisterendeOppdragMapper {
 
     private static KjedeNøkkel tilNøkkel(Oppdragslinje150 linje) {
         var refusjonsinfo = linje.getRefusjonsinfo156();
-        var mottaker = refusjonsinfo == null
-            ? Betalingsmottaker.BRUKER
-            : Betalingsmottaker.forArbeidsgiver(normaliserOrgnr(refusjonsinfo.getRefunderesId()));
+        var mottaker =
+            refusjonsinfo == null ? Betalingsmottaker.BRUKER : Betalingsmottaker.forArbeidsgiver(normaliserOrgnr(refusjonsinfo.getRefunderesId()));
         var builder = KjedeNøkkel.builder(linje.getKodeKlassifik(), mottaker);
         if (linje.getKodeKlassifik().gjelderFeriepenger()) {
             builder.medFeriepengeÅr(linje.getDatoVedtakFom().getYear() - 1);
@@ -184,7 +189,8 @@ public class EksisterendeOppdragMapper {
 
     private static List<Oppdragslinje150> sortert(List<Oppdragslinje150> oppdragslinje150Liste) {
         return oppdragslinje150Liste.stream()
-            .sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId).thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())))
+            .sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId)
+                .thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())))
             .collect(Collectors.toList());
     }
 

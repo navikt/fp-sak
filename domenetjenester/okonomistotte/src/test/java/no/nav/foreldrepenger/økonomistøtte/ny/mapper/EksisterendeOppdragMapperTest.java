@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.FagsystemId;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragLinje;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.SatsType;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
 
 public class EksisterendeOppdragMapperTest {
@@ -152,10 +153,10 @@ public class EksisterendeOppdragMapperTest {
             .medKodeKlassifik(kodeKlassifik)
             .medVedtakFomOgTom(p.getFom(), p.getTom())
             .medSats(Sats.på(sats.getSats()))
-            .medTypeSats(TypeSats.fraKode(sats.getSatsType().getKode()))
+            .medTypeSats(mapFraSatsType(sats.getSatsType()))
             .medDatoStatusFom(opphørFomDato)
-            .medKodeStatusLinje(opphørFomDato != null ? KodeStatusLinje.OPPHØR : null)
-            .medKodeEndringLinje(opphørFomDato != null ? KodeEndringLinje.ENDRING : KodeEndringLinje.NY)
+            .medKodeStatusLinje(opphørFomDato != null ? KodeStatusLinje.OPPH : null)
+            .medKodeEndringLinje(opphørFomDato != null ? KodeEndringLinje.ENDR : KodeEndringLinje.NY)
             .medRefDelytelseId(refDelytelseId != null ? Long.parseLong(refDelytelseId.toString()) : null)
             .medRefFagsystemId(refDelytelseId != null ? Long.parseLong(refDelytelseId.getFagsystemId().toString()) : null)
             .build();
@@ -171,5 +172,12 @@ public class EksisterendeOppdragMapperTest {
             .medOppdragskontroll(oppdragskontroll)
             .medFagSystemId(Long.parseLong(fagsystemId.toString()))
             .build();
+    }
+
+    private TypeSats mapFraSatsType(SatsType satsType) {
+        return switch (satsType) {
+            case DAG -> TypeSats.DAG;
+            case ENG -> TypeSats.ENG;
+        };
     }
 }
