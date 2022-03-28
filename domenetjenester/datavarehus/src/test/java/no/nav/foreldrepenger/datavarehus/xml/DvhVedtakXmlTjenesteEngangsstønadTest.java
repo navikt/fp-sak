@@ -300,7 +300,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     private Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll) {
         return Oppdrag110.builder()
                 .medKodeEndring(KodeEndring.NY)
-                .medKodeFagomrade(KodeFagområde.ENGANGSSTØNAD)
+                .medKodeFagomrade(KodeFagområde.REFUTG)
                 .medFagSystemId(OPPDRAG_FAGSYSTEM_ID)
                 .medOppdragGjelderId("12345678901")
                 .medSaksbehId("J5624215")

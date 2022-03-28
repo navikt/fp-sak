@@ -41,15 +41,15 @@ public class OppdragTestDataHelper {
     }
 
     public static Oppdrag110 buildOppdrag110ES(Oppdragskontroll oppdragskontroll, Long fagsystemId) {
-        return buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.ENGANGSSTØNAD);
+        return buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.REFUTG);
     }
 
     public static Oppdrag110 buildOppdrag110FPBruker(Oppdragskontroll oppdragskontroll, Long fagsystemId) {
-        return buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.FORELDREPENGER_BRUKER);
+        return buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.FP);
     }
 
     public static Oppdrag110 buildOppdrag110FPArbeidsgiver(Oppdragskontroll oppdragskontroll, Long fagsystemId) {
-        var oppdrag110 = buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
+        var oppdrag110 = buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.FPREF);
         var oppdrag150 = OppdragTestDataHelper.buildOppdragslinje150(oppdrag110);
         OppdragTestDataHelper.buildRefusjonsinfo156(oppdrag150);
         return oppdrag110;

@@ -62,7 +62,7 @@ public class LagOppdragTjenesteTest {
         var oppdrag = resultat.get(0);
         assertThat(oppdrag.getBetalingsmottaker()).isEqualTo(Betalingsmottaker.BRUKER);
         assertThat(oppdrag.getFagsystemId().getSaksnummer()).isEqualTo(saksnummer.getVerdi());
-        assertThat(oppdrag.getKodeFagområde()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
+        assertThat(oppdrag.getKodeFagområde()).isEqualTo(KodeFagområde.FP);
 
         var nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPSND-OP"), Betalingsmottaker.BRUKER);
         assertThat(oppdrag.getKjeder().keySet()).containsOnly(nøkkelYtelse);

@@ -114,11 +114,11 @@ public class OppdragMapper {
                 if (!erBrukerMottaker) {
                     throw new ForvaltningException("Engangstønad skal kun utbetales til bruker");
                 }
-                return KodeFagområde.ENGANGSSTØNAD;
+                return KodeFagområde.REFUTG;
             case FORELDREPENGER:
-                return erBrukerMottaker ? KodeFagområde.FORELDREPENGER_BRUKER : KodeFagområde.FORELDREPENGER_ARBEIDSGIVER;
+                return erBrukerMottaker ? KodeFagområde.FP : KodeFagområde.FPREF;
             case SVANGERSKAPSPENGER:
-                return erBrukerMottaker ? KodeFagområde.SVANGERSKAPSPENGER_BRUKER : KodeFagområde.SVANGERSKAPSPENGER_ARBEIDSGIVER;
+                return erBrukerMottaker ? KodeFagområde.SVP : KodeFagområde.SVPREF;
             default:
                 throw new ForvaltningException("Ukjent ytelsetype i behandlingId=" + behandling.getId());
         }

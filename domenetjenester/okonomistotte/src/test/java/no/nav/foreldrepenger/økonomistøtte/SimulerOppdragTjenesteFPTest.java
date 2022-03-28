@@ -79,7 +79,7 @@ public class SimulerOppdragTjenesteFPTest {
     private Oppdrag110 lagOppdrag110(Oppdragskontroll oppdragskontroll, Saksnummer saksnummer) {
         return Oppdrag110.builder()
             .medKodeEndring(KodeEndring.NY)
-            .medKodeFagomrade(KodeFagområde.FORELDREPENGER_BRUKER)
+            .medKodeFagomrade(KodeFagområde.FP)
             .medOppdragGjelderId(saksnummer.getVerdi())
             .medSaksbehId("Z100000")
             .medAvstemming(Avstemming.ny())

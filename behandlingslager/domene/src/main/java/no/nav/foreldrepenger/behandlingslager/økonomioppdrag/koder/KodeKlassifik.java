@@ -7,9 +7,7 @@ import java.util.Objects;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
-public enum KodeKlassifik implements Kodeverdi {
+public enum KodeKlassifik {
 
     //Engangsstønad fødsel
     ES_FØDSEL("FPENFOD-OP"),
@@ -55,7 +53,6 @@ public enum KodeKlassifik implements Kodeverdi {
     SVP_REFUSJON_AG("FPSVREFAG-IOP"), //FPSV (svangerskapsenger), REFAG - arbeidsgiver
     SVP_FERIEPENGER_AG("FPSVREFAGFER-IOP"); // Arbeidsgiver - Feriepenger
 
-    private static final String KODEVERK = "KODE_KLASSIFIK_TYPE";
     private static final Map<String, KodeKlassifik> KODER = new LinkedHashMap<>();
 
     static {
@@ -81,32 +78,17 @@ public enum KodeKlassifik implements Kodeverdi {
         return ad;
     }
 
-    @Override
-    public String getNavn() {
-        return null;
-    }
-
-    @Override
     public String getKode() {
         return kode;
     }
 
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
     public boolean gjelderFeriepenger() {
-        return this.equals(FERIEPENGER_BRUKER)
-            || this.equals(FPF_FERIEPENGER_AG)
-            || this.equals(FPA_FERIEPENGER_AG)
-            || this.equals(SVP_FERIEPENGER_AG);
+        return this.equals(FERIEPENGER_BRUKER) || this.equals(FPF_FERIEPENGER_AG) || this.equals(FPA_FERIEPENGER_AG) || this.equals(
+            SVP_FERIEPENGER_AG);
     }
 
     public boolean gjelderArbeidsgiver() {
-        return this.equals(FPF_REFUSJON_AG)
-            || this.equals(FPA_REFUSJON_AG)
-            || this.equals(SVP_REFUSJON_AG);
+        return this.equals(FPF_REFUSJON_AG) || this.equals(FPA_REFUSJON_AG) || this.equals(SVP_REFUSJON_AG);
     }
 
     public boolean gjelderEngangsstønad() {

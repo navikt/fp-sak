@@ -34,7 +34,7 @@ public class OppdragTestDataHelper {
     }
 
     public static Oppdrag110 buildOppdrag110ES(Oppdragskontroll oppdragskontroll, Long fagsystemId) {
-        return buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.ENGANGSSTØNAD);
+        return buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.REFUTG);
     }
 
     private static Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll, Long fagsystemId, KodeFagområde økonomiKodeFagområde) {

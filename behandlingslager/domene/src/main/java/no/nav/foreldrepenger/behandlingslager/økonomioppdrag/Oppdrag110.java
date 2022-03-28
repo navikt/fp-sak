@@ -49,7 +49,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     @Column(name = "kode_endring", nullable = false)
     private KodeEndring kodeEndring;
 
-    @Convert(converter = KodeFagområde.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "kode_fagomrade", nullable = false)
     private KodeFagområde kodeFagomrade;
 

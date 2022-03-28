@@ -54,7 +54,7 @@ public class OppdragFactoryTest {
         var oppdrag = resultat.get(0);
         assertThat(oppdrag.getBetalingsmottaker()).isEqualTo(Betalingsmottaker.BRUKER);
         assertThat(oppdrag.getFagsystemId().getSaksnummer()).isEqualTo(saksnummer.getVerdi());
-        assertThat(oppdrag.getKodeFagområde()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
+        assertThat(oppdrag.getKodeFagområde()).isEqualTo(KodeFagområde.FP);
 
         assertThat(oppdrag.getKjeder().keySet()).containsOnly(nøkkelYtelse);
 

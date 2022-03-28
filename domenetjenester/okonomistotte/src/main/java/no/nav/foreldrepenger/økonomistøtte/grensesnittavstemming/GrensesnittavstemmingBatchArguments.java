@@ -90,7 +90,7 @@ public class GrensesnittavstemmingBatchArguments extends BatchArguments {
     @Override
     public boolean isValid() {
         try {
-            KodeFagområde.fraKode(getFagområde());
+            KodeFagområde.valueOf(getFagområde());
         } catch (Exception e) {
             return false;
         }

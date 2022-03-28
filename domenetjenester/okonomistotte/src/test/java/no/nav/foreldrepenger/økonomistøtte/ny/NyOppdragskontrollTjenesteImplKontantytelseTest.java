@@ -258,7 +258,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
         var initialLøpenummer = 100L;
         for (var oppdrag110 : oppdrag110List) {
             assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.NY);
-            assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.ENGANGSSTØNAD);
+            assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.REFUTG);
             assertThat(oppdrag110.getFagsystemId()).isEqualTo(
                 concatenateValues(Long.parseLong(SAKSNUMMER.getVerdi()), initialLøpenummer++));
             assertThat(oppdrag110.getSaksbehId()).isEqualTo(ANSVARLIG_SAKSBEHANDLER);

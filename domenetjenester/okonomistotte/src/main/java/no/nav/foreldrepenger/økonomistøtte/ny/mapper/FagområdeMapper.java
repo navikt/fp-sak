@@ -13,17 +13,17 @@ public class FagområdeMapper {
 
     public static KodeFagområde tilFagområdeRefusjon(FagsakYtelseType ytelseType) {
         return switch (ytelseType) {
-            case FORELDREPENGER -> KodeFagområde.FORELDREPENGER_ARBEIDSGIVER;
-            case SVANGERSKAPSPENGER -> KodeFagområde.SVANGERSKAPSPENGER_ARBEIDSGIVER;
+            case FORELDREPENGER -> KodeFagområde.FPREF;
+            case SVANGERSKAPSPENGER -> KodeFagområde.SVPREF;
             default -> throw new IllegalArgumentException("Ikke-støttet ytelse-type: " + ytelseType);
         };
     }
 
     public static KodeFagområde tilFagområdeBruker(FagsakYtelseType ytelseType) {
         return switch (ytelseType) {
-            case ENGANGSTØNAD -> KodeFagområde.ENGANGSSTØNAD;
-            case FORELDREPENGER -> KodeFagområde.FORELDREPENGER_BRUKER;
-            case SVANGERSKAPSPENGER -> KodeFagområde.SVANGERSKAPSPENGER_BRUKER;
+            case ENGANGSTØNAD -> KodeFagområde.REFUTG;
+            case FORELDREPENGER -> KodeFagområde.FP;
+            case SVANGERSKAPSPENGER -> KodeFagområde.SVP;
             default -> throw new IllegalArgumentException("Ikke-støttet ytelse-type: " + ytelseType);
         };
     }

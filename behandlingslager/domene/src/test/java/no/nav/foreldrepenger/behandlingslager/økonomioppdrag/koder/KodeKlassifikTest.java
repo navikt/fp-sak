@@ -27,18 +27,8 @@ class KodeKlassifikTest {
     }
 
     @Test
-    void getNavn() {
-        assertThat(KodeKlassifik.FPA_ARBEIDSTAKER.getNavn()).isNull();
-    }
-
-    @Test
     void getKode() {
         assertThat(KodeKlassifik.FPA_DAGPENGER.getKode()).isEqualTo("FPADATAL");
-    }
-
-    @Test
-    void getKodeverk() {
-        assertThat(KodeKlassifik.FPA_FERIEPENGER_AG.getKodeverk()).isEqualTo("KODE_KLASSIFIK_TYPE");
     }
 
     @Test

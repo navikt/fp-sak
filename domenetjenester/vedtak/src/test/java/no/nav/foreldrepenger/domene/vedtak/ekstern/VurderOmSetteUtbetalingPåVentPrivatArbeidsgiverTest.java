@@ -289,7 +289,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     private Oppdrag110 byggOppdrag110() {
         return Oppdrag110.builder()
             .medKodeEndring(KodeEndring.NY)
-            .medKodeFagomrade(KodeFagområde.FORELDREPENGER_BRUKER)
+            .medKodeFagomrade(KodeFagområde.FP)
             .medFagSystemId(250L)
             .medOppdragGjelderId("1")
             .medSaksbehId(SAKS_BEHANDLER)

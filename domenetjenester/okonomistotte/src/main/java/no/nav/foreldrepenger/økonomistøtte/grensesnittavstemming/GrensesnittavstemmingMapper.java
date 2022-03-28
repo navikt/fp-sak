@@ -49,7 +49,7 @@ public class GrensesnittavstemmingMapper {
         }
         KodeFagområde kodeFagområde;
         try {
-            kodeFagområde = KodeFagområde.fraKode(fagområde);
+            kodeFagområde = KodeFagområde.valueOf(fagområde);
         } catch (Exception e) {
             throw new IllegalStateException("Grensesnittavstemming uten fagområde er ikke mulig");
         }
@@ -247,8 +247,8 @@ public class GrensesnittavstemmingMapper {
         aksjonsdata.setAksjonType(aksjonType);
         aksjonsdata.setKildeType(KildeType.AVLEV);
         aksjonsdata.setAvstemmingType(AvstemmingType.GRSN);
-        aksjonsdata.setAvleverendeKomponentKode(ØkonomiKodekomponent.VLFP.getKode());
-        aksjonsdata.setMottakendeKomponentKode(ØkonomiKodekomponent.OS.getKode());
+        aksjonsdata.setAvleverendeKomponentKode(ØkonomiKodekomponent.VLFP.name());
+        aksjonsdata.setMottakendeKomponentKode(ØkonomiKodekomponent.OS.name());
         aksjonsdata.setUnderkomponentKode(fagområde);
         aksjonsdata.setNokkelFom(finnAvstemmingMedLavestNokkelAvstemmingsDato(oppdragsliste).getNøkkel());
         var senestAvstemming = finnAvstemmingMedHøyestNokkelAvstemmingsDato(oppdragsliste);

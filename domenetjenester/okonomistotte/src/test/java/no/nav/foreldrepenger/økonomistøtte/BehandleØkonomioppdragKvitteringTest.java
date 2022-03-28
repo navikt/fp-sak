@@ -36,11 +36,11 @@ public class BehandleØkonomioppdragKvitteringTest {
 
     public static final KodeEndring KODEENDRING = KodeEndring.NY;
 
-    public static final KodeFagområde KODEFAGOMRADE_ES = KodeFagområde.ENGANGSSTØNAD;
+    public static final KodeFagområde KODEFAGOMRADE_ES = KodeFagområde.REFUTG;
 
-    public static final KodeFagområde KODEFAGOMRADE_FP = KodeFagområde.FORELDREPENGER_BRUKER;
+    public static final KodeFagområde KODEFAGOMRADE_FP = KodeFagområde.FP;
 
-    public static final KodeFagområde KODEFAGOMRADE_FPREF = KodeFagområde.FORELDREPENGER_ARBEIDSGIVER;
+    public static final KodeFagområde KODEFAGOMRADE_FPREF = KodeFagområde.FPREF;
 
     public static final String OPPDRAGGJELDERID = "01010101010";
 
