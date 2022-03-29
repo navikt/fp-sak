@@ -16,6 +16,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
@@ -64,11 +66,12 @@ public class VergeTjeneste {
         var harRegistrertVerge = vergeAggregat.isPresent() && vergeAggregat.get().getVerge().isPresent();
         var harVergeAksjonspunkt = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE);
         var iForeslåVedtakllerSenereSteg = behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandlingId, BehandlingStegType.FORESLÅ_VEDTAK);
+        var iFatteVedtakEllerSenereSteg = behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandlingId, BehandlingStegType.FATTE_VEDTAK);
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var behandlingReferanse = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
         var under18År = erSøkerUnder18ar(behandlingReferanse);
 
-        if ((harRegistrertVerge && under18År && iForeslåVedtakllerSenereSteg) || SpesialBehandling.erSpesialBehandling(behandling)) {
+        if ((harRegistrertVerge && under18År && iForeslåVedtakllerSenereSteg) || SpesialBehandling.erSpesialBehandling(behandling) || iFatteVedtakEllerSenereSteg) {
             return new VergeBehandlingsmenyDto(behandlingId, VergeBehandlingsmenyEnum.SKJUL);
         }
         if (!harRegistrertVerge && !harVergeAksjonspunkt) {
@@ -121,11 +124,9 @@ public class VergeTjeneste {
     }
 
     private boolean erSøkerUnder18ar(BehandlingReferanse ref) {
-        var personopplysninger = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref).orElse(null);
-        if (personopplysninger != null) {
-            var søker = personopplysninger.getSøker();
-            return søker.getFødselsdato().isAfter(LocalDate.now().minusYears(18));
-        }
-        return false;
+        return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref)
+            .map(PersonopplysningerAggregat::getSøker)
+            .map(PersonopplysningEntitet::getFødselsdato)
+            .filter(d -> d.isAfter(LocalDate.now().minusYears(18))).isPresent();
     }
 }
