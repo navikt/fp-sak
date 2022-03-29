@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -22,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepositor
 import no.nav.foreldrepenger.domene.uttak.svp.FørsteLovligeUttaksdatoTjeneste;
 
 //TODO(SVP-team) rename steget.. skal ikke ha ytelsespsifikke stegnavn..
-@BehandlingStegRef(kode = "SØKNADSFRIST_FP")
+@BehandlingStegRef(kode = BehandlingStegKoder.SØKNADSFRIST_FORELDREPENGER_KODE)
 @BehandlingTypeRef
 @FagsakYtelseTypeRef("SVP")
 @ApplicationScoped

@@ -39,7 +39,4 @@ public class PermisjonBuilder {
         throw new IllegalStateException();
     }
 
-    public PermisjonBuilder medPermisjonsbeskrivelseType(String kode) {
-        return medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.fraKode(kode));
-    }
 }

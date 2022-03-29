@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -23,7 +24,7 @@ import no.nav.foreldrepenger.ytelse.beregning.BeregnYtelseTjeneste;
  * svangerskapspenger (ikke engangsstønad)
  */
 
-@BehandlingStegRef(kode = "BERYT")
+@BehandlingStegRef(kode = BehandlingStegKoder.BEREGN_YTELSE_KODE)
 @BehandlingTypeRef
 @FagsakYtelseTypeRef("FP")
 @FagsakYtelseTypeRef("SVP")

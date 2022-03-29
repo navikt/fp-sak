@@ -7,8 +7,9 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 
-@BehandlingStegRef(kode = "INPER")
+@BehandlingStegRef(kode = BehandlingStegKoder.INNHENT_PERSONOPPLYSNINGER_KODE)
 @BehandlingTypeRef("BT-006") // Innsyn
 @FagsakYtelseTypeRef
 @ApplicationScoped

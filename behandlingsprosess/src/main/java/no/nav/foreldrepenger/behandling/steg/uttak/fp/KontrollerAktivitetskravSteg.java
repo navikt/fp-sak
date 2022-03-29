@@ -11,11 +11,12 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.domene.uttak.fakta.aktkrav.KontrollerAktivitetskravAksjonspunktUtleder;
 
-@BehandlingStegRef(kode = "KONTROLLER_AKTIVITETSKRAV")
+@BehandlingStegRef(kode = BehandlingStegKoder.KONTROLLER_AKTIVITETSKRAV_KODE)
 @FagsakYtelseTypeRef("FP")
 @BehandlingTypeRef
 @ApplicationScoped

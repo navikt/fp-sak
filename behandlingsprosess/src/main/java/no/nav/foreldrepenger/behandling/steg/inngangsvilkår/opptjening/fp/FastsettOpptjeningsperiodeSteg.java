@@ -11,10 +11,11 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 
-@BehandlingStegRef(kode = "VURDER_OPPTJ_PERIODE")
+@BehandlingStegRef(kode = BehandlingStegKoder.FASTSETT_OPPTJENINGSPERIODE_KODE)
 @BehandlingTypeRef
 @FagsakYtelseTypeRef("FP")
 @ApplicationScoped

@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -20,7 +21,7 @@ import no.nav.foreldrepenger.domene.opptjening.FrilansAvvikLoggTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 
 @FagsakYtelseTypeRef
-@BehandlingStegRef(kode = "KOFAKBER")
+@BehandlingStegRef(kode = BehandlingStegKoder.KONTROLLER_FAKTA_BEREGNING_KODE)
 @BehandlingTypeRef
 @ApplicationScoped
 public class KontrollerFaktaBeregningSteg implements BeregningsgrunnlagSteg {

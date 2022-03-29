@@ -7,18 +7,11 @@ import java.util.Map;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum BeregningAktivitetHandlingType implements Kodeverdi {
 
     BENYTT("BENYTT", "Benytt beregningaktivitet"),
@@ -37,9 +30,9 @@ public enum BeregningAktivitetHandlingType implements Kodeverdi {
         }
     }
 
-    @JsonIgnore
     private String navn;
 
+    @JsonValue
     private String kode;
 
     BeregningAktivitetHandlingType(String kode, String navn) {
@@ -47,8 +40,7 @@ public enum BeregningAktivitetHandlingType implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static BeregningAktivitetHandlingType fraKode(@JsonProperty("kode") String kode) {
+    public static BeregningAktivitetHandlingType fraKode(String kode) {
         if (kode == null) {
             return null;
         }
@@ -68,13 +60,11 @@ public enum BeregningAktivitetHandlingType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;
