@@ -23,11 +23,6 @@ public class BestillBrevDto {
     @Valid
     private UUID behandlingUuid;
 
-    @NotNull
-    @Pattern(regexp = InputValideringRegex.NAVN)
-    @Size(max = 256)
-    private String mottaker;
-
     @ValidKodeverk
     @NotNull
     private DokumentMalType brevmalkode;
@@ -47,7 +42,6 @@ public class BestillBrevDto {
         this.behandlingUuid = behandlingUuid;
         this.brevmalkode = dokumentMalType;
         this.fritekst = fritekst;
-        this.mottaker = "Søker";
         this.arsakskode = arsakskode;
     }
 
@@ -77,14 +71,6 @@ public class BestillBrevDto {
 
     public void setBehandlingId(Long behandlingId) {
         this.behandlingId = behandlingId;
-    }
-
-    public String getMottaker() {
-        return mottaker;
-    }
-
-    public void setMottaker(String mottaker) {
-        this.mottaker = mottaker;
     }
 
     public DokumentMalType getBrevmalkode() {

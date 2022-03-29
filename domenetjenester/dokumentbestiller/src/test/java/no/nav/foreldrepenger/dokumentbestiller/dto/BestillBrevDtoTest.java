@@ -32,7 +32,7 @@ class BestillBrevDtoTest {
         var arsak = RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER;
 
         String expected = "{\n" + "  \"behandlingId\" : " + behandlingId + ",\n" + "  \"behandlingUuid\" : \"" + uuid +"\",\n"
-            + "  \"mottaker\" : \"Søker\",\n" + "  \"brevmalkode\" : \"" + dokumentMalType.getKode() + "\",\n" + "  \"arsakskode\" : \"" + arsak.getKode() + "\"\n" + "}";
+            + "  \"brevmalkode\" : \"" + dokumentMalType.getKode() + "\",\n" + "  \"arsakskode\" : \"" + arsak.getKode() + "\"\n" + "}";
 
         var brev = new BestillBrevDto(behandlingId, UUID.fromString(uuid), dokumentMalType, null, arsak);
         var serialized = StandardJsonConfig.toJson(brev);
