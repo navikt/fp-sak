@@ -8,21 +8,26 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import no.nav.abakus.iaygrunnlag.Aktør;
 import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
 import no.nav.abakus.iaygrunnlag.Organisasjon;
 import no.nav.abakus.iaygrunnlag.Periode;
 import no.nav.abakus.iaygrunnlag.PersonIdent;
 import no.nav.abakus.iaygrunnlag.ytelse.v1.AnvisningDto;
+import no.nav.abakus.iaygrunnlag.ytelse.v1.AnvistAndelDto;
 import no.nav.abakus.iaygrunnlag.ytelse.v1.FordelingDto;
 import no.nav.abakus.iaygrunnlag.ytelse.v1.YtelseDto;
 import no.nav.abakus.iaygrunnlag.ytelse.v1.YtelseGrunnlagDto;
 import no.nav.abakus.iaygrunnlag.ytelse.v1.YtelserDto;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.iay.modell.AktørYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvistAndel;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvistAndelBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvistBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
@@ -32,6 +37,7 @@ import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelseBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
@@ -105,12 +111,38 @@ public class MapAktørYtelse {
             if (anvisning == null) {
                 return null;
             }
+            if (anvisning.getAndeler() != null) {
+                anvisning.getAndeler().stream()
+                    .map(this::mapTilAnvistAndel)
+                    .forEach(anvistBuilder::leggTilYtelseAnvistAndel);
+            }
+
             return anvistBuilder
                     .medAnvistPeriode(mapPeriode(anvisning.getPeriode()))
                     .medBeløp(anvisning.getBeløp())
                     .medDagsats(anvisning.getDagsats())
                     .medUtbetalingsgradProsent(anvisning.getUtbetalingsgrad())
                     .build();
+        }
+
+        private YtelseAnvistAndel mapTilAnvistAndel(AnvistAndelDto a) {
+            return YtelseAnvistAndelBuilder.ny().medDagsats(a.getDagsats())
+                .medInntektskategori(a.getInntektskategori())
+                .medRefusjonsgrad(a.getRefusjonsgrad())
+                .medUtbetalingsgrad(a.getUtbetalingsgrad())
+                .medArbeidsgiver(mapArbeidsgiver(a.getArbeidsgiver()))
+                .medArbeidsforholdRef(a.getArbeidsforholdId() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(a.getArbeidsforholdId()))
+                .build();
+        }
+
+        private Arbeidsgiver mapArbeidsgiver(Aktør arbeidsgiver) {
+            if (arbeidsgiver == null) {
+                return null;
+            }
+            if (arbeidsgiver.getErOrganisasjon()) {
+                return Arbeidsgiver.virksomhet(new OrgNummer(arbeidsgiver.getIdent()));
+            }
+            return Arbeidsgiver.person(new AktørId(arbeidsgiver.getIdent()));
         }
 
         private YtelseGrunnlag mapYtelseGrunnlag(YtelseGrunnlagDto grunnlag, YtelseGrunnlagBuilder grunnlagBuilder) {

@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -25,6 +27,9 @@ public class YtelseAnvist extends BaseEntitet implements IndexKey {
     @ChangeTracked
     private Stillingsprosent utbetalingsgradProsent;
 
+    @ChangeTracked
+    private Set<YtelseAnvistAndel> ytelseAnvistAndeler = new LinkedHashSet<>();
+
     public YtelseAnvist() {
         // hibernate
     }
@@ -34,6 +39,7 @@ public class YtelseAnvist extends BaseEntitet implements IndexKey {
         this.beløp = ytelseAnvist.getBeløp().orElse(null);
         this.dagsats = ytelseAnvist.getDagsats().orElse(null);
         this.utbetalingsgradProsent = ytelseAnvist.getUtbetalingsgradProsent().orElse(null);
+        this.ytelseAnvistAndeler = ytelseAnvist.getYtelseAnvistAndeler();
     }
 
     @Override
@@ -61,6 +67,10 @@ public class YtelseAnvist extends BaseEntitet implements IndexKey {
         return Optional.ofNullable(dagsats);
     }
 
+    public Set<YtelseAnvistAndel> getYtelseAnvistAndeler() {
+        return ytelseAnvistAndeler;
+    }
+
     void setBeløp(Beløp beløp) {
         this.beløp = beløp;
     }
@@ -75,6 +85,10 @@ public class YtelseAnvist extends BaseEntitet implements IndexKey {
 
     void setUtbetalingsgradProsent(Stillingsprosent utbetalingsgradProsent) {
         this.utbetalingsgradProsent = utbetalingsgradProsent;
+    }
+
+    void leggTilYtelseAnvistAndel(YtelseAnvistAndel ytelseAnvistAndele) {
+        this.ytelseAnvistAndeler.add(ytelseAnvistAndele);
     }
 
     @Override
