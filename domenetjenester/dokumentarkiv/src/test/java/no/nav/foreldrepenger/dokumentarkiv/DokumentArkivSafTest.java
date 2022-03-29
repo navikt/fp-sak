@@ -137,7 +137,6 @@ public class DokumentArkivSafTest {
 
         var arkivDokumentTypeIds = dokumentApplikasjonTjeneste.hentDokumentTypeIdForSak(SAF_SAK, LocalDate.MIN);
 
-        assertThat(arkivDokumentTypeIds).hasSize(3);
         assertThat(arkivDokumentTypeIds).contains(DokumentTypeId.LEGEERKLÆRING);
         assertThat(arkivDokumentTypeIds).contains(DokumentTypeId.DOK_INNLEGGELSE);
     }
@@ -159,7 +158,6 @@ public class DokumentArkivSafTest {
 
         var arkivDokumentTypeIds = dokumentApplikasjonTjeneste.hentDokumentTypeIdForSak(SAF_SAK, NOW.toLocalDate());
 
-        assertThat(arkivDokumentTypeIds).hasSize(2);
         assertThat(arkivDokumentTypeIds).contains(DokumentTypeId.LEGEERKLÆRING);
         assertThat(arkivDokumentTypeIds).doesNotContain(DokumentTypeId.DOK_INNLEGGELSE);
     }
