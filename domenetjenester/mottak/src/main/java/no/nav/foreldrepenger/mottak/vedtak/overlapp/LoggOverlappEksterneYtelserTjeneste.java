@@ -143,7 +143,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
     private String mapAbakusYtelseType(YtelseV1 ytelse) {
         if (ytelse.getYtelse() == null) {
-            return ytelse.getType().getKode();
+            return "UKJENT";
         }
         return switch (ytelse.getYtelse()) {
             case PLEIEPENGER_SYKT_BARN -> "PSB";
@@ -279,7 +279,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
                     AbakusTjeneste.lagRequestForHentVedtakFom(aktørId, førsteUttaksDatoFP.minusYears(1)))
                 .stream()
                 .map(y -> (YtelseV1) y)
-                .filter(y -> Fagsystem.K9SAK.equals(y.getFagsystem()) || (y.getKildesystem() != null && Kildesystem.K9SAK.equals(y.getKildesystem())))
+                .filter(y -> Kildesystem.K9SAK.equals(y.getKildesystem()))
                 .forEach(y -> {
                     var ytelseTidslinje = lagTidslinjeforYtelseV1(y);
                     overlappene.addAll(finnGradertOverlapp(perioderFp, Fagsystem.K9SAK.getKode(),  mapAbakusYtelseType(y),
