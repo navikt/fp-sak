@@ -105,6 +105,7 @@ public class VedtaksHendelseHåndterer {
         if (mottattVedtak == null)
             return;
         var ytelse = (YtelseV1) mottattVedtak;
+        LOG.info("Hendelse nye felt kilde {} type {} status {}", ytelse.getKildesystem(), ytelse.getYtelse(), ytelse.getYtelseStatus());
 
         if (Fagsystem.FPSAK.equals(ytelse.getFagsystem()) || (ytelse.getKildesystem() != null && Kildesystem.FPSAK.equals(ytelse.getKildesystem()))) {
             oprettTasksForFpsakVedtak(ytelse);
