@@ -165,17 +165,21 @@ public class DokumentArkivTjeneste {
     }
 
     public Set<DokumentTypeId> hentDokumentTypeIdForSak(Saksnummer saksnummer, LocalDate mottattEtterDato) {
+        Set<DokumentTypeId> dokumenttyper = new HashSet<>();
         if (LocalDate.MIN.equals(mottattEtterDato)) {
-            return hentAlleJournalposterForSakSjekkCache(saksnummer).stream()
+            dokumenttyper.addAll(hentAlleJournalposterForSakSjekkCache(saksnummer).stream()
                 .filter(ajp -> Kommunikasjonsretning.INN.equals(ajp.getKommunikasjonsretning()))
                 .flatMap(jp -> ekstraherJournalpostDTID(jp).stream())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet()));
+        } else {
+            dokumenttyper.addAll(hentAlleJournalposterForSakSjekkCache(saksnummer).stream()
+                .filter(ajp -> Kommunikasjonsretning.INN.equals(ajp.getKommunikasjonsretning()))
+                .filter(jpost -> jpost.getTidspunkt() != null && jpost.getTidspunkt().isAfter(mottattEtterDato.atStartOfDay()))
+                .flatMap(jp -> ekstraherJournalpostDTID(jp).stream())
+                .collect(Collectors.toSet()));
         }
-        return hentAlleJournalposterForSakSjekkCache(saksnummer).stream()
-            .filter(ajp -> Kommunikasjonsretning.INN.equals(ajp.getKommunikasjonsretning()))
-            .filter(jpost -> jpost.getTidspunkt() != null && jpost.getTidspunkt().isAfter(mottattEtterDato.atStartOfDay()))
-            .flatMap(jp -> ekstraherJournalpostDTID(jp).stream())
-            .collect(Collectors.toSet());
+        dokumenttyper.addAll(DokumentTypeId.ekvivalenter(dokumenttyper));
+        return dokumenttyper;
     }
 
     private Set<DokumentTypeId> ekstraherJournalpostDTID(ArkivJournalPost jpost) {

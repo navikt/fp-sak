@@ -91,6 +91,7 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
             .filter(m -> !m.getMottattDato().isBefore(sammenligningsdato))
             .map(MottattDokument::getDokumentType)
             .forEach(arkivDokumentTypeIds::add);
+        arkivDokumentTypeIds.addAll(DokumentTypeId.ekvivalenter(arkivDokumentTypeIds));
 
         final var manglendeVedlegg = identifiserManglendeVedlegg(søknad, arkivDokumentTypeIds);
         var oppgittFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
