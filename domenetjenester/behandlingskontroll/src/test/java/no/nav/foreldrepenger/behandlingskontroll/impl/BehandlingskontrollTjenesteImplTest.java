@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -53,7 +54,7 @@ public class BehandlingskontrollTjenesteImplTest {
         serviceProvider = new BehandlingskontrollServiceProvider(entityManager, new BehandlingModellRepository(), eventPubliserer);
         var modell = serviceProvider.getBehandlingModellRepository().getModell(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.ENGANGSTØNAD);
 
-        steg2 = modell.getAlleBehandlingStegTyper().get(5);
+        steg2 = modell.getAlleBehandlingStegTyper().get(7);
         steg3 = modell.finnNesteSteg(steg2).getBehandlingStegType();
         steg4 = modell.finnNesteSteg(steg3).getBehandlingStegType();
         steg5 = modell.finnNesteSteg(steg4).getBehandlingStegType();
@@ -320,7 +321,7 @@ public class BehandlingskontrollTjenesteImplTest {
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
         when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
         assertThat(kontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(behandling.getFagsakYtelseType(),
-                behandling.getType(), steg4, AksjonspunktDefinisjon.AVKLAR_VERGE))
+                behandling.getType(), steg4, AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU))
                         .isFalse();
     }
 
@@ -329,7 +330,7 @@ public class BehandlingskontrollTjenesteImplTest {
         assertThat(
                 behandling.getBehandlingStegTilstandHistorikk()
                         .filter(bst -> (stegType == null) || Objects.equals(bst.getBehandlingSteg(), stegType))
-                        .map(bst -> bst.getBehandlingStegStatus()))
+                        .map(BehandlingStegTilstand::getBehandlingStegStatus))
                                 .containsExactly(stegStatuser);
     }
 

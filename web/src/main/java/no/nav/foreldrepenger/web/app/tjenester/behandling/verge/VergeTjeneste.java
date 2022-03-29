@@ -1,10 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.verge;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -19,7 +21,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
@@ -30,18 +34,24 @@ public class VergeTjeneste {
     private VergeRepository vergeRepository;
     private HistorikkRepository historikkRepository;
     private BehandlingRepository behandlingRepository;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private PersonopplysningTjeneste personopplysningTjeneste;
 
     @Inject
     public VergeTjeneste(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                          BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                          VergeRepository vergeRepository,
                          HistorikkRepository historikkRepository,
-                         BehandlingRepository behandlingRepository) {
+                         BehandlingRepository behandlingRepository,
+                         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                         PersonopplysningTjeneste personopplysningTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.vergeRepository = vergeRepository;
         this.historikkRepository = historikkRepository;
         this.behandlingRepository = behandlingRepository;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.personopplysningTjeneste = personopplysningTjeneste;
     }
 
     VergeTjeneste() {
@@ -53,9 +63,12 @@ public class VergeTjeneste {
         var vergeAggregat = vergeRepository.hentAggregat(behandlingId);
         var harRegistrertVerge = vergeAggregat.isPresent() && vergeAggregat.get().getVerge().isPresent();
         var harVergeAksjonspunkt = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE);
-        var stårIKofakEllerSenereSteg = behandling.harSattStartpunkt();
+        var iForeslåVedtakllerSenereSteg = behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandlingId, BehandlingStegType.FORESLÅ_VEDTAK);
+        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+        var behandlingReferanse = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
+        var under18År = erSøkerUnder18ar(behandlingReferanse);
 
-        if (!stårIKofakEllerSenereSteg || !behandling.erYtelseBehandling() || SpesialBehandling.erSpesialBehandling(behandling)) {
+        if ((harRegistrertVerge && under18År && iForeslåVedtakllerSenereSteg) || SpesialBehandling.erSpesialBehandling(behandling)) {
             return new VergeBehandlingsmenyDto(behandlingId, VergeBehandlingsmenyEnum.SKJUL);
         }
         if (!harRegistrertVerge && !harVergeAksjonspunkt) {
@@ -64,21 +77,20 @@ public class VergeTjeneste {
         return new VergeBehandlingsmenyDto(behandlingId, VergeBehandlingsmenyEnum.FJERN);
     }
 
-    void opprettVergeAksjonspunktOgHoppTilbakeTilKofakHvisSenereSteg(Behandling behandling) {
+    void opprettVergeAksjonspunktOgHoppTilbakeTilFORVEDSTEGHvisSenereSteg(Behandling behandling) {
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE)) {
             var msg = String.format("Behandling %s har allerede aksjonspunkt 5030 for verge/fullmektig",
                 behandling.getId());
             throw new TekniskException("FP-185321", msg);
         }
-        if (!behandling.erYtelseBehandling()) {
-            var msg = String.format("Behandling %s er ikke en ytelsesbehandling -"
-                    + " kan ikke registrere verge/fullmektig", behandling.getId());
-            throw new TekniskException("FP-185322", msg);
-        }
+
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(AksjonspunktDefinisjon.AVKLAR_VERGE));
-        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling,
-            BehandlingStegType.KONTROLLER_FAKTA);
+
+        if (behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.FORESLÅ_VEDTAK)) {
+            behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, BehandlingStegType.FORESLÅ_VEDTAK);
+        }
+
         behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 
@@ -106,5 +118,14 @@ public class VergeTjeneste {
         historikkinnslag.setFagsakId(behandling.getFagsakId());
         historikkInnslagTekstBuilder.build(historikkinnslag);
         historikkRepository.lagre(historikkinnslag);
+    }
+
+    private boolean erSøkerUnder18ar(BehandlingReferanse ref) {
+        var personopplysninger = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref).orElse(null);
+        if (personopplysninger != null) {
+            var søker = personopplysninger.getSøker();
+            return søker.getFødselsdato().isAfter(LocalDate.now().minusYears(18));
+        }
+        return false;
     }
 }

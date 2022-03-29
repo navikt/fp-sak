@@ -116,7 +116,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktType.MANUELL, "Foreslå vedtak manuelt", BehandlingStegType.FORESLÅ_VEDTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.VEDTAK,
             ENTRINN, EnumSet.of(ES, FP, SVP)),
     AVKLAR_VERGE(AksjonspunktKodeDefinisjon.AVKLAR_VERGE_KODE, AksjonspunktType.MANUELL,
-            "Avklar verge", BehandlingStegType.KONTROLLER_FAKTA, VurderingspunktType.INN, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_VERGE, ENTRINN, EnumSet.of(ES, FP, SVP)),
+            "Avklar verge", BehandlingStegType.FORESLÅ_VEDTAK, VurderingspunktType.INN, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_VERGE, ENTRINN, EnumSet.of(ES, FP, SVP)),
     AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE(
             AksjonspunktKodeDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE_KODE, AksjonspunktType.MANUELL, "Vurdere om søkers ytelse gjelder samme barn",
             BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, TOTRINN, EnumSet.of(ES, FP)),
