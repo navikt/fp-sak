@@ -102,7 +102,11 @@ public class SaldoerDtoTjeneste {
 
         if (saldoUtregning.getMaxDagerUtenAktivitetskrav().merEnn0()) {
             var stønadskontoDto = foreldrepengerUtenAktKravDto(saldoUtregning);
-            stønadskontoMap.put(SaldoerDto.SaldoVisningStønadskontoType.UTEN_AKTIVITETSKRAV, stønadskontoDto);
+            stønadskontoMap.put(stønadskontoDto.stonadskontotype(), stønadskontoDto);
+        }
+        if (saldoUtregning.getMaxDagerMinsterett().merEnn0()) {
+            var stønadskontoDto = foreldrepengerMinsterettDto(saldoUtregning);
+            stønadskontoMap.put(stønadskontoDto.stonadskontotype(), stønadskontoDto);
         }
 
         var tapteDagerFpff = finnTapteDagerFpff(input);
@@ -122,6 +126,23 @@ public class SaldoerDtoTjeneste {
         var gyldigForbruk = restSaldoDagerUtenAktivitetskrav >= 0;
         return new StønadskontoDto(SaldoerDto.SaldoVisningStønadskontoType.UTEN_AKTIVITETSKRAV,
             saldoUtregning.getMaxDagerUtenAktivitetskrav().rundOpp(), restSaldoDagerUtenAktivitetskrav, aktivitetSaldoList, gyldigForbruk,
+            null);
+    }
+
+    // TODO (jol) diskutere hva man skal vise. Det vil være noen spennende tilfeller der mor har 40 uker aktivitetskrav oppfylt
+    private StønadskontoDto foreldrepengerMinsterettDto(SaldoUtregning saldoUtregning) {
+        var aktivitetSaldoList = saldoUtregning.aktiviteterForSøker().stream().map(a -> {
+            var restSaldoMinsterettDager = saldoUtregning.restSaldoMinsterett(a);
+            var totalSaldo = saldoUtregning.saldoITrekkdager(Stønadskontotype.FORELDREPENGER, a);
+            return new AktivitetSaldoDto(mapToDto(a), restSaldoMinsterettDager.rundOpp());
+        }).toList();
+        int restSaldoMinsterett = aktivitetSaldoList.stream()
+            .map(aktivitetSaldoDto -> aktivitetSaldoDto.saldo())
+            .max(Comparator.comparing(integer -> integer))
+            .orElse(0);
+        var gyldigForbruk = restSaldoMinsterett >= 0;
+        return new StønadskontoDto(SaldoerDto.SaldoVisningStønadskontoType.MINSTERETT,
+            saldoUtregning.getMaxDagerMinsterett().rundOpp(), restSaldoMinsterett, aktivitetSaldoList, gyldigForbruk,
             null);
     }
 

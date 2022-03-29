@@ -14,7 +14,8 @@ public record SaldoerDto(Map<SaldoVisningStønadskontoType, StønadskontoDto> st
         FORELDREPENGER,
         FORELDREPENGER_FØR_FØDSEL,
         FLERBARNSDAGER,
-        UTEN_AKTIVITETSKRAV;
+        UTEN_AKTIVITETSKRAV,
+        MINSTERETT;
 
         public static SaldoVisningStønadskontoType fra(Stønadskontotype stønadskontotype) {
             return switch (stønadskontotype) {

@@ -40,7 +40,7 @@
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
         <jupiter.version>5.7.2</jupiter.version>
-        <fp-uttak.version>11.4.6</fp-uttak.version>
+        <fp-uttak.version>11.5.1</fp-uttak.version>
         <svp-uttak.version>2.3.1</svp-uttak.version>
         <felles.version>4.1.23</felles.version>
         <prosesstask.version>3.1.7</prosesstask.version>
@@ -53,7 +53,7 @@
         <kalkulus.version>1.5.30</kalkulus.version>
 
         <swaggercore.version>2.1.13</swaggercore.version>
-        <flyway.version>8.5.4</flyway.version>
+        <flyway.version>8.5.5</flyway.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
