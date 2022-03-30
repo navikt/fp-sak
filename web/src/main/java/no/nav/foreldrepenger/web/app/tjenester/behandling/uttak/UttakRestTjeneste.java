@@ -230,7 +230,7 @@ public class UttakRestTjeneste {
     @Operation(description = "Gir svar på om behandlingen krever sammenhengende uttak",
         summary = "Gir svar på om behandlingen krever sammenhengende uttak", tags = "uttak")
     @BeskyttetRessurs(action = READ, resource = FAGSAK)
-    public UtenMinsterettDto abFab(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
+    public UtenMinsterettDto utenMinsterett(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
                                                                   @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = hentBehandling(uuidDto);
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());

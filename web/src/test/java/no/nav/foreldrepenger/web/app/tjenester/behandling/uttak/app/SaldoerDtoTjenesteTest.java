@@ -73,7 +73,6 @@ import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Periode;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AktivitetSaldoDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.StønadskontoDto;
@@ -188,12 +187,22 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private UttakInput input(Behandling behandling, Annenpart annenpart, LocalDate skjæringstidspunkt) {
-        return new UttakInput(BehandlingReferanse.fra(behandling, skjæringstidspunkt),
+        var stp = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
+            .medFørsteUttaksdato(skjæringstidspunkt)
+            .medUtenMinsterett(true)
+            .medKreverSammenhengendeUttak(false);
+        return new UttakInput(BehandlingReferanse.fra(behandling, stp.build()),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build(), fpGrunnlag(annenpart));
     }
 
     private UttakInput input(Behandling behandling, ForeldrepengerGrunnlag fpGrunnlag, LocalDate skjæringstidspunkt) {
-        return new UttakInput(BehandlingReferanse.fra(behandling, skjæringstidspunkt),
+        var stp = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
+            .medFørsteUttaksdato(skjæringstidspunkt)
+            .medUtenMinsterett(true)
+            .medKreverSammenhengendeUttak(false);
+        return new UttakInput(BehandlingReferanse.fra(behandling, stp.build()),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build(), fpGrunnlag);
     }
 
