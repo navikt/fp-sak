@@ -60,7 +60,6 @@ public class HistorikkRepositoryTest {
         var lagretHistorikk = historikk.get(0);
         assertThat(lagretHistorikk.getAktør().getKode()).isEqualTo(historikkinnslag.getAktør().getKode());
         assertThat(lagretHistorikk.getType().getKode()).isEqualTo(historikkinnslag.getType().getKode());
-        assertThat(lagretHistorikk.getHistorikkTid()).isNull();
     }
 
     private Behandling opprettBehandling() {

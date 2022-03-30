@@ -27,10 +27,8 @@ public class HistorikkFraBrevKvitteringMapperTest {
 
         assertEquals(behandlingId, historikkinnslag.getBehandlingId());
         assertEquals(fagsakId, historikkinnslag.getFagsakId());
-        assertEquals(dokumentbestillingUuid, historikkinnslag.getUuid());
         assertEquals(HistorikkAktør.VEDTAKSLØSNINGEN, historikkinnslag.getAktør());
         assertEquals(NavBrukerKjønn.UDEFINERT, historikkinnslag.getKjoenn());
-        assertEquals(HistorikkFraBrevKvitteringMapper.FP_FORMIDLING_SYSTEM, historikkinnslag.getOpprettetISystem());
 
         assertNotNull(historikkinnslag.getDokumentLinker());
         assertEquals(journalpostId, historikkinnslag.getDokumentLinker().get(0).getJournalpostId().getVerdi());
