@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
+import no.nav.abakus.iaygrunnlag.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -13,6 +14,9 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvistAndel;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvistAndelBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelseBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
@@ -150,10 +154,19 @@ class InaktiveArbeidsforholdUtlederTest {
     private void lagYtelse(Arbeidsgiver arbeidsgiver, LocalDate fom, LocalDate tom, RelatertYtelseType ytelse) {
         YtelseBuilder builder = ytelseBuilder.getYtelselseBuilderForType(Fagsystem.AAREGISTERET, ytelse, new Saksnummer("12313123"));
         builder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
-        if (arbeidsgiver != null) {
-            YtelseStørrelseBuilder ysb = YtelseStørrelseBuilder.ny().medVirksomhet(arbeidsgiver.getOrgnr());
-            builder.medYtelseGrunnlag(builder.getGrunnlagBuilder().medYtelseStørrelse(ysb.build()).build());
-        }
+        var anvistAndel = YtelseAnvistAndelBuilder.ny()
+            .medArbeidsgiver(arbeidsgiver)
+            .medDagsats(BigDecimal.valueOf(500))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .build();
+        var ytelseAnvist = builder.getAnvistBuilder()
+            .medAnvistPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
+            .medDagsats(BigDecimal.valueOf(500))
+            .medUtbetalingsgradProsent(BigDecimal.valueOf(100))
+            .leggTilYtelseAnvistAndel(anvistAndel)
+            .build();
+        builder.medYtelseAnvist(ytelseAnvist);
         ytelseBuilder.leggTilYtelse(builder);
     }
 

@@ -97,10 +97,16 @@ public class InaktiveArbeidsforholdUtleder {
     }
 
     private static boolean erNyoppstartet(Arbeidsgiver arbeidsgiver, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag, AktørId søkerAktørId, LocalDate stp) {
-        var alleArbeidsforhold = inntektArbeidYtelseGrunnlag.getAktørArbeidFraRegister(søkerAktørId)
-            .map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(Collections.emptyList());
-        return alleArbeidsforhold.stream()
+        var alleArbeidsforholdHosAG = inntektArbeidYtelseGrunnlag.getAktørArbeidFraRegister(søkerAktørId)
+            .map(AktørArbeid::hentAlleYrkesaktiviteter)
+            .orElse(Collections.emptyList())
+            .stream()
             .filter(arb -> arb.getArbeidsgiver() != null && arb.getArbeidsgiver().equals(arbeidsgiver))
+            .collect(Collectors.toList());
+        if (alleArbeidsforholdHosAG.isEmpty()) {
+            return false;
+        }
+        return alleArbeidsforholdHosAG.stream()
             .noneMatch(arb -> erEldreEnnGrense(arb, stp));
     }
 
@@ -118,14 +124,13 @@ public class InaktiveArbeidsforholdUtleder {
     }
 
     private static boolean harYtelseForArbeidsforholdIPeriode(Ytelse ytelse, DatoIntervallEntitet periode, Arbeidsgiver arbeidsgiver) {
-        if (ytelse.getYtelseAnvist().isEmpty()) {
-            // Har ingen måte å sjekke om det er ytelse for arbeidsgiver, defaulter til ja så lenge det er overlapp
-            return ytelse.getPeriode().overlapper(periode);
-        }
         var overlappendeAnvisninger = ytelse.getYtelseAnvist()
             .stream()
             .filter(ya -> periode.inkluderer(ya.getAnvistFOM()) || periode.inkluderer(ya.getAnvistTOM()))
             .collect(Collectors.toList());
+        if (overlappendeAnvisninger.isEmpty()) {
+            return false;
+        }
         return overlappendeAnvisninger.stream()
             .anyMatch(a -> harAndelHosArbeidsgiverMedUtbetaling(a, arbeidsgiver));
     }
