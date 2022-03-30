@@ -129,15 +129,14 @@ public class SaldoerDtoTjeneste {
             null);
     }
 
-    // TODO (jol) diskutere hva man skal vise. Det vil være noen spennende tilfeller der mor har 40 uker aktivitetskrav oppfylt
     private StønadskontoDto foreldrepengerMinsterettDto(SaldoUtregning saldoUtregning) {
         var aktivitetSaldoList = saldoUtregning.aktiviteterForSøker().stream().map(a -> {
             var restSaldoMinsterettDager = saldoUtregning.restSaldoMinsterett(a);
             var totalSaldo = saldoUtregning.saldoITrekkdager(Stønadskontotype.FORELDREPENGER, a);
-            return new AktivitetSaldoDto(mapToDto(a), restSaldoMinsterettDager.rundOpp());
+            return new AktivitetSaldoDto(mapToDto(a), Math.min(restSaldoMinsterettDager.rundOpp(), totalSaldo.rundOpp()));
         }).toList();
         int restSaldoMinsterett = aktivitetSaldoList.stream()
-            .map(aktivitetSaldoDto -> aktivitetSaldoDto.saldo())
+            .map(AktivitetSaldoDto::saldo)
             .max(Comparator.comparing(integer -> integer))
             .orElse(0);
         var gyldigForbruk = restSaldoMinsterett >= 0;

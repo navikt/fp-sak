@@ -227,8 +227,8 @@ public class UttakRestTjeneste {
 
     @GET
     @Path(UTEN_MINSTERETT_PART_PATH)
-    @Operation(description = "Gir svar på om behandlingen krever sammenhengende uttak",
-        summary = "Gir svar på om behandlingen krever sammenhengende uttak", tags = "uttak")
+    @Operation(description = "Gir svar på om behandlingen er uten minsterett iht FAB-direktiv",
+        summary = "Gir svar på om behandlingen er uten minsterett", tags = "uttak")
     @BeskyttetRessurs(action = READ, resource = FAGSAK)
     public UtenMinsterettDto utenMinsterett(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
                                                                   @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {

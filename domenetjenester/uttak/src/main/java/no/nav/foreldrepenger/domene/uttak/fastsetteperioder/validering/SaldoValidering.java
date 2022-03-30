@@ -43,7 +43,6 @@ public class SaldoValidering implements OverstyrUttakPerioderValidering {
                 throw OverstyrUttakValideringFeil.trekkdagerOverskriderKontoMaksDager();
             }
         }
-        // TODO (jol) Er denne sjekken relevant ??? Bedre å fikse negativ nedenfor til å hensynta minsterett???
         if (saldoUtregning.getMaxDagerMinsterett().merEnn0()) {
             var restSaldoDagerMinsterett = saldoUtregning.restSaldoMinsterett();
             if (restSaldoDagerMinsterett.mindreEnn0()) {

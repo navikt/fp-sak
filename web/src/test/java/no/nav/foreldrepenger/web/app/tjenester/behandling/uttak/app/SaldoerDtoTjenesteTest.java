@@ -896,8 +896,8 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         var totalSaldo = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER);
         assertKonto(totalSaldo, maxDager, 10 );
-        var utenAktKravSaldo = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MINSTERETT);
-        assertKonto(utenAktKravSaldo, 8 * 5, 10);
+        var minsterettSaldo = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MINSTERETT);
+        assertKonto(minsterettSaldo, 8 * 5, 10);
     }
 
     private Optional<AktivitetSaldoDto> finnRiktigAktivitetSaldo(List<AktivitetSaldoDto> aktivitetSaldoer,
