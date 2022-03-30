@@ -24,8 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
 import no.nav.abakus.iaygrunnlag.Periode;
-import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
-import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.abakus.iaygrunnlag.request.InnhentRegisterdataRequest;
 import no.nav.abakus.iaygrunnlag.request.RegisterdataType;
 import no.nav.abakus.vedtak.ytelse.Kildesystem;
@@ -163,8 +161,8 @@ public class RegisterdataInnhenter {
 
         var potensielleVedtak = abakusTjeneste.hentVedtakForAktørId(request).stream()
             .map(y -> (YtelseV1)y)
-            .filter(y -> Fagsystem.K9SAK.equals(y.getFagsystem()) || (y.getKildesystem() != null && Kildesystem.K9SAK.equals(y.getKildesystem())))
-            .filter(y -> YtelseType.PLEIEPENGER_SYKT_BARN.equals(y.getType())  || (y.getYtelse() != null && Ytelser.PLEIEPENGER_SYKT_BARN.equals(y.getYtelse())))
+            .filter(y -> Kildesystem.K9SAK.equals(y.getKildesystem()))
+            .filter(y -> Ytelser.PLEIEPENGER_SYKT_BARN.equals(y.getYtelse()))
             .filter(y -> y.getTilleggsopplysninger() != null && !y.getTilleggsopplysninger().isBlank())
             .collect(Collectors.toList());
 
