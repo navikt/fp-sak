@@ -43,12 +43,6 @@ public class SaldoValidering implements OverstyrUttakPerioderValidering {
                 throw OverstyrUttakValideringFeil.trekkdagerOverskriderKontoMaksDager();
             }
         }
-        if (saldoUtregning.getMaxDagerMinsterett().merEnn0()) {
-            var restSaldoDagerMinsterett = saldoUtregning.restSaldoMinsterett();
-            if (restSaldoDagerMinsterett.mindreEnn0()) {
-                throw OverstyrUttakValideringFeil.trekkdagerOverskriderKontoMaksDager();
-            }
-        }
     }
 
     public SaldoValideringResultat valider(Stønadskontotype stønadskontoType) {

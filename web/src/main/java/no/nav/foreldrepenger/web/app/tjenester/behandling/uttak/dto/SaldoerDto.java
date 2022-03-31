@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
@@ -13,8 +14,7 @@ public record SaldoerDto(Map<SaldoVisningStønadskontoType, StønadskontoDto> st
         FORELDREPENGER,
         FORELDREPENGER_FØR_FØDSEL,
         FLERBARNSDAGER,
-        UTEN_AKTIVITETSKRAV,
-        MINSTERETT;
+        UTEN_AKTIVITETSKRAV;
 
         public static SaldoVisningStønadskontoType fra(Stønadskontotype stønadskontotype) {
             return switch (stønadskontotype) {
