@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -186,12 +187,32 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private UttakInput input(Behandling behandling, Annenpart annenpart, LocalDate skjæringstidspunkt) {
-        return new UttakInput(BehandlingReferanse.fra(behandling, skjæringstidspunkt),
+        var stp = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
+            .medFørsteUttaksdato(skjæringstidspunkt)
+            .medUtenMinsterett(true)
+            .medKreverSammenhengendeUttak(false);
+        return new UttakInput(BehandlingReferanse.fra(behandling, stp.build()),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build(), fpGrunnlag(annenpart));
     }
 
     private UttakInput input(Behandling behandling, ForeldrepengerGrunnlag fpGrunnlag, LocalDate skjæringstidspunkt) {
-        return new UttakInput(BehandlingReferanse.fra(behandling, skjæringstidspunkt),
+        var stp = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
+            .medFørsteUttaksdato(skjæringstidspunkt)
+            .medUtenMinsterett(true)
+            .medKreverSammenhengendeUttak(false);
+        return new UttakInput(BehandlingReferanse.fra(behandling, stp.build()),
+            InntektArbeidYtelseGrunnlagBuilder.nytt().build(), fpGrunnlag);
+    }
+
+    private UttakInput inputFAB(Behandling behandling, ForeldrepengerGrunnlag fpGrunnlag, LocalDate skjæringstidspunkt) {
+        var stp = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
+            .medFørsteUttaksdato(skjæringstidspunkt)
+            .medUtenMinsterett(false)
+            .medKreverSammenhengendeUttak(false);
+        return new UttakInput(BehandlingReferanse.fra(behandling, stp.build()),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build(), fpGrunnlag);
     }
 
@@ -819,6 +840,64 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         assertKonto(totalSaldo, maxDager, 5);
         var utenAktKravSaldo = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.UTEN_AKTIVITETSKRAV);
         assertKonto(utenAktKravSaldo, 15 * 5, 5);
+    }
+
+    @Test
+    void bhfr_fab_minsterett() {
+        var fødseldato = LocalDate.of(2022, 1, 1);
+
+        var uttakAktivitet = lagUttakAktivitet(arbeidsgiver("123"));
+        var uttak = new UttakResultatPerioderEntitet();
+
+        //20 uker MSP
+        var periode1 = new UttakResultatPeriodeEntitet.Builder(fødseldato.plusWeeks(6), fødseldato.plusWeeks(26).minusDays(1))
+            .medResultatType(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.BARE_FAR_RETT_IKKE_SØKT).build();
+        new UttakResultatPeriodeAktivitetEntitet.Builder(periode1, uttakAktivitet)
+            .medTrekkonto(FORELDREPENGER)
+            .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
+            .medTrekkdager(new Trekkdager(20 * 5))
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
+        uttak.leggTilPeriode(periode1);
+        //12 uker uttak m/aktivitet
+        var periode2 = new UttakResultatPeriodeEntitet.Builder(fødseldato.plusWeeks(26), fødseldato.plusWeeks(38).minusDays(1))
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.FORELDREPENGER_KUN_FAR_HAR_RETT).build();
+        new UttakResultatPeriodeAktivitetEntitet.Builder(periode2, uttakAktivitet)
+            .medTrekkonto(FORELDREPENGER)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
+            .medTrekkdager(new Trekkdager(12 * 5))
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
+        uttak.leggTilPeriode(periode2);
+        //6 uker minsterett
+        var periode3 = new UttakResultatPeriodeEntitet.Builder(fødseldato.plusYears(1), fødseldato.plusYears(1).plusWeeks(6).minusDays(1))
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.FORELDREPENGER_KUN_FAR_HAR_RETT_MOR_UFØR).build();
+        new UttakResultatPeriodeAktivitetEntitet.Builder(periode3, uttakAktivitet)
+            .medTrekkonto(FORELDREPENGER)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
+            .medTrekkdager(new Trekkdager(6* 5))
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
+        uttak.leggTilPeriode(periode3);
+
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false, true));
+        var annenPartAktørId = AktørId.dummy();
+        scenario.medSøknadAnnenPart().medAktørId(annenPartAktørId);
+        var behandling = avsluttetBehandlingMedUttak(fødseldato, scenario, uttak);
+
+        var maxDager = 40 * 5;
+        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(FORELDREPENGER, maxDager));
+        repositoryProvider.getFagsakRelasjonRepository()
+            .lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+
+        var input = inputFAB(behandling, fpGrunnlag(), fødseldato);
+        var saldoer = tjeneste.lagStønadskontoerDto(input);
+
+        var totalSaldo = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER);
+        assertKonto(totalSaldo, maxDager, 10 );
+        var minsterettSaldo = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MINSTERETT);
+        assertKonto(minsterettSaldo, 8 * 5, 10);
     }
 
     private Optional<AktivitetSaldoDto> finnRiktigAktivitetSaldo(List<AktivitetSaldoDto> aktivitetSaldoer,

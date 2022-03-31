@@ -46,6 +46,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerFa
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KreverSammenhengendeUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SvangerskapspengerUttakResultatDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UtenMinsterettDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakPeriodegrenseDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPerioderDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
@@ -78,6 +79,8 @@ public class UttakRestTjeneste {
     public static final String STONADSKONTOER_PATH = BASE_PATH + STONADSKONTOER_PART_PATH;
     private static final String SAMMENHENGENDE_UTTAK_PART_PATH = "/krever-sammenhengende-uttak";
     public static final String SAMMENHENGENDE_UTTAK_PATH = BASE_PATH + SAMMENHENGENDE_UTTAK_PART_PATH;
+    private static final String UTEN_MINSTERETT_PART_PATH = "/uten-minsterett";
+    public static final String UTEN_MINSTERETT_PATH = BASE_PATH + UTEN_MINSTERETT_PART_PATH;
 
     private static final Logger LOG = LoggerFactory.getLogger(UttakRestTjeneste.class);
 
@@ -220,6 +223,18 @@ public class UttakRestTjeneste {
         var behandling = hentBehandling(uuidDto);
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         return new KreverSammenhengendeUttakDto(skjæringstidspunkt.kreverSammenhengendeUttak());
+    }
+
+    @GET
+    @Path(UTEN_MINSTERETT_PART_PATH)
+    @Operation(description = "Gir svar på om behandlingen er uten minsterett iht FAB-direktiv",
+        summary = "Gir svar på om behandlingen er uten minsterett", tags = "uttak")
+    @BeskyttetRessurs(action = READ, resource = FAGSAK)
+    public UtenMinsterettDto utenMinsterett(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
+                                                                  @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        var behandling = hentBehandling(uuidDto);
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        return new UtenMinsterettDto(skjæringstidspunkt.utenMinsterett());
     }
 
     private Behandling hentBehandling(UuidDto uuidDto) {
