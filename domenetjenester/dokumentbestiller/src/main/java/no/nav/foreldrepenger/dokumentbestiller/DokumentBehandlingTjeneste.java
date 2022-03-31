@@ -132,10 +132,6 @@ public class DokumentBehandlingTjeneste {
 
     public void kvitterBrevSent(DokumentProdusertDto kvittering) {
         var behandling = behandlingRepository.hentBehandling(kvittering.behandlingUuid());
-        if (historikkRepository.finnesUuidAllerede(kvittering.dokumentbestillingUuid())) {
-            LOG.warn("Oppdaget duplikat historikkinnslag: {}, lagrer ikke.", kvittering.dokumentbestillingUuid());
-            return;
-        }
         var historikkInnslag = HistorikkFraBrevKvitteringMapper.opprettHistorikkInnslag(kvittering, behandling.getId(), behandling.getFagsakId());
         historikkRepository.lagre(historikkInnslag);
         oppdaterDokumentBestillingMedJournalpostId(kvittering.dokumentbestillingUuid(), kvittering.journalpostId());
@@ -144,9 +140,11 @@ public class DokumentBehandlingTjeneste {
     private void oppdaterDokumentBestillingMedJournalpostId(UUID bestillingUuid, String journalpostId) {
         var dokumentBestiling = behandlingDokumentRepository.hentHvisEksisterer(bestillingUuid);
         dokumentBestiling.ifPresentOrElse(bestilling -> {
-            bestilling.setJournalpostId(new JournalpostId(journalpostId));
-            LOG.trace("JournalpostId: {}.", journalpostId);
-            behandlingDokumentRepository.lagreOgFlush(bestilling);
+            if (Objects.isNull(bestilling.getJournalpostId())) { // behandlinger med verge produserer to brev per bestilling - vi ble enig om å ignorere det andre.
+                bestilling.setJournalpostId(new JournalpostId(journalpostId));
+                LOG.trace("JournalpostId: {}.", journalpostId);
+                behandlingDokumentRepository.lagreOgFlush(bestilling);
+            }
         }, () -> LOG.warn("Fant ikke dokument bestilling for bestillingUuid: {}.", bestillingUuid) );
     }
 

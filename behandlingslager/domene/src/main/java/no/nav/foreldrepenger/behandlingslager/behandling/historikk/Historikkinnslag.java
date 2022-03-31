@@ -31,14 +31,6 @@ public class Historikkinnslag extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_HISTORIKKINNSLAG")
     private Long id;
 
-    /**
-     * UUID for historikkinnslaget - Vil være generert i det system som originalt oppretter innslaget,
-     * Så det vil enten være FPSAK eller systemet som står i
-     */
-    @NaturalId
-    @Column(name = "uuid")
-    private UUID uuid;
-
     @Column(name = "behandling_id", updatable = false)
     private Long behandlingId;
 
@@ -63,30 +55,11 @@ public class Historikkinnslag extends BaseEntitet {
     @Column(name="bruker_kjoenn", nullable = false, updatable = false)
     private NavBrukerKjønn kjoenn = NavBrukerKjønn.UDEFINERT;
 
-    /**
-     *  Foreløpig inneholder denne kun tidspunkt for når historikkinnslag er opprettet eksternt
-     *  Eksisterende opprettet tid burde migreres og kopieres over hit, så en enkelt kan sortere kronologisk på
-     *  når historikkhendelsen egentlig oppstod
-     */
-    //FIXME (MS) Ble aldri tatt i bruk - modent for fjerning
-    @Deprecated(forRemoval = true)
-    @Column(name = "historikk_tid", updatable = false)
-    private LocalDateTime historikkTid;
-
-    //FIXME (MS) Bruker vi dette noe sted? Trenger vi denne informasjonen egentlig? Bare for loggingskyld??
-    @Column(name = "opprettet_i_system", updatable = false)
-    private String opprettetISystem = "FPSAK";
-
     public Historikkinnslag() {
-        this.uuid = UUID.randomUUID();
     }
 
     public Long getId() {
         return id;
-    }
-
-    public UUID getUuid() {
-        return uuid;
     }
 
     public Long getBehandlingId() {
@@ -147,28 +120,9 @@ public class Historikkinnslag extends BaseEntitet {
         return historikkinnslagDeler;
     }
 
-    public String getOpprettetISystem() {
-        return opprettetISystem;
-    }
-
     public void setHistorikkinnslagDeler(List<HistorikkinnslagDel> historikkinnslagDeler) {
         historikkinnslagDeler.forEach(del -> HistorikkinnslagDel.builder(del).medHistorikkinnslag(this));
         this.historikkinnslagDeler = historikkinnslagDeler;
-    }
-
-    public LocalDateTime getHistorikkTid() {
-        return historikkTid;
-    }
-
-    /**
-     * @deprecated - fjernes når alle historikkinnslag har UUID og denne er satt NOT NULL i db.  Inntil da sikrer denne lagring av UUID
-     */
-    @Deprecated
-    @PreUpdate
-    protected void onUpdateMigrerUuid() {
-        if (uuid == null) {
-            uuid = UUID.randomUUID();
-        }
     }
 
     public static class Builder {
@@ -180,11 +134,6 @@ public class Historikkinnslag extends BaseEntitet {
 
         public Builder medBehandlingId(Long behandlingId) {
             historikkinnslag.behandlingId = behandlingId;
-            return this;
-        }
-
-        public Builder medUuid(UUID uuid) {
-            historikkinnslag.uuid = uuid;
             return this;
         }
 
@@ -208,27 +157,6 @@ public class Historikkinnslag extends BaseEntitet {
             return this;
         }
 
-        @Deprecated(forRemoval = true)
-        public Builder medHistorikkTid(LocalDateTime historikkTid) {
-            historikkinnslag.historikkTid = historikkTid;
-            return this;
-        }
-
-        @Deprecated(forRemoval = true)
-        public Builder medOpprettetISystem(String opprettetISystem) {
-            historikkinnslag.opprettetISystem = opprettetISystem;
-            return this;
-        }
-
-        public Builder medDokumentLinker(List<HistorikkinnslagDokumentLink> dokumentLinker) {
-            if (historikkinnslag.dokumentLinker == null) {
-                historikkinnslag.dokumentLinker = dokumentLinker;
-            } else if (dokumentLinker != null) {
-                historikkinnslag.dokumentLinker.addAll(dokumentLinker);
-            }
-            return this;
-        }
-
         public Historikkinnslag build() {
             return historikkinnslag;
         }
@@ -243,9 +171,7 @@ public class Historikkinnslag extends BaseEntitet {
             return false;
         }
         var that = (Historikkinnslag) o;
-        // FIXME: Her burde ikke generert id vært del av equals/hashcode. Bør fjernes. Evt. droppe equals/hashcode helt
-        return Objects.equals(id, that.id) &&
-            Objects.equals(behandlingId, that.behandlingId) &&
+        return Objects.equals(behandlingId, that.behandlingId) &&
             Objects.equals(fagsakId, that.fagsakId) &&
             Objects.equals(getAktør(), that.getAktør()) &&
             Objects.equals(type, that.type) &&
@@ -255,6 +181,6 @@ public class Historikkinnslag extends BaseEntitet {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, behandlingId, fagsakId, getAktør(), type, getDokumentLinker(), kjoenn);
+        return Objects.hash(behandlingId, fagsakId, getAktør(), type, getDokumentLinker(), kjoenn);
     }
 }
