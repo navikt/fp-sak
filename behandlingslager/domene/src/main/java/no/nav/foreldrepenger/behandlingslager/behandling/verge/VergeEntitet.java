@@ -19,32 +19,30 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 @Entity(name = "Verge")
 @Table(name = "VERGE")
-public class VergeEntitet extends BaseEntitet {
+public class VergeEntitet extends BaseCreateableEntitet {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_VERGE")
+    private Long id;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "bruker_id")
     NavBruker bruker;
 
     @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "fomDato", column = @Column(name = "gyldig_fom")),
-        @AttributeOverride(name = "tomDato", column = @Column(name = "gyldig_tom"))
-    })
+    @AttributeOverrides({@AttributeOverride(name = "fomDato", column = @Column(name = "gyldig_fom")), @AttributeOverride(name = "tomDato", column = @Column(name = "gyldig_tom"))})
     DatoIntervallEntitet gyldigPeriode;
 
-    @Convert(converter=VergeType.KodeverdiConverter.class)
-    @Column(name="verge_type", nullable = false)
+    @Convert(converter = VergeType.KodeverdiConverter.class)
+    @Column(name = "verge_type", nullable = false)
     VergeType vergeType = VergeType.UDEFINERT;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_VERGE")
-    private Long id;
 
     @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "organisasjon_id")
@@ -66,14 +64,15 @@ public class VergeEntitet extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (VergeEntitet) o;
-        return
-            Objects.equals(bruker, that.bruker) &&
-            Objects.equals(gyldigPeriode, that.gyldigPeriode) &&
-            Objects.equals(vergeType, that.vergeType) &&
-            Objects.equals(vergeOrganisasjon, that.vergeOrganisasjon);
+        return Objects.equals(bruker, that.bruker) && Objects.equals(gyldigPeriode, that.gyldigPeriode) && Objects.equals(vergeType, that.vergeType)
+            && Objects.equals(vergeOrganisasjon, that.vergeOrganisasjon);
     }
 
     @Override
