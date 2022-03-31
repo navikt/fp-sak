@@ -22,14 +22,8 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Kontoer;
 @ApplicationScoped
 public class KontoerGrunnlagBygger {
 
-    // TODO (TFP-4846) flytt til Stønadskontoberegning og lagre på FR el Fagsak
-    private static final int MINSTEDAGER_UFØRE_100_PROSENT = 75;
-    private static final int MINSTEDAGER_UFØRE_80_PROSENT = 95;
-
-    private static final int MINSTERETT_BFHR_100_PROSENT = 40;
-    private static final int MINSTERETT_BFHR_80_PROSENT = 50;
-
-
+    private static final int MINSTEDAGER_100_PROSENT = 75;
+    private static final int MINSTEDAGER_80_PROSENT = 95;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
 
     @Inject
@@ -48,16 +42,18 @@ public class KontoerGrunnlagBygger {
      * - gir mulighet til å innvilge perioder selv om aktivitetskravet ikke er oppfylt
      * - vil ikke påvirke stønadsperioden dvs må tas ut fortløpende. Ingen utsettelse uten at aktivitetskrav oppfylt
      * - Skal alltid brukes på tilfelle som krever sammenhengende uttak
+     * - TFP-4842 tillat at avslått aktivitetskrav kan innvilges fra utenAktivitetskravDager
      *
      * minsterettDager
      * - gir mulighet til å innvilge perioder selv om aktivitetskravet ikke er oppfylt
      * - automatiske trekk pga manglende søkt, avslag mv vil ikke påvirke minsterett
      * - kan utsettes og  utvide stønadsperioden
-     * - Brukes framfor utenAktivitetskravDager fom FAB
+     * - TBD når kan denne brukes framfor utenAktivitetskravDager
      */
     public Kontoer.Builder byggGrunnlag(BehandlingReferanse ref, ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
         var stønadskontoer = hentStønadskontoer(ref);
-        return getBuilder(ref, foreldrepengerGrunnlag, stønadskontoer)
+        return new Kontoer.Builder()
+            .utenAktivitetskravDager(minsterettDager(ref, foreldrepengerGrunnlag, stønadskontoer))
             .kontoList(stønadskontoer.stream().map(this::map).collect(Collectors.toList()));
     }
 
@@ -76,29 +72,16 @@ public class KontoerGrunnlagBygger {
     /*
      * TFP-4846 legge inn regler for minsterett i stønadskontoutregningen
      */
-    private Kontoer.Builder getBuilder(BehandlingReferanse ref, ForeldrepengerGrunnlag foreldrepengerGrunnlag, Set<Stønadskonto> stønadskontoer) {
-        var builder = new Kontoer.Builder();
-        var erMor = RelasjonsRolleType.MORA.equals(ref.getRelasjonsRolleType());
-        var erForeldrepenger = stønadskontoer.stream().map(Stønadskonto::getStønadskontoType).anyMatch(StønadskontoType.FORELDREPENGER::equals);
-        var minsterettAnnenpart = !ref.getSkjæringstidspunkt().utenMinsterett();
+    private int minsterettDager(BehandlingReferanse ref, ForeldrepengerGrunnlag foreldrepengerGrunnlag, Set<Stønadskonto> stønadskontoer) {
         var morHarUføretrygd = foreldrepengerGrunnlag.getUføretrygdGrunnlag()
             .filter(UføretrygdGrunnlagEntitet::annenForelderMottarUføretrygd)
             .isPresent();
-        if (!erMor && erForeldrepenger && (minsterettAnnenpart || morHarUføretrygd)) {
+        var erMor = RelasjonsRolleType.MORA.equals(ref.getRelasjonsRolleType());
+        var erForeldrepenger = stønadskontoer.stream().map(Stønadskonto::getStønadskontoType).anyMatch(StønadskontoType.FORELDREPENGER::equals);
+        if (morHarUføretrygd && !erMor && erForeldrepenger) {
             var dekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(ref.getSaksnummer()).getGjeldendeDekningsgrad();
-            var antallDager = 0;
-            if (minsterettAnnenpart) {
-                antallDager = Dekningsgrad._80.equals(dekningsgrad) ? MINSTERETT_BFHR_80_PROSENT : MINSTERETT_BFHR_100_PROSENT;
-            }
-            if (morHarUføretrygd) {
-                antallDager = Dekningsgrad._80.equals(dekningsgrad) ? MINSTEDAGER_UFØRE_80_PROSENT : MINSTEDAGER_UFØRE_100_PROSENT;
-            }
-            if (minsterettAnnenpart) {
-                builder.minsterettDager(antallDager);
-            } else {
-                builder.utenAktivitetskravDager(antallDager);
-            }
+            return Dekningsgrad._80.equals(dekningsgrad) ? MINSTEDAGER_80_PROSENT : MINSTEDAGER_100_PROSENT;
         }
-        return builder;
+        return 0;
     }
 }

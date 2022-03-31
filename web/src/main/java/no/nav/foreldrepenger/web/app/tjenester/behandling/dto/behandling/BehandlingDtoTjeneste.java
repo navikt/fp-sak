@@ -414,7 +414,6 @@ public class BehandlingDtoTjeneste {
                 }
             } else {
                 dto.leggTil(get(UttakRestTjeneste.SAMMENHENGENDE_UTTAK_PATH, "krever-sammenhengende-uttak", uuidDto));
-                dto.leggTil(get(UttakRestTjeneste.UTEN_MINSTERETT_PATH, "uten-minsterett", uuidDto));
                 if (!kontrollerAktivitetskravDtoTjeneste.lagDtos(uuidDto).isEmpty()) {
                     dto.leggTil(get(UttakRestTjeneste.KONTROLLER_AKTIVTETSKRAV_PATH, "uttak-kontroller-aktivitetskrav", uuidDto));
                 }

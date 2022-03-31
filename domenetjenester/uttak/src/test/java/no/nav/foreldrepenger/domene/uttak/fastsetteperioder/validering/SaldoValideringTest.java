@@ -114,21 +114,7 @@ public class SaldoValideringTest {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FORELDREPENGER)).thenReturn(false);
         when(saldoUtregning.getMaxDagerUtenAktivitetskrav()).thenReturn(new Trekkdager(10));
-        when(saldoUtregning.getMaxDagerMinsterett()).thenReturn(Trekkdager.ZERO);
         when(saldoUtregning.restSaldoDagerUtenAktivitetskrav()).thenReturn(new Trekkdager(-5));
-        var validering = new SaldoValidering(saldoUtregning, false, false);
-
-        assertThat(validering.valider(FORELDREPENGER).isGyldig()).isTrue();
-        assertThatExceptionOfType(TekniskException.class).isThrownBy(() -> validering.utfør(List.of()));
-    }
-
-    @Test
-    public void ikke_kunne_gå_negativ_på_minsterett() {
-        var saldoUtregning = mock(SaldoUtregning.class);
-        when(saldoUtregning.negativSaldo(FORELDREPENGER)).thenReturn(false);
-        when(saldoUtregning.getMaxDagerUtenAktivitetskrav()).thenReturn(Trekkdager.ZERO);
-        when(saldoUtregning.getMaxDagerMinsterett()).thenReturn(new Trekkdager(10));
-        when(saldoUtregning.restSaldoMinsterett()).thenReturn(new Trekkdager(-5));
         var validering = new SaldoValidering(saldoUtregning, false, false);
 
         assertThat(validering.valider(FORELDREPENGER).isGyldig()).isTrue();
