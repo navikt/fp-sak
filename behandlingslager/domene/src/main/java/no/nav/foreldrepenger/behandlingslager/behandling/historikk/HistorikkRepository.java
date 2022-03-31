@@ -58,12 +58,6 @@ public class HistorikkRepository {
         entityManager.flush();
     }
 
-    public boolean finnesUuidAllerede(UUID historikkUuid) {
-        var query = entityManager.createQuery("from Historikkinnslag where uuid=:historikkUuid", Historikkinnslag.class);
-        query.setParameter("historikkUuid", historikkUuid);
-        return !query.getResultList().isEmpty();
-    }
-
     public List<Historikkinnslag> hentHistorikk(Long behandlingId) {
 
         var fagsakId = getFagsakId(behandlingId);
