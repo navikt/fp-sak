@@ -10,11 +10,12 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 
+//TODO bør forenkles og flyttes ned til VERGE siden det kun er BRUKER_ID eller orgnr + navn
 @Entity(name = "VergeOrganisasjon")
 @Table(name = "VERGE_ORGANISASJON")
-public class VergeOrganisasjonEntitet extends BaseEntitet {
+public class VergeOrganisasjonEntitet extends BaseCreateableEntitet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_VERGE_ORGANISASJON")
@@ -29,8 +30,7 @@ public class VergeOrganisasjonEntitet extends BaseEntitet {
     @OneToOne(mappedBy = "vergeOrganisasjon")
     VergeEntitet verge;
 
-    VergeOrganisasjonEntitet() {
-    }
+    protected VergeOrganisasjonEntitet() {}
 
     // deep copy
     VergeOrganisasjonEntitet(VergeOrganisasjonEntitet vergeOrganisasjon, VergeEntitet verge) {
@@ -38,7 +38,6 @@ public class VergeOrganisasjonEntitet extends BaseEntitet {
         this.navn = vergeOrganisasjon.getNavn();
         this.verge = verge;
     }
-
 
     public String getOrganisasjonsnummer() {
         return organisasjonsnummer;
@@ -76,8 +75,7 @@ public class VergeOrganisasjonEntitet extends BaseEntitet {
             return false;
         }
         var entitet = (VergeOrganisasjonEntitet) o;
-        return Objects.equals(organisasjonsnummer, entitet.organisasjonsnummer) &&
-            Objects.equals(navn, entitet.navn);
+        return Objects.equals(organisasjonsnummer, entitet.organisasjonsnummer) && Objects.equals(navn, entitet.navn);
     }
 
     @Override
@@ -85,14 +83,4 @@ public class VergeOrganisasjonEntitet extends BaseEntitet {
         return Objects.hash(organisasjonsnummer, navn);
     }
 
-    @Override
-    public String toString() {
-        final var sb = new StringBuilder("VergeOrganisasjonEntitet{");
-        sb.append("id=").append(id);
-        sb.append(", organisasjonsnummer=").append(organisasjonsnummer);
-        sb.append(", navn='").append(navn).append('\'');
-        sb.append(", vergeId='").append(verge != null ? verge.getId() : null).append('\'');
-        sb.append('}');
-        return sb.toString();
-    }
 }
