@@ -78,22 +78,6 @@ class KabalTjenesteTest {
     }
 
     @Test
-    void testFinnerKlageOversendtFraHistorikkInnslag() {
-        var behandlingId = 1234L;
-        var journalpost = new JournalpostId("54321");
-
-        Historikkinnslag historikkInnslag = opprettHistorikkinnslag(behandlingId, journalpost, DokumentMalType.KLAGE_OVERSENDT);
-
-        when(historikkRepository.hentHistorikk(behandlingId)).thenReturn(List.of(historikkInnslag));
-        when(behandlingDokumentRepository.hentHvisEksisterer(behandlingId)).thenReturn(Optional.empty());
-
-        var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId,
-            KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).build());
-
-        sjekkResultat(dokumentReferanses, journalpost, TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV);
-    }
-
-    @Test
     void finnerVedtakFraBehandlingDokument() {
         var behandlingId = 1234L;
         var påKlagdBehandlingId = 4321L;
@@ -104,23 +88,6 @@ class KabalTjenesteTest {
 
         when(behandlingDokumentRepository.hentHvisEksisterer(behandlingId)).thenReturn(Optional.empty());
         when(behandlingDokumentRepository.hentHvisEksisterer(påKlagdBehandlingId)).thenReturn(Optional.of(behandlingDokument));
-
-        var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId,
-            KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandlingId).build());
-
-        sjekkResultat(dokumentReferanses, journalpost, TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK);
-    }
-
-    @Test
-    void finnerVedtakFraHistorikkInnslag() {
-        var behandlingId = 1234L;
-        var påKlagdBehandlingId = 4321L;
-        var journalpost = new JournalpostId("65432");
-
-        Historikkinnslag historikkInnslag = opprettHistorikkinnslag(påKlagdBehandlingId, journalpost, DokumentMalType.FORELDREPENGER_INNVILGELSE);
-
-        when(historikkRepository.hentHistorikk(behandlingId)).thenReturn(List.of());
-        when(historikkRepository.hentHistorikk(påKlagdBehandlingId)).thenReturn(List.of(historikkInnslag));
 
         var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId,
             KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandlingId).build());
