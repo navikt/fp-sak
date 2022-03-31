@@ -8,9 +8,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
-import no.nav.abakus.iaygrunnlag.kodeverk.YtelseStatus;
-import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.abakus.vedtak.ytelse.Aktør;
 import no.nav.abakus.vedtak.ytelse.Kildesystem;
 import no.nav.abakus.vedtak.ytelse.Periode;
@@ -66,15 +63,12 @@ public class VedtattYtelseTjeneste {
         final var aktør = new Aktør();
         aktør.setVerdi(behandling.getAktørId().getId());
         final var ytelse = new YtelseV1();
-        ytelse.setFagsystem(Fagsystem.FPSAK);
         ytelse.setKildesystem(Kildesystem.FPSAK);
         ytelse.setSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi());
         ytelse.setVedtattTidspunkt(vedtak.getVedtakstidspunkt());
         ytelse.setVedtakReferanse(behandling.getUuid().toString());
         ytelse.setAktør(aktør);
-        ytelse.setType(map(behandling.getFagsakYtelseType()));
         ytelse.setYtelse(mapYtelser(behandling.getFagsakYtelseType()));
-        ytelse.setStatus(map(behandling.getFagsak().getStatus()));
         ytelse.setYtelseStatus(mapStatus(behandling.getFagsak().getStatus()));
 
         ytelse.setPeriode(utledPeriode(behandling, vedtak, berResultat.orElse(null)));
@@ -147,30 +141,12 @@ public class VedtattYtelseTjeneste {
     }
 
 
-    private YtelseType map(FagsakYtelseType type) {
-        return switch (type) {
-            case ENGANGSTØNAD -> YtelseType.ENGANGSTØNAD;
-            case FORELDREPENGER -> YtelseType.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> YtelseType.SVANGERSKAPSPENGER;
-            default -> throw new IllegalStateException("Ukjent ytelsestype " + type);
-        };
-    }
-
     private Ytelser mapYtelser(FagsakYtelseType type) {
         return switch (type) {
             case ENGANGSTØNAD -> Ytelser.ENGANGSTØNAD;
             case FORELDREPENGER -> Ytelser.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> Ytelser.SVANGERSKAPSPENGER;
             default -> throw new IllegalStateException("Ukjent ytelsestype " + type);
-        };
-    }
-
-    private YtelseStatus map(FagsakStatus kode) {
-        return switch (kode) {
-            case OPPRETTET -> YtelseStatus.OPPRETTET;
-            case UNDER_BEHANDLING -> YtelseStatus.UNDER_BEHANDLING;
-            case LØPENDE -> YtelseStatus.LØPENDE;
-            case AVSLUTTET -> YtelseStatus.AVSLUTTET;
         };
     }
 

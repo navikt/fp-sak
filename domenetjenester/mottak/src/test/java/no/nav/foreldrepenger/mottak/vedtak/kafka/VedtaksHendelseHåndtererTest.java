@@ -20,8 +20,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
-import no.nav.abakus.iaygrunnlag.kodeverk.YtelseStatus;
 import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.abakus.vedtak.ytelse.Aktør;
 import no.nav.abakus.vedtak.ytelse.Desimaltall;
@@ -452,14 +450,11 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         aktør.setVerdi(behandling.getAktørId().getId());
 
         var ytelse = new YtelseV1();
-        ytelse.setFagsystem(Fagsystem.FPSAK);
         ytelse.setKildesystem(Kildesystem.FPSAK);
         ytelse.setSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi());
         ytelse.setVedtattTidspunkt(vedtak.getVedtakstidspunkt());
         ytelse.setVedtakReferanse(behandling.getUuid().toString());
         ytelse.setAktør(aktør);
-        ytelse.setType(map(behandling.getFagsakYtelseType()));
-        ytelse.setStatus(map(behandling.getFagsak().getStatus()));
         ytelse.setYtelse(mapYtelser(behandling.getFagsakYtelseType()));
         ytelse.setYtelseStatus(mapStatus(behandling.getFagsak().getStatus()));
         ytelse.setPeriode(null);
@@ -469,15 +464,12 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
     private YtelseV1 genererYtelseAbakus(YtelseType type, Aktør aktør, Periode periode, List<Anvisning> anvist) {
         var ytelse = new YtelseV1();
-        ytelse.setFagsystem(Fagsystem.K9SAK);
         ytelse.setKildesystem(Kildesystem.K9SAK);
         ytelse.setSaksnummer("6T5NM");
         ytelse.setVedtattTidspunkt(LocalDateTime.now());
         ytelse.setVedtakReferanse("1001-ABC");
         ytelse.setAktør(aktør);
-        ytelse.setType(type);
         ytelse.setYtelse(mapYtelseType(type));
-        ytelse.setStatus(YtelseStatus.LØPENDE);
         ytelse.setYtelseStatus(Status.LØPENDE);
         ytelse.setPeriode(periode);
         ytelse.setAnvist(anvist);
@@ -497,15 +489,6 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         anvist.setUtbetalingsgrad(utbetGrad);
 
         return anvist;
-    }
-
-    private YtelseType map(FagsakYtelseType type) {
-        return switch (type) {
-            case ENGANGSTØNAD -> YtelseType.ENGANGSTØNAD;
-            case FORELDREPENGER -> YtelseType.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> YtelseType.SVANGERSKAPSPENGER;
-            default -> throw new IllegalStateException("Ukjent ytelsestype " + type);
-        };
     }
 
     private Ytelser mapYtelser(FagsakYtelseType type) {
@@ -528,15 +511,6 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
             case OPPLÆRINGSPENGER -> Ytelser.OPPLÆRINGSPENGER;
             case FRISINN -> Ytelser.FRISINN;
             default -> throw new IllegalStateException("Ukjent ytelsestype " + type);
-        };
-    }
-
-    private YtelseStatus map(FagsakStatus kode) {
-        return switch (kode) {
-            case OPPRETTET -> YtelseStatus.OPPRETTET;
-            case UNDER_BEHANDLING -> YtelseStatus.UNDER_BEHANDLING;
-            case LØPENDE -> YtelseStatus.LØPENDE;
-            case AVSLUTTET -> YtelseStatus.AVSLUTTET;
         };
     }
 
