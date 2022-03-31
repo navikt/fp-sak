@@ -216,11 +216,11 @@ public class KabalTjeneste {
     List<TilKabalDto.DokumentReferanse> finnDokumentReferanserForKlage(long behandlingId, KlageResultatEntitet resultat) {
         List<TilKabalDto.DokumentReferanse> referanser = new ArrayList<>();
 
-        this.opprettReferanseFraBestilltDokument(behandlingId, erKlageOversendtBrevSent(), referanser,
+        opprettReferanseFraBestilltDokument(behandlingId, erKlageOversendtBrevSent(), referanser,
             TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV);
 
         resultat.getPåKlagdBehandlingId()
-            .ifPresent(b -> this.opprettReferanseFraBestilltDokument(b, erVedtakDokument(), referanser,
+            .ifPresent(b -> opprettReferanseFraBestilltDokument(b, erVedtakDokument(), referanser,
                 TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK));
 
         opprettReferanseFraMottattDokument(behandlingId, erKlageEllerAnkeDokument(), referanser, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE);
@@ -243,11 +243,11 @@ public class KabalTjeneste {
                     TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE));
 
             resultat.getPåAnketKlageBehandlingId()
-                .ifPresent(b -> this.opprettReferanseFraBestilltDokument(b, erKlageOversendtBrevSent(), referanser,
+                .ifPresent(b -> opprettReferanseFraBestilltDokument(b, erKlageOversendtBrevSent(), referanser,
                     TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV));
 
             resultat.getPåAnketKlageBehandlingId()
-                .ifPresent(b -> this.opprettReferanseFraBestilltDokument(b, erKlageVedtakDokument(), referanser,
+                .ifPresent(b -> opprettReferanseFraBestilltDokument(b, erKlageVedtakDokument(), referanser,
                     TilKabalDto.DokumentReferanseType.KLAGE_VEDTAK));
         }
 
