@@ -216,18 +216,18 @@ public class KabalTjeneste {
     List<TilKabalDto.DokumentReferanse> finnDokumentReferanserForKlage(long behandlingId, KlageResultatEntitet resultat) {
         List<TilKabalDto.DokumentReferanse> referanser = new ArrayList<>();
 
-        opprettDokumentReferanseFor(behandlingId, TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV, referanser, erKlageOversendtBrevSent(),
-            erKlageOversendtHistorikkInnslagOpprettet());
+        this.opprettReferanseFraBestilltDokument(behandlingId, erKlageOversendtBrevSent(), referanser,
+            TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV);
 
         resultat.getPåKlagdBehandlingId()
-            .ifPresent(b -> opprettDokumentReferanseFor(b, TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK, referanser, erVedtakDokument(),
-                erVedtakHistorikkInnslagOpprettet()));
+            .ifPresent(b -> this.opprettReferanseFraBestilltDokument(b, erVedtakDokument(), referanser,
+                TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK));
 
-        opprettDokumentReferanseFor(behandlingId, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE, referanser, erKlageEllerAnkeDokument());
+        opprettReferanseFraMottattDokument(behandlingId, erKlageEllerAnkeDokument(), referanser, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE);
 
         resultat.getPåKlagdBehandlingId()
             .ifPresent(
-                b -> opprettDokumentReferanseFor(b, TilKabalDto.DokumentReferanseType.BRUKERS_SOEKNAD, referanser, erSøknadDokument()));
+                b -> opprettReferanseFraMottattDokument(b, erSøknadDokument(), referanser, TilKabalDto.DokumentReferanseType.BRUKERS_SOEKNAD));
 
         return referanser;
     }
@@ -235,26 +235,29 @@ public class KabalTjeneste {
     List<TilKabalDto.DokumentReferanse> finnDokumentReferanserForAnke(long behandlingId, AnkeResultatEntitet resultat, boolean bleKlageBehandletKabal) {
         List<TilKabalDto.DokumentReferanse> referanser = new ArrayList<>();
 
-        opprettDokumentReferanseFor(behandlingId, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE, referanser, erKlageEllerAnkeDokument());
+        opprettReferanseFraMottattDokument(behandlingId, erKlageEllerAnkeDokument(), referanser, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE);
 
         if (!bleKlageBehandletKabal) {
             resultat.getPåAnketKlageBehandlingId()
-                .ifPresent(b -> opprettDokumentReferanseFor(b, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE, referanser, erKlageEllerAnkeDokument()));
+                .ifPresent(b -> opprettReferanseFraMottattDokument(b, erKlageEllerAnkeDokument(), referanser,
+                    TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE));
 
             resultat.getPåAnketKlageBehandlingId()
-                .ifPresent(b -> opprettDokumentReferanseFor(b, TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV, referanser, erKlageOversendtBrevSent(), erKlageOversendtHistorikkInnslagOpprettet()));
+                .ifPresent(b -> this.opprettReferanseFraBestilltDokument(b, erKlageOversendtBrevSent(), referanser,
+                    TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV));
 
             resultat.getPåAnketKlageBehandlingId()
-                .ifPresent(b -> opprettDokumentReferanseFor(b, TilKabalDto.DokumentReferanseType.KLAGE_VEDTAK, referanser, erKlageVedtakDokument(), erVedtakHistorikkInnslagOpprettet()));
+                .ifPresent(b -> this.opprettReferanseFraBestilltDokument(b, erKlageVedtakDokument(), referanser,
+                    TilKabalDto.DokumentReferanseType.KLAGE_VEDTAK));
         }
 
         return referanser;
     }
 
-    private void opprettDokumentReferanseFor(long behandlingId,
-                                             TilKabalDto.DokumentReferanseType referanseType,
-                                             List<TilKabalDto.DokumentReferanse> referanser,
-                                             Predicate<MottattDokument> mottattDokumentPredicate) {
+    private void opprettReferanseFraMottattDokument(long behandlingId,
+                                                    Predicate<MottattDokument> mottattDokumentPredicate,
+                                                    List<TilKabalDto.DokumentReferanse> referanser,
+                                                    TilKabalDto.DokumentReferanseType referanseType) {
         finnMottattDokumentFor(behandlingId, mottattDokumentPredicate)
             .map(MottattDokument::getJournalpostId)
             .distinct()
@@ -265,18 +268,15 @@ public class KabalTjeneste {
      * Prøver å finne dokumentReferanse blant bestillte dokumenter i fpformidling - om refereansen ikke finnes
      * så skanner man gjennom historikk innslag til å finne riktig referanse der.
      * @param behandlingId - Behandling referanse.
-     * @param referanseType - Hva slags referanseType skal opprettes som resultat.
-     * @param referanser - resultat list med referanser.
      * @param bestilltDokumentPredicate - predicate filter til å filtrere riktig dokument fra bestillte dokumenter.
-     * @param historikkInnslagPredicate - predicate filter til å filtrere riktig dokument fra historikk innslag.
+     * @param referanser - resultat list med referanser.
+     * @param referanseType - Hva slags referanseType skal opprettes som resultat.
      */
-    private void opprettDokumentReferanseFor(long behandlingId,
-                                             TilKabalDto.DokumentReferanseType referanseType,
-                                             List<TilKabalDto.DokumentReferanse> referanser,
-                                             Predicate<BehandlingDokumentBestiltEntitet> bestilltDokumentPredicate,
-                                             Predicate<HistorikkinnslagDokumentLink> historikkInnslagPredicate) {
+    private void opprettReferanseFraBestilltDokument(long behandlingId,
+                                                     Predicate<BehandlingDokumentBestiltEntitet> bestilltDokumentPredicate,
+                                                     List<TilKabalDto.DokumentReferanse> referanser,
+                                                     TilKabalDto.DokumentReferanseType referanseType) {
         hentBestilltDokumentFor(behandlingId, bestilltDokumentPredicate)
-            .or(() -> hentDokumentFraHistorikkFor(behandlingId, historikkInnslagPredicate))
             .ifPresent(opprettDokumentReferanse(referanser, referanseType));
     }
 
@@ -288,17 +288,6 @@ public class KabalTjeneste {
             .filter(filterPredicate)
             .map(BehandlingDokumentBestiltEntitet::getJournalpostId)
             .filter(Objects::nonNull)
-            .findFirst();
-    }
-
-    private Optional<JournalpostId> hentDokumentFraHistorikkFor(long behandlingId, Predicate<HistorikkinnslagDokumentLink> filterPredicate) {
-        return historikkRepository.hentHistorikk(behandlingId)
-            .stream()
-            .flatMap(h -> h.getDokumentLinker().stream())
-            .filter(filterPredicate)
-            .map(HistorikkinnslagDokumentLink::getJournalpostId)
-            .filter(Objects::nonNull)
-            .distinct()
             .findFirst();
     }
 
@@ -325,14 +314,6 @@ public class KabalTjeneste {
 
     private Predicate<BehandlingDokumentBestiltEntitet> erKlageVedtakDokument() {
         return d -> d.getDokumentMalType() != null && DokumentMalType.erKlageVedtaksBrev(DokumentMalType.fraKode(d.getDokumentMalType()));
-    }
-
-    private Predicate<HistorikkinnslagDokumentLink> erKlageOversendtHistorikkInnslagOpprettet() {
-        return d -> d.getLinkTekst().equals(DokumentMalType.KLAGE_OVERSENDT.getNavn());
-    }
-
-    private Predicate<HistorikkinnslagDokumentLink> erVedtakHistorikkInnslagOpprettet() {
-        return d -> DokumentMalType.VEDTAKSBREV.stream().anyMatch(malType -> d.getLinkTekst().equals(malType.getNavn()));
     }
 
     private void opprettHistorikkinnslagKlage(Behandling behandling, KabalUtfall utfall) {
