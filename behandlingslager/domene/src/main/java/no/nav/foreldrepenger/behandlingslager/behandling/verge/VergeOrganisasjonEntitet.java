@@ -30,8 +30,7 @@ public class VergeOrganisasjonEntitet extends BaseCreateableEntitet {
     @OneToOne(mappedBy = "vergeOrganisasjon")
     VergeEntitet verge;
 
-    VergeOrganisasjonEntitet() {
-    }
+    protected VergeOrganisasjonEntitet() {}
 
     // deep copy
     VergeOrganisasjonEntitet(VergeOrganisasjonEntitet vergeOrganisasjon, VergeEntitet verge) {
@@ -39,7 +38,6 @@ public class VergeOrganisasjonEntitet extends BaseCreateableEntitet {
         this.navn = vergeOrganisasjon.getNavn();
         this.verge = verge;
     }
-
 
     public String getOrganisasjonsnummer() {
         return organisasjonsnummer;

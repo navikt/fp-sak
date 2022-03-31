@@ -18,7 +18,7 @@ public enum VergeType implements Kodeverdi {
     VOKSEN("VOKSEN", "Verge for voksen"),
     ADVOKAT("ADVOKAT", "Advokat/advokatfullmektig"),
     ANNEN_F("ANNEN_F", "Annen fullmektig"),
-    UDEFINERT("-", "Ikke satt eller valgt kode"),;
+    ;
 
     private static final Map<String, VergeType> KODER = new LinkedHashMap<>();
 

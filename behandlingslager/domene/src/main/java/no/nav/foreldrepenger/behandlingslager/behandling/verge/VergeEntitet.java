@@ -41,7 +41,7 @@ public class VergeEntitet extends BaseCreateableEntitet {
 
     @Convert(converter = VergeType.KodeverdiConverter.class)
     @Column(name = "verge_type", nullable = false)
-    VergeType vergeType = VergeType.UDEFINERT;
+    VergeType vergeType;
 
 
     @OneToOne(cascade = CascadeType.PERSIST)
