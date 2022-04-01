@@ -18,9 +18,6 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,8 +35,6 @@ public class InaktiveArbeidsforholdUtleder {
     private static final Set<RelatertYtelseType> YTELSER_SOM_IKKE_PÅVIRKER_IM = Set.of(RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE, RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, RelatertYtelseType.DAGPENGER, RelatertYtelseType.OMSORGSPENGER);
     private static final int AKTIVE_MÅNEDER_FØR_STP = 6;
     private static final int NYOPPSTARTEDE_ARBEIDSFORHOLD_ALDER_I_MND = 4;
-
-    private static final Logger LOG = LoggerFactory.getLogger(InaktiveArbeidsforholdUtleder.class);
 
     public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> finnKunAktive(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, BehandlingReferanse referanse) {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> kunAktiveArbeidsforhold = new HashMap<>();
@@ -131,6 +126,14 @@ public class InaktiveArbeidsforholdUtleder {
         if (overlappendeAnvisninger.isEmpty()) {
             return false;
         }
+
+        var allePerioderHarAnvisteAndeler = overlappendeAnvisninger.stream().noneMatch(anv -> anv.getYtelseAnvistAndeler() == null || anv.getYtelseAnvistAndeler().isEmpty());
+
+        if (!allePerioderHarAnvisteAndeler) {
+            // Har ikke datagrunnlag for å kunne se hva ytelsen er basert på, antar at arbeidsforhold er aktivt
+            return true;
+        }
+
         return overlappendeAnvisninger.stream()
             .anyMatch(a -> harAndelHosArbeidsgiverMedUtbetaling(a, arbeidsgiver));
     }

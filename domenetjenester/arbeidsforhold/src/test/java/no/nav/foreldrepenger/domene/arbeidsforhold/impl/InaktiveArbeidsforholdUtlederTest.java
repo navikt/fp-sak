@@ -132,6 +132,19 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     @Test
+    public void bruker_ytelse_anvist_når_ingen_anviste_andeler() {
+        // Arrange
+        lagArbeid(arbeidsgiver("999999999"), STP.minusYears(2), Tid.TIDENES_ENDE);
+        lagYtelse(null, STP.minusMonths(2), STP.minusMonths(1), RelatertYtelseType.SYKEPENGER);
+
+        // Act
+        var erInaktivt = utled(arbeidsgiver("999999999"), byggIAY());
+
+        // Assert
+        assertThat(erInaktivt).isFalse();
+    }
+
+    @Test
     public void er_aktivt_når_det_har_kommet_inntektsmelding_fra_arbeidsgiver() {
         // Arrange
         lagIM(arbeidsgiver("999999999"));
@@ -154,19 +167,20 @@ class InaktiveArbeidsforholdUtlederTest {
     private void lagYtelse(Arbeidsgiver arbeidsgiver, LocalDate fom, LocalDate tom, RelatertYtelseType ytelse) {
         YtelseBuilder builder = ytelseBuilder.getYtelselseBuilderForType(Fagsystem.AAREGISTERET, ytelse, new Saksnummer("12313123"));
         builder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
-        var anvistAndel = YtelseAnvistAndelBuilder.ny()
+        var ytelseAnvist = builder.getAnvistBuilder()
+            .medAnvistPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
+            .medDagsats(BigDecimal.valueOf(500))
+            .medUtbetalingsgradProsent(BigDecimal.valueOf(100));
+        if (arbeidsgiver != null) {
+            var anvistAndel = YtelseAnvistAndelBuilder.ny()
             .medArbeidsgiver(arbeidsgiver)
             .medDagsats(BigDecimal.valueOf(500))
             .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .build();
-        var ytelseAnvist = builder.getAnvistBuilder()
-            .medAnvistPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
-            .medDagsats(BigDecimal.valueOf(500))
-            .medUtbetalingsgradProsent(BigDecimal.valueOf(100))
-            .leggTilYtelseAnvistAndel(anvistAndel)
-            .build();
-        builder.medYtelseAnvist(ytelseAnvist);
+            ytelseAnvist.leggTilYtelseAnvistAndel(anvistAndel);
+        }
+        builder.medYtelseAnvist(ytelseAnvist.build());
         ytelseBuilder.leggTilYtelse(builder);
     }
 
