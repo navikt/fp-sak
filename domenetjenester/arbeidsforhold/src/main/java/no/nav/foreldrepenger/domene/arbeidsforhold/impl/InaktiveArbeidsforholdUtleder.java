@@ -11,14 +11,12 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelse;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvistAndel;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -27,18 +25,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Tjeneste som skal utlede om en arbeidsgiver er inaktiv eller ikke,
- * for å filtrere ut unødvendige arbeidsforhold fra å måtte avklares.
+ * for å filtrere ut unødvendige arbeidsforhold fra å kreve inntektsmelding.
  */
 public class InaktiveArbeidsforholdUtleder {
-    private static final Set<String> NØDNUMRE = Set.of("971278420", "971278439", "971248106", "971373032", "871400172");
     private static final Set<RelatertYtelseType> YTELSER_SOM_IKKE_PÅVIRKER_IM = Set.of(RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE, RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, RelatertYtelseType.DAGPENGER, RelatertYtelseType.OMSORGSPENGER);
-    private static final int AKTIVE_MÅNEDER_FØR_STP = 10;
+    private static final int AKTIVE_MÅNEDER_FØR_STP = 6;
     private static final int NYOPPSTARTEDE_ARBEIDSFORHOLD_ALDER_I_MND = 4;
-
-    private static final Logger LOG = LoggerFactory.getLogger(InaktiveArbeidsforholdUtleder.class);
 
     public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> finnKunAktive(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, BehandlingReferanse referanse) {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> kunAktiveArbeidsforhold = new HashMap<>();
@@ -81,8 +77,7 @@ public class InaktiveArbeidsforholdUtleder {
             .orElse(Collections.emptyList());
         return ytelser.stream()
             .filter(yt-> !YTELSER_SOM_IKKE_PÅVIRKER_IM.contains(yt.getRelatertYtelseType()))
-            .filter(yt -> harYtelseIPeriode(yt, periodeViDefinererSomAkivt))
-            .anyMatch(yt -> erYtelseForAG(yt, arbeidsgiver));
+            .anyMatch(yt -> harYtelseForArbeidsforholdIPeriode(yt, periodeViDefinererSomAkivt, arbeidsgiver));
     }
 
     private static boolean harHattInntektIPeriode(Arbeidsgiver arbeidsgiver, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag, AktørId søkerAktørId, LocalDate stp) {
@@ -97,10 +92,16 @@ public class InaktiveArbeidsforholdUtleder {
     }
 
     private static boolean erNyoppstartet(Arbeidsgiver arbeidsgiver, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag, AktørId søkerAktørId, LocalDate stp) {
-        var alleArbeidsforhold = inntektArbeidYtelseGrunnlag.getAktørArbeidFraRegister(søkerAktørId)
-            .map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(Collections.emptyList());
-        return alleArbeidsforhold.stream()
+        var alleArbeidsforholdHosAG = inntektArbeidYtelseGrunnlag.getAktørArbeidFraRegister(søkerAktørId)
+            .map(AktørArbeid::hentAlleYrkesaktiviteter)
+            .orElse(Collections.emptyList())
+            .stream()
             .filter(arb -> arb.getArbeidsgiver() != null && arb.getArbeidsgiver().equals(arbeidsgiver))
+            .collect(Collectors.toList());
+        if (alleArbeidsforholdHosAG.isEmpty()) {
+            return false;
+        }
+        return alleArbeidsforholdHosAG.stream()
             .noneMatch(arb -> erEldreEnnGrense(arb, stp));
     }
 
@@ -117,31 +118,37 @@ public class InaktiveArbeidsforholdUtleder {
             .anyMatch(post -> !post.getBeløp().erNullEllerNulltall());
     }
 
-    private static boolean erYtelseForAG(Ytelse ytelse, Arbeidsgiver arbeidsgiver) {
-        var ytelsestørrelser = ytelse.getYtelseGrunnlag()
-            .map(YtelseGrunnlag::getYtelseStørrelse)
-            .orElse(Collections.emptyList());
-        if (ytelsestørrelser.isEmpty()) {
-            LOG.info("Mottok ingen ytelsestørrelse for ytelse, defaulter til true");
+    private static boolean harYtelseForArbeidsforholdIPeriode(Ytelse ytelse, DatoIntervallEntitet periode, Arbeidsgiver arbeidsgiver) {
+        var overlappendeAnvisninger = ytelse.getYtelseAnvist()
+            .stream()
+            .filter(ya -> periode.inkluderer(ya.getAnvistFOM()) || periode.inkluderer(ya.getAnvistTOM()))
+            .collect(Collectors.toList());
+        if (overlappendeAnvisninger.isEmpty()) {
+            return false;
+        }
+
+        var allePerioderHarAnvisteAndeler = overlappendeAnvisninger.stream().noneMatch(anv -> anv.getYtelseAnvistAndeler() == null || anv.getYtelseAnvistAndeler().isEmpty());
+
+        if (!allePerioderHarAnvisteAndeler) {
+            // Har ikke datagrunnlag for å kunne se hva ytelsen er basert på, antar at arbeidsforhold er aktivt
             return true;
         }
-        return ytelsestørrelser.stream().anyMatch(ys -> kanMatcheAG(arbeidsgiver, ys));
+
+        return overlappendeAnvisninger.stream()
+            .anyMatch(a -> harAndelHosArbeidsgiverMedUtbetaling(a, arbeidsgiver));
     }
 
-    private static boolean kanMatcheAG(Arbeidsgiver arbeidsgiver, YtelseStørrelse ys) {
-        // Hvis orgnr mangler kan det være at det gjelder for arbeidsgiver, så hvis det mangler returnerer vi true for sikkerhets skyld
-        boolean matcherOrgnr = ys.getOrgnr().map(org -> org.equals(arbeidsgiver.getIdentifikator())).orElse(true);
-        if (matcherOrgnr) {
-            return true;
-        }
-        return NØDNUMRE.contains(arbeidsgiver.getIdentifikator());
+    private static boolean harAndelHosArbeidsgiverMedUtbetaling(YtelseAnvist anvisning, Arbeidsgiver arbeidsgiver) {
+        return anvisning.getYtelseAnvistAndeler().stream()
+            .filter(andel -> matcherArbeidsgiver(arbeidsgiver, andel))
+            .anyMatch(andel -> andel.getDagsats() != null && !andel.getDagsats().erNullEllerNulltall());
     }
 
-    private static boolean harYtelseIPeriode(Ytelse ytelse, DatoIntervallEntitet periode) {
-        if (ytelse.getYtelseAnvist().isEmpty()) {
-            return ytelse.getPeriode().overlapper(periode);
+    private static Boolean matcherArbeidsgiver(Arbeidsgiver arbeidsgiver, YtelseAnvistAndel andel) {
+        if (andel.getArbeidsgiver().isEmpty()) {
+            return false;
         }
-        return ytelse.getYtelseAnvist().stream()
-            .anyMatch(ya -> periode.inkluderer(ya.getAnvistFOM()) || periode.inkluderer(ya.getAnvistTOM()));
+        var ytelseAG = andel.getArbeidsgiver().get();
+        return ytelseAG.equals(arbeidsgiver) || Nødnummer.erNødnummer(ytelseAG.getIdentifikator());
     }
 }
