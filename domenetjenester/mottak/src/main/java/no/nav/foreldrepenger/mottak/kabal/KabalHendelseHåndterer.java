@@ -89,20 +89,11 @@ public class KabalHendelseHåndterer {
                 task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().klagebehandlingAvsluttet().utfall().name());
                 mottattHendelse.detaljer().klagebehandlingAvsluttet().journalpostReferanser().stream()
                     .findFirst().ifPresent(journalpost -> task.setProperty(MottaFraKabalTask.JOURNALPOST_KEY, journalpost));
-            } else if (KabalHendelse.BehandlingEventType.ANKEBEHANDLING_OPPRETTET.equals(mottattHendelse.type())) {
-                task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().klagebehandlingAvsluttet().utfall().name());
-
             } else if (KabalHendelse.BehandlingEventType.ANKEBEHANDLING_AVSLUTTET.equals(mottattHendelse.type())) {
                 task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().ankebehandlingAvsluttet().utfall().name());
                 mottattHendelse.detaljer().ankebehandlingAvsluttet().journalpostReferanser().stream()
                     .findFirst().ifPresent(journalpost -> task.setProperty(MottaFraKabalTask.JOURNALPOST_KEY, journalpost));
-            } else {
-                LOG.warn("KABAL mottatt hendelse med ukjent type key={} hendelse={}", key, mottattHendelse);
-                return;
             }
-            task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().klagebehandlingAvsluttet().utfall().name());
-            mottattHendelse.detaljer().klagebehandlingAvsluttet().journalpostReferanser().stream()
-                .findFirst().ifPresent(journalpost -> task.setProperty(MottaFraKabalTask.JOURNALPOST_KEY, journalpost));
             taskTjeneste.lagre(task);
         } catch (VLException e) {
             LOG.info("FP-328773 KABAL Feil under parsing av vedtak. key={} payload={}", key, payload, e);
