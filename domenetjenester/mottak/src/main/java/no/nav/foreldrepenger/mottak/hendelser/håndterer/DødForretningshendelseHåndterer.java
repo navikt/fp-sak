@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelsestypeRef;
 import no.nav.foreldrepenger.mottak.hendelser.ToForeldreBarnDødTjeneste;
 
 @ApplicationScoped
-@ForretningshendelsestypeRef(ForretningshendelsestypeRef.DØD_HENDELSE)
+@ForretningshendelsestypeRef(ForretningshendelseType.DØD)
 public class DødForretningshendelseHåndterer implements ForretningshendelseHåndterer {
 
     private ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles;

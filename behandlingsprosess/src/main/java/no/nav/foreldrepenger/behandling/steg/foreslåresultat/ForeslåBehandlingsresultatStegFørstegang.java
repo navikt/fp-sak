@@ -8,13 +8,14 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
-@BehandlingStegRef(kode = BehandlingStegKoder.FORESLÅ_BEHANDLINGSRESULTAT_KODE)
+@BehandlingStegRef(BehandlingStegType.FORESLÅ_BEHANDLINGSRESULTAT)
 @FagsakYtelseTypeRef
-@BehandlingTypeRef("BT-002")
+@BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD)
 @ApplicationScoped
 class ForeslåBehandlingsresultatStegFørstegang extends ForeslåBehandlingsresultatStegFelles {
 

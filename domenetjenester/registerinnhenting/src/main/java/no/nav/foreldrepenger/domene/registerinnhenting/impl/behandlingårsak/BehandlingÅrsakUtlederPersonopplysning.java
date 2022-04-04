@@ -11,11 +11,12 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDiff;
 
 @ApplicationScoped
-@GrunnlagRef("PersonInformasjon")
+@GrunnlagRef(PersonInformasjonEntitet.ENTITY_NAME)
 class BehandlingÅrsakUtlederPersonopplysning implements BehandlingÅrsakUtleder {
     private static final Logger LOG = LoggerFactory.getLogger(BehandlingÅrsakUtlederPersonopplysning.class);
 

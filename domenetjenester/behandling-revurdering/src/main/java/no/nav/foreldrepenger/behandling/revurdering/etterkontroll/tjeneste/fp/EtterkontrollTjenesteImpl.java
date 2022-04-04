@@ -27,12 +27,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
 @ApplicationScoped
-@FagsakYtelseTypeRef("FP")
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(EtterkontrollTjenesteImpl.class);
@@ -53,7 +54,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
             BehandlingRevurderingRepository behandlingRevurderingRepository,
             ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
             BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-            @FagsakYtelseTypeRef("FP") RevurderingTjeneste revurderingTjeneste,
+            @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingTjeneste revurderingTjeneste,
             BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.revurderingHistorikk = new RevurderingHistorikk(historikkRepository);

@@ -21,11 +21,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @ApplicationScoped
-@FagsakYtelseTypeRef("ES")
+@FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
 public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
     private Period tpsRegistreringsTidsrom;
@@ -42,7 +43,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     public EtterkontrollTjenesteImpl(BehandlingVedtakRepository vedtakRepository,
             LegacyESBeregningRepository esBeregningRepository,
             BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-            @FagsakYtelseTypeRef("ES") RevurderingTjeneste revurderingTjeneste,
+            @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) RevurderingTjeneste revurderingTjeneste,
             @KonfigVerdi(value = "etterkontroll.tpsregistrering.periode", defaultVerdi = "P11W") Period tpsRegistreringsTidsrom) {
         this.tpsRegistreringsTidsrom = tpsRegistreringsTidsrom;
         this.behandlingVedtakRepository = vedtakRepository;

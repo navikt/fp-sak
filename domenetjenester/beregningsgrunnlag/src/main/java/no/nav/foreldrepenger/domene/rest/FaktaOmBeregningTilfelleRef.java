@@ -43,20 +43,20 @@ public @interface FaktaOmBeregningTilfelleRef {
      *
      * @see FaktaOmBeregningTilfelle
      */
-    String value() default "*";
+    FaktaOmBeregningTilfelle value();
 
     /** AnnotationLiteral som kan brukes ved CDI søk. */
     class FaktaOmBeregningTilfelleRefLiteral extends AnnotationLiteral<FaktaOmBeregningTilfelleRef> implements FaktaOmBeregningTilfelleRef {
 
-        private String navn;
+        private FaktaOmBeregningTilfelle tilfelle;
 
-        FaktaOmBeregningTilfelleRefLiteral(String navn) {
-            this.navn = navn;
+        FaktaOmBeregningTilfelleRefLiteral(FaktaOmBeregningTilfelle tilfelle) {
+            this.tilfelle = tilfelle;
         }
 
         @Override
-        public String value() {
-            return navn;
+        public FaktaOmBeregningTilfelle value() {
+            return tilfelle;
         }
 
     }
@@ -71,29 +71,23 @@ public @interface FaktaOmBeregningTilfelleRef {
          * injected med riktig forventet klassetype og @Any qualifier.
          */
         public static <I> Optional<I> find(Instance<I> instances, FaktaOmBeregningTilfelle faktaOmBeregningTilfelle) {
-            return find(null, instances, faktaOmBeregningTilfelle.getKode());
-        }
-
-        public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, String faktaOmBeregningTilfelleKode) {
             Objects.requireNonNull(instances, "instances");
 
-            for (var faktaOmBeregningLiteral : coalesce(faktaOmBeregningTilfelleKode, "*")) {
-                var inst = select(cls, instances, new FaktaOmBeregningTilfelleRefLiteral(faktaOmBeregningLiteral));
-                if (inst.isResolvable()) {
-                    return Optional.of(getInstance(inst));
-                }
-                if (inst.isAmbiguous()) {
-                    throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", faktaOmBeregnintTilfelle=" + faktaOmBeregningLiteral);
-                }
+
+            var inst = select(instances, new FaktaOmBeregningTilfelleRefLiteral(faktaOmBeregningTilfelle));
+            if (inst.isResolvable()) {
+                return Optional.of(getInstance(inst));
             }
+            if (inst.isAmbiguous()) {
+                throw new IllegalStateException("Har flere matchende instanser for faktaOmBeregningTilfelle=" + faktaOmBeregningTilfelle);
+            }
+
 
             return Optional.empty();
         }
 
-        private static <I> Instance<I> select(Class<I> cls, Instance<I> instances, Annotation anno) {
-            return cls != null
-                ? instances.select(cls, anno)
-                : instances.select(anno);
+        private static <I> Instance<I> select(Instance<I> instances, Annotation anno) {
+            return instances.select(anno);
         }
 
         private static <I> I getInstance(Instance<I> inst) {
@@ -103,10 +97,6 @@ public @interface FaktaOmBeregningTilfelleRef {
                     "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + i.getClass());
             }
             return i;
-        }
-
-        private static List<String> coalesce(String... vals) {
-            return Arrays.stream(vals).filter(v -> v != null).distinct().collect(Collectors.toList());
         }
     }
 

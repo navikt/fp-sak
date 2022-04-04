@@ -53,6 +53,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
@@ -108,7 +109,7 @@ public class UttakStegImplTest {
     @Inject
     private BehandlingLåsRepository behandlingLåsRepository;
     @Inject
-    @FagsakYtelseTypeRef("FP")
+    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
     private UttakStegImpl steg;
 
     private Behandling opprettBehandling() {

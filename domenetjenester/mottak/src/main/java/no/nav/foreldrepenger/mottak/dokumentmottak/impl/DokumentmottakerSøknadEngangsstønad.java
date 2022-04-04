@@ -9,13 +9,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 
 @ApplicationScoped
-@FagsakYtelseTypeRef("ES")
-@DokumentGruppeRef("SØKNAD")
+@FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
+@DokumentGruppeRef(DokumentGruppe.SØKNAD)
 public class DokumentmottakerSøknadEngangsstønad extends DokumentmottakerSøknad {
 
     @Inject

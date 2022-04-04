@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
@@ -18,7 +19,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.familiehendelse.dødsfall.BarnBorteEndringIdentifiserer;
 
 @ApplicationScoped
-@GrunnlagRef("PersonInformasjon")
+@GrunnlagRef(PersonInformasjonEntitet.ENTITY_NAME)
 class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
 
     private PersonopplysningRepository personopplysningRepository;

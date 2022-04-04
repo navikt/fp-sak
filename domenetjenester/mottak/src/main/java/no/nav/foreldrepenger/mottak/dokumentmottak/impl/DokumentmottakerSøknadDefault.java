@@ -5,14 +5,15 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 
 @ApplicationScoped
-@FagsakYtelseTypeRef("FP")
-@FagsakYtelseTypeRef("SVP")
-@DokumentGruppeRef("SØKNAD")
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
+@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
+@DokumentGruppeRef(DokumentGruppe.SØKNAD)
 public class DokumentmottakerSøknadDefault extends DokumentmottakerSøknad {
 
     @Inject

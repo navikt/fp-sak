@@ -12,7 +12,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
@@ -22,7 +21,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
 
 // Steget sikrer at vilkårne blir vurdert samlet som inngangsvilkår
-@BehandlingStegRef(kode = BehandlingStegKoder.VURDER_SAMLET_KODE)
+@BehandlingStegRef(BehandlingStegType.VURDER_SAMLET)
 @BehandlingTypeRef
 @FagsakYtelseTypeRef
 @ApplicationScoped

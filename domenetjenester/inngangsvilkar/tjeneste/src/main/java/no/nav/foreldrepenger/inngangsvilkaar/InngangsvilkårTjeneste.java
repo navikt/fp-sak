@@ -54,9 +54,9 @@ public class InngangsvilkårTjeneste {
      * Finn {@link Inngangsvilkår} for angitt {@link VilkårType}. Husk at denne må closes når du er ferdig med den.
      */
     public Inngangsvilkår finnVilkår(VilkårType vilkårType, FagsakYtelseType fagsakYtelseType) {
-        var selected = alleInngangsvilkår.select(new VilkårTypeRefLiteral(vilkårType.getKode()));
+        var selected = alleInngangsvilkår.select(new VilkårTypeRefLiteral(vilkårType));
         if (selected.isAmbiguous()) {
-            selected = selected.select(new FagsakYtelseTypeRef.FagsakYtelseTypeRefLiteral(fagsakYtelseType.getKode()));
+            selected = selected.select(new FagsakYtelseTypeRef.FagsakYtelseTypeRefLiteral(fagsakYtelseType));
             if (selected.isAmbiguous()) {
                 throw new IllegalArgumentException("Mer enn en implementasjon funnet for vilkårtype:" + vilkårType);
             }
@@ -78,7 +78,7 @@ public class InngangsvilkårTjeneste {
      * @return true hvis {@code vilkårType} er et {@link Inngangsvilkår}
      */
     public boolean erInngangsvilkår(VilkårType vilkårType) {
-        var selected = alleInngangsvilkår.select(new VilkårTypeRefLiteral(vilkårType.getKode()));
+        var selected = alleInngangsvilkår.select(new VilkårTypeRefLiteral(vilkårType));
         return !selected.isUnsatisfied();
     }
 

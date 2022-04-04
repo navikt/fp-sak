@@ -16,12 +16,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.FagsakStatusOppdateringResultat;
 import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatus;
 
 @ApplicationScoped
-@FagsakYtelseTypeRef("SVP")
+@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
 
     private BehandlingRepository behandlingRepository;
@@ -37,7 +38,7 @@ public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
                                     FagsakRepository fagsakRepository,
                                     FagsakStatusEventPubliserer fagsakStatusEventPubliserer,
                                     BehandlingsresultatRepository behandlingsresultatRepository,
-                                    @FagsakYtelseTypeRef("SVP") MaksDatoUttakTjeneste maksDatoUttakTjeneste,
+                                    @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) MaksDatoUttakTjeneste maksDatoUttakTjeneste,
                                     UttakInputTjeneste uttakInputTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.fagsakRepository = fagsakRepository;

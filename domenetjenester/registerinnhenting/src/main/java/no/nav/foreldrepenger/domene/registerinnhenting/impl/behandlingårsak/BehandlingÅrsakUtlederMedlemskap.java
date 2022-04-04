@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 
 @ApplicationScoped
-@GrunnlagRef("MedlemskapAggregat")
+@GrunnlagRef(GrunnlagRef.MEDLEM_GRUNNLAG)
 class BehandlingÅrsakUtlederMedlemskap implements BehandlingÅrsakUtleder {
 
     @Inject

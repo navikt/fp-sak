@@ -8,6 +8,7 @@ import org.jboss.weld.exceptions.UnsupportedOperationException;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
@@ -26,7 +27,7 @@ import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.TilretteleggingLis
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Virksomhet;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 
-@FagsakYtelseTypeRef("SVP")
+@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @BehandlingTypeRef
 @ApplicationScoped
 public class YtelseSøknadMapper implements SøknadMapper {

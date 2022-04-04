@@ -21,13 +21,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.FagsakStatusOppdateringResultat;
 import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatus;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @ApplicationScoped
-@FagsakYtelseTypeRef("FP")
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
 
     private BehandlingRepository behandlingRepository;
@@ -46,7 +47,7 @@ public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
                                     FagsakStatusEventPubliserer fagsakStatusEventPubliserer,
                                     BehandlingsresultatRepository behandlingsresultatRepository,
                                     FamilieHendelseRepository familieHendelseRepository,
-                                    @FagsakYtelseTypeRef("FP") MaksDatoUttakTjeneste maksDatoUttakTjeneste,
+                                    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) MaksDatoUttakTjeneste maksDatoUttakTjeneste,
                                     UttakInputTjeneste uttakInputTjeneste,
                                     @KonfigVerdi(value = "fp.foreldelsesfrist", defaultVerdi = "P3Y") Period foreldelsesfrist) {
         this.behandlingRepository = behandlingRepository;

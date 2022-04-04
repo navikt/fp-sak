@@ -5,15 +5,16 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårTypeKoder;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.inngangsvilkaar.Inngangsvilkår;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.OpptjeningsperiodeVilkårTjeneste;
 
 @ApplicationScoped
-@VilkårTypeRef(VilkårTypeKoder.FP_VK_21)
-@FagsakYtelseTypeRef("FP")
+@VilkårTypeRef(VilkårType.OPPTJENINGSPERIODEVILKÅR)
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 public class InngangsvilkårOpptjeningsperiode implements Inngangsvilkår {
 
     private OpptjeningsperiodeVilkårTjeneste opptjeningsperiodeVilkårTjeneste;
@@ -23,7 +24,7 @@ public class InngangsvilkårOpptjeningsperiode implements Inngangsvilkår {
     }
 
     @Inject
-    public InngangsvilkårOpptjeningsperiode(@FagsakYtelseTypeRef("FP") OpptjeningsperiodeVilkårTjeneste opptjeningsperiodeVilkårTjeneste) {
+    public InngangsvilkårOpptjeningsperiode(@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) OpptjeningsperiodeVilkårTjeneste opptjeningsperiodeVilkårTjeneste) {
         this.opptjeningsperiodeVilkårTjeneste = opptjeningsperiodeVilkårTjeneste;
     }
 

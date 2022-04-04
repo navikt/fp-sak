@@ -10,7 +10,8 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -19,8 +20,8 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 
-@BehandlingStegRef(kode = BehandlingStegKoder.IVERKSETT_VEDTAK_KODE)
-@BehandlingTypeRef("BT-006") // Innsyn
+@BehandlingStegRef(BehandlingStegType.IVERKSETT_VEDTAK)
+@BehandlingTypeRef(BehandlingType.INNSYN) // Innsyn
 @FagsakYtelseTypeRef
 @ApplicationScoped
 public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {

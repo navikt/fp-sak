@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.xml.DvhPersonopplysningXmlTjeneste;
 import no.nav.foreldrepenger.datavarehus.xml.PersonopplysningXmlFelles;
 import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlUtil;
@@ -37,7 +38,7 @@ import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.es.v2.Inntekt;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.es.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.es.v2.PersonopplysningerDvhEngangsstoenad;
 
-@FagsakYtelseTypeRef("ES")
+@FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
 @ApplicationScoped
 public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTjeneste {
 

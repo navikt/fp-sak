@@ -24,7 +24,7 @@ public class ForretningshendelseHåndtererProvider {
     public ForretningshendelseHåndterer finnHåndterer(ForretningshendelseType forretningshendelseType, FagsakYtelseType ytelseType) {
         var selected = håndterere.select(new ForretningshendelsestypeRef.ForretningshendelsestypeRefLiteral(forretningshendelseType));
         if (selected.isAmbiguous()) {
-            selected = selected.select(new FagsakYtelseTypeRef.FagsakYtelseTypeRefLiteral(ytelseType.getKode()));
+            selected = selected.select(new FagsakYtelseTypeRef.FagsakYtelseTypeRefLiteral(ytelseType));
         }
         if (selected.isAmbiguous()) {
             throw new IllegalArgumentException("Mer enn en implementasjon funnet for forretningshendelsetype:" + forretningshendelseType);

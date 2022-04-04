@@ -16,13 +16,14 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerSøknad;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp.KompletthetsjekkerFelles;
 
-@FagsakYtelseTypeRef("SVP")
+@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @BehandlingTypeRef
 @ApplicationScoped
 public class KompletthetsjekkerImpl implements Kompletthetsjekker {
@@ -38,7 +39,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     }
 
     @Inject
-    public KompletthetsjekkerImpl(@FagsakYtelseTypeRef("SVP") KompletthetssjekkerSøknad kompletthetssjekkerSøknad,
+    public KompletthetsjekkerImpl(@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) KompletthetssjekkerSøknad kompletthetssjekkerSøknad,
                                  KompletthetsjekkerFelles fellesUtil) {
         this.kompletthetssjekkerSøknad = kompletthetssjekkerSøknad;
         this.fellesUtil = fellesUtil;

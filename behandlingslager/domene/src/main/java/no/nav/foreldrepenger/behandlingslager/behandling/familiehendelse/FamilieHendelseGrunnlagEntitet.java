@@ -31,9 +31,11 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
  *
  * @see no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelse
  */
-@Entity(name = "FamilieHendelseGrunnlag")
+@Entity(name = FamilieHendelseGrunnlagEntitet.ENTITY_NAME)
 @Table(name = "GR_FAMILIE_HENDELSE")
 public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
+
+    public static final String ENTITY_NAME = "FamilieHendelseGrunnlag";
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_GR_FAMILIE_HENDELSE")

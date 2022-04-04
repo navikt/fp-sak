@@ -10,19 +10,21 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerSøknad;
 
 @ApplicationScoped
-@BehandlingTypeRef("BT-004")
-@FagsakYtelseTypeRef("FP")
+@BehandlingTypeRef(BehandlingType.REVURDERING)
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 public class KompletthetsjekkerRevurderingImpl implements Kompletthetsjekker {
 
     private KompletthetssjekkerSøknad kompletthetssjekkerSøknad;
@@ -35,7 +37,7 @@ public class KompletthetsjekkerRevurderingImpl implements Kompletthetsjekker {
     }
 
     @Inject
-    public KompletthetsjekkerRevurderingImpl(@FagsakYtelseTypeRef("FP") @BehandlingTypeRef("BT-004") KompletthetssjekkerSøknad kompletthetssjekkerSøknad,
+    public KompletthetsjekkerRevurderingImpl(@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) @BehandlingTypeRef(BehandlingType.REVURDERING) KompletthetssjekkerSøknad kompletthetssjekkerSøknad,
                                            KompletthetsjekkerFelles fellesUtil,
                                            SøknadRepository søknadRepository,
                                            BehandlingVedtakRepository behandlingVedtakRepository) {

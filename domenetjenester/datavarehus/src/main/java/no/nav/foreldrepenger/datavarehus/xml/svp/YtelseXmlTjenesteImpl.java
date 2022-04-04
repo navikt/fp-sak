@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlUtil;
 import no.nav.foreldrepenger.datavarehus.xml.YtelseXmlTjeneste;
 import no.nav.vedtak.felles.xml.vedtak.v2.Beregningsresultat;
@@ -19,7 +20,7 @@ import no.nav.vedtak.felles.xml.vedtak.v2.TilkjentYtelse;
 import no.nav.vedtak.felles.xml.vedtak.ytelse.svp.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.ytelse.svp.v2.YtelseSvangerskapspenger;
 
-@FagsakYtelseTypeRef("SVP")
+@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @ApplicationScoped
 public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
     BeregningsresultatRepository beregningsresultatRepository;

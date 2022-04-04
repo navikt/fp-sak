@@ -23,9 +23,11 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.konfig.Tid;
 
-@Entity(name = "PersonInformasjon")
+@Entity(name = PersonInformasjonEntitet.ENTITY_NAME)
 @Table(name = "PO_INFORMASJON")
 public class PersonInformasjonEntitet extends BaseEntitet {
+
+    public static final String ENTITY_NAME = "PersonInformasjon";
 
     private static final String REF_NAME = "personopplysningInformasjon";
 

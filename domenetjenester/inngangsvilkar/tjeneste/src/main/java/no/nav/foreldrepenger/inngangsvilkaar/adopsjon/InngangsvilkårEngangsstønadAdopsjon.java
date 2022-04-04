@@ -5,7 +5,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårTypeKoder;
 import no.nav.foreldrepenger.inngangsvilkaar.Inngangsvilkår;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
@@ -13,7 +12,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.AdopsjonsvilkårEngangsstønad;
 
 @ApplicationScoped
-@VilkårTypeRef(VilkårTypeKoder.FP_VK_4)
+@VilkårTypeRef(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD)
 public class InngangsvilkårEngangsstønadAdopsjon implements Inngangsvilkår {
 
     private InngangsvilkårOversetter inngangsvilkårOversetter;

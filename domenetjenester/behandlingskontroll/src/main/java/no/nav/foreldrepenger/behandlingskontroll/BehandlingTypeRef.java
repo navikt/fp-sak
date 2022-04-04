@@ -50,28 +50,24 @@ public @interface BehandlingTypeRef {
      *
      * @see BehandlingType
      */
-    String value() default "*";
+    BehandlingType value() default BehandlingType.UDEFINERT;
 
     /** AnnotationLiteral som kan brukes ved CDI søk. */
     class BehandlingTypeRefLiteral extends AnnotationLiteral<BehandlingTypeRef> implements BehandlingTypeRef {
 
-        private String navn;
+        private BehandlingType behandlingType;
 
         public BehandlingTypeRefLiteral() {
-            this.navn = "*";
+            this.behandlingType = BehandlingType.UDEFINERT;
         }
 
-        public BehandlingTypeRefLiteral(String navn) {
-            this.navn = navn;
-        }
-
-        public BehandlingTypeRefLiteral(BehandlingType ytelseType) {
-            this.navn = (ytelseType == null ? "*" : ytelseType.getKode());
+        public BehandlingTypeRefLiteral(BehandlingType behandlingType) {
+            this.behandlingType = (behandlingType== null ? BehandlingType.UDEFINERT : behandlingType);
         }
 
         @Override
-        public String value() {
-            return navn;
+        public BehandlingType value() {
+            return behandlingType;
         }
     }
 
@@ -81,30 +77,20 @@ public @interface BehandlingTypeRef {
         private Lookup() {
         }
 
-        public static <I> Optional<I> find(Class<I> cls, String ytelseTypeKode, String behandlingType) {
-            return find(cls, (CDI<I>) CDI.current(), ytelseTypeKode, behandlingType);
+        public static <I> Optional<I> find(Class<I> cls, FagsakYtelseType ytelseType, BehandlingType behandlingType) {
+            return find(cls, (CDI<I>) CDI.current(), ytelseType, behandlingType);
         }
 
-        public static <I> Optional<I> find(Class<I> cls, FagsakYtelseType ytelseTypeKode, BehandlingType behandlingType) {
-            return find(cls, (CDI<I>) CDI.current(), ytelseTypeKode, behandlingType);
-        }
-
-        public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, FagsakYtelseType ytelseTypeKode, BehandlingType behandlingType) {
-            return find(cls, instances,
-                    ytelseTypeKode == null ? null : ytelseTypeKode.getKode(),
-                    behandlingType == null ? null : behandlingType.getKode());
-        }
-
-        public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, String fagsakYtelseType, String behandlingType) { // NOSONAR
+        public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, FagsakYtelseType ytelseType, BehandlingType behandlingType) { // NOSONAR
             Objects.requireNonNull(instances, "instances");
 
-            for (var fagsakLiteral : coalesce(fagsakYtelseType, "*")) {
-                var inst = select(cls, instances, new FagsakYtelseTypeRefLiteral(fagsakLiteral));
+            for (var fagsakLiteral : List.of(ytelseType, FagsakYtelseType.UDEFINERT)) {
+                var inst = select(cls, instances, new FagsakYtelseTypeRefLiteral(ytelseType));
 
                 if (inst.isUnsatisfied()) {
                     continue;
                 }
-                for (var behandlingLiteral : coalesce(behandlingType, "*")) {
+                for (var behandlingLiteral : List.of(behandlingType, BehandlingType.UDEFINERT)) {
                     var binst = select(cls, inst, new BehandlingTypeRefLiteral(behandlingLiteral));
                     if (binst.isResolvable()) {
                         return Optional.of(getInstance(binst));
@@ -126,10 +112,6 @@ public @interface BehandlingTypeRef {
                         "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + i.getClass());
             }
             return i;
-        }
-
-        private static List<String> coalesce(String... vals) {
-            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().collect(Collectors.toList());
         }
 
         private static <I> Instance<I> select(Class<I> cls, Instance<I> instances, Annotation anno) {

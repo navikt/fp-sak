@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 
 @ApplicationScoped
-@GrunnlagRef("YtelseFordelingAggregat")
+@GrunnlagRef(GrunnlagRef.YTELSE_FORDELING_GRUNNLAG)
 class BehandlingÅrsakUtlederYtelseFordeling implements BehandlingÅrsakUtleder {
 
     @Inject

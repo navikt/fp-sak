@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlUtil;
@@ -24,7 +25,7 @@ import no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.Virksomhet;
 import no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.YtelseForeldrepenger;
 
-@FagsakYtelseTypeRef("FP")
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
 public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
     private ObjectFactory ytelseObjectFactory;

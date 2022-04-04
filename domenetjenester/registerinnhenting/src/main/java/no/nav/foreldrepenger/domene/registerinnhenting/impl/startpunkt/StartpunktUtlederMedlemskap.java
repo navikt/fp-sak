@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 @ApplicationScoped
-@GrunnlagRef("MedlemskapAggregat")
+@GrunnlagRef(GrunnlagRef.MEDLEM_GRUNNLAG)
 class StartpunktUtlederMedlemskap implements StartpunktUtleder {
 
     private MedlemskapRepository medlemskapRepository;

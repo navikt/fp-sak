@@ -45,7 +45,7 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
-@FagsakYtelseTypeRef("FP")
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste {
 
     private static final Period INTERVALL_SAMME_BARN = Period.ofWeeks(6);

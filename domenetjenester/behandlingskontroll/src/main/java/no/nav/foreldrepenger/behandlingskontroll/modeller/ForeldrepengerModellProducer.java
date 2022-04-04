@@ -14,11 +14,10 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 @ApplicationScoped
 public class ForeldrepengerModellProducer {
 
-    private static final String YTELSE = "FP";
     private static final FagsakYtelseType YTELSE_TYPE = FagsakYtelseType.FORELDREPENGER;
 
-    @FagsakYtelseTypeRef(YTELSE)
-    @BehandlingTypeRef("BT-002")
+    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
+    @BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD)
     @Produces
     @ApplicationScoped
     public BehandlingModell førstegangsbehandling() {
@@ -63,8 +62,8 @@ public class ForeldrepengerModellProducer {
         return modellBuilder.build();
     }
 
-    @FagsakYtelseTypeRef(YTELSE)
-    @BehandlingTypeRef("BT-004")
+    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
+    @BehandlingTypeRef(BehandlingType.REVURDERING)
     @Produces
     @ApplicationScoped
     public BehandlingModell revurdering() {
@@ -111,8 +110,8 @@ public class ForeldrepengerModellProducer {
         return modellBuilder.build();
     }
 
-    @FagsakYtelseTypeRef(YTELSE)
-    @BehandlingTypeRef("BT-006")
+    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
+    @BehandlingTypeRef(BehandlingType.INNSYN)
     @Produces
     @ApplicationScoped
     public BehandlingModell innsyn() {
@@ -126,8 +125,8 @@ public class ForeldrepengerModellProducer {
         return modellBuilder.build();
     }
 
-    @FagsakYtelseTypeRef(YTELSE)
-    @BehandlingTypeRef("BT-003")
+    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
+    @BehandlingTypeRef(BehandlingType.KLAGE)
     @Produces
     @ApplicationScoped
     public BehandlingModell klage() {
@@ -143,8 +142,8 @@ public class ForeldrepengerModellProducer {
         return modellBuilder.build();
     }
 
-    @FagsakYtelseTypeRef(YTELSE)
-    @BehandlingTypeRef("BT-008")
+    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
+    @BehandlingTypeRef(BehandlingType.ANKE)
     @Produces
     @ApplicationScoped
     public BehandlingModell anke() {

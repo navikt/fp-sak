@@ -19,19 +19,19 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.KopierForeldrepengerUttaktjeneste;
 import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.FastsettUttaksgrunnlagTjeneste;
 
-@BehandlingStegRef(kode = BehandlingStegKoder.SØKNADSFRIST_FORELDREPENGER_KODE)
+@BehandlingStegRef(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER)
 @BehandlingTypeRef
-@FagsakYtelseTypeRef("FP")
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
 public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements BehandlingSteg {
 
@@ -48,7 +48,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
     @Inject
     public FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(UttakInputTjeneste uttakInputTjeneste,
                                                           YtelsesFordelingRepository ytelsesFordelingRepository,
-                                                          @FagsakYtelseTypeRef("FP") VurderSøknadsfristTjeneste vurderSøknadsfristTjeneste,
+                                                          @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) VurderSøknadsfristTjeneste vurderSøknadsfristTjeneste,
                                                           FastsettUttaksgrunnlagTjeneste fastsettUttaksgrunnlagTjeneste,
                                                           BehandlingRepository behandlingRepository,
                                                           SkalKopiereUttakTjeneste skalKopiereUttakTjeneste,

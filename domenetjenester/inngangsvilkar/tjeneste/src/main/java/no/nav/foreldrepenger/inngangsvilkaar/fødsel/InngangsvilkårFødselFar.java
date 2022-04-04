@@ -5,7 +5,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårTypeKoder;
 import no.nav.foreldrepenger.inngangsvilkaar.Inngangsvilkår;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
@@ -16,7 +15,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.Fødselsvilkår
  * Adapter for å evaluere fødselsvilkåret for far.
  */
 @ApplicationScoped
-@VilkårTypeRef(VilkårTypeKoder.FP_VK_11)
+@VilkårTypeRef(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR)
 class InngangsvilkårFødselFar implements Inngangsvilkår {
     private InngangsvilkårOversetter inngangsvilkårOversetter;
 

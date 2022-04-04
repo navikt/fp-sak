@@ -15,15 +15,17 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
-@BehandlingStegRef(kode = BehandlingStegKoder.VURDER_KOMPLETTHET_KODE)
-@BehandlingTypeRef("BT-002")
-@FagsakYtelseTypeRef("FP")
+@BehandlingStegRef(BehandlingStegType.VURDER_KOMPLETTHET)
+@BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD)
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
 public class VurderKompletthetStegImpl implements VurderKompletthetSteg {
 
@@ -36,7 +38,7 @@ public class VurderKompletthetStegImpl implements VurderKompletthetSteg {
     }
 
     @Inject
-    public VurderKompletthetStegImpl(@FagsakYtelseTypeRef("FP") @BehandlingTypeRef("BT-002") Kompletthetsjekker kompletthetsjekker,
+    public VurderKompletthetStegImpl(@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) @BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD) Kompletthetsjekker kompletthetsjekker,
             BehandlingRepositoryProvider provider,
             VurderKompletthetStegFelles vurderKompletthetStegFelles,
             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {

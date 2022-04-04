@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.IAYGrunnlagDiff;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 
 @ApplicationScoped
-@GrunnlagRef("InntektArbeidYtelseGrunnlag")
+@GrunnlagRef(GrunnlagRef.IAY_GRUNNLAG)
 class BehandlingÅrsakUtlederInntektArbeidYtelse implements BehandlingÅrsakUtleder {
 
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;

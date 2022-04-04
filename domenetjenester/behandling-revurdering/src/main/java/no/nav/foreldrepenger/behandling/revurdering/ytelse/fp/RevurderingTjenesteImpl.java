@@ -37,9 +37,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 
-@FagsakYtelseTypeRef("FP")
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
 public class RevurderingTjenesteImpl implements RevurderingTjeneste {
 
@@ -70,7 +71,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
                                    BehandlingGrunnlagRepositoryProvider grunnlagProvider,
                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                    InntektArbeidYtelseTjeneste iayTjeneste,
-                                   @FagsakYtelseTypeRef("FP") RevurderingEndring revurderingEndring,
+                                   @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingEndring revurderingEndring,
                                    RevurderingTjenesteFelles revurderingTjenesteFelles,
                                    VergeRepository vergeRepository) {
         this.iayTjeneste = iayTjeneste;

@@ -10,10 +10,10 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 
-@BehandlingStegRef(kode = BehandlingStegKoder.VURDER_INNSYN_KODE)
+@BehandlingStegRef(BehandlingStegType.VURDER_INNSYN)
 @BehandlingTypeRef
 @FagsakYtelseTypeRef
 @ApplicationScoped

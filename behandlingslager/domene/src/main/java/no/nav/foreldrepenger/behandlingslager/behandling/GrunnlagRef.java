@@ -30,6 +30,10 @@ import javax.persistence.Entity;
 @Documented
 public @interface GrunnlagRef {
 
+    String IAY_GRUNNLAG = "InntektArbeidYtelseGrunnlag";
+    String MEDLEM_GRUNNLAG = "MedlemskapAggregat";
+    String YTELSE_FORDELING_GRUNNLAG = "YtelseFordelingAggregat";
+
     /**
      * Settes til navn på forretningshendelse slik det defineres i KODELISTE-tabellen.
      */
@@ -85,13 +89,13 @@ public @interface GrunnlagRef {
         public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, String aggregatClassName) {
             Objects.requireNonNull(instances, "instances");
 
-            for (var fagsakLiteral : coalesce(aggregatClassName, "*")) {
-                var inst = select(cls, instances, new GrunnlagRefLiteral(fagsakLiteral));
+            for (var grunnlagLiteral : List.of(aggregatClassName, "*")) {
+                var inst = select(cls, instances, new GrunnlagRefLiteral(grunnlagLiteral));
                 if (inst.isResolvable()) {
                     return Optional.of(getInstance(inst));
                 }
                 if (inst.isAmbiguous()) {
-                    throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType=" + fagsakLiteral);
+                    throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", grunnlag=" + grunnlagLiteral);
                 }
             }
 
@@ -113,9 +117,6 @@ public @interface GrunnlagRef {
             return i;
         }
 
-        private static List<String> coalesce(String... vals) {
-            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().collect(Collectors.toList());
-        }
     }
 
     /**

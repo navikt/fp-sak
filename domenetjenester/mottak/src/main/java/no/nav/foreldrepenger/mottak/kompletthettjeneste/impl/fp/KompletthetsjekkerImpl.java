@@ -13,8 +13,10 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
@@ -22,8 +24,8 @@ import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerInnte
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerSøknad;
 
 @ApplicationScoped
-@BehandlingTypeRef("BT-002")
-@FagsakYtelseTypeRef("FP")
+@BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD)
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     private static final Logger LOG = LoggerFactory.getLogger(KompletthetsjekkerImpl.class);
 
@@ -37,7 +39,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     }
 
     @Inject
-    public KompletthetsjekkerImpl(@FagsakYtelseTypeRef("FP") @BehandlingTypeRef("BT-002") KompletthetssjekkerSøknad kompletthetssjekkerSøknad,
+    public KompletthetsjekkerImpl(@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) @BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD) KompletthetssjekkerSøknad kompletthetssjekkerSøknad,
                                 KompletthetssjekkerInntektsmelding kompletthetssjekkerInntektsmelding,
                                 KompletthetsjekkerFelles fellesUtil) {
         this.kompletthetssjekkerSøknad = kompletthetssjekkerSøknad;

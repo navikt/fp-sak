@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 
 @ApplicationScoped
-@GrunnlagRef("InntektArbeidYtelseGrunnlag")
+@GrunnlagRef(GrunnlagRef.IAY_GRUNNLAG)
 class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
 
     private String klassenavn = this.getClass().getSimpleName();

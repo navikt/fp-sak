@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.mottak.hendelser.saksvelger;
 
-import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
+import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseSaksvelger;
@@ -31,7 +30,7 @@ import no.nav.foreldrepenger.mottak.hendelser.freg.UtflyttingForretningshendelse
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
-@ForretningshendelsestypeRef(ForretningshendelsestypeRef.UTFLYTTING_HENDELSE)
+@ForretningshendelsestypeRef(ForretningshendelseType.UTFLYTTING)
 public class UtflyttingForretningshendelseSaksvelger implements ForretningshendelseSaksvelger<UtflyttingForretningshendelse> {
 
     private static final Logger LOG = LoggerFactory.getLogger(UtflyttingForretningshendelseSaksvelger.class);

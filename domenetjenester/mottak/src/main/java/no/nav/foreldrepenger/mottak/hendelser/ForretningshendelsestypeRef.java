@@ -22,31 +22,26 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 @Documented
 public @interface ForretningshendelsestypeRef {
 
-    String FØDSEL_HENDELSE = "FØDSEL";
-    String DØD_HENDELSE = "DØD";
-    String DØDFØDSEL_HENDELSE = "DØDFØDSEL";
-    String UTFLYTTING_HENDELSE = "UTFLYTTING";
-
     /**
      * Settes til navn på forretningshendelse slik det defineres i KODELISTE-tabellen, eller til YTELSE_HENDELSE
      */
-    String value();
+    ForretningshendelseType value();
 
     /**
      * AnnotationLiteral som kan brukes ved CDI søk.
      */
     class ForretningshendelsestypeRefLiteral extends AnnotationLiteral<ForretningshendelsestypeRef> implements ForretningshendelsestypeRef {
 
-        private String navn;
+        private ForretningshendelseType hendelseType;
 
         public ForretningshendelsestypeRefLiteral(ForretningshendelseType forretningshendelseType) {
-            this.navn = forretningshendelseType.getKode();
+            this.hendelseType = forretningshendelseType;
 
         }
 
         @Override
-        public String value() {
-            return navn;
+        public ForretningshendelseType value() {
+            return hendelseType;
         }
     }
 }

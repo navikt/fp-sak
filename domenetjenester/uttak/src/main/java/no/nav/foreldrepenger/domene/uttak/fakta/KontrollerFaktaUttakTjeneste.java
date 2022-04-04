@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -33,7 +34,7 @@ public class KontrollerFaktaUttakTjeneste {
     }
 
     @Inject
-    public KontrollerFaktaUttakTjeneste(@FagsakYtelseTypeRef("FP") Instance<FaktaUttakAksjonspunktUtleder> uttakUtledere,
+    public KontrollerFaktaUttakTjeneste(@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) Instance<FaktaUttakAksjonspunktUtleder> uttakUtledere,
                                         YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                         PersonopplysningerForUttak personopplysninger) {
         this(uttakUtledere.stream().collect(Collectors.toList()), ytelseFordelingTjeneste, personopplysninger);

@@ -22,9 +22,9 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
     @Inject
     public SkjæringstidspunktTjenesteImpl(BehandlingRepository behandlingRepository,
-                                          @FagsakYtelseTypeRef("ES") SkjæringstidspunktTjeneste engangsstønadTjeneste,
-                                          @FagsakYtelseTypeRef("FP") SkjæringstidspunktTjeneste foreldrepengerTjeneste,
-                                          @FagsakYtelseTypeRef("SVP") SkjæringstidspunktTjeneste svangerskapspengerTjeneste) {
+                                          @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) SkjæringstidspunktTjeneste engangsstønadTjeneste,
+                                          @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) SkjæringstidspunktTjeneste foreldrepengerTjeneste,
+                                          @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) SkjæringstidspunktTjeneste svangerskapspengerTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.engangsstønadTjeneste = engangsstønadTjeneste;
         this.foreldrepengerTjeneste = foreldrepengerTjeneste;

@@ -84,19 +84,19 @@ public class VedtakXmlTest {
     private BehandlingsresultatXmlTjeneste behandlingsgrunnlagXmlTjeneste;
 
     @Inject
-    @FagsakYtelseTypeRef("ES")
+    @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
     private VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste;
 
     @Inject
-    @FagsakYtelseTypeRef("ES")
+    @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
     private BeregningsgrunnlagXmlTjeneste beregningsgrunnlagXmlTjeneste;
 
     @Inject
-    @FagsakYtelseTypeRef("ES")
+    @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
     private PersonopplysningXmlTjenesteImpl personopplysningXmlTjeneste;
 
     @Inject
-    @FagsakYtelseTypeRef("ES")
+    @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
     private YtelseXmlTjeneste ytelseXmlTjeneste;
 
     @Inject
