@@ -178,7 +178,10 @@ public class KabalTjeneste {
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsakId()).stream()
                 .filter(b -> BehandlingType.ANKE.equals(b.getType()))
-                .filter(b -> Objects.equals(kabalReferanse, ankeVurderingTjeneste.hentAnkeResultat(b).getKabalReferanse()))
+                .filter(b -> {
+                    var resultatReferanse = ankeVurderingTjeneste.hentAnkeResultat(b).getKabalReferanse();
+                    return resultatReferanse == null || Objects.equals(kabalReferanse, ankeVurderingTjeneste.hentAnkeResultat(b).getKabalReferanse());
+                })
                 .filter(b -> !b.erSaksbehandlingAvsluttet())
                 .findFirst();
         } else if (BehandlingType.ANKE.equals(behandling.getType())) {
