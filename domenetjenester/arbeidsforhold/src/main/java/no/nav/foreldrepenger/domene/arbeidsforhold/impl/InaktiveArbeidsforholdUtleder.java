@@ -1,8 +1,21 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.HåndterePermisjoner;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.AktørInntekt;
@@ -18,15 +31,6 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 /**
  * Tjeneste som skal utlede om en arbeidsgiver er inaktiv eller ikke,
  * for å filtrere ut unødvendige arbeidsforhold fra å kreve inntektsmelding.
@@ -38,10 +42,20 @@ public class InaktiveArbeidsforholdUtleder {
 
     public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> finnKunAktive(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, BehandlingReferanse referanse) {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> kunAktiveArbeidsforhold = new HashMap<>();
+
         påkrevdeInntektsmeldinger.forEach((key, value) -> {
             boolean erInaktivt = erInaktivt(key, inntektArbeidYtelseGrunnlag, referanse.getAktørId(), referanse.getUtledetSkjæringstidspunkt());
             if (!erInaktivt) {
-                kunAktiveArbeidsforhold.put(key, value);
+                List<InternArbeidsforholdRef> aktiveArbeidsforholdsRef = new ArrayList<>();
+                //Sjekker om hvert arbeidsforhold under virksomheten har registrert permisjon som overlapper skjæringstidspunkt. Fjerne de som har det
+                value.forEach(internArbeidsforholdRef-> {
+                    if (!erIPermisjonPåStp(key, internArbeidsforholdRef, inntektArbeidYtelseGrunnlag, referanse.getAktørId(), referanse.getUtledetSkjæringstidspunkt())) {
+                        aktiveArbeidsforholdsRef.add(internArbeidsforholdRef);
+                    }
+                });
+                if (!aktiveArbeidsforholdsRef.isEmpty()) {
+                    kunAktiveArbeidsforhold.put(key, new HashSet<>(aktiveArbeidsforholdsRef));
+                }
             }
         });
         return kunAktiveArbeidsforhold;
@@ -62,6 +76,18 @@ public class InaktiveArbeidsforholdUtleder {
             return false;
         }
         return !harHattInntektIPeriode(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get(), søkerAktørId, stp);
+    }
+
+    private static boolean erIPermisjonPåStp(Arbeidsgiver arbeidsgiver,
+                                             InternArbeidsforholdRef ref,
+                                             Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                             AktørId søkerAktørId,
+                                             LocalDate stp) {
+        return inntektArbeidYtelseGrunnlag.map(iayg -> iayg.getAktørArbeidFraRegister(søkerAktørId)
+            .map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(Collections.emptyList()).stream()
+            .filter(yrkesaktivitet -> yrkesaktivitet.getArbeidsgiver() != null && yrkesaktivitet.getArbeidsgiver().equals(arbeidsgiver))
+            .filter(yrkesaktivitet -> yrkesaktivitet.getArbeidsforholdRef() != null && yrkesaktivitet.getArbeidsforholdRef().equals(ref))
+            .anyMatch(yrkesAktivitet -> HåndterePermisjoner.harRelevantPermisjonSomOverlapperSkjæringstidspunkt(yrkesAktivitet, stp))).orElse(false);
     }
 
     private static boolean harMottattIMFraAG(Arbeidsgiver arbeidsgiverSomSjekkes, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {

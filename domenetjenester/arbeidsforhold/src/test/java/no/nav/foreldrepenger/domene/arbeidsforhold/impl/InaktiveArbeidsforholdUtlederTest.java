@@ -1,10 +1,26 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import org.junit.jupiter.api.Test;
+
 import no.nav.abakus.iaygrunnlag.kodeverk.Inntektskategori;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
+import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYScenarioBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
@@ -14,28 +30,16 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvistAndel;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvistAndelBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelseBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.konfig.Tid;
-import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class InaktiveArbeidsforholdUtlederTest {
     private static final LocalDate STP = LocalDate.of(2021,10,1);
@@ -59,7 +63,7 @@ class InaktiveArbeidsforholdUtlederTest {
     @Test
     public void er_aktiv_når_det_er_nyoppstartet() {
         // Arrange
-        lagArbeid(arbeidsgiver("999999999"), STP.minusMonths(2), Tid.TIDENES_ENDE);
+        lagArbeid(arbeidsgiver("999999999"), STP.minusMonths(2), Tid.TIDENES_ENDE, false, null);
 
         // Act
         var erInaktivt = utled(arbeidsgiver("999999999"), byggIAY());
@@ -71,7 +75,7 @@ class InaktiveArbeidsforholdUtlederTest {
     @Test
     public void er_inaktiv_når_det_er_gammel_uten_inntekt() {
         // Arrange
-        lagArbeid(arbeidsgiver("999999999"), STP.minusYears(2), Tid.TIDENES_ENDE);
+        lagArbeid(arbeidsgiver("999999999"), STP.minusYears(2), Tid.TIDENES_ENDE, false, null);
 
         // Act
         var erInaktivt = utled(arbeidsgiver("999999999"), byggIAY());
@@ -96,7 +100,7 @@ class InaktiveArbeidsforholdUtlederTest {
     public void er_inaktivt_når_det_er_lenge_siden_forrige_inntekt_selv_om_det_finnes_i_aareg() {
         // Arrange
         lagInntekt(arbeidsgiver("999999999"), STP.minusYears(2), 12);
-        lagArbeid(arbeidsgiver("999999999"), STP.minusYears(2), Tid.TIDENES_ENDE);
+        lagArbeid(arbeidsgiver("999999999"), STP.minusYears(2), Tid.TIDENES_ENDE, false, null);
 
         // Act
         var erInaktivt = utled(arbeidsgiver("999999999"), byggIAY());
@@ -108,7 +112,7 @@ class InaktiveArbeidsforholdUtlederTest {
     @Test
     public void er_aktiv_når_det_er_arbeid_uten_inntekt_men_med_ytelse() {
         // Arrange
-        lagArbeid(arbeidsgiver("999999999"), STP.minusYears(2), Tid.TIDENES_ENDE);
+        lagArbeid(arbeidsgiver("999999999"), STP.minusYears(2), Tid.TIDENES_ENDE, false, null);
         lagYtelse(arbeidsgiver("999999999"), STP.minusMonths(2), STP.minusMonths(1), RelatertYtelseType.FORELDREPENGER);
 
         // Act
@@ -121,7 +125,7 @@ class InaktiveArbeidsforholdUtlederTest {
     @Test
     public void er_inaktiv_når_det_er_arbeid_uten_inntekt_med_ytelse_som_ikke_er_relevant_for_vurderingen() {
         // Arrange
-        lagArbeid(arbeidsgiver("999999999"), STP.minusYears(2), Tid.TIDENES_ENDE);
+        lagArbeid(arbeidsgiver("999999999"), STP.minusYears(2), Tid.TIDENES_ENDE, false, null);
         lagYtelse(arbeidsgiver("999999999"), STP.minusMonths(2), STP.minusMonths(1), RelatertYtelseType.DAGPENGER);
 
         // Act
@@ -134,7 +138,7 @@ class InaktiveArbeidsforholdUtlederTest {
     @Test
     public void bruker_ytelse_anvist_når_ingen_anviste_andeler() {
         // Arrange
-        lagArbeid(arbeidsgiver("999999999"), STP.minusYears(2), Tid.TIDENES_ENDE);
+        lagArbeid(arbeidsgiver("999999999"), STP.minusYears(2), Tid.TIDENES_ENDE, false, null);
         lagYtelse(null, STP.minusMonths(2), STP.minusMonths(1), RelatertYtelseType.SYKEPENGER);
 
         // Act
@@ -154,6 +158,99 @@ class InaktiveArbeidsforholdUtlederTest {
 
         // Assert
         assertThat(erInaktivt).isFalse();
+    }
+
+    @Test
+    public void alle_arbeidsforhold_er_aktive() {
+        // Arrange
+        Arbeidsgiver arbeidsgiver = arbeidsgiver("999999999");
+        InternArbeidsforholdRef internRef1 = InternArbeidsforholdRef.nyRef();
+        InternArbeidsforholdRef internRef2 = InternArbeidsforholdRef.nyRef();
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsforholdÅsjekke = Map.of(arbeidsgiver, Set.of(internRef1, internRef2));
+        lagIM(arbeidsgiver);
+        lagArbeid(arbeidsgiver, STP.minusYears(2), Tid.TIDENES_ENDE, false, internRef1);
+        lagArbeid(arbeidsgiver, STP.minusYears(2), Tid.TIDENES_ENDE, false, internRef2);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
+            .medBruker(AKTØR);
+        var behandling = scenario.lagMocked();
+        BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling, STP);
+
+        // Act
+        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse );
+
+        // Assert
+        assertThat(aktiveArbeidsforhold.values()).contains(Set.of(internRef1, internRef2));
+    }
+
+    @Test
+    public void ett_av_to_arbeidsforhold_er_inaktivt_pga_permisjon() {
+        // Arrange
+        Arbeidsgiver arbeidsgiver = arbeidsgiver("999999999");
+        InternArbeidsforholdRef internRef1 = InternArbeidsforholdRef.nyRef();
+        InternArbeidsforholdRef internRefMedPermisjon = InternArbeidsforholdRef.nyRef();
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsforholdÅsjekke = Map.of(arbeidsgiver, Set.of(internRef1, internRefMedPermisjon));
+        lagIM(arbeidsgiver);
+        lagArbeid(arbeidsgiver, STP.minusYears(2), Tid.TIDENES_ENDE, false, internRef1);
+        lagArbeid(arbeidsgiver, STP.minusYears(2), Tid.TIDENES_ENDE, true, internRefMedPermisjon);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
+            .medBruker(AKTØR);
+        var behandling = scenario.lagMocked();
+        BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling, STP);
+
+        // Act
+        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse );
+
+        // Assert
+        assertThat(aktiveArbeidsforhold).hasSize(1);
+        assertThat(aktiveArbeidsforhold.values()).contains(Set.of(internRef1));
+    }
+
+    @Test
+    public void alle_arbeidsforhold_er_inaktive_for_arbeidsgiver_pga_permisjon() {
+        // Arrange
+        Arbeidsgiver arbeidsgiver = arbeidsgiver("999999999");
+        InternArbeidsforholdRef internRef1MedPermisjon = InternArbeidsforholdRef.nyRef();
+        InternArbeidsforholdRef internRef2MedPermisjon = InternArbeidsforholdRef.nyRef();
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsforholdÅsjekke = Map.of(arbeidsgiver, Set.of(internRef1MedPermisjon, internRef2MedPermisjon));
+        lagIM(arbeidsgiver);
+        lagArbeid(arbeidsgiver, STP.minusYears(2), Tid.TIDENES_ENDE, true, internRef1MedPermisjon);
+        lagArbeid(arbeidsgiver, STP.minusYears(2), Tid.TIDENES_ENDE, true, internRef2MedPermisjon);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
+            .medBruker(AKTØR);
+        var behandling = scenario.lagMocked();
+        BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling, STP);
+
+        // Act
+        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse );
+
+        // Assert
+        assertThat(aktiveArbeidsforhold).isEmpty();
+    }
+
+    @Test
+    public void ett_arbeidsforhold_er_inaktivt_pga_ytelse() {
+        // Arrange
+        Arbeidsgiver arbeidsgiver = arbeidsgiver("999999999");
+        Arbeidsgiver arbeidsgiverMedYtelse = arbeidsgiver("888888888");
+        InternArbeidsforholdRef internRef1 = InternArbeidsforholdRef.nyRef();
+        InternArbeidsforholdRef internRef2 = InternArbeidsforholdRef.nyRef();
+        InternArbeidsforholdRef internRefYtelse = InternArbeidsforholdRef.nyRef();
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsforholdÅsjekke = Map.of(arbeidsgiver, Set.of(internRef1, internRef2), arbeidsgiverMedYtelse, Set.of(internRefYtelse));
+        lagIM(arbeidsgiver);
+        lagYtelse(arbeidsgiverMedYtelse, STP.minusMonths(2), STP.minusMonths(1), RelatertYtelseType.DAGPENGER);
+        lagArbeid(arbeidsgiver, STP.minusYears(2), Tid.TIDENES_ENDE, false, internRef1);
+        lagArbeid(arbeidsgiver, STP.minusYears(2), Tid.TIDENES_ENDE, false, internRef2);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
+            .medBruker(AKTØR);
+        var behandling = scenario.lagMocked();
+        BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling, STP);
+
+        // Act
+        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse );
+
+        // Assert
+        assertThat(aktiveArbeidsforhold).hasSize(1);
+        assertThat(aktiveArbeidsforhold.values().stream()).containsExactly(Set.of(internRef1, internRef2));
     }
 
     private void lagIM(Arbeidsgiver arbeidsgiver) {
@@ -184,13 +281,23 @@ class InaktiveArbeidsforholdUtlederTest {
         ytelseBuilder.leggTilYtelse(builder);
     }
 
-    private void lagArbeid(Arbeidsgiver ag, LocalDate fom, LocalDate tom) {
+    private void lagArbeid(Arbeidsgiver ag, LocalDate fom, LocalDate tom, boolean permisjon, InternArbeidsforholdRef internRef) {
         var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
         var aaBuilder = yaBuilder.getAktivitetsAvtaleBuilder();
         var aa = aaBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         yaBuilder.leggTilAktivitetsAvtale(aa)
             .medArbeidsgiver(ag)
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+        if (permisjon) {
+            yaBuilder.leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
+                .medPeriode(STP.minusMonths(1), STP.plusDays(20))
+                .medProsentsats(BigDecimal.valueOf(100))
+                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.VELFERDSPERMISJON)
+                .build());
+        }
+        if(internRef!= null) {
+            yaBuilder.medArbeidsforholdId(internRef);
+        }
         arbeidBuilder.leggTilYrkesaktivitet(yaBuilder);
     }
 
@@ -222,5 +329,4 @@ class InaktiveArbeidsforholdUtlederTest {
         data.leggTilAktørYtelse(ytelseBuilder);
         return InntektArbeidYtelseGrunnlagBuilder.nytt().medData(data).medInntektsmeldinger(inntektsmeldinger).build();
     }
-
 }
