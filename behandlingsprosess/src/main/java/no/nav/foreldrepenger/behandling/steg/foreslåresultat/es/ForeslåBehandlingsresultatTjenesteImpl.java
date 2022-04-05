@@ -8,7 +8,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.AvslagsårsakMapper;
 import no.nav.foreldrepenger.behandling.steg.foreslåresultat.ForeslåBehandlingsresultatTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -17,9 +16,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.AvslagsårsakMapper;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 @ApplicationScoped
-@FagsakYtelseTypeRef("ES")
+@FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
 public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresultatTjeneste {
     private RevurderingEndring revurderingEndring;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -32,7 +33,7 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
     @Inject
     public ForeslåBehandlingsresultatTjenesteImpl(BehandlingsresultatRepository behandlingsresultatRepository,
             BehandlingRepository behandlingRepository,
-            @FagsakYtelseTypeRef("ES") RevurderingEndring revurderingEndring) {
+            @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) RevurderingEndring revurderingEndring) {
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.behandlingRepository = behandlingRepository;
         this.revurderingEndring = revurderingEndring;

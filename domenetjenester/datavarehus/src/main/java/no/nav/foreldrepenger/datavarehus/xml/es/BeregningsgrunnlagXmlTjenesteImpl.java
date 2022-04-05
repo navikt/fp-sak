@@ -6,13 +6,14 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.xml.BeregningsgrunnlagXmlTjeneste;
 import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlUtil;
 import no.nav.vedtak.felles.xml.vedtak.beregningsgrunnlag.es.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.v2.Beregningsgrunnlag;
 import no.nav.vedtak.felles.xml.vedtak.v2.Beregningsresultat;
 
-@FagsakYtelseTypeRef("ES")
+@FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
 @ApplicationScoped
 public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlTjeneste {
 

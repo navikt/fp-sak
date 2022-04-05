@@ -8,9 +8,10 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 
 @ApplicationScoped
-@GrunnlagRef(value="FamilieHendelseGrunnlag")
+@GrunnlagRef(FamilieHendelseGrunnlagEntitet.ENTITY_NAME)
 class BehandlingÅrsakUtlederFamilieHendelse implements BehandlingÅrsakUtleder {
 
     @Inject

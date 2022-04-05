@@ -10,6 +10,8 @@ import java.lang.annotation.Target;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Qualifier;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+
 /**
  * Marker type som implementerer interface {@link Inngangsvilkår}.
  * Brukes for å konfigurere implementasjon av hvilke vilkår som skal kjøres.
@@ -24,20 +26,20 @@ public @interface VilkårTypeRef {
     /**
      * Settes til navn på vilkår slik det defineres i VILKÅR_TYPE tabellen.
      */
-    String value();
+    VilkårType value();
 
     /** AnnotationLiteral som kan brukes ved CDI søk. */
     class VilkårTypeRefLiteral extends AnnotationLiteral<VilkårTypeRef> implements VilkårTypeRef {
 
-        private String navn;
+        private VilkårType vilkårType;
 
-        public VilkårTypeRefLiteral(String navn) {
-            this.navn = navn;
+        public VilkårTypeRefLiteral(VilkårType vilkårType) {
+            this.vilkårType = vilkårType;
         }
 
         @Override
-        public String value() {
-            return navn;
+        public VilkårType value() {
+            return vilkårType;
         }
 
     }

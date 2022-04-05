@@ -22,8 +22,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
-@FagsakYtelseTypeRef("ES")
+@FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
 @ApplicationScoped
 public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     private BehandlingRepository behandlingRepository;
@@ -45,7 +46,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     public RevurderingTjenesteImpl(BehandlingRepository behandlingRepository,
                                    BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                   @FagsakYtelseTypeRef("ES") RevurderingEndring revurderingEndring,
+                                   @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) RevurderingEndring revurderingEndring,
                                    RevurderingTjenesteFelles revurderingTjenesteFelles,
                                    VergeRepository vergeRepository) {
         this.behandlingRepository = behandlingRepository;

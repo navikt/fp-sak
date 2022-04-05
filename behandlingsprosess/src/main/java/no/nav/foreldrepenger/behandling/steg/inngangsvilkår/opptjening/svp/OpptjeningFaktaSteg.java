@@ -7,8 +7,9 @@ import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.opptjening.felles.O
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.AksjonspunktutlederForVurderBekreftetOpptjening;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.AksjonspunktutlederForVurderOppgittOpptjening;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.OpptjeningsVilkårTjeneste;
@@ -17,9 +18,9 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 /**
  * Steg 81 - Kontroller fakta for opptjening
  */
-@BehandlingStegRef(kode = BehandlingStegKoder.VURDER_OPPTJENING_FAKTA_KODE)
+@BehandlingStegRef(BehandlingStegType.VURDER_OPPTJENING_FAKTA)
 @BehandlingTypeRef
-@FagsakYtelseTypeRef("SVP")
+@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @ApplicationScoped
 public class OpptjeningFaktaSteg extends OpptjeningFaktaStegFelles {
 
@@ -27,7 +28,7 @@ public class OpptjeningFaktaSteg extends OpptjeningFaktaStegFelles {
     public OpptjeningFaktaSteg(BehandlingRepositoryProvider repositoryProvider,
             AksjonspunktutlederForVurderBekreftetOpptjening aksjonspunktutlederBekreftet,
             AksjonspunktutlederForVurderOppgittOpptjening aksjonspunktutlederOppgitt,
-            @FagsakYtelseTypeRef("SVP") OpptjeningsVilkårTjeneste opptjeningsVilkårTjeneste,
+            @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) OpptjeningsVilkårTjeneste opptjeningsVilkårTjeneste,
             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         super(repositoryProvider, aksjonspunktutlederBekreftet, aksjonspunktutlederOppgitt, opptjeningsVilkårTjeneste, skjæringstidspunktTjeneste);
     }

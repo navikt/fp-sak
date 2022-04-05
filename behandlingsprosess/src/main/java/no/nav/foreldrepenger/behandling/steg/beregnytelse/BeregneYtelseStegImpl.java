@@ -12,10 +12,10 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnYtelseTjeneste;
 
@@ -24,10 +24,10 @@ import no.nav.foreldrepenger.ytelse.beregning.BeregnYtelseTjeneste;
  * svangerskapspenger (ikke engangsstønad)
  */
 
-@BehandlingStegRef(kode = BehandlingStegKoder.BEREGN_YTELSE_KODE)
+@BehandlingStegRef(BehandlingStegType.BEREGN_YTELSE)
 @BehandlingTypeRef
-@FagsakYtelseTypeRef("FP")
-@FagsakYtelseTypeRef("SVP")
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
+@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @ApplicationScoped
 public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
 

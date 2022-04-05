@@ -14,11 +14,10 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 @ApplicationScoped
 public class SvangerskapspengerModellProducer {
 
-    private static final String YTELSE = "SVP";
     private static final FagsakYtelseType YTELSE_TYPE = FagsakYtelseType.SVANGERSKAPSPENGER;
 
-    @FagsakYtelseTypeRef(YTELSE)
-    @BehandlingTypeRef("BT-002")
+    @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
+    @BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD)
     @Produces
     @ApplicationScoped
     public BehandlingModell førstegangsbehandling() {
@@ -60,8 +59,8 @@ public class SvangerskapspengerModellProducer {
         return modellBuilder.build();
     }
 
-    @FagsakYtelseTypeRef(YTELSE)
-    @BehandlingTypeRef("BT-004")
+    @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
+    @BehandlingTypeRef(BehandlingType.REVURDERING)
     @Produces
     @ApplicationScoped
     public BehandlingModell revurdering() {
@@ -103,8 +102,8 @@ public class SvangerskapspengerModellProducer {
         return modellBuilder.build();
     }
 
-    @FagsakYtelseTypeRef(YTELSE)
-    @BehandlingTypeRef("BT-006")
+    @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
+    @BehandlingTypeRef(BehandlingType.INNSYN)
     @Produces
     @ApplicationScoped
     public BehandlingModell innsyn() {
@@ -118,8 +117,8 @@ public class SvangerskapspengerModellProducer {
         return modellBuilder.build();
     }
 
-    @FagsakYtelseTypeRef(YTELSE)
-    @BehandlingTypeRef("BT-003")
+    @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
+    @BehandlingTypeRef(BehandlingType.KLAGE)
     @Produces
     @ApplicationScoped
     public BehandlingModell klage() {
@@ -135,8 +134,8 @@ public class SvangerskapspengerModellProducer {
         return modellBuilder.build();
     }
 
-    @FagsakYtelseTypeRef(YTELSE)
-    @BehandlingTypeRef("BT-008")
+    @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
+    @BehandlingTypeRef(BehandlingType.ANKE)
     @Produces
     @ApplicationScoped
     public BehandlingModell anke() {

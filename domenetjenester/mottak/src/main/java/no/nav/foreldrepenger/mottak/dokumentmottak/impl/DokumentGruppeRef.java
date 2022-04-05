@@ -23,20 +23,20 @@ public @interface DokumentGruppeRef {
     /**
      * Settes til navn på dokumentgruppe slik det defineres i KODELISTE-tabellen.
      */
-    String value();
+    DokumentGruppe value();
 
     /** AnnotationLiteral som kan brukes ved CDI søk. */
     class DokumentGruppeRefLiteral extends AnnotationLiteral<DokumentGruppeRef> implements DokumentGruppeRef {
 
-        private String navn;
+        private DokumentGruppe gruppe;
 
-        DokumentGruppeRefLiteral(String navn) {
-            this.navn = navn;
+        DokumentGruppeRefLiteral(DokumentGruppe gruppe) {
+            this.gruppe = gruppe;
         }
 
         @Override
-        public String value() {
-            return navn;
+        public DokumentGruppe value() {
+            return gruppe;
         }
     }
 }

@@ -54,6 +54,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak;
@@ -84,7 +85,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Inject
     private BeregningRevurderingTestUtil revurderingTestUtil;
     @Inject
-    @FagsakYtelseTypeRef("SVP")
+    @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
     private RevurderingEndring revurderingEndring;
     @Inject
     private InntektArbeidYtelseTjeneste iayTjeneste;

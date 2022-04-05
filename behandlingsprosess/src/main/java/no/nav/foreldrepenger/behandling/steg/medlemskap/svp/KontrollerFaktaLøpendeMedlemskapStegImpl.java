@@ -8,11 +8,12 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
-@BehandlingStegRef(kode = BehandlingStegKoder.KONTROLLER_LØPENDE_MEDLEMSKAP_KODE)
+@BehandlingStegRef(BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP)
 @BehandlingTypeRef
-@FagsakYtelseTypeRef("SVP")
+@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @ApplicationScoped
 public class KontrollerFaktaLøpendeMedlemskapStegImpl implements KontrollerFaktaLøpendeMedlemskapSteg {
 

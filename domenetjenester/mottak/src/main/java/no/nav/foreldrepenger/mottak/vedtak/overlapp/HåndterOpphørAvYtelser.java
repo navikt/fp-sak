@@ -50,8 +50,8 @@ public class HåndterOpphørAvYtelser {
 
     @Inject
     public HåndterOpphørAvYtelser(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                  @FagsakYtelseTypeRef("FP") RevurderingTjeneste revurderingTjenesteFP,
-                                  @FagsakYtelseTypeRef("SVP") RevurderingTjeneste revurderingTjenesteSVP,
+                                  @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingTjeneste revurderingTjenesteFP,
+                                  @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) RevurderingTjeneste revurderingTjenesteSVP,
                                   ProsessTaskTjeneste taskTjeneste,
                                   BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                   BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,

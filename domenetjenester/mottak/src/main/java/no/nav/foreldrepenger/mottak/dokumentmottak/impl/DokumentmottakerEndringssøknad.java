@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef
-@DokumentGruppeRef("ENDRINGSSØKNAD")
+@DokumentGruppeRef(DokumentGruppe.ENDRINGSSØKNAD)
 class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertDokument {
 
     private KøKontroller køKontroller;

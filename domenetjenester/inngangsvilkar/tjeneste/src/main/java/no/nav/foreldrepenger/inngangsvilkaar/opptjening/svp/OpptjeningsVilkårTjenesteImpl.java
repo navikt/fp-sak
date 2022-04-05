@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
@@ -17,7 +18,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsv
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.svp.OpptjeningsvilkårSvangerskapspenger;
 
 @ApplicationScoped
-@FagsakYtelseTypeRef("SVP")
+@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 public class OpptjeningsVilkårTjenesteImpl implements OpptjeningsVilkårTjeneste {
     private OpptjeningInntektArbeidYtelseTjeneste opptjeningTjeneste;
 

@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlingTask;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
@@ -54,7 +55,7 @@ public class OverstyrDekningsgradTjeneste {
     public OverstyrDekningsgradTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                         ProsessTaskTjeneste taskTjeneste,
                                         BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
-                                        @FagsakYtelseTypeRef("FP") RevurderingTjeneste revurderingTjeneste,
+                                        @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingTjeneste revurderingTjeneste,
                                         BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste,
                                         UttakInputTjeneste uttakInputTjeneste,
                                         FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {

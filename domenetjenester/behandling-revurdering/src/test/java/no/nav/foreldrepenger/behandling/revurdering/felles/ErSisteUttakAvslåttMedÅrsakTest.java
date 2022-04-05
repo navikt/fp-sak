@@ -34,6 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGr
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
@@ -69,7 +70,7 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
     @Inject
     private BeregningRevurderingTestUtil revurderingTestUtil;
     @Inject
-    @FagsakYtelseTypeRef("FP")
+    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
     private RevurderingEndring revurderingEndring;
 
     @Inject

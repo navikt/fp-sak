@@ -10,12 +10,11 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 
-@BehandlingStegRef(kode = BehandlingStegKoder.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT_KODE)
+@BehandlingStegRef(BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT)
 @BehandlingTypeRef
 @FagsakYtelseTypeRef
 @ApplicationScoped

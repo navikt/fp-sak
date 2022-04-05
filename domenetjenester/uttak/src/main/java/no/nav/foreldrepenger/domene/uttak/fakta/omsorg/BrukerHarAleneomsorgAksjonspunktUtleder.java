@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.fakta.FaktaUttakAksjonspunktUtleder;
@@ -20,7 +21,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 /**
  * Aksjonspunkter for Manuell kontroll av om bruker har aleneomsorg
  */
-@FagsakYtelseTypeRef("FP")
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
 public class BrukerHarAleneomsorgAksjonspunktUtleder implements FaktaUttakAksjonspunktUtleder {
 

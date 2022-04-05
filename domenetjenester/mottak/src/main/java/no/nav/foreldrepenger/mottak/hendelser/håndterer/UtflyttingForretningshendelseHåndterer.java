@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseHåndterer;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelsestypeRef;
 
 @ApplicationScoped
-@ForretningshendelsestypeRef(ForretningshendelsestypeRef.UTFLYTTING_HENDELSE)
+@ForretningshendelsestypeRef(ForretningshendelseType.UTFLYTTING)
 public class UtflyttingForretningshendelseHåndterer implements ForretningshendelseHåndterer {
 
     private ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles;

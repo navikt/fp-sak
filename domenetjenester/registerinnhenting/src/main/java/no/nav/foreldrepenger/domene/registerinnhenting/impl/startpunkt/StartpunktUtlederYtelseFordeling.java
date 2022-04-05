@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
-@GrunnlagRef("YtelseFordelingAggregat")
+@GrunnlagRef(GrunnlagRef.YTELSE_FORDELING_GRUNNLAG)
 class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
 
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;

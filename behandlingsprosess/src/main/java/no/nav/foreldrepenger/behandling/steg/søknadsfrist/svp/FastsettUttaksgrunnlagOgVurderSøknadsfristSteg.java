@@ -15,17 +15,17 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.domene.uttak.svp.FørsteLovligeUttaksdatoTjeneste;
 
 //TODO(SVP-team) rename steget.. skal ikke ha ytelsespsifikke stegnavn..
-@BehandlingStegRef(kode = BehandlingStegKoder.SØKNADSFRIST_FORELDREPENGER_KODE)
+@BehandlingStegRef(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER)
 @BehandlingTypeRef
-@FagsakYtelseTypeRef("SVP")
+@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @ApplicationScoped
 public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements BehandlingSteg {
 
@@ -41,7 +41,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
     @Inject
     public FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(BehandlingRepositoryProvider behandlingRepositoryProvider,
             UttakInputTjeneste uttakInputTjeneste,
-            @FagsakYtelseTypeRef("SVP") SøktPeriodeTjeneste søktPeriodeTjeneste,
+            @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) SøktPeriodeTjeneste søktPeriodeTjeneste,
             FørsteLovligeUttaksdatoTjeneste førsteLovligeUttaksdatoTjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.søktPeriodeTjeneste = søktPeriodeTjeneste;

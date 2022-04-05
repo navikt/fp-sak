@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -27,13 +26,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.ForeldrepengerVilkårUtleder;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
-@BehandlingStegRef(kode = BehandlingStegKoder.KONTROLLER_FAKTA_KODE)
+@BehandlingStegRef(BehandlingStegType.KONTROLLER_FAKTA)
 @BehandlingTypeRef
-@FagsakYtelseTypeRef("FP")
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
 class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
 
@@ -51,7 +51,7 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
     @Inject
     KontrollerFaktaStegImpl(BehandlingRepositoryProvider repositoryProvider,
             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            @FagsakYtelseTypeRef("FP") KontrollerFaktaTjeneste tjeneste) {
+            @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) KontrollerFaktaTjeneste tjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();

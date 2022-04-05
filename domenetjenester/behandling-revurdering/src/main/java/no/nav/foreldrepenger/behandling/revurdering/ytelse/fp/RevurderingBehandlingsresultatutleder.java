@@ -8,17 +8,19 @@ import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
+import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @Dependent
-@FagsakYtelseTypeRef("FP")
-@BehandlingTypeRef("BT-004")
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
+@BehandlingTypeRef(BehandlingType.REVURDERING)
 public class RevurderingBehandlingsresultatutleder extends RevurderingBehandlingsresultatutlederFelles {
 
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
@@ -30,7 +32,7 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
             HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
             OpphørUttakTjeneste opphørUttakTjeneste,
             HarEtablertYtelseFP harEtablertYtelse,
-            @FagsakYtelseTypeRef("FP") SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+            @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
             MedlemTjeneste medlemTjeneste,
             ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
         super(repositoryProvider,

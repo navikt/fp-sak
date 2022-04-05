@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.DokumentasjonPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.xml.PersonopplysningXmlFelles;
 import no.nav.foreldrepenger.datavarehus.xml.PersonopplysningXmlTjeneste;
 import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlUtil;
@@ -57,7 +58,7 @@ import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.RelatertYtelse;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Virksomhet;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.YtelseStorrelse;
 
-@FagsakYtelseTypeRef("FP")
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
 public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste {
     private final no.nav.vedtak.felles.xml.vedtak.personopplysninger.v2.ObjectFactory personopplysningBaseObjectFactory = new no.nav.vedtak.felles.xml.vedtak.personopplysninger.v2.ObjectFactory();

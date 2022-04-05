@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef
-@DokumentGruppeRef("INNTEKTSMELDING")
+@DokumentGruppeRef(DokumentGruppe.INNTEKTSMELDING)
 class DokumentmottakerInntektsmelding extends DokumentmottakerYtelsesesrelatertDokument {
 
     private static final Logger LOG = LoggerFactory.getLogger(DokumentmottakerInntektsmelding.class);

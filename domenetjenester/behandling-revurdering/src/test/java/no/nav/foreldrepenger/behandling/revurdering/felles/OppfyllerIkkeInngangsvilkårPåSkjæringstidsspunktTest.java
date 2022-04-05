@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -51,7 +52,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     @Inject
     private BeregningRevurderingTestUtil revurderingTestUtil;
     @Inject
-    @FagsakYtelseTypeRef("FP")
+    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
     private RevurderingEndring revurderingEndring;
 
     @Inject

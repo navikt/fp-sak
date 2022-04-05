@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettin
 
 @ApplicationScoped
 @FagsakYtelseTypeRef
-@DokumentGruppeRef("KLAGE")
+@DokumentGruppeRef(DokumentGruppe.KLAGE)
 class DokumentmottakerKlage implements Dokumentmottaker {
 
     private static final Logger LOG = LoggerFactory.getLogger(DokumentmottakerKlage.class);

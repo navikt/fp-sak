@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Uidenti
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadVedleggEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
@@ -30,7 +31,7 @@ import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 
 @ApplicationScoped
 @BehandlingTypeRef
-@FagsakYtelseTypeRef("ES")
+@FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
 public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     private SøknadRepository søknadRepository;
     private FamilieHendelseRepository familieHendelseRepository;

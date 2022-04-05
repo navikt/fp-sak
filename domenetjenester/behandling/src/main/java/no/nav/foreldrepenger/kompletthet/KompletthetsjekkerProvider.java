@@ -16,10 +16,10 @@ public class KompletthetsjekkerProvider {
     public Kompletthetsjekker finnKompletthetsjekkerFor(FagsakYtelseType ytelseType, BehandlingType behandlingType) {
 
         var instance = CDI.current()
-                .select(Kompletthetsjekker.class, new FagsakYtelseTypeRef.FagsakYtelseTypeRefLiteral(ytelseType.getKode()));
+                .select(Kompletthetsjekker.class, new FagsakYtelseTypeRef.FagsakYtelseTypeRefLiteral(ytelseType));
 
         if (instance.isAmbiguous()) {
-            instance = instance.select(new BehandlingTypeRef.BehandlingTypeRefLiteral(behandlingType.getKode()));
+            instance = instance.select(new BehandlingTypeRef.BehandlingTypeRefLiteral(behandlingType));
         }
 
         if (instance.isAmbiguous()) {

@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.ytelse.beregning.fp.BeregnFeriepenger;
 
@@ -52,7 +53,7 @@ public class BerørtBehandlingKontroller {
     public BerørtBehandlingKontroller(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                       BerørtBehandlingTjeneste berørtBehandlingTjeneste,
                                       Behandlingsoppretter behandlingsoppretter,
-                                      @FagsakYtelseTypeRef("FP") BeregnFeriepenger beregnFeriepenger,
+                                      @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) BeregnFeriepenger beregnFeriepenger,
                                       KøKontroller køKontroller) {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.fagsakLåsRepository = behandlingRepositoryProvider.getFagsakLåsRepository();

@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef
-@DokumentGruppeRef("VEDLEGG")
+@DokumentGruppeRef(DokumentGruppe.VEDLEGG)
 class DokumentmottakerVedlegg implements Dokumentmottaker {
 
     private BehandlingRepository behandlingRepository;

@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårTypeKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.inngangsvilkaar.Inngangsvilkår;
@@ -20,7 +19,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
 
 @ApplicationScoped
-@VilkårTypeRef(VilkårTypeKoder.FP_VK_34)
+@VilkårTypeRef(VilkårType.SØKERSOPPLYSNINGSPLIKT)
 public class InngangsvilkårSøkersOpplysningsplikt implements Inngangsvilkår {
 
     private KompletthetsjekkerProvider kompletthetsjekkerProvider;

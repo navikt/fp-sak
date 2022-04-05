@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.datavarehus.xml.OppdragXmlTjeneste;
 import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlUtil;
@@ -15,7 +16,7 @@ import no.nav.vedtak.felles.xml.vedtak.oppdrag.dvh.fp.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.oppdrag.dvh.fp.v2.Oppdragslinje;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
 
-@FagsakYtelseTypeRef("FP")
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
 public class OppdragXmlTjenesteImpl implements OppdragXmlTjeneste {
     private ObjectFactory oppdragObjectFactory;

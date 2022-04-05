@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilr
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
@@ -65,11 +66,11 @@ public class FastsettOpptjeningsperiodeStegTest {
 
     @Inject
     @BehandlingTypeRef
-    @FagsakYtelseTypeRef("SVP")
+    @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
     private FastsettOpptjeningsperiodeSteg opptjeningsperiodeSvpSteg;
     @Inject
     @BehandlingTypeRef
-    @FagsakYtelseTypeRef("SVP")
+    @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
     private VurderOpptjeningsvilkårSteg vurderOpptjeningsvilkårSteg;
     private LocalDate jordmorsdato = LocalDate.now().minusDays(30);
 

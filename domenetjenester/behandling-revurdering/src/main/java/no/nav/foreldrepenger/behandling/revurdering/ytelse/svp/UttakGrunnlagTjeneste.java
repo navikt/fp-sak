@@ -15,12 +15,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnl
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
 
 @ApplicationScoped
-@FagsakYtelseTypeRef("SVP")
+@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste {
 
     private FamilieHendelseRepository familieHendelseRepository;

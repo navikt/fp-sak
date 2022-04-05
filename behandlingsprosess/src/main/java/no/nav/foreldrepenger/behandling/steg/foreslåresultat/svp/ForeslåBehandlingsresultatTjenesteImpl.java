@@ -17,12 +17,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.AvslagsårsakMapper;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 
 @ApplicationScoped
-@FagsakYtelseTypeRef("SVP")
+@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresultatTjeneste {
 
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
@@ -40,7 +41,7 @@ class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresu
     ForeslåBehandlingsresultatTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
             SvangerskapspengerUttakResultatRepository uttakResultatRepository,
             DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
-            @FagsakYtelseTypeRef("SVP") RevurderingBehandlingsresultatutlederFelles revurderingBehandlingsresultatutlederFelles) {
+            @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) RevurderingBehandlingsresultatutlederFelles revurderingBehandlingsresultatutlederFelles) {
         this.svangerskapspengerUttakResultatRepository = uttakResultatRepository;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.revurderingBehandlingsresultatutlederFelles = revurderingBehandlingsresultatutlederFelles;

@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
+import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseHåndteringRepository;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseSaksvelger;
@@ -23,7 +24,7 @@ import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelsestypeRef;
 import no.nav.foreldrepenger.mottak.hendelser.freg.DødForretningshendelse;
 
 @ApplicationScoped
-@ForretningshendelsestypeRef(ForretningshendelsestypeRef.DØD_HENDELSE)
+@ForretningshendelsestypeRef(ForretningshendelseType.DØD)
 public class DødForretningshendelseSaksvelger implements ForretningshendelseSaksvelger<DødForretningshendelse> {
 
     private static final Set<FagsakYtelseType> YTELSE_TYPER = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);

@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Sivils
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -38,7 +39,7 @@ public class KontrollerFaktaStegImplTest {
     private static final LocalDate FØDSELSDATO_BARN = LocalDate.of(2017, Month.JANUARY, 1);
 
     @Inject
-    @FagsakYtelseTypeRef("ES")
+    @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
     private KontrollerFaktaTjeneste kontrollerFaktaTjeneste;
 
     private Behandling behandling;

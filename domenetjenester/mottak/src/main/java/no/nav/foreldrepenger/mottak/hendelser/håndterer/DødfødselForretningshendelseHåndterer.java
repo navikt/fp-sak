@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseHåndterer;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelsestypeRef;
 
 @ApplicationScoped
-@ForretningshendelsestypeRef(ForretningshendelsestypeRef.DØDFØDSEL_HENDELSE)
+@ForretningshendelsestypeRef(ForretningshendelseType.DØDFØDSEL)
 public class DødfødselForretningshendelseHåndterer implements ForretningshendelseHåndterer {
 
     private ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles;

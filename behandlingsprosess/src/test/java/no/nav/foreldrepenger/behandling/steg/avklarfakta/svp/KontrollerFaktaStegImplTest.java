@@ -34,6 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Svanger
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
@@ -53,7 +54,7 @@ public class KontrollerFaktaStegImplTest {
 
     @Inject
     @BehandlingTypeRef
-    @FagsakYtelseTypeRef("SVP")
+    @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
     private KontrollerFaktaStegImpl steg;
 
     @Inject

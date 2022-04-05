@@ -29,8 +29,8 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
@@ -45,6 +45,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
@@ -63,9 +64,9 @@ import no.nav.foreldrepenger.domene.uttak.KopierForeldrepengerUttaktjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
-@BehandlingStegRef(kode = BehandlingStegKoder.KONTROLLER_FAKTA_KODE)
-@BehandlingTypeRef("BT-004")
-@FagsakYtelseTypeRef("FP")
+@BehandlingStegRef(BehandlingStegType.KONTROLLER_FAKTA)
+@BehandlingTypeRef(BehandlingType.REVURDERING)
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
 class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private static final Logger LOG = LoggerFactory.getLogger(KontrollerFaktaRevurderingStegImpl.class);
@@ -99,8 +100,8 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
             HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste,
             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            @FagsakYtelseTypeRef("FP") KontrollerFaktaTjeneste tjeneste,
-            @FagsakYtelseTypeRef("FP") StartpunktTjeneste startpunktTjeneste,
+            @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) KontrollerFaktaTjeneste tjeneste,
+            @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) StartpunktTjeneste startpunktTjeneste,
             BehandlingÅrsakTjeneste behandlingÅrsakTjeneste,
             BehandlingskontrollTjeneste behandlingskontrollTjeneste,
             MottatteDokumentTjeneste mottatteDokumentTjeneste,

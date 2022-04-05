@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
 
 @ApplicationScoped
-@GrunnlagRef("FamilieHendelseGrunnlag")
+@GrunnlagRef(FamilieHendelseGrunnlagEntitet.ENTITY_NAME)
 class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
 
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;

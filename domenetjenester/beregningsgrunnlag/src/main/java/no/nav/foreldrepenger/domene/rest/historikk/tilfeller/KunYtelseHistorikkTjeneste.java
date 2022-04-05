@@ -9,22 +9,23 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
-import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
-import no.nav.foreldrepenger.domene.rest.dto.FastsattBrukersAndel;
-import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAndeltype;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.modell.Inntektskategori;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
+import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
+import no.nav.foreldrepenger.domene.rest.dto.FastsattBrukersAndel;
+import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
-@FaktaOmBeregningTilfelleRef("FASTSETT_BG_KUN_YTELSE")
+@FaktaOmBeregningTilfelleRef(FaktaOmBeregningTilfelle.FASTSETT_BG_KUN_YTELSE)
 public class KunYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjeneste {
 
     private static final int MND_I_1_ÅR = 12;

@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.DokumentasjonPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.xml.DvhPersonopplysningXmlTjeneste;
 import no.nav.foreldrepenger.datavarehus.xml.PersonopplysningXmlFelles;
 import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlUtil;
@@ -57,7 +58,7 @@ import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.RelatertYtel
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.Virksomhet;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.YtelseStorrelse;
 
-@FagsakYtelseTypeRef("SVP")
+@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @ApplicationScoped
 public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTjeneste {
 

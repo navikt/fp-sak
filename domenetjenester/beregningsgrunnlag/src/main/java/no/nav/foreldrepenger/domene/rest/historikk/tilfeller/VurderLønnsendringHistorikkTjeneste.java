@@ -5,19 +5,19 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
-import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
-import no.nav.foreldrepenger.domene.rest.dto.VurderLønnsendringDto;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
+import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
+import no.nav.foreldrepenger.domene.rest.dto.VurderLønnsendringDto;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
-@FaktaOmBeregningTilfelleRef("VURDER_LØNNSENDRING")
+@FaktaOmBeregningTilfelleRef(FaktaOmBeregningTilfelle.VURDER_LØNNSENDRING)
 public class VurderLønnsendringHistorikkTjeneste extends FaktaOmBeregningHistorikkTjeneste {
 
     @Override

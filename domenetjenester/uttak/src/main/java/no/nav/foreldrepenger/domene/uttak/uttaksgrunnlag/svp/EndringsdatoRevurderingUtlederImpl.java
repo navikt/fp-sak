@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
@@ -15,7 +16,7 @@ import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.EndringsdatoRevurdering
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.FastsettUttaksgrunnlagFeil;
 
 @ApplicationScoped
-@FagsakYtelseTypeRef("SVP")
+@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderingUtleder {
 
     private SvangerskapspengerUttakResultatRepository uttakResultatRepository;

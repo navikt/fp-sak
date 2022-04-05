@@ -49,28 +49,24 @@ public @interface FagsakYtelseTypeRef {
      *
      * @see FagsakYtelseType
      */
-    String value() default "*";
+    FagsakYtelseType value() default FagsakYtelseType.UDEFINERT;
 
     /** AnnotationLiteral som kan brukes ved CDI søk. */
     class FagsakYtelseTypeRefLiteral extends AnnotationLiteral<FagsakYtelseTypeRef> implements FagsakYtelseTypeRef {
 
-        private String navn;
+        private FagsakYtelseType ytelseType;
 
         public FagsakYtelseTypeRefLiteral() {
-            this("*");
-        }
-
-        public FagsakYtelseTypeRefLiteral(String navn) {
-            this.navn = navn;
+            this(FagsakYtelseType.UDEFINERT);
         }
 
         public FagsakYtelseTypeRefLiteral(FagsakYtelseType ytelseType) {
-            this.navn = (ytelseType == null ? "*" : ytelseType.getKode());
+            this.ytelseType = (ytelseType == null ? FagsakYtelseType.UDEFINERT : ytelseType);
         }
 
         @Override
-        public String value() {
-            return navn;
+        public FagsakYtelseType value() {
+            return ytelseType;
         }
 
     }
@@ -81,16 +77,8 @@ public @interface FagsakYtelseTypeRef {
         private Lookup() {
         }
 
-        public static <I> Optional<I> find(Class<I> cls, String ytelseTypeKode) {
-            return find(cls, (CDI<I>) CDI.current(), ytelseTypeKode);
-        }
-
-        public static <I> Optional<I> find(Class<I> cls, FagsakYtelseType ytelseTypeKode) {
-            return find(cls, (CDI<I>) CDI.current(), ytelseTypeKode.getKode());
-        }
-
-        public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, FagsakYtelseType ytelseTypeKode) {
-            return find(cls, instances, ytelseTypeKode.getKode());
+        public static <I> Optional<I> find(Class<I> cls, FagsakYtelseType ytelseType) {
+            return find(cls, (CDI<I>) CDI.current(), ytelseType);
         }
 
         /**
@@ -98,14 +86,14 @@ public @interface FagsakYtelseTypeRef {
          * eller default '*' implementasjon. Merk at Instance bør være injected med
          * riktig forventet klassetype og @Any qualifier.
          */
-        public static <I> Optional<I> find(Instance<I> instances, FagsakYtelseType ytelseTypeKode) {
-            return find(null, instances, ytelseTypeKode.getKode());
+        public static <I> Optional<I> find(Instance<I> instances, FagsakYtelseType ytelseType) {
+            return find(null, instances, ytelseType);
         }
 
-        public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, String ytelseTypeKode) {
+        public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, FagsakYtelseType ytelseType) {
             Objects.requireNonNull(instances, "instances");
 
-            for (var fagsakLiteral : coalesce(ytelseTypeKode, "*")) {
+            for (var fagsakLiteral : List.of(ytelseType, FagsakYtelseType.UDEFINERT)) {
                 var inst = select(cls, instances, new FagsakYtelseTypeRefLiteral(fagsakLiteral));
                 if (inst.isResolvable()) {
                     return Optional.of(getInstance(inst));
@@ -134,9 +122,6 @@ public @interface FagsakYtelseTypeRef {
             return i;
         }
 
-        private static List<String> coalesce(String... vals) {
-            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().collect(Collectors.toList());
-        }
     }
 
     /**

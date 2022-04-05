@@ -45,6 +45,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -77,7 +78,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Inject
     private BehandlingRepository behandlingRepository;
     @Inject
-    @FagsakYtelseTypeRef("FP")
+    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
     private RevurderingTjeneste revurderingTjeneste;
     @Inject
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -88,7 +89,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Inject
     private OpptjeningRepository opptjeningRepository;
     @Inject
-    @FagsakYtelseTypeRef("FP")
+    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
     private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;

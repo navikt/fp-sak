@@ -18,12 +18,14 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
-@BehandlingStegRef(kode = BehandlingStegKoder.KONTROLLER_LØPENDE_MEDLEMSKAP_KODE)
-@BehandlingTypeRef("BT-002") // Førstegangssøknad
-@FagsakYtelseTypeRef("FP") // Foreldrepenger
+@BehandlingStegRef(BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP)
+@BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD) // Førstegangssøknad
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) // Foreldrepenger
 @ApplicationScoped
 public class KontrollerFaktaLøpendeMedlemskapStegFørstegangsøknad implements KontrollerFaktaLøpendeMedlemskapSteg {
 

@@ -7,14 +7,13 @@ import javax.enterprise.context.ApplicationScoped;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårTypeKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.inngangsvilkaar.Inngangsvilkår;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
 
 @ApplicationScoped
-@VilkårTypeRef(VilkårTypeKoder.FP_VK_33)
+@VilkårTypeRef(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD)
 public class InngangsvilkårEngangsstønadForeldreansvar2 implements Inngangsvilkår {
 
     InngangsvilkårEngangsstønadForeldreansvar2() {

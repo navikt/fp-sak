@@ -103,19 +103,17 @@ public class InnhentDokumentTjeneste {
     }
 
     private Dokumentmottaker finnMottaker(DokumentGruppe dokumentGruppe, FagsakYtelseType fagsakYtelseType) {
-        var dokumentgruppeKode = dokumentGruppe.getKode();
-        var fagsakYtelseTypeKode = fagsakYtelseType.getKode();
-        var selected = mottakere.select(new DokumentGruppeRef.DokumentGruppeRefLiteral(dokumentgruppeKode));
+        var selected = mottakere.select(new DokumentGruppeRef.DokumentGruppeRefLiteral(dokumentGruppe));
 
         if (selected.isAmbiguous()) {
-            selected = selected.select(new FagsakYtelseTypeRef.FagsakYtelseTypeRefLiteral(fagsakYtelseTypeKode));
+            selected = selected.select(new FagsakYtelseTypeRef.FagsakYtelseTypeRefLiteral(fagsakYtelseType));
         }
 
         if (selected.isAmbiguous()) {
-            throw new IllegalArgumentException("Mer enn en implementasjon funnet for DokumentGruppe=" + dokumentgruppeKode + ", FagsakYtelseType=" + fagsakYtelseTypeKode);
+            throw new IllegalArgumentException("Mer enn en implementasjon funnet for DokumentGruppe=" + dokumentGruppe + ", FagsakYtelseType=" + fagsakYtelseType);
         }
         if (selected.isUnsatisfied()) {
-            throw new IllegalArgumentException("Ingen implementasjoner funnet for DokumentGruppe=" + dokumentgruppeKode + ", FagsakYtelseType=" + fagsakYtelseTypeKode);
+            throw new IllegalArgumentException("Ingen implementasjoner funnet for DokumentGruppe=" + dokumentGruppe + ", FagsakYtelseType=" + fagsakYtelseType);
         }
         var minInstans = selected.get();
         if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {

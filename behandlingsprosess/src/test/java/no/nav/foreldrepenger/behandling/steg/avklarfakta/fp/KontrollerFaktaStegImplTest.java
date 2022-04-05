@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Sivils
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -41,7 +42,7 @@ public class KontrollerFaktaStegImplTest {
     private BehandlingRepository behandlingRepository;
 
     @Inject
-    @FagsakYtelseTypeRef("FP")
+    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
     @BehandlingTypeRef
     private KontrollerFaktaSteg steg;
 

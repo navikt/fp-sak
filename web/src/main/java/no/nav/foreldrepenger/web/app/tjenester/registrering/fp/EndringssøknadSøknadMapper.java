@@ -12,7 +12,9 @@ import javax.enterprise.context.ApplicationScoped;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperFelles;
@@ -29,8 +31,8 @@ import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Utsettelsesperiode;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 
-@FagsakYtelseTypeRef("FP")
-@BehandlingTypeRef("BT-004")
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
+@BehandlingTypeRef(BehandlingType.REVURDERING)
 @ApplicationScoped
 public class EndringssøknadSøknadMapper implements SøknadMapper {
 

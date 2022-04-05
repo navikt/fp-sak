@@ -14,15 +14,17 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @ApplicationScoped
-@BehandlingTypeRef("BT-002")
-@FagsakYtelseTypeRef("FP")
+@BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD)
+@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 public class KompletthetssjekkerSøknadFørstegangsbehandlingImpl extends KompletthetssjekkerSøknadImpl {
     private static final Logger LOG = LoggerFactory.getLogger(KompletthetssjekkerSøknadFørstegangsbehandlingImpl.class);
 

@@ -16,12 +16,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.intern.FagsakRelasjonAvslutningsdatoOppdaterer;
 
 @ApplicationScoped
-@FagsakYtelseTypeRef("SVP")
+@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 public class SvpFagsakRelasjonAvslutningsdatoOppdaterer implements FagsakRelasjonAvslutningsdatoOppdaterer {
 
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
@@ -35,7 +36,7 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdaterer implements FagsakRelasjo
     @Inject
     public SvpFagsakRelasjonAvslutningsdatoOppdaterer(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                                       UttakInputTjeneste uttakInputTjeneste,
-                                                      @FagsakYtelseTypeRef("SVP") MaksDatoUttakTjeneste svpMaksDatoUttakTjeneste,
+                                                      @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) MaksDatoUttakTjeneste svpMaksDatoUttakTjeneste,
                                                       FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();

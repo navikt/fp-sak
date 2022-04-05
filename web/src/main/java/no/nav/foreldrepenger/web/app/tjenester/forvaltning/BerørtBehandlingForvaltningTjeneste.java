@@ -8,6 +8,7 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
@@ -24,7 +25,7 @@ public class BerørtBehandlingForvaltningTjeneste {
     }
 
     @Inject
-    public BerørtBehandlingForvaltningTjeneste(@FagsakYtelseTypeRef("FP") RevurderingTjeneste revurderingTjeneste,
+    public BerørtBehandlingForvaltningTjeneste(@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingTjeneste revurderingTjeneste,
                                                BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                                BerørtBehandlingTjeneste berørtBehandlingTjeneste,
                                                BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {

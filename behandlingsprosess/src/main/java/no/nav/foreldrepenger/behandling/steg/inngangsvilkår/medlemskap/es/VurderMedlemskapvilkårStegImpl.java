@@ -12,14 +12,14 @@ import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.InngangsvilkårSteg
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegKoder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
-@BehandlingStegRef(kode = BehandlingStegKoder.VURDER_MEDLEMSKAPVILKÅR_KODE)
+@BehandlingStegRef(BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR)
 @BehandlingTypeRef
-@FagsakYtelseTypeRef("ES")
+@FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
 @ApplicationScoped
 public class VurderMedlemskapvilkårStegImpl extends InngangsvilkårStegImpl {
 
