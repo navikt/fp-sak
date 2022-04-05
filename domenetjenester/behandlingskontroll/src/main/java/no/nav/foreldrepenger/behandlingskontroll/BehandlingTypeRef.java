@@ -84,13 +84,13 @@ public @interface BehandlingTypeRef {
         public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, FagsakYtelseType ytelseType, BehandlingType behandlingType) { // NOSONAR
             Objects.requireNonNull(instances, "instances");
 
-            for (var fagsakLiteral : List.of(ytelseType, FagsakYtelseType.UDEFINERT)) {
+            for (var fagsakLiteral : coalesce(ytelseType, FagsakYtelseType.UDEFINERT)) {
                 var inst = select(cls, instances, new FagsakYtelseTypeRefLiteral(ytelseType));
 
                 if (inst.isUnsatisfied()) {
                     continue;
                 }
-                for (var behandlingLiteral : List.of(behandlingType, BehandlingType.UDEFINERT)) {
+                for (var behandlingLiteral : coalesce(behandlingType, BehandlingType.UDEFINERT)) {
                     var binst = select(cls, inst, new BehandlingTypeRefLiteral(behandlingLiteral));
                     if (binst.isResolvable()) {
                         return Optional.of(getInstance(binst));
@@ -112,6 +112,14 @@ public @interface BehandlingTypeRef {
                         "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + i.getClass());
             }
             return i;
+        }
+
+        private static List<FagsakYtelseType> coalesce(FagsakYtelseType... vals) {
+            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().collect(Collectors.toList());
+        }
+
+        private static List<BehandlingType> coalesce(BehandlingType... vals) {
+            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().collect(Collectors.toList());
         }
 
         private static <I> Instance<I> select(Class<I> cls, Instance<I> instances, Annotation anno) {
