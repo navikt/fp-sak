@@ -88,12 +88,12 @@ public @interface BehandlingStegRef {
                 BehandlingStegType behandlingStegRef) { // NOSONAR
             Objects.requireNonNull(instances, "instances");
 
-            for (var fagsakLiteral : List.of(ytelseType, FagsakYtelseType.UDEFINERT)) {
+            for (var fagsakLiteral : coalesce(ytelseType, FagsakYtelseType.UDEFINERT)) {
                 var inst = select(cls, instances, new FagsakYtelseTypeRefLiteral(fagsakLiteral));
                 if (inst.isUnsatisfied()) {
                     continue;
                 }
-                for (var behandlingLiteral : List.of(behandlingType, BehandlingType.UDEFINERT)) {
+                for (var behandlingLiteral : coalesce(behandlingType, BehandlingType.UDEFINERT)) {
                     var binst = select(cls, inst, new BehandlingTypeRefLiteral(behandlingLiteral));
                     if (binst.isUnsatisfied()) {
                         continue;
@@ -125,6 +125,14 @@ public @interface BehandlingStegRef {
                         "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + i.getClass());
             }
             return i;
+        }
+
+        private static List<FagsakYtelseType> coalesce(FagsakYtelseType... vals) {
+            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().collect(Collectors.toList());
+        }
+
+        private static List<BehandlingType> coalesce(BehandlingType... vals) {
+            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().collect(Collectors.toList());
         }
 
     }

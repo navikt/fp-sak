@@ -89,7 +89,7 @@ public @interface GrunnlagRef {
         public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, String aggregatClassName) {
             Objects.requireNonNull(instances, "instances");
 
-            for (var grunnlagLiteral : List.of(aggregatClassName, "*")) {
+            for (var grunnlagLiteral : coalesce(aggregatClassName, "*")) {
                 var inst = select(cls, instances, new GrunnlagRefLiteral(grunnlagLiteral));
                 if (inst.isResolvable()) {
                     return Optional.of(getInstance(inst));
@@ -115,6 +115,10 @@ public @interface GrunnlagRef {
                     "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + i.getClass());
             }
             return i;
+        }
+
+        private static List<String> coalesce(String... vals) {
+            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().collect(Collectors.toList());
         }
 
     }
