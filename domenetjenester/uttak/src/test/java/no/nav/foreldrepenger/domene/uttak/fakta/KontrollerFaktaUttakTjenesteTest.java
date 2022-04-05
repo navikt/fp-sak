@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.fakta.omsorg.AnnenForelderHarRettAksjonspunktUtleder;
-import no.nav.foreldrepenger.domene.uttak.fakta.omsorg.AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.fakta.omsorg.BrukerHarAleneomsorgAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.fakta.omsorg.BrukerHarOmsorgAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.AvklarFaktaUttakPerioderTjeneste;
@@ -55,8 +54,6 @@ public class KontrollerFaktaUttakTjenesteTest {
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
         var annenForelderHarRettAksjonspunktUtleder = new AnnenForelderHarRettAksjonspunktUtleder(repositoryProvider,
             personopplysninger, uttakTjeneste);
-        var annenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder = new AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder(
-            repositoryProvider, uttakTjeneste);
         var avklarHendelseAksjonspunktUtleder = new AvklarHendelseAksjonspunktUtleder();
         var brukerHarAleneomsorgAksjonspunktUtleder = new BrukerHarAleneomsorgAksjonspunktUtleder(repositoryProvider,
             personopplysninger);
@@ -70,7 +67,7 @@ public class KontrollerFaktaUttakTjenesteTest {
         var søknadsperioderMåKontrolleresAksjonspunktUtleder = new SøknadsperioderMåKontrolleresAksjonspunktUtleder(
             new AvklarFaktaUttakPerioderTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
         var utledere = List.of(annenForelderHarRettAksjonspunktUtleder,
-            annenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder, avklarHendelseAksjonspunktUtleder,
+            avklarHendelseAksjonspunktUtleder,
             brukerHarAleneomsorgAksjonspunktUtleder, brukerHarOmsorgAksjonspunktUtleder,
             førsteUttaksdatoAksjonspunktUtleder, graderingAktivitetUtenBGAksjonspunktUtleder,
             graderingUkjentAktivitetAksjonspunktUtleder, søknadsperioderMåKontrolleresAksjonspunktUtleder);
