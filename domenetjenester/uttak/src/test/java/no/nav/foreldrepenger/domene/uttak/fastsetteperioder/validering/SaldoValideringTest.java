@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
-import static no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype.FEDREKVOTE;
-import static no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype.FELLESPERIODE;
-import static no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype.FORELDREPENGER;
+import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype.FEDREKVOTE;
+import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype.FELLESPERIODE;
+import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype.FORELDREPENGER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
@@ -116,6 +116,8 @@ public class SaldoValideringTest {
         when(saldoUtregning.getMaxDagerUtenAktivitetskrav()).thenReturn(new Trekkdager(10));
         when(saldoUtregning.getMaxDagerMinsterett()).thenReturn(Trekkdager.ZERO);
         when(saldoUtregning.restSaldoDagerUtenAktivitetskrav()).thenReturn(new Trekkdager(-5));
+        when(saldoUtregning.getMaxDagerFlerbarnsdager()).thenReturn(Trekkdager.ZERO);
+
         var validering = new SaldoValidering(saldoUtregning, false, false);
 
         assertThat(validering.valider(FORELDREPENGER).isGyldig()).isTrue();
@@ -129,6 +131,7 @@ public class SaldoValideringTest {
         when(saldoUtregning.getMaxDagerUtenAktivitetskrav()).thenReturn(Trekkdager.ZERO);
         when(saldoUtregning.getMaxDagerMinsterett()).thenReturn(new Trekkdager(10));
         when(saldoUtregning.restSaldoMinsterett()).thenReturn(new Trekkdager(-5));
+        when(saldoUtregning.getMaxDagerFlerbarnsdager()).thenReturn(Trekkdager.ZERO);
         var validering = new SaldoValidering(saldoUtregning, false, false);
 
         assertThat(validering.valider(FORELDREPENGER).isGyldig()).isTrue();

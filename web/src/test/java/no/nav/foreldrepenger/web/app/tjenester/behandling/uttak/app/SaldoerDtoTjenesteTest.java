@@ -459,7 +459,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         // Assert
         var fbDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FLERBARNSDAGER);
         //5 uker mor, 4 uker som far stjeler fra mor, 1 uker der far og mor har samtidig uttak, 5 uker far
-        assertKonto(fbDto, maxDagerFlerbarn, maxDagerFlerbarn - (15 * 5));
+        assertKonto(fbDto, maxDagerFlerbarn, maxDagerFlerbarn - (16 * 5));
     }
 
     private void lagreEndringsdato(Behandling behandling) {
