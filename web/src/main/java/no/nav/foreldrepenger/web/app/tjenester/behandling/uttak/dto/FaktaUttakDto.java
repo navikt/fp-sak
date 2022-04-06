@@ -62,14 +62,6 @@ public abstract class FaktaUttakDto extends BekreftetAksjonspunktDto {
         }
     }
 
-    @JsonTypeName(AksjonspunktKodeDefinisjon.ANNEN_FORELDER_IKKE_RETT_OG_LØPENDE_VEDTAK_KODE)
-    public static class FaktaUttakAnnenForelderMedLøpendeUttakHarIkkeRett extends FaktaUttakDto {
-
-        public FaktaUttakAnnenForelderMedLøpendeUttakHarIkkeRett() {
-            super();
-        }
-    }
-
     @JsonTypeName(AksjonspunktKodeDefinisjon.AVKLAR_FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET_KODE)
     public static class FaktaUttakGraderingUkjentAktivitet extends FaktaUttakDto {
 

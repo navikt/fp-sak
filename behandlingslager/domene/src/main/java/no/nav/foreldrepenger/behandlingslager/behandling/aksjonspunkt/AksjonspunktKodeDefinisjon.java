@@ -123,7 +123,6 @@ public class AksjonspunktKodeDefinisjon {
     public static final String OVERSTYRING_AV_FAKTA_UTTAK_KODE = "6013";
     public static final String FASTSETT_UTTAKPERIODER_KODE = "5071";
     public static final String AVKLAR_FØRSTE_UTTAKSDATO_KODE = "5081";
-    public static final String ANNEN_FORELDER_IKKE_RETT_OG_LØPENDE_VEDTAK_KODE = "5088";
     public static final String OVERSTYRING_AV_UTTAKPERIODER_KODE = "6008";
     public static final String AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT_KODE = "5086";
 

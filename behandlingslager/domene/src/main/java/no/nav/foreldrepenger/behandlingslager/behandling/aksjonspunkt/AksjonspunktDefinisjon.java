@@ -261,10 +261,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     VURDER_DEKNINGSGRAD(AksjonspunktKodeDefinisjon.VURDER_DEKNINGSGRAD_KODE,
             AksjonspunktType.MANUELL, "Vurder Dekningsgrad", BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG, VurderingspunktType.UT, UTEN_VILKÅR,
             SkjermlenkeType.BEREGNING_FORELDREPENGER, TOTRINN, EnumSet.of(FP, SVP)),
-    ANNEN_FORELDER_IKKE_RETT_OG_LØPENDE_VEDTAK(
-            AksjonspunktKodeDefinisjon.ANNEN_FORELDER_IKKE_RETT_OG_LØPENDE_VEDTAK_KODE, AksjonspunktType.MANUELL,
-            "Oppgitt at annen forelder ikke rett, men har løpende utbetaling", BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.INN, UTEN_VILKÅR,
-            SkjermlenkeType.FAKTA_OM_UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
     VURDER_OPPTJENINGSVILKÅRET(
             AksjonspunktKodeDefinisjon.VURDER_OPPTJENINGSVILKÅRET_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av opptjeningsvilkår",
             BehandlingStegType.VURDER_OPPTJENINGSVILKÅR, VurderingspunktType.UT, VilkårType.OPPTJENINGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OPPTJENING,
@@ -426,6 +422,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     _5078("5078", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser innvilget"),
     @Deprecated
     _5079("5079", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser opphørt"),
+    @Deprecated
+    _5088("5088", AksjonspunktType.MANUELL, "Oppgitt at annen forelder ikke rett, men har løpende utbetaling"),
     @Deprecated
     _7006("7006", AksjonspunktType.AUTOPUNKT, "Venter på opptjeningsopplysninger"),
     @Deprecated
