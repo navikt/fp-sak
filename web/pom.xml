@@ -16,7 +16,7 @@
     <properties>
         <simpleclient.version>0.15.0</simpleclient.version>
         <swagger-ui.version>4.10.3</swagger-ui.version>
-        <jersey.version>2.35</jersey.version>
+        <jersey.version>3.0.4</jersey.version>
     </properties>
     <dependencies>
 
