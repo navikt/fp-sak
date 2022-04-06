@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
 import java.util.Map;
 
-import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 
 public record SaldoerDto(Map<SaldoVisningStønadskontoType, StønadskontoDto> stonadskontoer, int tapteDagerFpff) {
 
@@ -23,7 +23,6 @@ public record SaldoerDto(Map<SaldoVisningStønadskontoType, StønadskontoDto> st
                 case FORELDREPENGER_FØR_FØDSEL -> FORELDREPENGER_FØR_FØDSEL;
                 case FELLESPERIODE -> FELLESPERIODE;
                 case FEDREKVOTE -> FEDREKVOTE;
-                case FLERBARNSDAGER -> FLERBARNSDAGER;
             };
         }
     }

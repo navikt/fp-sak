@@ -42,7 +42,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeUtenO
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Søknad;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Søknadstype;
-import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 
 @ApplicationScoped
 public class SøknadGrunnlagBygger {

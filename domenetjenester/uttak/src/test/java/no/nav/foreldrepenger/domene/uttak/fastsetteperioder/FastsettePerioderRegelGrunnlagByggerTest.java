@@ -80,7 +80,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Arbeidsgiver
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppgittPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RegelGrunnlag;
-import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 
 public class FastsettePerioderRegelGrunnlagByggerTest {
 

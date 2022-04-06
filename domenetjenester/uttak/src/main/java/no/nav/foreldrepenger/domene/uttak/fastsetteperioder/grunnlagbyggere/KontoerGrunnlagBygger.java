@@ -57,8 +57,11 @@ public class KontoerGrunnlagBygger {
      */
     public Kontoer.Builder byggGrunnlag(BehandlingReferanse ref, ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
         var stønadskontoer = hentStønadskontoer(ref);
-        return getBuilder(ref, foreldrepengerGrunnlag, stønadskontoer)
-            .kontoList(stønadskontoer.stream().map(this::map).collect(Collectors.toList()));
+        return getBuilder(ref, foreldrepengerGrunnlag, stønadskontoer).kontoList(stønadskontoer.stream()
+            //Flerbarnsdager er stønadskontotype i stønadskontoberegningen, men ikke i fastsette perioder
+            .filter(sk -> !sk.getStønadskontoType().equals(StønadskontoType.FLERBARNSDAGER))
+            .map(this::map)
+            .collect(Collectors.toList()));
     }
 
     private Konto.Builder map(Stønadskonto stønadskonto) {
@@ -84,6 +87,11 @@ public class KontoerGrunnlagBygger {
         var morHarUføretrygd = foreldrepengerGrunnlag.getUføretrygdGrunnlag()
             .filter(UføretrygdGrunnlagEntitet::annenForelderMottarUføretrygd)
             .isPresent();
+        var flerbarnsdager = stønadskontoer.stream()
+            .filter(stønadskonto -> stønadskonto.getStønadskontoType().equals(StønadskontoType.FLERBARNSDAGER))
+            .findFirst();
+        flerbarnsdager.map(stønadskonto -> builder.flerbarnsdager(stønadskonto.getMaxDager()));
+
         if (!erMor && erForeldrepenger && (minsterettAnnenpart || morHarUføretrygd)) {
             var dekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(ref.getSaksnummer()).getGjeldendeDekningsgrad();
             var antallDager = 0;
