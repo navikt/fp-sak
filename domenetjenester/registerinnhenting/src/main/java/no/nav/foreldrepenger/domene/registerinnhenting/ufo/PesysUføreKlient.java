@@ -34,7 +34,7 @@ public class PesysUføreKlient {
     private static final String ENDPOINT_KEY = "ufore.rs.url";
     private static final String DEFAULT_URI = "http://pensjon-pen.pensjondeployer/pen/api/sak/uforehistorikk";
     private static final String DEFAULT_BASE_URI = "http://pensjon-pen.pensjondeployer";
-    private static final String DEFAULT_PATH = "/pen/api/sak/harUforegrad";
+    private static final String DEFAULT_PATH = "/pen/springapi/sak/harUforegrad";
 
     private static final boolean ER_PROD = Environment.current().isProd();
 
@@ -73,8 +73,7 @@ public class PesysUføreKlient {
                 var request = UriBuilder.fromUri(pesysBaseUri)
                     .queryParam("fom", startDato)
                     .queryParam("tom", startDato.plusYears(3))
-                    .queryParam("uforeTyper", UforeTypeCode.UFORE)
-                    .queryParam("uforeTyper", UforeTypeCode.UF_M_YRKE)
+                    .queryParam("uforeTyper", UforeTypeCode.UFORE.name() + "," + UforeTypeCode.UF_M_YRKE.name())
                     .path(DEFAULT_PATH)
                     .build();
                 var nyResponse = this.oidcRestClient.get(request, this.lagHeader(fnr), HarUføreGrad.class);
