@@ -53,7 +53,7 @@
         <kalkulus.version>1.5.34</kalkulus.version>
 
         <swaggercore.version>2.2.0</swaggercore.version>
-        <flyway.version>8.5.5</flyway.version>
+        <flyway.version>8.5.7</flyway.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
