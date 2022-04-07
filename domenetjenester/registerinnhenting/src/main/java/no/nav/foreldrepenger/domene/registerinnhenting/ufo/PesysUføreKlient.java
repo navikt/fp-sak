@@ -73,7 +73,8 @@ public class PesysUføreKlient {
                 var request = UriBuilder.fromUri(pesysBaseUri)
                     .queryParam("fom", startDato)
                     .queryParam("tom", startDato.plusYears(3))
-                    .queryParam("uforeTyper", List.of(UforeTypeCode.UFORE, UforeTypeCode.UF_M_YRKE))
+                    .queryParam("uforeTyper", UforeTypeCode.UFORE)
+                    .queryParam("uforeTyper", UforeTypeCode.UF_M_YRKE)
                     .path(DEFAULT_PATH)
                     .build();
                 var nyResponse = this.oidcRestClient.get(request, this.lagHeader(fnr), HarUføreGrad.class);
