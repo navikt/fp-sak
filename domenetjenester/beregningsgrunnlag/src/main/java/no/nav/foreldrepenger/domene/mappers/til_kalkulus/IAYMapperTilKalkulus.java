@@ -26,6 +26,7 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.NaturalYtelseDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.OppgittAnnenAktivitetDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.OppgittFrilansDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.OppgittOpptjeningDtoBuilder;
+import no.nav.folketrygdloven.kalkulator.modell.iay.PermisjonDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.RefusjonDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.RefusjonskravDatoDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.VersjonTypeDto;
@@ -48,6 +49,7 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.NæringsinntektType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OffentligYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.PensjonTrygdType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.TemaUnderkategori;
 import no.nav.folketrygdloven.kalkulus.kodeverk.VirksomhetType;
 import no.nav.folketrygdloven.kalkulus.typer.AktørId;
@@ -70,6 +72,7 @@ import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
+import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
@@ -230,9 +233,28 @@ public class IAYMapperTilKalkulus {
         dtoBuilder.medArbeidsforholdId(mapArbeidsforholdRef(yrkesaktivitet.getArbeidsforholdRef()));
         dtoBuilder.medArbeidsgiver(yrkesaktivitet.getArbeidsgiver() == null ? null : mapArbeidsgiver(yrkesaktivitet.getArbeidsgiver()));
         dtoBuilder.medArbeidType(ArbeidType.fraKode(yrkesaktivitet.getArbeidType().getKode()));
+        yrkesaktivitet.getPermisjon().forEach(perm -> dtoBuilder.leggTilPermisjon(mapPermisjon(perm)));
         return dtoBuilder.build();
     }
 
+    private static PermisjonDtoBuilder mapPermisjon(Permisjon perm) {
+        return PermisjonDtoBuilder.ny()
+            .medProsentsats(perm.getProsentsats().getVerdi())
+            .medPeriode(mapDatoIntervall(perm.getPeriode()))
+            .medPermisjonsbeskrivelseType(mpPermisjontype(perm.getPermisjonsbeskrivelseType()));
+    }
+
+    private static PermisjonsbeskrivelseType mpPermisjontype(no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType permisjonsbeskrivelseType) {
+            return switch (permisjonsbeskrivelseType) {
+                case UDEFINERT -> PermisjonsbeskrivelseType.UDEFINERT;
+                case PERMISJON -> PermisjonsbeskrivelseType.PERMISJON;
+                case UTDANNINGSPERMISJON -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON;
+                case VELFERDSPERMISJON -> PermisjonsbeskrivelseType.VELFERDSPERMISJON;
+                case PERMISJON_MED_FORELDREPENGER -> PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER;
+                case PERMITTERING -> PermisjonsbeskrivelseType.PERMITTERING;
+                case PERMISJON_VED_MILITÆRTJENESTE -> PermisjonsbeskrivelseType.PERMISJON_VED_MILITÆRTJENESTE;
+            };
+    }
 
     private static InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder mapAktørInntekt(AktørInntekt aktørInntekt){
         var builder = InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder.oppdatere(Optional.empty());
