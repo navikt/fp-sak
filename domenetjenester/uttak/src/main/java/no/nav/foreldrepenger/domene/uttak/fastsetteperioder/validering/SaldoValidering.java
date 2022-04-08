@@ -6,8 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
-import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
 
 public class SaldoValidering implements OverstyrUttakPerioderValidering {
 
@@ -35,6 +35,12 @@ public class SaldoValidering implements OverstyrUttakPerioderValidering {
             }
             if (valideringResultat.isNegativPgaSamtidigUttak()) {
                 LOG.info("Saksbehandler går videre med negativ saldo pga samtidig uttak");
+            }
+        }
+        if (saldoUtregning.getMaxDagerFlerbarnsdager().merEnn0()) {
+            var restSaldoDagerFlerbarnsdager = saldoUtregning.restSaldoFlerbarnsdager();
+            if (restSaldoDagerFlerbarnsdager.mindreEnn0()) {
+                throw OverstyrUttakValideringFeil.trekkdagerOverskriderKontoMaksDager();
             }
         }
         if (saldoUtregning.getMaxDagerUtenAktivitetskrav().merEnn0()) {

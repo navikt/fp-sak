@@ -25,11 +25,11 @@ import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering.SaldoVali
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
-import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AktivitetIdentifikatorDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AktivitetSaldoDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontoUtvidelser;
@@ -99,7 +99,10 @@ public class SaldoerDtoTjeneste {
                 new StønadskontoDto(visningStønadskontoType, saldoUtregning.getMaxDager(stønadskontotype), saldoUtregning.saldo(stønadskontotype),
                     aktivitetSaldoListe, saldoValideringResultat.isGyldig(), kontoUtvidelser.orElse(null)));
         }
-
+        if (saldoUtregning.getMaxDagerFlerbarnsdager().merEnn0()) {
+            var stønadskontoDto = foreldrepengerFlerbarnsdagerDto(saldoUtregning);
+            stønadskontoMap.put(stønadskontoDto.stonadskontotype(), stønadskontoDto);
+        }
         if (saldoUtregning.getMaxDagerUtenAktivitetskrav().merEnn0()) {
             var stønadskontoDto = foreldrepengerUtenAktKravDto(saldoUtregning);
             stønadskontoMap.put(stønadskontoDto.stonadskontotype(), stønadskontoDto);
@@ -111,6 +114,21 @@ public class SaldoerDtoTjeneste {
 
         var tapteDagerFpff = finnTapteDagerFpff(input);
         return new SaldoerDto(stønadskontoMap, tapteDagerFpff);
+    }
+
+    private StønadskontoDto foreldrepengerFlerbarnsdagerDto(SaldoUtregning saldoUtregning) {
+        var aktivitetSaldoList = saldoUtregning.aktiviteterForSøker().stream().map(a -> {
+            var restSaldoFlerbarnsdager = saldoUtregning.restSaldoFlerbarnsdager(a);
+            return new AktivitetSaldoDto(mapToDto(a), restSaldoFlerbarnsdager.rundOpp());
+        }).toList();
+        int restSaldoFlerbarnsdager = aktivitetSaldoList.stream()
+            .map(aktivitetSaldoDto -> aktivitetSaldoDto.saldo())
+            .max(Comparator.comparing(integer -> integer))
+            .orElse(0);
+        var gyldigForbruk = restSaldoFlerbarnsdager >= 0;
+        return new StønadskontoDto(SaldoerDto.SaldoVisningStønadskontoType.FLERBARNSDAGER,
+            saldoUtregning.getMaxDagerFlerbarnsdager().rundOpp(), restSaldoFlerbarnsdager, aktivitetSaldoList, gyldigForbruk,
+            null);
     }
 
     private StønadskontoDto foreldrepengerUtenAktKravDto(SaldoUtregning saldoUtregning) {

@@ -56,7 +56,7 @@ import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.fp.MaksDatoUttakTjenesteImpl;
 import no.nav.foreldrepenger.domene.vedtak.intern.FagsakRelasjonAvslutningsdatoOppdaterer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
-import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
 import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
 

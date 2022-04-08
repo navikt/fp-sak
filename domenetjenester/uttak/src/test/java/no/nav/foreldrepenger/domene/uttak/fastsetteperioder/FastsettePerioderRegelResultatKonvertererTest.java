@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅ
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UttakPeriodeAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.InnvilgetÅrsak;
-import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 
 public class FastsettePerioderRegelResultatKonvertererTest {
 

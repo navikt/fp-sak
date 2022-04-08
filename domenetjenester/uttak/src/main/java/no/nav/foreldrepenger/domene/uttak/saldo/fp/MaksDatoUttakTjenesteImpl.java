@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
-import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)

@@ -31,7 +31,9 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.regler.uttak.beregnkontoer.StønadskontoBeregningStønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.beregnkontoer.grunnlag.Dekningsgrad;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetType;
@@ -43,7 +45,6 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeVurde
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Perioderesultattype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.GraderingIkkeInnvilgetÅrsak;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.Manuellbehandlingårsak;
-import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
 
 public final class UttakEnumMapper {
 
@@ -123,7 +124,6 @@ public final class UttakEnumMapper {
             .medMapping(StønadskontoType.FELLESPERIODE, Stønadskontotype.FELLESPERIODE)
             .medMapping(StønadskontoType.MØDREKVOTE, Stønadskontotype.MØDREKVOTE)
             .medMapping(StønadskontoType.FEDREKVOTE, Stønadskontotype.FEDREKVOTE)
-            .medMapping(StønadskontoType.FLERBARNSDAGER, Stønadskontotype.FLERBARNSDAGER)
             .medMapping(StønadskontoType.FORELDREPENGER_FØR_FØDSEL, Stønadskontotype.FORELDREPENGER_FØR_FØDSEL)
             .build();
     }
@@ -273,6 +273,19 @@ public final class UttakEnumMapper {
     }
 
     public static StønadskontoType map(Stønadskontotype stønadskontotype) {
+        if (stønadskontotype == null) {
+            return StønadskontoType.UDEFINERT;
+        }
+        return switch (stønadskontotype) {
+            case FEDREKVOTE -> StønadskontoType.FEDREKVOTE;
+            case MØDREKVOTE -> StønadskontoType.MØDREKVOTE;
+            case FELLESPERIODE -> StønadskontoType.FELLESPERIODE;
+            case FORELDREPENGER -> StønadskontoType.FORELDREPENGER;
+            case FORELDREPENGER_FØR_FØDSEL -> StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
+        };
+    }
+
+    public static StønadskontoType map(StønadskontoBeregningStønadskontotype stønadskontotype) {
         if (stønadskontotype == null) {
             return StønadskontoType.UDEFINERT;
         }
