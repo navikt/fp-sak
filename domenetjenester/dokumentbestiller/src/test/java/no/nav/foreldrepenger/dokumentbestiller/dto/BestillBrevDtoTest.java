@@ -1,10 +1,12 @@
 package no.nav.foreldrepenger.dokumentbestiller.dto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.condition.OS.WINDOWS;
 
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
@@ -30,6 +32,7 @@ class BestillBrevDtoTest {
     }
 
     @Test
+    @DisabledOnOs(WINDOWS)
     void serialize() {
         var behandlingId = 12L;
         var uuid = "5ffbf59b-76d5-4c78-bd27-6c84e0d445a3";
