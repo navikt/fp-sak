@@ -43,6 +43,17 @@ public class DatoerGrunnlagBygger {
         return db;
     }
 
+    public static Datoer.Builder byggForenkletGrunnlagKunFamiliehendelse(UttakInput input) {
+        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = input.getYtelsespesifiktGrunnlag();
+        var gjeldendeFamilieHendelse = ytelsespesifiktGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
+        var db = new Datoer.Builder()
+            .fødsel(gjeldendeFamilieHendelse.getFødselsdato().orElse(null))
+            .termin(gjeldendeFamilieHendelse.getTermindato().orElse(null))
+            .omsorgsovertakelse(gjeldendeFamilieHendelse.getOmsorgsovertakelse().orElse(null));
+
+        return db;
+    }
+
     private Dødsdatoer.Builder byggDødsdatoer(ForeldrepengerGrunnlag foreldrepengerGrunnlag, BehandlingReferanse ref) {
         return new Dødsdatoer.Builder()
             .søkersDødsdato(personopplysninger.søkersDødsdato(ref).orElse(null))

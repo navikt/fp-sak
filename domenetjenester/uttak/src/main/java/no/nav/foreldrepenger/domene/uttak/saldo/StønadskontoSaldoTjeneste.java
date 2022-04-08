@@ -19,9 +19,13 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.AnnenPartGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.BehandlingGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.DatoerGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.SøknadGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FarUttakRundtFødsel;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenpartUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriodeAktivitet;
@@ -30,6 +34,9 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregningGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregningTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
+import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.LukketPeriode;
+import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
+
 
 @ApplicationScoped
 public class StønadskontoSaldoTjeneste {
@@ -71,14 +78,21 @@ public class StønadskontoSaldoTjeneste {
             .orElse(null);
         if (stønadskontoer.isPresent() && perioderSøker.size() > 0) {
             var perioderAnnenpart = perioderAnnenpart(fpGrunnlag);
-            var kontoer = kontoerGrunnlagBygger.byggGrunnlag(uttakInput.getBehandlingReferanse(), fpGrunnlag)
-                .build();
+            var kontoer = kontoerGrunnlagBygger.byggGrunnlag(uttakInput.getBehandlingReferanse(), fpGrunnlag).build();
+            Optional<LukketPeriode> periodeFar = Optional.empty();
+            // TODO: trengs dette eller kan vi sende inn en tom periode? SaldoValidering?
+            if (!uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().utenMinsterett()
+                && !BehandlingGrunnlagBygger.søkerErMor(uttakInput.getBehandlingReferanse())) {
+                var type = SøknadGrunnlagBygger.type(fpGrunnlag);
+                var datoer = DatoerGrunnlagBygger.byggForenkletGrunnlagKunFamiliehendelse(uttakInput).build();
+                periodeFar = FarUttakRundtFødsel.utledFarsPeriodeRundtFødsel(datoer, kontoer, type, StandardKonfigurasjon.KONFIGURASJON);
+            }
             return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(perioderSøker,
                 fpGrunnlag.isBerørtBehandling(), perioderAnnenpart, kontoer, søknadOpprettetTidspunkt,
-                sisteSøknadOpprettetTidspunktAnnenpart);
+                sisteSøknadOpprettetTidspunktAnnenpart, periodeFar);
         }
         return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(List.of(), fpGrunnlag.isBerørtBehandling(),
-            List.of(), new Kontoer.Builder().build(), søknadOpprettetTidspunkt, sisteSøknadOpprettetTidspunktAnnenpart);
+            List.of(), new Kontoer.Builder().build(), søknadOpprettetTidspunkt, sisteSøknadOpprettetTidspunktAnnenpart, Optional.empty());
     }
 
     public boolean erNegativSaldoPåNoenKonto(UttakInput uttakInput) {

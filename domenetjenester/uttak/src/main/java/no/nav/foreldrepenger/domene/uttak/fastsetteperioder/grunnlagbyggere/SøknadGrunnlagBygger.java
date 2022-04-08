@@ -204,7 +204,7 @@ public class SøknadGrunnlagBygger {
         }
     }
 
-    private Søknadstype type(ForeldrepengerGrunnlag fpGrunnlag) {
+    public static Søknadstype type(ForeldrepengerGrunnlag fpGrunnlag) {
         var hendelser = fpGrunnlag.getFamilieHendelser();
         if (hendelser.gjelderTerminFødsel() && hendelser.erSøktTermin()) {
             return Søknadstype.TERMIN;

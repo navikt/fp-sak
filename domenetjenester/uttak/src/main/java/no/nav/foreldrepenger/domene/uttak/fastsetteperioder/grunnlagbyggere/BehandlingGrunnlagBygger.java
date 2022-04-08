@@ -20,7 +20,7 @@ public class BehandlingGrunnlagBygger {
             .kreverSammenhengendeUttak(ref.getSkjæringstidspunkt().kreverSammenhengendeUttak());
     }
 
-    private static boolean søkerErMor(BehandlingReferanse ref) {
+    public static boolean søkerErMor(BehandlingReferanse ref) {
         return RelasjonsRolleType.erMor(ref.getRelasjonsRolleType());
     }
 }
