@@ -13,7 +13,6 @@
     <name>FPSAK :: Behandlingslager - Testutilities</name>
 
     <dependencies>
-
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingslager-domene</artifactId>
@@ -28,7 +27,6 @@
             <artifactId>mockito-core</artifactId>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>migreringer</artifactId>

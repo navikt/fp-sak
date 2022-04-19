@@ -33,12 +33,6 @@
             <artifactId>domenetjenester-bom</artifactId>
         </dependency>
 
-        <!-- Test avhengigheter -->
-        <dependency>
-            <groupId>no.nav.foreldrepenger</groupId>
-            <artifactId>behandlingslager-testutilities</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>risikoklassifisering</artifactId>
@@ -46,6 +40,18 @@
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>tilbakekreving</artifactId>
+        </dependency>
+
+        <!-- Test avhengigheter -->
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>behandlingslager-testutilities</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-testutilities</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
