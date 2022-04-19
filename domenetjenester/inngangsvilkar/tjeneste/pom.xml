@@ -52,7 +52,7 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingslager-domene</artifactId>
         </dependency>
-        
+
         <!-- NARE: Java regelmodell -->
         <dependency>
             <groupId>no.nav.fpsak.nare</groupId>
@@ -62,11 +62,16 @@
             <groupId>no.nav.fpsak.tidsserie</groupId>
             <artifactId>fpsak-tidsserie</artifactId>
         </dependency>
-        
+
         <!-- Test avhengigheter -->
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingslager-testutilities</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-testutilities</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

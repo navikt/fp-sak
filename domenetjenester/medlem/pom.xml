@@ -41,11 +41,16 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingslager-domene</artifactId>
         </dependency>
-        
+
         <!-- Test -->
 		<dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingslager-testutilities</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-testutilities</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

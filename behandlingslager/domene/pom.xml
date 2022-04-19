@@ -24,7 +24,7 @@
         </dependency>
 
         <dependency>
-            <!-- TODO: fjern denne avhengigheten når felles-sikkerhet er delt opp. Trengs inntil videre for å spore bruker 
+            <!-- TODO: fjern denne avhengigheten når felles-sikkerhet er delt opp. Trengs inntil videre for å spore bruker
                 ident (i BaseEntitet). bør refactoreres -->
             <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
             <artifactId>felles-sikkerhet</artifactId>
@@ -45,6 +45,7 @@
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-testutilities</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>no.nav.fpsak.tidsserie</groupId>

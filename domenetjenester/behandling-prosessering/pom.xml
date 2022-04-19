@@ -11,12 +11,12 @@
     <name>FPSAK :: Domenetjenester - Behandling Prosessering</name>
     <packaging>jar</packaging>
     <dependencies>
-        
+
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingslager-domene</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>batch</artifactId>
@@ -31,11 +31,16 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>dokumentbestiller</artifactId>
         </dependency>
-        
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingslager-testutilities</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-testutilities</artifactId>
             <scope>test</scope>
         </dependency>
 

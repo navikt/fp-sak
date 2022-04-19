@@ -31,7 +31,7 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>batch</artifactId>
         </dependency>
-		        
+
         <!-- Integrasjon klient avhengigheter -->
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
@@ -58,14 +58,20 @@
             <groupId>no.nav.vedtak.prosesstask</groupId>
             <artifactId>prosesstask</artifactId>
         </dependency>
-                  
+
 		<!-- Test avhengigheter -->
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingslager-testutilities</artifactId>
             <scope>test</scope>
         </dependency>
-       
+
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-testutilities</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

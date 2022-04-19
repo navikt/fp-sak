@@ -141,12 +141,6 @@
 
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
-            <artifactId>behandlingslager-testutilities</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>batch</artifactId>
         </dependency>
 
@@ -314,6 +308,18 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>konfig</artifactId>
         </dependency>
+
+
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-testutilities</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>behandlingslager-testutilities</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -340,12 +346,6 @@
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
                 <version>5.0.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles</groupId>
-                <artifactId>felles-testutilities</artifactId>
-                <scope>test</scope>
             </dependency>
 
         </dependencies>
