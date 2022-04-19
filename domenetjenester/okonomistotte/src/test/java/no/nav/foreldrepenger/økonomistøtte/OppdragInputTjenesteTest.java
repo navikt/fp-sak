@@ -17,7 +17,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -28,8 +30,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.Tilbakek
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -42,12 +44,13 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.SatsType;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Betalingsmottaker;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.KjedeNøkkel;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.SatsType;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.OppdragInput;
 
 @ExtendWith(MockitoExtension.class)
 class OppdragInputTjenesteTest {
@@ -74,34 +77,26 @@ class OppdragInputTjenesteTest {
 
     @BeforeEach
     public void setup() {
-        behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagMocked();
-        behandlingId = behandling.getId();
+        behandling = Behandling.nyBehandlingFor(
+            Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()), Saksnummer.arena("123456789")),
+            BehandlingType.FØRSTEGANGSSØKNAD).build();
+        behandlingId = 123L;
 
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
-        when(behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId))
-            .thenReturn(Optional.of(BehandlingVedtak.builder()
-                .medVedtakstidspunkt(LocalDateTime.now())
-                .medAnsvarligSaksbehandler("VL")
-                .medVedtakResultatType(VedtakResultatType.INNVILGET).build()));
-        when(aktørTjeneste.hentPersonIdentForAktørId(any()))
-            .thenReturn(Optional.of(PersonIdent.fra("0987654321")));
+        when(behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId)).thenReturn(Optional.of(BehandlingVedtak.builder()
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .medAnsvarligSaksbehandler("VL")
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .build()));
+        when(aktørTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(PersonIdent.fra("0987654321")));
         var familieHendelseGrunnlag = mock(FamilieHendelseGrunnlagEntitet.class);
-        when(familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId))
-            .thenReturn(Optional.of(familieHendelseGrunnlag));
+        when(familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)).thenReturn(Optional.of(familieHendelseGrunnlag));
         var familieHendelse = mock(FamilieHendelseEntitet.class);
-        when(familieHendelseGrunnlag.getGjeldendeVersjon())
-            .thenReturn(familieHendelse);
+        when(familieHendelseGrunnlag.getGjeldendeVersjon()).thenReturn(familieHendelse);
         when(familieHendelse.getGjelderAdopsjon()).thenReturn(false);
 
-        oppdragInputTjeneste = new OppdragInputTjeneste(
-            behandlingRepository,
-            null,
-            behandlingVedtakRepository,
-            familieHendelseRepository,
-            tilbakekrevingRepository,
-            aktørTjeneste,
-            økonomioppdragRepository,
-            beregningRepository);
+        oppdragInputTjeneste = new OppdragInputTjeneste(behandlingRepository, null, behandlingVedtakRepository, familieHendelseRepository,
+            tilbakekrevingRepository, aktørTjeneste, økonomioppdragRepository, beregningRepository);
 
     }
 
@@ -109,8 +104,8 @@ class OppdragInputTjenesteTest {
     @DisplayName("Simulering oppdrag input for ES fødsel uten tidligere utbetalinger.")
     public void oppdragInputSimuleringESFørstegang() {
         // Prepare
-        when(beregningRepository.getSisteBeregning(behandlingId))
-            .thenReturn(Optional.of(new LegacyESBeregning(TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
+        when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
+            Optional.of(new LegacyESBeregning(TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
 
         // Act
         var input = oppdragInputTjeneste.lagSimuleringInput(behandlingId);
@@ -131,8 +126,8 @@ class OppdragInputTjenesteTest {
     public void oppdragInputSimuleringESRevurderingMedTidligereOppdrag() {
         // Prepare
         var saksnummer = behandling.getFagsak().getSaksnummer();
-        when(beregningRepository.getSisteBeregning(behandlingId))
-            .thenReturn(Optional.of(new LegacyESBeregning(TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
+        when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
+            Optional.of(new LegacyESBeregning(TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
 
         var oppdragskontroll = lagOppdragskontroll(saksnummer);
         var oppdrag = lagOppdrag(oppdragskontroll, saksnummer);
@@ -140,8 +135,7 @@ class OppdragInputTjenesteTest {
         lagOppdragslinje(oppdrag, førsteVedtaksDato);
         OppdragKvitteringTestUtil.lagPositivKvitting(oppdrag);
 
-        when(økonomioppdragRepository.finnAlleOppdragForSak(saksnummer))
-            .thenReturn(List.of(oppdragskontroll));
+        when(økonomioppdragRepository.finnAlleOppdragForSak(saksnummer)).thenReturn(List.of(oppdragskontroll));
 
         // Act
         var input = oppdragInputTjeneste.lagSimuleringInput(behandlingId);
@@ -158,8 +152,8 @@ class OppdragInputTjenesteTest {
     public void oppdragInputSimuleringESRevurderingMedToTidligereOppdrag() {
         // Prepare
         var saksnummer = behandling.getFagsak().getSaksnummer();
-        when(beregningRepository.getSisteBeregning(behandlingId))
-            .thenReturn(Optional.of(new LegacyESBeregning(TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
+        when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
+            Optional.of(new LegacyESBeregning(TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
 
         var oppdragskontroll = lagOppdragskontroll(saksnummer);
         var oppdrag = lagOppdrag(oppdragskontroll, saksnummer);
@@ -173,8 +167,7 @@ class OppdragInputTjenesteTest {
         lagOppdragslinje(oppdrag2, andreVedtaksDato);
         OppdragKvitteringTestUtil.lagPositivKvitting(oppdrag2);
 
-        when(økonomioppdragRepository.finnAlleOppdragForSak(saksnummer))
-            .thenReturn(List.of(oppdragskontroll, oppdragskontroll2));
+        when(økonomioppdragRepository.finnAlleOppdragForSak(saksnummer)).thenReturn(List.of(oppdragskontroll, oppdragskontroll2));
 
         // Act
         var input = oppdragInputTjeneste.lagSimuleringInput(behandlingId);
@@ -191,8 +184,8 @@ class OppdragInputTjenesteTest {
     public void oppdragInputSimuleringESRevurderingMedToTidligereOppdragMenKunEnPositivKvittering() {
         // Prepare
         var saksnummer = behandling.getFagsak().getSaksnummer();
-        when(beregningRepository.getSisteBeregning(behandlingId))
-            .thenReturn(Optional.of(new LegacyESBeregning(TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
+        when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
+            Optional.of(new LegacyESBeregning(TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
 
         var oppdragskontroll = lagOppdragskontroll(saksnummer);
         var oppdrag = lagOppdrag(oppdragskontroll, saksnummer);
@@ -206,8 +199,7 @@ class OppdragInputTjenesteTest {
         lagOppdragslinje(oppdrag2, andreVedtaksDato);
         OppdragKvitteringTestUtil.lagPositivKvitting(oppdrag2);
 
-        when(økonomioppdragRepository.finnAlleOppdragForSak(saksnummer))
-            .thenReturn(List.of(oppdragskontroll, oppdragskontroll2));
+        when(økonomioppdragRepository.finnAlleOppdragForSak(saksnummer)).thenReturn(List.of(oppdragskontroll, oppdragskontroll2));
 
         // Act
         var input = oppdragInputTjeneste.lagSimuleringInput(behandlingId);
@@ -220,8 +212,7 @@ class OppdragInputTjenesteTest {
     }
 
     private KjedeNøkkel getBrukerKjeddeNøkkel() {
-        return KjedeNøkkel.builder()
-            .medKlassekode(KodeKlassifik.ES_FØDSEL).medBetalingsmottaker(Betalingsmottaker.BRUKER).build();
+        return KjedeNøkkel.builder().medKlassekode(KodeKlassifik.ES_FØDSEL).medBetalingsmottaker(Betalingsmottaker.BRUKER).build();
     }
 
     private void assertFellesFelter(final OppdragInput input, final Saksnummer saksnummer) {
@@ -258,12 +249,7 @@ class OppdragInputTjenesteTest {
     }
 
     private Oppdragskontroll lagOppdragskontroll(Saksnummer saksnummer) {
-        return Oppdragskontroll.builder()
-            .medBehandlingId(1L)
-            .medProsessTaskId(1000L)
-            .medSaksnummer(saksnummer)
-            .medVenterKvittering(false)
-            .build();
+        return Oppdragskontroll.builder().medBehandlingId(1L).medProsessTaskId(1000L).medSaksnummer(saksnummer).medVenterKvittering(false).build();
     }
 
     private Oppdrag110 lagOppdrag(Oppdragskontroll oppdragskontroll, Saksnummer saksnummer) {
@@ -273,7 +259,7 @@ class OppdragInputTjenesteTest {
             .medOppdragGjelderId(saksnummer.getVerdi())
             .medSaksbehId("Z100000")
             .medAvstemming(Avstemming.ny())
-            .medFagSystemId(Long.parseLong(saksnummer.getVerdi() + "100") )
+            .medFagSystemId(Long.parseLong(saksnummer.getVerdi() + "100"))
             .medOppdragskontroll(oppdragskontroll)
             .build();
     }

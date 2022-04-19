@@ -14,6 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -24,12 +27,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.Tilbakek
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.LagOppdragTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.OppdragskontrollTjenesteImpl;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.LagOppdragTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste.OppdragskontrollTjenesteImpl;
 
 @ExtendWith(MockitoExtension.class)
 public class SimulerOppdragTjenesteESTest {
@@ -55,37 +61,30 @@ public class SimulerOppdragTjenesteESTest {
 
     @BeforeEach
     public void setup() {
-        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagMocked();
-        behandlingId = behandling.getId();
+        var behandling = Behandling.nyBehandlingFor(
+            Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()), Saksnummer.arena("123456789")),
+            BehandlingType.FØRSTEGANGSSØKNAD).build();
+        behandlingId = 123L;
 
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
-        when(behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId))
-            .thenReturn(Optional.of(BehandlingVedtak.builder()
-                .medVedtakstidspunkt(LocalDateTime.now())
-                .medAnsvarligSaksbehandler("VL")
-                .medVedtakResultatType(VedtakResultatType.INNVILGET).build()));
-        when(aktørTjeneste.hentPersonIdentForAktørId(any()))
-            .thenReturn(Optional.of(PersonIdent.fra("0987654321")));
-        when(beregningRepository.getSisteBeregning(behandlingId))
-            .thenReturn(Optional.of(new LegacyESBeregning(15000, 1, 15000, LocalDateTime.now())));
+        when(behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId)).thenReturn(Optional.of(BehandlingVedtak.builder()
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .medAnsvarligSaksbehandler("VL")
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .build()));
+        when(aktørTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(PersonIdent.fra("0987654321")));
+        when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
+            Optional.of(new LegacyESBeregning(15000, 1, 15000, LocalDateTime.now())));
         var familieHendelseGrunnlag = mock(FamilieHendelseGrunnlagEntitet.class);
-        when(familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId))
-            .thenReturn(Optional.of(familieHendelseGrunnlag));
+        when(familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)).thenReturn(Optional.of(familieHendelseGrunnlag));
         var familieHendelse = mock(FamilieHendelseEntitet.class);
-        when(familieHendelseGrunnlag.getGjeldendeVersjon())
-            .thenReturn(familieHendelse);
+        when(familieHendelseGrunnlag.getGjeldendeVersjon()).thenReturn(familieHendelse);
         when(familieHendelse.getGjelderAdopsjon()).thenReturn(false);
 
-        var oppdragInputTjeneste = new OppdragInputTjeneste(
-            behandlingRepository,
-            null,
-            behandlingVedtakRepository,
-            familieHendelseRepository,
-            tilbakekrevingRepository,
-            aktørTjeneste, økonomioppdragRepository, beregningRepository);
+        var oppdragInputTjeneste = new OppdragInputTjeneste(behandlingRepository, null, behandlingVedtakRepository, familieHendelseRepository,
+            tilbakekrevingRepository, aktørTjeneste, økonomioppdragRepository, beregningRepository);
 
-        simulerOppdragTjeneste = new SimulerOppdragTjeneste(
-            new OppdragskontrollTjenesteImpl(new LagOppdragTjeneste(), økonomioppdragRepository),
+        simulerOppdragTjeneste = new SimulerOppdragTjeneste(new OppdragskontrollTjenesteImpl(new LagOppdragTjeneste(), økonomioppdragRepository),
             oppdragInputTjeneste);
     }
 

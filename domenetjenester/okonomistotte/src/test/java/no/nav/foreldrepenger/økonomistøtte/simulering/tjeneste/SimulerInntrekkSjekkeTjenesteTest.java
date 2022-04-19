@@ -15,14 +15,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
 
@@ -42,9 +47,12 @@ public class SimulerInntrekkSjekkeTjenesteTest {
         simulerOppdragTjeneste = mock(SimulerOppdragTjeneste.class);
         tilbakekrevingRepository = mock(TilbakekrevingRepository.class);
         historikkRepository = mock(HistorikkRepository.class);
-        behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
-        simulerInntrekkSjekkeTjeneste = new SimulerInntrekkSjekkeTjeneste(simuleringIntegrasjonTjeneste,
-                simulerOppdragTjeneste, tilbakekrevingRepository, historikkRepository);
+        behandling = Behandling.nyBehandlingFor(
+            Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), Saksnummer.arena("123456789")),
+            BehandlingType.FØRSTEGANGSSØKNAD).build();
+        behandling.setId(123L);
+        simulerInntrekkSjekkeTjeneste = new SimulerInntrekkSjekkeTjeneste(simuleringIntegrasjonTjeneste, simulerOppdragTjeneste,
+            tilbakekrevingRepository, historikkRepository);
     }
 
     @Test

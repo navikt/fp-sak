@@ -25,9 +25,9 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområ
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYtelse;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.OverordnetOppdragKjedeOversikt;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.OppdragInput;
 
 @ExtendWith(MockitoExtension.class)
 public class SimulerOppdragTjenesteFPTest {

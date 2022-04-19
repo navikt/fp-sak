@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragPatchDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragslinjePatchDto;
-import no.nav.foreldrepenger.økonomistøtte.ny.util.OppdragOrgnrUtil;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.util.OppdragOrgnrUtil;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomistøtteUtils;
 
 public class OppdragMapper {

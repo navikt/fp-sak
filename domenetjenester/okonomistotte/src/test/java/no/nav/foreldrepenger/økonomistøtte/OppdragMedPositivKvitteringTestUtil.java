@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.OppdragInput;
 
 public class OppdragMedPositivKvitteringTestUtil {
 
