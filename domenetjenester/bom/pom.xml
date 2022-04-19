@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>no.nav.foreldrepenger</groupId>
 		<artifactId>domenetjenester-pom</artifactId>
-        <version>${revision}${sha1}${changelist}</version>
+        <version>${revision}</version>
 	</parent>
 
 	<artifactId>domenetjenester-bom</artifactId>
@@ -59,7 +59,7 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>registerinnhenting</artifactId>
         </dependency>
-		
+
 		<dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandling</artifactId>

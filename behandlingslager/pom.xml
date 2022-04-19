@@ -5,7 +5,7 @@
     <parent>
         <artifactId>fpsak</artifactId>
         <groupId>no.nav.foreldrepenger</groupId>
-        <version>${revision}${sha1}${changelist}</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>behandlingslager-pom</artifactId>

@@ -11,7 +11,7 @@
     <parent>
 		<groupId>no.nav.foreldrepenger</groupId>
 		<artifactId>inngangsvilkar-pom</artifactId>
-		<version>${revision}${sha1}${changelist}</version>
+		<version>${revision}</version>
 	</parent>
 
 	<artifactId>inngangsvilkar-regelmodell</artifactId>

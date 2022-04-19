@@ -5,7 +5,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger</groupId>
         <artifactId>behandlingslager-pom</artifactId>
-        <version>${revision}${sha1}${changelist}</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>behandlingslager-testutilities</artifactId>
