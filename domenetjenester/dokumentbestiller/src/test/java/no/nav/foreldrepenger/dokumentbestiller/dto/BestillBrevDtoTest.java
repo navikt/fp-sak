@@ -2,12 +2,10 @@ package no.nav.foreldrepenger.dokumentbestiller.dto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.condition.OS.WINDOWS;
 
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
@@ -21,11 +19,11 @@ class BestillBrevDtoTest {
         var årsak = RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER;
 
         String json = """
-        {
-            "brevmalkode":"%s",
-            "navn":"sdf",
-            "arsakskode":"%s"
-        }""".formatted(dokumentMal.getKode(), årsak.getKode());
+            {
+                "brevmalkode":"%s",
+                "navn":"sdf",
+                "arsakskode":"%s"
+            }""".formatted(dokumentMal.getKode(), årsak.getKode());
 
         BestillBrevDto bean = StandardJsonConfig.fromJson(json, BestillBrevDto.class);
         assertEquals(dokumentMal, bean.getBrevmalkode());
