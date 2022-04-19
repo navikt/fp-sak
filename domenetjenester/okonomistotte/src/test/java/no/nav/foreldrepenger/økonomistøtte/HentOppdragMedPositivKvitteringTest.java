@@ -12,10 +12,14 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class HentOppdragMedPositivKvitteringTest {
@@ -28,7 +32,10 @@ public class HentOppdragMedPositivKvitteringTest {
 
     @BeforeEach
     public void setup() {
-        behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
+        behandling = Behandling.nyBehandlingFor(
+            Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()), Saksnummer.arena("123456789")),
+            BehandlingType.FØRSTEGANGSSØKNAD).build();
+        behandling.setId(123L);
         saksnummer = behandling.getFagsak().getSaksnummer();
         oppdragskontroll = OppdragTestDataHelper.buildOppdragskontroll();
         OppdragTestDataHelper.buildOppdrag110ES(oppdragskontroll, 1L);
