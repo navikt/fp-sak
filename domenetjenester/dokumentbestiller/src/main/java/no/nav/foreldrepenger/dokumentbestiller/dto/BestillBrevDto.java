@@ -29,10 +29,10 @@ public class BestillBrevDto {
 
     @Size(max = 6000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
-    public String fritekst;
+    private String fritekst;
 
     @ValidKodeverk
-    public RevurderingVarslingÅrsak arsakskode;
+    private RevurderingVarslingÅrsak arsakskode;
 
     public BestillBrevDto() { // NOSONAR
     }
