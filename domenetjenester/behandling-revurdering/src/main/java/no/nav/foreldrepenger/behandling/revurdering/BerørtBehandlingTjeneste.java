@@ -124,11 +124,17 @@ public class BerørtBehandlingTjeneste {
     private LocalDateTimeline<Boolean> lagTidslinje(ForeldrepengerUttak uttak) {
         var segmenter = uttak.getGjeldendePerioder().stream()
             .filter(ForeldrepengerUttakPeriode::harAktivtUttak)
-            .map(p -> new LocalDateSegment<>(VirkedagUtil.lørdagSøndagTilMandag(p.getFom()), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), Boolean.TRUE))
+            .map(this::lagSegment)
             .toList();
         return new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch).compress();
     }
 
+    private LocalDateSegment<Boolean> lagSegment(ForeldrepengerUttakPeriode periode) {
+        var fom = VirkedagUtil.lørdagSøndagTilMandag(periode.getFom());
+        var tom = VirkedagUtil.fredagLørdagTilSøndag(periode.getTom());
+        var brukFom = fom.isAfter(tom) ? periode.getFom() : fom;
+        return new LocalDateSegment<>(brukFom, tom, Boolean.TRUE);
+    }
 
     private Optional<ForeldrepengerUttak> hentUttak(Long behandling) {
         return uttakTjeneste.hentUttakHvisEksisterer(behandling);
