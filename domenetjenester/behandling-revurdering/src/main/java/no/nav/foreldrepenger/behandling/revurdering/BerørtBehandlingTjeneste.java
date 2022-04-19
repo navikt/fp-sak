@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.behandling.revurdering;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -18,15 +16,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBegr
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.TidsperiodeForbeholdtMor;
-import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -34,6 +31,7 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.fpsak.tidsserie.StandardCombinators;
 
 @ApplicationScoped
 public class BerørtBehandlingTjeneste {
@@ -79,6 +77,7 @@ public class BerørtBehandlingTjeneste {
             return false;
         }
         var uttakInput = uttakInputTjeneste.lagInput(brukersGjeldendeBehandlingsresultat.getBehandlingId());
+        var kreverSammenhengendeUttak = uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak();
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         if (foreldrepengerGrunnlag.isBerørtBehandling()) {
             return false;
@@ -92,94 +91,44 @@ public class BerørtBehandlingTjeneste {
             return false;
         }
         var brukersUttak = hentUttak(behandlingId);
+        var tidslinjeBruker = lagTidslinje(brukersUttak.orElse(tomtUttak()));
+        var tidslinjeAnnenpart = lagTidslinje(annenpartsUttak.get());
+        // Slår sammen uttaksplanene med TRUE der en eller begge har uttak.
+        var fellesTidslinje = tidslinjeBruker.crossJoin(tidslinjeAnnenpart, StandardCombinators::alwaysTrueForMatch).compress();
+        if (fellesTidslinje.isEmpty()) {
+            return false;
+        }
+        // Endring fra en søknadsperiode eller fra start?
         var endringsdato = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId)
-            .flatMap(yf -> yf.getGjeldendeEndringsdatoHvisEksisterer())
-            .orElse(null);
-        if (harOverlappendeAktivtUttakEtterEndringsdato(brukersUttak.orElse(tomtUttak()), annenpartsUttak.get(), endringsdato)) {
+            .flatMap(YtelseFordelingAggregat::getGjeldendeEndringsdatoHvisEksisterer)
+            .orElseGet(fellesTidslinje::getMinLocalDate);
+        var periodeFomEndringsdato = new LocalDateInterval(endringsdato, fellesTidslinje.getMaxLocalDate());
+
+        // Overlapp fom endringsdato - perioder der tidlinjene overlapper sjekkes mot intervall fom endringsdato
+        if (!tidslinjeBruker.intersection(tidslinjeAnnenpart).intersection(periodeFomEndringsdato).isEmpty()) {
+            // Vurder egne sjekker for å tillate tilfelle av 200% samtidig uttak - flerbarn og rundt fødsel
             return true;
         }
 
-        return hullIFellesUttaksplanEtterEndringsdato(brukersUttak.orElse(tomtUttak()), annenpartsUttak.get(), endringsdato,
-            uttakInput.getBehandlingReferanse().getRelasjonsRolleType(),
-            foreldrepengerGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse());
-    }
-
-    private boolean harOverlappendeAktivtUttakEtterEndringsdato(ForeldrepengerUttak brukersUttak,
-                                                                ForeldrepengerUttak annenpartsUttak,
-                                                                LocalDate endringsdato) {
-        //Går ut i fra at brukers uttak alltid er splittet opp (har knekkpunkt) på endringsdato
-        var brukersUttakEtterEndringsdato = uttakEtterDato(brukersUttak, endringsdato);
-        return harOverlappIAktivtUttak(brukersUttakEtterEndringsdato, annenpartsUttak.getGjeldendePerioder());
-    }
-
-    private List<ForeldrepengerUttakPeriode> uttakEtterDato(ForeldrepengerUttak uttak, LocalDate dato) {
-        return uttak.getGjeldendePerioder()
-            .stream()
-            .filter(periode -> !periode.getTidsperiode().getFomDato().isBefore(dato))
-            .collect(Collectors.toList());
-    }
-
-    private boolean harOverlappIAktivtUttak(List<ForeldrepengerUttakPeriode> brukersUttak,
-                                            List<ForeldrepengerUttakPeriode> annenpartsUttak) {
-        return brukersUttak.stream().anyMatch(periode -> overlappendePeriode(periode, annenpartsUttak).isPresent());
-    }
-
-    private Optional<ForeldrepengerUttakPeriode> overlappendePeriode(ForeldrepengerUttakPeriode periode,
-                                                                     List<ForeldrepengerUttakPeriode> perioder) {
-        return perioder.stream()
-            .filter(periode2 -> periode.getTidsperiode().overlaps(periode2.getTidsperiode()) && periode.harAktivtUttak()
-                && periode2.harAktivtUttak())
-            .findFirst();
-    }
-
-    private boolean hullIFellesUttaksplanEtterEndringsdato(ForeldrepengerUttak brukersUttak,
-                                                           ForeldrepengerUttak annenpartsUttak,
-                                                           LocalDate endringsdato,
-                                                           RelasjonsRolleType relasjonsRolleType,
-                                                           FamilieHendelse familieHendelse) {
-        if (brukersUttak.getGjeldendePerioder().isEmpty()
-            && erFarMedmor(relasjonsRolleType)
-            && familieHendelse.gjelderFødsel()
-            && harHullITidsperiodeForbeholdtMor(annenpartsUttak, familieHendelse.getFamilieHendelseDato())) {
-            return true;
+        // Sikre at periode reservert mor er komplett med uttak, utsettelser, overføringer
+        if (foreldrepengerGrunnlag.getFamilieHendelser().gjelderTerminFødsel()) {
+            var familieHendelseDato = foreldrepengerGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
+            var førsteSeksUker = new LocalDateInterval(familieHendelseDato, TidsperiodeForbeholdtMor.tilOgMed(familieHendelseDato));
+            if (!fellesTidslinje.isContinuous(førsteSeksUker))
+                return true;
         }
-        var brukersUttakEtterEndringsdato = uttakEtterDato(brukersUttak, endringsdato);
-        return brukersUttakEtterEndringsdato.stream().anyMatch(p -> lagerHullIFellespUttaksplan(p, annenpartsUttak));
+
+        return kreverSammenhengendeUttak && !fellesTidslinje.isContinuous(periodeFomEndringsdato);
     }
 
-    private boolean erFarMedmor(RelasjonsRolleType relasjonsRolleType) {
-        return !RelasjonsRolleType.erMor(relasjonsRolleType);
+    private LocalDateTimeline<Boolean> lagTidslinje(ForeldrepengerUttak uttak) {
+        var segmenter = uttak.getGjeldendePerioder().stream()
+            .filter(ForeldrepengerUttakPeriode::harAktivtUttak)
+            .map(p -> new LocalDateSegment<>(VirkedagUtil.lørdagSøndagTilMandag(p.getFom()), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), Boolean.TRUE))
+            .toList();
+        return new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch).compress();
     }
 
-    private boolean harHullITidsperiodeForbeholdtMor(ForeldrepengerUttak morsUttak, LocalDate familieHendelseDato) {
-        if (morsUttak.getGjeldendePerioder().isEmpty()) {
-            return false;
-        }
-        var timeline = new LocalDateTimeline<>(morsUttak.getGjeldendePerioder()
-            .stream()
-            .map(p -> new LocalDateSegment<>(VirkedagUtil.lørdagSøndagTilMandag(p.getFom()),
-                VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), p))
-            .toList());
-
-        return !timeline.isContinuous(new LocalDateInterval(morsUttak.finnFørsteUttaksdato().orElseThrow(),
-            TidsperiodeForbeholdtMor.tilOgMed(familieHendelseDato)));
-    }
-
-    private boolean lagerHullIFellespUttaksplan(ForeldrepengerUttakPeriode periode,
-                                                ForeldrepengerUttak annenpartsUttak) {
-        if (periode.harAktivtUttak()) {
-            return false;
-        }
-        if (!harUttakEtterDato(periode.getTom(), annenpartsUttak)) {
-            return false;
-        }
-        var annenpartsOverlappendePeriode = overlappendePeriode(periode, annenpartsUttak.getGjeldendePerioder());
-        return annenpartsOverlappendePeriode.isEmpty() || !annenpartsOverlappendePeriode.get().harAktivtUttak();
-    }
-
-    private boolean harUttakEtterDato(LocalDate dato, ForeldrepengerUttak uttak) {
-        return uttak.getGjeldendePerioder().stream().anyMatch(p -> p.getTom().isAfter(dato));
-    }
 
     private Optional<ForeldrepengerUttak> hentUttak(Long behandling) {
         return uttakTjeneste.hentUttakHvisEksisterer(behandling);
