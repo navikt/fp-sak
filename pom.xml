@@ -7,7 +7,7 @@
     <artifactId>fpsak</artifactId>
     <packaging>pom</packaging>
     <name>FPSAK :: Root</name>
-    <version>${revision}${sha1}${changelist}</version>
+    <version>${revision}</version>
 
     <scm>
         <connection>scm:git:https://github.com/navikt/fp-sak.git</connection>
@@ -36,9 +36,7 @@
         <argLine>-Xms256m -Dlog.level.no.nav=WARN -Dfile.encoding=${project.build.sourceEncoding}</argLine>
         <jacoco.skip>true</jacoco.skip> <!-- default skip coverage -->
 
-        <revision>4.0.0</revision>
-        <sha1 />
-        <changelist>-SNAPSHOT</changelist>
+        <revision>4.0.0-SNAPSHOT</revision>
         <jupiter.version>5.7.2</jupiter.version>
         <fp-uttak.version>12.1.1</fp-uttak.version>
         <svp-uttak.version>2.3.1</svp-uttak.version>
@@ -936,51 +934,12 @@
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>runSonar</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <properties>
-                <!-- maven.root bør overstyres fra cmdline -->
-                <maven.root>${project.basedir}</maven.root>
-
-                <jacoco.skip>false</jacoco.skip> <!-- inkluder coverage -->
-                <sonar.language />
-                <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
-                <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-                <sonar.sourceEncoding>${project.build.sourceEncoding}</sonar.sourceEncoding>
-                <sonar.java.source>${java.version}</sonar.java.source>
-                <sonar.sources>.</sonar.sources>
-                <sonar.inclusions>src/main/java/**</sonar.inclusions>
-                <!-- NB følgende er whitespace sensitivt -->
-                <sonar.exclusions>
-                    **/test/**,**/testonly/**,**/*mock*/**,**/testutilities/**,**/fitnesse/**,**/node/**,**/node_modules/**,**/swagger/**,**/coverage/**,**/target/**,**/bin/**,**/testdata/**,**/docs/**,**/apidoc/**,**/*.spec.jsx,**/_scripts/**,**/test-helpers/**,**/webpack.*,**/static/**,**/eslint/**,**/jetty/**,**/resources/**,target
-                </sonar.exclusions>
-                <sonar.coverage.exclusions>${sonar.exclusions}</sonar.coverage.exclusions>
-                <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-                <sonar.jacoco.reportPaths>${maven.root}/target/jacoco.exec</sonar.jacoco.reportPaths>
-                <sonar.javascript.lcov.reportPaths>
-                    ${maven.root}/web/klient/coverage/lcov.info
-                </sonar.javascript.lcov.reportPaths>
-                <sonar.javascript.file.suffixes>.js,.jsx</sonar.javascript.file.suffixes>
-                <sonar.leak.period>previous_analysis</sonar.leak.period>
-            </properties>
-        </profile>
-        <profile>
-            <id>github</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <distributionManagement>
-                <repository>
-                    <id>github1</id>
-                    <name>Github navikt Maven Packages</name>
-                    <url>https://maven.pkg.github.com/navikt/fp-sak</url>
-                </repository>
-            </distributionManagement>
-        </profile>
-    </profiles>
+    <distributionManagement>
+        <repository>
+            <id>github1</id>
+            <name>Github navikt Maven Packages</name>
+            <url>https://maven.pkg.github.com/navikt/fp-sak</url>
+        </repository>
+    </distributionManagement>
 
 </project>

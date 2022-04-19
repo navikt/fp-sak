@@ -7,7 +7,7 @@
 	<parent>
 		<artifactId>domenetjenester-pom</artifactId>
 		<groupId>no.nav.foreldrepenger</groupId>
-		<version>${revision}${sha1}${changelist}</version>
+		<version>${revision}</version>
 	</parent>
 
 	<artifactId>dokumentbestiller</artifactId>
