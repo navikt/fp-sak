@@ -143,7 +143,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     public void skal_ikke_opprette_revurdering_dersom_skal_ha_gammel_sats() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any()))
-            .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusYears(1)).build());
+            .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusYears(2)).build());
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
