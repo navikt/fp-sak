@@ -5,6 +5,7 @@ import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 
+// Mapper resultat fra kalkulus
 class BeregningAksjonspunktResultatMapper {
 
     static AksjonspunktResultat map(BeregningAvklaringsbehovResultat beregningResultat) {
