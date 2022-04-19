@@ -144,7 +144,7 @@ public class FpFagsakRelasjonAvslutningsdatoOppdaterer implements FagsakRelasjon
 
     private static LocalDate beskjærMotAbsoluttMaksDato(LocalDate fødselsdato, LocalDate beregnetMaksDato) {
         var absoluttMaksDato = fødselsdato
-            .plus(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.GRENSE_ETTER_FØDSELSDATO, Period.class, LocalDate.now()));
+            .plusYears(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.GRENSE_ETTER_FØDSELSDATO_ÅR, LocalDate.now()));
         return absoluttMaksDato.isBefore(beregnetMaksDato)? absoluttMaksDato : beregnetMaksDato;
     }
 

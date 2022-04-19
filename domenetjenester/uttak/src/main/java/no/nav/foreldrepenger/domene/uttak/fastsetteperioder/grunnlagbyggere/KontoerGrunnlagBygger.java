@@ -26,8 +26,8 @@ public class KontoerGrunnlagBygger {
     private static final int MINSTEDAGER_UFØRE_100_PROSENT = 75;
     private static final int MINSTEDAGER_UFØRE_80_PROSENT = 95;
 
-    private static final int MINSTERETT_BFHR_100_PROSENT = 40;
-    private static final int MINSTERETT_BFHR_80_PROSENT = 50;
+    private static final int BFHR_MINSTERETT_DAGER = 40;
+    private static final int UTTAK_RUNDT_FØDSEL_DAGER = 10;
 
 
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -83,7 +83,7 @@ public class KontoerGrunnlagBygger {
         var builder = new Kontoer.Builder();
         var erMor = RelasjonsRolleType.MORA.equals(ref.getRelasjonsRolleType());
         var erForeldrepenger = stønadskontoer.stream().map(Stønadskonto::getStønadskontoType).anyMatch(StønadskontoType.FORELDREPENGER::equals);
-        var minsterettAnnenpart = !ref.getSkjæringstidspunkt().utenMinsterett();
+        var minsterettFarMedmor = !ref.getSkjæringstidspunkt().utenMinsterett();
         var morHarUføretrygd = foreldrepengerGrunnlag.getUføretrygdGrunnlag()
             .filter(UføretrygdGrunnlagEntitet::annenForelderMottarUføretrygd)
             .isPresent();
@@ -92,17 +92,18 @@ public class KontoerGrunnlagBygger {
             .findFirst();
         flerbarnsdager.map(stønadskonto -> builder.flerbarnsdager(stønadskonto.getMaxDager()));
 
-        if (!erMor && erForeldrepenger && (minsterettAnnenpart || morHarUføretrygd)) {
+        if (!erMor && erForeldrepenger && (minsterettFarMedmor || morHarUføretrygd)) {
             var dekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(ref.getSaksnummer()).getGjeldendeDekningsgrad();
             var antallDager = 0;
-            if (minsterettAnnenpart) {
-                antallDager = Dekningsgrad._80.equals(dekningsgrad) ? MINSTERETT_BFHR_80_PROSENT : MINSTERETT_BFHR_100_PROSENT;
+            if (minsterettFarMedmor) {
+                antallDager = BFHR_MINSTERETT_DAGER;
             }
             if (morHarUføretrygd) {
                 antallDager = Dekningsgrad._80.equals(dekningsgrad) ? MINSTEDAGER_UFØRE_80_PROSENT : MINSTEDAGER_UFØRE_100_PROSENT;
             }
-            if (minsterettAnnenpart) {
+            if (minsterettFarMedmor) {
                 builder.minsterettDager(antallDager);
+                builder.farUttakRundtFødselDager(UTTAK_RUNDT_FØDSEL_DAGER);
             } else {
                 builder.utenAktivitetskravDager(antallDager);
             }
