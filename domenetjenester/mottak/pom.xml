@@ -63,6 +63,11 @@
             <artifactId>datavarehus</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>no.nav.foreldrepenger.kontrakter.topics</groupId>
+            <artifactId>fp-topics-manifest</artifactId>
+        </dependency>
+
         <!-- Prosjektinterne avhengigheter -->
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>

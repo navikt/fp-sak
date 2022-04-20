@@ -4,7 +4,6 @@ import static java.time.LocalDate.now;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,12 +11,12 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -30,10 +29,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
@@ -41,11 +38,8 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetModell;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
-@CdiDbAwareTest
+@ExtendWith(MockitoExtension.class)
 public class KompletthetskontrollerTest {
-
-    @Inject
-    private BehandlingRepositoryProvider repositoryProvider;
 
     @Mock
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -79,11 +73,8 @@ public class KompletthetskontrollerTest {
         var modell = new KompletthetModell(behandlingskontrollTjeneste, kompletthetsjekkerProvider);
         var skjæringstidspunktTjeneste = Mockito.mock(SkjæringstidspunktTjeneste.class);
 
-        kompletthetskontroller = new Kompletthetskontroller(dokumentmottakerFelles,
-                mottatteDokumentTjeneste,
-                modell,
-                behandlingProsesseringTjeneste,
-                skjæringstidspunktTjeneste);
+        kompletthetskontroller = new Kompletthetskontroller(dokumentmottakerFelles, mottatteDokumentTjeneste, modell, behandlingProsesseringTjeneste,
+            skjæringstidspunktTjeneste);
 
         mottattDokument = DokumentmottakTestUtil.byggMottattDokument(DokumentTypeId.INNTEKTSMELDING, behandling.getFagsakId(), "", now(), true, null);
 
@@ -94,7 +85,7 @@ public class KompletthetskontrollerTest {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, BehandlingStegType.VURDER_KOMPLETTHET);
-        var behandling = scenario.lagre(repositoryProvider); // Skulle gjerne mocket, men da funker ikke AP_DEF
+        var behandling = scenario.lagMocked();
         var ventefrist = LocalDateTime.now().plusDays(1);
 
         when(kompletthetsjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetsjekker);
@@ -110,12 +101,12 @@ public class KompletthetskontrollerTest {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD);
-        var behandling = scenario.lagre(repositoryProvider); // Skulle gjerne mocket, men da funker ikke AP_DEF
+        var behandling = scenario.lagMocked();
         var ventefrist = LocalDateTime.now().plusDays(1);
 
         when(kompletthetsjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetsjekker);
-        when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any()))
-                .thenReturn(KompletthetResultat.ikkeOppfylt(ventefrist, Venteårsak.AVV_FODSEL));
+        when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any())).thenReturn(
+            KompletthetResultat.ikkeOppfylt(ventefrist, Venteårsak.AVV_FODSEL));
         lenient().when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.REGISTRER_SØKNAD)).thenReturn(true);
 
         // Act
@@ -153,7 +144,7 @@ public class KompletthetskontrollerTest {
 
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
 
-        verify(behandlingProsesseringTjeneste, only()).taSnapshotAvBehandlingsgrunnlag(behandling);
+        verify(behandlingProsesseringTjeneste).taSnapshotAvBehandlingsgrunnlag(behandling);
         verify(behandlingProsesseringTjeneste, times(0)).opprettTasksForFortsettBehandling(behandling);
     }
 
@@ -199,7 +190,7 @@ public class KompletthetskontrollerTest {
         // Assert
         verify(mottatteDokumentTjeneste).persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
         verify(dokumentmottakerFelles).opprettHistorikkinnslagForVenteFristRelaterteInnslag(behandling, HistorikkinnslagType.BEH_VENT, frist,
-                Venteårsak.FOR_TIDLIG_SOKNAD);
+            Venteårsak.FOR_TIDLIG_SOKNAD);
     }
 
     @Test
@@ -217,6 +208,6 @@ public class KompletthetskontrollerTest {
         // Assert
         verify(mottatteDokumentTjeneste).persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
         verify(dokumentmottakerFelles).opprettHistorikkinnslagForVenteFristRelaterteInnslag(behandling, HistorikkinnslagType.BEH_VENT, frist,
-                Venteårsak.AVV_DOK);
+            Venteårsak.AVV_DOK);
     }
 }

@@ -37,10 +37,7 @@
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-feil</artifactId>
         </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.kontrakter.topics</groupId>
-            <artifactId>fp-topics-manifest</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter.topics</groupId>
             <artifactId>fp-topics-behandlingsprosess</artifactId>
