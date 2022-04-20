@@ -263,6 +263,7 @@ public class KabalTjeneste {
                                                     TilKabalDto.DokumentReferanseType referanseType) {
         finnMottattDokumentFor(behandlingId, mottattDokumentPredicate)
             .map(MottattDokument::getJournalpostId)
+            .filter(Objects::nonNull)
             .distinct()
             .forEach(opprettDokumentReferanse(referanser, referanseType));
     }

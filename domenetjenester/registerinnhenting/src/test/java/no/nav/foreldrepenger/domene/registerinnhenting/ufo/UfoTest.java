@@ -12,30 +12,17 @@ public class UfoTest {
 
     private static final String UFO_PERIODE = """
         {
-            "uforehistorikk": {
-                "reaktiviseringFomDato": null,
-                "reaktiviseringTomDato": null,
-                "uforeperiodeListe": [ {
-                    "uforegrad": 100,
-                    "uforetidspunkt": "1359673200000",
-                    "virk": "1514761200000",
-                    "uforetype": {
-                        "code": "UFORE",
-                        "decode": "Uføre"
-                    },
-                    "uforetidspunktTom": null,
-                    "ufgFom": "1359673200000",
-                    "ufgTom": null
-                 } ]
-              }
+            "harUforegrad": true,
+            "datoUfor": "2017-04-20",
+            "virkDato": "2017-04-20"
         }
         """;
 
     @Test
     public void ufotest() {
-        var dto = StandardJsonConfig.fromJson(UFO_PERIODE, HentUforehistorikkResponseDto.class);
-        Uføreperiode uføreperiode = new Uføreperiode(dto.uforehistorikk().uforeperiodeListe().get(0));
-        assertThat(uføreperiode.virkningsdato()).isEqualTo(LocalDate.of(2018,1,1));
+        var dto = StandardJsonConfig.fromJson(UFO_PERIODE, HarUføreGrad.class);
+        Uføreperiode uføreperiode = new Uføreperiode(dto);
+        assertThat(uføreperiode.virkningsdato()).isEqualTo(LocalDate.of(2017,4,20));
         System.out.println(uføreperiode);
     }
 }
