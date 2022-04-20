@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>no.nav.foreldrepenger.felles</groupId>
+        <artifactId>fp-bom</artifactId>
+        <version>0.2.0</version>
+    </parent>
+
     <groupId>no.nav.foreldrepenger</groupId>
     <artifactId>fpsak</artifactId>
     <packaging>pom</packaging>
@@ -30,14 +36,10 @@
     </modules>
 
     <properties>
-        <java.version>17</java.version>
-        <!-- default argLine for surefire-plugin -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <argLine>-Xms256m -Dlog.level.no.nav=WARN -Dfile.encoding=${project.build.sourceEncoding}</argLine>
-        <jacoco.skip>true</jacoco.skip> <!-- default skip coverage -->
-
         <revision>4.0.0-SNAPSHOT</revision>
-        <jupiter.version>5.7.2</jupiter.version>
+
+        <java.version>17</java.version>
+
         <fp-uttak.version>12.1.1</fp-uttak.version>
         <svp-uttak.version>2.3.1</svp-uttak.version>
         <felles.version>4.1.23</felles.version>
@@ -50,39 +52,15 @@
         <abakus-kontrakt.version>1.3.30</abakus-kontrakt.version>
         <kalkulus.version>1.5.34</kalkulus.version>
 
-        <swaggercore.version>2.2.0</swaggercore.version>
-        <flyway.version>8.5.8</flyway.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
-
-    <prerequisites>
-        <!-- deprecated i maven3, men trengs av versions plugin -->
-        <maven>3.6.0</maven>
-    </prerequisites>
 
 
     <!-- NB: Unngå å put scope (test, provided) i dependency management. Det har uheldige virkninger ved bruk av import og
         dependency (bruk composition over arv) da de overstyrer andre scope definisjoner. Sett det heller der det brukes. -->
     <dependencyManagement>
         <dependencies>
-            <!-- Overstyre felles -->
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-bom</artifactId>
-                <version>10.0.9</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
 
             <!-- Felles biblioteker - Importerte avhengigheter -->
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles</groupId>
-                <artifactId>felles-root</artifactId>
-                <version>${felles.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles</artifactId>
@@ -91,7 +69,6 @@
                 <type>pom</type>
             </dependency>
             <dependency>
-                <!-- Importeres etter felles-root og felles for å sikre samme avhengigheter gjennom hele! -->
                 <groupId>no.nav.vedtak.prosesstask</groupId>
                 <artifactId>prosesstask-root</artifactId>
                 <version>${prosesstask.version}</version>
@@ -119,12 +96,6 @@
             </dependency>
 
             <dependency>
-                <groupId>no.nav.foreldrepenger</groupId>
-                <artifactId>konfig</artifactId>
-                <version>1.1.5</version>
-            </dependency>
-
-            <dependency>
                 <groupId>no.nav.vedtak.felles.fp-jms-integrasjon</groupId>
                 <artifactId>jms-integrasjon</artifactId>
                 <version>${fp-jms.version}</version>
@@ -137,6 +108,7 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+
             <dependency>
                 <groupId>no.nav.foreldrepenger.kontrakter.topics</groupId>
                 <artifactId>fp-topics</artifactId>
@@ -144,6 +116,7 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+
             <dependency>
                 <groupId>no.nav.foreldrepenger.kontrakter</groupId>
                 <artifactId>risk-v1</artifactId>
@@ -413,20 +386,9 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>no.nav.modig</groupId>
-                <artifactId>modig-testcertificates</artifactId>
-                <version>1.2.6-SNAPSHOT</version>
-            </dependency>
-
             <!-- Prosjektets egne TEST AVHENGIGHETER -->
             <!-- NB: Definer scope der det brukes, ikke her. -->
 
-            <dependency>
-                <groupId>no.nav.foreldrepenger</groupId>
-                <artifactId>web-apidoc</artifactId>
-                <version>${project.version}</version>
-            </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
                 <artifactId>web-webapp</artifactId>
@@ -441,11 +403,6 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
                 <artifactId>risikoklassifisering</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger</groupId>
-                <artifactId>dokumentbestiller-xsd</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -499,31 +456,6 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- EKSTRA TEST AVHENGIGHETER FOR LOKAL WEBSERVER -->
-            <!-- NB: Definer scope der det brukes, ikke her. -->
-            <dependency>
-                <groupId>net.logstash.logback</groupId>
-                <artifactId>logstash-logback-encoder</artifactId>
-                <version>7.1.1</version>
-            </dependency>
-            <dependency>
-                <groupId>com.papertrailapp</groupId>
-                <artifactId>logback-syslog4j</artifactId>
-                <version>1.0.0</version>
-            </dependency>
-
-            <!-- kafka -->
-            <dependency>
-                <groupId>org.apache.kafka</groupId>
-                <artifactId>kafka-clients</artifactId>
-                <version>3.1.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.kafka</groupId>
-                <artifactId>kafka-streams</artifactId>
-                <version>3.1.0</version>
-            </dependency>
-
             <!-- SoB -->
             <dependency>
                 <groupId>no.nav.virksomhetsstyring.sakogbehandling-kafka-dto</groupId>
@@ -531,77 +463,6 @@
                 <version>1.0.1</version>
             </dependency>
 
-            <!-- Transitive avhengighet resolution for å sikre bestemt versjon -->
-            <dependency>
-                <groupId>org.jasypt</groupId>
-                <artifactId>jasypt</artifactId>
-                <version>1.9.3</version>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-compat-spec-parser</artifactId>
-                <version>1.0.59</version>
-            </dependency>
-            <dependency>
-                <groupId>io.javaslang</groupId>
-                <artifactId>javaslang</artifactId>
-                <version>2.0.6</version>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger.core.v3</groupId>
-                <artifactId>swagger-jaxrs2</artifactId>
-                <version>${swaggercore.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger.core.v3</groupId>
-                <artifactId>swagger-core</artifactId>
-                <version>${swaggercore.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger.core.v3</groupId>
-                <artifactId>swagger-annotations</artifactId>
-                <version>${swaggercore.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.woodstox</groupId>
-                <artifactId>woodstox-core</artifactId>
-                <version>6.2.8</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>jsr305</artifactId>
-                <version>3.0.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish</groupId>
-                <artifactId>jakarta.el</artifactId>
-                <version>3.0.4</version>
-            </dependency>
-
-
-            <!-- Java11 -->
-            <dependency>
-                <groupId>org.jboss.classfilewriter</groupId>
-                <artifactId>jboss-classfilewriter</artifactId>
-                <version>1.2.5.Final</version>
-            </dependency>
-            <dependency>
-                <groupId>org.javassist</groupId>
-                <artifactId>javassist</artifactId>
-                <version>3.28.0-GA</version>
-            </dependency>
-
-
-            <dependency>
-                <groupId>com.oracle.ojdbc</groupId>
-                <artifactId>ojdbc8</artifactId>
-                <version>19.3.0.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-core</artifactId>
-                <version>${flyway.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -611,223 +472,10 @@
             <artifactId>ojdbc8</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-params</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.logging</groupId>
-            <artifactId>jboss-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jul-to-slf4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
-        <resources>
-            <!-- filtrerer for å sette opp swagger versjon korrekt -->
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*.html</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <excludes>
-                    <exclude>**/*.html</exclude>
-                </excludes>
-            </resource>
-        </resources>
-
-        <pluginManagement>
-            <plugins>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-remote-resources-plugin</artifactId>
-                    <version>1.7.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>buildnumber-maven-plugin</artifactId>
-                    <version>3.0.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>jaxb2-maven-plugin</artifactId>
-                    <version>2.5.0</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>3.0.0</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.3.0</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>versions-maven-plugin</artifactId>
-                    <version>2.10.0</version>
-                    <configuration>
-                        <outputFile>outdated-dependencies.txt</outputFile>
-                        <rulesUri>file:///${session.executionRootDirectory}/build/maven/maven-version-rules.xml
-                        </rulesUri>
-                    </configuration>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-clean-plugin</artifactId>
-                    <version>3.2.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-source-plugin</artifactId>
-                    <version>3.2.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.8.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-install-plugin</artifactId>
-                    <version>2.5.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.2.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.22.2</version>
-                    <configuration>
-                        <argLine>${argLine}</argLine>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.22.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>3.0.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.8</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
-                    <configuration>
-                        <parameters>true</parameters>
-                        <source>${java.version}</source>
-                        <target>${java.version}</target>
-                        <encoding>${project.build.sourceEncoding}</encoding>
-                        <release>${java.version}</release>
-                    </configuration>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.2.0</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>flatten-maven-plugin</artifactId>
-                    <version>1.2.7</version>
-                </plugin>
-            </plugins>
-
-        </pluginManagement>
-
         <plugins>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>agent</id>
-                        <?m2e ignore?>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                        <configuration>
-                            <destFile>${sonar.jacoco.reportPaths}</destFile>
-                            <append>true</append>
-                            <excludes>${sonar.coverage.exclusions}</excludes>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>agent-it</id>
-                        <?m2e ignore?>
-                        <goals>
-                            <goal>prepare-agent-integration</goal>
-                        </goals>
-                        <configuration>
-                            <destFile>${sonar.jacoco.reportPaths}</destFile>
-                            <append>true</append>
-                            <excludes>${sonar.coverage.exclusions}</excludes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
@@ -837,17 +485,8 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>flatten</id>
-                        <phase>process-resources</phase>
-                        <?m2e ignore?>
-                        <goals>
-                            <goal>flatten</goal>
-                        </goals>
-                    </execution>
-                    <execution>
                         <id>flatten.clean</id>
                         <phase>clean</phase>
-                        <?m2e ignore?>
                         <goals>
                             <goal>clean</goal>
                         </goals>
@@ -857,78 +496,11 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
                     <deployAtEnd>true</deployAtEnd>
                     <skip>true</skip>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>versions-maven-plugin</artifactId>
-                <inherited>false</inherited>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>failsafe-integration-test</id>
-                        <goals>
-                            <goal>integration-test</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>failsafe-verify</id>
-                        <goals>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <?m2e ignore?>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.jboss.jandex</groupId>
-                <artifactId>jandex-maven-plugin</artifactId>
-                <version>1.1.1</version>
-                <executions>
-                    <execution>
-                        <id>make-index</id>
-                        <?m2e ignore?>
-                        <goals>
-                            <goal>jandex</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Nothing needed here for simple cases -->
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 
         </plugins>

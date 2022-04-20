@@ -55,7 +55,7 @@ jobs:
       - name: Build artifacts & deploy
         run: |
           echo "Building artifacts $BUILD_VERSION"
-          mvn jacoco:prepare-agent install -q -e -B -s settings.xml -Drevision=-${BUILD_VERSION} -Dfile.encoding=UTF-8 -Djacoco.destFile=$(pwd)/target/jacoco.exec
+          mvn verify -q -e -B -s settings.xml -Drevision=-${BUILD_VERSION} -Dfile.encoding=UTF-8
           echo "Build artifacts"
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
