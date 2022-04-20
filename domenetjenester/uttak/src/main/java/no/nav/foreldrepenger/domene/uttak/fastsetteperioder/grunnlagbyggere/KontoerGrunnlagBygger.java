@@ -64,6 +64,14 @@ public class KontoerGrunnlagBygger {
             .collect(Collectors.toList()));
     }
 
+    public static Kontoer.Builder byggKunRettighetFarUttakRundtFødsel(BehandlingReferanse ref) {
+        if (ref.getSkjæringstidspunkt().utenMinsterett()) {
+            return new Kontoer.Builder();
+        } else {
+            return new Kontoer.Builder().farUttakRundtFødselDager(UTTAK_RUNDT_FØDSEL_DAGER);
+        }
+    }
+
     private Konto.Builder map(Stønadskonto stønadskonto) {
         return new Konto.Builder()
             .trekkdager(stønadskonto.getMaxDager())

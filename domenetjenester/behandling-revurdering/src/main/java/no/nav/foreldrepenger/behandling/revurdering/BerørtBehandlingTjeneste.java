@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandling.revurdering;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -23,8 +24,10 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.TidsperiodeFarRundtFødsel;
 import no.nav.foreldrepenger.domene.uttak.TidsperiodeForbeholdtMor;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
+import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
@@ -90,11 +93,11 @@ public class BerørtBehandlingTjeneste {
         if (annenpartsUttak.isEmpty()) {
             return false;
         }
-        var brukersUttak = hentUttak(behandlingId);
-        var tidslinjeBruker = lagTidslinje(brukersUttak.orElse(tomtUttak()));
-        var tidslinjeAnnenpart = lagTidslinje(annenpartsUttak.get());
+        var brukersUttak = hentUttak(behandlingId).orElse(tomtUttak());
+        var tidslinjeBruker = lagTidslinje(brukersUttak, p -> true);
+        var tidslinjeAnnenpart = lagTidslinje(annenpartsUttak.get(), p -> true);
         // Slår sammen uttaksplanene med TRUE der en eller begge har uttak.
-        var fellesTidslinje = tidslinjeBruker.crossJoin(tidslinjeAnnenpart, StandardCombinators::alwaysTrueForMatch).compress();
+        var fellesTidslinje = slåSammenTidslinjer(tidslinjeBruker, tidslinjeAnnenpart);
         if (fellesTidslinje.isEmpty()) {
             return false;
         }
@@ -105,8 +108,8 @@ public class BerørtBehandlingTjeneste {
         var periodeFomEndringsdato = new LocalDateInterval(endringsdato, fellesTidslinje.getMaxLocalDate());
 
         // Overlapp fom endringsdato - perioder der tidlinjene overlapper sjekkes mot intervall fom endringsdato
-        if (!tidslinjeBruker.intersection(tidslinjeAnnenpart).intersection(periodeFomEndringsdato).isEmpty()) {
-            // Vurder egne sjekker for å tillate tilfelle av 200% samtidig uttak - flerbarn og rundt fødsel
+        var tidslinjeOverlappendeUttakFomEndringsdato = tidslinjeAnnenpart.intersection(tidslinjeBruker).intersection(periodeFomEndringsdato);
+        if (overlappUtenomAkseptertSamtidigUttak(tidslinjeOverlappendeUttakFomEndringsdato, uttakInput, brukersUttak, annenpartsUttak.get())) {
             return true;
         }
 
@@ -121,19 +124,31 @@ public class BerørtBehandlingTjeneste {
         return kreverSammenhengendeUttak && !fellesTidslinje.isContinuous(periodeFomEndringsdato);
     }
 
-    private LocalDateTimeline<Boolean> lagTidslinje(ForeldrepengerUttak uttak) {
-        var segmenter = uttak.getGjeldendePerioder().stream()
-            .filter(ForeldrepengerUttakPeriode::harAktivtUttak)
-            .map(this::lagSegment)
-            .toList();
-        return new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch).compress();
+    private boolean overlappUtenomAkseptertSamtidigUttak(LocalDateTimeline<Boolean> tidslinjeOverlapp, UttakInput uttakInput,
+                                                         ForeldrepengerUttak bruker, ForeldrepengerUttak annenpart) {
+        if (tidslinjeOverlapp.isEmpty()) {
+            return false;
+        }
+        var tidslinjeSamtidigUttak = slåSammenTidslinjer(lagTidslinje(bruker, ForeldrepengerUttakPeriode::isSamtidigUttak),
+            lagTidslinje(annenpart, ForeldrepengerUttakPeriode::isSamtidigUttak));
+        var kunOverlappRundtFødsel = TidsperiodeFarRundtFødsel.intervallFarRundtFødsel(uttakInput)
+            .map(tidslinjeSamtidigUttak::intersection)
+            .map(i -> tidslinjeOverlapp.disjoint(i).isEmpty())
+            .orElse(Boolean.FALSE);
+        return !kunOverlappRundtFødsel;
     }
 
-    private LocalDateSegment<Boolean> lagSegment(ForeldrepengerUttakPeriode periode) {
-        var fom = VirkedagUtil.lørdagSøndagTilMandag(periode.getFom());
-        var tom = VirkedagUtil.fredagLørdagTilSøndag(periode.getTom());
-        var brukFom = fom.isAfter(tom) ? periode.getFom() : fom;
-        return new LocalDateSegment<>(brukFom, tom, Boolean.TRUE);
+    private LocalDateTimeline<Boolean> slåSammenTidslinjer(LocalDateTimeline<Boolean> tidslinje1, LocalDateTimeline<Boolean> tidslinje2) {
+        return tidslinje1.crossJoin(tidslinje2, StandardCombinators::alwaysTrueForMatch).compress();
+    }
+
+    private LocalDateTimeline<Boolean> lagTidslinje(ForeldrepengerUttak uttak, Predicate<ForeldrepengerUttakPeriode> periodefilter) {
+        var segmenter = uttak.getGjeldendePerioder().stream()
+            .filter(ForeldrepengerUttakPeriode::harAktivtUttak)
+            .filter(periodefilter)
+            .map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), Boolean.TRUE))
+            .toList();
+        return new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch).compress();
     }
 
     private Optional<ForeldrepengerUttak> hentUttak(Long behandling) {
