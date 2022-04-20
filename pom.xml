@@ -15,12 +15,6 @@
     <name>FPSAK :: Root</name>
     <version>${revision}</version>
 
-    <scm>
-        <connection>scm:git:https://github.com/navikt/fp-sak.git</connection>
-        <developerConnection>scm:git:https://github.com/navikt/fp-sak.git</developerConnection>
-        <url>https://github.com/navikt/fp-sak</url>
-        <tag>HEAD</tag>
-    </scm>
     <modules>
         <module>migreringer</module>
         <module>integrasjoner</module>
@@ -29,7 +23,6 @@
         <module>infrastrukturtjenester</module>
         <module>domenetjenester</module>
         <module>behandlingsprosess</module>
-
         <!-- Web klient og server -->
         <module>web</module>
 
@@ -505,6 +498,13 @@
 
         </plugins>
     </build>
+
+    <scm>
+        <connection>scm:git:https://github.com/navikt/fp-sak.git</connection>
+        <developerConnection>scm:git:https://github.com/navikt/fp-sak.git</developerConnection>
+        <url>https://github.com/navikt/fp-sak</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <distributionManagement>
         <repository>
