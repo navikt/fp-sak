@@ -58,7 +58,6 @@ import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.integrasjonstatus.IntegrasjonstatusRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.KodeverkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.nokkeltall.LosNøkkeltallRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.FeatureToggleRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.InitielleLinksRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.NavAnsattRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.VedtakRestTjeneste;
@@ -73,7 +72,6 @@ public class RestImplementationClasses {
         classes.add(InitielleLinksRestTjeneste.class);
         classes.add(FagsakRestTjeneste.class);
         classes.add(NavAnsattRestTjeneste.class);
-        classes.add(FeatureToggleRestTjeneste.class);
         classes.add(BehandlingRestTjeneste.class);
         classes.add(BehandlingRestTjenestePathHack1.class);
         classes.add(BehandlingRestTjenestePathHack2.class);

@@ -41,9 +41,6 @@ public class InitielleLinksRestTjeneste {
     @Operation(description = "Returnerer ", tags = "init-fetch")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.APPLIKASJON, sporingslogg = false)
     public InitLinksDto hentInitielleRessurser() {
-        List<ResourceLink> toggleRelatert = new ArrayList<>();
-        toggleRelatert.add(post(FeatureToggleRestTjeneste.FEATURE_TOGGLE_PATH, "feature-toggle"));
-        toggleRelatert.add(get(FeatureToggleRestTjeneste.ER_PROD_PATH, "er-prod"));
         List<ResourceLink> lenkene = new ArrayList<>();
         lenkene.add(get(NavAnsattRestTjeneste.NAV_ANSATT_PATH, "nav-ansatt"));
         lenkene.add(get(KodeverkRestTjeneste.KODERVERK_PATH, "kodeverk"));
@@ -56,7 +53,7 @@ public class InitielleLinksRestTjeneste {
         saklenker.add(get(DokumentRestTjeneste.DOKUMENTER_PATH, "sak-dokumentliste"));
         saklenker.add(get(BehandlingRestTjeneste.BEHANDLINGER_ALLE_PATH, "sak-alle-behandlinger"));
         saklenker.add(get(BehandlingRestTjeneste.ANNEN_PART_BEHANDLING_PATH, "sak-annen-part-behandling"));
-        return new InitLinksDto(lenkene, toggleRelatert, saklenker);
+        return new InitLinksDto(lenkene, saklenker);
     }
 
 }

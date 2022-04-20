@@ -13,20 +13,8 @@
     <artifactId>web-webapp</artifactId>
     <packaging>jar</packaging>
     <name>FPSAK :: Web - Webapp</name>
-    <properties>
-        <simpleclient.version>0.15.0</simpleclient.version>
-        <swagger-ui.version>4.10.3</swagger-ui.version>
-        <jersey.version>2.35</jersey.version>
-    </properties>
+
     <dependencies>
-
-        <!-- UNLEASH: DENNE SKAL FJERNES -->
-        <dependency>
-            <groupId>no.finn.unleash</groupId>
-            <artifactId>unleash-client-java</artifactId>
-            <version>4.4.1</version>
-        </dependency>
-
         <!-- Database håndtering -->
         <dependency>
             <groupId>com.zaxxer</groupId>
@@ -118,7 +106,6 @@
         </dependency>
 
         <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>ldap-klient</artifactId>
         </dependency>
         <dependency>
@@ -213,29 +200,20 @@
             <artifactId>jetty-jaspi</artifactId>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/io.prometheus/simpleclient_dropwizard -->
-        <dependency>
-            <groupId>io.prometheus</groupId>
-            <artifactId>simpleclient_dropwizard</artifactId>
-            <version>${simpleclient.version}</version>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/io.prometheus/simpleclient -->
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient</artifactId>
-            <version>${simpleclient.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/io.prometheus/simpleclient_hotspot -->
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient_hotspot</artifactId>
-            <version>${simpleclient.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/io.prometheus/simpleclient_common -->
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient_common</artifactId>
-            <version>${simpleclient.version}</version>
         </dependency>
 
         <dependency>
@@ -292,7 +270,6 @@
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>0.10.2</version>
             <scope>test</scope>
         </dependency>
 
@@ -325,29 +302,10 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.glassfish.jersey</groupId>
-                <artifactId>jersey-bom</artifactId>
-                <version>${jersey.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.webjars</groupId>
-                <artifactId>swagger-ui</artifactId>
-                <version>${swagger-ui.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.codehaus.woodstox</groupId>
                 <artifactId>stax2-api</artifactId>
                 <version>4.2.1</version>
             </dependency>
-            <dependency>
-                <groupId>com.zaxxer</groupId>
-                <artifactId>HikariCP</artifactId>
-                <version>5.0.1</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 
