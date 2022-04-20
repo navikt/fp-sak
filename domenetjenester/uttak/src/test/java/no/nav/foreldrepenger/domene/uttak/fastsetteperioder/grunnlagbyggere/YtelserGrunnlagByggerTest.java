@@ -126,7 +126,7 @@ class YtelserGrunnlagByggerTest {
             BehandlingStatus.UTREDES,
             BehandlingType.FØRSTEGANGSSØKNAD,
             5432L,
-            AktørId.dummy(),
+            null,
             RelasjonsRolleType.MORA,
             null);
     }
