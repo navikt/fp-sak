@@ -60,7 +60,7 @@ public class SøknadGrunnlagBygger {
 
     public Søknad.Builder byggGrunnlag(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
         return new Søknad.Builder()
             .type(type(input.getYtelsespesifiktGrunnlag()))
             .dokumentasjon(dokumentasjon(ytelseFordelingAggregat))

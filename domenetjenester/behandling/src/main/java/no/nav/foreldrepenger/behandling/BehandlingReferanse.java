@@ -16,164 +16,88 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 /**
  * Minimal metadata for en behandling.
+ *
+ * @param saksnummer Saksnummer til saken.
+ * @param fagsakId Fagsak id til saken.
+ * @param fagsakYtelseType fagsak ytelse type
+ * @param behandlingId Behandling id til saken.
+ * @param behandlingUuid Eksternt refererbar UUID for behandlin.
+ * @param behandlingStatus Behandling status.
+ * @param behandlingType Behandling type
+ * @param aktørId Søkers aktørid.
+ * @param relasjonRolle Søkers rolle ifht. subjekt for ytelsen (eks. barn).
+ * @param originalBehandlingId Original behandling id (i tilfelle dette f.eks er en revurdering av en annen behandling.
+ * @param skjæringstidspunkt Inneholder relevante tidspunkter for en behandling
+ *
  */
-public class BehandlingReferanse {
-
-    private Saksnummer saksnummer;
-
-    private Long fagsakId;
-
-    private Long behandlingId;
-
-    private FagsakYtelseType fagsakYtelseType;
-
-    /**
-     * Søkers aktørid.
-     */
-    private AktørId aktørId;
-    /**
-     * Søkers rolle ifht. subjekt for ytelsen (eks. barn).
-     */
-    private RelasjonsRolleType relasjonRolle;
-
-    private BehandlingType behandlingType;
-
-    /**
-     * Original behandling id (i tilfelle dette f.eks er en revurdering av en annen
-     * behandling.
-     */
-    private Optional<Long> originalBehandlingId;
-
-    /**
-     * Inneholder relevante tidspunkter for en behandling
-     */
-    private Skjæringstidspunkt skjæringstidspunkt;
-
-    private BehandlingStatus behandlingStatus;
-
-    /** Eksternt refererbar UUID for behandling. */
-    private UUID behandlingUuid;
-
-    BehandlingReferanse() {
-    }
-
-    private BehandlingReferanse(FagsakYtelseType fagsakYtelseType, BehandlingType behandlingType, RelasjonsRolleType relasjonRolle, AktørId aktørId, // NOSONAR
-            Saksnummer saksnummer, Long fagsakId, Long behandlingId, UUID behandlingUuid, Optional<Long> originalBehandlingId,
-            BehandlingStatus behandlingStatus, Skjæringstidspunkt skjæringstidspunkt) {
-        this.fagsakYtelseType = fagsakYtelseType;
-        this.behandlingType = behandlingType;
-        this.relasjonRolle = relasjonRolle;
-        this.aktørId = aktørId;
-        this.saksnummer = saksnummer;
-        this.fagsakId = fagsakId;
-        this.behandlingId = behandlingId;
-        this.behandlingUuid = behandlingUuid;
-        this.originalBehandlingId = originalBehandlingId;
-        this.behandlingStatus = behandlingStatus;
-        this.skjæringstidspunkt = skjæringstidspunkt;
-    }
+public record BehandlingReferanse(Saksnummer saksnummer,
+                                  Long fagsakId,
+                                  FagsakYtelseType fagsakYtelseType,
+                                  Long behandlingId,
+                                  UUID behandlingUuid,
+                                  BehandlingStatus behandlingStatus,
+                                  BehandlingType behandlingType,
+                                  Long originalBehandlingId,
+                                  AktørId aktørId,
+                                  RelasjonsRolleType relasjonRolle,
+                                  Skjæringstidspunkt skjæringstidspunkt) {
 
     /**
      * Oppretter referanse uten skjæringstidspunkt fra behandling.
      */
     public static BehandlingReferanse fra(Behandling behandling) {
-        return fra(behandling, (LocalDate) null);
-    }
-
-    /*
-     * Unngå bruk av denne.
-     */
-    public static BehandlingReferanse fra(Behandling behandling, LocalDate utledetSkjæringstidspunkt) {
-        return new BehandlingReferanse(behandling.getFagsakYtelseType(),
-                behandling.getType(),
-                behandling.getRelasjonsRolleType(),
-                behandling.getAktørId(),
-                behandling.getFagsak().getSaksnummer(),
-                behandling.getFagsakId(),
-                behandling.getId(),
-                behandling.getUuid(),
-                behandling.getOriginalBehandlingId(),
-                behandling.getStatus(),
-                Skjæringstidspunkt.builder()
-                        .medUtledetSkjæringstidspunkt(utledetSkjæringstidspunkt)
-                        .build());
+        return fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(null).build());
     }
 
     public static BehandlingReferanse fra(Behandling behandling, Skjæringstidspunkt skjæringstidspunkt) {
-        return new BehandlingReferanse(behandling.getFagsakYtelseType(),
-                behandling.getType(),
-                behandling.getRelasjonsRolleType(),
-                behandling.getAktørId(),
+        return new BehandlingReferanse(
                 behandling.getFagsak().getSaksnummer(),
                 behandling.getFagsakId(),
+                behandling.getFagsakYtelseType(),
                 behandling.getId(),
                 behandling.getUuid(),
-                behandling.getOriginalBehandlingId(),
                 behandling.getStatus(),
+                behandling.getType(),
+                behandling.getOriginalBehandlingId().orElse(null),
+                behandling.getAktørId(),
+                behandling.getRelasjonsRolleType(),
                 skjæringstidspunkt);
     }
 
-    public static BehandlingReferanse fra(FagsakYtelseType fagsakYtelseType, BehandlingType behandlingType, RelasjonsRolleType relasjonRolle,
-            AktørId aktørId, // NOSONAR
-            Saksnummer saksnummer, Long fagsakId, Long behandlingId, UUID behandlingUuid, Optional<Long> originalBehandlingId,
-            BehandlingStatus behandlingStatus, Skjæringstidspunkt skjæringstidspunkt) {
-        return new BehandlingReferanse(fagsakYtelseType,
-                behandlingType,
-                relasjonRolle,
-                aktørId,
-                saksnummer,
-                fagsakId,
-                behandlingId,
-                behandlingUuid,
-                originalBehandlingId,
-                behandlingStatus,
-                skjæringstidspunkt);
-    }
-
-    public Saksnummer getSaksnummer() {
-        return saksnummer;
-    }
-
-    public Long getFagsakId() {
-        return fagsakId;
-    }
-
-    public Long getBehandlingId() {
-        return behandlingId;
-    }
-
-    public UUID getBehandlingUuid() {
-        return behandlingUuid;
-    }
-
-    public Long getId() {
-        return getBehandlingId();
+    /**
+     * Lag immutable copy av referanse med mulighet til å legge til
+     * skjæringstidspunkt av flere typer
+     */
+    public BehandlingReferanse medSkjæringstidspunkt(Skjæringstidspunkt skjæringstidspunkt) {
+        return new BehandlingReferanse(
+            saksnummer(),
+            fagsakId(),
+            fagsakYtelseType(),
+            behandlingId(),
+            behandlingUuid(),
+            behandlingStatus(),
+            behandlingType(),
+            originalBehandlingId(),
+            aktørId(),
+            relasjonRolle(),
+            skjæringstidspunkt);
     }
 
     public Optional<Long> getOriginalBehandlingId() {
-        return originalBehandlingId;
-    }
-
-    public FagsakYtelseType getFagsakYtelseType() {
-        return fagsakYtelseType;
-    }
-
-    public AktørId getAktørId() {
-        return aktørId;
+        return Optional.ofNullable(originalBehandlingId);
     }
 
     public LocalDate getUtledetSkjæringstidspunkt() {
-        // precondition
         sjekkSkjæringstidspunkt();
         return skjæringstidspunkt.getUtledetSkjæringstidspunkt();
     }
 
     public Optional<LocalDate> getUtledetSkjæringstidspunktHvisUtledet() {
+        sjekkSkjæringstidspunkt();
         return skjæringstidspunkt.getSkjæringstidspunktHvisUtledet();
     }
 
     public LocalDateInterval getUtledetMedlemsintervall() {
-        // precondition
         sjekkSkjæringstidspunkt();
         return skjæringstidspunkt.getUtledetMedlemsintervall();
     }
@@ -183,16 +107,16 @@ public class BehandlingReferanse {
         return skjæringstidspunkt;
     }
 
-    public RelasjonsRolleType getRelasjonsRolleType() {
-        return relasjonRolle;
-    }
-
-    public BehandlingType getBehandlingType() {
-        return behandlingType;
-    }
-
     public boolean erRevurdering() {
         return BehandlingType.REVURDERING.equals(behandlingType);
+    }
+
+    /**
+     * Hvis skjæringstidspunkt ikke er satt, så kastes NPE ved bruk. Utvikler-feil
+     */
+    private void sjekkSkjæringstidspunkt() {
+        Objects.requireNonNull(skjæringstidspunkt,
+                "Utvikler-feil: skjæringstidspunkt er ikke satt på BehandlingReferanse. Sørg for at det er satt ifht. anvendelse");
     }
 
     @Override
@@ -210,71 +134,21 @@ public class BehandlingReferanse {
         }
         var other = (BehandlingReferanse) obj;
         return Objects.equals(behandlingId, other.behandlingId)
-                && Objects.equals(saksnummer, other.saksnummer)
-                && Objects.equals(aktørId, other.aktørId)
-                && Objects.equals(fagsakYtelseType, other.fagsakYtelseType)
-                && Objects.equals(behandlingType, other.behandlingType)
-                && Objects.equals(relasjonRolle, other.relasjonRolle)
-                && Objects.equals(originalBehandlingId, other.originalBehandlingId)
-        // tar ikke med status eller skjæringstidspunkt i equals siden de kan endre seg
-        ;
-    }
-
-    /**
-     * Hvis skjæringstidspunkt ikke er satt, så kastes NPE ved bruk. Utvikler-feil
-     */
-    private void sjekkSkjæringstidspunkt() {
-        Objects.requireNonNull(skjæringstidspunkt,
-                "Utvikler-feil: skjæringstidspunkt er ikke satt på BehandlingReferanse. Sørg for at det er satt ifht. anvendelse");
+            && Objects.equals(saksnummer, other.saksnummer)
+            && Objects.equals(aktørId, other.aktørId)
+            && Objects.equals(fagsakYtelseType, other.fagsakYtelseType)
+            && Objects.equals(behandlingType, other.behandlingType)
+            && Objects.equals(relasjonRolle, other.relasjonRolle)
+            && Objects.equals(originalBehandlingId, other.originalBehandlingId)
+            // tar ikke med status eller skjæringstidspunkt i equals siden de kan endre seg
+            ;
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName() + String.format(
-                "<saksnummer=%s, behandlingId=%s, fagsakType=%s, behandlingType=%s, rolle=%s, aktørId=%s, status=%s, skjæringstidspunjkt=%s, originalBehandlingId=%s>",
-                saksnummer, behandlingId, fagsakYtelseType, behandlingType, relasjonRolle, aktørId, behandlingStatus, skjæringstidspunkt,
-                originalBehandlingId);
+            "<saksnummer=%s, behandlingId=%s, fagsakType=%s, behandlingType=%s, rolle=%s, aktørId=%s, status=%s, skjæringstidspunjkt=%s, originalBehandlingId=%s>",
+            saksnummer, behandlingId, fagsakYtelseType, behandlingType, relasjonRolle, aktørId, behandlingStatus, skjæringstidspunkt,
+            originalBehandlingId);
     }
-
-    /**
-     * Lag immutable copy av referanse med satt utledet skjæringstidspunkt.
-     */
-    public BehandlingReferanse medSkjæringstidspunkt(LocalDate utledetSkjæringstidspunkt) {
-        return new BehandlingReferanse(getFagsakYtelseType(),
-                getBehandlingType(),
-                getRelasjonsRolleType(),
-                getAktørId(),
-                getSaksnummer(),
-                getFagsakId(),
-                getId(),
-                getBehandlingUuid(),
-                getOriginalBehandlingId(),
-                getBehandlingStatus(),
-                Skjæringstidspunkt.builder()
-                        .medUtledetSkjæringstidspunkt(utledetSkjæringstidspunkt)
-                        .build());
-    }
-
-    /**
-     * Lag immutable copy av referanse med mulighet til å legge til
-     * skjæringstidspunkt av flere typer
-     */
-    public BehandlingReferanse medSkjæringstidspunkt(Skjæringstidspunkt skjæringstidspunkt) {
-        return new BehandlingReferanse(getFagsakYtelseType(),
-                getBehandlingType(),
-                getRelasjonsRolleType(),
-                getAktørId(),
-                getSaksnummer(),
-                getFagsakId(),
-                getId(),
-                getBehandlingUuid(),
-                getOriginalBehandlingId(),
-                getBehandlingStatus(),
-                skjæringstidspunkt);
-    }
-
-    public BehandlingStatus getBehandlingStatus() {
-        return behandlingStatus;
-    }
-
 }

@@ -96,8 +96,8 @@ public class ArbeidsforholdAdministrasjonTjeneste {
             InntektArbeidYtelseGrunnlag iayGrunnlag,
             SakInntektsmeldinger sakInntektsmeldinger,
             UtledArbeidsforholdParametere param) {
-        var ytelseType = ref.getFagsakYtelseType();
-        var aktørId = ref.getAktørId();
+        var ytelseType = ref.fagsakYtelseType();
+        var aktørId = ref.aktørId();
         var skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
 
         var arbeidsgiverSetMap = vurderArbeidsforholdTjeneste.endringerIInntektsmelding(ref, iayGrunnlag,

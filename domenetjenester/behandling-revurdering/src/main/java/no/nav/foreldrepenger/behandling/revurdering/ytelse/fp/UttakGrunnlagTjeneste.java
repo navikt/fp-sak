@@ -84,8 +84,8 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
 
     @Override
     public Optional<ForeldrepengerGrunnlag> grunnlag(BehandlingReferanse ref) {
-        var behandlingId = ref.getBehandlingId();
-        var saksnummer = ref.getSaksnummer();
+        var behandlingId = ref.behandlingId();
+        var saksnummer = ref.saksnummer();
 
         var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(saksnummer);
 
@@ -118,15 +118,15 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
     }
 
     private Optional<PleiepengerGrunnlagEntitet> pleiepengerGrunnlag(BehandlingReferanse ref) {
-        return pleiepengerRepository.hentGrunnlag(ref.getBehandlingId());
+        return pleiepengerRepository.hentGrunnlag(ref.behandlingId());
     }
 
     private Optional<UføretrygdGrunnlagEntitet> uføretrygdGrunnlag(BehandlingReferanse ref) {
-        return uføretrygdRepository.hentGrunnlag(ref.getBehandlingId());
+        return uføretrygdRepository.hentGrunnlag(ref.behandlingId());
     }
 
     private Optional<NesteSakGrunnlagEntitet> nesteSakGrunnlag(BehandlingReferanse ref) {
-        return nesteSakRepository.hentGrunnlag(ref.getBehandlingId());
+        return nesteSakRepository.hentGrunnlag(ref.behandlingId());
     }
 
     private Optional<Annenpart> annenpart(FagsakRelasjon fagsakRelasjon,

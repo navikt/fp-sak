@@ -54,7 +54,7 @@ public class VurderFaktaOmBeregningOppdaterer implements AksjonspunktOppdaterer<
                 behandling.getOriginalBehandlingId(),
                 BeregningsgrunnlagTilstand.KOFAKBER_UT);
 
-        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(param.getRef().getFagsakYtelseType());
+        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(param.getRef().fagsakYtelseType());
 
         var input = tjeneste.lagInput(param.getRef());
 

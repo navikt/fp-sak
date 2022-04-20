@@ -59,7 +59,7 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
 
     private OpptjeningsperiodeGrunnlag opprettGrunnlag(BehandlingReferanse ref) {
 
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         final var hendelseAggregat = familieHendelseRepository.hentAggregat(behandlingId);
         final var hendelse = hendelseAggregat.getGjeldendeVersjon();
         final var sammenhengendeUttak = ref.getSkjæringstidspunkt().kreverSammenhengendeUttak();
@@ -69,7 +69,7 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
         var fagsakÅrsak = finnFagsakÅrsak(hendelse);
         var søkerRolle =  finnFagsakSøkerRolle(ref);
         Optional<LocalDate> morsMaksdato = !sammenhengendeUttak ? Optional.empty() :
-            ytelseMaksdatoTjeneste.beregnMorsMaksdato(ref.getSaksnummer(), ref.getRelasjonsRolleType());
+            ytelseMaksdatoTjeneste.beregnMorsMaksdato(ref.saksnummer(), ref.relasjonRolle());
         Optional<LocalDate> termindato;
         LocalDate hendelsedato;
         if (FagsakÅrsak.FØDSEL.equals(fagsakÅrsak)) {
@@ -100,7 +100,7 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
     }
 
     private RegelSøkerRolle finnFagsakSøkerRolle(BehandlingReferanse ref) {
-        var relasjonsRolleType = ref.getRelasjonsRolleType();
+        var relasjonsRolleType = ref.relasjonRolle();
         if (RelasjonsRolleType.MORA.equals(relasjonsRolleType)) {
             return RegelSøkerRolle.MORA;
         }

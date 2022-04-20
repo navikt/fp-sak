@@ -48,7 +48,7 @@ public class RisikovurderingTjeneste {
 
     public Optional<FaresignalWrapper> hentRisikoklassifisering(BehandlingReferanse referanse) {
         // Tidlig return for å spare oss unødige restkall, kun førstegangsbehandlinger blir klassifisert.
-        if (!referanse.getBehandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
+        if (!referanse.behandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
             return Optional.empty();
         }
         return hentFaresignalerFraFprisk(referanse);
@@ -68,14 +68,14 @@ public class RisikovurderingTjeneste {
 
     public void lagreProsesstaskForRisikoklassifisering(BehandlingReferanse referanse) {
         if (behandlingHarBlittRisikoklassifisert(referanse)) {
-            LOG.info("Risikoklassifisering er allerede blitt utført på behandling " + referanse.getBehandlingId());
+            LOG.info("Risikoklassifisering er allerede blitt utført på behandling " + referanse.behandlingId());
         } else {
-            LOG.info("Oppretter task for risikoklassifisering på behandling " + referanse.getBehandlingId());
+            LOG.info("Oppretter task for risikoklassifisering på behandling " + referanse.behandlingId());
             var callId = MDCOperations.getCallId();
             if (callId == null || callId.isBlank())
                 callId = MDCOperations.generateCallId();
             var taskData = ProsessTaskData.forProsessTask(RisikoklassifiseringUtførTask.class);
-            taskData.setBehandling(referanse.getFagsakId(), referanse.getBehandlingId(), referanse.getAktørId().getId());
+            taskData.setBehandling(referanse.fagsakId(), referanse.behandlingId(), referanse.aktørId().getId());
             taskData.setCallId(callId);
             prosessTaskTjeneste.lagre(taskData);
         }
@@ -83,15 +83,15 @@ public class RisikovurderingTjeneste {
 
     public void startRisikoklassifisering(BehandlingReferanse referanse, RisikovurderingRequestDto request) {
         if (behandlingHarBlittRisikoklassifisert(referanse)) {
-            LOG.info("Risikoklassifisering er allerede blitt utført på behandling " + referanse.getBehandlingId());
+            LOG.info("Risikoklassifisering er allerede blitt utført på behandling " + referanse.behandlingId());
         } else {
-            LOG.info("Iverksetter risikoklassifisering på behandling " + referanse.getBehandlingId());
+            LOG.info("Iverksetter risikoklassifisering på behandling " + referanse.behandlingId());
             fpriskTjeneste.sendRisikoklassifiseringsoppdrag(request);
         }
     }
 
     private void sendVurderingTilFprisk(BehandlingReferanse referanse, FaresignalVurdering vurdering) {
-        var request = new LagreFaresignalVurderingDto(referanse.getBehandlingUuid(), KontrollresultatMapper.mapFaresignalvurderingTilKontrakt(vurdering));
+        var request = new LagreFaresignalVurderingDto(referanse.behandlingUuid(), KontrollresultatMapper.mapFaresignalvurderingTilKontrakt(vurdering));
         fpriskTjeneste.sendRisikovurderingTilFprisk(request);
     }
 
@@ -100,7 +100,7 @@ public class RisikovurderingTjeneste {
     }
 
     private Optional<FaresignalWrapper> hentFaresignalerFraFprisk(BehandlingReferanse ref) {
-        var request = new HentRisikovurderingDto(ref.getBehandlingUuid());
+        var request = new HentRisikovurderingDto(ref.behandlingUuid());
         var faresignalerRespons = fpriskTjeneste.hentFaresignalerForBehandling(request);
         if (faresignalerRespons.isEmpty()) {
             return Optional.empty();

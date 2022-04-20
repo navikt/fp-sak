@@ -44,8 +44,8 @@ public class InngangsvilkårSøkersOpplysningsplikt implements Inngangsvilkår {
         var manuellVurdering = new VilkårData(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_VURDERT,
             singletonList(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU));
 
-        var ytelseType = ref.getFagsakYtelseType();
-        var behandlingType = ref.getBehandlingType();
+        var ytelseType = ref.fagsakYtelseType();
+        var behandlingType = ref.behandlingType();
         if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType) &&
             BehandlingType.REVURDERING.equals(behandlingType)) {
             // For revurdering FP skal det ikke utføres vilkårskontroll om opplysningsplikt (NOOP)

@@ -67,12 +67,12 @@ public class KontrollerFaktaUttakTjeneste {
 
     public void avklarOmAnnenForelderHarRett(BehandlingReferanse ref) {
         if (kanAutomatiskAvklareAtAnnenForelderIkkeHarRett(ref)) {
-            ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(ref.getBehandlingId(), false);
+            ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(ref.behandlingId(), false);
         }
     }
 
     private boolean kanAutomatiskAvklareAtAnnenForelderIkkeHarRett(BehandlingReferanse ref) {
-        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(ref.getBehandlingId());
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(ref.behandlingId());
         return oppgittHarAnnenForeldreRett(ytelseFordelingAggregat) && personopplysninger.oppgittAnnenpartUtenNorskID(ref);
     }
 

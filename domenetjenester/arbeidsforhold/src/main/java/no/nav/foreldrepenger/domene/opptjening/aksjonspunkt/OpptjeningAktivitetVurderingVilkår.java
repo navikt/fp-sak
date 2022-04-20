@@ -47,12 +47,12 @@ public class OpptjeningAktivitetVurderingVilkår implements OpptjeningAktivitetV
         }
         if (OpptjeningAktivitetType.NÆRING.equals(type)) {
             var skjæringstidspunkt = behandlingReferanse.getSkjæringstidspunkt();
-            return vurderNæring(behandlingReferanse.getBehandlingId(), behandlingReferanse.getAktørId(), iayGrunnlag, overstyrtAktivitet,
+            return vurderNæring(behandlingReferanse.behandlingId(), behandlingReferanse.aktørId(), iayGrunnlag, overstyrtAktivitet,
                     skjæringstidspunkt);
         }
         if (OpptjeningAktivitetType.ARBEID.equals(type)) {
             var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), (Yrkesaktivitet) null);
-            return vurderArbeid(filter, registerAktivitet, overstyrtAktivitet, behandlingReferanse.getBehandlingId());
+            return vurderArbeid(filter, registerAktivitet, overstyrtAktivitet, behandlingReferanse.behandlingId());
         }
         return VurderingsStatus.TIL_VURDERING;
     }

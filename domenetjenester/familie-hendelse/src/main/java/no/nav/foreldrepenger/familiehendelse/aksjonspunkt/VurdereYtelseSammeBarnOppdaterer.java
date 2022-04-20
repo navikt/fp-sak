@@ -80,7 +80,7 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
                                        HistorikkEndretFeltType historikkEndretFeltType,
                                        AksjonspunktOppdaterParameter param) {
         var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
-        var behandling = behandlingRepository.hentBehandling(behandlingReferanse.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
         return new HistorikkAksjonspunktAdapter(
             behandling, historikkAdapter, param).håndterAksjonspunkt(
             aksjonspunktDefinisjon, vilkår, dto.getErVilkarOk(), dto.getBegrunnelse(), historikkEndretFeltType);
@@ -102,7 +102,7 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
 
         var relevanteVilkårTyper = Arrays.asList(VilkårType.FØDSELSVILKÅRET_MOR,
             VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
-        var vilkårene = behandlingsresultatRepository.hent(behandlingReferanse.getBehandlingId()).getVilkårResultat().getVilkårene();
+        var vilkårene = behandlingsresultatRepository.hent(behandlingReferanse.behandlingId()).getVilkårResultat().getVilkårene();
 
         return vilkårene.stream().filter(v -> relevanteVilkårTyper.contains(v.getVilkårType())).findFirst();
     }

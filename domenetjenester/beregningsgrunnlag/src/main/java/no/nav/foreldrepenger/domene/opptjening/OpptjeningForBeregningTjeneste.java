@@ -42,7 +42,7 @@ public class OpptjeningForBeregningTjeneste {
     List<OpptjeningsperiodeForSaksbehandling> hentRelevanteOpptjeningsaktiviteterForBeregning(BehandlingReferanse behandlingReferanse,
                                                                                               InntektArbeidYtelseGrunnlag iayGrunnlag) {
 
-        var behandlingId = behandlingReferanse.getId();
+        var behandlingId = behandlingReferanse.behandlingId();
 
         var opptjening = opptjeningsperioderTjeneste.hentOpptjeningHvisFinnes(behandlingId);
         if(opptjening.isEmpty()) {
@@ -50,7 +50,7 @@ public class OpptjeningForBeregningTjeneste {
         }
         var opptjeningsperiodeFom = opptjening.map(Opptjening::getFom).orElseThrow();
 
-        var opptjeningsaktiviteterPerYtelse = new OpptjeningsaktiviteterPerYtelse(behandlingReferanse.getFagsakYtelseType());
+        var opptjeningsaktiviteterPerYtelse = new OpptjeningsaktiviteterPerYtelse(behandlingReferanse.fagsakYtelseType());
         var aktiviteter = opptjeningsperioderTjeneste.mapPerioderForSaksbehandling(behandlingReferanse, iayGrunnlag, vurderOpptjening);
         return aktiviteter.stream()
             .filter(oa -> oa.getPeriode().getFomDato().isBefore(behandlingReferanse.getUtledetSkjæringstidspunkt()))

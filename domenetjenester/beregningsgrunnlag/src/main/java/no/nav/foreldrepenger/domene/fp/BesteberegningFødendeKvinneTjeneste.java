@@ -81,7 +81,7 @@ public class BesteberegningFødendeKvinneTjeneste {
         }
 
         var opptjeningForBeregning = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(behandlingReferanse,
-            inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId()));
+            inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId()));
         return opptjeningForBeregning.map(
             opptjeningAktiviteter -> brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse,
                 opptjeningAktiviteter)).orElse(false);
@@ -92,11 +92,11 @@ public class BesteberegningFødendeKvinneTjeneste {
             return false;
         }
         var familiehendelse = familieHendelseRepository.hentAggregatHvisEksisterer(
-            behandlingReferanse.getBehandlingId()).map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
+            behandlingReferanse.behandlingId()).map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
         var familiehendelseType = familiehendelse.map(FamilieHendelseEntitet::getType)
             .orElseThrow(() -> new IllegalStateException(
-                "Mangler FamilieHendelse#type for behandling: " + behandlingReferanse.getBehandlingId()));
-        return erFødendeKvinne(behandlingReferanse.getRelasjonsRolleType(), familiehendelseType);
+                "Mangler FamilieHendelse#type for behandling: " + behandlingReferanse.behandlingId()));
+        return erFødendeKvinne(behandlingReferanse.relasjonRolle(), familiehendelseType);
     }
 
     public boolean kvalifisererTilAutomatiskBesteberegning(BehandlingReferanse behandlingReferanse) {
@@ -118,7 +118,7 @@ public class BesteberegningFødendeKvinneTjeneste {
     }
 
     private boolean erDagpengerManueltFjernetFraBeregningen(BehandlingReferanse behandlingReferanse) {
-        Optional<BeregningsgrunnlagGrunnlagEntitet> bgGrunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId());
+        Optional<BeregningsgrunnlagGrunnlagEntitet> bgGrunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.behandlingId());
         boolean harDPFraRegister = dagpengerLiggerIAktivitet(bgGrunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getRegisterAktiviteter));
         boolean harDPIGjeldendeAggregat = dagpengerLiggerIAktivitet(bgGrunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getGjeldendeAktiviteter));
         return harDPFraRegister && !harDPIGjeldendeAggregat;
@@ -132,13 +132,13 @@ public class BesteberegningFødendeKvinneTjeneste {
     }
 
     private boolean beregningsgrunnlagErOverstyrt(BehandlingReferanse behandlingReferanse) {
-        Optional<BeregningsgrunnlagEntitet> bg = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandlingReferanse.getBehandlingId());
+        Optional<BeregningsgrunnlagEntitet> bg = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandlingReferanse.behandlingId());
         return bg.map(BeregningsgrunnlagEntitet::isOverstyrt).orElse(false);
     }
 
     public List<Ytelsegrunnlag> lagBesteberegningYtelseinput(BehandlingReferanse behandlingReferanse) {
-        InntektArbeidYtelseGrunnlag iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId());
-        YtelseFilter ytelseFilter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(behandlingReferanse.getAktørId()));
+        InntektArbeidYtelseGrunnlag iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId());
+        YtelseFilter ytelseFilter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(behandlingReferanse.aktørId()));
         Optional<DatoIntervallEntitet> periodeYtelserKanVæreRelevantForBB = behandlingReferanse.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet()
             .map(stp -> DatoIntervallEntitet.fraOgMedTilOgMed(stp.minusMonths(12), stp));
         if (periodeYtelserKanVæreRelevantForBB.isEmpty()) {
@@ -165,20 +165,20 @@ public class BesteberegningFødendeKvinneTjeneste {
     }
 
     private boolean erBesteberegningManueltVurdert(BehandlingReferanse ref) {
-        var beregningsgrunnlagEntitet = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(ref.getBehandlingId());
+        var beregningsgrunnlagEntitet = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(ref.behandlingId());
         return beregningsgrunnlagEntitet.map(BeregningsgrunnlagEntitet::getFaktaOmBeregningTilfeller)
             .orElse(Collections.emptyList()).stream().anyMatch(tilf ->tilf.equals(FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
     }
 
     private boolean harKunDagpengerEllerArbeidIOpptjening(BehandlingReferanse ref) {
-        InntektArbeidYtelseGrunnlag iay = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.getBehandlingId());
+        InntektArbeidYtelseGrunnlag iay = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId());
         var opptjening = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iay);
         var opptjeningAktiviteter = opptjening.map(OpptjeningAktiviteter::getOpptjeningPerioder).orElse(Collections.emptyList());
         return opptjeningAktiviteter.stream().allMatch(a -> GODKJENT_FOR_AUTOMATISK_BEREGNING.contains(a.opptjeningAktivitetType()));
     }
 
     private static boolean gjelderForeldrepenger(BehandlingReferanse behandlingReferanse) {
-        return FagsakYtelseType.FORELDREPENGER.equals(behandlingReferanse.getFagsakYtelseType());
+        return FagsakYtelseType.FORELDREPENGER.equals(behandlingReferanse.fagsakYtelseType());
     }
 
     static boolean erFødendeKvinne(RelasjonsRolleType relasjonsRolleType, FamilieHendelseType type) {
@@ -189,15 +189,15 @@ public class BesteberegningFødendeKvinneTjeneste {
     private boolean brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(BehandlingReferanse behandlingReferanse,
                                                                          OpptjeningAktiviteter opptjeningAktiviteter) {
         var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
-        var ytelser = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId())
-            .getAktørYtelseFraRegister(behandlingReferanse.getAktørId())
+        var ytelser = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId())
+            .getAktørYtelseFraRegister(behandlingReferanse.aktørId())
             .map(AktørYtelse::getAlleYtelser)
             .orElse(Collections.emptyList());
         return DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(opptjeningAktiviteter, ytelser,
             skjæringstidspunkt);
     }
     public boolean trengerManuellKontrollAvAutomatiskBesteberegning(BehandlingReferanse behandlingReferanse) {
-        var besteberegnetAvvik = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandlingReferanse.getBehandlingId())
+        var besteberegnetAvvik = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandlingReferanse.behandlingId())
             .flatMap(BeregningsgrunnlagEntitet::getBesteberegninggrunnlag)
             .flatMap(BesteberegninggrunnlagEntitet::getAvvik);
         if (besteberegnetAvvik.isEmpty()) {

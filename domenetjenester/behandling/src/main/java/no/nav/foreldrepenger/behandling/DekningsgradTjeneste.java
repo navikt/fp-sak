@@ -28,7 +28,7 @@ public class DekningsgradTjeneste {
     }
 
     public boolean behandlingHarEndretDekningsgrad(BehandlingReferanse ref) {
-        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(ref.getBehandlingId());
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(ref.behandlingId());
         if (behandlingsresultat.isPresent() && behandlingsresultat.get().isEndretDekningsgrad()) {
             return dekningsgradEndretVerdi(ref);
         }
@@ -41,7 +41,7 @@ public class DekningsgradTjeneste {
     }
 
     private FagsakRelasjon relasjon(BehandlingReferanse ref) {
-        return fagsakRelasjonTjeneste.finnRelasjonFor(ref.getSaksnummer());
+        return fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer());
     }
 
     public Optional<Dekningsgrad> finnDekningsgrad(Saksnummer saksnummer) {

@@ -33,8 +33,8 @@ public class OpptjeningsVilkårTjenesteImpl implements OpptjeningsVilkårTjenest
 
     @Override
     public VilkårData vurderOpptjeningsVilkår(BehandlingReferanse behandlingReferanse) {
-        var behandlingId = behandlingReferanse.getBehandlingId();
-        var aktørId = behandlingReferanse.getAktørId();
+        var behandlingId = behandlingReferanse.behandlingId();
+        var aktørId = behandlingReferanse.aktørId();
         var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
 
         var relevanteOpptjeningAktiveter = opptjeningTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(behandlingReferanse);

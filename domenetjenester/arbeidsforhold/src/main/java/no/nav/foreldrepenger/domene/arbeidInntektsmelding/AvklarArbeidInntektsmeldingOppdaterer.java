@@ -47,7 +47,7 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
         var alleSaksbehandlersValg = arbeidsforholdInntektsmeldingMangelTjeneste.hentArbeidsforholdValgForSak(param.getRef());
         validerArbeidsforholdSomManglerInntektsmelding(alleMangler, alleSaksbehandlersValg);
 
-        var alleManueltRegistrerteArbeidsforhold = inntektArbeidYtelseTjeneste.hentGrunnlag(param.getRef().getBehandlingUuid())
+        var alleManueltRegistrerteArbeidsforhold = inntektArbeidYtelseTjeneste.hentGrunnlag(param.getRef().behandlingUuid())
             .getArbeidsforholdInformasjon()
             .map(ArbeidsforholdInformasjon::getOverstyringer)
             .orElse(Collections.emptyList());

@@ -63,7 +63,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     @Override
     public LocalDate utledEndringsdato(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         var endringsdatoTypeEnumSet = utledEndringsdatoTyper(input);
         if (endringsdatoTypeEnumSet.isEmpty()) {
             endringsdatoTypeEnumSet.add(EndringsdatoType.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
@@ -183,7 +183,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private boolean erFørsteUttaksdatoSøknadEtterSisteUttaksdatoGjeldendeVedtak(BehandlingReferanse revurdering) {
-        var revurderingId = revurdering.getBehandlingId();
+        var revurderingId = revurdering.behandlingId();
         var førstegangsBehandling = finnForrigeBehandling(revurdering);
         if (finnSisteUttaksdatoGjeldendeVedtak(førstegangsBehandling).isPresent() && finnFørsteUttaksdatoSøknad(
             revurderingId).isPresent()) {
@@ -257,7 +257,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private Optional<LocalDate> finnManueltSattFørsteUttaksdato(BehandlingReferanse revurdering) {
-        return ytelsesFordelingRepository.hentAggregatHvisEksisterer(revurdering.getBehandlingId())
+        return ytelsesFordelingRepository.hentAggregatHvisEksisterer(revurdering.behandlingId())
             .flatMap(YtelseFordelingAggregat::getAvklarteDatoer)
             .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato);
     }
@@ -282,7 +282,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
                     .ifPresent(datoer::add);
                 case FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK -> finnFørsteUttaksdato(finnForrigeBehandling(ref)).ifPresent(
                     datoer::add);
-                case FØRSTE_UTTAKSDATO_SØKNAD -> finnFørsteUttaksdatoSøknad(ref.getBehandlingId()).ifPresent(
+                case FØRSTE_UTTAKSDATO_SØKNAD -> finnFørsteUttaksdatoSøknad(ref.behandlingId()).ifPresent(
                     datoer::add);
                 case SISTE_UTTAKSDATO_GJELDENDE_VEDTAK -> finnEndringsdatoForEndringssøknad(ref, datoer);
                 case ENDRINGSDATO_I_BEHANDLING_SOM_FØRTE_TIL_BERØRT_BEHANDLING -> finnEndringsdatoForBerørtBehandling(

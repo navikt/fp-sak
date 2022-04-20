@@ -42,7 +42,7 @@ public class FastsettUttaksresultatTjeneste {
 
         var uttaksperioder = fastsettPerioderTjeneste.fastsettePerioder(nyeSøknader, avklarteDatoer);
 
-        var behandlingId = input.getBehandlingReferanse().getBehandlingId();
+        var behandlingId = input.getBehandlingReferanse().behandlingId();
         var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
         var svangerskapspengerUttakResultatEntitet = uttaksresultatMapper.tilEntiteter(behandlingsresultat, uttaksperioder);
         svangerskapspengerUttakResultatRepository.lagre(behandlingId, svangerskapspengerUttakResultatEntitet);

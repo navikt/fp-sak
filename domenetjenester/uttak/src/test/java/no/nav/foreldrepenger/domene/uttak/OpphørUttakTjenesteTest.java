@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -38,7 +39,7 @@ public class OpphørUttakTjenesteTest {
         var revurdering = opprettOpphørtRevurdering(originalBehandling);
 
         lagreSkjæringstidspunkt(revurdering, skjæringstidspunkt);
-        var ref = BehandlingReferanse.fra(revurdering, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(revurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringstidspunkt).build());
 
         var kallPåOpphørTjenesteForOpphørBehandling = opphørUttakTjeneste.getOpphørsdato(ref,
             getBehandlingsresultat(revurdering.getId()));
@@ -73,7 +74,7 @@ public class OpphørUttakTjenesteTest {
         var originalBehandling = opprettOriginalBehandling(repositoryProvider);
         var revurdering = opprettOpphørtRevurdering(originalBehandling);
         lagreSkjæringstidspunkt(revurdering, skjæringstidspunkt);
-        var ref = BehandlingReferanse.fra(revurdering, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(revurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringstidspunkt).build());
         var opphørsÅrsaker = PeriodeResultatÅrsak.opphørsAvslagÅrsaker().iterator();
         new MockUttakResultatBuilder(skjæringstidspunkt.plusDays(10))
             .medInnvilgetPeriode(PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER, 10)
@@ -95,7 +96,7 @@ public class OpphørUttakTjenesteTest {
         var originalBehandling = opprettOriginalBehandling(repositoryProvider);
         var revurdering = opprettOpphørtRevurdering(originalBehandling);
         var skjæringstidspunkt = lagreSkjæringstidspunkt(revurdering, LocalDate.now());
-        var ref = BehandlingReferanse.fra(revurdering, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(revurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringstidspunkt).build());
         var opphørsÅrsaker = PeriodeResultatÅrsak.opphørsAvslagÅrsaker().iterator();
         new MockUttakResultatBuilder(skjæringstidspunkt.plusDays(7))
             .medAvslåttPeriode(opphørsÅrsaker.next(), 14).medAvslåttPeriode(opphørsÅrsaker.next(), 61)

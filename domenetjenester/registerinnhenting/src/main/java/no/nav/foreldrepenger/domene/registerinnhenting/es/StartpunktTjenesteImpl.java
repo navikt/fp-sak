@@ -49,7 +49,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
 
     @Override
     public StartpunktType utledStartpunktMotOriginalBehandling(BehandlingReferanse revurdering) {
-        throw new IllegalStateException("Utviklerfeil: Skal ikke kalle startpunkt mot original for Engangsstønad, sak: " + revurdering.getSaksnummer().getVerdi());
+        throw new IllegalStateException("Utviklerfeil: Skal ikke kalle startpunkt mot original for Engangsstønad, sak: " + revurdering.saksnummer().getVerdi());
     }
 
     @Override
@@ -62,7 +62,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
 
     private List<StartpunktType> utledStartpunkterES(BehandlingReferanse revurdering, EndringsresultatDiff differanse) {
         List<StartpunktType> startpunkter = new ArrayList<>();
-        var grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(revurdering.getBehandlingId());
+        var grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(revurdering.behandlingId());
         if (skalSjekkeForManglendeFødsel(grunnlagForBehandling))
             startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
 
@@ -75,11 +75,11 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
         differanse.hentDelresultat(PersonInformasjonEntitet.class).filter(EndringsresultatDiff::erSporedeFeltEndret)
             .ifPresent(diff -> startpunkter.add(utledStartpunktForDelresultat(revurdering, diff)));
         differanse.hentDelresultat(InntektArbeidYtelseGrunnlag.class).filter(EndringsresultatDiff::erSporedeFeltEndret).ifPresent(diff -> {
-            var grunnlag1 = iayTjeneste.hentGrunnlagPåId(revurdering.getBehandlingId(), (UUID)diff.getGrunnlagId1());
-            var grunnlag2 = iayTjeneste.hentGrunnlagPåId(revurdering.getBehandlingId(), (UUID)diff.getGrunnlagId2());
+            var grunnlag1 = iayTjeneste.hentGrunnlagPåId(revurdering.behandlingId(), (UUID)diff.getGrunnlagId1());
+            var grunnlag2 = iayTjeneste.hentGrunnlagPåId(revurdering.behandlingId(), (UUID)diff.getGrunnlagId2());
             var iayGrunnlagDiff = new IAYGrunnlagDiff(grunnlag1, grunnlag2);
             var aktørYtelseEndringForSøker = iayGrunnlagDiff
-                .endringPåAktørYtelseForAktør(revurdering.getSaksnummer(), revurdering.getUtledetSkjæringstidspunkt(), revurdering.getAktørId());
+                .endringPåAktørYtelseForAktør(revurdering.saksnummer(), revurdering.getUtledetSkjæringstidspunkt(), revurdering.aktørId());
             if (aktørYtelseEndringForSøker.erEksklusiveYtelserEndret())
                 startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
         });

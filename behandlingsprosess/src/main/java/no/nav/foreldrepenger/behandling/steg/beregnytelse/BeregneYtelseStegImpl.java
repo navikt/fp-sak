@@ -61,7 +61,7 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
         var beregningsresultat = beregnYtelseTjeneste.beregnYtelse(ref);
 
         // Beregn feriepenger
-        var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, ref.getFagsakYtelseType()).orElseThrow();
+        var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, ref.fagsakYtelseType()).orElseThrow();
         feriepengerTjeneste.beregnFeriepenger(behandling, beregningsresultat);
 
         // Lagre beregningsresultat

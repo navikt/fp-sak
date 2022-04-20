@@ -30,7 +30,7 @@ public class FørsteLovligeUttaksdatoTjeneste {
     }
 
     public SøknadsfristResultat utledFørsteLovligeUttaksdato(UttakInput input, LocalDateInterval uttaksgrenser) {
-        var behandlingId = input.getBehandlingReferanse().getBehandlingId();
+        var behandlingId = input.getBehandlingReferanse().behandlingId();
 
         var søknadMottattDato = input.getSøknadMottattDato();
         //Sjekk søknadsfristregel

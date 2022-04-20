@@ -101,7 +101,7 @@ public class SøknadDtoTjeneste {
     }
 
     private Optional<SoknadDto> lagSoknadFodselDto(SøknadEntitet søknad, FamilieHendelseEntitet familieHendelse, BehandlingReferanse ref) {
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
 
         var soknadFodselDto = new SoknadFodselDto();
         var fødselsdatoer = familieHendelse.getBarna().stream()
@@ -141,7 +141,7 @@ public class SøknadDtoTjeneste {
     }
 
     private List<ManglendeVedleggDto> genererManglendeVedlegg(BehandlingReferanse ref) {
-        var kompletthetsjekker = kompletthetsjekkerProvider.finnKompletthetsjekkerFor(ref.getFagsakYtelseType(), ref.getBehandlingType());
+        var kompletthetsjekker = kompletthetsjekkerProvider.finnKompletthetsjekkerFor(ref.fagsakYtelseType(), ref.behandlingType());
         final var alleManglendeVedlegg = kompletthetsjekker.utledAlleManglendeVedleggForForsendelse(ref);
         final var vedleggSomIkkeKommer = kompletthetsjekker.utledAlleManglendeVedleggSomIkkeKommer(ref);
 
@@ -163,7 +163,7 @@ public class SøknadDtoTjeneste {
     }
 
     private Optional<SoknadDto> lagSoknadAdopsjonDto(SøknadEntitet søknad, FamilieHendelseEntitet familieHendelse, BehandlingReferanse ref) {
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         var fødselsdatoer = familieHendelse.getBarna().stream()
             .collect(Collectors.toMap(UidentifisertBarn::getBarnNummer, UidentifisertBarn::getFødselsdato));
         var soknadAdopsjonDto = new SoknadAdopsjonDto();
@@ -180,7 +180,7 @@ public class SøknadDtoTjeneste {
 
         ytelsesfordelingRepository.hentAggregatHvisEksisterer(behandlingId).ifPresent(of -> {
             soknadAdopsjonDto.setOppgittRettighet(OppgittRettighetDto.mapFra(of.getOppgittRettighet()));
-            soknadAdopsjonDto.setOppgittFordeling(OppgittFordelingDto.mapFra(of.getOppgittFordeling(), hentOppgittStartdatoForPermisjon(ref.getBehandlingId(), null)));
+            soknadAdopsjonDto.setOppgittFordeling(OppgittFordelingDto.mapFra(of.getOppgittFordeling(), hentOppgittStartdatoForPermisjon(ref.behandlingId(), null)));
         });
 
         medlemTjeneste.hentMedlemskap(behandlingId).ifPresent(ma -> {
@@ -215,7 +215,7 @@ public class SøknadDtoTjeneste {
     }
 
     private Optional<Integer> hentDekningsgrad(BehandlingReferanse ref) {
-        var fagsakRelasjonOpt = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(ref.getSaksnummer());
+        var fagsakRelasjonOpt = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(ref.saksnummer());
         return fagsakRelasjonOpt.map(fagsakRelasjon -> fagsakRelasjon.getDekningsgrad().getVerdi());
     }
 }

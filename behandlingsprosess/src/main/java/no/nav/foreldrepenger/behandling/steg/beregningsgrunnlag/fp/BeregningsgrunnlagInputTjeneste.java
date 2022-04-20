@@ -53,7 +53,7 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
     @Override
     public YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref) {
         var aktivitetGradering = beregningUttakTjeneste.finnAktivitetGraderinger(ref);
-        var saksnummer = ref.getSaksnummer();
+        var saksnummer = ref.saksnummer();
         var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(saksnummer);
         var dekningsgrad = fagsakRelasjon.map(FagsakRelasjon::getGjeldendeDekningsgrad)
                 .orElseThrow(() -> new IllegalStateException("Mangler FagsakRelasjon#dekningsgrad for behandling: " + ref));
@@ -63,7 +63,7 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
         if (besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(ref)) {
             fpGrunnlag.setBesteberegningYtelsegrunnlag(besteberegningFødendeKvinneTjeneste.lagBesteberegningYtelseinput(ref));
         }
-        fpGrunnlag.setBehandlingstidspunkt(behandlingRepository.hentBehandling(ref.getBehandlingId()).getOpprettetDato().toLocalDate());
+        fpGrunnlag.setBehandlingstidspunkt(behandlingRepository.hentBehandling(ref.behandlingId()).getOpprettetDato().toLocalDate());
         return fpGrunnlag;
     }
 }

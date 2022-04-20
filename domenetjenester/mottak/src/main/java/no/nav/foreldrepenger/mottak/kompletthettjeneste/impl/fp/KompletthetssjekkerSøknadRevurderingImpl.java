@@ -80,7 +80,7 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
      */
     @Override
     public List<ManglendeVedlegg> utledManglendeVedleggForSøknad(BehandlingReferanse ref) {
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
 
         final var søknad = søknadRepository.hentSøknadHvisEksisterer(behandlingId);
 
@@ -88,8 +88,8 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
         var vedtaksdato = behandlingVedtakRepository.hentBehandlingVedtakFraRevurderingensOriginaleBehandling(behandling).getVedtaksdato();
         var sammenligningsdato = søknad.map(SøknadEntitet::getSøknadsdato).filter(vedtaksdato::isAfter).orElse(vedtaksdato);
 
-        Set<DokumentTypeId> arkivDokumentTypeIds = new HashSet<>(dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.getSaksnummer(), sammenligningsdato));
-        mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(ref.getFagsakId()).stream()
+        Set<DokumentTypeId> arkivDokumentTypeIds = new HashSet<>(dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.saksnummer(), sammenligningsdato));
+        mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(ref.fagsakId()).stream()
             .filter(m -> !m.getMottattDato().isBefore(sammenligningsdato))
             .map(MottattDokument::getDokumentType)
             .forEach(arkivDokumentTypeIds::add);

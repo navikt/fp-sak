@@ -100,7 +100,7 @@ public class UttakStegImpl implements UttakSteg {
         var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
         if (skalKopiereUttakTjeneste.skalKopiereStegResultat(uttakInput)) {
             kopierUttaktjeneste.kopierUttaksresultatFraOriginalBehandling(uttakInput.getBehandlingReferanse().getOriginalBehandlingId().orElseThrow(),
-                uttakInput.getBehandlingReferanse().getBehandlingId());
+                uttakInput.getBehandlingReferanse().behandlingId());
         } else {
             ryddUttak(kontekst.getBehandlingId());
             ryddStønadskontoberegning(kontekst.getBehandlingId(), kontekst.getFagsakId());

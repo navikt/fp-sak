@@ -220,12 +220,12 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
             return Collections.emptyList();
         }
         var originalBehandling = behandlingRepository.hentBehandling(originalBehandlingId.get());
-        var revurderingUUID = referanse.getBehandlingUuid();
-        var req = new InntektsmeldingDiffRequest(new AktørIdPersonident(referanse.getAktørId().getId()));
+        var revurderingUUID = referanse.behandlingUuid();
+        var req = new InntektsmeldingDiffRequest(new AktørIdPersonident(referanse.aktørId().getId()));
         req.setEksternRefEn(revurderingUUID);
         req.setEksternRefTo(originalBehandling.getUuid());
-        req.setSaksnummer(referanse.getSaksnummer().getVerdi());
-        req.setYtelseType(KodeverkMapper.fraFagsakYtelseType(referanse.getFagsakYtelseType()));
+        req.setSaksnummer(referanse.saksnummer().getVerdi());
+        req.setYtelseType(KodeverkMapper.fraFagsakYtelseType(referanse.fagsakYtelseType()));
         try {
             var inntektsmeldingerDto = abakusTjeneste.hentInntektsmeldingDiff(req);
             return mapResult(inntektsmeldingerDto).getAlleInntektsmeldinger();

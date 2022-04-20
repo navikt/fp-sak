@@ -44,12 +44,12 @@ public class InaktiveArbeidsforholdUtleder {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> kunAktiveArbeidsforhold = new HashMap<>();
 
         påkrevdeInntektsmeldinger.forEach((key, value) -> {
-            boolean erInaktivt = erInaktivt(key, inntektArbeidYtelseGrunnlag, referanse.getAktørId(), referanse.getUtledetSkjæringstidspunkt());
+            boolean erInaktivt = erInaktivt(key, inntektArbeidYtelseGrunnlag, referanse.aktørId(), referanse.getUtledetSkjæringstidspunkt());
             if (!erInaktivt) {
                 List<InternArbeidsforholdRef> aktiveArbeidsforholdsRef = new ArrayList<>();
                 //Sjekker om hvert arbeidsforhold under virksomheten har registrert permisjon som overlapper skjæringstidspunkt. Fjerne de som har det
                 value.forEach(internArbeidsforholdRef-> {
-                    if (!erIPermisjonPåStp(key, internArbeidsforholdRef, inntektArbeidYtelseGrunnlag, referanse.getAktørId(), referanse.getUtledetSkjæringstidspunkt())) {
+                    if (!erIPermisjonPåStp(key, internArbeidsforholdRef, inntektArbeidYtelseGrunnlag, referanse.aktørId(), referanse.getUtledetSkjæringstidspunkt())) {
                         aktiveArbeidsforholdsRef.add(internArbeidsforholdRef);
                     }
                 });

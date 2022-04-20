@@ -20,23 +20,23 @@ public class AksjonspunktUtlederInput {
     }
 
     public Long getBehandlingId() {
-        return ref.getBehandlingId();
+        return ref.behandlingId();
     }
 
     public AktørId getAktørId() {
-        return ref.getAktørId();
+        return ref.aktørId();
     }
 
     public FagsakYtelseType getYtelseType() {
-        return ref.getFagsakYtelseType();
+        return ref.fagsakYtelseType();
     }
 
     public BehandlingType getBehandlingType() {
-        return ref.getBehandlingType();
+        return ref.behandlingType();
     }
 
     public RelasjonsRolleType getRelasjonsRolleType() {
-        return ref.getRelasjonsRolleType();
+        return ref.relasjonRolle();
     }
 
     public BehandlingReferanse getRef() {
@@ -48,6 +48,6 @@ public class AksjonspunktUtlederInput {
     }
 
     public Saksnummer getSaksnummer() {
-        return ref.getSaksnummer();
+        return ref.saksnummer();
     }
 }

@@ -51,7 +51,7 @@ public class OpptjeningsperioderUtenOverstyringTjeneste {
     public List<OpptjeningsperiodeForSaksbehandling> mapPerioderForSaksbehandling(BehandlingReferanse behandlingReferanse,
             InntektArbeidYtelseGrunnlag grunnlag,
             OpptjeningAktivitetVurdering vurderOpptjening) {
-        var aktørId = behandlingReferanse.getAktørId();
+        var aktørId = behandlingReferanse.aktørId();
         List<OpptjeningsperiodeForSaksbehandling> perioder = new ArrayList<>();
         var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
 
@@ -156,12 +156,12 @@ public class OpptjeningsperioderUtenOverstyringTjeneste {
                 perioder.stream().anyMatch(oaa -> OpptjeningAktivitetType.FRILANS.equals(oaa.getOpptjeningAktivitetType()))) {
             return Optional.empty();
         }
-        var opptjeningOptional = opptjeningRepository.finnOpptjening(behandlingReferanse.getId());
+        var opptjeningOptional = opptjeningRepository.finnOpptjening(behandlingReferanse.behandlingId());
         if (!opptjeningOptional.isPresent()) {
             return Optional.empty();
         }
 
-        var aktørId = behandlingReferanse.getAktørId();
+        var aktørId = behandlingReferanse.aktørId();
         var aktørArbeidFraRegister = grunnlag.getAktørArbeidFraRegister(aktørId);
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), aktørArbeidFraRegister).før(skjæringstidspunkt);
 

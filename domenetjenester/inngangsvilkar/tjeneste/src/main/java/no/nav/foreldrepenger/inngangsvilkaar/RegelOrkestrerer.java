@@ -46,7 +46,7 @@ public class RegelOrkestrerer {
     }
 
     public RegelResultat vurderInngangsvilkår(Set<VilkårType> vilkårHåndtertAvSteg, Behandling behandling, BehandlingReferanse ref) {
-        var vilkårResultat = inngangsvilkårTjeneste.getBehandlingsresultat(ref.getBehandlingId()).getVilkårResultat();
+        var vilkårResultat = inngangsvilkårTjeneste.getBehandlingsresultat(ref.behandlingId()).getVilkårResultat();
         var matchendeVilkårPåBehandling = vilkårResultat.getVilkårene().stream()
             .filter(v -> vilkårHåndtertAvSteg.contains(v.getVilkårType()))
             .collect(toList());
@@ -91,7 +91,7 @@ public class RegelOrkestrerer {
     }
 
     protected VilkårData vurderVilkår(VilkårType vilkårType, BehandlingReferanse ref) {
-        var inngangsvilkår = inngangsvilkårTjeneste.finnVilkår(vilkårType, ref.getFagsakYtelseType());
+        var inngangsvilkår = inngangsvilkårTjeneste.finnVilkår(vilkårType, ref.fagsakYtelseType());
         return inngangsvilkår.vurderVilkår(ref);
     }
 

@@ -41,10 +41,10 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
 
     @Override
     public Behandlingsresultat foreslåBehandlingsresultat(BehandlingReferanse ref) {
-        var behandlingsresultat = behandlingsresultatRepository.hent(ref.getBehandlingId());
+        var behandlingsresultat = behandlingsresultatRepository.hent(ref.behandlingId());
         var behandlingResultatType = utledBehandlingsresultatType(behandlingsresultat);
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(behandlingResultatType);
-        var behandling = behandlingRepository.hentBehandling(ref.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
         if (revurderingEndring.erRevurderingMedUendretUtfall(behandling, behandlingResultatType)) {
             Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING);
         }

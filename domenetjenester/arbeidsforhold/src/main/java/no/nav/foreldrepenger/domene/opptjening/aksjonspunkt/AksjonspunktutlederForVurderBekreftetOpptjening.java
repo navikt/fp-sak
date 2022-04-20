@@ -81,7 +81,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
 
     private Utfall finnesDetArbeidsforholdLagtTilAvSaksbehandler(BehandlingReferanse referanse, InntektArbeidYtelseGrunnlag grunnlag,
             LocalDate skjæringstidspunkt) {
-        var aktørId = referanse.getAktørId();
+        var aktørId = referanse.aktørId();
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId))
                 .før(skjæringstidspunkt);
 

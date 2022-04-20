@@ -53,12 +53,12 @@ public class KompletthetssjekkerSøknadFørstegangsbehandlingImpl extends Komple
      */
     @Override
     public List<ManglendeVedlegg> utledManglendeVedleggForSøknad(BehandlingReferanse ref) {
-        final var søknad = søknadRepository.hentSøknadHvisEksisterer(ref.getBehandlingId());
-        var dokumentTypeIds = dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.getSaksnummer(), LocalDate.MIN);
+        final var søknad = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
+        var dokumentTypeIds = dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.saksnummer(), LocalDate.MIN);
         var manglendeVedlegg = identifiserManglendeVedlegg(søknad, dokumentTypeIds);
 
         if (!manglendeVedlegg.isEmpty()) {
-            LOG.info("Behandling {} er ikke komplett - mangler følgende vedlegg til søknad: {}", ref.getBehandlingId(),
+            LOG.info("Behandling {} er ikke komplett - mangler følgende vedlegg til søknad: {}", ref.behandlingId(),
                 lagDokumentTypeString(manglendeVedlegg)); // NOSONAR //$NON-NLS-1$
         }
 

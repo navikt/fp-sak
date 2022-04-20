@@ -79,7 +79,7 @@ public class AksjonspunktUtlederForVurderArbeidsforhold implements AksjonspunktU
     }
 
     private boolean skalTaStillingTilEndringerIArbeidsforhold(BehandlingReferanse behandlingReferanse) {
-        var behandling = behandlingRepository.hentBehandling(behandlingReferanse.getBehandlingId());
-        return !Objects.equals(behandlingReferanse.getBehandlingType(), BehandlingType.FØRSTEGANGSSØKNAD) || behandling.harSattStartpunkt();
+        var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
+        return !Objects.equals(behandlingReferanse.behandlingType(), BehandlingType.FØRSTEGANGSSØKNAD) || behandling.harSattStartpunkt();
     }
 }

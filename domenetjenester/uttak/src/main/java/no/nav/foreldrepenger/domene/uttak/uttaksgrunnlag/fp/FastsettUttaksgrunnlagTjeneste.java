@@ -46,13 +46,13 @@ public class FastsettUttaksgrunnlagTjeneste {
     public void fastsettUttaksgrunnlag(UttakInput input) {
         var endringsdatoRevurdering = utledEndringsdatoVedRevurdering(input);
         var justertFordeling = justerFordeling(input, endringsdatoRevurdering);
-        var behandlingId = input.getBehandlingReferanse().getBehandlingId();
+        var behandlingId = input.getBehandlingReferanse().behandlingId();
         //Endringsdato skal utledes før justering ved revurdering, men etter justering for førstegangsbehandlinger
         LocalDate endringsdato;
         if (input.getBehandlingReferanse().erRevurdering()) {
             endringsdato = endringsdatoRevurdering;
         } else {
-            endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(input.getBehandlingReferanse().getBehandlingId(),
+            endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(input.getBehandlingReferanse().behandlingId(),
                     justertFordeling.getOppgittePerioder());
         }
         var avklarteUttakDatoer = avklarteDatoerMedEndringsdato(behandlingId, endringsdato);
@@ -64,7 +64,7 @@ public class FastsettUttaksgrunnlagTjeneste {
 
     private OppgittFordelingEntitet justerFordeling(UttakInput input, LocalDate endringsdatoRevurdering) {
         var ref = input.getBehandlingReferanse();
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
         var fordeling = ytelseFordelingAggregat.getOppgittFordeling();
         var justertePerioder = ytelseFordelingAggregat.getOppgittFordeling().getOppgittePerioder();
@@ -99,7 +99,7 @@ public class FastsettUttaksgrunnlagTjeneste {
     }
 
     private List<OppgittPeriodeEntitet> leggTilUtsettelserForPleiepenger(UttakInput input, List<OppgittPeriodeEntitet> perioder) {
-        return PleiepengerJustering.juster(input.getBehandlingReferanse().getAktørId(), input.getIayGrunnlag(), perioder);
+        return PleiepengerJustering.juster(input.getBehandlingReferanse().aktørId(), input.getIayGrunnlag(), perioder);
     }
 
     private List<OppgittPeriodeEntitet> fjernOppholdsperioderLiggendeTilSlutt(List<OppgittPeriodeEntitet> perioder) {

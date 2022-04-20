@@ -29,7 +29,7 @@ public abstract class DvhPersonopplysningXmlTjeneste {
         var personopplysningerAggregat = personopplysningTjeneste
                 .hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(ref, stp);
         if (personopplysningerAggregat.isPresent()) {
-            personopplysninger = lagPersonopplysning(personopplysningerAggregat.get(), ref.getBehandlingId(), ref.getAktørId(), ref.getSkjæringstidspunkt());//Implementeres i hver subklasse
+            personopplysninger = lagPersonopplysning(personopplysningerAggregat.get(), ref.behandlingId(), ref.aktørId(), ref.getSkjæringstidspunkt());//Implementeres i hver subklasse
         }
         var personopplysninger1 = new Personopplysninger();
         personopplysninger1.getAny().add(personopplysninger);

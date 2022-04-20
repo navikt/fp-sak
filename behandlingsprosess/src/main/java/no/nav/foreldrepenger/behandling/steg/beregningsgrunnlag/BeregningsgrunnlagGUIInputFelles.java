@@ -63,8 +63,8 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
     }
 
     public BeregningsgrunnlagGUIInput lagInput(BehandlingReferanse referanse) {
-        var iayGrunnlag = iayTjeneste.hentGrunnlag(referanse.getBehandlingId());
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(referanse.getBehandlingId());
+        var iayGrunnlag = iayTjeneste.hentGrunnlag(referanse.behandlingId());
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(referanse.behandlingId());
         return lagInput(referanse.medSkjæringstidspunkt(skjæringstidspunkt), iayGrunnlag).orElseThrow();
     }
 
@@ -82,7 +82,7 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
         var inntektsmeldingDiff = inntektsmeldingTjeneste.hentInntektsmeldingDiffFraOriginalbehandling(ref);
         var inntektsmeldingDiffDto = inntektsmeldingDiff.stream().map(IAYMapperTilKalkulus::mapInntektsmeldingDto)
                 .collect(Collectors.toList());
-        var iayGrunnlagDtoUtenIMDiff = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, ref.getAktørId());
+        var iayGrunnlagDtoUtenIMDiff = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, ref.aktørId());
 
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
         var opptjeningAktiviteter = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iayGrunnlag);

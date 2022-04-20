@@ -63,7 +63,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
     }
 
     public Optional<ArbeidOgInntektsmeldingDto> lagDto(BehandlingReferanse referanse) {
-        var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.getBehandlingId()).orElse(null);
+        var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId()).orElse(null);
         if (iayGrunnlag == null) {
             return Optional.empty();
         }
@@ -80,7 +80,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
     }
 
     private List<InntektDto> mapInntekter(InntektArbeidYtelseGrunnlag iayGrunnlag, BehandlingReferanse referanse) {
-        var filter = new InntektFilter(iayGrunnlag.getAktørInntektFraRegister(referanse.getAktørId()));
+        var filter = new InntektFilter(iayGrunnlag.getAktørInntektFraRegister(referanse.aktørId()));
         return ArbeidOgInntektsmeldingMapper.mapInntekter(filter, referanse.getUtledetSkjæringstidspunkt());
     }
 
@@ -88,7 +88,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
                                                       BehandlingReferanse behandlingReferanse,
                                                       List<ArbeidsforholdMangel> mangler,
                                                       List<ArbeidsforholdValg> saksbehandlersVurderinger) {
-        var filter = new YrkesaktivitetFilter(iayGrunnlag.getAktørArbeidFraRegister(behandlingReferanse.getAktørId())
+        var filter = new YrkesaktivitetFilter(iayGrunnlag.getAktørArbeidFraRegister(behandlingReferanse.aktørId())
             .map(AktørArbeid::hentAlleYrkesaktiviteter)
             .orElse(Collections.emptyList()));
         var referanser = iayGrunnlag.getArbeidsforholdInformasjon()
@@ -117,8 +117,8 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
         var referanser = iayGrunnlag.getArbeidsforholdInformasjon()
             .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser)
             .orElse(Collections.emptyList());
-        var motatteDokumenter = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(referanse.getFagsakId());
-        var alleInntektsmeldingerFraArkiv = dokumentArkivTjeneste.hentAlleDokumenterForVisning(referanse.getSaksnummer()).stream()
+        var motatteDokumenter = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(referanse.fagsakId());
+        var alleInntektsmeldingerFraArkiv = dokumentArkivTjeneste.hentAlleDokumenterForVisning(referanse.saksnummer()).stream()
             .filter(this::gjelderInntektsmelding)
             .collect(Collectors.toList());
         return inntektsmeldinger.stream().map(im -> {

@@ -35,7 +35,7 @@ public class RyddBeregningsgrunnlagTest {
 
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(new BehandlingRepositoryProvider(entityManager));
         referanse = BehandlingReferanse.fra(behandling);
-        var kontekst = new BehandlingskontrollKontekst(referanse.getFagsakId(), AktørId.dummy(), new BehandlingLås(referanse.getId()));
+        var kontekst = new BehandlingskontrollKontekst(referanse.fagsakId(), AktørId.dummy(), new BehandlingLås(referanse.behandlingId()));
         ryddBeregningsgrunnlag = new RyddBeregningsgrunnlag(beregningsgrunnlagRepository, kontekst);
     }
 
@@ -43,23 +43,23 @@ public class RyddBeregningsgrunnlagTest {
     public void ryddForeslåBeregningsgrunnlagVedTilbakeføring_skalReaktivereForeslå() {
         // Arrange
         var opprettet = opprettBeregningsgrunnlag();
-        beregningsgrunnlagRepository.lagre(referanse.getId(), opprettet, BeregningsgrunnlagTilstand.OPPRETTET);
+        beregningsgrunnlagRepository.lagre(referanse.behandlingId(), opprettet, BeregningsgrunnlagTilstand.OPPRETTET);
 
         var kofakberut = opprettBeregningsgrunnlag();
-        beregningsgrunnlagRepository.lagre(referanse.getId(), kofakberut, BeregningsgrunnlagTilstand.KOFAKBER_UT);
+        beregningsgrunnlagRepository.lagre(referanse.behandlingId(), kofakberut, BeregningsgrunnlagTilstand.KOFAKBER_UT);
 
         var foreslått = opprettBeregningsgrunnlag();
-        beregningsgrunnlagRepository.lagre(referanse.getId(), foreslått, BeregningsgrunnlagTilstand.FORESLÅTT);
+        beregningsgrunnlagRepository.lagre(referanse.behandlingId(), foreslått, BeregningsgrunnlagTilstand.FORESLÅTT);
 
         var fastsatt = opprettBeregningsgrunnlag();
-        beregningsgrunnlagRepository.lagre(referanse.getId(), fastsatt, BeregningsgrunnlagTilstand.FASTSATT);
+        beregningsgrunnlagRepository.lagre(referanse.behandlingId(), fastsatt, BeregningsgrunnlagTilstand.FASTSATT);
 
 
         // Act
         ryddBeregningsgrunnlag.ryddForeslåBeregningsgrunnlagVedTilbakeføring();
 
         // Assert
-        var hentet = beregningsgrunnlagRepository.hentBeregningsgrunnlagAggregatForBehandling(referanse.getId());
+        var hentet = beregningsgrunnlagRepository.hentBeregningsgrunnlagAggregatForBehandling(referanse.behandlingId());
         assertThat(hentet).isSameAs(foreslått);
     }
 

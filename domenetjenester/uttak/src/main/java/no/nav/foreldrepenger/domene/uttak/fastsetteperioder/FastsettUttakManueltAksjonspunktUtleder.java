@@ -32,7 +32,7 @@ public class FastsettUttakManueltAksjonspunktUtleder {
 
     public List<AksjonspunktResultat> utledAksjonspunkterFor(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
 
         List<AksjonspunktResultat> aksjonspunkter = new ArrayList<>();
 

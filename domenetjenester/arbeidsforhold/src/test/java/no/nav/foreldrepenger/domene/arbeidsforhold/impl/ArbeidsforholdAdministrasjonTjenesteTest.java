@@ -201,7 +201,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
 
     private Set<ArbeidsforholdWrapper> hentArbeidsforholdFerdigUtledet(Behandling behandling) {
         var ref = lagRef(behandling);
-        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.getBehandlingId());
+        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
         return arbeidsforholdTjeneste.hentArbeidsforholdFerdigUtledet(ref, iayGrunnlag, null, new UtledArbeidsforholdParametere(true));
     }
 

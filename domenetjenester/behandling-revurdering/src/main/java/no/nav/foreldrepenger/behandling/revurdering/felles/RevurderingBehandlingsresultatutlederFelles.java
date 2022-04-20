@@ -66,12 +66,12 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
 
     public Behandlingsresultat bestemBehandlingsresultatForRevurdering(BehandlingReferanse revurderingRef,
                                                                        boolean erVarselOmRevurderingSendt) {
-        var revurdering = behandlingRepository.hentBehandling(revurderingRef.getBehandlingId());
+        var revurdering = behandlingRepository.hentBehandling(revurderingRef.behandlingId());
 
         var originalBehandlingId = revurdering.getOriginalBehandlingId()
             .orElseThrow(() -> RevurderingFeil.revurderingManglerOriginalBehandling(revurdering.getId()));
 
-        var revurderingUttak = getUttakResultat(revurderingRef.getBehandlingId());
+        var revurderingUttak = getUttakResultat(revurderingRef.behandlingId());
         var originalBehandlingUttak = getUttakResultat(originalBehandlingId);
 
         return bestemBehandlingsresultatForRevurderingCore(revurderingRef, revurdering,
@@ -91,7 +91,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
             throw new IllegalStateException("Utviklerfeil: Skal ikke kunne havne her uten en revurderingssak");
         }
         validerReferanser(revurderingRef, revurdering.getId());
-        var behandlingId = revurderingRef.getBehandlingId();
+        var behandlingId = revurderingRef.behandlingId();
 
         var behandlingsresultatRevurdering = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
         var behandlingsresultatOriginal = finnBehandlingsresultatPåOriginalBehandling(originalBehandling.getId());
@@ -216,9 +216,9 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
     }
 
     private void validerReferanser(BehandlingReferanse ref, Long behandlingId) {
-        if (!Objects.equals(ref.getBehandlingId(), behandlingId)) {
+        if (!Objects.equals(ref.behandlingId(), behandlingId)) {
             throw new IllegalStateException(
-                "BehandlingReferanse [" + ref.getBehandlingId() + "] matcher ikke forventet [" + behandlingId + "]");
+                "BehandlingReferanse [" + ref.behandlingId() + "] matcher ikke forventet [" + behandlingId + "]");
         }
     }
 

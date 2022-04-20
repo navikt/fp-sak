@@ -34,7 +34,7 @@ public final class VurderPermisjonTjeneste {
             Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result,
             InntektArbeidYtelseGrunnlag grunnlag) {
         var stp = behandlingReferanse.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        var aktørId = behandlingReferanse.getAktørId();
+        var aktørId = behandlingReferanse.aktørId();
 
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId)).før(stp);
 

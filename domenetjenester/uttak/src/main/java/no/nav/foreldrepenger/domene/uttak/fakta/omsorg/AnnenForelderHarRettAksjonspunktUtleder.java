@@ -53,9 +53,9 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
     @Override
     public List<AksjonspunktDefinisjon> utledAksjonspunkterFor(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
 
-        if (!Objects.equals(ref.getBehandlingType(), BehandlingType.FØRSTEGANGSSØKNAD) ||
+        if (!Objects.equals(ref.behandlingType(), BehandlingType.FØRSTEGANGSSØKNAD) ||
             !personopplysninger.harOppgittAnnenpartMedNorskID(ref)) {
             return List.of();
         }
@@ -74,7 +74,7 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
         }
 
         if (oppgittHarAnnenForeldreRett(ytelseFordelingAggregat) &&
-            erFarMedmor(ref.getRelasjonsRolleType()) &&
+            erFarMedmor(ref.relasjonRolle()) &&
             !annenForelderHarUttakMedUtbetaling(annenpartsGjeldendeUttaksplan)) {
             return aksjonspunkt();
         }

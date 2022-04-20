@@ -22,7 +22,7 @@ public class OpptjeningIUtlandDokStatusDtoTjeneste {
     }
 
     public Optional<OpptjeningIUtlandDokStatusDto> mapFra(BehandlingReferanse ref) {
-        var dokStatus = opptjeningIUtlandDokStatusTjeneste.hentStatus(ref.getBehandlingId());
+        var dokStatus = opptjeningIUtlandDokStatusTjeneste.hentStatus(ref.behandlingId());
         return dokStatus.map(OpptjeningIUtlandDokStatusDto::new);
     }
 }

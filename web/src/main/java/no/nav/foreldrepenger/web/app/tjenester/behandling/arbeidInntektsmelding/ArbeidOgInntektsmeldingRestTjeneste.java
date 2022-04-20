@@ -127,7 +127,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
         BehandlingReferanse ref = lagReferanse(manueltArbeidsforholdDto.getBehandlingUuid());
         if (endringGjelderHelmanueltArbeidsforhold(manueltArbeidsforholdDto) && !erOverstyringLovlig()) {
             var msg = String.format(
-                    "Feil: Prøve å gjøre endringer på et helmanuelt arbeidsforhold uten å være overstyrer på behandling %s", ref.getBehandlingId());
+                    "Feil: Prøve å gjøre endringer på et helmanuelt arbeidsforhold uten å være overstyrer på behandling %s", ref.behandlingId());
             throw new TekniskException("FP-657812", msg);
         }
         arbeidsforholdInntektsmeldingMangelTjeneste.lagreManuelleArbeidsforhold(ref, manueltArbeidsforholdDto);

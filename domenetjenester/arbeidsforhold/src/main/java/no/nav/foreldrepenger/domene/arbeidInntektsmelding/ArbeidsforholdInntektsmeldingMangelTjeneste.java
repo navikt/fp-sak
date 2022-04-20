@@ -48,8 +48,8 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
 
         var arbeidsforholdMedMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse);
         var entitet = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, arbeidsforholdMedMangler);
-        entitet.forEach(ent -> arbeidsforholdValgRepository.lagre(ent, behandlingReferanse.getBehandlingId()));
-        var iaygrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId());
+        entitet.forEach(ent -> arbeidsforholdValgRepository.lagre(ent, behandlingReferanse.behandlingId()));
+        var iaygrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId());
         arbeidInntektHistorikkinnslagTjeneste.opprettHistorikkinnslag(behandlingReferanse, dto, iaygrunnlag);
 
         // Kall til abakus, gjøres til slutt
@@ -57,29 +57,29 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     }
 
     private void ryddBortManuelleArbeidsforholdVedBehov(BehandlingReferanse behandlingReferanse, ManglendeOpplysningerVurderingDto dto) {
-        var eksisterendeInfo = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingUuid()).getArbeidsforholdInformasjon();
+        var eksisterendeInfo = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingUuid()).getArbeidsforholdInformasjon();
         if (eksisterendeInfo.map(info -> ArbeidsforholdInntektsmeldingRyddeTjeneste.arbeidsforholdSomMåRyddesBortVedNyttValg(dto, info)).orElse(false)) {
-            var informasjonBuilder = arbeidsforholdTjeneste.opprettBuilderFor(behandlingReferanse.getBehandlingId());
+            var informasjonBuilder = arbeidsforholdTjeneste.opprettBuilderFor(behandlingReferanse.behandlingId());
             informasjonBuilder.fjernOverstyringerSomGjelder(ArbeidsforholdInntektsmeldingMangelMapper.lagArbeidsgiver(dto.getArbeidsgiverIdent()));
-            arbeidsforholdTjeneste.lagreOverstyring(behandlingReferanse.getBehandlingId(), behandlingReferanse.getAktørId(), informasjonBuilder);
+            arbeidsforholdTjeneste.lagreOverstyring(behandlingReferanse.behandlingId(), behandlingReferanse.aktørId(), informasjonBuilder);
         }
     }
 
     public void lagreManuelleArbeidsforhold(BehandlingReferanse behandlingReferanse, ManueltArbeidsforholdDto dto) {
         var arbeidsforholdMedMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse);
-        var eksisterendeValg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandlingReferanse.getBehandlingId());
+        var eksisterendeValg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandlingReferanse.behandlingId());
         var valgSomMåRyddesBort = ArbeidsforholdInntektsmeldingRyddeTjeneste.valgSomMåRyddesBortVedOpprettelseAvArbeidsforhold(dto, eksisterendeValg);
 
         valgSomMåRyddesBort.ifPresent(arbeidsforholdValg -> arbeidsforholdValgRepository.fjernValg(arbeidsforholdValg));
 
-        var informasjonBuilder = arbeidsforholdTjeneste.opprettBuilderFor(behandlingReferanse.getBehandlingId());
+        var informasjonBuilder = arbeidsforholdTjeneste.opprettBuilderFor(behandlingReferanse.behandlingId());
         ArbeidsforholdInformasjonBuilder oppdatertBuilder = ArbeidsforholdInntektsmeldingMangelMapper.mapManueltArbeidsforhold(dto, arbeidsforholdMedMangler, informasjonBuilder);
 
-        var iaygrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId());
+        var iaygrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId());
         arbeidInntektHistorikkinnslagTjeneste.opprettHistorikkinnslag(behandlingReferanse, dto, iaygrunnlag);
 
         // Kall til kalkulus, gjøres til slutt
-        arbeidsforholdTjeneste.lagreOverstyring(behandlingReferanse.getBehandlingId(), behandlingReferanse.getAktørId(), oppdatertBuilder);
+        arbeidsforholdTjeneste.lagreOverstyring(behandlingReferanse.behandlingId(), behandlingReferanse.aktørId(), oppdatertBuilder);
     }
 
     public List<ArbeidsforholdMangel> utledManglerPåArbeidsforholdInntektsmelding(BehandlingReferanse behandlingReferanse) {
@@ -87,7 +87,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     }
 
     public List<ArbeidsforholdValg> hentArbeidsforholdValgForSak(BehandlingReferanse behandlingReferanse) {
-        return arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandlingReferanse.getBehandlingId());
+        return arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandlingReferanse.behandlingId());
     }
 
     /**
@@ -95,7 +95,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
      * @param ref
      */
     public void ryddVekkUgyldigeValg(BehandlingReferanse ref) {
-        var valgPåBehandlingen = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(ref.getBehandlingId());
+        var valgPåBehandlingen = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(ref.behandlingId());
         var manglerPåBehandlingen = utledManglerPåArbeidsforholdInntektsmelding(ref);
         var valgSomMåDeaktiveres = ArbeidsforholdInntektsmeldingRyddeTjeneste.finnUgyldigeValgSomErGjort(valgPåBehandlingen, manglerPåBehandlingen);
         valgSomMåDeaktiveres.forEach(valg -> {
@@ -109,15 +109,15 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
      * @param ref
      */
     public void ryddVekkUgyldigeArbeidsforholdoverstyringer(BehandlingReferanse ref) {
-        var overstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.getBehandlingId()).getArbeidsforholdOverstyringer();
+        var overstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId()).getArbeidsforholdOverstyringer();
         var overstyringerSomMåFjernes = ArbeidsforholdInntektsmeldingRyddeTjeneste.finnUgyldigeOverstyringer(overstyringer);
         if (!overstyringerSomMåFjernes.isEmpty()) {
-            var informasjonBuilder = arbeidsforholdTjeneste.opprettBuilderFor(ref.getBehandlingId());
+            var informasjonBuilder = arbeidsforholdTjeneste.opprettBuilderFor(ref.behandlingId());
             overstyringerSomMåFjernes.forEach(os -> {
                 LOG.info("Fjerner overstyring som ikke lenger er gyldig: {}", os);
                 informasjonBuilder.fjernOverstyringerSomGjelder(os.getArbeidsgiver());
             });
-            arbeidsforholdTjeneste.lagreOverstyring(ref.getBehandlingId(), ref.getAktørId(), informasjonBuilder);
+            arbeidsforholdTjeneste.lagreOverstyring(ref.behandlingId(), ref.aktørId(), informasjonBuilder);
         }
     }
 }

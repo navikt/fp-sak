@@ -72,7 +72,7 @@ public class SkalKopiereUttakTjeneste {
 
     private boolean saksbehandlerHarManueltAvklartStartdato(UttakInput uttakInput) {
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(
-            uttakInput.getBehandlingReferanse().getBehandlingId());
+            uttakInput.getBehandlingReferanse().behandlingId());
         var avklarteDatoer = ytelseFordelingAggregat.flatMap(YtelseFordelingAggregat::getAvklarteDatoer);
         return avklarteDatoer.map(ad -> ad.getFørsteUttaksdato()).orElse(null) != null;
     }

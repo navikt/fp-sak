@@ -63,7 +63,7 @@ public final class AksjonspunktOppdaterParameter {
     }
 
     public Long getBehandlingId() {
-        return ref.getBehandlingId();
+        return ref.behandlingId();
     }
 
     public Skjæringstidspunkt getSkjæringstidspunkt() {
@@ -80,7 +80,7 @@ public final class AksjonspunktOppdaterParameter {
     }
 
     public AktørId getAktørId() {
-        return ref.getAktørId();
+        return ref.aktørId();
     }
 
     public boolean erBegrunnelseEndret() {

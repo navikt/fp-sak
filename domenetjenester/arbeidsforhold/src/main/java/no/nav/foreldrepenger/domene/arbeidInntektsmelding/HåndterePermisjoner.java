@@ -32,7 +32,7 @@ public class HåndterePermisjoner {
         List<ArbeidsforholdMangel> arbForholdMedPermUtenSluttdato = new ArrayList<>();
 
         var stp = behandlingReferanse.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        var aktørId = behandlingReferanse.getAktørId();
+        var aktørId = behandlingReferanse.aktørId();
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(aktørId)).før(stp);
 
         for (var ya : filter.getYrkesaktiviteter()) {

@@ -51,7 +51,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     public KompletthetResultat vurderSøknadMottatt(BehandlingReferanse ref) {
         if (!kompletthetssjekkerSøknad.erSøknadMottatt(ref)) {
             // Litt implisitt forutsetning her, men denne sjekken skal bare ha bli kalt dersom søknad eller IM er mottatt
-            LOG.info("Behandling {} er ikke komplett - søknad er ikke mottatt", ref.getBehandlingId()); // NOSONAR //$NON-NLS-1$
+            LOG.info("Behandling {} er ikke komplett - søknad er ikke mottatt", ref.behandlingId()); // NOSONAR //$NON-NLS-1$
             return KompletthetResultat.ikkeOppfylt(fellesUtil.finnVentefristTilManglendeSøknad(), Venteårsak.AVV_DOK);
         }
         return KompletthetResultat.oppfylt();
@@ -68,8 +68,8 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
 
     @Override
     public KompletthetResultat vurderForsendelseKomplett(BehandlingReferanse ref) {
-        var behandlingId = ref.getBehandlingId();
-        if (BehandlingStatus.OPPRETTET.equals(ref.getBehandlingStatus())) {
+        var behandlingId = ref.behandlingId();
+        if (BehandlingStatus.OPPRETTET.equals(ref.behandlingStatus())) {
             return KompletthetResultat.oppfylt();
         }
         // Kalles fra VurderKompletthetSteg (en gang) som setter autopunkt 7003 + fra KompletthetsKontroller (dokument på åpen behandling, hendelser)

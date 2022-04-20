@@ -10,10 +10,10 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 public class MapBehandlingRef {
 
     public static KoblingReferanse mapRef(BehandlingReferanse behandlingReferanse) {
-        return KoblingReferanse.fra(FagsakYtelseType.fraKode(behandlingReferanse.getFagsakYtelseType().getKode()),
-            new AktørId(behandlingReferanse.getAktørId().getId()),
-            behandlingReferanse.getBehandlingId(),
-            behandlingReferanse.getBehandlingUuid(),
+        return KoblingReferanse.fra(FagsakYtelseType.fraKode(behandlingReferanse.fagsakYtelseType().getKode()),
+            new AktørId(behandlingReferanse.aktørId().getId()),
+            behandlingReferanse.behandlingId(),
+            behandlingReferanse.behandlingUuid(),
             behandlingReferanse.getOriginalBehandlingId(),
             mapSkjæringstidspunkt(behandlingReferanse.getSkjæringstidspunkt()));
     }

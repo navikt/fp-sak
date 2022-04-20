@@ -41,7 +41,7 @@ public class BrukerHarAleneomsorgAksjonspunktUtleder implements FaktaUttakAksjon
     @Override
     public List<AksjonspunktDefinisjon> utledAksjonspunkterFor(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
 
         if (harOppgittÅHaAleneomsorg(ytelseFordelingAggregat)) {
             if (personopplysninger.harOppgittAnnenpartMedNorskID(ref)) {

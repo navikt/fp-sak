@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
@@ -103,7 +104,7 @@ public class DatoerGrunnlagByggerTest {
     }
 
     private UttakInput lagInput(Behandling behandling, FamilieHendelse bekreftetFamilieHendelse) {
-        var ref = BehandlingReferanse.fra(behandling, førsteUttaksdato);
+        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(førsteUttaksdato).build());
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(bekreftetFamilieHendelse);
         YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
             familieHendelser);

@@ -26,18 +26,18 @@ class BehandlingÅrsakUtlederInntektArbeidYtelse implements BehandlingÅrsakUtle
     @Override
     public Set<EndringResultatType> utledEndringsResultat(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
         var skjæringstidspunkt = ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        var saksnummer = ref.getSaksnummer();
+        var saksnummer = ref.saksnummer();
 
-        var inntektArbeidYtelseGrunnlag1 = inntektArbeidYtelseTjeneste.hentGrunnlagPåId(ref.getBehandlingId(), (UUID) grunnlagId1);
-        var inntektArbeidYtelseGrunnlag2 = inntektArbeidYtelseTjeneste.hentGrunnlagPåId(ref.getBehandlingId(), (UUID) grunnlagId2);
+        var inntektArbeidYtelseGrunnlag1 = inntektArbeidYtelseTjeneste.hentGrunnlagPåId(ref.behandlingId(), (UUID) grunnlagId1);
+        var inntektArbeidYtelseGrunnlag2 = inntektArbeidYtelseTjeneste.hentGrunnlagPåId(ref.behandlingId(), (UUID) grunnlagId2);
 
         Set<EndringResultatType> endringResultatTyper = new HashSet<>();
 
         var iayGrunnlagDiff = new IAYGrunnlagDiff(inntektArbeidYtelseGrunnlag1, inntektArbeidYtelseGrunnlag2);
-        var erAktørArbeidEndret = iayGrunnlagDiff.erEndringPåAktørArbeidForAktør(skjæringstidspunkt, ref.getAktørId());
-        var erAktørInntektEndret = iayGrunnlagDiff.erEndringPåAktørInntektForAktør(skjæringstidspunkt, ref.getAktørId());
+        var erAktørArbeidEndret = iayGrunnlagDiff.erEndringPåAktørArbeidForAktør(skjæringstidspunkt, ref.aktørId());
+        var erAktørInntektEndret = iayGrunnlagDiff.erEndringPåAktørInntektForAktør(skjæringstidspunkt, ref.aktørId());
         var erInntektsmeldingEndret = iayGrunnlagDiff.erEndringPåInntektsmelding();
-        var aktørYtelseEndring = iayGrunnlagDiff.endringPåAktørYtelseForAktør(saksnummer, skjæringstidspunkt, ref.getAktørId());
+        var aktørYtelseEndring = iayGrunnlagDiff.endringPåAktørYtelseForAktør(saksnummer, skjæringstidspunkt, ref.aktørId());
 
         if (erAktørArbeidEndret || erAktørInntektEndret) {
             endringResultatTyper.add(EndringResultatType.REGISTEROPPLYSNING);

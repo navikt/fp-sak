@@ -178,7 +178,7 @@ public class FastsettePerioderTjenesteTest {
         var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medKreverSammenhengendeUttak(false).build());
-        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.getBehandlingId());
+        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(), 0);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
         var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser);
@@ -320,7 +320,7 @@ public class FastsettePerioderTjenesteTest {
         var input = lagInput(behandling, fødselsdato);
         tjeneste().fastsettePerioder(input);
 
-        var resultat = fpUttakRepository.hentUttakResultat(input.getBehandlingReferanse().getId());
+        var resultat = fpUttakRepository.hentUttakResultat(input.getBehandlingReferanse().behandlingId());
 
         assertThat(resultat.getGjeldendePerioder().getPerioder()).hasSize(2);
         assertThat(resultat.getGjeldendePerioder().getPerioder().get(0).isUtsettelse()).isFalse();
@@ -373,7 +373,7 @@ public class FastsettePerioderTjenesteTest {
         var input = lagInput(behandling, fødselsdato);
         tjeneste().fastsettePerioder(input);
 
-        var resultat = fpUttakRepository.hentUttakResultat(input.getBehandlingReferanse().getId());
+        var resultat = fpUttakRepository.hentUttakResultat(input.getBehandlingReferanse().behandlingId());
 
         assertThat(resultat.getGjeldendePerioder().getPerioder()).hasSize(4);
         assertThat(resultat.getGjeldendePerioder().getPerioder().get(0).isUtsettelse()).isTrue();
@@ -616,12 +616,12 @@ public class FastsettePerioderTjenesteTest {
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
             new FamilieHendelser().medSøknadHendelse(familieHendelse));
-        var input = new UttakInput(BehandlingReferanse.fra(behandling, fødselsdato),
+        var input = new UttakInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(fødselsdato).build()),
             iayTjeneste.hentGrunnlag(behandling.getId()), fpGrunnlag).medSøknadMottattDato(oppgittFpff.getFom())
             .medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser());
         tjeneste().fastsettePerioder(input);
 
-        var resultat = fpUttakRepository.hentUttakResultat(input.getBehandlingReferanse().getId());
+        var resultat = fpUttakRepository.hentUttakResultat(input.getBehandlingReferanse().behandlingId());
 
         assertThat(resultat.getGjeldendePerioder().getPerioder()).hasSize(3);
         var aktiviteterPeriode1 = resultat.getGjeldendePerioder().getPerioder().get(0).getAktiviteter();

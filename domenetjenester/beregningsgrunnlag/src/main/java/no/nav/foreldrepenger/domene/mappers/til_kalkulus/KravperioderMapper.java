@@ -71,7 +71,7 @@ public class KravperioderMapper {
         PerioderForKravDto sistePerioder = lagPerioderForKrav(
             sisteIMPrArbeidsforhold.get(e.getKey()),
             referanse.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening(),
-            grunnlagDto.getAktørArbeidFraRegister(referanse.getAktørId()));
+            grunnlagDto.getAktørArbeidFraRegister(referanse.aktørId()));
         return new KravperioderPrArbeidsforholdDto(
             mapTilArbeidsgiver(e.getKey().arbeidsgiver),
             mapReferanse(e.getKey().referanse),
@@ -87,7 +87,7 @@ public class KravperioderMapper {
 
     private static List<PerioderForKravDto> lagPerioderForAlle(BehandlingReferanse referanse, InntektArbeidYtelseGrunnlag grunnlagDto, List<Inntektsmelding> inntektsmeldinger) {
         return inntektsmeldinger.stream()
-            .map(im -> lagPerioderForKrav(im, referanse.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening(), grunnlagDto.getAktørArbeidFraRegister(referanse.getAktørId())))
+            .map(im -> lagPerioderForKrav(im, referanse.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening(), grunnlagDto.getAktørArbeidFraRegister(referanse.aktørId())))
             .collect(Collectors.toList());
     }
 

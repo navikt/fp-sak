@@ -47,7 +47,7 @@ public class UtsettelseBehandling2021 {
     public boolean endringAvSammenhengendeUttak(BehandlingReferanse ref, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag1, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag2) {
         var sammenhengendeGrunnlag1 = utsettelseCore.kreverSammenhengendeUttak(familieHendelseGrunnlag1);
         var sammenhengendeGrunnlag2 = utsettelseCore.kreverSammenhengendeUttak(familieHendelseGrunnlag2);
-        var sammenhengendeBehandling = kreverSammenhengendeUttak(ref.getBehandlingId());
+        var sammenhengendeBehandling = kreverSammenhengendeUttak(ref.behandlingId());
         return sammenhengendeGrunnlag1 != sammenhengendeGrunnlag2 || sammenhengendeBehandling != sammenhengendeGrunnlag1;
     }
 

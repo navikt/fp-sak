@@ -35,7 +35,7 @@ public class BeregningsresultatTidslinjetjeneste {
      */
     public LocalDateTimeline<BRAndelSammenligning> lagTidslinjeForRevurdering(BehandlingReferanse ref) {
         verifiserAtBehandlingErRevurdering(ref);
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
 
         // Nytt resultat, her aksepterer vi ikke tomt resultat siden vi har kommet til steget der vi vurderer beregningsresultatet.
         var revurderingBeregningsresultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId)

@@ -111,7 +111,7 @@ public class InngangsvilkårOversetter {
     }
 
     public FødselsvilkårGrunnlag oversettTilRegelModellFødsel(BehandlingReferanse ref) {
-        final var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(ref.getId());
+        final var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(ref.behandlingId());
         var bekreftetFamilieHendelse = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon();
         var gjeldendeTerminbekreftelse = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse();
         var kjønn = tilSøkerKjøenn(getSøkersKjønn(ref));
@@ -174,7 +174,7 @@ public class InngangsvilkårOversetter {
     }
 
     private RelasjonsRolleType finnRelasjonRolle(BehandlingReferanse ref) {
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         final var hendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
         if (hendelseGrunnlag.getGjeldendeBekreftetVersjon().isEmpty()) {
             // Kan ikke finne relasjonsrolle dersom fødsel ikke er bekreftet.
@@ -203,10 +203,10 @@ public class InngangsvilkårOversetter {
                 .filter(familierelasjon -> RelasjonsRolleType.erRegistrertForeldre(familierelasjon.getRelasjonsrolle()))
                 .findFirst();
 
-            return personRelasjon.map(PersonRelasjonEntitet::getRelasjonsrolle).orElse(ref.getRelasjonsRolleType());
+            return personRelasjon.map(PersonRelasjonEntitet::getRelasjonsrolle).orElse(ref.relasjonRolle());
         }
         // Har ingenting annet å gå på så benytter det søker oppgir.
-        return ref.getRelasjonsRolleType();
+        return ref.relasjonRolle();
     }
 
     private SimpleLocalDateInterval byggIntervall(LocalDate fomDato, LocalDate tomDato) {
@@ -214,7 +214,7 @@ public class InngangsvilkårOversetter {
     }
 
     public SøknadsfristvilkårGrunnlag oversettTilRegelModellSøknad(BehandlingReferanse ref) {
-        final var søknad = søknadRepository.hentSøknad(ref.getBehandlingId());
+        final var søknad = søknadRepository.hentSøknad(ref.behandlingId());
         var skjæringsdato = ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
         return new SøknadsfristvilkårGrunnlag(
             søknad.getElektroniskRegistrert(),
@@ -235,7 +235,7 @@ public class InngangsvilkårOversetter {
     }
 
     private boolean erStønadperiodeBruktOpp(BehandlingReferanse ref) {
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         final var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
         var versjon = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon();
         var familieHendelse = versjon.orElseGet(familieHendelseGrunnlag::getSøknadVersjon);
@@ -253,7 +253,7 @@ public class InngangsvilkårOversetter {
     }
 
     public MedlemskapsvilkårGrunnlag oversettTilRegelModellMedlemskap(BehandlingReferanse ref) {
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         var personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
         var iayOpt = iayTjeneste.finnGrunnlag(behandlingId);
 
@@ -270,8 +270,8 @@ public class InngangsvilkårOversetter {
         var vurdertLovligOpphold = vurdertMedlemskap.map(VurdertMedlemskap::getLovligOppholdVurdering).orElse(true);
         var vurdertOppholdsrett = vurdertMedlemskap.map(VurdertMedlemskap::getOppholdsrettVurdering).orElse(true);
 
-        var harOppholdstillatelse = personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.getBehandlingId(), ref.getUtledetMedlemsintervall());
-        var harArbeidInntekt = FinnOmSøkerHarArbeidsforholdOgInntekt.finn(iayOpt, ref.getUtledetSkjæringstidspunkt(), ref.getAktørId());
+        var harOppholdstillatelse = personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.behandlingId(), ref.getUtledetMedlemsintervall());
+        var harArbeidInntekt = FinnOmSøkerHarArbeidsforholdOgInntekt.finn(iayOpt, ref.getUtledetSkjæringstidspunkt(), ref.aktørId());
 
         var grunnlag = new MedlemskapsvilkårGrunnlag(
             tilPersonStatusType(personopplysninger), // FP VK 2.1
@@ -358,7 +358,7 @@ public class InngangsvilkårOversetter {
     }
 
     private BekreftetAdopsjon byggBekreftetAdopsjon(BehandlingReferanse ref) {
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         final var bekreftetVersjon = familieGrunnlagRepository.hentAggregat(behandlingId).getGjeldendeBekreftetVersjon();
         final var adopsjon = bekreftetVersjon.flatMap(FamilieHendelseEntitet::getAdopsjon)
             .orElseThrow(() -> new TekniskException("FP-384255",

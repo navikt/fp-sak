@@ -55,7 +55,7 @@ public class BrukerHarOmsorgAksjonspunktUtleder implements FaktaUttakAksjonspunk
         var familieHendelser = fpGrunnlag.getFamilieHendelser();
         var familieHendelse = familieHendelser.getGjeldendeFamilieHendelse();
         var bekreftetFH = familieHendelser.getBekreftetFamilieHendelse();
-        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
 
         if (familieHendelser.getGjeldendeFamilieHendelse().erAlleBarnDøde()) {
             return List.of();
@@ -68,7 +68,7 @@ public class BrukerHarOmsorgAksjonspunktUtleder implements FaktaUttakAksjonspunk
             }
         } else {
             if (familieHendelser.gjelderTerminFødsel()) {
-                if (erBrukerMor(ref.getRelasjonsRolleType()) == Utfall.NEI ||
+                if (erBrukerMor(ref.relasjonRolle()) == Utfall.NEI ||
                     erSøknadsperiodenLengreEnnAntallUkerForbeholdtMorEtterFødselen(familieHendelse,
                         ytelseFordelingAggregat) == Utfall.JA) {
                     return List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG);

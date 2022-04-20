@@ -55,7 +55,7 @@ public class UttakInput {
     }
 
     public FagsakYtelseType getFagsakYtelseType() {
-        return behandlingReferanse.getFagsakYtelseType();
+        return behandlingReferanse.fagsakYtelseType();
     }
 
     public InntektArbeidYtelseGrunnlag getIayGrunnlag() {

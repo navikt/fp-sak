@@ -35,7 +35,7 @@ public class SøktPeriodeTjenesteImpl implements SøktPeriodeTjeneste {
     @Override
     public Optional<LocalDateInterval> finnSøktPeriode(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         var oppgittFordeling = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId)
             .map(YtelseFordelingAggregat::getOppgittFordeling);
         if (oppgittFordeling.isPresent()) {

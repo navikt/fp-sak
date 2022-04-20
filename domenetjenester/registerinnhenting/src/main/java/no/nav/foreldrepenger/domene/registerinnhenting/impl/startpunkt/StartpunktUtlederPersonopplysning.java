@@ -51,7 +51,7 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
     private List<StartpunktType> hentAlleStartpunktForPersonopplysninger(BehandlingReferanse ref,
                                                                          PersonopplysningGrunnlagEntitet grunnlag1, PersonopplysningGrunnlagEntitet grunnlag2) {
         final var skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
-        var aktørId = ref.getAktørId();
+        var aktørId = ref.aktørId();
 
         var poDiff = new PersonopplysningGrunnlagDiff(aktørId, grunnlag1, grunnlag2);
         var påSkjæringstidpunkt = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt, skjæringstidspunkt);
@@ -80,7 +80,7 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
             leggTilBasertPåSTP(grunnlag1.getId(), grunnlag2.getId(), startpunkter, poDiff.erAdresseLandEndretForSøkerPeriode(påSkjæringstidpunkt), "adresse");
         }
         if (poDiff.erRegionEndretForSøkerPeriode(fraSkjæringstidpunkt, skjæringstidspunkt)) {
-            var aktivtGrunnlag = personopplysningRepository.hentPersonopplysninger(ref.getBehandlingId());
+            var aktivtGrunnlag = personopplysningRepository.hentPersonopplysninger(ref.behandlingId());
             var endretPåSTP = poDiff.erRegionEndretForSøkerPeriode(påSkjæringstidpunkt, skjæringstidspunkt) && !poDiff.harRegionNorden(påSkjæringstidpunkt, aktivtGrunnlag, skjæringstidspunkt);
             leggTilBasertPåSTP(grunnlag1.getId(), grunnlag2.getId(), startpunkter, endretPåSTP, "region");
         }

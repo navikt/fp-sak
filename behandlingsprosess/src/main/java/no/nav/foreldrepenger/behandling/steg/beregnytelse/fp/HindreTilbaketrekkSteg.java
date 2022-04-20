@@ -86,7 +86,7 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
                     finnYrkesaktiviteter(behandlingReferanse), utledetSkjæringstidspunkt);
 
             // Reberegn feriepenger
-            var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, behandlingReferanse.getFagsakYtelseType()).orElseThrow();
+            var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, behandlingReferanse.fagsakYtelseType()).orElseThrow();
             feriepengerTjeneste.beregnFeriepenger(behandling, utbetBR);
             beregningsresultatRepository.lagreUtbetBeregningsresultat(behandling, utbetBR);
         }
@@ -94,8 +94,8 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
     }
 
     private Collection<Yrkesaktivitet> finnYrkesaktiviteter(BehandlingReferanse behandlingReferanse) {
-        var aktørArbeidFraRegister = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId())
-                .getAktørArbeidFraRegister(behandlingReferanse.getAktørId());
+        var aktørArbeidFraRegister = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId())
+                .getAktørArbeidFraRegister(behandlingReferanse.aktørId());
         return aktørArbeidFraRegister
                 .map(AktørArbeid::hentAlleYrkesaktiviteter)
                 .orElse(Collections.emptyList());

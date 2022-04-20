@@ -44,7 +44,7 @@ public class GraderingUkjentAktivitetAksjonspunktUtleder implements FaktaUttakAk
     }
 
     private boolean graderingPåUkjentAktivitet(UttakInput input) {
-        var yf = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(input.getBehandlingReferanse().getBehandlingId());
+        var yf = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(input.getBehandlingReferanse().behandlingId());
         if (yf.isEmpty()) {
             return false;
         }

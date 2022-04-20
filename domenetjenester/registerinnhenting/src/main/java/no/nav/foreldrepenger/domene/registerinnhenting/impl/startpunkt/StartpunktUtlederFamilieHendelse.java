@@ -46,7 +46,7 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
         var grunnlag1 = (long) id1;
         var grunnlag2 = (long) id2;
 
-        var grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(ref.getBehandlingId());
+        var grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
         if (erSkjæringstidspunktEndret(ref, grunnlagForBehandling)) {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT, "skjæringstidspunkt", grunnlag1, grunnlag2);
             return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
@@ -91,7 +91,7 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
     }
 
     private boolean erUttaksreglerEndret(BehandlingReferanse ref, Long id1, Long id2) {
-        if (!FagsakYtelseType.FORELDREPENGER.equals(ref.getFagsakYtelseType())) return false;
+        if (!FagsakYtelseType.FORELDREPENGER.equals(ref.fagsakYtelseType())) return false;
         var grunnlag1 = familieHendelseTjeneste.hentGrunnlagPåId(id1);
         var grunnlag2 = familieHendelseTjeneste.hentGrunnlagPåId(id2);
         return utsettelseBehandling2021.endringAvSammenhengendeUttak(ref, grunnlag1, grunnlag2);
@@ -112,7 +112,7 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
         var dødfødsel1 = grunnlag1.getGjeldendeBekreftetVersjon().filter(FamilieHendelseEntitet::getInnholderDøfødtBarn).isPresent();
         var dødfødsel2 = grunnlag2.getGjeldendeBekreftetVersjon().filter(FamilieHendelseEntitet::getInnholderDøfødtBarn).isPresent();
 
-        return dødfødsel1 != dødfødsel2 && fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(referanse.getFagsakId())
+        return dødfødsel1 != dødfødsel2 && fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(referanse.fagsakId())
             .map(FagsakRelasjon::getGjeldendeDekningsgrad)
             .filter(Dekningsgrad._80::equals)
             .isPresent();

@@ -48,7 +48,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
      */
     BeregningingAvStønadskontoResultat beregnStønadskontoer(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(ref.getSaksnummer());
+        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(ref.saksnummer());
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
 
         // Trenger ikke behandlingslås siden stønadskontoer lagres på fagsakrelasjon.

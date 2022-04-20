@@ -57,7 +57,7 @@ public class BeregningUttakTjeneste {
      * @return
      */
     public Optional<LocalDate> finnSisteTilnærmedeUttaksdato(BehandlingReferanse ref) {
-        var yfAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.getBehandlingId());
+        var yfAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.behandlingId());
         return yfAggregat.map(this::finnSisteSøkteUttaksdag)
             .orElseGet(() -> ref.getOriginalBehandlingId()
             .flatMap(oid -> uttakTjeneste.hentUttakHvisEksisterer(oid))
@@ -80,7 +80,7 @@ public class BeregningUttakTjeneste {
     }
 
     public AktivitetGradering finnAktivitetGraderinger(BehandlingReferanse ref) {
-        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.getBehandlingId());
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.behandlingId());
         return new AktivitetGradering(utled(ref, ytelseFordelingAggregat));
     }
 

@@ -57,7 +57,7 @@ public class StønadskontoSaldoTjeneste {
     }
 
     public SaldoUtregning finnSaldoUtregning(UttakInput uttakInput) {
-        var perioderSøker = perioderSøker(uttakInput.getBehandlingReferanse().getBehandlingId());
+        var perioderSøker = perioderSøker(uttakInput.getBehandlingReferanse().behandlingId());
         return finnSaldoUtregning(uttakInput, mapTilRegelPerioder(perioderSøker));
     }
 
@@ -131,7 +131,7 @@ public class StønadskontoSaldoTjeneste {
     }
 
     private Optional<Set<Stønadskonto>> stønadskontoer(BehandlingReferanse ref) {
-        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(ref.getSaksnummer());
+        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(ref.saksnummer());
         if (fagsakRelasjon.isPresent() && fagsakRelasjon.get().getGjeldendeStønadskontoberegning().isPresent()) {
             var stønadskontoer = fagsakRelasjon.get().getGjeldendeStønadskontoberegning().get().getStønadskontoer();
             return Optional.ofNullable(stønadskontoer);

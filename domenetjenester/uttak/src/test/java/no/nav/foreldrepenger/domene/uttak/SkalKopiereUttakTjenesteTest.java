@@ -120,7 +120,7 @@ class SkalKopiereUttakTjenesteTest {
 
     private void settFørsteUttaksdato(LocalDate førsteUttaksdato, BehandlingReferanse behandlingReferanse) {
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        var behandlingId = behandlingReferanse.getBehandlingId();
+        var behandlingId = behandlingReferanse.behandlingId();
         var yfa = ytelsesFordelingRepository.opprettBuilder(behandlingId);
         var avklarteDatoer = new AvklarteUttakDatoerEntitet.Builder()
             .medFørsteUttaksdato(førsteUttaksdato)

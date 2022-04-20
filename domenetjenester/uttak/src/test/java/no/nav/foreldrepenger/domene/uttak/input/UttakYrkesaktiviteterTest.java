@@ -11,6 +11,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -55,7 +56,7 @@ public class UttakYrkesaktiviteterTest {
         var iayGrunnlag = InntektArbeidYtelseGrunnlagBuilder.nytt()
             .medData(iayAggregat)
             .build();
-        var input = new UttakInput(BehandlingReferanse.fra(behandling, dato), iayGrunnlag, null)
+        var input = new UttakInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato).build()), iayGrunnlag, null)
             .medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, arbeidsgiver, null)));
         var uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
 
@@ -91,7 +92,7 @@ public class UttakYrkesaktiviteterTest {
         var iayGrunnlag = InntektArbeidYtelseGrunnlagBuilder.nytt()
             .medData(iayAggregat)
             .build();
-        var input = new UttakInput(BehandlingReferanse.fra(behandling, dato), iayGrunnlag, null)
+        var input = new UttakInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato).build()), iayGrunnlag, null)
             .medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, arbeidsgiver, null)));
         var uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
 

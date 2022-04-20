@@ -35,7 +35,7 @@ public class YtelserGrunnlagBygger {
     private Optional<Pleiepenger> getPleiepengerMedInnleggelse(UttakInput uttakInput) {
         var iayGrunnlag = uttakInput.getIayGrunnlag();
         var aktørYtelseFraRegister = iayGrunnlag.getAktørYtelseFraRegister(
-            uttakInput.getBehandlingReferanse().getAktørId());
+            uttakInput.getBehandlingReferanse().aktørId());
         if (aktørYtelseFraRegister.isEmpty()) {
             return Optional.empty();
         }

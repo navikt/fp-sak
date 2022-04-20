@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -101,7 +102,7 @@ public class OpptjeningInntektArbeidYtelseTjenesteTest {
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgitt);
 
         // Assert
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         var perioder = opptjeningTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(ref)
                 .stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.NÆRING)).collect(Collectors.toList());
 
@@ -130,7 +131,7 @@ public class OpptjeningInntektArbeidYtelseTjenesteTest {
         iayTjeneste.lagreIayAggregat(behandling.getId(), saksbehandling);
 
         // Act
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         var perioder = opptjeningTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(ref);
         assertThat(perioder).hasSize(1);
         assertThat(
@@ -162,7 +163,7 @@ public class OpptjeningInntektArbeidYtelseTjenesteTest {
         iayTjeneste.lagreIayAggregat(behandling.getId(), overstyrt);
 
         // Act
-        var behandlingReferanse = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         var perioder = opptjeningTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(behandlingReferanse);
         assertThat(perioder).hasSize(1);
         assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.FERDIG_VURDERT_UNDERKJENT))
@@ -182,5 +183,9 @@ public class OpptjeningInntektArbeidYtelseTjenesteTest {
 
         opptjeningRepository.lagreOpptjeningsperiode(behandling, skjæringstidspunkt.minusMonths(10), skjæringstidspunkt, false);
         return behandling;
+    }
+
+    private Skjæringstidspunkt medUtledetSkjæringstidspunkt(LocalDate stp) {
+        return Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build();
     }
 }

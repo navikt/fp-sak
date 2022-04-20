@@ -64,9 +64,9 @@ public class AksjonspunktutlederTilbaketrekkTest {
 
     private BehandlingReferanse mockReferanse(Behandling behandling) {
         var behandlingReferanse = mock(BehandlingReferanse.class);
-        when(behandlingReferanse.getBehandlingId()).thenReturn(behandling.getId());
+        when(behandlingReferanse.behandlingId()).thenReturn(behandling.getId());
         when(behandlingReferanse.erRevurdering()).thenReturn(true);
-        when(behandlingReferanse.getAktørId()).thenReturn(behandling.getAktørId());
+        when(behandlingReferanse.aktørId()).thenReturn(behandling.getAktørId());
         when(behandlingReferanse.getUtledetSkjæringstidspunkt()).thenReturn(SKJÆRINGSTIDSPUNKT);
         when(behandlingReferanse.getOriginalBehandlingId()).thenReturn(Optional.of(ORIGINAL_BEHANDLING_ID));
         return behandlingReferanse;

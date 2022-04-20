@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
@@ -145,7 +146,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
 
     private UttakInput lagInput(Behandling behandling) {
         var ref = lagRef(behandling);
-        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.getBehandlingId());
+        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
         var bekreftetFamilieHendelse = FamilieHendelse.forFødsel(null, LocalDate.now().minusWeeks(2),
             List.of(new Barn()), 1);
         var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
@@ -395,7 +396,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             InternArbeidsforholdRef.ref(aktivitet.getArbeidsforholdId()));
         // Act
         var ref = lagRef(farsBehandling);
-        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.getBehandlingId());
+        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
         var bekreftetFamilieHendelse = FamilieHendelse.forFødsel(null, LocalDate.now().minusWeeks(2),
             List.of(new Barn()), 1);
         var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
@@ -475,7 +476,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling, LocalDate.now());
+        return BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
     }
 
     private Behandling setup(OppgittPeriodeEntitet oppgittPeriode,

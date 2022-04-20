@@ -52,8 +52,8 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
             .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
 
         var snapshotOriginalBehandling = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(origBehandlingId);
-        var diff = endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(revurdering.getId(), snapshotOriginalBehandling);
-        LOG.info("Endringsresultat ved revurdering={} er: {}", revurdering.getId(), diff);// NOSONAR //$NON-NLS-1$
+        var diff = endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(revurdering.behandlingId(), snapshotOriginalBehandling);
+        LOG.info("Endringsresultat ved revurdering={} er: {}", revurdering.behandlingId(), diff);// NOSONAR //$NON-NLS-1$
         return getStartpunktType(revurdering, diff, false);
     }
 
@@ -65,7 +65,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
     private StartpunktType getStartpunktType(BehandlingReferanse revurdering, EndringsresultatDiff differanse, boolean normalDiff) {
         List<StartpunktType> startpunkter = new ArrayList<>();
         // Denne skal oppstå selv om grunnlaget er uendret. Eneste kjente tidsfristavhengige
-        var grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(revurdering.getBehandlingId());
+        var grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(revurdering.behandlingId());
         if (skalSjekkeForManglendeFødsel(grunnlagForBehandling))
             startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
 

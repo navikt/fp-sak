@@ -79,7 +79,7 @@ public class KontoerGrunnlagBygger {
     }
 
     private Set<Stønadskonto> hentStønadskontoer(BehandlingReferanse ref) {
-        return fagsakRelasjonRepository.finnRelasjonFor(ref.getSaksnummer()).getGjeldendeStønadskontoberegning()
+        return fagsakRelasjonRepository.finnRelasjonFor(ref.saksnummer()).getGjeldendeStønadskontoberegning()
             .orElseThrow(() -> new IllegalArgumentException("Behandling mangler stønadskontoer"))
             .getStønadskontoer();
     }
@@ -89,7 +89,7 @@ public class KontoerGrunnlagBygger {
      */
     private Kontoer.Builder getBuilder(BehandlingReferanse ref, ForeldrepengerGrunnlag foreldrepengerGrunnlag, Set<Stønadskonto> stønadskontoer) {
         var builder = new Kontoer.Builder();
-        var erMor = RelasjonsRolleType.MORA.equals(ref.getRelasjonsRolleType());
+        var erMor = RelasjonsRolleType.MORA.equals(ref.relasjonRolle());
         var erForeldrepenger = stønadskontoer.stream().map(Stønadskonto::getStønadskontoType).anyMatch(StønadskontoType.FORELDREPENGER::equals);
         var minsterettFarMedmor = !ref.getSkjæringstidspunkt().utenMinsterett();
         var morHarUføretrygd = foreldrepengerGrunnlag.getUføretrygdGrunnlag()
@@ -101,7 +101,7 @@ public class KontoerGrunnlagBygger {
         flerbarnsdager.map(stønadskonto -> builder.flerbarnsdager(stønadskonto.getMaxDager()));
 
         if (!erMor && erForeldrepenger && (minsterettFarMedmor || morHarUføretrygd)) {
-            var dekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(ref.getSaksnummer()).getGjeldendeDekningsgrad();
+            var dekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(ref.saksnummer()).getGjeldendeDekningsgrad();
             var antallDager = 0;
             if (minsterettFarMedmor) {
                 antallDager = BFHR_MINSTERETT_DAGER;
