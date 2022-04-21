@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.HarEtablertYtelseFP;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingBehandlingsresultatutleder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -94,8 +93,6 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(this.repositoryProvider,
                 beregningsgrunnlagTjeneste,
                 opphørUttakTjeneste,
-                new HarEtablertYtelseFP(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste,
-                        uttakTjeneste, this.repositoryProvider.getBehandlingVedtakRepository()),
                 skjæringstidspunktTjeneste,
                 medlemTjeneste,
                 uttakTjeneste));

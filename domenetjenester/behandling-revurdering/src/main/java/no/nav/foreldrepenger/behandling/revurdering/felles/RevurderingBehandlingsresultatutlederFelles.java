@@ -247,6 +247,10 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
             return fastsettForIkkeEtablertYtelse(revurdering, konsekvenserForYtelsen);
         }
 
+        if (!erMinstEnInnvilgetBehandlingUtenPåfølgendeOpphør) {
+            return fastsettForIkkeEtablertYtelse(revurdering, konsekvenserForYtelsen);
+        }
+
         if (erKunEndringIFordelingAvYtelsen) {
             return ErKunEndringIFordelingAvYtelsen.fastsett(revurdering,
                 behandlingsresultatRepository.hent(revurdering.getId()), erVarselOmRevurderingSendt);

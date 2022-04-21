@@ -1083,6 +1083,68 @@ public class RevurderingBehandlingsresultatutlederTest {
         assertThat(revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering2)).isTrue();
     }
 
+    @Test
+    public void skal_gi_innvilget_dersom_forrige_revurdering_var_avslått() {
+        // Arrange førstegangsbehandling
+        var førstegangsbehandling = opprettFørstegangsbehandling();
+        var låsFgb = behandlingRepository.taSkriveLås(førstegangsbehandling);
+        var vilkårResultatFgb = VilkårResultat.builder()
+            .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+            .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+            .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+            .medVilkårResultatType(VilkårResultatType.INNVILGET).buildFor(førstegangsbehandling);
+        behandlingRepository.lagre(vilkårResultatFgb, låsFgb);
+
+        var resultatbuilderFgb = Behandlingsresultat
+            .builderEndreEksisterende(førstegangsbehandling.getBehandlingsresultat());
+        resultatbuilderFgb.medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        resultatbuilderFgb.medRettenTil(RettenTil.HAR_IKKE_RETT_TIL_FP);
+        resultatbuilderFgb.buildFor(førstegangsbehandling);
+        behandlingRepository.lagre(førstegangsbehandling, låsFgb);
+
+        // Arrange revurdering 1 (beslutningsvedtak)
+        var revurdering = opprettRevurdering(førstegangsbehandling);
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
+            .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+            .leggTilVilkårAvslått(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallMerknad.VM_1035)
+            .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+            .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
+            .medVilkårResultatType(VilkårResultatType.AVSLÅTT).buildFor(revurdering);
+        behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
+
+        var resultatbuilderRevurdering = Behandlingsresultat
+            .builderEndreEksisterende(revurdering.getBehandlingsresultat());
+        resultatbuilderRevurdering.medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
+        resultatbuilderRevurdering.medRettenTil(RettenTil.HAR_IKKE_RETT_TIL_FP);
+        resultatbuilderRevurdering.buildFor(revurdering);
+        behandlingRepository.lagre(revurdering, låsRevurdering);
+
+        revurderingTestUtil.avsluttBehandling(revurdering);
+
+        // Arrange revurdering 2
+        var revurdering2 = revurderingTjeneste
+            .opprettAutomatiskRevurdering(revurdering.getFagsak(), BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER,
+                new OrganisasjonsEnhet("1234", "Test"));
+        var låsRevurdering2 = behandlingRepository.taSkriveLås(revurdering2);
+        var vilkårResultatRevurdering2 = VilkårResultat.builder()
+            .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+            .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+            .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+            .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
+            .medVilkårResultatType(VilkårResultatType.INNVILGET).buildFor(revurdering2);
+        behandlingRepository.lagre(vilkårResultatRevurdering2, låsRevurdering2);
+
+        // Act
+        bestemBehandlingsresultatForRevurdering(revurdering2, erVarselOmRevurderingSendt);
+
+        // Assert
+        var bhResultat = getBehandlingsresultat(revurdering2);
+        assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(BehandlingResultatType.INNVILGET);
+        assertThat(bhResultat.getKonsekvenserForYtelsen()).containsExactly(KonsekvensForYtelsen.INGEN_ENDRING);
+        assertThat(revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering2)).isTrue();
+    }
+
     private UttakResultatEntitet lagUttakResultatPlanForBehandling(Behandling behandling,
             List<LocalDateInterval> perioder,
             StønadskontoType stønadskontoType) {

@@ -23,14 +23,12 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 public class RevurderingBehandlingsresultatutleder extends RevurderingBehandlingsresultatutlederFelles {
 
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
-    private HarEtablertYtelseFP harEtablertYtelse;
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
     @Inject
     public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
             HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
             OpphørUttakTjeneste opphørUttakTjeneste,
-            HarEtablertYtelseFP harEtablertYtelse,
             @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
             MedlemTjeneste medlemTjeneste,
             ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
@@ -40,7 +38,6 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
                 opphørUttakTjeneste,
                 skjæringstidspunktTjeneste);
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
-        this.harEtablertYtelse = harEtablertYtelse;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
     }
 
