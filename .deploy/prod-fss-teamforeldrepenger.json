@@ -38,7 +38,7 @@
     "FPSAK_OKONOMI_OPPDRAG_SEND_QUEUENAME": "QA.P231.OB04_OPPDRAG_FP_XML",
     "MQGATEWAY02_NAME": "MPLS02",
     "MQGATEWAY02_CHANNEL": "P_FPSAK",
-    "MQGATEWAY02_HOSTNAME": "a01apvl269.adeo.no",
+    "MQGATEWAY02_HOSTNAME": "MPLS02.adeo.no",
     "MQGATEWAY02_PORT": "1414",
     "FPRISK_URL": "http://fprisk/fprisk",
     "FPABAKUS_URL": "http://fpabakus/fpabakus",
