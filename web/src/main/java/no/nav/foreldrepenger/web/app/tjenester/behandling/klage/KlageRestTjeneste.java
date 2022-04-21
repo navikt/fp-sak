@@ -37,6 +37,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -75,7 +78,6 @@ public class KlageRestTjeneste {
     private KlageVurderingTjeneste klageVurderingTjeneste;
     private FptilbakeRestKlient fptilbakeRestKlient;
     private MottatteDokumentRepository mottatteDokumentRepository;
-    private ProsessTaskTjeneste prosessTaskTjeneste;
 
     public KlageRestTjeneste() {
         // for CDI proxy
@@ -85,13 +87,11 @@ public class KlageRestTjeneste {
     public KlageRestTjeneste(BehandlingRepository behandlingRepository,
                              KlageVurderingTjeneste klageVurderingTjeneste,
                              FptilbakeRestKlient fptilbakeRestKlient,
-                             MottatteDokumentRepository mottatteDokumentRepository,
-                             ProsessTaskTjeneste prosessTaskTjeneste) {
+                             MottatteDokumentRepository mottatteDokumentRepository) {
         this.behandlingRepository = behandlingRepository;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
         this.fptilbakeRestKlient = fptilbakeRestKlient;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
-        this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 
     @GET
@@ -176,7 +176,8 @@ public class KlageRestTjeneste {
         var påklagdBehandling = klageResultat.getPåKlagdBehandlingId().map(behandlingRepository::hentBehandling);
         var ytelseType = påklagdBehandling.map(Behandling::getFagsakYtelseType).orElse(FagsakYtelseType.UDEFINERT);
         var nfpVurdering = klageVurderingTjeneste.hentKlageVurderingResultat(behandling, KlageVurdertAv.NFP)
-                .map(KlageRestTjeneste::mapKlageVurderingResultatDto);
+                .map(KlageRestTjeneste::mapKlageVurderingResultatDto)
+                .orElseGet(KlageRestTjeneste::dummyKlageVurderingResultatDtoForNFP);
         var nkVurdering = klageVurderingTjeneste.hentKlageVurderingResultat(behandling, KlageVurdertAv.NK)
                 .map(KlageRestTjeneste::mapKlageVurderingResultatDto);
         var nfpFormkrav = klageVurderingTjeneste.hentKlageFormkrav(behandling, KlageVurdertAv.NFP)
@@ -184,7 +185,7 @@ public class KlageRestTjeneste {
         var kaFormkrav = klageVurderingTjeneste.hentKlageFormkrav(behandling, KlageVurdertAv.NK)
                 .map(fk -> KlageRestTjeneste.mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient));
 
-        return new KlagebehandlingDto(nfpFormkrav.orElse(null), nfpVurdering.orElse(null),
+        return new KlagebehandlingDto(nfpFormkrav.orElse(null), nfpVurdering,
             kaFormkrav.orElse(null), nkVurdering.orElse(null), KlageHjemmel.getHjemlerForYtelse(ytelseType),
             !ER_PROD || utvalgteSBH, behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE),
             klageResultat.erBehandletAvKabal());
@@ -199,6 +200,17 @@ public class KlageRestTjeneste {
             klageVurderingResultat.getKlageHjemmel(),
             klageVurderingResultat.isGodkjentAvMedunderskriver(),
             klageVurderingResultat.getFritekstTilBrev());
+    }
+
+    private static KlageVurderingResultatDto dummyKlageVurderingResultatDtoForNFP() {
+        return new KlageVurderingResultatDto(KlageVurdertAv.NFP.getKode(),
+            KlageVurdering.UDEFINERT,
+            null,
+            KlageMedholdÅrsak.UDEFINERT,
+            KlageVurderingOmgjør.UDEFINERT,
+            KlageHjemmel.UDEFINERT,
+            false,
+            null);
     }
 
     private static KlageFormkravResultatDto mapKlageFormkravResultatDto(KlageFormkravEntitet klageFormkrav, Optional<Behandling> påklagdBehandling, FptilbakeRestKlient fptilbakeRestKlient) {
