@@ -159,7 +159,7 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
     private boolean skalKontrollereAktivitetskrav(BehandlingReferanse behandlingReferanse,
                                                   FamilieHendelse familieHendelse,
                                                   ForeldrepengerGrunnlag fpGrunnlag) {
-        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingReferanse.getBehandlingId());
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingReferanse.behandlingId());
         return ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder().stream().anyMatch(p -> {
             var resultat = skalKontrollereAktivitetskrav(behandlingReferanse, p, ytelseFordelingAggregat,
                 familieHendelse, harAnnenForelderRett(ytelseFordelingAggregat, fpGrunnlag));
@@ -168,7 +168,7 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
     }
 
     private static boolean erMor(BehandlingReferanse behandlingReferanse) {
-        return RelasjonsRolleType.erMor(behandlingReferanse.getRelasjonsRolleType());
+        return RelasjonsRolleType.erMor(behandlingReferanse.relasjonRolle());
     }
 
     private boolean harAnnenForelderRett(YtelseFordelingAggregat ytelseFordelingAggregat,

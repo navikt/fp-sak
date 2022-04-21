@@ -26,7 +26,7 @@ public class MerkOpptjeningUtlandOppdaterer implements AksjonspunktOppdaterer<Me
 
     @Override
     public OppdateringResultat oppdater(MerkOpptjeningUtlandDto dto, AksjonspunktOppdaterParameter param) {
-        tjeneste.lagreStatus(param.getRef().getBehandlingId(), dto.getDokStatus());
+        tjeneste.lagreStatus(param.getRef().behandlingId(), dto.getDokStatus());
         return OppdateringResultat.utenOveropp();
     }
 }

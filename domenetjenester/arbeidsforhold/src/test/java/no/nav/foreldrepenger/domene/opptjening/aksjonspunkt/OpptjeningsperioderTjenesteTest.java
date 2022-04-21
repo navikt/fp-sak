@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -113,7 +114,7 @@ public class OpptjeningsperioderTjenesteTest {
         iayTjeneste.lagreIayAggregat(behandling.getId(), saksbehandlet);
 
         // Act
-        var behandlingRef = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var behandlingRef = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         var perioder = forSaksbehandlingTjeneste
                 .hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef);
 
@@ -153,7 +154,7 @@ public class OpptjeningsperioderTjenesteTest {
         opptjeningRepository.lagreOpptjeningsperiode(behandling, skjæringstidspunkt.minusDays(30), skjæringstidspunkt, false);
 
         // Act
-        var behandlingRef = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var behandlingRef = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         var perioder = forSaksbehandlingTjeneste
                 .hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef);
 
@@ -194,7 +195,7 @@ public class OpptjeningsperioderTjenesteTest {
         opptjeningRepository.lagreOpptjeningsperiode(behandling, skjæringstidspunkt.minusDays(30), skjæringstidspunkt, false);
 
         // Act
-        var behandlingRef = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var behandlingRef = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         var perioder = forSaksbehandlingTjeneste
                 .hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef);
 
@@ -243,7 +244,7 @@ public class OpptjeningsperioderTjenesteTest {
         iayTjeneste.lagreIayAggregat(behandling.getId(), saksbehandlet);
 
         // Act
-        var behandlingRef = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var behandlingRef = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         var perioder = forSaksbehandlingTjeneste
                 .hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef);
 
@@ -278,7 +279,7 @@ public class OpptjeningsperioderTjenesteTest {
                 ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN, Arbeidsgiver.virksomhet(ORG_NUMMER));
         iayTjeneste.lagreIayAggregat(behandling.getId(), bekreftet);
 
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         // Act
         var perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref);
 
@@ -305,7 +306,7 @@ public class OpptjeningsperioderTjenesteTest {
         var saksbehandlet = opprettOverstyrtOppgittOpptjening(periode1,
                 ArbeidType.MILITÆR_ELLER_SIVILTJENESTE, AKTØRID, VersjonType.SAKSBEHANDLET);
         iayTjeneste.lagreIayAggregat(behandling.getId(), saksbehandlet);
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         // Act
         // Assert
         var perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref)
@@ -333,7 +334,7 @@ public class OpptjeningsperioderTjenesteTest {
         opprettInntektForFrilanser(bekreftet, AKTØRID, ARBEIDSFORHOLD_ID, periode1, arbeidsgiver);
         iayTjeneste.lagreIayAggregat(behandling.getId(), bekreftet);
 
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         opptjeningRepository.lagreOpptjeningsperiode(behandling, LocalDate.now().minusMonths(10), LocalDate.now().minusDays(1), false);
 
         // Act 1
@@ -383,7 +384,7 @@ public class OpptjeningsperioderTjenesteTest {
         oppgitt.leggTilAnnenAktivitet(new OppgittAnnenAktivitet(periode1, ArbeidType.FRILANSER));
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgitt);
 
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         opptjeningRepository.lagreOpptjeningsperiode(behandling, LocalDate.now().minusMonths(10), LocalDate.now().minusDays(1), false);
 
         // Act 1
@@ -432,7 +433,7 @@ public class OpptjeningsperioderTjenesteTest {
         opprettInntektForFrilanser(bekreftet, AKTØRID, ARBEIDSFORHOLD_ID, periode1, arbeidsgiver);
         iayTjeneste.lagreIayAggregat(behandling.getId(), bekreftet);
 
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         opptjeningRepository.lagreOpptjeningsperiode(behandling, LocalDate.now().minusMonths(10), LocalDate.now().minusDays(1), false);
 
         // Act 1
@@ -463,7 +464,7 @@ public class OpptjeningsperioderTjenesteTest {
     public void skal_returnere_en_periode_med_fiktivt_bekreftet_arbeidsforhold() {
         // Arrange
         final var behandling = opprettBehandling();
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         var fraOgMed = LocalDate.of(2015, 1, 4);
         var tilOgMed = skjæringstidspunkt.plusMonths(2);
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed);
@@ -482,7 +483,7 @@ public class OpptjeningsperioderTjenesteTest {
     @Test
     public void skal_kunne_bygge_opptjeninsperiode_basert_på_arbeidsforhold_lagt_til_avsaksbehandler() {
         final var behandling = opprettBehandling();
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         var start = LocalDate.now().minusMonths(5);
 
         var arbeidsforholdInformasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(Optional.empty());
@@ -624,6 +625,10 @@ public class OpptjeningsperioderTjenesteTest {
                 .medPeriode(periode.getFomDato(), periode.getTomDato()).medBeløp(BigDecimal.TEN));
         ainntektBuilder.leggTilInntekt(inntektBuilder);
         bekreftet.leggTilAktørInntekt(ainntektBuilder);
+    }
+
+    private Skjæringstidspunkt medUtledetSkjæringstidspunkt(LocalDate stp) {
+        return Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build();
     }
 
 }

@@ -11,6 +11,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -54,7 +55,7 @@ public class FastsettePerioderRegelResultatKonvertererTest {
         repositoryProvider.getFpUttakRepository(), repositoryProvider.getYtelsesFordelingRepository());
 
     private UttakInput lagInput(Behandling behandling, LocalDate stp) {
-        var ref = BehandlingReferanse.fra(behandling, stp);
+        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build());
         return new UttakInput(ref, iayTjeneste.hentGrunnlag(behandling.getId()),
             new ForeldrepengerGrunnlag()).medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser());
     }

@@ -42,7 +42,7 @@ public abstract class ForeslåBehandlingsresultatStegFelles implements ForeslåB
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         LOG.info("Foreslår behandlingsresultat for behandling {}", ref);
 
-        var tjeneste = FagsakYtelseTypeRef.Lookup.find(foreslåBehandlingsresultatTjeneste, ref.getFagsakYtelseType()).orElseThrow();
+        var tjeneste = FagsakYtelseTypeRef.Lookup.find(foreslåBehandlingsresultatTjeneste, ref.fagsakYtelseType()).orElseThrow();
         tjeneste.foreslåBehandlingsresultat(ref);
 
         // TODO (Safir/OSS): Lagre Behandlingsresultat gjennom eget repository

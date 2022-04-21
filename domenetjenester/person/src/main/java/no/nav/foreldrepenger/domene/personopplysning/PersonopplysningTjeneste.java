@@ -55,10 +55,10 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
 
     @Override
     public PersonopplysningerAggregat hentGjeldendePersoninformasjonPåTidspunkt(BehandlingReferanse ref, LocalDate tidspunkt) {
-        final var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(ref.getBehandlingId());
+        final var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(ref.behandlingId());
         if (grunnlagOpt.isPresent()) {
             tidspunkt = tidspunkt == null ? LocalDate.now() : tidspunkt;
-            return new PersonopplysningerAggregat(grunnlagOpt.get(), ref.getAktørId(), tidspunkt, ref.getUtledetSkjæringstidspunkt());
+            return new PersonopplysningerAggregat(grunnlagOpt.get(), ref.aktørId(), tidspunkt, ref.getUtledetSkjæringstidspunkt());
         }
         throw new IllegalStateException("Utvikler feil: Har ikke innhentet opplysninger fra register enda.");
     }
@@ -74,19 +74,19 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
 
     @Override
     public Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(BehandlingReferanse ref, LocalDate tidspunkt) {
-        final var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(ref.getBehandlingId());
+        final var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(ref.behandlingId());
         if (grunnlagOpt.isPresent()) {
             tidspunkt = tidspunkt == null ? LocalDate.now() : tidspunkt;
-            return Optional.of(new PersonopplysningerAggregat(grunnlagOpt.get(), ref.getAktørId(), tidspunkt, ref.getUtledetSkjæringstidspunkt()));
+            return Optional.of(new PersonopplysningerAggregat(grunnlagOpt.get(), ref.aktørId(), tidspunkt, ref.getUtledetSkjæringstidspunkt()));
         }
         return Optional.empty();
     }
 
     @Override
     public Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(BehandlingReferanse ref, DatoIntervallEntitet forPeriode) {
-        final var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(ref.getBehandlingId());
+        final var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(ref.behandlingId());
         if (grunnlagOpt.isPresent()) {
-            return Optional.of(new PersonopplysningerAggregat(grunnlagOpt.get(), ref.getAktørId(), forPeriode, ref.getUtledetSkjæringstidspunkt()));
+            return Optional.of(new PersonopplysningerAggregat(grunnlagOpt.get(), ref.aktørId(), forPeriode, ref.getUtledetSkjæringstidspunkt()));
         }
         return Optional.empty();
     }

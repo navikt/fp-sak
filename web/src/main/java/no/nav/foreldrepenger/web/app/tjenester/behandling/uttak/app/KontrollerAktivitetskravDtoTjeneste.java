@@ -65,7 +65,7 @@ public class KontrollerAktivitetskravDtoTjeneste {
             return List.of();
         }
         var behandlingReferanse = BehandlingReferanse.fra(behandling);
-        var uttakInput = uttakInputTjeneste.lagInput(behandlingReferanse.getId());
+        var uttakInput = uttakInputTjeneste.lagInput(behandlingReferanse.behandlingId());
         ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var familieHendelse = ytelsespesifiktGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
         var annenForelderHarRett = harAnnenForelderRett(ytelseFordelingAggregat, ytelsespesifiktGrunnlag);

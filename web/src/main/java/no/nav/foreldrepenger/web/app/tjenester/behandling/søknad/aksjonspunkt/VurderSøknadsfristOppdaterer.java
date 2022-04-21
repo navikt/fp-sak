@@ -14,7 +14,7 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
 
     @Override
     public OppdateringResultat oppdater(VurderSøknadsfristDto dto, AksjonspunktOppdaterParameter param) {
-        var fagsakYtelseType = param.getRef().getFagsakYtelseType();
+        var fagsakYtelseType = param.getRef().fagsakYtelseType();
         var tjeneste = FagsakYtelseTypeRef.Lookup.find(VurderSøknadsfristOppdatererTjeneste.class, fagsakYtelseType)
             .orElseThrow(() -> new IllegalStateException("Finner ikke tjeneste for ytelsetype " + fagsakYtelseType));
         return tjeneste.oppdater(dto, param);

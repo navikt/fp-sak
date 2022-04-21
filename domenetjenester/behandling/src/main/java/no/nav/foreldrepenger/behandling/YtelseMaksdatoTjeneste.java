@@ -85,8 +85,8 @@ public class YtelseMaksdatoTjeneste {
 
     // TODO PK-48734 Her trengs det litt refaktorering
     public Optional<LocalDate> beregnMaksdatoForeldrepenger(BehandlingReferanse ref) {
-        var behandling = repositoryProvider.getBehandlingRepository().hentBehandling(ref.getBehandlingId());
-        var uttakResultat = annenpartsUttak(ref.getSaksnummer());
+        var behandling = repositoryProvider.getBehandlingRepository().hentBehandling(ref.behandlingId());
+        var uttakResultat = annenpartsUttak(ref.saksnummer());
         if (uttakResultat.isPresent()) {
             var gjeldenePerioder = uttakResultat.get().getGjeldendePerioder();
 

@@ -37,7 +37,7 @@ public class AvklarFaktaUttakPerioderTjeneste {
 
     public KontrollerFaktaData hentKontrollerFaktaPerioder(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         var ytelseFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId);
 
         if (ytelseFordeling.isEmpty()) {
@@ -58,7 +58,7 @@ public class AvklarFaktaUttakPerioderTjeneste {
         var ref = input.getBehandlingReferanse();
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
         var familieHendelser = fpGrunnlag.getFamilieHendelser();
-        if (!avklartFørsteUttaksdato(ref.getBehandlingId()) && erFarEllerMedmor(ref.getRelasjonsRolleType()) && familieHendelser.gjelderTerminFødsel()) {
+        if (!avklartFørsteUttaksdato(ref.behandlingId()) && erFarEllerMedmor(ref.relasjonRolle()) && familieHendelser.gjelderTerminFødsel()) {
             return familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato();
         }
         return null;

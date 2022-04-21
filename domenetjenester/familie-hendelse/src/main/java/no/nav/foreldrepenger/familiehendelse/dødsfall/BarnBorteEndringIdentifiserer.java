@@ -40,12 +40,12 @@ public class BarnBorteEndringIdentifiserer {
             return false;
         }
 
-        var søker = nyBehandling.getAktørId();
+        var søker = nyBehandling.aktørId();
 
         var origBarna = personopplysningRepository.hentPersonopplysningerHvisEksisterer(origBehandling)
             .map(origGrunnlag ->  getBarn(søker, origGrunnlag))
             .orElse(emptyList());
-        var nyeBarna = personopplysningRepository.hentPersonopplysningerHvisEksisterer(nyBehandling.getBehandlingId())
+        var nyeBarna = personopplysningRepository.hentPersonopplysningerHvisEksisterer(nyBehandling.behandlingId())
             .map(origGrunnlag ->  getBarn(søker, origGrunnlag))
             .orElse(emptyList());
 

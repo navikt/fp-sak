@@ -795,7 +795,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
-        var ref = BehandlingReferanse.fra(morBehandlingRevurdering, fødselsdato);
+        var ref = BehandlingReferanse.fra(morBehandlingRevurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(fødselsdato).build());
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medErBerørtBehandling(true)
             .medFamilieHendelser(familieHendelser)
             .medAnnenpart(new Annenpart(farBehandling.getId(), fødselsdato.atStartOfDay()))

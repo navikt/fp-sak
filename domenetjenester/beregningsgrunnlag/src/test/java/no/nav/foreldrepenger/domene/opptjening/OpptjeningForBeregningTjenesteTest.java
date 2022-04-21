@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -41,7 +42,7 @@ public class OpptjeningForBeregningTjenesteTest {
     public void setUp() {
         var behandling= ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         var opptjeningsperioderTjeneste = mock(OpptjeningsperioderUtenOverstyringTjeneste.class);
-        behandlingReferanse = BehandlingReferanse.fra(behandling).medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING);
+        behandlingReferanse = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING).build());
         when(opptjeningsperioderTjeneste.mapPerioderForSaksbehandling(any(), any(), any())).thenReturn(
             opptjeningsperioder);
         var opptjening = new Opptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10),
@@ -62,12 +63,12 @@ public class OpptjeningForBeregningTjenesteTest {
         // Arrange
         var oppgittOpptjeningBuilder = lagFrilansOppgittOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10),
             SKJÆRINGSTIDSPUNKT_OPPTJENING.minusDays(1));
-        iayTjeneste.lagreOppgittOpptjening(behandlingReferanse.getBehandlingId(), oppgittOpptjeningBuilder);
+        iayTjeneste.lagreOppgittOpptjening(behandlingReferanse.behandlingId(), oppgittOpptjeningBuilder);
         leggTilFrilansOpptjeningsperiode();
 
         // Act
         var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(
-            behandlingReferanse, iayTjeneste.hentGrunnlag(behandlingReferanse.getId()));
+            behandlingReferanse, iayTjeneste.hentGrunnlag(behandlingReferanse.behandlingId()));
 
         // Assert
         assertThat(relevante).hasSize(1);

@@ -95,8 +95,8 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
         // At det fortsatt utledes skyldes feil i aksjonspunktutlederTilbaketrekk.
         // Når alle saker som har hatt 5090 er avsluttet kan man avvikle alt relatert til tilbaketrekk.
         LOGGER.info("FP-584196: Saksnummer {}. Behandling med id {} fikk utledet aksjonspunkt 5090, " +
-                "men forrige behandling med id {} gjorde ingen slik vurdering.", ref.getSaksnummer().getVerdi(),
-            ref.getBehandlingId(), ref.getOriginalBehandlingId().orElse(null));
+                "men forrige behandling med id {} gjorde ingen slik vurdering.", ref.saksnummer().getVerdi(),
+            ref.behandlingId(), ref.getOriginalBehandlingId().orElse(null));
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 
@@ -106,9 +106,9 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
             .flatMap(BehandlingBeregningsresultatEntitet::skalHindreTilbaketrekk)
             .orElseThrow();
         LOGGER.info("FP-584197: Saksnummer {}. Behandling med id {} fikk utledet aksjonspunkt 5090, " +
-                "kopierer valget som ble tatt i  forrige behandling med id {} der valget var {}.", ref.getSaksnummer().getVerdi(),
-            ref.getBehandlingId(), ref.getOriginalBehandlingId().orElse(null), originalBeslutning);
-        var behandling = behandlingRepository.hentBehandling(ref.getBehandlingId());
+                "kopierer valget som ble tatt i  forrige behandling med id {} der valget var {}.", ref.saksnummer().getVerdi(),
+            ref.behandlingId(), ref.getOriginalBehandlingId().orElse(null), originalBeslutning);
+        var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
         beregningsresultatRepository.lagreMedTilbaketrekk(behandling, originalBeslutning);
     }
 

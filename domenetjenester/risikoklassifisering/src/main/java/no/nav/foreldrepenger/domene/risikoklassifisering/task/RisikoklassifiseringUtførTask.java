@@ -57,18 +57,18 @@ public class RisikoklassifiseringUtførTask extends GenerellProsessTask {
     }
 
     private RisikovurderingRequestDto opprettRequest(BehandlingReferanse ref) {
-        var søkerAktørId = new AktørId(ref.getAktørId().getId());
-        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.getBehandlingId())
+        var søkerAktørId = new AktørId(ref.aktørId().getId());
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId())
             .getUtledetSkjæringstidspunkt();
-        var opplysningsperiode = opplysningsPeriodeTjeneste.beregn(ref.getBehandlingId(), ref.getFagsakYtelseType());
-        var konsumentId = ref.getBehandlingUuid();
-        var ytelsetype = mapFagsaktype(ref.getFagsakYtelseType());
+        var opplysningsperiode = opplysningsPeriodeTjeneste.beregn(ref.behandlingId(), ref.fagsakYtelseType());
+        var konsumentId = ref.behandlingUuid();
+        var ytelsetype = mapFagsaktype(ref.fagsakYtelseType());
         var annenPartOpt = mapAnnenPart(ref);
         return new RisikovurderingRequestDto(søkerAktørId, stp, opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato(), konsumentId, ytelsetype, annenPartOpt.orElse(null));
     }
 
     private Optional<AnnenPartDto> mapAnnenPart(BehandlingReferanse ref) {
-        var oppgittAnnenPart = personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(ref.getBehandlingId());
+        var oppgittAnnenPart = personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(ref.behandlingId());
         if (oppgittAnnenPart.isPresent()) {
             var aktoerId =
                 oppgittAnnenPart.get().getAktørId() == null ? null : oppgittAnnenPart.get().getAktørId().getId();

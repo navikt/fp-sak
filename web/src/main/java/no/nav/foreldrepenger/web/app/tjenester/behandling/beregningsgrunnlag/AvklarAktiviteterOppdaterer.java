@@ -50,7 +50,7 @@ public class AvklarAktiviteterOppdaterer implements AksjonspunktOppdaterer<Avkla
             BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER)
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getSaksbehandletAktiviteter);
 
-        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(param.getRef().getFagsakYtelseType());
+        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(param.getRef().fagsakYtelseType());
         var inputUtenBeregningsgrunnlag = tjeneste.lagInput(param.getRef());
 
         beregningHåndterer.håndterAvklarAktiviteter(inputUtenBeregningsgrunnlag, OppdatererDtoMapper.mapAvklarteAktiviteterDto(dto));

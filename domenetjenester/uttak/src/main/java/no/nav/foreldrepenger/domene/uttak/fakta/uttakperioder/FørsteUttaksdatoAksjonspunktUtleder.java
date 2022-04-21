@@ -38,7 +38,7 @@ public class FørsteUttaksdatoAksjonspunktUtleder implements FaktaUttakAksjonspu
     public List<AksjonspunktDefinisjon> utledAksjonspunkterFor(UttakInput input) {
         var ref = input.getBehandlingReferanse();
 
-        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
         var avklartFUD = ytelseFordelingAggregat.getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato).orElse(null);
         if (avklartFUD != null) {
             var behovForAvklaring = !førsteSøknadsperiode(ytelseFordelingAggregat)

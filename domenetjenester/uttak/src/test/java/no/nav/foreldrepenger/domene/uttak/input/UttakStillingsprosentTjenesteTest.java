@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
@@ -299,7 +300,7 @@ public class UttakStillingsprosentTjenesteTest {
     }
 
     private UttakYrkesaktiviteter tjeneste(Behandling behandling, InntektArbeidYtelseGrunnlag grunnlag, List<Yrkesaktivitet> yrkesaktiviteter) {
-        var ref = BehandlingReferanse.fra(behandling, LocalDate.now());
+        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
         var input = new UttakInput(ref, grunnlag, null);
         var bgStatuser = yrkesaktiviteter.stream().map((Yrkesaktivitet y) -> {
             var arbeidsforholdRef = y.getArbeidsforholdRef();

@@ -43,7 +43,7 @@ public class AvklarOmSøkerOppholderSegINorge {
 
     public Optional<MedlemResultat> utledVedSTP(BehandlingReferanse ref) {
         var vurderingstidspunkt = ref.getUtledetSkjæringstidspunkt();
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         var personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
         final var region = getRegion(ref, personopplysninger);
         if ((harFødselsdato(behandlingId) == JA) || (harDatoForOmsorgsovertakelse(behandlingId) == JA)) {
@@ -61,7 +61,7 @@ public class AvklarOmSøkerOppholderSegINorge {
         if (harSøkerHattInntektINorgeDeSiste3Mnd(ref, vurderingstidspunkt) == JA) {
             return Optional.empty();
         }
-        if (!FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.getFagsakYtelseType()) && harTermindatoPassertMed14Dager(behandlingId) == NEI) {
+        if (!FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType()) && harTermindatoPassertMed14Dager(behandlingId) == NEI) {
             return Optional.of(VENT_PÅ_FØDSEL);
         }
         return Optional.of(MedlemResultat.AVKLAR_OPPHOLDSRETT);
@@ -118,11 +118,11 @@ public class AvklarOmSøkerOppholderSegINorge {
         var intervall3mnd = utledInntektsintervall3Mnd(ref, vurderingstidspunkt);
 
         // OBS: ulike regler for vilkår og autopunkt. For EØS-par skal man vente hvis søker ikke har inntekt siste 3mnd.
-        var grunnlag = iayTjeneste.finnGrunnlag(ref.getBehandlingId());
+        var grunnlag = iayTjeneste.finnGrunnlag(ref.behandlingId());
 
         var inntektSiste3M = false;
         if (grunnlag.isPresent()) {
-            var filter = new InntektFilter(grunnlag.get().getAktørInntektFraRegister(ref.getAktørId())).før(vurderingstidspunkt);
+            var filter = new InntektFilter(grunnlag.get().getAktørInntektFraRegister(ref.aktørId())).før(vurderingstidspunkt);
             inntektSiste3M = filter.getInntektsposterPensjonsgivende().stream()
                 .anyMatch(ip -> intervall3mnd.overlapper(ip.getPeriode()));
         }
@@ -131,8 +131,8 @@ public class AvklarOmSøkerOppholderSegINorge {
     }
 
     private DatoIntervallEntitet utledInntektsintervall3Mnd(BehandlingReferanse referanse, LocalDate vurderingstidspunkt) {
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(referanse.getFagsakYtelseType()) && LocalDate.now().isBefore(vurderingstidspunkt)) {
-            final var søknadMottattDato = søknadRepository.hentSøknad(referanse.getBehandlingId()).getMottattDato();
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(referanse.fagsakYtelseType()) && LocalDate.now().isBefore(vurderingstidspunkt)) {
+            final var søknadMottattDato = søknadRepository.hentSøknad(referanse.behandlingId()).getMottattDato();
             var brukdato = søknadMottattDato.isBefore(vurderingstidspunkt) ? søknadMottattDato : vurderingstidspunkt;
             return DatoIntervallEntitet.fraOgMedTilOgMed(brukdato.minusMonths(3), brukdato);
         }
@@ -142,9 +142,9 @@ public class AvklarOmSøkerOppholderSegINorge {
 
     private Utfall harOppholdstilltatelseVed(BehandlingReferanse ref, LocalDate vurderingsdato) {
         if (ref.getUtledetMedlemsintervall().encloses(vurderingsdato)) {
-            return personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.getBehandlingId(), ref.getUtledetMedlemsintervall()) ? JA : NEI;
+            return personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.behandlingId(), ref.getUtledetMedlemsintervall()) ? JA : NEI;
         }
-        return personopplysningTjeneste.harOppholdstillatelsePåDato(ref.getBehandlingId(), vurderingsdato) ? JA : NEI;
+        return personopplysningTjeneste.harOppholdstillatelsePåDato(ref.behandlingId(), vurderingsdato) ? JA : NEI;
     }
 
     private Utfall harTermindatoPassertMed14Dager(Long behandlingId) {
@@ -155,6 +155,6 @@ public class AvklarOmSøkerOppholderSegINorge {
     }
 
     private Region getRegion(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
-        return personopplysninger.getStatsborgerskapRegionVedSkjæringstidspunkt(ref.getAktørId());
+        return personopplysninger.getStatsborgerskapRegionVedSkjæringstidspunkt(ref.aktørId());
     }
 }

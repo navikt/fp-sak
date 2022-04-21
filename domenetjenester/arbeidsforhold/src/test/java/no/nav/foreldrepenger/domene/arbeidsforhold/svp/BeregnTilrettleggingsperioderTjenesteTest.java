@@ -80,7 +80,7 @@ public class BeregnTilrettleggingsperioderTjenesteTest {
         var behandlingReferanse = BehandlingReferanse.fra(behandling);
 
         var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
-        lagAktørArbeid(inntektArbeidYtelseAggregatBuilder, behandlingReferanse.getAktørId(), LocalDate.now().minusYears(1),
+        lagAktørArbeid(inntektArbeidYtelseAggregatBuilder, behandlingReferanse.aktørId(), LocalDate.now().minusYears(1),
                 LocalDate.now().plusYears(1));
 
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);
@@ -116,7 +116,7 @@ public class BeregnTilrettleggingsperioderTjenesteTest {
         var behandlingReferanse = BehandlingReferanse.fra(behandling);
 
         var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
-        lagAktørArbeidMed2ArbeidsforholdIsammeVirksomhet(inntektArbeidYtelseAggregatBuilder, behandlingReferanse.getAktørId(),
+        lagAktørArbeidMed2ArbeidsforholdIsammeVirksomhet(inntektArbeidYtelseAggregatBuilder, behandlingReferanse.aktørId(),
                 LocalDate.now().minusYears(1), LocalDate.now().plusYears(1), LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
 
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);
@@ -165,7 +165,7 @@ public class BeregnTilrettleggingsperioderTjenesteTest {
         var behandlingReferanse = BehandlingReferanse.fra(behandling);
 
         var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
-        lagAktørArbeidMed2ArbeidsforholdIsammeVirksomhet(inntektArbeidYtelseAggregatBuilder, behandlingReferanse.getAktørId(),
+        lagAktørArbeidMed2ArbeidsforholdIsammeVirksomhet(inntektArbeidYtelseAggregatBuilder, behandlingReferanse.aktørId(),
                 LocalDate.now().minusYears(2), LocalDate.now().minusYears(1), LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
 
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);

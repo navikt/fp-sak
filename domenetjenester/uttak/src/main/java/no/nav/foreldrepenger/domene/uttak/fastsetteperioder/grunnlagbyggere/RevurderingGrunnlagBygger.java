@@ -95,6 +95,6 @@ public class RevurderingGrunnlagBygger {
 
     private LocalDate endringsdato(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        return ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId()).getGjeldendeEndringsdato();
+        return ytelsesFordelingRepository.hentAggregat(ref.behandlingId()).getGjeldendeEndringsdato();
     }
 }

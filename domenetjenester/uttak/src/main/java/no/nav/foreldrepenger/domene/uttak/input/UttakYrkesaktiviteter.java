@@ -37,7 +37,7 @@ public class UttakYrkesaktiviteter {
         var ref = input.getBehandlingReferanse();
         var skjæringstidspunkt = ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
 
-        var aktørId = ref.getAktørId();
+        var aktørId = ref.aktørId();
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
             grunnlag.getAktørArbeidFraRegister(aktørId)).etter(skjæringstidspunkt);
 

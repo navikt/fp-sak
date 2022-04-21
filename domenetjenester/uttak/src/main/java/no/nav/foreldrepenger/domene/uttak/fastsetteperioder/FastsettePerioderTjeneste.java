@@ -45,7 +45,7 @@ public class FastsettePerioderTjeneste {
 
     public void fastsettePerioder(UttakInput input) {
         var resultat = regelAdapter.fastsettePerioder(input);
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(input.getBehandlingReferanse().getBehandlingId(),
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(input.getBehandlingReferanse().behandlingId(),
             resultat);
     }
 
@@ -55,7 +55,7 @@ public class FastsettePerioderTjeneste {
     }
 
     private void valider(List<ForeldrepengerUttakPeriode> perioder, UttakInput uttakInput) {
-        var behandlingId = uttakInput.getBehandlingReferanse().getBehandlingId();
+        var behandlingId = uttakInput.getBehandlingReferanse().behandlingId();
         var opprinnelig = hentOpprinnelig(behandlingId);
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
         uttakResultatValidator.valider(uttakInput, opprinnelig, perioder,
@@ -69,7 +69,7 @@ public class FastsettePerioderTjeneste {
     private void lagreManueltFastsatt(UttakInput uttakInput, List<ForeldrepengerUttakPeriode> perioder) {
 
         var overstyrtEntitet = new UttakResultatPerioderEntitet();
-        var behandlingId = uttakInput.getBehandlingReferanse().getBehandlingId();
+        var behandlingId = uttakInput.getBehandlingReferanse().behandlingId();
         var opprinnelig = fpUttakRepository.hentUttakResultat(behandlingId);
         for (var periode : perioder) {
             var matchendeOpprinneligPeriode = matchendeOpprinneligPeriode(periode,

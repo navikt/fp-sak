@@ -58,7 +58,7 @@ class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresu
 
     @Override
     public Behandlingsresultat foreslåBehandlingsresultat(BehandlingReferanse ref) {
-        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(ref.getBehandlingId());
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(ref.behandlingId());
         if (behandlingsresultat.isPresent()) {
             if (sjekkVilkårAvslått(behandlingsresultat.get())) {
                 vilkårAvslått(ref, behandlingsresultat.get());
@@ -98,11 +98,11 @@ class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresu
     }
 
     private boolean sakErStengt(BehandlingReferanse ref) {
-        var fagsak = fagsakRepository.hentSakGittSaksnummer(ref.getSaksnummer()).orElseThrow();
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(ref.saksnummer()).orElseThrow();
         return fagsak.erStengt();
     }
 
     private boolean erVarselOmRevurderingSendt(BehandlingReferanse ref) {
-        return dokumentBehandlingTjeneste.erDokumentBestilt(ref.getBehandlingId(), DokumentMalType.VARSEL_OM_REVURDERING);
+        return dokumentBehandlingTjeneste.erDokumentBestilt(ref.behandlingId(), DokumentMalType.VARSEL_OM_REVURDERING);
     }
 }

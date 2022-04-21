@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.abakus.iaygrunnlag.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
@@ -173,7 +174,7 @@ class InaktiveArbeidsforholdUtlederTest {
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
             .medBruker(AKTØR);
         var behandling = scenario.lagMocked();
-        BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling, STP);
+        BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
 
         // Act
         var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse );
@@ -195,7 +196,7 @@ class InaktiveArbeidsforholdUtlederTest {
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
             .medBruker(AKTØR);
         var behandling = scenario.lagMocked();
-        BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling, STP);
+        BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
 
         // Act
         var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse );
@@ -218,7 +219,7 @@ class InaktiveArbeidsforholdUtlederTest {
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
             .medBruker(AKTØR);
         var behandling = scenario.lagMocked();
-        BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling, STP);
+        BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
 
         // Act
         var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse );
@@ -243,7 +244,7 @@ class InaktiveArbeidsforholdUtlederTest {
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
             .medBruker(AKTØR);
         var behandling = scenario.lagMocked();
-        BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling, STP);
+        BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
 
         // Act
         var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse );
@@ -328,5 +329,9 @@ class InaktiveArbeidsforholdUtlederTest {
         data.leggTilAktørInntekt(inntektBuilder);
         data.leggTilAktørYtelse(ytelseBuilder);
         return InntektArbeidYtelseGrunnlagBuilder.nytt().medData(data).medInntektsmeldinger(inntektsmeldinger).build();
+    }
+
+    private Skjæringstidspunkt medUtledetSkjæringstidspunkt(LocalDate stp) {
+        return Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build();
     }
 }

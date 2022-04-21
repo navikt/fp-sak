@@ -65,9 +65,9 @@ public class InntektsmeldingTjeneste {
      * @return Liste med inntektsmeldinger {@link Inntektsmelding}
      */
     public List<Inntektsmelding> hentInntektsmeldinger(BehandlingReferanse ref, LocalDate skjæringstidspunktForOpptjening) {
-        var behandlingId = ref.getBehandlingId();
-        var aktørId = ref.getAktørId();
-        return iayTjeneste.finnGrunnlag(ref.getBehandlingId())
+        var behandlingId = ref.behandlingId();
+        var aktørId = ref.aktørId();
+        return iayTjeneste.finnGrunnlag(ref.behandlingId())
             .map(g -> hentInntektsmeldinger(ref, skjæringstidspunktForOpptjening, g, true))
             .orElse(Collections.emptyList());
     }
@@ -75,14 +75,14 @@ public class InntektsmeldingTjeneste {
     public List<Inntektsmelding> hentInntektsmeldinger(BehandlingReferanse ref, LocalDate skjæringstidspunktForOpptjening,
             InntektArbeidYtelseGrunnlag iayGrunnlag, boolean filtrerForStartdato) {
         var skalIkkeFiltrereStartdato = !filtrerForStartdato ||
-            !FagsakYtelseType.FORELDREPENGER.equals(ref.getFagsakYtelseType()) ||
+            !FagsakYtelseType.FORELDREPENGER.equals(ref.fagsakYtelseType()) ||
             ref.getSkjæringstidspunkt().kreverSammenhengendeUttak();
         var datoFilterDato = Optional.ofNullable(skjæringstidspunktForOpptjening).orElseGet(LocalDate::now);
         var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).orElse(emptyList())
             .stream().filter(im -> skalIkkeFiltrereStartdato || kanInntektsmeldingBrukesForSkjæringstidspunkt(im, skjæringstidspunktForOpptjening)).collect(Collectors.toList());
 
-        var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(ref.getAktørId()));
+        var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(ref.aktørId()));
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
 
         // kan ikke filtrere når det ikke finnes yrkesaktiviteter
@@ -100,7 +100,7 @@ public class InntektsmeldingTjeneste {
      * @return Liste med inntektsmeldinger {@link Inntektsmelding}
      */
     public List<Inntektsmelding> hentAlleInntektsmeldingerMottattEtterGjeldendeVedtak(BehandlingReferanse ref) {
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         var originalBehandlingId = ref.getOriginalBehandlingId()
                 .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Denne metoden benyttes bare for revurderinger"));
 

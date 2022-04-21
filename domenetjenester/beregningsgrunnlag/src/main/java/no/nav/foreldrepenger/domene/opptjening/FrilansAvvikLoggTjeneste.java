@@ -50,7 +50,7 @@ public class FrilansAvvikLoggTjeneste {
     }
 
     public void loggFrilansavvikVedBehov(BehandlingReferanse ref) {
-        Optional<BeregningsgrunnlagEntitet> bg = beregningsgrunnlagRepository.hentBeregningsgrunnlagForId(ref.getBehandlingId());
+        Optional<BeregningsgrunnlagEntitet> bg = beregningsgrunnlagRepository.hentBeregningsgrunnlagForId(ref.behandlingId());
         Optional<LocalDate> stpBGOpt = bg.map(BeregningsgrunnlagEntitet::getSkjæringstidspunkt);
 
         if (stpBGOpt.isEmpty()) {
@@ -58,11 +58,11 @@ public class FrilansAvvikLoggTjeneste {
         }
         LocalDate stpBG = stpBGOpt.get();
 
-        InntektArbeidYtelseGrunnlag iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.getBehandlingId());
+        InntektArbeidYtelseGrunnlag iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId());
         Optional<OppgittFrilans> relevantOppgittFrilans = finnOppgittFrilansFraSøknad(iayGrunnlag);
 
-        List<Yrkesaktivitet> frilansPåSTP = finnFrilansIRegisterSomKrysserSTP(stpBG, iayGrunnlag, ref.getAktørId());
-        List<Arbeidsgiver> arbeidsgivereMedInntektFørSTP = finnArbeidsgivereMedInntekterSiste3Mnd(stpBG, iayGrunnlag, ref.getAktørId());
+        List<Yrkesaktivitet> frilansPåSTP = finnFrilansIRegisterSomKrysserSTP(stpBG, iayGrunnlag, ref.aktørId());
+        List<Arbeidsgiver> arbeidsgivereMedInntektFørSTP = finnArbeidsgivereMedInntekterSiste3Mnd(stpBG, iayGrunnlag, ref.aktørId());
         List<Yrkesaktivitet> frilansaktiviteterPåSTPMedInntektSiste3Mnd = frilansPåSTP.stream()
             .filter(ya -> arbeidsgivereMedInntektFørSTP.contains(ya.getArbeidsgiver()))
             .collect(Collectors.toList());
@@ -70,12 +70,12 @@ public class FrilansAvvikLoggTjeneste {
         if (relevantOppgittFrilans.isEmpty()) {
             frilansaktiviteterPåSTPMedInntektSiste3Mnd.forEach(fl -> {
                 LOG.info("FP-654895: Saksnr {}. Ikke oppgitt frilans i søknad, men arbeidsgiver {} har gitt utbetaling som frilans siste 3 mnd",
-                    ref.getSaksnummer().getVerdi(), fl.getArbeidsgiver().toString());
+                    ref.saksnummer().getVerdi(), fl.getArbeidsgiver().toString());
             });
         }
         else if (frilansaktiviteterPåSTPMedInntektSiste3Mnd.isEmpty()){
             LOG.info("FP-654896: Saksnr {}. Oppgitt frilans i søknad, men ingen utbetalinger som frilans siste 3 mnd",
-                ref.getSaksnummer().getVerdi());
+                ref.saksnummer().getVerdi());
 
             // Ingen aktiv inntekt på stp, logg alder på frilansforholdene som er åpne på stp
             frilansPåSTP.forEach(fl -> {
@@ -83,7 +83,7 @@ public class FrilansAvvikLoggTjeneste {
                 startdato.ifPresent(dato -> {
                     LOG.info("FP-654897: Saksnr {}. Oppgitt frilans i søknad uten inntekt siste periode før stp. " +
                             "Åpent frilansforhold hos {} som er {} måneder gammelt (startet {})",
-                        ref.getSaksnummer().getVerdi(), fl.getArbeidsgiver().toString(), alderIMnd(dato), dato);
+                        ref.saksnummer().getVerdi(), fl.getArbeidsgiver().toString(), alderIMnd(dato), dato);
                 });
             });
         }

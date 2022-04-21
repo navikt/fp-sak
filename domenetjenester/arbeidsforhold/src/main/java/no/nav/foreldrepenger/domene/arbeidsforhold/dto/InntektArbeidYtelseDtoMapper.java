@@ -57,7 +57,7 @@ public class InntektArbeidYtelseDtoMapper {
         mapRelaterteYtelser(dto, ref, iayGrunnlag, aktørIdAnnenPart);
 
         // TODO (FC) skill denne ut
-        if (!FagsakYtelseType.ENGANGSTØNAD.equals(ref.getFagsakYtelseType())) {
+        if (!FagsakYtelseType.ENGANGSTØNAD.equals(ref.fagsakYtelseType())) {
             mapArbeidsforhold(dto, ref, param, iayGrunnlag, sakInntektsmeldinger);
             dto.setInntektsmeldinger(lagInntektsmeldingDto(ref, iayGrunnlag));
         }
@@ -65,7 +65,7 @@ public class InntektArbeidYtelseDtoMapper {
     }
 
     public InntektsmeldingerDto mapInntektsmeldinger(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        if (!FagsakYtelseType.ENGANGSTØNAD.equals(ref.getFagsakYtelseType())) {
+        if (!FagsakYtelseType.ENGANGSTØNAD.equals(ref.fagsakYtelseType())) {
 
             return new InntektsmeldingerDto(lagInntektsmeldingDto(ref, iayGrunnlag));
         } else {
@@ -153,7 +153,7 @@ public class InntektArbeidYtelseDtoMapper {
 
     private void mapRelaterteYtelser(InntektArbeidYtelseDto dto, BehandlingReferanse ref, InntektArbeidYtelseGrunnlag grunnlag,
             Optional<AktørId> aktørIdAnnenPart) {
-        dto.setRelatertTilgrensendeYtelserForSoker(mapTilDtoSøker(hentRelaterteYtelser(grunnlag, ref.getAktørId())));
+        dto.setRelatertTilgrensendeYtelserForSoker(mapTilDtoSøker(hentRelaterteYtelser(grunnlag, ref.aktørId())));
         aktørIdAnnenPart.ifPresent(annenPartAktørId -> {
             var hentRelaterteYtelser = hentRelaterteYtelserAnnenPart(grunnlag, annenPartAktørId);
             var relaterteYtelser = mapTilDtoAnnenPart(hentRelaterteYtelser);

@@ -39,7 +39,7 @@ public class ArbeidsforholdInntektsmeldingsMangelUtleder {
     }
 
     public List<ArbeidsforholdMangel> finnManglerIArbeidsforholdInntektsmeldinger(BehandlingReferanse referanse) {
-        var iayGrunnlag = iayTjeneste.finnGrunnlag(referanse.getBehandlingId());
+        var iayGrunnlag = iayTjeneste.finnGrunnlag(referanse.behandlingId());
         List<ArbeidsforholdMangel> mangler = new ArrayList<>();
         if (iayGrunnlag.isPresent()) {
             var erEndringssøknad = erEndringssøknad(referanse);
@@ -47,7 +47,7 @@ public class ArbeidsforholdInntektsmeldingsMangelUtleder {
                 mangler.addAll(lagArbeidsforholdMedMangel(inntektsmeldingRegisterTjeneste
                     .utledManglendeInntektsmeldingerFraGrunnlag(referanse, erEndringssøknad), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
                 mangler.addAll(lagArbeidsforholdMedMangel(InntektsmeldingUtenArbeidsforholdTjeneste
-                    .utledManglendeArbeidsforhold(iayGrunnlag.get(), referanse.getAktørId(), referanse.getUtledetSkjæringstidspunkt()), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
+                    .utledManglendeArbeidsforhold(iayGrunnlag.get(), referanse.aktørId(), referanse.getUtledetSkjæringstidspunkt()), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
             }
         }
         return mangler;
@@ -61,7 +61,7 @@ public class ArbeidsforholdInntektsmeldingsMangelUtleder {
     }
 
     private Boolean erEndringssøknad(BehandlingReferanse referanse) {
-        return søknadRepository.hentSøknadHvisEksisterer(referanse.getBehandlingId())
+        return søknadRepository.hentSøknadHvisEksisterer(referanse.behandlingId())
             .map(SøknadEntitet::erEndringssøknad)
             .orElse(false);
     }

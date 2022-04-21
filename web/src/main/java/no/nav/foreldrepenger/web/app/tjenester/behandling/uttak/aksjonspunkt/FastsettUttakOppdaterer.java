@@ -61,7 +61,7 @@ public class FastsettUttakOppdaterer implements AksjonspunktOppdaterer<Fastsette
     }
 
     private ForeldrepengerUttak håndterOverstyring(FastsetteUttakDto dto, UttakInput uttakInput) {
-        var behandlingId = uttakInput.getBehandlingReferanse().getBehandlingId();
+        var behandlingId = uttakInput.getBehandlingReferanse().behandlingId();
         var forrigeResultat = uttakTjeneste.hentUttak(behandlingId);
         var perioder = UttakPerioderMapper.map(dto.getPerioder(), forrigeResultat.getGjeldendePerioder());
         tjeneste.manueltFastsettePerioder(uttakInput, perioder);

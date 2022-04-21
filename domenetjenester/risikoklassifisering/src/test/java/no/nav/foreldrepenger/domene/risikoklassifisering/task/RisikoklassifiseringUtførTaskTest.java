@@ -73,8 +73,8 @@ public class RisikoklassifiseringUtførTaskTest {
                 prosessTaskData.setProperty(CommonTaskProperties.BEHANDLING_ID, String.valueOf(BEHANDLING_ID));
         risikoklassifiseringUtførTask.doTask(prosessTaskData);
         var request = new RisikovurderingRequestDto(
-            new no.nav.foreldrepenger.kontrakter.risk.kodeverk.AktørId(ref.getAktørId().getId()), SKJÆRINGSTIDSPUNKT, LocalDate.now(),
-            LocalDate.now(), ref.getBehandlingUuid(), YtelseType.ENGANGSSTØNAD,
+            new no.nav.foreldrepenger.kontrakter.risk.kodeverk.AktørId(ref.aktørId().getId()), SKJÆRINGSTIDSPUNKT, LocalDate.now(),
+            LocalDate.now(), ref.behandlingUuid(), YtelseType.ENGANGSSTØNAD,
             new AnnenPartDto(new no.nav.foreldrepenger.kontrakter.risk.kodeverk.AktørId(ANNEN_PART_AKTØR_ID.getId()), null));
         verify(risikovurderingTjeneste).startRisikoklassifisering(ref, request);
     }
@@ -84,11 +84,11 @@ public class RisikoklassifiseringUtførTaskTest {
             .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
         when(behandlingRepository.hentBehandling(BEHANDLING_ID)).thenReturn(behandling);
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingref.getId())).thenReturn(skjæringstidspunkt);
-        when(opplysningsPeriodeTjeneste.beregn(behandlingref.getId(), behandlingref.getFagsakYtelseType())).thenReturn(
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingref.behandlingId())).thenReturn(skjæringstidspunkt);
+        when(opplysningsPeriodeTjeneste.beregn(behandlingref.behandlingId(), behandlingref.fagsakYtelseType())).thenReturn(
             SimpleLocalDateInterval.fraOgMedTomNotNull(LocalDate.now(), LocalDate.now()));
         if (annenPart) {
-            when(personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandlingref.getBehandlingId()))
+            when(personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandlingref.behandlingId()))
                 .thenReturn(Optional.of(new OppgittAnnenPartBuilder().medAktørId(ANNEN_PART_AKTØR_ID).build()));
         }
         MDC.put("callId", "callId");

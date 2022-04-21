@@ -105,6 +105,6 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
         historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.ARBEIDSFORHOLD, arbeidsforholdNavn, null, tilVerdi);
         historikkAdapter.tekstBuilder().medBegrunnelse(begrunnelse);
         historikkAdapter.tekstBuilder().medSkjermlenke(SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_INNTEKTSMELDING);
-        historikkAdapter.opprettHistorikkInnslag(behandlingReferanse.getBehandlingId(), HistorikkinnslagType.FAKTA_ENDRET);
+        historikkAdapter.opprettHistorikkInnslag(behandlingReferanse.behandlingId(), HistorikkinnslagType.FAKTA_ENDRET);
     }
 }

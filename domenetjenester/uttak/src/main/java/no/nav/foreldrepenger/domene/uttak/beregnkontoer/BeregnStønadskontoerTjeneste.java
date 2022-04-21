@@ -47,25 +47,25 @@ public class BeregnStønadskontoerTjeneste {
 
     public void opprettStønadskontoer(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
-        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(ref.getSaksnummer());
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer());
         var stønadskontoberegning = beregn(uttakInput, fagsakRelasjon);
-        fagsakRelasjonTjeneste.lagre(ref.getFagsakId(), fagsakRelasjon, ref.getBehandlingId(), stønadskontoberegning);
+        fagsakRelasjonTjeneste.lagre(ref.fagsakId(), fagsakRelasjon, ref.behandlingId(), stønadskontoberegning);
     }
 
     public void overstyrStønadskontoberegning(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
-        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(ref.getSaksnummer());
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer());
         var eksisterende = fagsakRelasjon.getGjeldendeStønadskontoberegning().orElseThrow();
         var ny = beregn(uttakInput, fagsakRelasjon);
         if (inneholderEndringer(eksisterende, ny)) {
-            fagsakRelasjonTjeneste.overstyrStønadskontoberegning(ref.getFagsakId(), ref.getBehandlingId(), ny);
-            oppdaterBehandlingsresultat(ref.getBehandlingId());
+            fagsakRelasjonTjeneste.overstyrStønadskontoberegning(ref.fagsakId(), ref.behandlingId(), ny);
+            oppdaterBehandlingsresultat(ref.behandlingId());
         }
     }
 
     public Stønadskontoberegning beregn(UttakInput uttakInput, FagsakRelasjon fagsakRelasjon) {
         var ref = uttakInput.getBehandlingReferanse();
-        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(fpGrunnlag);
         return stønadskontoRegelAdapter.beregnKontoer(ref, ytelseFordelingAggregat, fagsakRelasjon, annenpartsGjeldendeUttaksplan, fpGrunnlag);

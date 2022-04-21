@@ -62,7 +62,7 @@ public class StartpunktTjenesteImplTest {
     private BehandlingReferanse lagRef() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
             .lagMocked();
-        return BehandlingReferanse.fra(behandling, LocalDate.now());
+        return BehandlingReferanse.fra(behandling);
     }
 
     @Test

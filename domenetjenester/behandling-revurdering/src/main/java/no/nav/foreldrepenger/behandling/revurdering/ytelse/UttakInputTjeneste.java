@@ -83,7 +83,7 @@ public class UttakInputTjeneste {
     }
 
     public UttakInput lagInput(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag, LocalDate medlemskapOpphørsdato) {
-        var søknadEntitet = søknadRepository.hentSøknadHvisEksisterer(ref.getBehandlingId());
+        var søknadEntitet = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
         var søknadMottattDato = søknadEntitet.map(SøknadEntitet::getMottattDato).orElse(null);
         var søknadOpprettetTidspunkt = søknadEntitet.map(SøknadEntitet::getOpprettetTidspunkt).orElse(null);
         var ytelsespesifiktGrunnlag = lagYtelsesspesifiktGrunnlag(ref);
@@ -95,7 +95,7 @@ public class UttakInputTjeneste {
                 .medBehandlingÅrsaker(map(årsaker))
                 .medBehandlingManueltOpprettet(erManueltOpprettet(årsaker))
                 .medErOpplysningerOmDødEndret(erOpplysningerOmDødEndret(ref));
-        var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(ref.getBehandlingId());
+        var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(ref.behandlingId());
         if (beregningsgrunnlag.isPresent()) {
             var bgStatuser = lagBeregningsgrunnlagStatuser(beregningsgrunnlag.get());
             var finnesAndelerMedGraderingUtenBeregningsgrunnlag = finnesAndelerMedGraderingUtenBeregningsgrunnlag(ref, beregningsgrunnlag.get());
@@ -122,7 +122,7 @@ public class UttakInputTjeneste {
     }
 
     private Set<BehandlingÅrsak> finnÅrsaker(BehandlingReferanse ref) {
-        var behandling = behandlingRepository.hentBehandling(ref.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
         return new HashSet<>(behandling.getBehandlingÅrsaker());
     }
 
@@ -149,9 +149,9 @@ public class UttakInputTjeneste {
     }
 
     private YtelsespesifiktGrunnlag lagYtelsesspesifiktGrunnlag(BehandlingReferanse ref) {
-        var ytelseType = ref.getFagsakYtelseType();
+        var ytelseType = ref.fagsakYtelseType();
 
-        var yfGrunnlagTjeneste = FagsakYtelseTypeRef.Lookup.find(YtelsesesspesifiktGrunnlagTjeneste.class, ref.getFagsakYtelseType())
+        var yfGrunnlagTjeneste = FagsakYtelseTypeRef.Lookup.find(YtelsesesspesifiktGrunnlagTjeneste.class, ref.fagsakYtelseType())
                 .orElseThrow(
                         () -> new IllegalStateException("Finner ikke tjeneste for å lage ytelsesspesifikt grunnlag for ytelsetype " + ytelseType));
 
@@ -159,10 +159,10 @@ public class UttakInputTjeneste {
     }
 
     private boolean erOpplysningerOmDødEndret(BehandlingReferanse ref) {
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         var originaltGrunnlag = personopplysningRepository.hentFørsteVersjonAvPersonopplysninger(behandlingId);
         var nåværendeGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
-        var poDiff = new PersonopplysningGrunnlagDiff(ref.getAktørId(), nåværendeGrunnlag, originaltGrunnlag);
+        var poDiff = new PersonopplysningGrunnlagDiff(ref.aktørId(), nåværendeGrunnlag, originaltGrunnlag);
 
         var barnDødt = poDiff.erBarnDødsdatoEndret();
         var foreldreDød = poDiff.erForeldreDødsdatoEndret();

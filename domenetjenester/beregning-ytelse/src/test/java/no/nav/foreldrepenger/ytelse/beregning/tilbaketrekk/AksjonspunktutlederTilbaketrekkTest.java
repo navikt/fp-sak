@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 
@@ -16,8 +17,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -63,13 +67,17 @@ public class AksjonspunktutlederTilbaketrekkTest {
     }
 
     private BehandlingReferanse mockReferanse(Behandling behandling) {
-        var behandlingReferanse = mock(BehandlingReferanse.class);
-        when(behandlingReferanse.getBehandlingId()).thenReturn(behandling.getId());
-        when(behandlingReferanse.erRevurdering()).thenReturn(true);
-        when(behandlingReferanse.getAktørId()).thenReturn(behandling.getAktørId());
-        when(behandlingReferanse.getUtledetSkjæringstidspunkt()).thenReturn(SKJÆRINGSTIDSPUNKT);
-        when(behandlingReferanse.getOriginalBehandlingId()).thenReturn(Optional.of(ORIGINAL_BEHANDLING_ID));
-        return behandlingReferanse;
+        return new BehandlingReferanse(null,
+            null,
+            null,
+            behandling.getId(),
+            UUID.randomUUID(),
+            BehandlingStatus.UTREDES,
+            BehandlingType.REVURDERING,
+            ORIGINAL_BEHANDLING_ID,
+            behandling.getAktørId(),
+            null,
+            Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build());
     }
 
     private Behandling opprettBehandling() {

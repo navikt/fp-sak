@@ -61,7 +61,7 @@ public class KompletthetModell {
     }
 
     private static Kompletthetsjekker finnKompletthetssjekker(KompletthetModell kompletthetModell, BehandlingReferanse ref) {
-        return kompletthetModell.kompletthetsjekkerProvider.finnKompletthetsjekkerFor(ref.getFagsakYtelseType(), ref.getBehandlingType());
+        return kompletthetModell.kompletthetsjekkerProvider.finnKompletthetsjekkerFor(ref.fagsakYtelseType(), ref.behandlingType());
     }
 
     /**
@@ -99,7 +99,7 @@ public class KompletthetModell {
         if (åpentAutopunkt.isPresent() && erAutopunktTilknyttetKompletthetssjekk(åpentAutopunkt)) {
             return vurderKompletthet(ref, åpentAutopunkt.get());
         }
-        if (!erKompletthetssjekkPassert(ref.getBehandlingId())) {
+        if (!erKompletthetssjekkPassert(ref.behandlingId())) {
             // Kompletthetssjekk er ikke passert, men står heller ikke på autopunkt tilknyttet kompletthet som skal sjekkes
             return KompletthetResultat.oppfylt();
         }
@@ -113,7 +113,7 @@ public class KompletthetModell {
     }
 
     private AksjonspunktDefinisjon finnSisteAutopunktKnyttetTilKompletthetssjekk(BehandlingReferanse ref) {
-        var rangerteAutopunkter = rangerKompletthetsfunksjonerKnyttetTilAutopunkt(ref.getFagsakYtelseType(), ref.getBehandlingType());
+        var rangerteAutopunkter = rangerKompletthetsfunksjonerKnyttetTilAutopunkt(ref.fagsakYtelseType(), ref.behandlingType());
         if (rangerteAutopunkter.isEmpty()) {
             throw new IllegalArgumentException("Utvklerfeil: Skal alltid finnes kompletthetsfunksjoner");
         }

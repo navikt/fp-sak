@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonEventPubliserer;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
@@ -170,7 +171,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     }
 
     private UttakInput lagInput(BehandlingReferanse ref, ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
-        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.getBehandlingId());
+        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
         return new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
             uttakBeregningsandelTjeneste.hentStatuser());
     }
@@ -480,7 +481,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         // Arrange
         var revurdering = testUtil.opprettRevurderingAdopsjon();
         var ref = BehandlingReferanse.fra(revurdering);
-        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.getBehandlingId());
+        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
         var familieHendelse = FamilieHendelse.forAdopsjonOmsorgsovertakelse(OMSORGSOVERTAKELSEDATO, List.of(new Barn()),
             1, null, false);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
@@ -503,7 +504,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         // Arrange
         var revurdering = testUtil.opprettRevurderingAdopsjon();
         var ref = BehandlingReferanse.fra(revurdering);
-        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.getBehandlingId());
+        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
         var familieHendelse = FamilieHendelse.forAdopsjonOmsorgsovertakelse(OMSORGSOVERTAKELSEDATO, List.of(new Barn()),
             1, ANKOMSTDATO, false);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
@@ -725,8 +726,8 @@ public class EndringsdatoRevurderingUtlederImplTest {
     }
 
     private UttakInput lagInput(Behandling behandling, FamilieHendelse bekreftetHendelse) {
-        var ref = BehandlingReferanse.fra(behandling, bekreftetHendelse.getFamilieHendelseDato());
-        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.getBehandlingId());
+        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(bekreftetHendelse.getFamilieHendelseDato()).build());
+        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
         var familiehendelser = new FamilieHendelser().medBekreftetHendelse(bekreftetHendelse);
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familiehendelser)
             .medOriginalBehandling(new OriginalBehandling(behandling.getOriginalBehandlingId().get(),

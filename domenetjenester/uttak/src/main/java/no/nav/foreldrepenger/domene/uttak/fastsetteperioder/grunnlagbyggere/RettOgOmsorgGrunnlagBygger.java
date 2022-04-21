@@ -39,7 +39,7 @@ public class RettOgOmsorgGrunnlagBygger {
 
     public RettOgOmsorg.Builder byggGrunnlag(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
-        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
         var annenpartsUttaksplan = hentAnnenpartsUttak(uttakInput);
         return new RettOgOmsorg.Builder()
                 .aleneomsorg(aleneomsorg(ytelseFordelingAggregat))
@@ -63,7 +63,7 @@ public class RettOgOmsorgGrunnlagBygger {
     }
 
     private boolean farHarRett(BehandlingReferanse ref, YtelseFordelingAggregat ytelseFordelingAggregat, Optional<ForeldrepengerUttak> annenpartsUttaksplan) {
-        var relasjonsRolleType = ref.getRelasjonsRolleType();
+        var relasjonsRolleType = ref.relasjonRolle();
         if (RelasjonsRolleType.erMor(relasjonsRolleType)) {
             return UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartsUttaksplan);
         }
@@ -74,7 +74,7 @@ public class RettOgOmsorgGrunnlagBygger {
     }
 
     private boolean morHarRett(BehandlingReferanse ref, YtelseFordelingAggregat ytelseFordelingAggregat, Optional<ForeldrepengerUttak> annenpartsUttaksplan) {
-        var relasjonsRolleType = ref.getRelasjonsRolleType();
+        var relasjonsRolleType = ref.relasjonRolle();
         if (RelasjonsRolleType.erMor(relasjonsRolleType)) {
             return harSøkerRett(ref);
         }
@@ -96,6 +96,6 @@ public class RettOgOmsorgGrunnlagBygger {
     }
 
     private boolean harSøkerRett(BehandlingReferanse ref) {
-        return !behandlingsresultatRepository.hent(ref.getBehandlingId()).isVilkårAvslått();
+        return !behandlingsresultatRepository.hent(ref.behandlingId()).isVilkårAvslått();
     }
 }

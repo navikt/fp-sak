@@ -172,7 +172,7 @@ public class BeregningIAYTestUtil {
     }
 
     public void lagreOppgittOpptjening(BehandlingReferanse behandlingReferanse) {
-        iayTjeneste.lagreOppgittOpptjening(behandlingReferanse.getId(), oppgittOpptjeningBuilder);
+        iayTjeneste.lagreOppgittOpptjening(behandlingReferanse.behandlingId(), oppgittOpptjeningBuilder);
         oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
     }
 
@@ -186,9 +186,9 @@ public class BeregningIAYTestUtil {
                                    Arbeidskategori arbeidskategori,
                                    Periode... meldekortPerioder) {
         var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(
-            behandlingReferanse.getId());
+            behandlingReferanse.behandlingId());
         var aktørYtelseBuilder = inntektArbeidYtelseAggregatBuilder.getAktørYtelseBuilder(
-            behandlingReferanse.getAktørId());
+            behandlingReferanse.aktørId());
         var ytelseBuilder = aktørYtelseBuilder.getYtelselseBuilderForType(Fagsystem.INFOTRYGD, ytelseType,
             Saksnummer.infotrygd(saksnummer));
         ytelseBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
@@ -205,7 +205,7 @@ public class BeregningIAYTestUtil {
         }
         aktørYtelseBuilder.leggTilYtelse(ytelseBuilder);
         inntektArbeidYtelseAggregatBuilder.leggTilAktørYtelse(aktørYtelseBuilder);
-        iayTjeneste.lagreIayAggregat(behandlingReferanse.getId(), inntektArbeidYtelseAggregatBuilder);
+        iayTjeneste.lagreIayAggregat(behandlingReferanse.behandlingId(), inntektArbeidYtelseAggregatBuilder);
     }
 
     private YtelseAnvist lagYtelseAnvist(Periode periode, YtelseBuilder ytelseBuilder) {
@@ -234,7 +234,7 @@ public class BeregningIAYTestUtil {
                                                                InternArbeidsforholdRef arbId,
                                                                Arbeidsgiver arbeidsgiver,
                                                                BigDecimal inntektPrMnd) {
-        return byggArbeidForBehandling(behandlingReferanse.getId(), behandlingReferanse.getAktørId(),
+        return byggArbeidForBehandling(behandlingReferanse.behandlingId(), behandlingReferanse.aktørId(),
             skjæringstidspunktOpptjening, fraOgMed, tilOgMed, arbId, arbeidsgiver, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD,
             singletonList(inntektPrMnd), arbeidsgiver != null, false, Optional.empty());
     }

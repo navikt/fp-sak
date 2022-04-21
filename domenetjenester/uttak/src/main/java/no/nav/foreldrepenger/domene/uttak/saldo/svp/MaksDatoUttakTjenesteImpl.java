@@ -31,7 +31,7 @@ public class MaksDatoUttakTjenesteImpl  implements MaksDatoUttakTjeneste {
     public Optional<LocalDate> beregnMaksDatoUttak(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
 
-        return svpUttakRepository.hentHvisEksisterer(ref.getBehandlingId())
+        return svpUttakRepository.hentHvisEksisterer(ref.behandlingId())
             .flatMap(MaksDatoUttakTjenesteImpl::finnSisteUttaksdato);
     }
 

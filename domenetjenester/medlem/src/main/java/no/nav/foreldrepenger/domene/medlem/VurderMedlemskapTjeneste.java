@@ -58,7 +58,7 @@ public class VurderMedlemskapTjeneste {
      * @return Liste med MedlemResultat
      */
     public Set<MedlemResultat> vurderMedlemskap(BehandlingReferanse ref, LocalDate vurderingsdato) {
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         Set<MedlemResultat> resultat = new HashSet<>();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         avklarOmErBosatt.utled(ref, vurderingsdato).ifPresent(resultat::add);
@@ -72,7 +72,7 @@ public class VurderMedlemskapTjeneste {
     }
 
     public LocalDate beregnVentPåFødselFristTid(BehandlingReferanse ref) {
-        return familieHendelseRepository.hentAggregat(ref.getBehandlingId())
+        return familieHendelseRepository.hentAggregat(ref.behandlingId())
             .getGjeldendeTerminbekreftelse().orElseThrow(IllegalStateException::new)
             .getTermindato().plus(Period.parse(AksjonspunktDefinisjon.VENT_PÅ_FØDSEL.getFristPeriode()));
     }

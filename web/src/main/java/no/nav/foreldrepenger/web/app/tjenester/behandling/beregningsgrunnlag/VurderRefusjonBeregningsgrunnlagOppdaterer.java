@@ -42,11 +42,11 @@ public class VurderRefusjonBeregningsgrunnlagOppdaterer implements AksjonspunktO
     @Override
     public OppdateringResultat oppdater(VurderRefusjonBeregningsgrunnlagDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingRef = param.getRef();
-        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(behandlingRef.getFagsakYtelseType());
-        var input = tjeneste.lagInput(behandlingRef.getBehandlingId());
+        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(behandlingRef.fagsakYtelseType());
+        var input = tjeneste.lagInput(behandlingRef.behandlingId());
         var forrigeGrunnlag = beregningsgrunnlagTjeneste
             .hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
-                behandlingRef.getBehandlingId(),
+                behandlingRef.behandlingId(),
                 behandlingRef.getOriginalBehandlingId(),
                 BeregningsgrunnlagTilstand.VURDERT_REFUSJON_UT);
         beregningHåndterer.håndterVurderRefusjonBeregningsgrunnlag(input, OppdatererDtoMapper.mapVurderRefusjonBeregningsgrunnlag(dto));

@@ -48,7 +48,7 @@ public class PåkrevdeInntektsmeldingerTjeneste {
     }
 
     private Boolean erEndringssøknad(BehandlingReferanse referanse) {
-        return søknadRepository.hentSøknadHvisEksisterer(referanse.getBehandlingId())
+        return søknadRepository.hentSøknadHvisEksisterer(referanse.behandlingId())
                 .map(SøknadEntitet::erEndringssøknad)
                 .orElse(false);
     }

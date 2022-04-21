@@ -62,14 +62,14 @@ public class BeregnTilrettleggingsperioderTjeneste {
      *         ikke finnes datagrunnlag
      */
     public List<TilretteleggingMedUtbelingsgrad> beregnPerioder(BehandlingReferanse behandlingReferanse) {
-        var svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingReferanse.getBehandlingId());
-        var aktørId = behandlingReferanse.getAktørId();
+        var svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingReferanse.behandlingId());
+        var aktørId = behandlingReferanse.aktørId();
 
         if (svpGrunnlagOpt.isPresent()) {
-            var termindato = finnTermindato(behandlingReferanse.getBehandlingId());
+            var termindato = finnTermindato(behandlingReferanse.behandlingId());
             var svpGrunnlag = svpGrunnlagOpt.get();
             var aktuelleTilretteleggingerFiltrert = new TilretteleggingFilter(svpGrunnlag).getAktuelleTilretteleggingerFiltrert();
-            var grunnlag = iayTjeneste.finnGrunnlag(behandlingReferanse.getBehandlingId());
+            var grunnlag = iayTjeneste.finnGrunnlag(behandlingReferanse.behandlingId());
 
             var filter = grunnlag
                     .map(g -> new YrkesaktivitetFilter(g.getArbeidsforholdInformasjon(), finnSaksbehandletEllerRegister(aktørId, g)))
@@ -109,7 +109,7 @@ public class BeregnTilrettleggingsperioderTjeneste {
                 return ordinæreArbeidsforhold;
             }
             throw new IllegalStateException(
-                    "Har ikke klart å beregne tilrettleggingsperiodene riktig for behandlingID" + behandlingReferanse.getBehandlingId());
+                    "Har ikke klart å beregne tilrettleggingsperiodene riktig for behandlingID" + behandlingReferanse.behandlingId());
         }
         return Collections.emptyList();
     }

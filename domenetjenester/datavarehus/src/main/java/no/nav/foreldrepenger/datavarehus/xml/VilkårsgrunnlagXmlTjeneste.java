@@ -62,7 +62,7 @@ public abstract class VilkårsgrunnlagXmlTjeneste {
     }
 
     protected boolean erKomplettSøknad(BehandlingReferanse ref) {
-        return kompletthetsjekkerProvider.finnKompletthetsjekkerFor(ref.getFagsakYtelseType(), ref.getBehandlingType()).erForsendelsesgrunnlagKomplett(ref);
+        return kompletthetsjekkerProvider.finnKompletthetsjekkerFor(ref.fagsakYtelseType(), ref.behandlingType()).erForsendelsesgrunnlagKomplett(ref);
     }
 
     protected LocalDate getMottattDato(Behandling behandling) {

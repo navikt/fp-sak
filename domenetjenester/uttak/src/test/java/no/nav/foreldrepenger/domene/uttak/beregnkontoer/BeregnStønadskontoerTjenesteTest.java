@@ -70,7 +70,7 @@ public class BeregnStønadskontoerTjenesteTest {
 
         // Assert
         var stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
-            .finnRelasjonFor(input.getBehandlingReferanse().getSaksnummer())
+            .finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
             .getGjeldendeStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
@@ -110,7 +110,7 @@ public class BeregnStønadskontoerTjenesteTest {
 
         // Assert
         var stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
-            .finnRelasjonFor(input.getBehandlingReferanse().getSaksnummer())
+            .finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
             .getGjeldendeStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
@@ -149,7 +149,7 @@ public class BeregnStønadskontoerTjenesteTest {
 
         // Assert
         var stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
-            .finnRelasjonFor(input.getBehandlingReferanse().getSaksnummer())
+            .finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
             .getGjeldendeStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
@@ -185,7 +185,7 @@ public class BeregnStønadskontoerTjenesteTest {
 
         // Assert
         var stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
-            .finnRelasjonFor(input.getBehandlingReferanse().getSaksnummer())
+            .finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
             .getGjeldendeStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
@@ -221,7 +221,7 @@ public class BeregnStønadskontoerTjenesteTest {
 
         // Assert
         var stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
-            .finnRelasjonFor(input.getBehandlingReferanse().getSaksnummer())
+            .finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
             .getGjeldendeStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoer();

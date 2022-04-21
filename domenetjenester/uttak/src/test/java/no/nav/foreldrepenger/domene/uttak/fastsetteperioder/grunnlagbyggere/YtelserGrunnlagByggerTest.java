@@ -2,18 +2,22 @@ package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
 import static no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet.fraOgMedTilOgMed;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
@@ -22,6 +26,8 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilde
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ytelser.PleiepengerPeriode;
@@ -30,7 +36,7 @@ class YtelserGrunnlagByggerTest {
 
     @Test
     void tom_ytelser_hvis_ikke_pleiepenger() {
-        var input = new UttakInput(mock(BehandlingReferanse.class), iay(), new ForeldrepengerGrunnlag());
+        var input = new UttakInput(lagBehandlingReferanse(), iay(), new ForeldrepengerGrunnlag());
 
         var ytelser = new YtelserGrunnlagBygger().byggGrunnlag(input);
         assertThat(ytelser.pleiepenger()).isEmpty();
@@ -59,7 +65,7 @@ class YtelserGrunnlagByggerTest {
                     .build())
                 .medKilde(Fagsystem.K9SAK)
                 .medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN));
-        var input = new UttakInput(mock(BehandlingReferanse.class), iay(aktørYtelseBuilder),
+        var input = new UttakInput(lagBehandlingReferanse(), iay(aktørYtelseBuilder),
             new ForeldrepengerGrunnlag().medPleiepengerGrunnlag(pleiepengerGrunnlag));
 
         var ytelser = new YtelserGrunnlagBygger().byggGrunnlag(input);
@@ -89,7 +95,7 @@ class YtelserGrunnlagByggerTest {
                     .build())
                 .medKilde(Fagsystem.K9SAK)
                 .medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN));
-        var input = new UttakInput(mock(BehandlingReferanse.class), iay(aktørYtelseBuilder), new ForeldrepengerGrunnlag());
+        var input = new UttakInput(lagBehandlingReferanse(), iay(aktørYtelseBuilder), new ForeldrepengerGrunnlag());
 
         var ytelser = new YtelserGrunnlagBygger().byggGrunnlag(input);
 
@@ -109,5 +115,19 @@ class YtelserGrunnlagByggerTest {
         return InntektArbeidYtelseGrunnlagBuilder.oppdatere(Optional.empty())
             .medData(inntektArbeidYtelseAggregatBuilder)
             .build();
+    }
+
+    private static BehandlingReferanse lagBehandlingReferanse() {
+        return new BehandlingReferanse(Saksnummer.arena("1234"),
+            1234L,
+            FagsakYtelseType.FORELDREPENGER,
+            4321L,
+            UUID.randomUUID(),
+            BehandlingStatus.UTREDES,
+            BehandlingType.FØRSTEGANGSSØKNAD,
+            5432L,
+            null,
+            RelasjonsRolleType.MORA,
+            null);
     }
 }

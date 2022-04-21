@@ -65,7 +65,7 @@ public class FamilieHendelseTjeneste {
     }
 
     public List<LocalDateInterval> forventetFødselsIntervaller(BehandlingReferanse ref) {
-        return forventetFødselsIntervaller(ref.getBehandlingId());
+        return forventetFødselsIntervaller(ref.behandlingId());
     }
 
     public List<LocalDateInterval> forventetFødselsIntervaller(Long behandlingId) {
@@ -189,7 +189,7 @@ public class FamilieHendelseTjeneste {
 
 
     public FamilieHendelseGrunnlagEntitet hentAggregat(BehandlingReferanse ref) {
-        return familieGrunnlagRepository.hentAggregat(ref.getBehandlingId());
+        return familieGrunnlagRepository.hentAggregat(ref.behandlingId());
     }
 
 
@@ -216,12 +216,12 @@ public class FamilieHendelseTjeneste {
     }
 
     public List<PersonopplysningEntitet> finnBarnSøktStønadFor(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         final var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
         var fødselsintervall = utledPerioderForRegisterinnhenting(familieHendelseGrunnlag);
 
         return personopplysninger.getRelasjoner().stream()
-            .filter(rel -> rel.getAktørId().equals(ref.getAktørId()) && rel.getRelasjonsrolle().equals(RelasjonsRolleType.BARN))
+            .filter(rel -> rel.getAktørId().equals(ref.aktørId()) && rel.getRelasjonsrolle().equals(RelasjonsRolleType.BARN))
             .map(rel -> personopplysninger.getPersonopplysning(rel.getTilAktørId()))
             .filter(barn -> barn != null && erBarnRelatertTilSøknad(fødselsintervall, barn.getFødselsdato()))
             .collect(toList());

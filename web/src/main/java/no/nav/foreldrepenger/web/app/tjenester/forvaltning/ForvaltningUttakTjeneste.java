@@ -55,7 +55,7 @@ public class ForvaltningUttakTjeneste {
     public void beregnKontoer(UUID behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var input = uttakInputTjeneste.lagInput(behandling);
-        var fagsak = fagsakRepository.finnEksaktFagsak(input.getBehandlingReferanse().getFagsakId());
+        var fagsak = fagsakRepository.finnEksaktFagsak(input.getBehandlingReferanse().fagsakId());
         fagsakRelasjonRepository.nullstillOverstyrtStønadskontoberegning(fagsak);
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
     }

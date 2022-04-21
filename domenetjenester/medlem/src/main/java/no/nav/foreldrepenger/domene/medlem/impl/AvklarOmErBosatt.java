@@ -71,15 +71,15 @@ public class AvklarOmErBosatt {
     }
 
     private boolean harPersonstatusSomSkalAvklares(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
-        var personstatus = Optional.ofNullable(personopplysninger.getPersonstatusFor(ref.getAktørId()))
+        var personstatus = Optional.ofNullable(personopplysninger.getPersonstatusFor(ref.aktørId()))
             .map(PersonstatusEntitet::getPersonstatus).orElse(PersonstatusType.UDEFINERT);
         return !STATUS_UTEN_AVKLARINGSBEHOV.contains(personstatus);
     }
 
     private boolean søkerHarSøktPåTerminOgSkalOppholdeSegIUtlandetImerEnn12M(BehandlingReferanse ref, LocalDate vurderingsdato) {
-        var grunnlag = familieHendelseRepository.hentAggregat(ref.getBehandlingId());
+        var grunnlag = familieHendelseRepository.hentAggregat(ref.behandlingId());
         if (grunnlag.getGjeldendeVersjon().getTerminbekreftelse().isPresent()) {
-            final var medlemskapAggregat = medlemskapRepository.hentMedlemskap(ref.getBehandlingId());
+            final var medlemskapAggregat = medlemskapRepository.hentMedlemskap(ref.behandlingId());
             final var oppgittTilknytning = medlemskapAggregat.flatMap(MedlemskapAggregat::getOppgittTilknytning)
                 .orElseThrow(IllegalStateException::new);
 
@@ -112,7 +112,7 @@ public class AvklarOmErBosatt {
     }
 
     private Utfall harBrukerUtenlandskPostadresseITps(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
-        if (personopplysninger.getAdresserFor(ref.getAktørId()).stream().anyMatch(adresse -> AdresseType.POSTADRESSE_UTLAND.equals(adresse.getAdresseType()) ||
+        if (personopplysninger.getAdresserFor(ref.aktørId()).stream().anyMatch(adresse -> AdresseType.POSTADRESSE_UTLAND.equals(adresse.getAdresseType()) ||
             !Landkoder.erNorge(adresse.getLand()))) {
             return JA;
         }
@@ -121,7 +121,7 @@ public class AvklarOmErBosatt {
 
     //TODO(OJR) må denne endres?
     private Utfall harBrukerTilknytningHjemland(BehandlingReferanse ref) {
-        final var medlemskapAggregat = medlemskapRepository.hentMedlemskap(ref.getBehandlingId());
+        final var medlemskapAggregat = medlemskapRepository.hentMedlemskap(ref.behandlingId());
         final var oppgittTilknytning = medlemskapAggregat.flatMap(MedlemskapAggregat::getOppgittTilknytning)
             .orElseThrow(IllegalStateException::new);
 
@@ -142,7 +142,7 @@ public class AvklarOmErBosatt {
     private Utfall erFrivilligMedlemEllerIkkeMedlem(BehandlingReferanse ref, LocalDate vurderingsdato) {
 
 
-        var medlemskap = medlemskapRepository.hentMedlemskap(ref.getBehandlingId());
+        var medlemskap = medlemskapRepository.hentMedlemskap(ref.behandlingId());
 
         Collection<MedlemskapPerioderEntitet> medlemskapsPerioder = medlemskap.isPresent()
             ? medlemskap.get().getRegistrertMedlemskapPerioder()

@@ -182,8 +182,8 @@ public class SaldoerDtoTjeneste {
         if (!Stønadskontotype.FELLESPERIODE.equals(stønadskonto) && !Stønadskontotype.FORELDREPENGER.equals(stønadskonto)) {
             return Optional.empty();
         }
-        var yfAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
-        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(ref.getSaksnummer());
+        var yfAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
+        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(ref.saksnummer());
         var stønadskontoberegning = stønadskontoRegelAdapter.beregnKontoerMedResultat(ref, yfAggregat, fagsakRelasjon, annenpart, fpGrunnlag);
         int prematurdager = stønadskontoberegning.getAntallPrematurDager();
         int flerbarnsdager = stønadskontoberegning.getAntallFlerbarnsdager();

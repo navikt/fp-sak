@@ -56,7 +56,7 @@ public class ArbeidGrunnlagBygger {
         var resultat = new HashSet<Arbeidsforhold>();
         var beregningsgrunnlagStatuser = input.getBeregningsgrunnlagStatuser();
         var ytelseFordelingAggregat = ytelsesfordelingRepository.hentAggregat(
-            input.getBehandlingReferanse().getBehandlingId());
+            input.getBehandlingReferanse().behandlingId());
         var uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
 
         if (beregningsgrunnlagStatuser.isEmpty()) {

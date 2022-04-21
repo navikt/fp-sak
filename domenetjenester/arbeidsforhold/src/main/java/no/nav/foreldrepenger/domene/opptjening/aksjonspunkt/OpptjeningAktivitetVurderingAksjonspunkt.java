@@ -65,7 +65,7 @@ public class OpptjeningAktivitetVurderingAksjonspunkt implements OpptjeningAktiv
      */
     private VurderingsStatus vurderArbeid(YrkesaktivitetFilter filter, Yrkesaktivitet registerAktivitet, Yrkesaktivitet overstyrtAktivitet,
             boolean harVærtSaksbehandlet, BehandlingReferanse behandlingReferanse) {
-        if (vurderBekreftetOpptjening.girAksjonspunktForArbeidsforhold(filter, behandlingReferanse.getBehandlingId(), registerAktivitet,
+        if (vurderBekreftetOpptjening.girAksjonspunktForArbeidsforhold(filter, behandlingReferanse.behandlingId(), registerAktivitet,
                 overstyrtAktivitet)) {
             if (overstyrtAktivitet != null) {
                 return VurderingsStatus.GODKJENT;
@@ -101,7 +101,7 @@ public class OpptjeningAktivitetVurderingAksjonspunkt implements OpptjeningAktiv
      */
     private VurderingsStatus vurderNæring(BehandlingReferanse behandlingReferanse, Yrkesaktivitet overstyrtAktivitet,
             InntektArbeidYtelseGrunnlag iayGrunnlag, Skjæringstidspunkt skjæringstidspunkt, boolean harVærtSaksbehandlet) {
-        if (vurderOppgittOpptjening.girAksjonspunktForOppgittNæring(behandlingReferanse.getBehandlingId(), behandlingReferanse.getAktørId(),
+        if (vurderOppgittOpptjening.girAksjonspunktForOppgittNæring(behandlingReferanse.behandlingId(), behandlingReferanse.aktørId(),
                 iayGrunnlag, skjæringstidspunkt)) {
             if (overstyrtAktivitet != null) {
                 return VurderingsStatus.GODKJENT;

@@ -40,7 +40,7 @@ class BehandlingÅrsakUtlederPersonopplysning implements BehandlingÅrsakUtleder
         var personopplysningGrunnlag1 = personopplysningRepository.hentGrunnlagPåId(grunnlag1);
         var personopplysningGrunnlag2 = personopplysningRepository.hentGrunnlagPåId(grunnlag2);
 
-        var poDiff = new PersonopplysningGrunnlagDiff(ref.getAktørId(), personopplysningGrunnlag1, personopplysningGrunnlag2);
+        var poDiff = new PersonopplysningGrunnlagDiff(ref.aktørId(), personopplysningGrunnlag1, personopplysningGrunnlag2);
         var forelderErDødEndret = poDiff.erForeldreDødsdatoEndret();
         var barnetsDødsdatoEndret = poDiff.erBarnDødsdatoEndret();
 

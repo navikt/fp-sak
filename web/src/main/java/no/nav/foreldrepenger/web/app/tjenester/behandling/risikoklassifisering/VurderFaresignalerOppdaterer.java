@@ -48,7 +48,7 @@ public class VurderFaresignalerOppdaterer implements AksjonspunktOppdaterer<Vurd
 
         var risikoklassifisering = risikovurderingTjeneste.hentRisikoklassifisering(referanse)
             .filter(rk -> Kontrollresultat.HØY.equals(rk.kontrollresultat()))
-            .orElseThrow(() -> new IllegalStateException("Skal ikke kunne vurdere faresignaler for behandling med id " + referanse.getBehandlingId()));
+            .orElseThrow(() -> new IllegalStateException("Skal ikke kunne vurdere faresignaler for behandling med id " + referanse.behandlingId()));
 
         var originalFaresignalVurdering = risikoklassifisering.faresignalVurdering();
 

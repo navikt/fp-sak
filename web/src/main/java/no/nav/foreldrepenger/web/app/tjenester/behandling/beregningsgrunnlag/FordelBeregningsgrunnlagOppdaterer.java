@@ -36,8 +36,8 @@ public class FordelBeregningsgrunnlagOppdaterer implements AksjonspunktOppdatere
 
     @Override
     public OppdateringResultat oppdater(FordelBeregningsgrunnlagDto dto, AksjonspunktOppdaterParameter param) {
-        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(param.getRef().getFagsakYtelseType());
-        var input = tjeneste.lagInput(param.getRef().getBehandlingId());
+        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(param.getRef().fagsakYtelseType());
+        var input = tjeneste.lagInput(param.getRef().behandlingId());
         beregningHåndterer.håndterFordelBeregningsgrunnlag(input, OppdatererDtoMapper.mapFordelBeregningsgrunnlagDto(dto));
         fordelBeregningsgrunnlagHistorikkTjeneste.lagHistorikk(dto, param);
         return OppdateringResultat.utenOveropp();

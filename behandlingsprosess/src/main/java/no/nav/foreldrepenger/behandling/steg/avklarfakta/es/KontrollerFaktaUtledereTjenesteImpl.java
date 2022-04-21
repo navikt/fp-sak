@@ -38,7 +38,7 @@ class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
 
         final var utlederHolder = new AksjonspunktUtlederHolder();
 
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         final var hendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
         if (hendelseGrunnlag.isEmpty()) {
             throw VilkårUtlederFeil.behandlingsmotivKanIkkeUtledes(behandlingId);

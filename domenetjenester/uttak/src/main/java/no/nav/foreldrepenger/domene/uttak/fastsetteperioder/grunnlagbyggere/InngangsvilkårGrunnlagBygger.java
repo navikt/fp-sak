@@ -40,7 +40,7 @@ public class InngangsvilkårGrunnlagBygger {
     }
 
     private VilkårResultat finnVilkårResultat(BehandlingReferanse behandlingReferanse) {
-        return behandlingsresultatRepository.hent(behandlingReferanse.getBehandlingId()).getVilkårResultat();
+        return behandlingsresultatRepository.hent(behandlingReferanse.behandlingId()).getVilkårResultat();
     }
 
     public static boolean foreldreansvarsvilkåretOppfylt(VilkårResultat vilkårResultat) {
@@ -64,7 +64,7 @@ public class InngangsvilkårGrunnlagBygger {
     }
 
     private static boolean søkerErMor(BehandlingReferanse ref) {
-        return ref.getRelasjonsRolleType().equals(RelasjonsRolleType.MORA);
+        return ref.relasjonRolle().equals(RelasjonsRolleType.MORA);
     }
 
     private static boolean vilkårAvTypeErOppfylt(VilkårResultat vilkårResultat, VilkårType type) {

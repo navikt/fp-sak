@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
@@ -1030,26 +1031,24 @@ public class RevurderingBehandlingsresultatutlederTest {
         assertThat(uendretUtfall).isTrue();
     }
 
-    private Behandlingsresultat bestemBehandlingsresultatForRevurdering(Behandling revurdering,
-            boolean erVarselOmRevurderingSendt) {
-        var ref = BehandlingReferanse.fra(revurdering, SKJÆRINGSTIDSPUNKT_BEREGNING);
-        return revurderingBehandlingsresultatutleder.bestemBehandlingsresultatForRevurdering(ref,
-                erVarselOmRevurderingSendt);
+    private void bestemBehandlingsresultatForRevurdering(Behandling revurdering,
+                                                         boolean erVarselOmRevurderingSendt) {
+        var ref = BehandlingReferanse.fra(revurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_BEREGNING).build());
+        revurderingBehandlingsresultatutleder.bestemBehandlingsresultatForRevurdering(ref, erVarselOmRevurderingSendt);
     }
 
     private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
         return behandling.getBehandlingsresultat();
     }
 
-    private SvangerskapspengerUttakResultatEntitet lagUttakResultatPlanForBehandling(Behandling behandling,
-            List<LocalDateInterval> perioder) {
+    private void lagUttakResultatPlanForBehandling(Behandling behandling,
+                                                   List<LocalDateInterval> perioder) {
         var uttakresultat = LagUttakResultatPlanTjeneste.lagUttakResultatPlanSVPTjeneste(
                 behandling,
                 perioder, Collections.nCopies(perioder.size(), PeriodeResultatType.INNVILGET),
                 Collections.nCopies(perioder.size(), PeriodeIkkeOppfyltÅrsak.INGEN),
                 Collections.nCopies(perioder.size(), 100));
         uttakRepository.lagre(behandling.getId(), uttakresultat);
-        return uttakresultat;
     }
 
     private SvangerskapspengerUttakResultatEntitet lagUttakResultatPlanForBehandling(Behandling behandling,

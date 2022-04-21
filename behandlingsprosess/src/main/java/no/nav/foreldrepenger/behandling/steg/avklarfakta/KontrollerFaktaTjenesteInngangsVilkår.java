@@ -56,7 +56,7 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
     @Override
     public boolean skalOverstyringLøsesTilHøyreForStartpunkt(BehandlingReferanse ref, StartpunktType startpunktType, AksjonspunktDefinisjon apDef) {
         return behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(
-                ref.getFagsakYtelseType(), ref.getBehandlingType(), startpunktType.getBehandlingSteg(), apDef);
+                ref.fagsakYtelseType(), ref.behandlingType(), startpunktType.getBehandlingSteg(), apDef);
     }
 
     private List<AksjonspunktResultat> filtrerAksjonspunkterTilVenstreForStartpunkt(BehandlingReferanse referanse,
@@ -71,7 +71,7 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
 
     private boolean skalBeholdeAksjonspunkt(BehandlingReferanse ref, BehandlingStegType steg, AksjonspunktDefinisjon apDef) {
         var skalBeholde = behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(
-                ref.getFagsakYtelseType(), ref.getBehandlingType(), steg, apDef);
+                ref.fagsakYtelseType(), ref.behandlingType(), steg, apDef);
         if (!skalBeholde) {
             LOG.debug("Fjerner aksjonspunkt {} da det skal løses før startsteg {}.",
                     apDef.getKode(), steg.getKode()); // NOSONAR

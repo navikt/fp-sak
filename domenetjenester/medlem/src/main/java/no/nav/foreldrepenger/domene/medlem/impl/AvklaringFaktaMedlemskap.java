@@ -99,9 +99,9 @@ public class AvklaringFaktaMedlemskap {
 
     private Utfall harOppholdstilltatelseVed(BehandlingReferanse ref, LocalDate vurderingsdato) {
         if (ref.getUtledetMedlemsintervall().encloses(vurderingsdato)) {
-            return personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.getBehandlingId(), ref.getUtledetMedlemsintervall()) ? JA : NEI;
+            return personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.behandlingId(), ref.getUtledetMedlemsintervall()) ? JA : NEI;
         }
-        return personopplysningTjeneste.harOppholdstillatelsePåDato(ref.getBehandlingId(), vurderingsdato) ? JA : NEI;
+        return personopplysningTjeneste.harOppholdstillatelsePåDato(ref.behandlingId(), vurderingsdato) ? JA : NEI;
     }
 
     private Utfall harDekningsgrad(LocalDate vurderingsdato, Set<MedlemskapPerioderEntitet> medlemskapPerioder) {
@@ -145,11 +145,11 @@ public class AvklaringFaktaMedlemskap {
      */
     private Utfall harInntektSiste3mnd(BehandlingReferanse ref, LocalDate vurderingsdato) {
         var siste3Mnd = utledInntektsintervall3Mnd(ref, vurderingsdato);
-        var grunnlag = iayTjeneste.finnGrunnlag(ref.getBehandlingId());
+        var grunnlag = iayTjeneste.finnGrunnlag(ref.behandlingId());
 
         var inntektSiste3M = false;
         if (grunnlag.isPresent()) {
-            var filter = new InntektFilter(grunnlag.get().getAktørInntektFraRegister(ref.getAktørId())).før(vurderingsdato);
+            var filter = new InntektFilter(grunnlag.get().getAktørInntektFraRegister(ref.aktørId())).før(vurderingsdato);
             inntektSiste3M = filter.getInntektsposterPensjonsgivende().stream()
                 .anyMatch(ip -> siste3Mnd.overlapper(ip.getPeriode()));
         }
@@ -157,8 +157,8 @@ public class AvklaringFaktaMedlemskap {
     }
 
     private DatoIntervallEntitet utledInntektsintervall3Mnd(BehandlingReferanse referanse, LocalDate vurderingstidspunkt) {
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(referanse.getFagsakYtelseType()) && LocalDate.now().isBefore(vurderingstidspunkt)) {
-            final var søknadMottattDato = søknadRepository.hentSøknad(referanse.getBehandlingId()).getMottattDato();
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(referanse.fagsakYtelseType()) && LocalDate.now().isBefore(vurderingstidspunkt)) {
+            final var søknadMottattDato = søknadRepository.hentSøknad(referanse.behandlingId()).getMottattDato();
             var brukdato = søknadMottattDato.isBefore(vurderingstidspunkt) ? søknadMottattDato : vurderingstidspunkt;
             return DatoIntervallEntitet.fraOgMedTilOgMed(brukdato.minusMonths(3), brukdato);
         }

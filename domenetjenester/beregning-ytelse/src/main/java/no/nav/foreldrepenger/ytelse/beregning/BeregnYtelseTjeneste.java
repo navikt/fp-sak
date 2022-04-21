@@ -39,7 +39,7 @@ public class BeregnYtelseTjeneste {
     }
 
     public BeregningsresultatEntitet beregnYtelse(BehandlingReferanse referanse) {
-        var behandlingId = referanse.getBehandlingId();
+        var behandlingId = referanse.behandlingId();
         var input = uttakInputTjeneste.lagInput(behandlingId);
 
         var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandlingId);
@@ -78,6 +78,6 @@ public class BeregnYtelseTjeneste {
     }
 
     private boolean andelerIBeregningMåLiggeIUttak(BehandlingReferanse ref) {
-        return ref.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER);
+        return ref.fagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER);
     }
 }

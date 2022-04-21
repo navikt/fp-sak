@@ -39,7 +39,7 @@ public class OpptjeningDtoTjeneste {
     }
 
     public Optional<OpptjeningDto> mapFra(BehandlingReferanse ref) {
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         var fastsattOpptjening = forSaksbehandlingTjeneste.hentOpptjeningHvisFinnes(behandlingId);
 
         var resultat = new OpptjeningDto();

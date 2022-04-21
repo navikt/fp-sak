@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -104,7 +105,7 @@ public class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest
     }
 
     private BehandlingReferanse lagReferanse(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling, LocalDate.now());
+        return BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
     }
 
     private Virksomhet lagVirksomhet(String orgnr, String navn) {
@@ -112,10 +113,6 @@ public class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest
             .medOrgnr(orgnr)
             .medNavn(navn)
             .build();
-    }
-
-    private FaktaUttakArbeidsforholdTjeneste tjeneste() {
-        return new FaktaUttakArbeidsforholdTjeneste();
     }
 
 }

@@ -55,15 +55,15 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
     }
 
     private Optional<SvpGrunnlagEntitet> svpGrunnEntitet(BehandlingReferanse ref) {
-        return svangerskapspengerRepository.hentGrunnlag(ref.getBehandlingId());
+        return svangerskapspengerRepository.hentGrunnlag(ref.behandlingId());
     }
 
     private Optional<NesteSakGrunnlagEntitet> nesteSakGrunnlag(BehandlingReferanse ref) {
-        return nesteSakRepository.hentGrunnlag(ref.getBehandlingId());
+        return nesteSakRepository.hentGrunnlag(ref.behandlingId());
     }
 
     private Optional<FamilieHendelse> familieHendelse(BehandlingReferanse ref) {
-        var gjeldendeFamiliehendelseOpt = familieHendelseRepository.hentAggregatHvisEksisterer(ref.getBehandlingId())
+        var gjeldendeFamiliehendelseOpt = familieHendelseRepository.hentAggregatHvisEksisterer(ref.behandlingId())
                 .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
         if (gjeldendeFamiliehendelseOpt.isEmpty()) {
             return Optional.empty();

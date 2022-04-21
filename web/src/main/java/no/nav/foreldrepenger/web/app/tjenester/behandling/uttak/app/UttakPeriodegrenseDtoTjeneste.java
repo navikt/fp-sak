@@ -34,7 +34,7 @@ public class UttakPeriodegrenseDtoTjeneste {
 
     public Optional<UttakPeriodegrenseDto> mapFra(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var uttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(ref.getBehandlingId());
+        var uttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(ref.behandlingId());
         if (uttaksperiodegrense.isPresent()) {
             var dto = new UttakPeriodegrenseDto();
             dto.setSoknadsfristForForsteUttaksdato(uttaksperiodegrense.get().getFørsteLovligeUttaksdag());
@@ -49,13 +49,13 @@ public class UttakPeriodegrenseDtoTjeneste {
 
     private void populerDto(UttakPeriodegrenseDto dto, UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var søktPeriodeOpt = FagsakYtelseTypeRef.Lookup.find(SøktPeriodeTjeneste.class, ref.getFagsakYtelseType())
+        var søktPeriodeOpt = FagsakYtelseTypeRef.Lookup.find(SøktPeriodeTjeneste.class, ref.fagsakYtelseType())
             .orElseThrow()
             .finnSøktPeriode(input);
 
         søktPeriodeOpt.ifPresent(søktPeriode -> {
             var søknadsfrist = finnSøknadsfristForPeriodeMedStart(søktPeriode.getFomDato());
-            var søknad = søknadRepository.hentSøknad(ref.getBehandlingId());
+            var søknad = søknadRepository.hentSøknad(ref.behandlingId());
             dto.setSoknadsperiodeStart(søktPeriode.getFomDato());
             dto.setSoknadsperiodeSlutt(søktPeriode.getTomDato());
             dto.setSoknadsfristForForsteUttaksdato(søknadsfrist);

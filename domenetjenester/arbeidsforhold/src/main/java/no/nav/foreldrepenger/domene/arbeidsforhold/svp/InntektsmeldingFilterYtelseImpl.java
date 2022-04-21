@@ -57,7 +57,7 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
     }
 
     private List<SvpTilretteleggingEntitet> getArbeidsforholdSøktTilretteleggingI(BehandlingReferanse referanse) {
-        return svangerskapspengerRepository.hentGrunnlag(referanse.getBehandlingId())
+        return svangerskapspengerRepository.hentGrunnlag(referanse.behandlingId())
             .map(svpGrunnlagEntitet -> new TilretteleggingFilter(svpGrunnlagEntitet).getAktuelleTilretteleggingerUfiltrert())
             .orElse(Collections.emptyList());
     }

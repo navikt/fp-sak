@@ -66,7 +66,7 @@ public class FastsettePerioderRegelResultatKonverterer {
 
     UttakResultatPerioderEntitet konverter(UttakInput input, List<FastsettePeriodeResultat> resultat) {
         var ref = input.getBehandlingReferanse();
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         var oppgittFordeling = hentOppgittFordeling(behandlingId);
         var perioder = new UttakResultatPerioderEntitet();
 
@@ -96,7 +96,7 @@ public class FastsettePerioderRegelResultatKonverterer {
                 "Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
         var opprinneligUttak = fpUttakRepository.hentUttakResultatHvisEksisterer(originalBehandling);
         if (opprinneligUttak.isPresent()) {
-            var endringsdato = ytelsesfordelingRepository.hentAggregat(ref.getBehandlingId())
+            var endringsdato = ytelsesfordelingRepository.hentAggregat(ref.behandlingId())
                 .getGjeldendeEndringsdato();
             var perioderFørEndringsdato = FastsettePerioderRevurderingUtil.perioderFørDato(opprinneligUttak.get(),
                 endringsdato);

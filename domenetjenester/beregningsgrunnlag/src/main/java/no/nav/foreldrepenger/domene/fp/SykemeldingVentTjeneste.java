@@ -33,8 +33,8 @@ public class SykemeldingVentTjeneste {
             return Optional.empty();
         }
 
-        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(referanse.getBehandlingUuid());
-        var filter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(referanse.getAktørId()));
+        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(referanse.behandlingUuid());
+        var filter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(referanse.aktørId()));
         return VentPåSykemelding.utledVenteFrist(filter, referanse.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening(), LocalDate.now());
     }
 }

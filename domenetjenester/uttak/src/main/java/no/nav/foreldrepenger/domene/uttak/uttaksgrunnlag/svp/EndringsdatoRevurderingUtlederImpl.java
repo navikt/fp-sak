@@ -32,7 +32,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
 
     @Override
     public LocalDate utledEndringsdato(UttakInput input) {
-        var behandlingId = input.getBehandlingReferanse().getBehandlingId();
+        var behandlingId = input.getBehandlingReferanse().behandlingId();
         var uttakResultat = uttakResultatRepository.hentHvisEksisterer(behandlingId);
         if (uttakResultat.isPresent() && uttakResultat.get().finnFørsteUttaksdato().isPresent()) {
             return uttakResultat.get().finnFørsteUttaksdato().get();

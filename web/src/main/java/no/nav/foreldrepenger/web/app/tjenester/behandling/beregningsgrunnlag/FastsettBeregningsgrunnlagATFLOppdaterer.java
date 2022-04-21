@@ -55,7 +55,7 @@ public class FastsettBeregningsgrunnlagATFLOppdaterer implements AksjonspunktOpp
     public OppdateringResultat oppdater(FastsettBeregningsgrunnlagATFLDto dto, AksjonspunktOppdaterParameter param) {
         var aktivtGrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(param.getBehandlingId());
         var ref = param.getRef();
-        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(ref.getFagsakYtelseType());
+        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(ref.fagsakYtelseType());
         var input = tjeneste.lagInput(ref);
         var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
             BeregningsgrunnlagTilstand.FORESLÅTT_UT)

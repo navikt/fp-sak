@@ -37,7 +37,7 @@ public class OpphørUttakTjeneste {
             return Optional.empty();
         }
         var skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
-        var opphørsdato = utledOpphørsdatoFraUttak(hentUttakResultatFor(ref.getBehandlingId()), skjæringstidspunkt);
+        var opphørsdato = utledOpphørsdatoFraUttak(hentUttakResultatFor(ref.behandlingId()), skjæringstidspunkt);
 
         return Optional.ofNullable(opphørsdato);
     }

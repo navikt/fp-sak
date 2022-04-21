@@ -30,7 +30,7 @@ public class UttakResultatMapper implements UttakResultatRepoMapper {
     @Override
     public UttakResultat hentOgMapUttakResultat(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var uttakResultat = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(ref.getBehandlingId())
+        var uttakResultat = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(ref.behandlingId())
             .orElseThrow(() -> new IllegalStateException("Mangler uttaksresultat for svangerskapspenger-behandling i beregn ytelse."));
         return mapper.mapFra(uttakResultat, input);
     }

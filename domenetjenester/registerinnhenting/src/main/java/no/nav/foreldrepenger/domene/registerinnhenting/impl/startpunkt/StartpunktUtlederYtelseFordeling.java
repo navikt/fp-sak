@@ -46,7 +46,7 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
     public StartpunktType utledStartpunkt(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
         // Ser på forhold fra endringssøknader og kun en gang - ved KOFAK siden mottak merger/henlegger ved ny søknad. (andre utledere ser på fødsel, mm.).
         var originalBehandling = ref.getOriginalBehandlingId().orElse(null);
-        var behandling = behandlingRepository.hentBehandling(ref.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
         if (originalBehandling == null || behandling.harSattStartpunkt()) {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "ikke revurdering el passert kofak", grunnlagId1, grunnlagId2);
             return StartpunktType.UTTAKSVILKÅR;
@@ -71,7 +71,7 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
 
 
     private boolean erStartpunktBeregning(BehandlingReferanse nyBehandlingRef){
-        var perioderFraSøknad = ytelsesFordelingRepository.hentAggregat(nyBehandlingRef.getBehandlingId()).getOppgittFordeling().getOppgittePerioder();
+        var perioderFraSøknad = ytelsesFordelingRepository.hentAggregat(nyBehandlingRef.behandlingId()).getOppgittFordeling().getOppgittePerioder();
         var gradertePerioderFraSøknad = finnGradertePerioder(perioderFraSøknad);
 
         if (gradertePerioderFraSøknad.isEmpty()){
@@ -93,7 +93,7 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
     }
 
     private Boolean harBehandlingEndringssøknad(BehandlingReferanse referanse) {
-        return søknadRepository.hentSøknadFraGrunnlag(referanse.getBehandlingId())
+        return søknadRepository.hentSøknadFraGrunnlag(referanse.behandlingId())
             .map(SøknadEntitet::erEndringssøknad)
             .orElse(false);
     }

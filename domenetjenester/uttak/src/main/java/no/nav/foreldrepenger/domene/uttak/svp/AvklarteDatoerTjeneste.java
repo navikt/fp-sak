@@ -43,7 +43,7 @@ class AvklarteDatoerTjeneste {
 
     public AvklarteDatoer finn(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         var uttaksgrense = uttaksperiodegrenseRepository.hentHvisEksisterer(behandlingId);
 
         SvangerskapspengerGrunnlag svpGrunnlag = input.getYtelsespesifiktGrunnlag();
@@ -62,7 +62,7 @@ class AvklarteDatoerTjeneste {
         dødsdatoBrukerOptional.ifPresent(avklarteDatoerBuilder::medBrukersDødsdato);
         medlemskapOpphørsdatoOptional.ifPresent(avklarteDatoerBuilder::medOpphørsdatoForMedlemskap);
         startdatoNesteSak.ifPresent(avklarteDatoerBuilder::medStartdatoNesteSak);
-        
+
         if (uttaksgrense.isPresent()) {
             avklarteDatoerBuilder.medFørsteLovligeUttaksdato(uttaksgrense.get().getFørsteLovligeUttaksdag());
             var ferier = finnFerier(ref, uttaksgrense.get().getFørsteLovligeUttaksdag());

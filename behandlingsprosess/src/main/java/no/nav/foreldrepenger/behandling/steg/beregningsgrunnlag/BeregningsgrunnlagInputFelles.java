@@ -76,8 +76,8 @@ public abstract class BeregningsgrunnlagInputFelles {
     }
 
     public BeregningsgrunnlagInput lagInput(BehandlingReferanse referanse) {
-        var iayGrunnlag = iayTjeneste.hentGrunnlag(referanse.getBehandlingId());
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(referanse.getBehandlingId());
+        var iayGrunnlag = iayTjeneste.hentGrunnlag(referanse.behandlingId());
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(referanse.behandlingId());
         return lagInput(referanse.medSkjæringstidspunkt(skjæringstidspunkt), iayGrunnlag);
     }
 
@@ -96,7 +96,7 @@ public abstract class BeregningsgrunnlagInputFelles {
         var inntektsmeldingDiff = inntektsmeldingTjeneste.hentInntektsmeldingDiffFraOriginalbehandling(ref);
         var inntektsmeldingDiffDto = inntektsmeldingDiff.stream().map(IAYMapperTilKalkulus::mapInntektsmeldingDto)
                 .collect(Collectors.toList());
-        var iayGrunnlagUtenIMDiff = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, ref.getAktørId());
+        var iayGrunnlagUtenIMDiff = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, ref.aktørId());
 
         InntektArbeidYtelseGrunnlagDto iayGrunnlagDto;
         if (!inntektsmeldingDiffDto.isEmpty()) {

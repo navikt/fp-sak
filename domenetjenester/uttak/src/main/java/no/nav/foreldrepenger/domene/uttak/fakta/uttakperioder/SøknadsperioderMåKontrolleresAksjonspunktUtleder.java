@@ -31,7 +31,7 @@ public class SøknadsperioderMåKontrolleresAksjonspunktUtleder implements Fakta
     @Override
     public List<AksjonspunktDefinisjon> utledAksjonspunkterFor(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.behandlingId();
         var finnesOverlappendePerioder = kontrollerFaktaUttakTjeneste.finnesOverlappendePerioder(behandlingId);
         if (finnesOverlappendePerioder || finnesPeriodeSomMåKontrolleres(input) || ingenPerioder(input)) {
             return List.of(AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER);

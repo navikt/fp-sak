@@ -89,7 +89,7 @@ public class VurderArbeidsforholdTjeneste {
             boolean skalTaStillingTilEndringArbeidsforhold) {
         var arbeidsgiverSetMap = vurderMedÅrsak(behandlingReferanse, iayGrunnlag, sakInntektsmeldinger,
                 skalTaStillingTilEndringArbeidsforhold);
-        logg(arbeidsgiverSetMap, behandlingReferanse.getSaksnummer());
+        logg(arbeidsgiverSetMap, behandlingReferanse.saksnummer());
         return arbeidsgiverSetMap.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, VurderArbeidsforholdTjeneste::mapTilArbeidsforholdRef));
     }
@@ -164,7 +164,7 @@ public class VurderArbeidsforholdTjeneste {
         var yrkesaktiviteterPerArbeidsgiver = mapYrkesaktiviteterPerArbeidsgiver(behandlingReferanse,
                 iayGrunnlag);
         var eksisterendeGrunnlag = hentForrigeVersjonAvInntektsmeldingForBehandling(sakInntektsmeldinger,
-                behandlingReferanse.getBehandlingId());
+                behandlingReferanse.behandlingId());
         var nyAggregat = iayGrunnlag.getInntektsmeldinger();
 
         final var eksisterende = inntektsmeldingerPerArbeidsgiver(eksisterendeGrunnlag
@@ -225,7 +225,7 @@ public class VurderArbeidsforholdTjeneste {
     private boolean harIngenAktiveArbeidsforhold(BehandlingReferanse behandlingReferanse, Inntektsmelding inntektsmelding,
             InntektArbeidYtelseGrunnlag grunnlag) {
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
-                grunnlag.getAktørArbeidFraRegister(behandlingReferanse.getAktørId()));
+                grunnlag.getAktørArbeidFraRegister(behandlingReferanse.aktørId()));
         var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
         return filter.getYrkesaktiviteter().stream()
                 .filter(ya -> gjelderInntektsmeldingFor(inntektsmelding.getArbeidsgiver(), inntektsmelding.getArbeidsforholdRef(), ya))
@@ -275,7 +275,7 @@ public class VurderArbeidsforholdTjeneste {
             BehandlingReferanse behandlingReferanse) {
         Objects.requireNonNull(sakInntektsmeldinger, "sakInntektsmeldinger");
         Objects.requireNonNull(iayGrunnlag, "iayGrunnlag");
-        var eksisterendeGrunnlag = hentForrigeVersjonAvInntektsmeldingForBehandling(sakInntektsmeldinger, behandlingReferanse.getId());
+        var eksisterendeGrunnlag = hentForrigeVersjonAvInntektsmeldingForBehandling(sakInntektsmeldinger, behandlingReferanse.behandlingId());
         var nyAggregat = iayGrunnlag.getInntektsmeldinger();
         var yrkesaktiviteterPerArbeidsgiver = mapYrkesaktiviteterPerArbeidsgiver(behandlingReferanse, iayGrunnlag);
 
@@ -293,7 +293,7 @@ public class VurderArbeidsforholdTjeneste {
 
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> mapYrkesaktiviteterPerArbeidsgiver(BehandlingReferanse behandlingReferanse,
             InntektArbeidYtelseGrunnlag grunnlag) {
-        var yrkesaktiviteter = getAlleArbeidsforhold(behandlingReferanse.getAktørId(), grunnlag,
+        var yrkesaktiviteter = getAlleArbeidsforhold(behandlingReferanse.aktørId(), grunnlag,
                 behandlingReferanse.getUtledetSkjæringstidspunkt());
         return yrkesaktiviteter.stream()
                 .collect(Collectors.groupingBy(Yrkesaktivitet::getArbeidsgiver,
@@ -307,7 +307,7 @@ public class VurderArbeidsforholdTjeneste {
         var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
 
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
-                grunnlag.getAktørArbeidFraRegister(behandlingReferanse.getAktørId()));
+                grunnlag.getAktørArbeidFraRegister(behandlingReferanse.aktørId()));
 
         var antallFør = antallArbeidsfor(arbeidsgiver, arbeidsforholdRef, filter.før(skjæringstidspunkt));
         var antallEtter = antallArbeidsfor(arbeidsgiver, arbeidsforholdRef, filter.etter(skjæringstidspunkt));
@@ -344,12 +344,12 @@ public class VurderArbeidsforholdTjeneste {
 
     private void erRapportertNormalInntektUtenArbeidsforhold(InntektArbeidYtelseGrunnlag grunnlag, BehandlingReferanse referanse) {
         var skjæringstidspunkt = referanse.getUtledetSkjæringstidspunkt();
-        var filter = grunnlag.getAktørInntektFraRegister(referanse.getAktørId()).map(ai -> new InntektFilter(ai).før(skjæringstidspunkt))
+        var filter = grunnlag.getAktørInntektFraRegister(referanse.aktørId()).map(ai -> new InntektFilter(ai).før(skjæringstidspunkt))
                 .orElse(InntektFilter.EMPTY);
 
         var lønnFilter = filter.filterPensjonsgivende().filter(InntektspostType.LØNN);
         var arbeidsforholdInformasjon = grunnlag.getArbeidsforholdInformasjon();
-        var filterYrkesaktivitet = new YrkesaktivitetFilter(arbeidsforholdInformasjon, grunnlag.getAktørArbeidFraRegister(referanse.getAktørId()));
+        var filterYrkesaktivitet = new YrkesaktivitetFilter(arbeidsforholdInformasjon, grunnlag.getAktørArbeidFraRegister(referanse.aktørId()));
 
         lønnFilter.getAlleInntekter()
                 .forEach(inntekt -> rapporterHvisHarIkkeArbeidsforhold(grunnlag, inntekt, filterYrkesaktivitet, skjæringstidspunkt));

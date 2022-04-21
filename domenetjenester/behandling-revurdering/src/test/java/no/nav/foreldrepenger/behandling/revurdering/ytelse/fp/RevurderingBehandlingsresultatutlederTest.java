@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagAndelTjeneste;
@@ -971,11 +972,10 @@ public class RevurderingBehandlingsresultatutlederTest {
         assertThat(uendretUtfall).isFalse();
     }
 
-    private Behandlingsresultat bestemBehandlingsresultatForRevurdering(Behandling revurdering,
-            boolean erVarselOmRevurderingSendt) {
-        var ref = BehandlingReferanse.fra(revurdering, SKJÆRINGSTIDSPUNKT_BEREGNING);
-        return revurderingBehandlingsresultatutleder
-                .bestemBehandlingsresultatForRevurdering(ref, erVarselOmRevurderingSendt);
+    private void bestemBehandlingsresultatForRevurdering(Behandling revurdering,
+                                                         boolean erVarselOmRevurderingSendt) {
+        var ref = BehandlingReferanse.fra(revurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_BEREGNING).build());
+        revurderingBehandlingsresultatutleder.bestemBehandlingsresultatForRevurdering(ref, erVarselOmRevurderingSendt);
     }
 
     @Test

@@ -54,8 +54,8 @@ public class KopierUtbetResultatTjeneste {
             return false;
         }
 
-        var nyttForeslåttResultat = beregningsresultatRepository.hentBeregningsresultat(ref.getBehandlingId())
-            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler beregningsresultat for behandling " + ref.getBehandlingId()));
+        var nyttForeslåttResultat = beregningsresultatRepository.hentBeregningsresultat(ref.behandlingId())
+            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler beregningsresultat for behandling " + ref.behandlingId()));
         var forrigeForeslåttResultat = forrigeRes.getBgBeregningsresultatFP();
 
         // Hvis det foreslåtte resultatet er likt kan vi kopiere det utbetalte resultatet
@@ -63,7 +63,7 @@ public class KopierUtbetResultatTjeneste {
     }
 
     public void kopierOgLagreUtbetBeregningsresultat(BehandlingReferanse ref) {
-        var behandling = behandlingRepository.hentBehandling(ref.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
         var forrigeRes = ref.getOriginalBehandlingId()
             .flatMap(oid -> beregningsresultatRepository.hentBeregningsresultatAggregat(oid)).orElseThrow();
         var forrigeUtbetResultat = forrigeRes.getUtbetBeregningsresultatFP();
@@ -79,15 +79,15 @@ public class KopierUtbetResultatTjeneste {
 
             var kopiErLikOriginal = SammenlignBeregningsresultat.erLike(nyttUtbetResultat, forrigeUtbetResultat);
             if (!kopiErLikOriginal) {
-                throw new IllegalStateException("Gammelt og nytt utbetalt beregningsresultat er ikke likt for behandling " + ref.getBehandlingId());
+                throw new IllegalStateException("Gammelt og nytt utbetalt beregningsresultat er ikke likt for behandling " + ref.behandlingId());
             }
 
             // Beregn feriepenger
-            var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, ref.getFagsakYtelseType()).orElseThrow();
+            var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, ref.fagsakYtelseType()).orElseThrow();
             feriepengerTjeneste.beregnFeriepenger(behandling, nyttUtbetResultat);
 
             // Lagre utbet entitet
-            LOG.info("FP-587469: Lagrer kopiert utbetalt resultat på behandling med id " + ref.getBehandlingId() +
+            LOG.info("FP-587469: Lagrer kopiert utbetalt resultat på behandling med id " + ref.behandlingId() +
                 " kopiert fra behandling med id " + ref.getOriginalBehandlingId().get());
             beregningsresultatRepository.lagreUtbetBeregningsresultat(behandling, nyttUtbetResultat);
         }

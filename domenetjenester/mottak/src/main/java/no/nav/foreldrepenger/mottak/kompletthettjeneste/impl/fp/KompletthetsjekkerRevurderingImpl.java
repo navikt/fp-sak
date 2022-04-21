@@ -61,13 +61,13 @@ public class KompletthetsjekkerRevurderingImpl implements Kompletthetsjekker {
 
     @Override
     public KompletthetResultat vurderForsendelseKomplett(BehandlingReferanse ref) {
-        var behandling = fellesUtil.hentBehandling(ref.getBehandlingId());
+        var behandling = fellesUtil.hentBehandling(ref.behandlingId());
         if (SpesialBehandling.skalGrunnlagBeholdes(behandling)) {
             return KompletthetResultat.oppfylt();
         }
 
         if (endringssøknadErMottatt(behandling) && endringssøknadIkkeErKomplett(ref)) {
-            return opprettKompletthetResultatMedVentefrist(ref.getBehandlingId());
+            return opprettKompletthetResultatMedVentefrist(ref.behandlingId());
         }
 
         // Når endringssøknad ikke er mottatt har vi ikke noe å sjekke kompletthet mot

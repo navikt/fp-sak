@@ -45,7 +45,7 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
 
     public Optional<LocalDate> beregnMaksDatoUttak(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
-        var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(ref.getBehandlingId());
+        var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(ref.behandlingId());
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         Optional<UttakResultatEntitet> annenpartResultat =
             foreldrepengerGrunnlag == null ? Optional.empty() : annenPartUttak(foreldrepengerGrunnlag);
@@ -54,7 +54,7 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
 
         if (sisteUttaksdato.isPresent()) {
             var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
-            if (ref.getRelasjonsRolleType().equals(RelasjonsRolleType.MORA)) {
+            if (ref.relasjonRolle().equals(RelasjonsRolleType.MORA)) {
                 return Optional.of(beregnMaksDato(saldoUtregning,
                     List.of(Stønadskontotype.MØDREKVOTE, Stønadskontotype.FELLESPERIODE,
                         Stønadskontotype.FORELDREPENGER), sisteUttaksdato.get()));
@@ -68,7 +68,7 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
 
     public Optional<LocalDate> beregnMaksDatoUttakSakskompleks(UttakInput uttakInput, int restStønadsDager) {
         var ref = uttakInput.getBehandlingReferanse();
-        var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(ref.getBehandlingId());
+        var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(ref.behandlingId());
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         Optional<UttakResultatEntitet> annenpartResultat =
             foreldrepengerGrunnlag == null ? Optional.empty() : annenPartUttak(foreldrepengerGrunnlag);
