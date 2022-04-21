@@ -7,7 +7,6 @@ import no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandling
 import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
@@ -24,14 +23,12 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 public class RevurderingBehandlingsresultatutleder extends RevurderingBehandlingsresultatutlederFelles {
 
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
-    private HarEtablertYtelseFP harEtablertYtelse;
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
     @Inject
     public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
             HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
             OpphørUttakTjeneste opphørUttakTjeneste,
-            HarEtablertYtelseFP harEtablertYtelse,
             @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
             MedlemTjeneste medlemTjeneste,
             ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
@@ -41,7 +38,6 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
                 opphørUttakTjeneste,
                 skjæringstidspunktTjeneste);
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
-        this.harEtablertYtelse = harEtablertYtelse;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
     }
 
@@ -51,9 +47,4 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
         return new UttakResultatHolderFP(foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandlingId), vedtak.orElse(null));
     }
 
-    @Override
-    protected boolean harEtablertYtelse(Behandling revurdering, boolean finnesInnvilgetIkkeOpphørtVedtak,
-            UttakResultatHolder uttakresultatOriginal) {
-        return harEtablertYtelse.vurder(revurdering, finnesInnvilgetIkkeOpphørtVedtak, uttakresultatOriginal);
-    }
 }
