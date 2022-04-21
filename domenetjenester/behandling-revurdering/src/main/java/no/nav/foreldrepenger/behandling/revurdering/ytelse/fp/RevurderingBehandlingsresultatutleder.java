@@ -7,7 +7,6 @@ import no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandling
 import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
@@ -51,9 +50,4 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
         return new UttakResultatHolderFP(foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandlingId), vedtak.orElse(null));
     }
 
-    @Override
-    protected boolean harEtablertYtelse(Behandling revurdering, boolean finnesInnvilgetIkkeOpphørtVedtak,
-            UttakResultatHolder uttakresultatOriginal) {
-        return harEtablertYtelse.vurder(revurdering, finnesInnvilgetIkkeOpphørtVedtak, uttakresultatOriginal);
-    }
 }

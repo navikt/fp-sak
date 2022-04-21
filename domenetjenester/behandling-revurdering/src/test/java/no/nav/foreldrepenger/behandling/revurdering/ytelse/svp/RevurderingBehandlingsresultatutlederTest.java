@@ -348,70 +348,11 @@ public class RevurderingBehandlingsresultatutlederTest {
         var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
-        assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(BehandlingResultatType.INNVILGET);
+        assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(BehandlingResultatType.FORELDREPENGER_ENDRET);
         assertThat(bhResultat.getRettenTil()).isEqualByComparingTo(RettenTil.HAR_RETT_TIL_FP);
         assertThat(bhResultat.getKonsekvenserForYtelsen()).containsExactly(KonsekvensForYtelsen.ENDRING_I_UTTAK);
         assertThat(uendretUtfall).isFalse();
     }
-
-    // Case 4
-    // Løpende vedtak: Nei
-    // Oppfylt inngangsvilkår på skjæringstidspunktet
-    // Oppfylt inngangsvilkår i perioden
-    // Siste uttaksperiode IKKJE avslått med opphørsårsak
-    // Endring i uttaksperiode: Ja
-    // Endring i beregning: Ja
-    @Test
-    public void tilfelle_4_med_endring_i_uttak_og_beregning_behandlingsresultat_lik_innvilget_rettentil_lik_ja_konsekvens_endring_i_uttak_og_endring_i_beregning() {
-        // Arrange
-        var endringsdato = LocalDate.of(2018, 1, 1);
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
-        lagreEndringsdato(endringsdato);
-        lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
-
-        // Endring i uttakperiode (ulik lengde)
-        var opprinneligePerioder = List.of(
-                new LocalDateInterval(endringsdato.minusDays(10), endringsdato.minusDays(5)));
-        var revurderingPerioder = List.of(
-                new LocalDateInterval(endringsdato, endringsdato.plusDays(10)),
-                new LocalDateInterval(endringsdato.plusDays(11), endringsdato.plusDays(20)));
-
-        // Løpende vedtak og endring i uttak
-        lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-                opprinneligePerioder);
-
-        // Endring i beregning
-        var bgPeriode = List.of(
-                ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
-        byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes, false, false, bgPeriode);
-        byggBeregningsgrunnlagForBehandling(revurdering, true, false, bgPeriode);
-
-        // Siste periode ikkje avslått med opphørsårsak
-        lagUttakResultatPlanForBehandling(revurdering,
-                revurderingPerioder);
-
-        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
-                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
-                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
-                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
-                .buildFor(revurdering);
-        behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
-
-        // Act
-        bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
-        var bhResultat = getBehandlingsresultat(revurdering);
-        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
-
-        // Assert
-        assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(BehandlingResultatType.INNVILGET);
-        assertThat(bhResultat.getRettenTil()).isEqualByComparingTo(RettenTil.HAR_RETT_TIL_FP);
-        assertThat(bhResultat.getKonsekvenserForYtelsen()).containsExactly(KonsekvensForYtelsen.ENDRING_I_BEREGNING,
-                KonsekvensForYtelsen.ENDRING_I_UTTAK);
-        assertThat(uendretUtfall).isFalse();
-    }
-
     // Case 5
     // Løpende vedtak: Ja
     // Oppfylt inngangsvilkår på skjæringstidspunktet

@@ -147,10 +147,6 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
             erKunEndringIFordelingAvYtelsen, harInnvilgetIkkeOpphørtVedtak(revurdering.getFagsak()));
     }
 
-    protected abstract boolean harEtablertYtelse(Behandling revurdering,
-                                                 boolean finnesInnvilgetIkkeOpphørtVedtak,
-                                                 UttakResultatHolder uttakresultatOriginal);
-
     private Optional<Behandlingsresultat> finnBehandlingsresultatPåOriginalBehandling(Long originalBehandlingId) {
         var behandlingsresultatOriginal = behandlingsresultatRepository.hentHvisEksisterer(originalBehandlingId);
         if (behandlingsresultatOriginal.isPresent()) {
@@ -248,10 +244,6 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
             erEndringIUttakFraEndringstidspunkt);
 
         if (!harUttakIkkeOpphørt(uttakresultatFraOriginalBehandling, opphørFørDagensDato)) {
-            return fastsettForIkkeEtablertYtelse(revurdering, konsekvenserForYtelsen);
-        }
-
-        if (!harEtablertYtelse(revurdering, erMinstEnInnvilgetBehandlingUtenPåfølgendeOpphør, uttakresultatFraOriginalBehandling)) {
             return fastsettForIkkeEtablertYtelse(revurdering, konsekvenserForYtelsen);
         }
 
