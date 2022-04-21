@@ -121,7 +121,7 @@ public record BehandlingReferanse(Saksnummer saksnummer,
 
     @Override
     public int hashCode() {
-        return Objects.hash(saksnummer, behandlingId, originalBehandlingId, fagsakYtelseType, behandlingType, aktørId);
+        return Objects.hash(behandlingId, saksnummer, aktørId, fagsakYtelseType, behandlingType, relasjonRolle, originalBehandlingId);
     }
 
     @Override
