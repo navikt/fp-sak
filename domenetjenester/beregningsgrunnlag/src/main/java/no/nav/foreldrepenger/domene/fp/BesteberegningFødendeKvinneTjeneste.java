@@ -1,5 +1,15 @@
 package no.nav.foreldrepenger.domene.fp;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelsegrunnlag;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -28,21 +38,12 @@ import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 @ApplicationScoped
 public class BesteberegningFødendeKvinneTjeneste {
     private static final Set<FamilieHendelseType> FØDSEL_HENDELSER = Set.of(FamilieHendelseType.FØDSEL,
         FamilieHendelseType.TERMIN);
     private static final Set<OpptjeningAktivitetType> GODKJENT_FOR_AUTOMATISK_BEREGNING = Set.of(OpptjeningAktivitetType.ARBEID,
-        OpptjeningAktivitetType.SYKEPENGER, OpptjeningAktivitetType.DAGPENGER);
+        OpptjeningAktivitetType.SYKEPENGER, OpptjeningAktivitetType.DAGPENGER, OpptjeningAktivitetType.FORELDREPENGER, OpptjeningAktivitetType.SVANGERSKAPSPENGER);
     // Hvis avvik er likt eller større enn grensen skal det bli manuell kontroll av besteberegningen
     private static final BigDecimal AVVIKSGRENSE_FOR_MANUELL_KONTROLL = BigDecimal.valueOf(50_000);
 
@@ -114,7 +115,7 @@ public class BesteberegningFødendeKvinneTjeneste {
         }
 
         // Foreløpig besteberegner vi ikke saker med sykepenger, frilans eller næring automatisk.
-        return harKunDagpengerEllerArbeidIOpptjening(behandlingReferanse);
+        return harAktiviteterSomErGodkjentForAutomatiskBeregning(behandlingReferanse);
     }
 
     private boolean erDagpengerManueltFjernetFraBeregningen(BehandlingReferanse behandlingReferanse) {
@@ -170,7 +171,7 @@ public class BesteberegningFødendeKvinneTjeneste {
             .orElse(Collections.emptyList()).stream().anyMatch(tilf ->tilf.equals(FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
     }
 
-    private boolean harKunDagpengerEllerArbeidIOpptjening(BehandlingReferanse ref) {
+    private boolean harAktiviteterSomErGodkjentForAutomatiskBeregning(BehandlingReferanse ref) {
         InntektArbeidYtelseGrunnlag iay = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId());
         var opptjening = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iay);
         var opptjeningAktiviteter = opptjening.map(OpptjeningAktiviteter::getOpptjeningPerioder).orElse(Collections.emptyList());
