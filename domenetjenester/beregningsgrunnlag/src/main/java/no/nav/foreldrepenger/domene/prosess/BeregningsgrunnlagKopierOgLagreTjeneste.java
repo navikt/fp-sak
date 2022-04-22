@@ -14,8 +14,8 @@ import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.VUR
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -81,7 +81,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         this.kalkulatorStegProsesseringInputTjeneste = kalkulatorStegProsesseringInputTjeneste;
     }
 
-    public List<BeregningAvklaringsbehovResultat> fastsettBeregningsaktiviteter(BeregningsgrunnlagInput input) {
+    public Set<BeregningAvklaringsbehovResultat> fastsettBeregningsaktiviteter(BeregningsgrunnlagInput input) {
         var ref = input.getKoblingReferanse();
         var resultat = beregningsgrunnlagTjeneste.fastsettBeregningsaktiviteter(
             kalkulatorStegProsesseringInputTjeneste.lagStartInput(ref.getKoblingId(), input));
@@ -221,7 +221,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         return new RyddBeregningsgrunnlag(beregningsgrunnlagRepository, kontekst);
     }
 
-    public List<BeregningAvklaringsbehovResultat> kontrollerFaktaBeregningsgrunnlag(BeregningsgrunnlagInput input) {
+    public Set<BeregningAvklaringsbehovResultat> kontrollerFaktaBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         var behandlingId = input.getKoblingReferanse().getKoblingId();
         var faktaOmBeregningInput = (FaktaOmBeregningInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
             behandlingId, input, BehandlingStegType.KONTROLLER_FAKTA_BEREGNING);
@@ -306,7 +306,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
     }
 
-    private List<BeregningAvklaringsbehovResultat> lagreOgKopier(KoblingReferanse ref,
+    private Set<BeregningAvklaringsbehovResultat> lagreOgKopier(KoblingReferanse ref,
                                                               BeregningResultatAggregat resultat) {
         var nyttGrunnlag = KalkulusTilBehandlingslagerMapper.mapGrunnlag(resultat.getBeregningsgrunnlagGrunnlag(),
             resultat.getRegelSporingAggregat());

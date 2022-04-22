@@ -1,20 +1,20 @@
 package no.nav.foreldrepenger.domene.output;
 
-import java.util.List;
+import java.util.Set;
 
 import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;
 
 public class BeregningsgrunnlagVilkårOgAkjonspunktResultat {
-    private final List<BeregningAvklaringsbehovResultat> aksjonspunkter;
+    private final Set<BeregningAvklaringsbehovResultat> aksjonspunkter;
     private Boolean vilkårOppfylt;
     private String regelEvalueringVilkårVurdering;
     private String regelInputVilkårVurdering;
 
-    public BeregningsgrunnlagVilkårOgAkjonspunktResultat(List<BeregningAvklaringsbehovResultat> aksjonspunktResultatListe) {
+    public BeregningsgrunnlagVilkårOgAkjonspunktResultat(Set<BeregningAvklaringsbehovResultat> aksjonspunktResultatListe) {
         this.aksjonspunkter = aksjonspunktResultatListe;
     }
 
-    public List<BeregningAvklaringsbehovResultat> getAksjonspunkter() {
+    public Set<BeregningAvklaringsbehovResultat> getAksjonspunkter() {
         return aksjonspunkter;
     }
 
