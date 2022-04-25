@@ -41,12 +41,16 @@ public class RettOgOmsorgGrunnlagBygger {
         var ref = uttakInput.getBehandlingReferanse();
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
         var annenpartsUttaksplan = hentAnnenpartsUttak(uttakInput);
+        var samtykke = samtykke(ytelseFordelingAggregat);
+        if (!samtykke) {
+            throw new IllegalStateException("Midlertidig feil. Søknad opplyser om manglende samtykke");
+        }
         return new RettOgOmsorg.Builder()
                 .aleneomsorg(aleneomsorg(ytelseFordelingAggregat))
                 .farHarRett(farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
                 .morHarRett(morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
                 .morUføretrygd(morUføretrygd(uttakInput))
-                .samtykke(samtykke(ytelseFordelingAggregat));
+                .samtykke(samtykke);
     }
 
     private Optional<ForeldrepengerUttak> hentAnnenpartsUttak(UttakInput uttakInput) {
