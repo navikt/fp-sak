@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,8 +34,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -43,7 +42,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemTask;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
@@ -64,8 +62,6 @@ public class ForvaltningUttrekkRestTjeneste {
     private FagsakRepository fagsakRepository;
     private ProsessTaskTjeneste taskTjeneste;
     private OverlappVedtakRepository overlappRepository;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private BehandlingsprosessTjeneste prosesseringTjeneste;
 
     public ForvaltningUttrekkRestTjeneste() {
         // For CDI
@@ -75,8 +71,6 @@ public class ForvaltningUttrekkRestTjeneste {
     public ForvaltningUttrekkRestTjeneste(EntityManager entityManager,
                                           FagsakRepository fagsakRepository,
                                           BehandlingRepository behandlingRepository,
-                                          BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                          BehandlingsprosessTjeneste prosesseringTjeneste,
                                           ProsessTaskTjeneste taskTjeneste,
                                           OverlappVedtakRepository overlappRepository) {
         this.entityManager = entityManager;
@@ -84,8 +78,6 @@ public class ForvaltningUttrekkRestTjeneste {
         this.behandlingRepository = behandlingRepository;
         this.taskTjeneste = taskTjeneste;
         this.overlappRepository = overlappRepository;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.prosesseringTjeneste = prosesseringTjeneste;
     }
 
     @POST
@@ -138,16 +130,13 @@ public class ForvaltningUttrekkRestTjeneste {
     private static record KabalFlytt(String saksnummer, Long behandlingId) { }
 
     private void flyttTilKabal(KabalFlytt behandlingRef) {
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingRef.behandlingId());
         var behandling = behandlingRepository.hentBehandling(behandlingRef.behandlingId());
-        behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
-        behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(),
-            behandling.getÅpneAksjonspunkter(List.of(AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA)));
-        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.KLAGE_VURDER_FORMKRAV_NK);
-        if (behandling.isBehandlingPåVent()) {
-            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
-        }
-        prosesseringTjeneste.asynkKjørProsess(behandling);
+        var tilKabalTask = ProsessTaskData.forProsessTask(MigrerTilKabalTask.class);
+        tilKabalTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        tilKabalTask.setCallIdFraEksisterende();
+        tilKabalTask.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), LocalTime.now().plusSeconds(LocalDateTime.now().getNano() % 599)));
+        taskTjeneste.lagre(tilKabalTask);
+
     }
 
     private OpenAutopunkt mapFraAksjonspunktTilDto(Object[] row) {
