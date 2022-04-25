@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
 import java.time.Period;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,8 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Konto;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Kontoer;
@@ -132,7 +135,12 @@ public class KontoerGrunnlagBygger {
     }
 
     private boolean toTette(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
-        var denneSaken = foreldrepengerGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
+        var denneSaken = Optional.ofNullable(foreldrepengerGrunnlag.getFamilieHendelser())
+            .map(FamilieHendelser::getGjeldendeFamilieHendelse)
+            .map(FamilieHendelse::getFamilieHendelseDato).orElse(null);
+        if (denneSaken == null) {
+            return false;
+        }
         var nesteSak = foreldrepengerGrunnlag.getNesteSakGrunnlag().map(NesteSakGrunnlagEntitet::getHendelsedato);
         var grenseToTette = denneSaken.plus(Period.ofWeeks(TO_TETTE_UKER_MELLOM_FAMHENDELSE)).plusDays(1);
         return nesteSak.filter(grenseToTette::isAfter).isPresent();
