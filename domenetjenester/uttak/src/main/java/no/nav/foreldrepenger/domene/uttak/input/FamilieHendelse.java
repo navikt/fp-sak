@@ -68,13 +68,9 @@ public class FamilieHendelse {
     }
 
     public LocalDate getFamilieHendelseDato() {
-        if (getOmsorgsovertakelse().isPresent()) {
-            return getOmsorgsovertakelse().get();
-        }
-        if (getFødselsdato().isPresent()) {
-            return getFødselsdato().get();
-        }
-        return getTermindato().orElseThrow(() -> new IllegalStateException("Mangler familiehendelse"));
+        return getOmsorgsovertakelse()
+            .or(this::getFødselsdato)
+            .orElseGet(() -> getTermindato().orElseThrow(() -> new IllegalStateException("Mangler familiehendelse")));
     }
 
     public Optional<LocalDate> getAnkomstNorge() {

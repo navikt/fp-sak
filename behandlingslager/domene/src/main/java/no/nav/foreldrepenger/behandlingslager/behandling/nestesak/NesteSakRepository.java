@@ -26,12 +26,13 @@ public class NesteSakRepository {
         // CDI proxy
     }
 
-    public void lagreNesteSak(Long behandlingId, Saksnummer saksnummer, LocalDate startdato) {
+    public void lagreNesteSak(Long behandlingId, Saksnummer saksnummer, LocalDate startdato, LocalDate hendelsedato) {
         var aktivtGrunnlag = hentGrunnlag(behandlingId);
         var nyttGrunnlag = NesteSakGrunnlagEntitet.Builder.oppdatere(aktivtGrunnlag)
             .medBehandlingId(behandlingId)
             .medSaksnummer(saksnummer)
-            .medStartdato(startdato);
+            .medStartdato(startdato)
+            .medHendelsedato(hendelsedato);
         lagreGrunnlag(aktivtGrunnlag, nyttGrunnlag);
     }
 

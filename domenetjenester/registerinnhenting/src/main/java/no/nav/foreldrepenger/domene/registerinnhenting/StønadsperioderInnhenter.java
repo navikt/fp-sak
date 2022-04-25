@@ -96,7 +96,7 @@ public class StønadsperioderInnhenter {
     public void innhentNesteSak(Behandling behandling) {
         var muligsak= finnSenereStønadsperiode(behandling).orElse(null);
         if (muligsak != null) {
-            nesteSakRepository.lagreNesteSak(behandling.getId(), muligsak.saksnummer(), muligsak.startdato());
+            nesteSakRepository.lagreNesteSak(behandling.getId(), muligsak.saksnummer(), muligsak.startdato(), muligsak.fhdato());
         } else {
             nesteSakRepository.fjernEventuellNesteSak(behandling.getId());
         }
