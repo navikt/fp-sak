@@ -17,8 +17,10 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
@@ -59,7 +61,7 @@ public class VurderFormkrafNkSteg implements BehandlingSteg {
             var kabalFerdig = klageVurderingResultat.getKlageResultat().erBehandletAvKabal();
             if (kabalFerdig) {
                 return BehandleStegResultat.utførtUtenAksjonspunkter();
-            } else if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE)) {
+            } else if (erAlleredeSendtTilKabal(behandling)) {
                 var apResultat = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_VENT_PÅ_KABAL_KLAGE, Venteårsak.VENT_KABAL, null);
                 return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(apResultat));
             } else {
@@ -77,5 +79,11 @@ public class VurderFormkrafNkSteg implements BehandlingSteg {
             }
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
+    }
+
+    private boolean erAlleredeSendtTilKabal(Behandling behandling) {
+        return behandling.getAksjonspunktMedDefinisjonOptional(AUTO_VENT_PÅ_KABAL_KLAGE)
+            .filter(a -> !AksjonspunktStatus.AVBRUTT.equals(a.getStatus()))
+            .isPresent();
     }
 }
