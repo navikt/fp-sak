@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
@@ -29,10 +30,11 @@ public class MigrerTilKabalTask extends BehandlingProsessTask {
     }
 
     @Inject
-    public MigrerTilKabalTask(BehandlingRepository behandlingRepository,
+    public MigrerTilKabalTask(BehandlingRepositoryProvider repositoryProvider,
                               BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                               BehandlingsprosessTjeneste prosesseringTjeneste) {
-        this.behandlingRepository = behandlingRepository;
+        super(repositoryProvider.getBehandlingLåsRepository());
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.prosesseringTjeneste = prosesseringTjeneste;
     }
