@@ -100,7 +100,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             }
             behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
             kabalTjeneste.lagHistorikkinnslagForHenleggelse(behandlingId, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
-        } if (KabalUtfall.RETUR.equals(utfall)) {
+        } else if (KabalUtfall.RETUR.equals(utfall)) {
             // Knoteri siden behandling tilbakeføres og deretter kanskje skal til Kabal på nytt. Gjennomgå retur-semantikk på nytt.
             if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE)) {
                 behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(),
