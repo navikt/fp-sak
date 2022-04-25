@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.kabal;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -11,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -98,14 +100,21 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             }
             behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
             kabalTjeneste.lagHistorikkinnslagForHenleggelse(behandlingId, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
-        } else {
+        } else if (KabalUtfall.RETUR.equals(utfall)) {
+            // Knoteri siden behandling tilbakeføres og deretter kanskje skal til Kabal på nytt. Gjennomgå retur-semantikk på nytt.
+            if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE)) {
+                behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(),
+                    behandling.getÅpneAksjonspunkter(List.of(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE)));
+            }
             if (behandling.isBehandlingPåVent()) { // Autopunkt
                 behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
             }
-            if (KabalUtfall.RETUR.equals(utfall)) {
-                kabalTjeneste.fjerneKabalFlagg(behandling);
-                behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.KLAGE_NFP);
-                endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(behandling);
+            kabalTjeneste.fjerneKabalFlagg(behandling);
+            behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.KLAGE_NFP);
+            endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(behandling);
+        } else {
+            if (behandling.isBehandlingPåVent()) { // Autopunkt
+                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
             }
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
         }

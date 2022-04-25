@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,13 +33,17 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemTask;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
@@ -55,10 +60,12 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 public class ForvaltningUttrekkRestTjeneste {
 
     private EntityManager entityManager;
+    private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
     private ProsessTaskTjeneste taskTjeneste;
     private OverlappVedtakRepository overlappRepository;
-    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingsprosessTjeneste prosesseringTjeneste;
 
     public ForvaltningUttrekkRestTjeneste() {
         // For CDI
@@ -66,15 +73,19 @@ public class ForvaltningUttrekkRestTjeneste {
 
     @Inject
     public ForvaltningUttrekkRestTjeneste(EntityManager entityManager,
-            FagsakRepository fagsakRepository,
-            InntektArbeidYtelseTjeneste tjeneste,
-            ProsessTaskTjeneste taskTjeneste,
-            OverlappVedtakRepository overlappRepository) {
+                                          FagsakRepository fagsakRepository,
+                                          BehandlingRepository behandlingRepository,
+                                          BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                          BehandlingsprosessTjeneste prosesseringTjeneste,
+                                          ProsessTaskTjeneste taskTjeneste,
+                                          OverlappVedtakRepository overlappRepository) {
         this.entityManager = entityManager;
         this.fagsakRepository = fagsakRepository;
+        this.behandlingRepository = behandlingRepository;
         this.taskTjeneste = taskTjeneste;
         this.overlappRepository = overlappRepository;
-        this.inntektArbeidYtelseTjeneste = tjeneste;
+        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.prosesseringTjeneste = prosesseringTjeneste;
     }
 
     @POST
@@ -100,6 +111,43 @@ public class ForvaltningUttrekkRestTjeneste {
                 .map(this::mapFraAksjonspunktTilDto)
                 .collect(Collectors.toList());
         return Response.ok(åpneAksjonspunkt).build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Flytt klager til kabal", tags = "FORVALTNING-uttrekk")
+    @Path("/flyttTilKabal")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    public Response flyttTilKabal() {
+        var query = entityManager.createNativeQuery("select saksnummer, bh.id " +
+            " from fpsak.fagsak fs join fpsak.behandling bh on bh.fagsak_id=fs.id " +
+            " join FPSAK.AKSJONSPUNKT ap on ap.behandling_id=bh.id " +
+            " where aksjonspunkt_def=:apdef and aksjonspunkt_status=:status "); //$NON-NLS-1$
+        query.setParameter("apdef", AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA.getKode());
+        query.setParameter("status", AksjonspunktStatus.OPPRETTET.getKode());
+        @SuppressWarnings("unchecked")
+        List<Object[]> resultatList = query.getResultList();
+        var åpneAksjonspunkt = resultatList.stream()
+            .map(r -> new KabalFlytt((String) r[0], ((BigDecimal) r[1]).longValue()))
+            .collect(Collectors.toList());
+        åpneAksjonspunkt.forEach(b -> flyttTilKabal(b));
+        return Response.ok().build();
+    }
+
+    private static record KabalFlytt(String saksnummer, Long behandlingId) { }
+
+    private void flyttTilKabal(KabalFlytt behandlingRef) {
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingRef.behandlingId());
+        var behandling = behandlingRepository.hentBehandling(behandlingRef.behandlingId());
+        behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
+        behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(),
+            behandling.getÅpneAksjonspunkter(List.of(AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA)));
+        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.KLAGE_VURDER_FORMKRAV_NK);
+        if (behandling.isBehandlingPåVent()) {
+            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
+        }
+        prosesseringTjeneste.asynkKjørProsess(behandling);
     }
 
     private OpenAutopunkt mapFraAksjonspunktTilDto(Object[] row) {
