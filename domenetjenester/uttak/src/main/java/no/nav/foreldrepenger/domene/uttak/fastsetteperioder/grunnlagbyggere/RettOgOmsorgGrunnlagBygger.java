@@ -42,13 +42,16 @@ public class RettOgOmsorgGrunnlagBygger {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
         var annenpartsUttaksplan = hentAnnenpartsUttak(uttakInput);
         var samtykke = samtykke(ytelseFordelingAggregat);
-        if (!samtykke) {
+        var aleneomsorg = aleneomsorg(ytelseFordelingAggregat);
+        var farHarRett = farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan);
+        var morHarRett = morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan);
+        if (!aleneomsorg && farHarRett && morHarRett && !samtykke) {
             throw new IllegalStateException("Midlertidig feil. Søknad opplyser om manglende samtykke");
         }
         return new RettOgOmsorg.Builder()
-                .aleneomsorg(aleneomsorg(ytelseFordelingAggregat))
-                .farHarRett(farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
-                .morHarRett(morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
+                .aleneomsorg(aleneomsorg)
+                .farHarRett(farHarRett)
+                .morHarRett(morHarRett)
                 .morUføretrygd(morUføretrygd(uttakInput))
                 .samtykke(samtykke);
     }
