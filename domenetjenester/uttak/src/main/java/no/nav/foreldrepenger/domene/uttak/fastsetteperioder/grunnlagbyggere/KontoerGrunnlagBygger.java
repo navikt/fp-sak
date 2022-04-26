@@ -116,9 +116,11 @@ public class KontoerGrunnlagBygger {
             var dekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(ref.saksnummer()).getGjeldendeDekningsgrad();
             var antallDager = 0;
             if (minsterett && totette) {
+                // Begge skal ha minsterett
                 antallDager = erMor ? MOR_TO_TETTE_MINSTERETT_DAGER : FAR_TO_TETTE_MINSTERETT_DAGER;
             }
-            if (minsterett && !erMor) {
+            if (minsterett && !erMor && stønadskontoer.stream().map(Stønadskonto::getStønadskontoType).anyMatch(StønadskontoType.FORELDREPENGER::equals)) {
+                // Bare far har rett
                 antallDager = totette ?  Math.max(BFHR_MINSTERETT_DAGER, FAR_TO_TETTE_MINSTERETT_DAGER) : BFHR_MINSTERETT_DAGER;
             }
             if (morHarUføretrygd && !erMor) {
