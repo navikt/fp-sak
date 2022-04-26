@@ -46,7 +46,9 @@ public class NesteSakGrunnlagEntitet extends BaseEntitet {
     @ChangeTracked
     private LocalDate startdato;
 
-
+    @Column(name = "hendelsedato")
+    @ChangeTracked
+    private LocalDate hendelsedato;
 
     NesteSakGrunnlagEntitet() {
     }
@@ -54,6 +56,7 @@ public class NesteSakGrunnlagEntitet extends BaseEntitet {
     NesteSakGrunnlagEntitet(NesteSakGrunnlagEntitet grunnlag) {
         this.saksnummer = grunnlag.saksnummer;
         this.startdato = grunnlag.startdato;
+        this.hendelsedato = grunnlag.hendelsedato;
     }
 
     Long getId() {
@@ -80,18 +83,23 @@ public class NesteSakGrunnlagEntitet extends BaseEntitet {
         return startdato;
     }
 
+    public LocalDate getHendelsedato() {
+        return hendelsedato;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof NesteSakGrunnlagEntitet that)) return false;
         return Objects.equals(behandlingId, that.behandlingId) &&
             Objects.equals(saksnummer, that.saksnummer) &&
-            Objects.equals(startdato, that.startdato);
+            Objects.equals(startdato, that.startdato) &&
+            Objects.equals(hendelsedato, that.hendelsedato);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(behandlingId, saksnummer, startdato);
+        return Objects.hash(behandlingId, saksnummer, startdato, hendelsedato);
     }
 
     public static class Builder {
@@ -126,6 +134,11 @@ public class NesteSakGrunnlagEntitet extends BaseEntitet {
 
         public Builder medStartdato(LocalDate startdato) {
             this.kladd.startdato = startdato;
+            return this;
+        }
+
+        public Builder medHendelsedato(LocalDate hendelsedato) {
+            this.kladd.hendelsedato = hendelsedato;
             return this;
         }
 

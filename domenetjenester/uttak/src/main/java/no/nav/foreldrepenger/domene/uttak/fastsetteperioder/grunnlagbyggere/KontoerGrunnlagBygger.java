@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
+import java.time.Period;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -7,6 +9,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
@@ -15,6 +19,8 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Konto;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Kontoer;
@@ -26,11 +32,16 @@ public class KontoerGrunnlagBygger {
     private static final int MINSTEDAGER_UFØRE_100_PROSENT = 75;
     private static final int MINSTEDAGER_UFØRE_80_PROSENT = 95;
 
+    private static final int MOR_TO_TETTE_MINSTERETT_DAGER = 110;
+    private static final int FAR_TO_TETTE_MINSTERETT_DAGER = 40;
     private static final int BFHR_MINSTERETT_DAGER = 40;
     private static final int UTTAK_RUNDT_FØDSEL_DAGER = 10;
 
+    private static final int TO_TETTE_UKER_MELLOM_FAMHENDELSE = 48;
+
 
     private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FamilieHendelseRepository familieHendelseRepository;
 
     @Inject
     public KontoerGrunnlagBygger(UttakRepositoryProvider repositoryProvider) {
@@ -85,31 +96,37 @@ public class KontoerGrunnlagBygger {
     }
 
     /*
-     * TFP-4846 legge inn regler for minsterett i stønadskontoutregningen
+     * TFP-4846 legge inn regler for minsterett i stønadskontoutregningen + bruke standardkonfigurasjon
      */
     private Kontoer.Builder getBuilder(BehandlingReferanse ref, ForeldrepengerGrunnlag foreldrepengerGrunnlag, Set<Stønadskonto> stønadskontoer) {
         var builder = new Kontoer.Builder();
         var erMor = RelasjonsRolleType.MORA.equals(ref.relasjonRolle());
         var erForeldrepenger = stønadskontoer.stream().map(Stønadskonto::getStønadskontoType).anyMatch(StønadskontoType.FORELDREPENGER::equals);
-        var minsterettFarMedmor = !ref.getSkjæringstidspunkt().utenMinsterett();
+        var minsterett = !ref.getSkjæringstidspunkt().utenMinsterett();
+        var totette = minsterett && toTette(foreldrepengerGrunnlag);
+        var bareFarHarRett = !erMor && stønadskontoer.stream().map(Stønadskonto::getStønadskontoType).anyMatch(StønadskontoType.FORELDREPENGER::equals);
         var morHarUføretrygd = foreldrepengerGrunnlag.getUføretrygdGrunnlag()
             .filter(UføretrygdGrunnlagEntitet::annenForelderMottarUføretrygd)
             .isPresent();
         var flerbarnsdager = stønadskontoer.stream()
-            .filter(stønadskonto -> stønadskonto.getStønadskontoType().equals(StønadskontoType.FLERBARNSDAGER))
+            .filter(stønadskonto -> StønadskontoType.FLERBARNSDAGER.equals(stønadskonto.getStønadskontoType()))
             .findFirst();
         flerbarnsdager.map(stønadskonto -> builder.flerbarnsdager(stønadskonto.getMaxDager()));
 
-        if (!erMor && erForeldrepenger && (minsterettFarMedmor || morHarUføretrygd)) {
+        if (erForeldrepenger && (minsterett || morHarUføretrygd)) {
             var dekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(ref.saksnummer()).getGjeldendeDekningsgrad();
             var antallDager = 0;
-            if (minsterettFarMedmor) {
-                antallDager = BFHR_MINSTERETT_DAGER;
+            if (minsterett && totette) {
+                // Begge skal ha minsterett
+                antallDager = erMor ? MOR_TO_TETTE_MINSTERETT_DAGER : FAR_TO_TETTE_MINSTERETT_DAGER;
             }
-            if (morHarUføretrygd) {
+            if (minsterett && bareFarHarRett) {
+                antallDager = totette ?  Math.max(BFHR_MINSTERETT_DAGER, FAR_TO_TETTE_MINSTERETT_DAGER) : BFHR_MINSTERETT_DAGER;
+            }
+            if (morHarUføretrygd && bareFarHarRett) {
                 antallDager = Dekningsgrad._80.equals(dekningsgrad) ? MINSTEDAGER_UFØRE_80_PROSENT : MINSTEDAGER_UFØRE_100_PROSENT;
             }
-            if (minsterettFarMedmor) {
+            if (minsterett) {
                 builder.minsterettDager(antallDager);
                 builder.farUttakRundtFødselDager(UTTAK_RUNDT_FØDSEL_DAGER);
             } else {
@@ -117,5 +134,17 @@ public class KontoerGrunnlagBygger {
             }
         }
         return builder;
+    }
+
+    private boolean toTette(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
+        var denneSaken = Optional.ofNullable(foreldrepengerGrunnlag.getFamilieHendelser())
+            .map(FamilieHendelser::getGjeldendeFamilieHendelse)
+            .map(FamilieHendelse::getFamilieHendelseDato).orElse(null);
+        if (denneSaken == null) {
+            return false;
+        }
+        var nesteSak = foreldrepengerGrunnlag.getNesteSakGrunnlag().map(NesteSakGrunnlagEntitet::getHendelsedato);
+        var grenseToTette = denneSaken.plus(Period.ofWeeks(TO_TETTE_UKER_MELLOM_FAMHENDELSE)).plusDays(1);
+        return nesteSak.filter(grenseToTette::isAfter).isPresent();
     }
 }
