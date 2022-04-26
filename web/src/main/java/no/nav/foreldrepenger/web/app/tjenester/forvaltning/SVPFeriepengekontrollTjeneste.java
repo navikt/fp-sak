@@ -66,7 +66,7 @@ public class SVPFeriepengekontrollTjeneste {
             .filter(fs -> fs.getYtelseType().equals(FagsakYtelseType.SVANGERSKAPSPENGER))
             .collect(Collectors.toList());
         var gjeldendeVedtakForSVP = svpSaker.stream()
-            .map(fs -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fs.getId()))
+            .map(fs -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fs.getId()))
             .flatMap(Optional::stream)
             .collect(Collectors.toList());
 

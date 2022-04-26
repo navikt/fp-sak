@@ -206,10 +206,10 @@ public class BehandlingRevurderingRepository {
 
     private static final String SØKERE_MED_FLERE_SVP_SAKER = """
         select u.aktoer_id
-        from fpsak.bruker u join fpsak.fagsak f on f.bruker_id=u.id
-        where ytelse_type='SVP'
+        from bruker u join fagsak f on f.bruker_id=u.id
+        where ytelse_type=:ytelse
         group by u.aktoer_id
-        having count(distinct saksnummer) > 1;
+        having count(distinct saksnummer) > 1
         """;
 
     private static final String REGULERING_SELECT_STD_FP = """
@@ -243,10 +243,10 @@ public class BehandlingRevurderingRepository {
 
     /** Plukker ut aktørId på søkere med flere SVP saker */
     public List<AktørId> finnAktørerMedFlereSVPSaker() {
-        var query = getEntityManager().createNativeQuery(SØKERE_MED_FLERE_SVP_SAKER);
+        var query = getEntityManager().createNativeQuery(SØKERE_MED_FLERE_SVP_SAKER).setParameter("ytelse", "SVP");
         @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new AktørId((String) row[0])).collect(Collectors.toList());
+        List<String> resultatList = query.getResultList();
+        return resultatList.stream().map(AktørId::new).collect(Collectors.toList());
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering over 6G og det ikke finnes åpen behandling */
