@@ -204,6 +204,14 @@ public class BehandlingRevurderingRepository {
         return behandlinger.isEmpty() ? Optional.empty() : Optional.of(behandlinger.get(0));
     }
 
+    private static final String SØKERE_MED_FLERE_SVP_SAKER = """
+        select u.aktoer_id
+        from fpsak.bruker u join fpsak.fagsak f on f.bruker_id=u.id
+        where ytelse_type='SVP'
+        group by u.aktoer_id
+        having count(distinct saksnummer) > 1;
+        """;
+
     private static final String REGULERING_SELECT_STD_FP = """
         SELECT DISTINCT f.id , bru.aktoer_id
           from Fagsak f join bruker bru on f.bruker_id=bru.id
@@ -232,6 +240,14 @@ public class BehandlingRevurderingRepository {
             where beh.behandling_status not in (:avsluttet) and beh.behandling_type in (:ytelse)
               and beh.id not in (select ba.behandling_id from behandling_arsak ba where behandling_arsak_type in (:berort)) )
         """;
+
+    /** Plukker ut aktørId på søkere med flere SVP saker */
+    public List<AktørId> finnAktørerMedFlereSVPSaker() {
+        var query = getEntityManager().createNativeQuery(SØKERE_MED_FLERE_SVP_SAKER);
+        @SuppressWarnings("unchecked")
+        List<Object[]> resultatList = query.getResultList();
+        return resultatList.stream().map(row -> new AktørId((String) row[0])).collect(Collectors.toList());
+    }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering over 6G og det ikke finnes åpen behandling */
     public List<FagsakIdAktørId> finnSakerMedBehovForGrunnbeløpRegulering(LocalDate gjeldendeFom, long forrigeAvkortingMultiplikator) {
