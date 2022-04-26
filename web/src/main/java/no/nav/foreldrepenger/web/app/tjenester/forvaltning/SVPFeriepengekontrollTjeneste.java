@@ -75,10 +75,10 @@ public class SVPFeriepengekontrollTjeneste {
         var grupperteBehandlinger = grupperBehandlingerPåSammeTermin(gjeldendeVedtakForSVP);
         grupperteBehandlinger.entrySet().stream()
             .filter(e -> e.getValue().size() > 1)
-            .filter(e -> harHattUtbetalingI2021OgHarBruktOppFeriepengedager(e.getValue()));
+            .forEach(e -> harHattUtbetalingI2021OgHarBruktOppFeriepengedager(e.getValue()));
     }
 
-    private boolean harHattUtbetalingI2021OgHarBruktOppFeriepengedager(List<Behandling> behandlinger) {
+    private void harHattUtbetalingI2021OgHarBruktOppFeriepengedager(List<Behandling> behandlinger) {
 
         var tilkjenteYtelser = behandlinger.stream()
             .map(beh -> beregningsresultatRepository.hentUtbetBeregningsresultat(beh.getId()))
@@ -87,20 +87,19 @@ public class SVPFeriepengekontrollTjeneste {
 
         // Early return
         if (tilkjenteYtelser.isEmpty() || tilkjenteYtelser.stream().noneMatch(ty -> erOpptjentI2021(ty.getBeregningsresultatFeriepenger()))) {
-            return false;
+            return;
         }
-
+        var saksnummer = behandlinger.stream()
+            .map(b -> b.getFagsak().getSaksnummer().getVerdi())
+            .collect(Collectors.toList());
         var bruktFeriekvote = summerBruktFeriekvote(tilkjenteYtelser);
+        var info = String.format("Følgende saksnummer %s har brukt til sammen %s dager av feriepengekvoten", saksnummer, bruktFeriekvote);
+        LOG.info("FP-985860: " + info);
         if (bruktFeriekvote > SVP_DAGER_FERIEKVOTE) {
-            var saksnummerMedFeil = behandlinger.stream()
-                .map(b -> b.getFagsak().getSaksnummer().getVerdi())
-                .collect(Collectors.toList());
             var msg = String.format("Følgende saksnummer tilhører samme svangerskap, har overskridet"
-                + " feriepengekvoten (dager brukt var: %s) og har feriepenger opptjent i 2021: %s", bruktFeriekvote, saksnummerMedFeil);
+                + " feriepengekvoten (dager brukt var: %s) og har feriepenger opptjent i 2021: %s", bruktFeriekvote, saksnummer);
             LOG.info("FP-985861: " + msg);
-            return true;
         }
-        return false;
     }
 
     private int summerBruktFeriekvote(List<BeregningsresultatEntitet> tilkjenteYtelser) {
@@ -136,6 +135,9 @@ public class SVPFeriepengekontrollTjeneste {
                 var termindato = termindatoOpt.get();
                 var matchendeTermindato = finnEksisterendeTermindatoInnenforTerskel(grupperteBehandlinger.keySet(), termindato);
                 if (matchendeTermindato.isPresent()) {
+                    var info = String.format("Fant match på termindato mellom %s og %s på saksnummer %s", matchendeTermindato.get(), termindato,
+                        behandling.getFagsak().getSaksnummer().getVerdi());
+                    LOG.info("FP-985859: " + info);
                     var behandlinger = grupperteBehandlinger.get(matchendeTermindato.get());
                     behandlinger.add(behandling);
                     grupperteBehandlinger.put(matchendeTermindato.get(), behandlinger);
