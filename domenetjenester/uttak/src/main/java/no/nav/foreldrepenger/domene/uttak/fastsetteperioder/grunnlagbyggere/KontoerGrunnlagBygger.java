@@ -104,6 +104,7 @@ public class KontoerGrunnlagBygger {
         var erForeldrepenger = stønadskontoer.stream().map(Stønadskonto::getStønadskontoType).anyMatch(StønadskontoType.FORELDREPENGER::equals);
         var minsterett = !ref.getSkjæringstidspunkt().utenMinsterett();
         var totette = minsterett && toTette(foreldrepengerGrunnlag);
+        var bareFarHarRett = !erMor && stønadskontoer.stream().map(Stønadskonto::getStønadskontoType).anyMatch(StønadskontoType.FORELDREPENGER::equals);
         var morHarUføretrygd = foreldrepengerGrunnlag.getUføretrygdGrunnlag()
             .filter(UføretrygdGrunnlagEntitet::annenForelderMottarUføretrygd)
             .isPresent();
@@ -119,12 +120,11 @@ public class KontoerGrunnlagBygger {
                 // Begge skal ha minsterett
                 antallDager = erMor ? MOR_TO_TETTE_MINSTERETT_DAGER : FAR_TO_TETTE_MINSTERETT_DAGER;
             }
-            if (!erMor && stønadskontoer.stream().map(Stønadskonto::getStønadskontoType).anyMatch(StønadskontoType.FORELDREPENGER::equals)) {
-                // Bare far har rett
+            if (minsterett && bareFarHarRett) {
                 antallDager = totette ?  Math.max(BFHR_MINSTERETT_DAGER, FAR_TO_TETTE_MINSTERETT_DAGER) : BFHR_MINSTERETT_DAGER;
-                if (morHarUføretrygd) {
-                    antallDager = Dekningsgrad._80.equals(dekningsgrad) ? MINSTEDAGER_UFØRE_80_PROSENT : MINSTEDAGER_UFØRE_100_PROSENT;
-                }
+            }
+            if (morHarUføretrygd && bareFarHarRett) {
+                antallDager = Dekningsgrad._80.equals(dekningsgrad) ? MINSTEDAGER_UFØRE_80_PROSENT : MINSTEDAGER_UFØRE_100_PROSENT;
             }
             if (minsterett) {
                 builder.minsterettDager(antallDager);
