@@ -15,8 +15,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.folketrygdloven.beregningsgrunnlag.util.Virkedager;
-import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
@@ -27,7 +25,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Terminb
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 
 
 @ApplicationScoped
@@ -36,7 +36,7 @@ public class SVPFeriepengekontrollTjeneste {
 
     private static final int AKSEPTERT_FEILMARGIN_TERMINDATO_DAGER = 60;
     private static final int SVP_DAGER_FERIEKVOTE = 64;
-    private static final Intervall ÅR_2021 = Intervall.fraOgMedTilOgMed(LocalDate.of(2021,1,1),
+    private static final DatoIntervallEntitet ÅR_2021 = DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2021,1,1),
         LocalDate.of(2021,12,31));
 
     private FagsakRepository fagsakRepository;
@@ -107,24 +107,28 @@ public class SVPFeriepengekontrollTjeneste {
     }
 
     private int finnVirkedagerIFerieperiode(BeregningsresultatEntitet ty) {
-        if (ty.getBeregningsresultatFeriepenger().isEmpty()) {
+        var feriepengeperiode = lagFeriepengeperiode(ty.getBeregningsresultatFeriepenger());
+        if (feriepengeperiode.isEmpty()) {
             return 0;
         }
-        var feriepengeperiode = lagFeriepengeperiode(ty.getBeregningsresultatFeriepenger().get());
-        return Virkedager.beregnAntallVirkedager(feriepengeperiode.getFomDato(), feriepengeperiode.getTomDato());
+        return Virkedager.beregnAntallVirkedager(feriepengeperiode.get().getFomDato(), feriepengeperiode.get().getTomDato());
     }
 
     private boolean erOpptjentI2021(Optional<BeregningsresultatFeriepenger> beregningsresultatFeriepenger) {
-        if (beregningsresultatFeriepenger.isEmpty()) {
+        var feriepengeperiode = lagFeriepengeperiode(beregningsresultatFeriepenger);
+        if (feriepengeperiode.isEmpty()) {
             return false;
         }
-        var feriepengeperiode = lagFeriepengeperiode(beregningsresultatFeriepenger.get());
-        return feriepengeperiode.overlapper(ÅR_2021);
+        return feriepengeperiode.get().overlapper(ÅR_2021);
     }
 
-    private Intervall lagFeriepengeperiode(BeregningsresultatFeriepenger beregningsresultatFeriepenger) {
-        return Intervall.fraOgMedTilOgMed(beregningsresultatFeriepenger.getFeriepengerPeriodeFom(),
-            beregningsresultatFeriepenger.getFeriepengerPeriodeTom());
+    private Optional<DatoIntervallEntitet> lagFeriepengeperiode(Optional<BeregningsresultatFeriepenger> beregningsresultatFeriepenger) {
+        var fom = beregningsresultatFeriepenger.map(BeregningsresultatFeriepenger::getFeriepengerPeriodeFom);
+        var tom = beregningsresultatFeriepenger.map(BeregningsresultatFeriepenger::getFeriepengerPeriodeTom);
+        if (fom.isPresent() && tom.isPresent()) {
+            return Optional.of(DatoIntervallEntitet.fraOgMedTilOgMed(fom.get(), tom.get()));
+        }
+        return Optional.empty();
     }
 
     private Map<LocalDate, List<Behandling>> grupperBehandlingerPåSammeTermin(List<Behandling> gjeldendeVedtakForSVP) {
@@ -152,7 +156,7 @@ public class SVPFeriepengekontrollTjeneste {
     }
 
     private Optional<LocalDate> finnEksisterendeTermindatoInnenforTerskel(Set<LocalDate> keySet, LocalDate termindato) {
-        var periodeViSerEtterMatchendeTermindato = Intervall.fraOgMedTilOgMed(termindato.minusDays(AKSEPTERT_FEILMARGIN_TERMINDATO_DAGER),
+        var periodeViSerEtterMatchendeTermindato = DatoIntervallEntitet.fraOgMedTilOgMed(termindato.minusDays(AKSEPTERT_FEILMARGIN_TERMINDATO_DAGER),
             termindato.plusDays(AKSEPTERT_FEILMARGIN_TERMINDATO_DAGER));
         var termindatoerSomKanGjeldeSammeSvangerskap = keySet.stream()
             .filter(periodeViSerEtterMatchendeTermindato::inkluderer)
