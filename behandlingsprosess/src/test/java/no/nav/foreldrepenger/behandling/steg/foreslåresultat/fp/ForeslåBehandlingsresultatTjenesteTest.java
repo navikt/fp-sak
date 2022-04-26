@@ -16,11 +16,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.HarEtablertYtelseFP;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingBehandlingsresultatutleder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -55,8 +53,6 @@ import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjenest
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
-import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
@@ -65,7 +61,6 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     private BehandlingRepositoryProvider repositoryProvider;
 
     private final DokumentBehandlingTjeneste dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
-    private final RelatertBehandlingTjeneste relatertBehandlingTjeneste = mock(RelatertBehandlingTjeneste.class);
     private final OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
     private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
     private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
@@ -80,7 +75,6 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(new MedlemTjeneste.VilkårUtfallMedÅrsak(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
         var entityManager = getEntityManager();
         var uttakRepositoryProvider = new UttakRepositoryProvider(entityManager);
-        var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(uttakRepositoryProvider, new KontoerGrunnlagBygger(uttakRepositoryProvider));
         this.repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         fpUttakRepository = this.repositoryProvider.getFpUttakRepository();
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
@@ -94,8 +88,6 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(this.repositoryProvider,
                 beregningsgrunnlagTjeneste,
                 opphørUttakTjeneste,
-                new HarEtablertYtelseFP(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste,
-                        uttakTjeneste, this.repositoryProvider.getBehandlingVedtakRepository()),
                 skjæringstidspunktTjeneste,
                 medlemTjeneste,
                 uttakTjeneste));

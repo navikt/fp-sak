@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.svp;
 
-import java.time.LocalDate;
-
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
@@ -9,7 +7,6 @@ import no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandling
 import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
@@ -50,12 +47,4 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
         return new UttakResultatHolderSVP(uttakRepository.hentHvisEksisterer(behandlingId), behandlingVedtak.orElse(null));
     }
 
-    @Override
-    protected boolean harEtablertYtelse(Behandling revurdering, boolean finnesInnvilgetIkkeOpphørtVedtak,
-            UttakResultatHolder uttakresultatOriginal) {
-        if (LocalDate.now().isAfter(uttakresultatOriginal.getSisteDagAvSistePeriode())) {
-            return false;
-        }
-        return finnesInnvilgetIkkeOpphørtVedtak;
-    }
 }
