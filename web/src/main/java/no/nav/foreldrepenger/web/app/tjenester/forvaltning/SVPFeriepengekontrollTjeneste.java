@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,7 +140,7 @@ public class SVPFeriepengekontrollTjeneste {
                     behandlinger.add(behandling);
                     grupperteBehandlinger.put(matchendeTermindato.get(), behandlinger);
                 } else {
-                    grupperteBehandlinger.put(termindato, List.of(behandling));
+                    grupperteBehandlinger.put(termindato, Arrays.asList(behandling));
                 }
             }
         });
