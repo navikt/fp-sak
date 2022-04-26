@@ -119,12 +119,12 @@ public class KontoerGrunnlagBygger {
                 // Begge skal ha minsterett
                 antallDager = erMor ? MOR_TO_TETTE_MINSTERETT_DAGER : FAR_TO_TETTE_MINSTERETT_DAGER;
             }
-            if (minsterett && !erMor && stønadskontoer.stream().map(Stønadskonto::getStønadskontoType).anyMatch(StønadskontoType.FORELDREPENGER::equals)) {
+            if (!erMor && stønadskontoer.stream().map(Stønadskonto::getStønadskontoType).anyMatch(StønadskontoType.FORELDREPENGER::equals)) {
                 // Bare far har rett
                 antallDager = totette ?  Math.max(BFHR_MINSTERETT_DAGER, FAR_TO_TETTE_MINSTERETT_DAGER) : BFHR_MINSTERETT_DAGER;
-            }
-            if (morHarUføretrygd && !erMor) {
-                antallDager = Dekningsgrad._80.equals(dekningsgrad) ? MINSTEDAGER_UFØRE_80_PROSENT : MINSTEDAGER_UFØRE_100_PROSENT;
+                if (morHarUføretrygd) {
+                    antallDager = Dekningsgrad._80.equals(dekningsgrad) ? MINSTEDAGER_UFØRE_80_PROSENT : MINSTEDAGER_UFØRE_100_PROSENT;
+                }
             }
             if (minsterett) {
                 builder.minsterettDager(antallDager);
