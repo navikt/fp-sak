@@ -10,8 +10,12 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -20,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.HåndterePermisjoner;
 import no.nav.foreldrepenger.domene.arbeidsforhold.IAYGrunnlagDiff;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.VurderArbeidsforholdTjeneste;
@@ -41,6 +46,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
+    private static final Logger LOG = LoggerFactory.getLogger(StartpunktUtlederInntektArbeidYtelse.class);
 
     public StartpunktUtlederInntektArbeidYtelse() {
         // For CDI
@@ -103,13 +109,20 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
             var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId()); // TODO burde ikke være nødvendig (bør velge grunnlagId1, grunnlagId2)
             var sakInntektsmeldinger = skalTaStillingTilEndringerIArbeidsforhold ? iayTjeneste.hentInntektsmeldinger(ref.saksnummer()) : null /* ikke hent opp */;
 
+            //Må rydde opp eventuelle tidligere aksjonspunkt
             var erPåkrevdManuelleAvklaringer = trengsManuelleAvklaringer(ref, skalTaStillingTilEndringerIArbeidsforhold, iayGrunnlag,
                 sakInntektsmeldinger);
+            var måVurderePermisjonUtenSluttdato = sjekkOmMåVurderePermisjonerUtenSluttdato(ref, iayGrunnlag);
 
             if (erPåkrevdManuelleAvklaringer) {
                 leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, StartpunktType.KONTROLLER_ARBEIDSFORHOLD, "manuell vurdering av arbeidsforhold");
             } else {
-                ryddOppAksjonspunktHvisEksisterer(ref);
+                ryddOppAksjonspunktForInntektsmeldingHvisEksisterer(ref);
+            }
+            if (måVurderePermisjonUtenSluttdato){
+                loggAdvarselHvisAksjonspunktForPermisjonUtenSluttdatIkkeEksisterer(ref);
+            } else {
+                ryddOppAksjonspunktForPermisjonUtenSluttdatoHvisEksisterer(ref);
             }
         }
         if (erAktørArbeidEndretForSøker) {
@@ -145,6 +158,10 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         return trengerAvklaringI5080 || trengerAvklaringI5085;
     }
 
+    private boolean sjekkOmMåVurderePermisjonerUtenSluttdato(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
+        return !HåndterePermisjoner.finnArbForholdMedPermisjonUtenSluttdatoMangel(ref, inntektArbeidYtelseGrunnlag).isEmpty();
+    }
+
     private boolean skalTaStillingTilEndringerIArbeidsforhold(BehandlingReferanse behandlingReferanse) {
         var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
         return Objects.equals(behandlingReferanse.behandlingType(), BehandlingType.REVURDERING)
@@ -155,16 +172,38 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     Kontroller arbeidsforhold skal ikke lenger være aktiv hvis tilstanden i saken ikke tilsier det
     Setter dermed aksjonspunktet til utført hvis det står til opprettet.
      */
-    private void ryddOppAksjonspunktHvisEksisterer(BehandlingReferanse behandlingReferanse) {
+    private void ryddOppAksjonspunktForInntektsmeldingHvisEksisterer(BehandlingReferanse behandlingReferanse) {
         var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
         var aksjonspunkter = behandling.getAksjonspunkter().stream()
-            .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD) // HER
+            .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD)
                 || ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING))
             .filter(Aksjonspunkt::erÅpentAksjonspunkt)
             .collect(Collectors.toList());
 
+        avbrytAksjonspunkter(behandling, aksjonspunkter);
+    }
+
+    private void ryddOppAksjonspunktForPermisjonUtenSluttdatoHvisEksisterer(BehandlingReferanse behandlingReferanse) {
+        var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
+        var aksjonspunkter = behandling.getAksjonspunkter().stream()
+            .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO))
+            .filter(Aksjonspunkt::erÅpentAksjonspunkt)
+            .collect(Collectors.toList());
+
+        avbrytAksjonspunkter(behandling, aksjonspunkter);
+    }
+
+    private void avbrytAksjonspunkter(Behandling behandling, List<Aksjonspunkt> aksjonspunkter) {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), aksjonspunkter);
+    }
+
+    //sjekker om dette scenarioet i det hele tatt oppstår før vi eventuelt legger inn håndtering av det
+    private void loggAdvarselHvisAksjonspunktForPermisjonUtenSluttdatIkkeEksisterer(BehandlingReferanse behandlingReferanse) {
+        var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
+        if (!behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO)) {
+            LOG.warn("BehandlingId {} har arbeidsforhold med permisjon uten sluttdato, men har ikke åpent aksjonspunkt av type VURDER_PERMISJON_UTEN_SLUTTDATO", behandling.getId());
+        }
     }
 
     private void leggTilStartpunkt(List<StartpunktType> startpunkter, UUID grunnlagId1, UUID grunnlagId2, StartpunktType startpunkt, String endringLoggtekst) {
