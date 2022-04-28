@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
@@ -19,9 +20,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
+import no.nav.foreldrepenger.domene.uttak.TidsperiodeFarRundtFødsel;
 import no.nav.foreldrepenger.domene.uttak.fakta.KontrollerFaktaUttakFeil;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 final class SøknadsperiodeDokKontrollerer {
 
@@ -29,31 +32,34 @@ final class SøknadsperiodeDokKontrollerer {
     private final LocalDate fødselsDatoTilTidligOppstart;
     private final UtsettelseDokKontrollerer utsettelseDokKontrollerer;
     private final List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser;
+    private final Optional<LocalDateInterval> farUttakRundtFødsel;
 
     SøknadsperiodeDokKontrollerer(List<PeriodeUttakDokumentasjonEntitet> dokumentasjonPerioder,
                                   LocalDate fødselsDatoTilTidligOppstart,
                                   UtsettelseDokKontrollerer utsettelseDokKontrollerer,
-                                  List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
+                                  List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser,
+                                  Optional<LocalDateInterval> farUttakRundtFødsel) {
         this.dokumentasjonPerioder = dokumentasjonPerioder;
         this.fødselsDatoTilTidligOppstart = fødselsDatoTilTidligOppstart;
         this.utsettelseDokKontrollerer = utsettelseDokKontrollerer;
         this.pleiepengerInnleggelser = pleiepengerInnleggelser;
+        this.farUttakRundtFødsel = farUttakRundtFødsel;
     }
 
     SøknadsperiodeDokKontrollerer(List<PeriodeUttakDokumentasjonEntitet> dokumentasjonPerioder,
                                   LocalDate fødselsDatoTilTidligOppstart,
                                   UtsettelseDokKontrollerer utsettelseDokKontrollerer) {
-        this(dokumentasjonPerioder, fødselsDatoTilTidligOppstart, utsettelseDokKontrollerer, List.of());
+        this(dokumentasjonPerioder, fødselsDatoTilTidligOppstart, utsettelseDokKontrollerer, List.of(), Optional.empty());
     }
 
     static KontrollerFaktaData kontrollerPerioder(YtelseFordelingAggregat ytelseFordeling,
                                                   LocalDate fødselsDatoTilTidligOppstart,
                                                   UttakInput uttakInput) {
         var dokumentasjonPerioder = hentDokumentasjonPerioder(ytelseFordeling);
-
+        var farUttakRundtFødsel = TidsperiodeFarRundtFødsel.intervallFarRundtFødsel(uttakInput);
         var kontrollerer = new SøknadsperiodeDokKontrollerer(dokumentasjonPerioder,
             fødselsDatoTilTidligOppstart, utledUtsettelseKontrollerer(uttakInput),
-            finnPerioderMedPleiepengerInnleggelse(uttakInput));
+            finnPerioderMedPleiepengerInnleggelse(uttakInput), farUttakRundtFødsel);
         return kontrollerer.kontrollerSøknadsperioder(
             ytelseFordeling.getGjeldendeSøknadsperioder().getOppgittePerioder());
     }
@@ -131,6 +137,9 @@ final class SøknadsperiodeDokKontrollerer {
         if (søknadsperiode.isOverføring()) {
             return kontrollerOverføring(søknadsperiode);
         }
+        if (farUttakRundtFødsel.isPresent() && erBalansertUttakRundtFødsel(søknadsperiode)) {
+            return KontrollerFaktaPeriode.automatiskBekreftet(søknadsperiode, PERIODE_OK);
+        }
         if (erGyldigGrunnForTidligOppstart(søknadsperiode)) {
             return KontrollerFaktaPeriode.ubekreftetTidligOppstart(søknadsperiode);
         }
@@ -166,6 +175,11 @@ final class SøknadsperiodeDokKontrollerer {
 
     private KontrollerFaktaPeriode kontrollerOverføring(OppgittPeriodeEntitet søknadsperiode) {
         return KontrollerFaktaPeriode.ubekreftet(søknadsperiode);
+    }
+
+    private boolean erBalansertUttakRundtFødsel(OppgittPeriodeEntitet søknadsperiode) {
+        // FAB-direktiv - søknadsperioden er helt innenfor periode rundt fødsel der far/medmor kan ta ut
+        return farUttakRundtFødsel.filter(p -> p.encloses(søknadsperiode.getFom()) && p.encloses(søknadsperiode.getTom())).isPresent();
     }
 
     private boolean erGyldigGrunnForTidligOppstart(OppgittPeriodeEntitet søknadsperiode) {
