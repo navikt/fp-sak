@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.mottak.sakskompleks;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -93,9 +94,10 @@ public class BerørtBehandlingKontrollerTest {
     @BeforeEach
     public void setUp() {
 
+        clearInvocations(behandlingsoppretter, behandlingProsesseringTjeneste);
+
         repositoryProvider = mock(BehandlingRepositoryProvider.class);
         var fagsakLåsRepository = mock(FagsakLåsRepository.class);
-        when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(repositoryProvider.getBehandlingRevurderingRepository()).thenReturn(behandlingRevurderingRepository);
         when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
