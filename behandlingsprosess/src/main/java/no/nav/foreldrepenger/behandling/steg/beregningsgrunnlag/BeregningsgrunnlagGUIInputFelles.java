@@ -86,7 +86,10 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
 
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
         var opptjeningAktiviteter = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iayGrunnlag);
-        var mappetOpptjening = opptjeningAktiviteter.map(OpptjeningMapperTilKalkulus::mapOpptjeningAktiviteter).orElse(null);
+        var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
+            .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
+            .orElse(Collections.emptyList());
+        var mappetOpptjening = opptjeningAktiviteter.map(opptjeningAktiviteter1 -> OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter1, inntektsmeldinger)).orElse(null);
         InntektArbeidYtelseGrunnlagDto iayGrunnlagDto;
         if (!inntektsmeldingDiffDto.isEmpty()) {
             iayGrunnlagDto = settInntektsmeldingDiffPåIAYGrunnlag(iayGrunnlagDtoUtenIMDiff, inntektsmeldingDiffDto);

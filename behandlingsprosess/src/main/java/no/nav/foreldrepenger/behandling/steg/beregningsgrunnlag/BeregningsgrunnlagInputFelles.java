@@ -107,10 +107,13 @@ public abstract class BeregningsgrunnlagInputFelles {
 
         List<KravperioderPrArbeidsforholdDto> kravperioder = mapKravperioder(ref, iayGrunnlag);
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
+        var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
+            .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
+            .orElse(Collections.emptyList());
         var beregningsgrunnlagInput = new BeregningsgrunnlagInput(
                 MapBehandlingRef.mapRef(ref),
                 iayGrunnlagDto,
-                OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter.orElseThrow()),
+                OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter.orElseThrow(), inntektsmeldinger),
                 kravperioder,
                 ytelseGrunnlag);
         kalkulusKonfigInjecter.leggTilFeatureToggles(beregningsgrunnlagInput);
