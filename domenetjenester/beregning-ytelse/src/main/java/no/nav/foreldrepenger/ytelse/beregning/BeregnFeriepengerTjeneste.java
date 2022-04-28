@@ -23,7 +23,7 @@ public abstract class BeregnFeriepengerTjeneste {
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
-    private int antallDagerFeriepenger;
+    protected int antallDagerFeriepenger;
 
     protected BeregnFeriepengerTjeneste() {
         //NOSONAR
@@ -49,7 +49,7 @@ public abstract class BeregnFeriepengerTjeneste {
             .getGjeldendeDekningsgrad();
 
         var regelModell = mapFra(behandling, beregningsresultat, annenPartsBeregningsresultat, gjeldendeDekningsgrad,
-            antallDagerFeriepenger);
+            finnTigjengeligeFeriepengedager());
         var regelInput = toJson(regelModell);
 
         var regelBeregnFeriepenger = new RegelBeregnFeriepenger();
@@ -68,7 +68,7 @@ public abstract class BeregnFeriepengerTjeneste {
             .getGjeldendeDekningsgrad();
 
         var regelModell = mapFra(behandling, beregningsresultat, annenPartsBeregningsresultat, gjeldendeDekningsgrad,
-            antallDagerFeriepenger);
+            finnTigjengeligeFeriepengedager());
 
         var regelBeregnFeriepenger = new RegelBeregnFeriepenger();
         regelBeregnFeriepenger.evaluer(regelModell);
@@ -91,4 +91,6 @@ public abstract class BeregnFeriepengerTjeneste {
     private String toJson(BeregningsresultatFeriepengerRegelModell grunnlag) {
         return StandardJsonConfig.toJson(grunnlag);
     }
+
+    protected abstract int finnTigjengeligeFeriepengedager();
 }

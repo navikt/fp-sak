@@ -25,4 +25,9 @@ public class BeregnFeriepenger extends BeregnFeriepengerTjeneste {
                                        @KonfigVerdi(value = "fp.antall.dager.feriepenger", defaultVerdi = "60") int antallDagerFeriepenger) {
         super(repositoryProvider, antallDagerFeriepenger);
     }
+
+    @Override
+    protected int finnTigjengeligeFeriepengedager() {
+        return antallDagerFeriepenger;
+    }
 }

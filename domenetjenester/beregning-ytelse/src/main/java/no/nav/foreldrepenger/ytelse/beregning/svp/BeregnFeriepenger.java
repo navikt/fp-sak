@@ -13,6 +13,8 @@ import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
 @ApplicationScoped
 public class BeregnFeriepenger extends BeregnFeriepengerTjeneste {
 
+    private SvangerskapspengerFeriekvoteTjeneste
+
     BeregnFeriepenger() {
         //NOSONAR
     }
@@ -25,5 +27,10 @@ public class BeregnFeriepenger extends BeregnFeriepengerTjeneste {
     public BeregnFeriepenger(BehandlingRepositoryProvider repositoryProvider,
                                         @KonfigVerdi(value = "svp.antall.dager.feriepenger", defaultVerdi = "64") int antallDagerFeriepenger) {
         super(repositoryProvider, antallDagerFeriepenger);
+    }
+
+    @Override
+    protected int finnTigjengeligeFeriepengedager() {
+        return 0;
     }
 }
