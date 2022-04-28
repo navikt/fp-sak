@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.anke;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -124,8 +125,10 @@ public class AnkeRestTjeneste {
         var behandling = behandlingRepository.hentBehandling(apDto.getBehandlingUuid());
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE)) {
             var builder = mapMellomlagreVurdering(apDto, behandling);
-            var påAnketKlageBehandlingId = behandlingRepository.hentBehandling(apDto.getPåAnketKlageBehandlingUuid()).getId();
-            ankeVurderingTjeneste.lagreAnkeVurderingResultat(behandling, builder, påAnketKlageBehandlingId);
+            var påAnketKlageBehandlingId = Optional.ofNullable(apDto.getPåAnketKlageBehandlingUuid())
+                .map(u -> behandlingRepository.hentBehandling(apDto.getPåAnketKlageBehandlingUuid()))
+                .map(Behandling::getId);
+            ankeVurderingTjeneste.mellomlagreAnkeVurderingResultat(behandling, builder, påAnketKlageBehandlingId);
         } else {
             var builder = mapMellomlagreTekst(apDto, behandling);
             ankeVurderingTjeneste.lagreAnkeVurderingResultat(behandling, builder);

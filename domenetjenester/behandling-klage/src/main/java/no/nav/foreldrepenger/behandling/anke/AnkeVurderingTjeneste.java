@@ -91,11 +91,11 @@ public class AnkeVurderingTjeneste {
         ankeRepository.lagreVurderingsResultat(behandling.getId(), builder.build());
     }
 
-    public void lagreAnkeVurderingResultat(Behandling behandling, AnkeVurderingResultatEntitet.Builder builder, Long påAnketKlageBehandlingId) {
+    public void mellomlagreAnkeVurderingResultat(Behandling behandling, AnkeVurderingResultatEntitet.Builder builder, Optional<Long> påAnketKlageBehandlingId) {
         if (!behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE)) {
             throw new IllegalArgumentException("Utviklerfeil: Skal ikke kalle denne når aksjonspunkt er utført");
         }
-        ankeRepository.settPåAnketKlageBehandling(behandling.getId(), påAnketKlageBehandlingId);
+        påAnketKlageBehandlingId.ifPresent(behandlingId -> ankeRepository.settPåAnketKlageBehandling(behandling.getId(), behandlingId));
         lagreAnkeVurderingResultat(behandling, builder, false);
     }
 
