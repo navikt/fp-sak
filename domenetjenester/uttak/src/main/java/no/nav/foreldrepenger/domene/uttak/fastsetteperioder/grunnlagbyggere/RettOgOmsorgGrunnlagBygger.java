@@ -47,7 +47,8 @@ public class RettOgOmsorgGrunnlagBygger {
         var farHarRett = farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan);
         var morHarRett = morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan);
         var oppgittAleneomsorg = TRUE.equals(ytelseFordelingAggregat.getOppgittRettighet().getHarAleneomsorgForBarnet());
-        if (!oppgittAleneomsorg && farHarRett && morHarRett && !samtykke) {
+        var oppgittAnnenForelderRett = TRUE.equals(ytelseFordelingAggregat.getOppgittRettighet().getHarAnnenForeldreRett());
+        if (!oppgittAleneomsorg && oppgittAnnenForelderRett && !samtykke) {
             throw new IllegalStateException("Midlertidig feil. Søknad opplyser om manglende samtykke");
         }
         return new RettOgOmsorg.Builder()
