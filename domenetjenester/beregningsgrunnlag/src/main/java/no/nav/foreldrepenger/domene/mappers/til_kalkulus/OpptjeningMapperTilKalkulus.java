@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class OpptjeningMapperTilKalkulus {
 
@@ -36,6 +37,9 @@ public class OpptjeningMapperTilKalkulus {
             .filter(im -> im.getArbeidsgiver().equals(getArbeidsgiver(opp)))
             .collect(Collectors.toList());
         if (inntektsmeldingerForAktuellArbeidsgiver.isEmpty()) {
+            return true;
+        }
+        if (opp.arbeidsforholdId() == null) {
             return true;
         }
         return inntektsmeldingerForAktuellArbeidsgiver.stream()
