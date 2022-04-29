@@ -4,6 +4,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -46,6 +47,7 @@ import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
+import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @Path(AnkeRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
@@ -97,6 +99,10 @@ public class AnkeRestTjeneste {
     }
 
     private AnkebehandlingDto mapFra(Behandling behandling) {
+        var utvalgteSBH = Optional.ofNullable(SubjectHandler.getSubjectHandler().getUid())
+            .filter(u -> Set.of("A100182", "E137084").contains(u))
+            .isPresent();
+
         var vurderingResultat = ankeVurderingTjeneste.hentAnkeVurderingResultat(behandling);
         var påAnketKlageBehandling = vurderingResultat.map(AnkeVurderingResultatEntitet::getAnkeResultat)
             .flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId);
@@ -109,7 +115,7 @@ public class AnkeRestTjeneste {
         var ankeBehandletAvKabal = vurderingResultat.map(AnkeVurderingResultatEntitet::getAnkeResultat).map(AnkeResultatEntitet::erBehandletAvKabal);
         var ankeDto = new AnkebehandlingDto(resultat.orElse(null),
             klageHjemmel, KlageHjemmel.getHjemlerForYtelse(behandling.getFagsakYtelseType()),
-            !ER_PROD, ankeUnderBehandlingKabal, ankeBehandletAvKabal.orElse(false));
+            !ER_PROD || utvalgteSBH, ankeUnderBehandlingKabal, ankeBehandletAvKabal.orElse(false));
 
         return ankeDto;
     }
