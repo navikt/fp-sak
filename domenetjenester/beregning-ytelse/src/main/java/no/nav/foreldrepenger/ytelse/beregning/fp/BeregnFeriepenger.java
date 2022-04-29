@@ -3,7 +3,9 @@ package no.nav.foreldrepenger.ytelse.beregning.fp;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
@@ -27,7 +29,7 @@ public class BeregnFeriepenger extends BeregnFeriepengerTjeneste {
     }
 
     @Override
-    protected int finnTigjengeligeFeriepengedager() {
+    protected int finnTigjengeligeFeriepengedager(BehandlingReferanse ref, BeregningsresultatEntitet beregningsresultat) {
         return antallDagerFeriepenger;
     }
 }

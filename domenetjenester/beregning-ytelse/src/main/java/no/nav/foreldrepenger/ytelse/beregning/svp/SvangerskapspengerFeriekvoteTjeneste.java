@@ -10,6 +10,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -43,7 +44,7 @@ public class SvangerskapspengerFeriekvoteTjeneste {
     }
 
 
-    public Integer beregnTilgjengeligFeriekvote(BehandlingReferanse behandlingReferanse) {
+    public Optional<Integer> beregnTilgjengeligFeriekvote(BehandlingReferanse behandlingReferanse, BeregningsresultatEntitet beregnetYtelse) {
         var fagsakerPåSøker = fagsakRepository.hentForBruker(behandlingReferanse.aktørId());
         var svpSaker = fagsakerPåSøker.stream()
             .filter(fs -> fs.getYtelseType().equals(FagsakYtelseType.SVANGERSKAPSPENGER))
@@ -56,8 +57,12 @@ public class SvangerskapspengerFeriekvoteTjeneste {
         var termindato = finnTermindato(behandlingReferanse.behandlingId()).orElseThrow();
 
         // Finner behandlinger som gjelder samme svangerskap
-        var grupperteBehandlinger = finnBehandlingerSomGjelderSammeSvangerskap(gjeldendeVedtakForSVP, termindato);
-
+        var behandlingerSomAngårSammeSvangerskap = finnBehandlingerSomGjelderSammeSvangerskap(gjeldendeVedtakForSVP, termindato);
+        var annenTilkjentYtelsePåSammeSvangerskap = behandlingerSomAngårSammeSvangerskap.stream()
+            .map(b -> beregningsresultatRepository.hentUtbetBeregningsresultat(b.getId()))
+            .flatMap(Optional::stream)
+            .collect(Collectors.toList());
+        return SvangerskapFeriepengeKvoteBeregner.beregn(beregnetYtelse, annenTilkjentYtelsePåSammeSvangerskap);
     }
 
     private List<Behandling> finnBehandlingerSomGjelderSammeSvangerskap(List<Behandling> gjeldendeVedtakForSVP,

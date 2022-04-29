@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresult
 import java.util.Optional;
 
 import no.nav.folketrygdloven.beregningsgrunnlag.RegelmodellOversetter;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -48,8 +49,9 @@ public abstract class BeregnFeriepengerTjeneste {
         var gjeldendeDekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak())
             .getGjeldendeDekningsgrad();
 
+        var ref = BehandlingReferanse.fra(behandling);
         var regelModell = mapFra(behandling, beregningsresultat, annenPartsBeregningsresultat, gjeldendeDekningsgrad,
-            finnTigjengeligeFeriepengedager());
+            finnTigjengeligeFeriepengedager(ref, beregningsresultat));
         var regelInput = toJson(regelModell);
 
         var regelBeregnFeriepenger = new RegelBeregnFeriepenger();
@@ -67,8 +69,9 @@ public abstract class BeregnFeriepengerTjeneste {
         var gjeldendeDekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak())
             .getGjeldendeDekningsgrad();
 
+        var ref = BehandlingReferanse.fra(behandling);
         var regelModell = mapFra(behandling, beregningsresultat, annenPartsBeregningsresultat, gjeldendeDekningsgrad,
-            finnTigjengeligeFeriepengedager());
+            finnTigjengeligeFeriepengedager(ref, beregningsresultat));
 
         var regelBeregnFeriepenger = new RegelBeregnFeriepenger();
         regelBeregnFeriepenger.evaluer(regelModell);
@@ -92,5 +95,5 @@ public abstract class BeregnFeriepengerTjeneste {
         return StandardJsonConfig.toJson(grunnlag);
     }
 
-    protected abstract int finnTigjengeligeFeriepengedager();
+    protected abstract int finnTigjengeligeFeriepengedager(BehandlingReferanse ref, BeregningsresultatEntitet beregningsresultat);
 }
