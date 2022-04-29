@@ -37,6 +37,10 @@ public class AvklarFaktaUttakPerioderTjeneste {
     }
 
     public KontrollerFaktaData hentKontrollerFaktaPerioder(UttakInput input) {
+        return hentKontrollerFaktaPerioder(input, false);
+    }
+
+    public KontrollerFaktaData hentKontrollerFaktaPerioder(UttakInput input, boolean logg) {
         var ref = input.getBehandlingReferanse();
         var behandlingId = ref.behandlingId();
         var ytelseFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId);
@@ -48,7 +52,7 @@ public class AvklarFaktaUttakPerioderTjeneste {
         var fødselsDatoTilTidligOppstart = utledDatoForTidligOppstart(input);
 
         return SøknadsperiodeDokKontrollerer.kontrollerPerioder(ytelseFordeling.get(), fødselsDatoTilTidligOppstart,
-            input);
+            input, logg);
     }
 
     private KontrollerFaktaData utenGrunnlagResultat() {

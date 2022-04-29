@@ -13,6 +13,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
@@ -28,11 +31,14 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 final class SøknadsperiodeDokKontrollerer {
 
+    private static final Logger LOG = LoggerFactory.getLogger(SøknadsperiodeDokKontrollerer.class);
+
     private final List<PeriodeUttakDokumentasjonEntitet> dokumentasjonPerioder;
     private final LocalDate fødselsDatoTilTidligOppstart;
     private final UtsettelseDokKontrollerer utsettelseDokKontrollerer;
     private final List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser;
     private final Optional<LocalDateInterval> farUttakRundtFødsel;
+    private boolean logg = false;
 
     SøknadsperiodeDokKontrollerer(List<PeriodeUttakDokumentasjonEntitet> dokumentasjonPerioder,
                                   LocalDate fødselsDatoTilTidligOppstart,
@@ -54,12 +60,13 @@ final class SøknadsperiodeDokKontrollerer {
 
     static KontrollerFaktaData kontrollerPerioder(YtelseFordelingAggregat ytelseFordeling,
                                                   LocalDate fødselsDatoTilTidligOppstart,
-                                                  UttakInput uttakInput) {
+                                                  UttakInput uttakInput, boolean logg) {
         var dokumentasjonPerioder = hentDokumentasjonPerioder(ytelseFordeling);
         var farUttakRundtFødsel = TidsperiodeFarRundtFødsel.intervallFarRundtFødsel(uttakInput);
         var kontrollerer = new SøknadsperiodeDokKontrollerer(dokumentasjonPerioder,
             fødselsDatoTilTidligOppstart, utledUtsettelseKontrollerer(uttakInput),
             finnPerioderMedPleiepengerInnleggelse(uttakInput), farUttakRundtFødsel);
+        kontrollerer.logg = logg;
         return kontrollerer.kontrollerSøknadsperioder(
             ytelseFordeling.getGjeldendeSøknadsperioder().getOppgittePerioder());
     }
@@ -141,6 +148,9 @@ final class SøknadsperiodeDokKontrollerer {
             return KontrollerFaktaPeriode.automatiskBekreftet(søknadsperiode, PERIODE_OK);
         }
         if (erGyldigGrunnForTidligOppstart(søknadsperiode)) {
+            if (logg) {
+                LOG.info("FAKTA UTTAK kontroller - ubekreftet periode tidligstart");
+            }
             return KontrollerFaktaPeriode.ubekreftetTidligOppstart(søknadsperiode);
         }
         if (søknadsperiode.isGradert()) {
@@ -174,6 +184,12 @@ final class SøknadsperiodeDokKontrollerer {
     }
 
     private KontrollerFaktaPeriode kontrollerOverføring(OppgittPeriodeEntitet søknadsperiode) {
+        try {
+            if (logg) LOG.info("FAKTA UTTAK kontroller - ubekreftet periode overføring {}", søknadsperiode.getÅrsak().getKode());
+        } catch (Exception e) {
+            //
+        }
+
         return KontrollerFaktaPeriode.ubekreftet(søknadsperiode);
     }
 
@@ -194,7 +210,15 @@ final class SøknadsperiodeDokKontrollerer {
     }
 
     private KontrollerFaktaPeriode kontrollerUtsettelse(OppgittPeriodeEntitet søknadsperiode) {
-        return utsettelseDokKontrollerer.måSaksbehandlerManueltBekrefte(søknadsperiode) ?
-            KontrollerFaktaPeriode.ubekreftet(søknadsperiode) : KontrollerFaktaPeriode.automatiskBekreftet(søknadsperiode, PERIODE_OK);
+        var manuell = utsettelseDokKontrollerer.måSaksbehandlerManueltBekrefte(søknadsperiode);
+        if (manuell) {
+            try {
+                if (logg) LOG.info("FAKTA UTTAK kontroller - ubekreftet periode utsettelse {}", søknadsperiode.getÅrsak().getKode());
+            } catch (Exception e) {
+                //
+            }
+
+        }
+        return manuell ? KontrollerFaktaPeriode.ubekreftet(søknadsperiode) : KontrollerFaktaPeriode.automatiskBekreftet(søknadsperiode, PERIODE_OK);
     }
 }
