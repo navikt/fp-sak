@@ -37,7 +37,8 @@ public class SøknadsperioderMåKontrolleresAksjonspunktUtleder implements Fakta
     public List<AksjonspunktDefinisjon> utledAksjonspunkterFor(UttakInput input) {
         var ref = input.getBehandlingReferanse();
         var behandlingId = ref.behandlingId();
-        if (ingenPerioder(input)) {
+        var periodedata = hentPerioder(input);
+        if (ingenPerioder(periodedata)) {
             LOG.info("FAKTA UTTAK behandlingtype {} ingen perioder behandling {}", input.getBehandlingReferanse().behandlingType().getKode(), input.getBehandlingReferanse().behandlingId());
             return List.of(AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER);
         }
@@ -46,7 +47,7 @@ public class SøknadsperioderMåKontrolleresAksjonspunktUtleder implements Fakta
             LOG.info("FAKTA UTTAK behandlingtype {} overlappende perioder behandling {}", input.getBehandlingReferanse().behandlingType().getKode(), input.getBehandlingReferanse().behandlingId());
             return List.of(AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER);
         }
-        if (finnesPeriodeSomMåKontrolleres(input)) {
+        if (finnesPeriodeSomMåKontrolleres(periodedata)) {
             var friheten = input.getBehandlingReferanse().skjæringstidspunkt().kreverSammenhengendeUttak() ? "sammenhengende" : "fritt";
             LOG.info("FAKTA UTTAK behandlingtype {} uttak {} kontroller perioder behandling {}",
                 input.getBehandlingReferanse().behandlingType().getKode(), friheten, input.getBehandlingReferanse().behandlingId());
@@ -60,12 +61,12 @@ public class SøknadsperioderMåKontrolleresAksjonspunktUtleder implements Fakta
         return true;
     }
 
-    private boolean ingenPerioder(UttakInput input) {
-        return hentPerioder(input).getPerioder().isEmpty();
+    private boolean ingenPerioder(KontrollerFaktaData periodedata) {
+        return periodedata.getPerioder().isEmpty();
     }
 
-    private boolean finnesPeriodeSomMåKontrolleres(UttakInput input) {
-        return hentPerioder(input).getPerioder()
+    private boolean finnesPeriodeSomMåKontrolleres(KontrollerFaktaData periodedata) {
+        return periodedata.getPerioder()
             .stream().anyMatch(kontrollerFaktaPeriode -> !kontrollerFaktaPeriode.erBekreftet());
     }
 
