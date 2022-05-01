@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -295,7 +296,7 @@ public class SøknadsperiodeDokKontrollererSammenhengendeUttakTest {
             .medPeriode(FOM, TOM);
         var kontrollerer = new SøknadsperiodeDokKontrollerer(List.of(), null,
             new UtsettelseDokKontrollererSammenhengendeUttak(), List.of(new PleiepengerInnleggelseEntitet.Builder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(FOM, TOM)).build()));
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(FOM, TOM)).build()), Optional.empty());
         var resultat = kontrollerer.kontrollerSøknadsperiode(vurdertPeriode.build());
 
         assertThat(resultat.erBekreftet()).isTrue();
