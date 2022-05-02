@@ -488,7 +488,7 @@ public class FaktaUttakHistorikkTjeneste {
 
         historikkApplikasjonTjeneste.tekstBuilder()
             .medBegrunnelse(annenforelderHarIkkeRettDto.getBegrunnelse(), param.erBegrunnelseEndret())
-            .medSkjermlenke(SkjermlenkeType.FAKTA_OM_UTTAK);
+            .medSkjermlenke(SkjermlenkeType.FAKTA_OMSORG_OG_RETT);
     }
 
     private HistorikkEndretFeltVerdiType konvertBooleanTilVerdiForAnnenforelderHarRett(Boolean annenforelderHarRett) {

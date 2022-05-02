@@ -68,7 +68,7 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Bekr
 
         historikkAdapter.tekstBuilder()
             .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
-            .medSkjermlenke(SkjermlenkeType.FAKTA_FOR_OMSORG);
+            .medSkjermlenke(SkjermlenkeType.FAKTA_OMSORG_OG_RETT);
 
         final var adapter = new BekreftFaktaForOmsorgVurderingAksjonspunktDto(dto.getAleneomsorg(), null, null);
         ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandlingId, adapter);

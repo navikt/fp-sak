@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
-import no.nav.foreldrepenger.domene.uttak.fakta.FaktaUttakAksjonspunktUtleder;
+import no.nav.foreldrepenger.domene.uttak.fakta.OmsorgRettAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 
@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
  */
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
-public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjonspunktUtleder {
+public class AnnenForelderHarRettAksjonspunktUtleder implements OmsorgRettAksjonspunktUtleder {
 
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private PersonopplysningerForUttak personopplysninger;
@@ -80,11 +80,6 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
         }
 
         return List.of();
-    }
-
-    @Override
-    public boolean skalBrukesVedOppdateringAvYtelseFordeling() {
-        return false;
     }
 
     private Optional<ForeldrepengerUttak> hentAnnenpartsUttak(ForeldrepengerGrunnlag fpGrunnlag) {

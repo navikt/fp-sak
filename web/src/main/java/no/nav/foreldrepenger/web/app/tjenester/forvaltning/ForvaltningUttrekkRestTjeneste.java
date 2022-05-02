@@ -6,9 +6,9 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -34,6 +34,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -108,33 +109,35 @@ public class ForvaltningUttrekkRestTjeneste {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Flytt klager til kabal", tags = "FORVALTNING-uttrekk")
-    @Path("/flyttTilKabal")
+    @Operation(description = "Flytt tilbake til omsorgrett", tags = "FORVALTNING-uttrekk")
+    @Path("/flyttTilOmsorgRett")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
-    public Response flyttTilKabal() {
+    public Response flyttTilOmsorgRett() {
         var query = entityManager.createNativeQuery("select saksnummer, bh.id " +
             " from fpsak.fagsak fs join fpsak.behandling bh on bh.fagsak_id=fs.id " +
             " join FPSAK.AKSJONSPUNKT ap on ap.behandling_id=bh.id " +
-            " where aksjonspunkt_def=:apdef and aksjonspunkt_status=:status "); //$NON-NLS-1$
-        query.setParameter("apdef", AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA.getKode());
+            " where aksjonspunkt_def in (:apdef) and aksjonspunkt_status=:status "); //$NON-NLS-1$
+        query.setParameter("apdef", Set.of(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT.getKode(), AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG.getKode()));
         query.setParameter("status", AksjonspunktStatus.OPPRETTET.getKode());
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         var åpneAksjonspunkt = resultatList.stream()
             .map(r -> new KabalFlytt((String) r[0], ((BigDecimal) r[1]).longValue()))
             .collect(Collectors.toList());
-        åpneAksjonspunkt.forEach(b -> flyttTilKabal(b));
+        åpneAksjonspunkt.forEach(b -> flyttTilbakeTilOmsorgRett(b));
         return Response.ok().build();
     }
 
     private static record KabalFlytt(String saksnummer, Long behandlingId) { }
 
-    private void flyttTilKabal(KabalFlytt behandlingRef) {
+    private void flyttTilbakeTilOmsorgRett(KabalFlytt behandlingRef) {
         var behandling = behandlingRepository.hentBehandling(behandlingRef.behandlingId());
-        var tilKabalTask = ProsessTaskData.forProsessTask(MigrerTilKabalTask.class);
+        if (BehandlingStegType.KONTROLLER_OMSORG_RETT.equals(behandling.getAktivtBehandlingSteg())) {
+            return;
+        }
+        var tilKabalTask = ProsessTaskData.forProsessTask(MigrerTilOmsorgRettTask.class);
         tilKabalTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         tilKabalTask.setCallIdFraEksisterende();
-        tilKabalTask.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), LocalTime.now().plusSeconds(LocalDateTime.now().getNano() % 599)));
         taskTjeneste.lagre(tilKabalTask);
 
     }

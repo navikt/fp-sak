@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
+import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.fakta.wagnerfisher.EditDistanceOperasjon;
 import no.nav.foreldrepenger.domene.uttak.fakta.wagnerfisher.WagnerFisher;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -66,7 +67,7 @@ public class AvklarFaktaUttakPerioderTjeneste {
             var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
             // Far/medmor med aleneomsorg kan begynne etter fødsel, ref Uttaksregler / Foreldrepenger
             // TODO (JOL) - re-enable når man har ryddet i stegog ap for omsorg/rett vs uttak -
-            // TODO (JOL) -  if (UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat)) { return null; }
+            if (UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat)) { return null; }
             return familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato();
         }
         return null;

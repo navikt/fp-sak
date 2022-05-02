@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
-import no.nav.foreldrepenger.domene.uttak.fakta.FaktaUttakAksjonspunktUtleder;
+import no.nav.foreldrepenger.domene.uttak.fakta.OmsorgRettAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 
 /**
@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
  */
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
-public class BrukerHarAleneomsorgAksjonspunktUtleder implements FaktaUttakAksjonspunktUtleder {
+public class BrukerHarAleneomsorgAksjonspunktUtleder implements OmsorgRettAksjonspunktUtleder {
 
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private PersonopplysningerForUttak personopplysninger;
@@ -59,11 +59,6 @@ public class BrukerHarAleneomsorgAksjonspunktUtleder implements FaktaUttakAksjon
             }
         }
         return List.of();
-    }
-
-    @Override
-    public boolean skalBrukesVedOppdateringAvYtelseFordeling() {
-        return false;
     }
 
     private boolean harOppgittÅHaAleneomsorg(YtelseFordelingAggregat ytelseFordelingAggregat) {
