@@ -104,7 +104,7 @@ public class KontoerGrunnlagBygger {
         var erForeldrepenger = stønadskontoer.stream().map(Stønadskonto::getStønadskontoType).anyMatch(StønadskontoType.FORELDREPENGER::equals);
         var minsterett = !ref.getSkjæringstidspunkt().utenMinsterett();
         var totette = minsterett && toTette(foreldrepengerGrunnlag);
-        var bareFarHarRett = !erMor && stønadskontoer.stream().map(Stønadskonto::getStønadskontoType).anyMatch(StønadskontoType.FORELDREPENGER::equals);
+        var bareFarHarRett = !erMor && erForeldrepenger;
         var morHarUføretrygd = foreldrepengerGrunnlag.getUføretrygdGrunnlag()
             .filter(UføretrygdGrunnlagEntitet::annenForelderMottarUføretrygd)
             .isPresent();
@@ -113,7 +113,7 @@ public class KontoerGrunnlagBygger {
             .findFirst();
         flerbarnsdager.map(stønadskonto -> builder.flerbarnsdager(stønadskonto.getMaxDager()));
 
-        if (erForeldrepenger && (minsterett || morHarUføretrygd)) {
+        if (minsterett || morHarUføretrygd) {
             var dekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(ref.saksnummer()).getGjeldendeDekningsgrad();
             var antallDager = 0;
             if (minsterett && totette) {
@@ -128,7 +128,9 @@ public class KontoerGrunnlagBygger {
             }
             if (minsterett) {
                 builder.minsterettDager(antallDager);
-                builder.farUttakRundtFødselDager(UTTAK_RUNDT_FØDSEL_DAGER);
+                if (!erMor) {
+                    builder.farUttakRundtFødselDager(UTTAK_RUNDT_FØDSEL_DAGER);
+                }
             } else {
                 builder.utenAktivitetskravDager(antallDager);
             }
