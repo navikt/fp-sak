@@ -27,6 +27,7 @@ public class SvangerskapspengerFeriekvoteTjeneste {
     private BehandlingRepository behandlingRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
+    private SvangerskapFeriepengeKvoteBeregner svangerskapFeriepengeKvoteBeregner;
 
     public SvangerskapspengerFeriekvoteTjeneste() {
         // CDI
@@ -36,10 +37,12 @@ public class SvangerskapspengerFeriekvoteTjeneste {
     public SvangerskapspengerFeriekvoteTjeneste(FagsakRepository fagsakRepository,
                                                 BehandlingRepository behandlingRepository,
                                                 FamilieHendelseRepository familieHendelseRepository,
+                                                SvangerskapFeriepengeKvoteBeregner svangerskapFeriepengeKvoteBeregner,
                                                 BeregningsresultatRepository beregningsresultatRepository) {
         this.fagsakRepository = fagsakRepository;
         this.behandlingRepository = behandlingRepository;
         this.familieHendelseRepository = familieHendelseRepository;
+        this.svangerskapFeriepengeKvoteBeregner = svangerskapFeriepengeKvoteBeregner;
         this.beregningsresultatRepository = beregningsresultatRepository;
     }
 
@@ -62,7 +65,7 @@ public class SvangerskapspengerFeriekvoteTjeneste {
             .map(b -> beregningsresultatRepository.hentUtbetBeregningsresultat(b.getId()))
             .flatMap(Optional::stream)
             .collect(Collectors.toList());
-        return SvangerskapFeriepengeKvoteBeregner.beregn(beregnetYtelse, annenTilkjentYtelsePåSammeSvangerskap);
+        return svangerskapFeriepengeKvoteBeregner.beregn(beregnetYtelse, annenTilkjentYtelsePåSammeSvangerskap);
     }
 
     private List<Behandling> finnBehandlingerSomGjelderSammeSvangerskap(List<Behandling> gjeldendeVedtakForSVP,

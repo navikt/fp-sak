@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 
 class SvangerskapFeriepengeKvoteBeregnerTest {
     private static final LocalDate FØRSTE_UTTAK = LocalDate.of(2022,7,1);
+    private final SvangerskapFeriepengeKvoteBeregner beregner = new SvangerskapFeriepengeKvoteBeregner(64);
 
     @Test
     public void skal_beregne_maks_kvote_når_ingen_dager_brukt() {
@@ -26,7 +27,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         lagTYPeriode(dagerEtter(0), dagerEtter(64), bgr, true);
 
         // Act
-        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(bgr, Collections.emptyList());
+        var resultat = beregner.beregn(bgr, Collections.emptyList());
 
         // Assert
         assertThat(resultat).isPresent();
@@ -43,7 +44,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         lagTYPeriode(dagerFør(50), dagerFør(30), tidligereYtelse, false);
 
         // Act
-        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse));
+        var resultat = beregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse));
 
         // Assert
         assertThat(resultat).isPresent();
@@ -61,7 +62,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         lagFPPeriode(dagerEtter(50), dagerEtter(60), tidligereYtelse);
 
         // Act
-        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse));
+        var resultat = beregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse));
 
         // Assert
         assertThat(resultat).isPresent();
@@ -79,7 +80,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         lagFPPeriode(dagerFør(50), dagerFør(40), tidligereYtelse);
 
         // Act
-        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse));
+        var resultat = beregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse));
 
         // Assert
         assertThat(resultat).isPresent();
@@ -100,7 +101,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         lagFPPeriode(dagerFør(30), dagerFør(20), tidligereYtelse2);
 
         // Act
-        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse1, tidligereYtelse2));
+        var resultat = beregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse1, tidligereYtelse2));
 
         // Assert
         assertThat(resultat).isPresent();
@@ -124,7 +125,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         lagFPPeriode(dagerFør(15), dagerFør(10), tidligereYtelse3);
 
         // Act
-        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse1, tidligereYtelse2, tidligereYtelse3));
+        var resultat = beregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse1, tidligereYtelse2, tidligereYtelse3));
 
         // Assert
         assertThat(resultat).isPresent();
@@ -145,7 +146,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         lagFPPeriode(dagerFør(90), dagerFør(10), tidligereYtelse2);
 
         // Act
-        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse1, tidligereYtelse2));
+        var resultat = beregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse1, tidligereYtelse2));
 
         // Assert
         assertThat(resultat).isPresent();
@@ -163,7 +164,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         lagFPPeriode(dagerFør(150), dagerFør(100), tidligereYtelse1);
 
         // Act
-        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse1));
+        var resultat = beregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse1));
 
         // Assert
         assertThat(resultat).isEmpty();
@@ -186,7 +187,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         lagFPPeriode(dagerFør(15), dagerFør(10), tidligereYtelse3);
 
         // Act
-        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse1, tidligereYtelse2, tidligereYtelse3));
+        var resultat = beregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse1, tidligereYtelse2, tidligereYtelse3));
 
         // Assert
         assertThat(resultat).isPresent();
