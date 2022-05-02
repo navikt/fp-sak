@@ -11,12 +11,15 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -194,8 +197,9 @@ final class SøknadsperiodeDokKontrollerer {
     }
 
     private boolean erBalansertUttakRundtFødsel(OppgittPeriodeEntitet søknadsperiode) {
+        var periodeAvklaresManuelt = Set.of(MorsAktivitet.TRENGER_HJELP, MorsAktivitet.INNLAGT).contains(søknadsperiode.getMorsAktivitet());
         // FAB-direktiv - søknadsperioden er helt innenfor periode rundt fødsel der far/medmor kan ta ut
-        return farUttakRundtFødsel.filter(p -> p.encloses(søknadsperiode.getFom()) && p.encloses(søknadsperiode.getTom())).isPresent();
+        return !periodeAvklaresManuelt && farUttakRundtFødsel.filter(p -> p.encloses(søknadsperiode.getFom()) && p.encloses(søknadsperiode.getTom())).isPresent();
     }
 
     private boolean erGyldigGrunnForTidligOppstart(OppgittPeriodeEntitet søknadsperiode) {
