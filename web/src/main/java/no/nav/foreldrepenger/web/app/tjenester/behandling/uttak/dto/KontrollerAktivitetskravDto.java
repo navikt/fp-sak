@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_AKTIVITETSKRAV)
 public class KontrollerAktivitetskravDto extends BekreftetAksjonspunktDto {
 
-    @Size(max = 100)
+    @Size(max = 200)
     @Valid
     private List<KontrollerAktivitetskravPeriodeDto> avklartePerioder;
 
