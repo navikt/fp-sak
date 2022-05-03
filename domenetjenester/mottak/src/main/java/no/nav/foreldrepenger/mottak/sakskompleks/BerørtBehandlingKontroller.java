@@ -85,7 +85,6 @@ public class BerørtBehandlingKontroller {
         var sistVedtatteYtelsesbehandlingMedforelder = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMedforelder.getId());
 
         if (sistVedtatteYtelsesbehandlingMedforelder.isPresent()) {
-            LOG.info("Siste vedtatte ytelse for annen part: behandlingId {}", sistVedtatteYtelsesbehandlingMedforelder.get().getId());
             var avsluttetBehandlingsresultatBruker = behandlingsresultatRepository.hent(behandlingIdBruker);
             var skalBerørtBehandlingOpprettes = berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(avsluttetBehandlingsresultatBruker,
                 behandlingIdBruker, sistVedtatteYtelsesbehandlingMedforelder.get().getId());
