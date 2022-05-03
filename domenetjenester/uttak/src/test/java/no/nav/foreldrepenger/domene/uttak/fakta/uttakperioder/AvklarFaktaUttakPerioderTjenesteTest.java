@@ -51,7 +51,7 @@ public class AvklarFaktaUttakPerioderTjenesteTest {
     public void skal_hente_kontroller_fakta_perioder_med_bekreftelse_far_aleneomsorg() {
         var fom = LocalDate.of(2021, 12, 1);
         var søknadsperiode = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medPeriode(fom, fom.plusWeeks(2))
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .build();
