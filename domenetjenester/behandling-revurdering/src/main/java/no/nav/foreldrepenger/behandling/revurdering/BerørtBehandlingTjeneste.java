@@ -11,6 +11,9 @@ import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -42,6 +45,8 @@ import no.nav.fpsak.tidsserie.StandardCombinators;
 
 @ApplicationScoped
 public class BerørtBehandlingTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BerørtBehandlingTjeneste.class);
 
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     private HistorikkRepository historikkRepository;
@@ -81,21 +86,25 @@ public class BerørtBehandlingTjeneste {
         //Må sjekke konsekvens pga overlapp med samtidig uttak
         if (brukersGjeldendeBehandlingsresultat.isBehandlingHenlagt()
             || harKonsekvens(brukersGjeldendeBehandlingsresultat, KonsekvensForYtelsen.INGEN_ENDRING)) {
+            LOG.info("Skal opprette berørt: Henlagt/IngenEndring");
             return false;
         }
         var uttakInput = uttakInputTjeneste.lagInput(brukersGjeldendeBehandlingsresultat.getBehandlingId());
         var kreverSammenhengendeUttak = uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak();
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         if (foreldrepengerGrunnlag.isBerørtBehandling()) {
+            LOG.info("Skal opprette berørt: Berørt");
             return false;
         }
         if (brukersGjeldendeBehandlingsresultat.isEndretStønadskonto()
             || stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)) {
+            LOG.info("Skal opprette berørt: EndretKonto/NegativKonto");
             return true;
         }
         var brukersUttak = hentUttak(behandlingId).orElse(tomtUttak());
         var annenpartsUttak = hentUttak(behandlingIdAnnenPart);
         if (annenpartsUttak.isEmpty() || finnMinAktivDato(brukersUttak, annenpartsUttak.get()).isEmpty()) {
+            LOG.info("Skal opprette berørt: Empty");
             return false;
         }
 
@@ -107,6 +116,7 @@ public class BerørtBehandlingTjeneste {
         var periodeFomEndringsdato = new LocalDateInterval(endringsdato, periodeTom);
 
         if (overlappUtenomAkseptertSamtidigUttak(uttakInput, periodeFomEndringsdato, brukersUttak, annenpartsUttak.get())) {
+            LOG.info("Skal opprette berørt: OverlappUtenSamtidig");
             return true;
         }
 
@@ -115,11 +125,15 @@ public class BerørtBehandlingTjeneste {
         if (foreldrepengerGrunnlag.getFamilieHendelser().gjelderTerminFødsel()) {
             var familieHendelseDato = foreldrepengerGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
             var førsteSeksUker = new LocalDateInterval(familieHendelseDato, TidsperiodeForbeholdtMor.tilOgMed(familieHendelseDato));
-            if (!fellesTidslinjeForSammenheng.isContinuous(førsteSeksUker))
+            if (!fellesTidslinjeForSammenheng.isContinuous(førsteSeksUker)) {
+                LOG.info("Skal opprette berørt: Første 6 uker");
                 return true;
+            }
         }
 
-        return kreverSammenhengendeUttak && !fellesTidslinjeForSammenheng.isContinuous(periodeFomEndringsdato);
+        var opprett = kreverSammenhengendeUttak && !fellesTidslinjeForSammenheng.isContinuous(periodeFomEndringsdato);
+        LOG.info("Skal opprette berørt: Sammenhengende etter uke 6 {}", opprett);
+        return opprett;
     }
 
     private boolean overlappUtenomAkseptertSamtidigUttak(UttakInput uttakInput, LocalDateInterval periodeFomEndringsdato,
