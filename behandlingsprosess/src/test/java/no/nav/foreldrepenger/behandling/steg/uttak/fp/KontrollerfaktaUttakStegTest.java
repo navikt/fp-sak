@@ -52,7 +52,7 @@ public class KontrollerfaktaUttakStegTest {
 
     @Inject
     @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
-    @BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD)
+    @BehandlingTypeRef
     private KontrollerFaktaUttakSteg steg;
 
     @Inject
