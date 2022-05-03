@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
-import static java.lang.Boolean.TRUE;
-
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -44,17 +42,10 @@ public class RettOgOmsorgGrunnlagBygger {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
         var annenpartsUttaksplan = hentAnnenpartsUttak(uttakInput);
         var samtykke = samtykke(ytelseFordelingAggregat);
-        var farHarRett = farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan);
-        var morHarRett = morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan);
-        var oppgittAleneomsorg = TRUE.equals(ytelseFordelingAggregat.getOppgittRettighet().getHarAleneomsorgForBarnet());
-        var oppgittAnnenForelderRett = TRUE.equals(ytelseFordelingAggregat.getOppgittRettighet().getHarAnnenForeldreRett());
-        if (!oppgittAleneomsorg && oppgittAnnenForelderRett && !samtykke) {
-            throw new IllegalStateException("Midlertidig feil. Søknad opplyser om manglende samtykke");
-        }
         return new RettOgOmsorg.Builder()
                 .aleneomsorg(aleneomsorg(ytelseFordelingAggregat))
-                .farHarRett(farHarRett)
-                .morHarRett(morHarRett)
+                .farHarRett(farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
+                .morHarRett(morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
                 .morUføretrygd(morUføretrygd(uttakInput))
                 .samtykke(samtykke);
     }
