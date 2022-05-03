@@ -36,7 +36,7 @@ final class SøknadsperiodeDokKontrollerer {
     private static final Logger LOG = LoggerFactory.getLogger(SøknadsperiodeDokKontrollerer.class);
 
     private final List<PeriodeUttakDokumentasjonEntitet> dokumentasjonPerioder;
-    private final LocalDate fødselsDatoTilTidligOppstart;
+    private final LocalDate fødselsDatoTilTidligOppstart; // Kun satt dersom far/medmor og termin/fødsel
     private final UtsettelseDokKontrollerer utsettelseDokKontrollerer;
     private final List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser;
     private final Optional<LocalDateInterval> farUttakRundtFødsel;
@@ -196,20 +196,29 @@ final class SøknadsperiodeDokKontrollerer {
     }
 
     private boolean erBalansertUttakRundtFødsel(OppgittPeriodeEntitet søknadsperiode) {
-        var periodeAvklaresManuelt = Set.of(MorsAktivitet.TRENGER_HJELP, MorsAktivitet.INNLAGT).contains(søknadsperiode.getMorsAktivitet());
-        // FAB-direktiv - søknadsperioden er helt innenfor periode rundt fødsel der far/medmor kan ta ut
-        return !periodeAvklaresManuelt && farUttakRundtFødsel.filter(p -> p.encloses(søknadsperiode.getFom()) && p.encloses(søknadsperiode.getTom())).isPresent();
+        if (farMedmorUtenomFlerbarnsdager(søknadsperiode)) {
+            var fedrekvoteMedSamtidigUttak = FEDREKVOTE.equals(søknadsperiode.getPeriodeType()) && søknadsperiode.isSamtidigUttak();
+            var foreldrepengerUtenomSykdom = FORELDREPENGER.equals(søknadsperiode.getPeriodeType()) &&
+                !Set.of(MorsAktivitet.TRENGER_HJELP, MorsAktivitet.INNLAGT).contains(søknadsperiode.getMorsAktivitet());
+            var periodeKanAvklaresAutomatisk = fedrekvoteMedSamtidigUttak || foreldrepengerUtenomSykdom;
+            // FAB-direktiv - søknadsperioden er helt innenfor periode rundt fødsel der far/medmor kan ta ut
+            return periodeKanAvklaresAutomatisk && farUttakRundtFødsel.filter(p -> p.encloses(søknadsperiode.getFom()) && p.encloses(søknadsperiode.getTom())).isPresent();
+        }
+        return false;
     }
 
     private boolean erGyldigGrunnForTidligOppstart(OppgittPeriodeEntitet søknadsperiode) {
         // Søker far/medmor uttak av Fellesperiode eller fedrekvote eller foreldrepenger før uke 7 ved fødsel?
         //unntak uttak av flerbarnsdager
-        if (fødselsDatoTilTidligOppstart != null && !søknadsperiode.isFlerbarnsdager() && søknadsperiode.getFom()
-            .isBefore(fødselsDatoTilTidligOppstart.plusWeeks(6L))) {
+        if (farMedmorUtenomFlerbarnsdager(søknadsperiode) && søknadsperiode.getFom().isBefore(fødselsDatoTilTidligOppstart.plusWeeks(6L))) {
             return FELLESPERIODE.equals(søknadsperiode.getPeriodeType()) || FEDREKVOTE.equals(
                 søknadsperiode.getPeriodeType()) || FORELDREPENGER.equals(søknadsperiode.getPeriodeType());
         }
         return false;
+    }
+
+    private boolean farMedmorUtenomFlerbarnsdager(OppgittPeriodeEntitet søknadsperiode) {
+        return fødselsDatoTilTidligOppstart != null && !søknadsperiode.isFlerbarnsdager();
     }
 
     private KontrollerFaktaPeriode kontrollerUtsettelse(OppgittPeriodeEntitet søknadsperiode) {

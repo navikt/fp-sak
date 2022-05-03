@@ -128,9 +128,7 @@ public class KontoerGrunnlagBygger {
             }
             if (minsterett) {
                 builder.minsterettDager(antallDager);
-                if (!erMor) {
-                    builder.farUttakRundtFødselDager(UTTAK_RUNDT_FØDSEL_DAGER);
-                }
+                builder.farUttakRundtFødselDager(UTTAK_RUNDT_FØDSEL_DAGER); // Settes for begge. Brukes ifm berørt for begge og fakta uttak for far.
             } else {
                 builder.utenAktivitetskravDager(antallDager);
             }
