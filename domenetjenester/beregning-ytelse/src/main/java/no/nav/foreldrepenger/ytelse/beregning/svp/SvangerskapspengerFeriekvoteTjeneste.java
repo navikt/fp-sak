@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -20,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
+@ApplicationScoped
 public class SvangerskapspengerFeriekvoteTjeneste {
     private static final int AKSEPTERT_FEILMARGIN_TERMINDATO_DAGER = 60;
 

@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.folketrygdloven.beregningsgrunnlag.util.Virkedager;
@@ -18,6 +19,7 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.konfig.Tid;
 
+@ApplicationScoped
 public class SvangerskapFeriepengeKvoteBeregner {
     private int svpFerieKvote;
     private static final Set<Inntektskategori> KATEGORIER_MED_FERIEPENGER = Set.of(Inntektskategori.ARBEIDSTAKER, Inntektskategori.SJØMANN);
@@ -39,8 +41,8 @@ public class SvangerskapFeriepengeKvoteBeregner {
         }
         var førsteDagMedFeriepenger = førsteDagMedFeriepengerOpt.get();
         var brukteFeriedager = annenTilkjentYtelsePåSammeSvangerskap.stream().mapToInt(ty -> finnBrukteFeriepengedager(ty, førsteDagMedFeriepenger)).sum();
-        if (brukteFeriedager >= svpFerieKvote) {
-            return Optional.of(0);
+        if (brukteFeriedager > svpFerieKvote) {
+            throw new IllegalStateException("Brukte feriedager overstiger kvote! Tidligere saker må revurderes først. Brukte feriedager var " + brukteFeriedager);
         }
         return Optional.of(svpFerieKvote - brukteFeriedager);
     }

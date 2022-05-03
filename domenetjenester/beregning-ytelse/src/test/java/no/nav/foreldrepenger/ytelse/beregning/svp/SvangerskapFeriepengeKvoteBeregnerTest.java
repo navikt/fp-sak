@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.ytelse.beregning.svp;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -133,27 +134,6 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     }
 
     @Test
-    public void skal_trekke_fra_hele_kvoten_når_alt_er_oppbrukt() {
-        // Arrange
-        BeregningsresultatEntitet nyYtelse = lagBgr();
-        BeregningsresultatEntitet tidligereYtelse1 = lagBgr();
-        BeregningsresultatEntitet tidligereYtelse2 = lagBgr();
-
-        lagTYPeriode(dagerEtter(0), dagerEtter(20), nyYtelse, true);
-        lagTYPeriode(dagerFør(150), dagerFør(100), tidligereYtelse1, true);
-        lagTYPeriode(dagerFør(90), dagerFør(10), tidligereYtelse2, true);
-        lagFPPeriode(dagerFør(150), dagerFør(100), tidligereYtelse1);
-        lagFPPeriode(dagerFør(90), dagerFør(10), tidligereYtelse2);
-
-        // Act
-        var resultat = beregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse1, tidligereYtelse2));
-
-        // Assert
-        assertThat(resultat).isPresent();
-        assertThat(resultat.get()).isEqualTo(0);
-    }
-
-    @Test
     public void skal_ikke_beregne_når_det_ikke_er_grunnlag_for_feriepenger_på_ny_behandling() {
         // Arrange
         BeregningsresultatEntitet nyYtelse = lagBgr();
@@ -193,6 +173,52 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         assertThat(resultat).isPresent();
         assertThat(resultat.get()).isEqualTo(53);
     }
+
+    @Test
+    public void skal_trekke_fra_kvote_når_en_ytelse_er_tidligere_innvilget_delt_periode() {
+        // Arrange
+        BeregningsresultatEntitet nyYtelse = lagBgr();
+        BeregningsresultatEntitet tidligereYtelse = lagBgr();
+
+        lagTYPeriode(dagerEtter(0), dagerEtter(20), nyYtelse, true);
+        lagTYPeriode(dagerFør(50), dagerFør(40), tidligereYtelse, true); // 7 virkedager
+        lagTYPeriode(dagerFør(30), dagerFør(20), tidligereYtelse, true); // 8 virkedager
+        lagFPPeriode(dagerFør(50), dagerFør(20), tidligereYtelse); // Ferieperiode dekker opphold i ytelsen
+
+        // Act
+        var resultat = beregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse));
+
+        // Assert
+        assertThat(resultat).isPresent();
+        assertThat(resultat.get()).isEqualTo(49);
+    }
+
+    /**
+     * De to tidligere ytelsen bryter ikke kvoten hver for seg, men gjør det tilsammen.
+     * Beregning av en tredje ytelse bør gi feil siden kvoten allerede er oppbrukt på tidligere saker
+     */
+    @Test
+    public void skal_kaste_feil_om_feriekvote_overskrider_tillatt_sum_i_tidligere_behandlinger() {
+        // Arrange
+        BeregningsresultatEntitet nyYtelse = lagBgr();
+        BeregningsresultatEntitet tidligereYtelse1 = lagBgr();
+        BeregningsresultatEntitet tidligereYtelse2 = lagBgr();
+
+        lagTYPeriode(dagerEtter(0), dagerEtter(20), nyYtelse, true);
+        lagTYPeriode(dagerFør(100), dagerFør(50), tidligereYtelse1, true); // 37 virkedager
+        lagTYPeriode(dagerFør(49), dagerFør(20), tidligereYtelse2, true); // 21 virkedager
+        lagTYPeriode(dagerFør(19), dagerFør(5), tidligereYtelse2, true); // 10 virkedager
+        lagFPPeriode(dagerFør(100), dagerFør(50), tidligereYtelse1); // Ferieperiode dekker opphold i ytelsen
+        lagFPPeriode(dagerFør(49), dagerFør(5), tidligereYtelse2); // Ferieperiode dekker opphold i ytelsen
+
+        // Act
+        Exception exception = assertThrows(IllegalStateException.class, () -> beregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse1, tidligereYtelse2)));
+
+        String forventetFeilmelding = "Brukte feriedager overstiger kvote! Tidligere saker må revurderes først. Brukte feriedager var 68";
+
+        assertThat(exception.getMessage()).isEqualTo(forventetFeilmelding);
+    }
+
 
     private LocalDate dagerFør(int i) {
         return FØRSTE_UTTAK.minusDays(i);
