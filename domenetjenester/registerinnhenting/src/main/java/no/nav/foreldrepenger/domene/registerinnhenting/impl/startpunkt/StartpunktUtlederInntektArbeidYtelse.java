@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -119,7 +120,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
             } else {
                 ryddOppAksjonspunktForInntektsmeldingHvisEksisterer(ref);
             }
-            if (måVurderePermisjonUtenSluttdato){
+            if (måVurderePermisjonUtenSluttdato && behandlingskontrollTjeneste.erStegPassert(ref.behandlingId(), BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON)){
                 loggAdvarselHvisAksjonspunktForPermisjonUtenSluttdatIkkeEksisterer(ref);
             } else {
                 ryddOppAksjonspunktForPermisjonUtenSluttdatoHvisEksisterer(ref);
