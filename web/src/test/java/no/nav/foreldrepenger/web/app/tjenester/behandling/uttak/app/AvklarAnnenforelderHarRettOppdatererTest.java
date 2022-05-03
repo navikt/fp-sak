@@ -104,7 +104,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
         });
         assertThat(del.getEndretFelt(HistorikkEndretFeltType.MOR_MOTTAR_UFØRETRYGD)).isNotEmpty();
         assertThat(del.getSkjermlenke()).hasValueSatisfying(
-            skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK.getKode()));
+            skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OMSORG_OG_RETT.getKode()));
         assertThat(del.getBegrunnelse()).hasValueSatisfying(
             begrunnelse -> assertThat(begrunnelse).isEqualTo("Har rett"));
     }
