@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.uttak.fakta.KontrollerFaktaUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.KontrollerFaktaPeriode;
-import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkAvklartSoeknadsperiodeType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt.FaktaUttakOppdaterer;
@@ -57,12 +56,6 @@ public class FaktaUttakOppdatererTest {
     private UttakInputTjeneste uttakInputTjeneste;
 
     @Inject
-    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-
-    @Inject
-    private FaktaUttakToTrinnsTjeneste faktaUttakToTrinnsTjeneste;
-
-    @Inject
     private KontrollerOppgittFordelingTjeneste kontrollerOppgittFordelingTjeneste;
 
     private KontrollerFaktaUttakTjeneste kontrollerFaktaUttakTjeneste = mock(KontrollerFaktaUttakTjeneste.class);
@@ -76,13 +69,11 @@ public class FaktaUttakOppdatererTest {
     public void setup() {
         when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(InntektArbeidYtelseGrunnlagBuilder.nytt().build());
         var faktaUttakHistorikkTjeneste = new FaktaUttakHistorikkTjeneste(historikkApplikasjonTjeneste,
-                arbeidsgiverHistorikkinnslagTjeneste,
-                ytelseFordelingTjeneste, inntektArbeidYtelseTjeneste);
+                arbeidsgiverHistorikkinnslagTjeneste, inntektArbeidYtelseTjeneste);
         this.faktaUttakOppdaterer = new FaktaUttakOppdaterer(uttakInputTjeneste,
                 kontrollerFaktaUttakTjeneste,
                 kontrollerOppgittFordelingTjeneste,
-                faktaUttakHistorikkTjeneste,
-                faktaUttakToTrinnsTjeneste);
+                faktaUttakHistorikkTjeneste);
     }
 
     @Test

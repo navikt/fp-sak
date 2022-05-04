@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
+package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -30,13 +30,12 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt.AvklarAnnenforelderHarRettOppdaterer;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.AvklarFaktaTestUtil;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaOmsorgRettTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenforelderHarRettDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.FørsteUttaksdatoTjenesteImpl;
 
 public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
 
@@ -46,31 +45,19 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
     private HistorikkInnslagTekstBuilder tekstBuilder;
 
-    private FaktaUttakHistorikkTjeneste faktaUttakHistorikkTjeneste;
-    private FaktaUttakToTrinnsTjeneste faktaUttakToTrinnsTjeneste;
-    private KontrollerOppgittFordelingTjeneste kontrollerOppgittFordelingTjeneste;
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private UføretrygdRepository uføretrygdRepository = mock(UføretrygdRepository.class);
 
     @BeforeEach
     public void setUp() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(
-            new YtelsesFordelingRepository(entityManager));
         historikkApplikasjonTjeneste = mock(HistorikkTjenesteAdapter.class);
         tekstBuilder = new HistorikkInnslagTekstBuilder();
-        var arbeidsgiverHistorikkinnslagTjeneste = mock(ArbeidsgiverHistorikkinnslag.class);
         var inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
-        faktaUttakToTrinnsTjeneste = new FaktaUttakToTrinnsTjeneste(ytelseFordelingTjeneste);
-        var uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
-        var førsteUttaksdatoTjeneste = new FørsteUttaksdatoTjenesteImpl(
-            ytelseFordelingTjeneste, uttakTjeneste);
-        kontrollerOppgittFordelingTjeneste = new KontrollerOppgittFordelingTjeneste(ytelseFordelingTjeneste,
-            repositoryProvider, førsteUttaksdatoTjeneste);
+        this.ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager));
         when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(
             InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        faktaUttakHistorikkTjeneste = new FaktaUttakHistorikkTjeneste(lagMockHistory(),
-            arbeidsgiverHistorikkinnslagTjeneste, ytelseFordelingTjeneste, inntektArbeidYtelseTjeneste);
     }
 
     @Test
@@ -159,8 +146,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
     }
 
     private AvklarAnnenforelderHarRettOppdaterer oppdaterer() {
-        return new AvklarAnnenforelderHarRettOppdaterer(kontrollerOppgittFordelingTjeneste, faktaUttakHistorikkTjeneste,
-            faktaUttakToTrinnsTjeneste, uføretrygdRepository);
+        return new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(), uføretrygdRepository));
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {

@@ -8,6 +8,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -67,7 +68,7 @@ public class ForvaltningUttakRestTjeneste {
     @Operation(description = "Endrer om bruker har aleneomsorg", tags = "FORVALTNING-uttak")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response endreAleneomsorg(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
-                                           @QueryParam(value = "aleneomsorg") @Valid Boolean aleneomsorg) {
+                                           @NotNull @QueryParam(value = "aleneomsorg") @Valid Boolean aleneomsorg) {
         Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
 
         forvaltningUttakTjeneste.endreAleneomsorg(dto.getBehandlingUuid(), aleneomsorg);

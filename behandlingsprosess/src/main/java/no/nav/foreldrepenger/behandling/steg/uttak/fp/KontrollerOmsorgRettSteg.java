@@ -21,21 +21,21 @@ import no.nav.foreldrepenger.domene.uttak.fakta.OmsorgRettUttakTjeneste;
 
 @BehandlingStegRef(BehandlingStegType.KONTROLLER_OMSORG_RETT)
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
-@BehandlingTypeRef
+@BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD)
 @ApplicationScoped
 public class KontrollerOmsorgRettSteg implements BehandlingSteg {
 
     private OmsorgRettUttakTjeneste omsorgRettUttakTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
-    private RyddFaktaUttakTjenesteFørstegangsbehandling ryddFaktaUttakTjeneste;
+    private RyddOmsorgRettTjeneste ryddOmsorgRettTjeneste;
 
     @Inject
     public KontrollerOmsorgRettSteg(UttakInputTjeneste uttakInputTjeneste,
                                     OmsorgRettUttakTjeneste omsorgRettUttakTjeneste,
-                                    RyddFaktaUttakTjenesteFørstegangsbehandling ryddFaktaUttakTjeneste) {
+                                    RyddOmsorgRettTjeneste ryddOmsorgRettTjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.omsorgRettUttakTjeneste = omsorgRettUttakTjeneste;
-        this.ryddFaktaUttakTjeneste = ryddFaktaUttakTjeneste;
+        this.ryddOmsorgRettTjeneste = ryddOmsorgRettTjeneste;
     }
 
     KontrollerOmsorgRettSteg() {
@@ -45,19 +45,16 @@ public class KontrollerOmsorgRettSteg implements BehandlingSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var input = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
-        if (BehandlingType.FØRSTEGANGSSØKNAD.equals(input.getBehandlingReferanse().behandlingType())) {
-            omsorgRettUttakTjeneste.avklarOmAnnenForelderHarRett(input.getBehandlingReferanse());
-        }
+        omsorgRettUttakTjeneste.avklarOmAnnenForelderHarRett(input.getBehandlingReferanse());
         var aksjonspunktDefinisjonList = omsorgRettUttakTjeneste.utledAksjonspunkter(input);
         var resultater = aksjonspunktDefinisjonList.stream()
-                .map(def -> AksjonspunktResultat.opprettForAksjonspunkt(def))
+                .map(AksjonspunktResultat::opprettForAksjonspunkt)
                 .collect(Collectors.toList());
         return BehandleStegResultat.utførtMedAksjonspunktResultater(resultater);
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
-            BehandlingStegType sisteSteg) {
-        ryddFaktaUttakTjeneste.ryddVedHoppOverBakover(kontekst);
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg, BehandlingStegType sisteSteg) {
+        ryddOmsorgRettTjeneste.ryddVedHoppOverBakover(kontekst);
     }
 }

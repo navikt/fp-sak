@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
@@ -31,12 +30,10 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.uttak.KodeMapper;
-import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkAvklartSoeknadsperiodeType;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsgiverLagreDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenforelderHarRettDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BekreftetOppgittPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerFaktaPeriodeLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SlettetUttakPeriodeDto;
@@ -54,7 +51,6 @@ public class FaktaUttakHistorikkTjeneste {
 
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
-    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     FaktaUttakHistorikkTjeneste() {
@@ -64,11 +60,9 @@ public class FaktaUttakHistorikkTjeneste {
     @Inject
     public FaktaUttakHistorikkTjeneste(HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
                                        ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste,
-                                       YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                        InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;
         this.arbeidsgiverHistorikkinnslagTjeneste = arbeidsgiverHistorikkinnslagTjeneste;
-        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
@@ -466,35 +460,4 @@ public class FaktaUttakHistorikkTjeneste {
             .build();
     }
 
-    /**
-     * Historikkinnslag for avklar annen forelder har ikke rett
-     */
-    public void byggHistorikkinnslagForAvklarAnnenforelderHarIkkeRett(AvklarAnnenforelderHarRettDto annenforelderHarIkkeRettDto, AksjonspunktOppdaterParameter param,
-                                                                      boolean endretVurderingAvMorsUføretrygd, Boolean tidligereVurderingAvUføretrygd) {
-        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(param.getBehandlingId());
-        var rettAvklaring = ytelseFordelingAggregat.getAnnenForelderRettAvklaring();
-        Boolean harAnnenForeldreRettBekreftetVersjon = null;
-
-        if (rettAvklaring.isPresent()) {
-            harAnnenForeldreRettBekreftetVersjon = rettAvklaring.get();
-        }
-        historikkApplikasjonTjeneste.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.RETT_TIL_FORELDREPENGER,
-            konvertBooleanTilVerdiForAnnenforelderHarRett(harAnnenForeldreRettBekreftetVersjon),
-            konvertBooleanTilVerdiForAnnenforelderHarRett(annenforelderHarIkkeRettDto.getAnnenforelderHarRett()));
-        if (endretVurderingAvMorsUføretrygd) {
-            historikkApplikasjonTjeneste.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.MOR_MOTTAR_UFØRETRYGD,
-                tidligereVurderingAvUføretrygd, annenforelderHarIkkeRettDto.getAnnenforelderMottarUføretrygd());
-        }
-
-        historikkApplikasjonTjeneste.tekstBuilder()
-            .medBegrunnelse(annenforelderHarIkkeRettDto.getBegrunnelse(), param.erBegrunnelseEndret())
-            .medSkjermlenke(SkjermlenkeType.FAKTA_OMSORG_OG_RETT);
-    }
-
-    private HistorikkEndretFeltVerdiType konvertBooleanTilVerdiForAnnenforelderHarRett(Boolean annenforelderHarRett) {
-        if (annenforelderHarRett == null) {
-            return null;
-        }
-        return annenforelderHarRett ? HistorikkEndretFeltVerdiType.ANNEN_FORELDER_HAR_RETT : HistorikkEndretFeltVerdiType.ANNEN_FORELDER_HAR_IKKE_RETT;
-    }
 }

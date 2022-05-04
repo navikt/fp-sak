@@ -30,9 +30,7 @@ public class BekreftFaktaForOmsorgAksjonspunktTest {
         var ikkeOmsorgPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(2),
             iDag.minusMonths(1));
         ikkeOmsorgPerioder.add(ikkeOmsorgPeriode);
-        var dto = new BekreftFaktaForOmsorgVurderingAksjonspunktDto(null,
-            false, ikkeOmsorgPerioder);
-        bekreftFaktaForOmsorgAksjonspunkt.oppdater(behandling.getId(), dto);
+        bekreftFaktaForOmsorgAksjonspunkt.oppdater(behandling.getId(), false, ikkeOmsorgPerioder);
 
         var perioderUtenOmsorgOpt = ytelsesFordelingRepository.hentAggregat(
             behandling.getId()).getPerioderUtenOmsorg();
@@ -42,52 +40,11 @@ public class BekreftFaktaForOmsorgAksjonspunktTest {
         assertThat(periodeUtenOmsorg.get(0).getPeriode()).isEqualTo(ikkeOmsorgPeriode);
 
         //må nullstille etter endret til har omsorg
-        dto = new BekreftFaktaForOmsorgVurderingAksjonspunktDto(null, true, null);
-        bekreftFaktaForOmsorgAksjonspunkt.oppdater(behandling.getId(), dto);
+        bekreftFaktaForOmsorgAksjonspunkt.oppdater(behandling.getId(), true, null);
         perioderUtenOmsorgOpt = ytelsesFordelingRepository.hentAggregat(behandling.getId()).getPerioderUtenOmsorg();
         assertThat(perioderUtenOmsorgOpt).isPresent();
         periodeUtenOmsorg = perioderUtenOmsorgOpt.get().getPerioder();
         assertThat(periodeUtenOmsorg).isEmpty();
-    }
-
-    @Test
-    public void skal_lagre_ned_bekreftet_aksjonspunkt_aleneomsorg() {
-        var behandling = opprettBehandling();
-        var dto = new BekreftFaktaForOmsorgVurderingAksjonspunktDto(false,
-            null, null);
-        var behandlingId = behandling.getId();
-        bekreftFaktaForOmsorgAksjonspunkt.oppdater(behandlingId, dto);
-
-        var perioderAleneOmsorgOptional = ytelsesFordelingRepository.hentAggregat(
-            behandlingId).getPerioderAleneOmsorg();
-        assertThat(perioderAleneOmsorgOptional).isPresent();
-        var periodeAleneOmsorg = perioderAleneOmsorgOptional.get().getPerioder();
-        assertThat(periodeAleneOmsorg).isEmpty();
-
-        var perioderAnnenforelderHarRettOptional = ytelsesFordelingRepository.hentAggregat(
-            behandlingId).getPerioderAnnenforelderHarRett();
-        assertThat(perioderAnnenforelderHarRettOptional).isPresent();
-        var periodeAnnenforelderHarRett = perioderAnnenforelderHarRettOptional.get()
-            .getPerioder();
-        assertThat(periodeAnnenforelderHarRett).hasSize(1);
-        assertThat(periodeAnnenforelderHarRett.get(0).getPeriode()).isEqualTo(
-            DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()));
-
-        //må legge inn etter endret til har aleneomsorg
-        dto = new BekreftFaktaForOmsorgVurderingAksjonspunktDto(true, null, null);
-        bekreftFaktaForOmsorgAksjonspunkt.oppdater(behandlingId, dto);
-        perioderAleneOmsorgOptional = ytelsesFordelingRepository.hentAggregat(behandlingId).getPerioderAleneOmsorg();
-        assertThat(perioderAleneOmsorgOptional).isPresent();
-        periodeAleneOmsorg = perioderAleneOmsorgOptional.get().getPerioder();
-        assertThat(periodeAleneOmsorg).hasSize(1);
-        assertThat(periodeAleneOmsorg.get(0).getPeriode()).isEqualTo(
-            DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()));
-
-        perioderAnnenforelderHarRettOptional = ytelsesFordelingRepository.hentAggregat(behandlingId)
-            .getPerioderAnnenforelderHarRett();
-        assertThat(perioderAnnenforelderHarRettOptional).isPresent();
-        periodeAnnenforelderHarRett = perioderAnnenforelderHarRettOptional.get().getPerioder();
-        assertThat(periodeAnnenforelderHarRett).isEmpty();
     }
 
     private Behandling opprettBehandling() {

@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
@@ -35,27 +36,21 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilde
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.familiehendelse.rest.BekreftFaktaForOmsorgVurderingDto;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt.AvklarAnnenforelderHarRettOppdaterer;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.ArbeidsgiverHistorikkinnslag;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt.BekreftAleneomsorgOppdaterer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.AvklarFaktaTestUtil;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaUttakHistorikkTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaUttakToTrinnsTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerOppgittFordelingTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaOmsorgRettTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAleneomsorgVurderingDto;
 
 public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
     private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
-    private final ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste = mock(ArbeidsgiverHistorikkinnslag.class);
     private BehandlingRepositoryProvider repositoryProvider;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private FaktaUttakToTrinnsTjeneste faktaUttakToTrinnsTjeneste;
-    private FaktaUttakHistorikkTjeneste faktaUttakHistorikkTjeneste;
     private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste;
-    private KontrollerOppgittFordelingTjeneste kontrollerOppgittFordelingTjeneste;
     private UføretrygdRepository uføretrygdRepository = mock(UføretrygdRepository.class);
 
     @BeforeEach
@@ -63,25 +58,19 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         var entityManager = getEntityManager();
         ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager));
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        faktaUttakToTrinnsTjeneste = new FaktaUttakToTrinnsTjeneste(ytelseFordelingTjeneste);
         førsteUttaksdatoTjeneste = new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste,
             new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
-        kontrollerOppgittFordelingTjeneste = new KontrollerOppgittFordelingTjeneste(ytelseFordelingTjeneste,
-            repositoryProvider, førsteUttaksdatoTjeneste);
         when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        faktaUttakHistorikkTjeneste = new FaktaUttakHistorikkTjeneste(lagMockHistory(),
-            arbeidsgiverHistorikkinnslagTjeneste, ytelseFordelingTjeneste, inntektArbeidYtelseTjeneste);
     }
 
     @Test
     public void teste_lag_ytelsefordeling_dto() {
         var behandling = opprettBehandling(AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG);
-        var dto = new BekreftFaktaForOmsorgVurderingDto.BekreftAleneomsorgVurderingDto(
-            "begrunnelse");
+        var dto = new AvklarAleneomsorgVurderingDto("begrunnelse");
         dto.setAleneomsorg(true);
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         // Act
-        new BekreftAleneomsorgOppdaterer(repositoryProvider, lagMockHistory(), ytelseFordelingTjeneste) {
+        new BekreftAleneomsorgOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(), mock(UføretrygdRepository.class)), mock(PersonopplysningRepository.class)) {
         }.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
@@ -99,8 +88,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         when(uforeRepoMock.hentGrunnlag(anyLong())).thenReturn(Optional.empty());
         // Act
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
-        new AvklarAnnenforelderHarRettOppdaterer(kontrollerOppgittFordelingTjeneste, faktaUttakHistorikkTjeneste,
-            faktaUttakToTrinnsTjeneste, uforeRepoMock).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(), uforeRepoMock)).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
         assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRett()).isNotNull();
@@ -121,8 +109,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         when(uforeRepoMock.hentGrunnlag(anyLong())).thenReturn(Optional.empty());
         // Act
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
-        new AvklarAnnenforelderHarRettOppdaterer(kontrollerOppgittFordelingTjeneste, faktaUttakHistorikkTjeneste,
-            faktaUttakToTrinnsTjeneste, uforeRepoMock).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(), uforeRepoMock)).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         when(uføretrygdRepository.hentGrunnlag(anyLong())).thenReturn(Optional.of(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
             .medBehandlingId(behandling.getId()).medAktørIdUføretrygdet(AktørId.dummy())
             .medRegisterUføretrygd(true, LocalDate.now(), LocalDate.now()).build()));
@@ -141,8 +128,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         when(uforeRepoMock.hentGrunnlag(anyLong())).thenReturn(Optional.empty());
         // Act
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
-        new AvklarAnnenforelderHarRettOppdaterer(kontrollerOppgittFordelingTjeneste, faktaUttakHistorikkTjeneste,
-            faktaUttakToTrinnsTjeneste, uforeRepoMock).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(), uforeRepoMock)).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         when(uføretrygdRepository.hentGrunnlag(anyLong())).thenReturn(Optional.of(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
             .medBehandlingId(behandling.getId()).medAktørIdUføretrygdet(AktørId.dummy())
             .medRegisterUføretrygd(false, null, null).build()));
@@ -161,8 +147,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         when(uforeRepoMock.hentGrunnlag(anyLong())).thenReturn(Optional.empty());
         // Act
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
-        new AvklarAnnenforelderHarRettOppdaterer(kontrollerOppgittFordelingTjeneste, faktaUttakHistorikkTjeneste,
-            faktaUttakToTrinnsTjeneste, uforeRepoMock).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(), uforeRepoMock)).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         when(uføretrygdRepository.hentGrunnlag(anyLong())).thenReturn(Optional.of(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
             .medBehandlingId(behandling.getId()).medAktørIdUføretrygdet(AktørId.dummy())
             .medRegisterUføretrygd(false, null, null).medOverstyrtUføretrygd(true).build()));

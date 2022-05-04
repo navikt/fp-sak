@@ -26,12 +26,12 @@ public class KontrollerFaktaUttakSteg implements UttakSteg {
 
     private KontrollerFaktaUttakTjeneste kontrollerFaktaUttakTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
-    private RyddFaktaUttakTjenesteFørstegangsbehandling ryddFaktaUttakTjeneste;
+    private RyddFaktaUttakTjeneste ryddFaktaUttakTjeneste;
 
     @Inject
     public KontrollerFaktaUttakSteg(UttakInputTjeneste uttakInputTjeneste,
             KontrollerFaktaUttakTjeneste kontrollerFaktaUttakTjeneste,
-            RyddFaktaUttakTjenesteFørstegangsbehandling ryddFaktaUttakTjeneste) {
+            RyddFaktaUttakTjeneste ryddFaktaUttakTjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.kontrollerFaktaUttakTjeneste = kontrollerFaktaUttakTjeneste;
         this.ryddFaktaUttakTjeneste = ryddFaktaUttakTjeneste;
@@ -46,7 +46,7 @@ public class KontrollerFaktaUttakSteg implements UttakSteg {
         var input = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
         var aksjonspunktDefinisjonList = kontrollerFaktaUttakTjeneste.utledAksjonspunkter(input);
         var resultater = aksjonspunktDefinisjonList.stream()
-                .map(def -> AksjonspunktResultat.opprettForAksjonspunkt(def))
+                .map(AksjonspunktResultat::opprettForAksjonspunkt)
                 .collect(Collectors.toList());
         return BehandleStegResultat.utførtMedAksjonspunktResultater(resultater);
     }

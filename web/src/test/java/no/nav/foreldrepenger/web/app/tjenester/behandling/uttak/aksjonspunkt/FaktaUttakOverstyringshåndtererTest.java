@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -36,7 +35,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.uttak.fakta.KontrollerFaktaUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.KontrollerFaktaPeriode;
-import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkAvklartSoeknadsperiodeType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.ArbeidsgiverHistorikkinnslag;
@@ -54,11 +52,6 @@ public class FaktaUttakOverstyringshåndtererTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
-    @Inject
-    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-
-    @Inject
-    private YtelsesFordelingRepository fordelingRepository;
 
     @Inject
     private KontrollerOppgittFordelingTjeneste fordelingTjeneste;
@@ -79,8 +72,7 @@ public class FaktaUttakOverstyringshåndtererTest {
     public void setup() {
         when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(InntektArbeidYtelseGrunnlagBuilder.nytt().build());
         this.faktaUttakHistorikkTjeneste = new FaktaUttakHistorikkTjeneste(historikkApplikasjonTjeneste,
-                arbeidsgiverHistorikkinnslagTjeneste,
-                ytelseFordelingTjeneste, inntektArbeidYtelseTjeneste);
+                arbeidsgiverHistorikkinnslagTjeneste, inntektArbeidYtelseTjeneste);
 
         this.faktaUttakOverstyringshåndterer = new FaktaUttakOverstyringshåndterer(historikkApplikasjonTjeneste,
                 faktaUttakHistorikkTjeneste,

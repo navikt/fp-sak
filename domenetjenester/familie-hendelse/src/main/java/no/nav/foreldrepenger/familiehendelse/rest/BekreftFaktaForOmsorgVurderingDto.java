@@ -12,7 +12,17 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 
-public abstract class BekreftFaktaForOmsorgVurderingDto extends BekreftetAksjonspunktDto {
+@JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG_KODE)
+public class BekreftFaktaForOmsorgVurderingDto extends BekreftetAksjonspunktDto {
+
+    @NotNull
+    private Boolean omsorg;
+
+    @Valid
+    @Size(max = 50)
+    private List<PeriodeDto> ikkeOmsorgPerioder;
+
+
 
     BekreftFaktaForOmsorgVurderingDto() { // NOSONAR
         //For Jackson
@@ -22,42 +32,25 @@ public abstract class BekreftFaktaForOmsorgVurderingDto extends BekreftetAksjons
         super(begrunnelse);
     }
 
-    @JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG_KODE)
-    public static class BekreftAleneomsorgVurderingDto extends BekreftFaktaForOmsorgVurderingDto {
+    public Boolean getOmsorg() {
+        return omsorg;
+    }
 
+    public void setOmsorg(Boolean omsorg) {
+        this.omsorg = omsorg;
+    }
 
-        @NotNull
-        private Boolean aleneomsorg;
+    public List<PeriodeDto> getIkkeOmsorgPerioder() {
+        return ikkeOmsorgPerioder;
+    }
 
-        @SuppressWarnings("unused") // NOSONAR
-        private BekreftAleneomsorgVurderingDto() {
-            // For Jackson
-        }
-
-        public BekreftAleneomsorgVurderingDto(String begrunnelse) { // NOSONAR
-            super(begrunnelse);
-        }
-
-        public Boolean getAleneomsorg() {
-            return aleneomsorg;
-        }
-
-        public void setAleneomsorg(Boolean aleneomsorg) {
-            this.aleneomsorg = aleneomsorg;
-        }
-
+    public void setIkkeOmsorgPerioder(List<PeriodeDto> ikkeOmsorgPerioder) {
+        this.ikkeOmsorgPerioder = ikkeOmsorgPerioder;
     }
 
     @JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG_KODE)
     public static class BekreftOmsorgVurderingDto extends BekreftFaktaForOmsorgVurderingDto {
 
-
-        @NotNull
-        private Boolean omsorg;
-
-        @Valid
-        @Size(max = 50)
-        private List<PeriodeDto> ikkeOmsorgPerioder;
 
         @SuppressWarnings("unused") // NOSONAR
         private BekreftOmsorgVurderingDto() {
@@ -68,21 +61,7 @@ public abstract class BekreftFaktaForOmsorgVurderingDto extends BekreftetAksjons
             super(begrunnelse);
         }
 
-        public Boolean getOmsorg() {
-            return omsorg;
-        }
 
-        public void setOmsorg(Boolean omsorg) {
-            this.omsorg = omsorg;
-        }
-
-        public List<PeriodeDto> getIkkeOmsorgPerioder() {
-            return ikkeOmsorgPerioder;
-        }
-
-        public void setIkkeOmsorgPerioder(List<PeriodeDto> ikkeOmsorgPerioder) {
-            this.ikkeOmsorgPerioder = ikkeOmsorgPerioder;
-        }
     }
 
 }

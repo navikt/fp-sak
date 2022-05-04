@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
-import no.nav.foreldrepenger.domene.ytelsefordeling.BekreftFaktaForOmsorgVurderingAksjonspunktDto;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
@@ -73,10 +72,9 @@ public class ForvaltningUttakTjeneste {
         }
     }
 
-    public void endreAleneomsorg(UUID behandlingUuid, Boolean aleneomsorg) {
+    public void endreAleneomsorg(UUID behandlingUuid, boolean aleneomsorg) {
         var behandlingId = behandlingRepository.hentBehandling(behandlingUuid).getId();
-        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandlingId, new BekreftFaktaForOmsorgVurderingAksjonspunktDto(aleneomsorg,
-            null, null));
+        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForAleneomsorg(behandlingId, aleneomsorg);
 
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);

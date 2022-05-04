@@ -8,6 +8,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -15,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
@@ -39,8 +41,17 @@ public class YtelseFordelingTjeneste {
         return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId);
     }
 
-    public void aksjonspunktBekreftFaktaForOmsorg(Long behandlingId, BekreftFaktaForOmsorgVurderingAksjonspunktDto adapter) {
-        new BekreftFaktaForOmsorgAksjonspunkt(ytelsesFordelingRepository).oppdater(behandlingId, adapter);
+    public void aksjonspunktBekreftFaktaForOmsorg(Long behandlingId, boolean omsorg, List<DatoIntervallEntitet> ikkeOmsorgPerioder) {
+        new BekreftFaktaForOmsorgAksjonspunkt(ytelsesFordelingRepository).oppdater(behandlingId, omsorg, ikkeOmsorgPerioder);
+    }
+
+    public void aksjonspunktBekreftFaktaForAleneomsorg(Long behandlingId, boolean aleneomsorg) {
+        var ytelseFordelingBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medPerioderAleneOmsorg(new PerioderAleneOmsorgEntitet(aleneomsorg));
+        if (aleneomsorg) {
+            ytelseFordelingBuilder.medPerioderAnnenforelderHarRett(new PerioderAnnenforelderHarRettEntitet(false));
+        }
+        ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingBuilder.build());
     }
 
     public void overstyrSøknadsperioder(Long behandlingId,

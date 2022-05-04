@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -44,11 +45,11 @@ public class KontrollerOmsorgRettStegTest {
     private BehandlingRepository behandlingRepository;
 
     @Inject
-    private RyddFaktaUttakTjenesteFørstegangsbehandling ryddKontrollerFaktaUttakTjeneste;
+    private RyddOmsorgRettTjeneste ryddOmsorgRettTjeneste;
 
     @Inject
     @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
-    @BehandlingTypeRef
+    @BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD)
     private KontrollerOmsorgRettSteg steg;
 
     @Inject
@@ -83,7 +84,7 @@ public class KontrollerOmsorgRettStegTest {
     public void oppsett() {
         var scenario = opprettBehandlingForFarSomSøker();
         behandling = scenario.lagre(repositoryProvider);
-        steg = new KontrollerOmsorgRettSteg(uttakInputTjeneste, tjeneste, ryddKontrollerFaktaUttakTjeneste);
+        steg = new KontrollerOmsorgRettSteg(uttakInputTjeneste, tjeneste, ryddOmsorgRettTjeneste);
     }
 
     @Test

@@ -14,19 +14,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt√
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
-import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkAvklartSoeknadsperiodeType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 public class FaktaUttakHistorikkTjenesteTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
     private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
 
@@ -35,7 +32,6 @@ public class FaktaUttakHistorikkTjenesteTest extends EntityManagerAwareTest {
     void setUp() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager));
         historikkApplikasjonTjeneste = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(),
             mock(DokumentArkivTjeneste.class), repositoryProvider.getBehandlingRepository());
     }
@@ -101,7 +97,6 @@ public class FaktaUttakHistorikkTjenesteTest extends EntityManagerAwareTest {
     private FaktaUttakHistorikkTjeneste tjeneste() {
         when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(
             InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        return new FaktaUttakHistorikkTjeneste(historikkApplikasjonTjeneste, null, ytelseFordelingTjeneste,
-            inntektArbeidYtelseTjeneste);
+        return new FaktaUttakHistorikkTjeneste(historikkApplikasjonTjeneste, null, inntektArbeidYtelseTjeneste);
     }
 }

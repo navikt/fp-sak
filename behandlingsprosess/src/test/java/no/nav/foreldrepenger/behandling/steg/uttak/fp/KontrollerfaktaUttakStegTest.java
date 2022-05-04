@@ -43,7 +43,7 @@ public class KontrollerfaktaUttakStegTest {
     private BehandlingRepository behandlingRepository;
 
     @Inject
-    private RyddFaktaUttakTjenesteFørstegangsbehandling ryddKontrollerFaktaUttakTjeneste;
+    private RyddFaktaUttakTjeneste ryddKontrollerFaktaUttakTjeneste;
 
     @Inject
     @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
