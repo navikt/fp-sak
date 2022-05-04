@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -254,6 +255,97 @@ class BerørtBehandlingTjenesteTest {
             .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.MØDREKVOTE)))
             .build();
         var morUttak = new ForeldrepengerUttak(List.of(morsFørstePeriode, morsOppholdsperiode, morsAndrePeriode));
+        lagreUttak(morBehandling, morUttak);
+
+        var farUttak = new ForeldrepengerUttak(List.of(farsPeriode));
+        lagreUttak(farBehandling, farUttak);
+
+        var resultat = skalBerørtOpprettes(farBehandling, morBehandling);
+        assertThat(resultat).isFalse();
+    }
+
+    @Test
+    public void ikke_berørt_behandling_når_far_har_oppholdsperiode() {
+        var startDatoMor = LocalDate.of(2020, 1, 1);
+        var startDatoFar = startDatoMor.plusMonths(3);
+
+        var farBehandling = opprettBehandlingFar(startDatoMor);
+        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+
+        lagUttakInputSammenhengendeUttak(farBehandling);
+
+        var morsPeriode = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(startDatoMor, startDatoFar.minusDays(1))
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.MØDREKVOTE)))
+            .build();
+        var opphold = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(startDatoFar, startDatoFar.plusWeeks(2))
+            .medOppholdÅrsak(OppholdÅrsak.MØDREKVOTE_ANNEN_FORELDER)
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
+            .build();
+        var farsPeriode = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(opphold.getTom().plusDays(1), opphold.getTom().plusWeeks(10))
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
+            .build();
+        var morUttak = new ForeldrepengerUttak(List.of(morsPeriode));
+        lagreUttak(morBehandling, morUttak);
+
+        var farUttak = new ForeldrepengerUttak(List.of(opphold, farsPeriode));
+        lagreUttak(farBehandling, farUttak);
+
+        var resultat = skalBerørtOpprettes(farBehandling, morBehandling);
+        assertThat(resultat).isFalse();
+    }
+
+    @Test
+    public void ikke_berørt_når_det_ikke_er_hull_første_6_ukene() {
+        var startDatoMor = LocalDate.of(2021, 9, 27);
+        var startDatoFar = LocalDate.of(2022, 1, 10);
+
+        var fødselsdato = LocalDate.of(2021, 9, 26);
+        var farBehandling = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medFødselAdopsjonsdato(fødselsdato)
+            .medAvklarteUttakDatoer(avklarteDatoer(startDatoFar))
+            .lagre(repositoryProvider);
+        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .lagre(repositoryProvider);
+
+        lagUttakInputSammenhengendeUttak(farBehandling);
+
+        var morUtsettelse = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(startDatoMor, LocalDate.of(2021, 10, 15))
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medUtsettelseType(UttakUtsettelseType.BARN_INNLAGT)
+            .medResultatÅrsak(PeriodeResultatÅrsak.UTSETTELSE_GYLDIG_PGA_BARN_INNLAGT)
+            .medAktiviteter(List.of(aktivitetUtenTrekkdagerOgUtbetaling(StønadskontoType.UDEFINERT)))
+            .build();
+        var morPleiepengerUtenInnleggelse = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(LocalDate.of(2021, 10, 18), LocalDate.of(2021, 10, 22))
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medResultatÅrsak(PeriodeResultatÅrsak.BARNETS_INNLEGGELSE_IKKE_OPPFYLT)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.MØDREKVOTE)))
+            .build();
+        var morMødrekvote = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(LocalDate.of(2021, 10, 23), LocalDate.of(2021, 11, 6))
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.MØDREKVOTE)))
+            .build();
+        var morMødrekvote2 = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(LocalDate.of(2021, 11, 7), LocalDate.of(2022, 1, 7))
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.MØDREKVOTE)))
+            .build();
+        var farsPeriode = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(morMødrekvote.getTom().plusDays(1), morMødrekvote.getTom().plusWeeks(10))
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
+            .build();
+        var morUttak = new ForeldrepengerUttak(List.of(morUtsettelse, morPleiepengerUtenInnleggelse, morMødrekvote, morMødrekvote2));
         lagreUttak(morBehandling, morUttak);
 
         var farUttak = new ForeldrepengerUttak(List.of(farsPeriode));
@@ -530,7 +622,7 @@ class BerørtBehandlingTjenesteTest {
         var farsFørstePeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(morsFørstePeriode.getTom().plusDays(1), morsFørstePeriode.getTom().plusWeeks(1))
             .medResultatÅrsak(PeriodeResultatÅrsak.IKKE_STØNADSDAGER_IGJEN)
-            .medAktiviteter(List.of(avslåttUttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
+            .medAktiviteter(List.of(aktivitetUtenTrekkdagerOgUtbetaling(StønadskontoType.FEDREKVOTE)))
             .build();
         var morsAndrePeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(farsFørstePeriode.getTom().plusDays(1), farsFørstePeriode.getTom().plusWeeks(1))
@@ -578,7 +670,7 @@ class BerørtBehandlingTjenesteTest {
         var farsFørstePeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(farStart, farStart.plusWeeks(4).minusDays(1))
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-            .medAktiviteter(List.of(avslåttUttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
+            .medAktiviteter(List.of(aktivitetUtenTrekkdagerOgUtbetaling(StønadskontoType.FEDREKVOTE)))
             .build();
         var morsAndrePeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(morPeriode2, morPeriode2.plusWeeks(7).minusDays(1))
@@ -626,7 +718,7 @@ class BerørtBehandlingTjenesteTest {
         var farsFørstePeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(farStart, farStart.plusWeeks(4).minusDays(1))
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-            .medAktiviteter(List.of(avslåttUttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
+            .medAktiviteter(List.of(aktivitetUtenTrekkdagerOgUtbetaling(StønadskontoType.FEDREKVOTE)))
             .build();
         var morsAndrePeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(morPeriode2, morPeriode2.plusWeeks(7).minusDays(1))
@@ -674,7 +766,7 @@ class BerørtBehandlingTjenesteTest {
         var farsFørstePeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(farStart, farStart.plusWeeks(4).minusDays(1))
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-            .medAktiviteter(List.of(avslåttUttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
+            .medAktiviteter(List.of(aktivitetUtenTrekkdagerOgUtbetaling(StønadskontoType.FEDREKVOTE)))
             .build();
         var morsAndrePeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(morPeriode2, morPeriode2.plusWeeks(7).minusDays(1))
@@ -782,7 +874,7 @@ class BerørtBehandlingTjenesteTest {
         var farsFørstePeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(morsFørstePeriode.getTom().plusDays(1), morsFørstePeriode.getTom().plusWeeks(1))
             .medResultatÅrsak(PeriodeResultatÅrsak.IKKE_STØNADSDAGER_IGJEN)
-            .medAktiviteter(List.of(avslåttUttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
+            .medAktiviteter(List.of(aktivitetUtenTrekkdagerOgUtbetaling(StønadskontoType.FEDREKVOTE)))
             .build();
         var morUttak = new ForeldrepengerUttak(List.of(morsFørstePeriode));
         lagreUttak(morBehandling, morUttak);
@@ -935,7 +1027,7 @@ class BerørtBehandlingTjenesteTest {
             .build();
     }
 
-    private ForeldrepengerUttakPeriodeAktivitet avslåttUttakPeriodeAktivitet(StønadskontoType stønadskontoType) {
+    private ForeldrepengerUttakPeriodeAktivitet aktivitetUtenTrekkdagerOgUtbetaling(StønadskontoType stønadskontoType) {
         return new ForeldrepengerUttakPeriodeAktivitet.Builder()
             .medArbeidsprosent(BigDecimal.ZERO)
             .medTrekkdager(Trekkdager.ZERO)

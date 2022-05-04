@@ -124,7 +124,8 @@ public class BerørtBehandlingTjeneste {
         // Sikre at periode reservert mor er komplett med uttak, utsettelser, overføringer
         if (foreldrepengerGrunnlag.getFamilieHendelser().gjelderTerminFødsel()) {
             var familieHendelseDato = foreldrepengerGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
-            var førsteSeksUker = new LocalDateInterval(familieHendelseDato, TidsperiodeForbeholdtMor.tilOgMed(familieHendelseDato));
+            var førsteSeksUker = new LocalDateInterval(VirkedagUtil.lørdagSøndagTilMandag(familieHendelseDato),
+                TidsperiodeForbeholdtMor.tilOgMed(familieHendelseDato));
             if (!fellesTidslinjeForSammenheng.isContinuous(førsteSeksUker)) {
                 LOG.info("Skal opprette berørt: Første 6 uker");
                 return true;
@@ -171,11 +172,15 @@ public class BerørtBehandlingTjeneste {
     private LocalDateTimeline<Boolean> lagTidslinje(ForeldrepengerUttak uttak, Predicate<ForeldrepengerUttakPeriode> periodefilter,
                                                     Function<ForeldrepengerUttakPeriode, LocalDateSegment<Boolean>> segmentMapper) {
         var segmenter = uttak.getGjeldendePerioder().stream()
-            .filter(ForeldrepengerUttakPeriode::harAktivtUttak)
+            .filter(p -> isAktivtUttak(p))
             .filter(periodefilter)
             .map(segmentMapper)
             .toList();
         return new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch).compress();
+    }
+
+    private boolean isAktivtUttak(ForeldrepengerUttakPeriode p) {
+        return p.harAktivtUttak() || p.isInnvilgetOpphold();
     }
 
     private LocalDateSegment<Boolean> helgFomMandagSegment(ForeldrepengerUttakPeriode periode) {
@@ -193,14 +198,14 @@ public class BerørtBehandlingTjeneste {
 
     private Optional<LocalDate> finnMinAktivDato(ForeldrepengerUttak bruker, ForeldrepengerUttak annenpart) {
         return Stream.concat(bruker.getGjeldendePerioder().stream(), annenpart.getGjeldendePerioder().stream())
-            .filter(ForeldrepengerUttakPeriode::harAktivtUttak)
+            .filter(p -> isAktivtUttak(p))
             .map(ForeldrepengerUttakPeriode::getFom)
             .min(Comparator.naturalOrder());
     }
 
     private Optional<LocalDate> finnMaxAktivDato(ForeldrepengerUttak bruker, ForeldrepengerUttak annenpart) {
         return Stream.concat(bruker.getGjeldendePerioder().stream(), annenpart.getGjeldendePerioder().stream())
-            .filter(ForeldrepengerUttakPeriode::harAktivtUttak)
+            .filter(p -> isAktivtUttak(p))
             .map(ForeldrepengerUttakPeriode::getTom)
             .max(Comparator.naturalOrder());
     }
