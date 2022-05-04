@@ -32,12 +32,7 @@ public class BekreftFaktaForAleneomsorgAksjonspunktTest {
 
         var perioderAnnenforelderHarRettOptional = ytelsesFordelingRepository.hentAggregat(
             behandlingId).getPerioderAnnenforelderHarRett();
-        assertThat(perioderAnnenforelderHarRettOptional).isPresent();
-        var periodeAnnenforelderHarRett = perioderAnnenforelderHarRettOptional.get()
-            .getPerioder();
-        assertThat(periodeAnnenforelderHarRett).hasSize(1);
-        assertThat(periodeAnnenforelderHarRett.get(0).getPeriode()).isEqualTo(
-            DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()));
+        assertThat(perioderAnnenforelderHarRettOptional).isEmpty();
 
         //må legge inn etter endret til har aleneomsorg
         ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForAleneomsorg(behandlingId, true);
@@ -51,7 +46,7 @@ public class BekreftFaktaForAleneomsorgAksjonspunktTest {
         perioderAnnenforelderHarRettOptional = ytelsesFordelingRepository.hentAggregat(behandlingId)
             .getPerioderAnnenforelderHarRett();
         assertThat(perioderAnnenforelderHarRettOptional).isPresent();
-        periodeAnnenforelderHarRett = perioderAnnenforelderHarRettOptional.get().getPerioder();
+        var periodeAnnenforelderHarRett = perioderAnnenforelderHarRettOptional.get().getPerioder();
         assertThat(periodeAnnenforelderHarRett).isEmpty();
     }
 
