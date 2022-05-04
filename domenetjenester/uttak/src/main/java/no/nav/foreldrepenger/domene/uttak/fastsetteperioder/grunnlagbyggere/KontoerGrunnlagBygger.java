@@ -9,7 +9,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
@@ -41,7 +40,6 @@ public class KontoerGrunnlagBygger {
 
 
     private FagsakRelasjonRepository fagsakRelasjonRepository;
-    private FamilieHendelseRepository familieHendelseRepository;
 
     @Inject
     public KontoerGrunnlagBygger(UttakRepositoryProvider repositoryProvider) {
