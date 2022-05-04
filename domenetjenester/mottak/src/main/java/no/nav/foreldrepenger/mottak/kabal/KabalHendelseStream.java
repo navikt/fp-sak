@@ -79,7 +79,7 @@ public class KabalHendelseStream implements LivenessAware, ReadinessAware, AppSe
 
     @Override
     public boolean isAlive() {
-        return true; //(stream != null) && stream.state().isRunningOrRebalancing();
+        return !isDeployment || (stream != null && stream.state().isRunningOrRebalancing());
     }
 
     @Override

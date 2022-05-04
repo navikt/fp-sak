@@ -20,11 +20,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
-import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.log.util.LoggerUtils;
 
 
 @Transactional
@@ -59,23 +57,16 @@ public class KabalHendelseHåndterer {
     }
 
     void handleMessage(String key, String payload) {
-        // enhver exception ut fra denne metoden medfører at tråden som leser fra kafka gir opp og stopper.
-        try {
-            var mottattHendelse = StandardJsonConfig.fromJson(payload, KabalHendelse.class);
-            setCallIdForHendelse(mottattHendelse);
-            LOG.info("KABAL mottatt hendelse key={} hendelse={}", key, mottattHendelse);
+        var mottattHendelse = StandardJsonConfig.fromJson(payload, KabalHendelse.class);
+        setCallIdForHendelse(mottattHendelse);
+        LOG.info("KABAL mottatt hendelse key={} hendelse={}", key, mottattHendelse);
 
-            if (!Objects.equals(Fagsystem.FPSAK.getOffisiellKode(), mottattHendelse.kilde())) return;
-            if (!mottakRepository.hendelseErNy(KABAL+mottattHendelse.eventId().toString())) {
-                LOG.warn("KABAL mottatt hendelse på nytt key={} hendelse={}", key, mottattHendelse);
-                return;
-            }
-            handleMessageInternal(mottattHendelse);
-        } catch (VLException e) {
-            LOG.info("FP-328773 KABAL Feil under parsing av vedtak. key={} payload={}", key, payload, e);
-        } catch (Exception e) {
-            LOG.info("Vedtatt-Ytelse exception ved håndtering av vedtaksmelding, ignorerer key={}", LoggerUtils.removeLineBreaks(payload), e);
+        if (!Objects.equals(Fagsystem.FPSAK.getOffisiellKode(), mottattHendelse.kilde())) return;
+        if (!mottakRepository.hendelseErNy(KABAL+mottattHendelse.eventId().toString())) {
+            LOG.warn("KABAL mottatt hendelse på nytt key={} hendelse={}", key, mottattHendelse);
+            return;
         }
+        handleMessageInternal(mottattHendelse);
     }
 
     private void handleMessageInternal(KabalHendelse mottattHendelse) {
