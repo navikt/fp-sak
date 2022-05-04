@@ -175,6 +175,10 @@ public class ForeldrepengerUttakPeriode {
         return isUtsettelse() && !harTrekkdager() && !harUtbetaling() && isInnvilget();
     }
 
+    public boolean isInnvilgetOpphold() {
+        return isOpphold() && isInnvilget();
+    }
+
     private boolean isUtsettelse() {
         return !Objects.equals(getUtsettelseType(), UttakUtsettelseType.UDEFINERT);
     }
