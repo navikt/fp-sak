@@ -139,8 +139,8 @@ public class BerørtBehandlingTjeneste {
 
     private boolean overlappUtenomAkseptertSamtidigUttak(UttakInput uttakInput, LocalDateInterval periodeFomEndringsdato,
                                                          ForeldrepengerUttak brukersUttak, ForeldrepengerUttak annenpartsUttak) {
-        var tidslinjeBruker = lagTidslinje(brukersUttak, p -> true, this::helgFomMandagSegment);
-        var tidslinjeAnnenpart = lagTidslinje(annenpartsUttak, p -> true, this::helgFomMandagSegment);
+        var tidslinjeBruker = lagTidslinje(brukersUttak, p -> !p.isOpphold(), this::helgFomMandagSegment);
+        var tidslinjeAnnenpart = lagTidslinje(annenpartsUttak, p -> !p.isOpphold(), this::helgFomMandagSegment);
         // Tidslinje der begge har uttak - fom endringsdato.
         var tidslinjeOverlappendeUttakFomEndringsdato = tidslinjeAnnenpart.intersection(tidslinjeBruker).intersection(periodeFomEndringsdato);
         if (tidslinjeOverlappendeUttakFomEndringsdato.isEmpty()) {
