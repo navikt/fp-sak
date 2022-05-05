@@ -93,7 +93,9 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
         }
         if (startpunkter.isEmpty()) {
             // Endringen som trigget utledning av startpunkt skal ikke styre startpunkt
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UDEFINERT, "personopplysning - andre endringer", grunnlag1.getId(), grunnlag2.getId());
+            var g1 = grunnlag1 != null ? grunnlag1.getId().toString() : "null";
+            var g2 = grunnlag2 != null ? grunnlag2.getId().toString() : "null";
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UDEFINERT, "personopplysning - andre endringer", g1, g2);
             startpunkter.add(StartpunktType.UDEFINERT);
         }
         return startpunkter;
