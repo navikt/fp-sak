@@ -120,7 +120,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
             } else {
                 ryddOppAksjonspunktForInntektsmeldingHvisEksisterer(ref);
             }
-            if (måVurderePermisjonUtenSluttdato && behandlingskontrollTjeneste.erStegPassert(ref.behandlingId(), BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON)){
+            if (måVurderePermisjonUtenSluttdato){
                 loggAdvarselHvisAksjonspunktForPermisjonUtenSluttdatIkkeEksisterer(ref);
             } else {
                 ryddOppAksjonspunktForPermisjonUtenSluttdatoHvisEksisterer(ref);
@@ -202,11 +202,16 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     //sjekker om dette scenarioet i det hele tatt oppstår før vi eventuelt legger inn håndtering av det
     private void loggAdvarselHvisAksjonspunktForPermisjonUtenSluttdatIkkeEksisterer(BehandlingReferanse behandlingReferanse) {
         var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
-        if (!behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO)) {
+
+        if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && vilIkkeFåAksjonspunkt(behandling)) {
             LOG.warn("BehandlingId {} har arbeidsforhold med permisjon uten sluttdato, men har ikke åpent aksjonspunkt av type VURDER_PERMISJON_UTEN_SLUTTDATO", behandling.getId());
         }
     }
 
+    private boolean vilIkkeFåAksjonspunkt(Behandling behandling) {
+        return behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON) &&
+            !behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO);
+    }
     private void leggTilStartpunkt(List<StartpunktType> startpunkter, UUID grunnlagId1, UUID grunnlagId2, StartpunktType startpunkt, String endringLoggtekst) {
         startpunkter.add(startpunkt);
         FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(klassenavn, startpunkt, endringLoggtekst, grunnlagId1, grunnlagId2);
