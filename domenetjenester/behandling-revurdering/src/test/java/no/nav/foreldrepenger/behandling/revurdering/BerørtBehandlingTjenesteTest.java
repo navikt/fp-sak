@@ -243,7 +243,10 @@ class BerørtBehandlingTjenesteTest {
             .build();
         var morsOppholdsperiode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(morsFørstePeriode.getTom().plusDays(1), startDatoFar)
-            .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT).build();
+            .medOppholdÅrsak(OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER)
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
+            .build();
         var farsPeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(morsOppholdsperiode.getFom(), morsOppholdsperiode.getTom())
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
@@ -294,6 +297,72 @@ class BerørtBehandlingTjenesteTest {
         lagreUttak(morBehandling, morUttak);
 
         var farUttak = new ForeldrepengerUttak(List.of(opphold, farsPeriode));
+        lagreUttak(farBehandling, farUttak);
+
+        var resultat = skalBerørtOpprettes(farBehandling, morBehandling);
+        assertThat(resultat).isFalse();
+    }
+
+    @Test
+    public void ikke_berørt_behandling_når_eneste_overlapp_er_oppholdsperioder() {
+        var startDatoMor = LocalDate.of(2020, 1, 1);
+
+        var mødrekvote1 = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(startDatoMor, startDatoMor.plusWeeks(10))
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.MØDREKVOTE)))
+            .build();
+        var oppholdMor1 = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(mødrekvote1.getTom().plusDays(1), mødrekvote1.getTom().plusWeeks(1))
+            .medOppholdÅrsak(OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER)
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
+            .build();
+        var mødrekvote2 = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(oppholdMor1.getTom().plusDays(1), oppholdMor1.getTom().plusWeeks(1))
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.MØDREKVOTE)))
+            .build();
+        var oppholdMor2 = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(mødrekvote2.getTom().plusDays(1), mødrekvote2.getTom().plusWeeks(1))
+            .medOppholdÅrsak(OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER)
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
+            .build();
+        var mødrekvote3 = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(oppholdMor2.getTom().plusDays(1), oppholdMor2.getTom().plusWeeks(1))
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.MØDREKVOTE)))
+            .build();
+
+        var fedrekvote1 = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(oppholdMor1.getFom(), oppholdMor1.getTom())
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
+            .build();
+        var oppholdFar1 = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(mødrekvote2.getFom(), mødrekvote2.getTom())
+            .medOppholdÅrsak(OppholdÅrsak.MØDREKVOTE_ANNEN_FORELDER)
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
+            .build();
+        //Overlappende oppholdsperioder på far og mor
+        var oppholdFar2 = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(oppholdMor2.getFom(), oppholdMor2.getTom())
+            .medOppholdÅrsak(OppholdÅrsak.MØDREKVOTE_ANNEN_FORELDER)
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
+            .build();
+
+        var farBehandling = opprettBehandlingFar(startDatoMor);
+        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+
+        lagUttakInputSammenhengendeUttak(farBehandling);
+
+        var morUttak = new ForeldrepengerUttak(List.of(mødrekvote1, oppholdMor1, mødrekvote2, oppholdMor2, mødrekvote3));
+        lagreUttak(morBehandling, morUttak);
+
+        var farUttak = new ForeldrepengerUttak(List.of(fedrekvote1, oppholdFar1, oppholdFar2));
         lagreUttak(farBehandling, farUttak);
 
         var resultat = skalBerørtOpprettes(farBehandling, morBehandling);
