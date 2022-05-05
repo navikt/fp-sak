@@ -42,11 +42,7 @@ public class BrukerHarAleneomsorgAksjonspunktUtleder implements OmsorgRettAksjon
     @Override
     public List<AksjonspunktDefinisjon> utledAksjonspunkterFor(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-
-        if (!Objects.equals(ref.behandlingType(), BehandlingType.FØRSTEGANGSSØKNAD)) {
-            return List.of();
-        }
-
+        
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
 
         if (harOppgittÅHaAleneomsorg(ytelseFordelingAggregat)) {
