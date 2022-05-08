@@ -44,11 +44,11 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Avkl
         faktaOmsorgRettTjeneste.omsorgRettHistorikkInnslag(param, dto.getBegrunnelse());
         faktaOmsorgRettTjeneste.oppdaterAleneomsorg(param, dto.getAleneomsorg());
         if (!dto.getAleneomsorg() && dto.getAnnenforelderHarRett() != null) {
-            var opprettUføre = !dto.getAnnenforelderHarRett() && dto.getAnnenforelderMottarUføretrygd() != null && dto.getAnnenforelderMottarUføretrygd();
+            var opprettUføre = !dto.getAnnenforelderHarRett() && dto.getAnnenforelderMottarUføretrygd() != null;
             var annenpartAktørId = personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(param.getBehandlingId())
                 .map(OppgittAnnenPartEntitet::getAktørId).orElse(null);
             // Inntil videre ...
-            if (opprettUføre && annenpartAktørId == null) {
+            if (opprettUføre && dto.getAnnenforelderMottarUføretrygd() && annenpartAktørId == null) {
                 throw new FunksjonellException("FP-093925", "Mangler oppgitt annenpart for saken kan ikke bekrefte uføretrygd.",
                     "Registrer annenpart eller kontakt support.");
             }

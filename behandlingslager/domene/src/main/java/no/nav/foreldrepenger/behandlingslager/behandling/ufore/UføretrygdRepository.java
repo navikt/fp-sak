@@ -44,12 +44,12 @@ public class UføretrygdRepository {
         lagreGrunnlag(aktivtGrunnlag, nyttGrunnlag);
     }
 
-    public void lagreUføreGrunnlagAvkreftetAleneomsorgVersjon(Long behandlingId, AktørId annenpartAktørId) {
+    public void lagreUføreGrunnlagAvkreftetAleneomsorgVersjon(Long behandlingId, AktørId annenpartAktørId, boolean mottarUføretrygd) {
         var aktivtGrunnlag = hentGrunnlag(behandlingId);
         var nyttGrunnlag = UføretrygdGrunnlagEntitet.Builder.oppdatere(aktivtGrunnlag)
             .medBehandlingId(behandlingId)
             .medAktørIdUføretrygdet(annenpartAktørId)
-            .medManueltAvklartUføretrygd(true);
+            .medManueltAvklartUføretrygd(mottarUføretrygd);
         lagreGrunnlag(aktivtGrunnlag, nyttGrunnlag);
     }
 
