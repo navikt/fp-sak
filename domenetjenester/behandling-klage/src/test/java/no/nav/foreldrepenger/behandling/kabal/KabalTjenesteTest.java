@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class KabalTjenesteTest {
@@ -52,6 +53,8 @@ class KabalTjenesteTest {
     @Mock
     private HistorikkRepository historikkRepository;
     @Mock
+    private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
+    @Mock
     private KabalKlient kabalKlient;
 
     private KabalTjeneste kabalTjeneste;
@@ -59,7 +62,7 @@ class KabalTjenesteTest {
     @BeforeEach
     void setUp() {
         kabalTjeneste = new KabalTjeneste(personinfoAdapter, kabalKlient, behandlingRepository, mottatteDokumentRepository,
-            behandlingDokumentRepository, vergeRepository, ankeVurderingTjeneste, klageVurderingTjeneste, historikkRepository);
+            behandlingDokumentRepository, vergeRepository, ankeVurderingTjeneste, klageVurderingTjeneste, behandlendeEnhetTjeneste, historikkRepository);
     }
 
     @Test
