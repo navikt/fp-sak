@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenforelderHarRettDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BekreftetOppgittPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerFaktaPeriodeLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakDokumentasjonDto;
@@ -58,13 +57,6 @@ public class KontrollerOppgittFordelingTjeneste {
 
     KontrollerOppgittFordelingTjeneste() {
         //For CDI proxy
-    }
-
-    /**
-     * Brukes i bekreft aksjonspunkt avklar annen forelder har rett
-     */
-    public void avklarAnnenforelderHarIkkeRett(AvklarAnnenforelderHarRettDto dto, Long behandlingId) {
-        ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandlingId, dto.getAnnenforelderHarRett());
     }
 
     public void bekreftOppgittePerioder(List<BekreftetOppgittPeriodeDto> bekreftedePerioder, Behandling behandling) {

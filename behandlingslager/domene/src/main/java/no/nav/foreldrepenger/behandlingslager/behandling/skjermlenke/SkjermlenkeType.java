@@ -37,6 +37,7 @@ public enum SkjermlenkeType implements Kodeverdi {
     FAKTA_OM_SIMULERING("FAKTA_OM_SIMULERING", "Simulering"),
     FAKTA_OM_UTTAK("FAKTA_OM_UTTAK", "Fakta om uttak"),
     FAKTA_OM_AKTIVITETSKRAV("FAKTA_OM_AKTIVITETSKRAV", "Fakta om aktivitetskrav"),
+    FAKTA_OMSORG_OG_RETT("FAKTA_OMSORG_OG_RETT", "Fakta om aleneomsorg og annenpart rett"),
     FAKTA_OM_VERGE("FAKTA_OM_VERGE", "Fakta om verge/fullmektig"),
     FORMKRAV_KLAGE_KA("FORMKRAV_KLAGE_KA", "Formkrav klage KA"),
     FORMKRAV_KLAGE_NFP("FORMKRAV_KLAGE_NFP", "Formkrav klage NFP"),

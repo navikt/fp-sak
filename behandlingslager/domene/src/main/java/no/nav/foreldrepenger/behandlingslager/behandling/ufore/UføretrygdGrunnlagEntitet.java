@@ -41,7 +41,7 @@ public class UføretrygdGrunnlagEntitet extends BaseEntitet {
     private Long behandlingId;
 
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", updatable = false, nullable=false)))
+    @AttributeOverrides(@AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", updatable = false)))
     private AktørId aktørId;
 
     @Convert(converter = BooleanToStringConverter.class)
@@ -78,7 +78,6 @@ public class UføretrygdGrunnlagEntitet extends BaseEntitet {
     }
 
     public boolean uavklartAnnenForelderMottarUføretrygd() {
-        Objects.requireNonNull(uføretrygdRegister, "Utviklerfeil: Skal ikke kalles uten at registerdata er innhentet");
         return !Objects.equals(Boolean.TRUE, uføretrygdRegister) && uføretrygdOverstyrt == null;
     }
 
@@ -177,12 +176,17 @@ public class UføretrygdGrunnlagEntitet extends BaseEntitet {
         }
 
         public Builder medOverstyrtUføretrygd(boolean erUføretrygdet) {
+            Objects.requireNonNull(this.kladd.uføretrygdRegister, "Utviklerfeil: register skal være satt");
+            this.kladd.uføretrygdOverstyrt = erUføretrygdet;
+            return this;
+        }
+
+        public Builder medManueltAvklartUføretrygd(boolean erUføretrygdet) {
             this.kladd.uføretrygdOverstyrt = erUføretrygdet;
             return this;
         }
 
         public UføretrygdGrunnlagEntitet build() {
-            Objects.requireNonNull(this.kladd.uføretrygdRegister, "Utviklerfeil: register skal være satt");
             return this.kladd;
         }
     }

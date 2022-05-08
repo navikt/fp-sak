@@ -15,24 +15,23 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.fakta.KontrollerFaktaUttakTjeneste;
 
 @BehandlingStegRef(BehandlingStegType.KONTROLLER_FAKTA_UTTAK)
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
-@BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD)
+@BehandlingTypeRef
 @ApplicationScoped
 public class KontrollerFaktaUttakSteg implements UttakSteg {
 
     private KontrollerFaktaUttakTjeneste kontrollerFaktaUttakTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
-    private RyddFaktaUttakTjenesteFørstegangsbehandling ryddFaktaUttakTjeneste;
+    private RyddFaktaUttakTjeneste ryddFaktaUttakTjeneste;
 
     @Inject
     public KontrollerFaktaUttakSteg(UttakInputTjeneste uttakInputTjeneste,
             KontrollerFaktaUttakTjeneste kontrollerFaktaUttakTjeneste,
-            RyddFaktaUttakTjenesteFørstegangsbehandling ryddFaktaUttakTjeneste) {
+            RyddFaktaUttakTjeneste ryddFaktaUttakTjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.kontrollerFaktaUttakTjeneste = kontrollerFaktaUttakTjeneste;
         this.ryddFaktaUttakTjeneste = ryddFaktaUttakTjeneste;
@@ -45,10 +44,9 @@ public class KontrollerFaktaUttakSteg implements UttakSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var input = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
-        kontrollerFaktaUttakTjeneste.avklarOmAnnenForelderHarRett(input.getBehandlingReferanse());
         var aksjonspunktDefinisjonList = kontrollerFaktaUttakTjeneste.utledAksjonspunkter(input);
         var resultater = aksjonspunktDefinisjonList.stream()
-                .map(def -> AksjonspunktResultat.opprettForAksjonspunkt(def))
+                .map(AksjonspunktResultat::opprettForAksjonspunkt)
                 .collect(Collectors.toList());
         return BehandleStegResultat.utførtMedAksjonspunktResultater(resultater);
     }

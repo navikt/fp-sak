@@ -205,7 +205,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG(
             AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG_KODE, AksjonspunktType.MANUELL,
             "Manuell kontroll av om bruker har aleneomsorg", BehandlingStegType.KONTROLLER_FAKTA_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR,
-            SkjermlenkeType.FAKTA_FOR_OMSORG, ENTRINN, EnumSet.of(FP)),
+            SkjermlenkeType.FAKTA_OMSORG_OG_RETT, ENTRINN, EnumSet.of(FP)),
     MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG(
             AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG_KODE, AksjonspunktType.MANUELL, "Manuell kontroll av om bruker har omsorg",
             BehandlingStegType.KONTROLLER_FAKTA_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_FOR_OMSORG, ENTRINN, EnumSet.of(FP)),
@@ -257,7 +257,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktType.MANUELL, "Vurder feilutbetaling", BehandlingStegType.SIMULER_OPPDRAG, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
     AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT(
             AksjonspunktKodeDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT_KODE, AksjonspunktType.MANUELL, "Avklar annen forelder har rett",
-            BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.INN, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_UTTAK, ENTRINN, EnumSet.of(FP, SVP)),
+            BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.INN, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OMSORG_OG_RETT, ENTRINN, EnumSet.of(FP, SVP)),
     VURDER_DEKNINGSGRAD(AksjonspunktKodeDefinisjon.VURDER_DEKNINGSGRAD_KODE,
             AksjonspunktType.MANUELL, "Vurder Dekningsgrad", BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG, VurderingspunktType.UT, UTEN_VILKÅR,
             SkjermlenkeType.BEREGNING_FORELDREPENGER, TOTRINN, EnumSet.of(FP, SVP)),

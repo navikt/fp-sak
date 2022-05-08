@@ -47,6 +47,7 @@ public class ForeldrepengerModellProducer {
             BehandlingStegType.VURDER_REF_BERGRUNN,
             BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG,
             BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG,
+            BehandlingStegType.KONTROLLER_OMSORG_RETT,
             BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP,
             BehandlingStegType.SØKNADSFRIST_FORELDREPENGER,
             BehandlingStegType.KONTROLLER_FAKTA_UTTAK,

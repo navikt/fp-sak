@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUtenOmsorgEntitet;
-import no.nav.foreldrepenger.domene.ytelsefordeling.BekreftFaktaForOmsorgVurderingAksjonspunktDto;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.rest.BekreftFaktaForOmsorgVurderingDto;
 import no.nav.foreldrepenger.familiehendelse.rest.PeriodeDto;
@@ -25,7 +24,7 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftFaktaForOmsorgVurderingDto.BekreftOmsorgVurderingDto.class, adapter = AksjonspunktOppdaterer.class)
-public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFaktaForOmsorgVurderingDto.BekreftOmsorgVurderingDto> {
+public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFaktaForOmsorgVurderingDto> {
 
     private BehandlingRepositoryProvider behandlingRepository;
 
@@ -47,7 +46,7 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
     }
 
     @Override
-    public OppdateringResultat oppdater(BekreftFaktaForOmsorgVurderingDto.BekreftOmsorgVurderingDto dto, AksjonspunktOppdaterParameter param) {
+    public OppdateringResultat oppdater(BekreftFaktaForOmsorgVurderingDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
         var ytelseFordelingAggregat = behandlingRepository.getYtelsesFordelingRepository().hentAggregat(behandlingId);
         var perioderUtenOmsorg = ytelseFordelingAggregat.getPerioderUtenOmsorg();
@@ -72,14 +71,12 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
             .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
             .medSkjermlenke(SkjermlenkeType.FAKTA_FOR_OMSORG);
 
-        final var adapter = new BekreftFaktaForOmsorgVurderingAksjonspunktDto(null,
-            dto.getOmsorg(), PeriodeKonverter.mapIkkeOmsorgsperioder(dto.getIkkeOmsorgPerioder(), dto.getOmsorg()));
-        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandlingId, adapter);
+        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandlingId, dto.getOmsorg(), PeriodeKonverter.mapIkkeOmsorgsperioder(dto.getIkkeOmsorgPerioder(), dto.getOmsorg()));
 
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }
 
-    private boolean opprettHistorikkInnslagForOmsorg(BekreftFaktaForOmsorgVurderingDto.BekreftOmsorgVurderingDto dto, List<PeriodeDto> periodeUtenOmsorgListe,
+    private boolean opprettHistorikkInnslagForOmsorg(BekreftFaktaForOmsorgVurderingDto dto, List<PeriodeDto> periodeUtenOmsorgListe,
                                                      Boolean harOmsorgForBarnetBekreftetVersjon) {
         boolean erEndretTemp;
 

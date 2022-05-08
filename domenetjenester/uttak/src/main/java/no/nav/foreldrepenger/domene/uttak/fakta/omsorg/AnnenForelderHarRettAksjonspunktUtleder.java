@@ -11,7 +11,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
@@ -22,7 +21,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
-import no.nav.foreldrepenger.domene.uttak.fakta.FaktaUttakAksjonspunktUtleder;
+import no.nav.foreldrepenger.domene.uttak.fakta.OmsorgRettAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 
@@ -31,7 +30,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
  */
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
-public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjonspunktUtleder {
+public class AnnenForelderHarRettAksjonspunktUtleder implements OmsorgRettAksjonspunktUtleder {
 
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private PersonopplysningerForUttak personopplysninger;
@@ -55,8 +54,7 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
         var ref = input.getBehandlingReferanse();
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
 
-        if (!Objects.equals(ref.behandlingType(), BehandlingType.FØRSTEGANGSSØKNAD) ||
-            !personopplysninger.harOppgittAnnenpartMedNorskID(ref)) {
+        if (!personopplysninger.harOppgittAnnenpartMedNorskID(ref)) {
             return List.of();
         }
 
@@ -80,11 +78,6 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
         }
 
         return List.of();
-    }
-
-    @Override
-    public boolean skalBrukesVedOppdateringAvYtelseFordeling() {
-        return false;
     }
 
     private Optional<ForeldrepengerUttak> hentAnnenpartsUttak(ForeldrepengerGrunnlag fpGrunnlag) {

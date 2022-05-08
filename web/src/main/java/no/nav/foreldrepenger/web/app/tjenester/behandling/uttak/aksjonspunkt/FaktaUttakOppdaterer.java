@@ -27,7 +27,6 @@ public class FaktaUttakOppdaterer implements AksjonspunktOppdaterer<FaktaUttakDt
     private KontrollerFaktaUttakTjeneste kontrollerFaktaUttakTjeneste;
     private KontrollerOppgittFordelingTjeneste kontrollerOppgittFordelingTjeneste;
     private FaktaUttakHistorikkTjeneste faktaUttakHistorikkTjeneste;
-    private FaktaUttakToTrinnsTjeneste faktaUttakToTrinnsTjeneste;
     private UttakInputTjeneste uttakInputtjeneste;
 
     FaktaUttakOppdaterer() {
@@ -38,13 +37,11 @@ public class FaktaUttakOppdaterer implements AksjonspunktOppdaterer<FaktaUttakDt
     public FaktaUttakOppdaterer(UttakInputTjeneste uttakInputTjeneste,
                                 KontrollerFaktaUttakTjeneste kontrollerFaktaUttakTjeneste,
                                 KontrollerOppgittFordelingTjeneste kontrollerOppgittFordelingTjeneste,
-                                FaktaUttakHistorikkTjeneste faktaUttakHistorikkTjeneste,
-                                FaktaUttakToTrinnsTjeneste faktaUttakToTrinnsTjeneste) {
+                                FaktaUttakHistorikkTjeneste faktaUttakHistorikkTjeneste) {
         this.uttakInputtjeneste = uttakInputTjeneste;
         this.kontrollerFaktaUttakTjeneste = kontrollerFaktaUttakTjeneste;
         this.kontrollerOppgittFordelingTjeneste = kontrollerOppgittFordelingTjeneste;
         this.faktaUttakHistorikkTjeneste = faktaUttakHistorikkTjeneste;
-        this.faktaUttakToTrinnsTjeneste = faktaUttakToTrinnsTjeneste;
     }
 
     @Override
@@ -56,7 +53,7 @@ public class FaktaUttakOppdaterer implements AksjonspunktOppdaterer<FaktaUttakDt
         kontrollerOppgittFordelingTjeneste.bekreftOppgittePerioder(dto.getBekreftedePerioder(), behandling);
         faktaUttakHistorikkTjeneste.byggHistorikkinnslag(dto.getBekreftedePerioder(), dto.getSlettedePerioder(), behandling, false);
 
-        var totrinn = faktaUttakToTrinnsTjeneste.oppdaterTotrinnskontrollVedEndringerFaktaUttak(dto);
+        var totrinn = FaktaUttakToTrinnsTjeneste.oppdaterTotrinnskontrollVedEndringerFaktaUttak(dto);
         resultatBuilder.medTotrinnHvis(totrinn);
 
         if (skalBeholdeAksjonspunktÅpent(behandling, dto)) {

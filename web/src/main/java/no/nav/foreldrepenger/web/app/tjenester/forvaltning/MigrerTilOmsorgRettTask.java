@@ -1,13 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
@@ -17,22 +14,22 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(value = "migrering.migrertilkabal", maxFailedRuns = 1)
+@ProsessTask(value = "migrering.migrertilomsorgrett", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class MigrerTilKabalTask extends BehandlingProsessTask {
+public class MigrerTilOmsorgRettTask extends BehandlingProsessTask {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingsprosessTjeneste prosesseringTjeneste;
 
-    public MigrerTilKabalTask() {
+    public MigrerTilOmsorgRettTask() {
         // For CDI
     }
 
     @Inject
-    public MigrerTilKabalTask(BehandlingRepositoryProvider repositoryProvider,
-                              BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                              BehandlingsprosessTjeneste prosesseringTjeneste) {
+    public MigrerTilOmsorgRettTask(BehandlingRepositoryProvider repositoryProvider,
+                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                   BehandlingsprosessTjeneste prosesseringTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -46,9 +43,7 @@ public class MigrerTilKabalTask extends BehandlingProsessTask {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
-        behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(),
-            behandling.getÅpneAksjonspunkter(List.of(AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA)));
-        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.KLAGE_VURDER_FORMKRAV_NK);
+        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.KONTROLLER_OMSORG_RETT);
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }

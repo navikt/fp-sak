@@ -37,7 +37,7 @@ public class FaktaUttakToTrinnsTjenesteTest extends EntityManagerAwareTest {
         // dto
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarFaktaUttakDto();
 
-        var totrinn = new FaktaUttakToTrinnsTjeneste(ytelseFordelingTjeneste).oppdaterTotrinnskontrollVedEndringerFaktaUttak(dto);
+        var totrinn = FaktaUttakToTrinnsTjeneste.oppdaterTotrinnskontrollVedEndringerFaktaUttak(dto);
         //assert
         assertThat(behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER)).isTrue();
         assertThat(totrinn).isTrue();
