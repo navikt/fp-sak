@@ -46,12 +46,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokumentUtgående;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
 @ApplicationScoped
 public class KabalTjeneste {
@@ -64,6 +66,7 @@ public class KabalTjeneste {
     private VergeRepository vergeRepository;
     private PersoninfoAdapter personinfoAdapter;
     private HistorikkRepository historikkRepository;
+    private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private KabalKlient kabalKlient;
 
     KabalTjeneste() {
@@ -79,6 +82,7 @@ public class KabalTjeneste {
                          VergeRepository vergeRepository,
                          AnkeVurderingTjeneste ankeVurderingTjeneste,
                          KlageVurderingTjeneste klageVurderingTjeneste,
+                         BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                          HistorikkRepository historikkRepository) {
         this.personinfoAdapter = personinfoAdapter;
         this.ankeVurderingTjeneste = ankeVurderingTjeneste;
@@ -88,6 +92,7 @@ public class KabalTjeneste {
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.vergeRepository = vergeRepository;
         this.historikkRepository = historikkRepository;
+        this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.kabalKlient = kabalKlient;
     }
 
@@ -99,8 +104,7 @@ public class KabalTjeneste {
         var brukHjemmel = Optional.ofNullable(hjemmel)
             .or(() -> Optional.ofNullable(resultat.getKlageHjemmel()))
             .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(klageBehandling.getFagsakYtelseType()));
-        var enhet = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(klageBehandling.getFagsakId())
-            .map(Behandling::getBehandlendeEnhet).orElseThrow();
+        var enhet = utledEnhet(klageBehandling.getFagsak());
         var klageMottattDato  = utledDokumentMottattDato(klageBehandling);
         var klager = utledKlager(klageBehandling, resultat.getKlageResultat());
         var sakMottattKaDato = klageBehandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA)
@@ -120,8 +124,7 @@ public class KabalTjeneste {
         var klageResultat = klageVurderingTjeneste.hentEvtOpprettKlageResultat(klageBehandling);
         var brukHjemmel = Optional.ofNullable(hjemmel)
             .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(ankeBehandling.getFagsakYtelseType()));
-        var enhet = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(ankeBehandling.getFagsakId())
-            .map(Behandling::getBehandlendeEnhet).orElseThrow();
+        var enhet = utledEnhet(klageBehandling.getFagsak());
         var ankeMottattDato  = utledDokumentMottattDato(ankeBehandling);
         var klager = utledKlager(ankeBehandling, klageResultat);
         var bleKlageBehandletKabal = klageResultat.erBehandletAvKabal();
@@ -189,6 +192,14 @@ public class KabalTjeneste {
         } else {
             return Optional.empty();
         }
+    }
+
+    private String utledEnhet(Fagsak fagsak) {
+        var enhet = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+            .map(Behandling::getBehandlendeEnhet)
+            .map(e -> "4847".equals(e) ? "4817" : e) // Hardkoder den som treffer regelmessig nå
+            .orElseThrow();
+        return behandlendeEnhetTjeneste.gyldigEnhetNfpNk(enhet) ? enhet : behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak).enhetId();
     }
 
     private TilKabalDto.Klager utledKlager(Behandling behandling, KlageResultatEntitet resultat) {
