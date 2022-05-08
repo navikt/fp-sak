@@ -145,8 +145,7 @@ public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         // Dto
         var dto = new AvklarAleneomsorgVurderingDto("begrunnelse");
         dto.setAleneomsorg(oppdatertAleneOmsorg);
-        dto.setAnnenforelderHarRett(false);
-        dto.setAnnenforelderMottarUføretrygd(false);
+        dto.setAnnenforelderHarRett(true);
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         // Act
         var oppdateringresultat = new BekreftAleneomsorgOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(), mock(UføretrygdRepository.class)), mock(PersonopplysningRepository.class))
@@ -171,7 +170,7 @@ public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         assertThat(annenforelderRettOpt).hasValueSatisfying(annenforelderRett -> {
             assertThat(annenforelderRett.getNavn()).isEqualTo(HistorikkEndretFeltType.RETT_TIL_FORELDREPENGER.getKode());
             assertThat(annenforelderRett.getFraVerdi()).isNull();
-            assertThat(annenforelderRett.getTilVerdi()).isEqualTo(HistorikkEndretFeltVerdiType.ANNEN_FORELDER_HAR_IKKE_RETT.getKode());
+            assertThat(annenforelderRett.getTilVerdi()).isEqualTo(HistorikkEndretFeltVerdiType.ANNEN_FORELDER_HAR_RETT.getKode());
         });
     }
 
