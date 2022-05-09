@@ -127,18 +127,18 @@ public class FastsettePerioderRegelAdapterTest {
         repositoryProvider = new UttakRepositoryStubProvider();
         var fastsettePerioderRegelResultatKonverterer = new FastsettePerioderRegelResultatKonverterer(
             repositoryProvider.getFpUttakRepository(), repositoryProvider.getYtelsesFordelingRepository());
+        var rettOgOmsorgGrunnlagBygger = new RettOgOmsorgGrunnlagBygger(repositoryProvider,
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
         var grunnlagBygger = new FastsettePerioderRegelGrunnlagBygger(
             new AnnenPartGrunnlagBygger(repositoryProvider.getFpUttakRepository()),
             new ArbeidGrunnlagBygger(repositoryProvider), new BehandlingGrunnlagBygger(),
-            new DatoerGrunnlagBygger(new PersonopplysningerForUttakStub()), new MedlemskapGrunnlagBygger(),
-            new RettOgOmsorgGrunnlagBygger(repositoryProvider,
-                new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())),
+            new DatoerGrunnlagBygger(new PersonopplysningerForUttakStub()), new MedlemskapGrunnlagBygger(), rettOgOmsorgGrunnlagBygger,
             new RevurderingGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository(),
                 repositoryProvider.getFpUttakRepository()),
             new SøknadGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository()),
             new InngangsvilkårGrunnlagBygger(repositoryProvider), new OpptjeningGrunnlagBygger(),
             new AdopsjonGrunnlagBygger(),
-            new KontoerGrunnlagBygger(repositoryProvider),
+            new KontoerGrunnlagBygger(repositoryProvider, rettOgOmsorgGrunnlagBygger),
             new YtelserGrunnlagBygger());
         iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         fastsettePerioderRegelAdapter = new FastsettePerioderRegelAdapter(grunnlagBygger,

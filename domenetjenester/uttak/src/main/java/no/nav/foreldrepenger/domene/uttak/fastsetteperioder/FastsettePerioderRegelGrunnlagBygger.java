@@ -84,7 +84,7 @@ public class FastsettePerioderRegelGrunnlagBygger {
             .inngangsvilkår(inngangsvilkårGrunnlagBygger.byggGrunnlag(input))
             .opptjening(opptjeningGrunnlagBygger.byggGrunnlag(input))
             .adopsjon(adopsjonGrunnlagBygger.byggGrunnlag(foreldrepengerGrunnlag).orElse(null))
-            .kontoer(kontoerGrunnlagBygger.byggGrunnlag(input.getBehandlingReferanse(), foreldrepengerGrunnlag))
+            .kontoer(kontoerGrunnlagBygger.byggGrunnlag(input))
             .ytelser(ytelserGrunnlagBygger.byggGrunnlag(input))
             .build();
     }

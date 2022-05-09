@@ -94,17 +94,17 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
     @BeforeEach
     void setUp() {
         repositoryProvider = new UttakRepositoryStubProvider();
+        var rettOgOmsorgGrunnlagBygger = new RettOgOmsorgGrunnlagBygger(repositoryProvider,
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
         grunnlagBygger = new FastsettePerioderRegelGrunnlagBygger(
             new AnnenPartGrunnlagBygger(repositoryProvider.getFpUttakRepository()),
             new ArbeidGrunnlagBygger(repositoryProvider), new BehandlingGrunnlagBygger(),
-            new DatoerGrunnlagBygger(new PersonopplysningerForUttakStub()), new MedlemskapGrunnlagBygger(),
-            new RettOgOmsorgGrunnlagBygger(repositoryProvider,
-                new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())),
+            new DatoerGrunnlagBygger(new PersonopplysningerForUttakStub()), new MedlemskapGrunnlagBygger(), rettOgOmsorgGrunnlagBygger,
             new RevurderingGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository(),
                 repositoryProvider.getFpUttakRepository()),
             new SøknadGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository()),
             new InngangsvilkårGrunnlagBygger(repositoryProvider), new OpptjeningGrunnlagBygger(),
-            new AdopsjonGrunnlagBygger(), new KontoerGrunnlagBygger(repositoryProvider),
+            new AdopsjonGrunnlagBygger(), new KontoerGrunnlagBygger(repositoryProvider, rettOgOmsorgGrunnlagBygger),
             new YtelserGrunnlagBygger());
     }
 

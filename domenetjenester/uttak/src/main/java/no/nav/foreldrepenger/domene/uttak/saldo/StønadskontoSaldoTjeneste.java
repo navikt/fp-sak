@@ -78,7 +78,7 @@ public class StønadskontoSaldoTjeneste {
             .orElse(null);
         if (stønadskontoer.isPresent() && perioderSøker.size() > 0) {
             var perioderAnnenpart = perioderAnnenpart(fpGrunnlag);
-            var kontoer = kontoerGrunnlagBygger.byggGrunnlag(uttakInput.getBehandlingReferanse(), fpGrunnlag).build();
+            var kontoer = kontoerGrunnlagBygger.byggGrunnlag(uttakInput).build();
             Optional<LukketPeriode> periodeFar = Optional.empty();
             // TODO: trengs dette eller kan vi sende inn en tom periode? SaldoValidering?
             if (!uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().utenMinsterett()
