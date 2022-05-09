@@ -66,8 +66,9 @@ public class AvklarFaktaUttakPerioderTjeneste {
         if (!avklartFørsteUttaksdato(ref.behandlingId()) && erFarEllerMedmor(ref.relasjonRolle()) && familieHendelser.gjelderTerminFødsel()) {
             var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
             // Far/medmor med aleneomsorg kan begynne etter fødsel, ref Uttaksregler / Foreldrepenger
-            // TODO (JOL) - re-enable når man har ryddet i stegog ap for omsorg/rett vs uttak -
-            if (UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat)) { return null; }
+            if (UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat)) {
+                return null;
+            }
             return familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato();
         }
         return null;
