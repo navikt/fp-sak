@@ -42,7 +42,7 @@ public class BeregnFeriepenger extends BeregnFeriepengerTjeneste {
     @Override
     protected int finnTigjengeligeFeriepengedager(BehandlingReferanse ref, BeregningsresultatEntitet beregningsresultat) {
         var kjørNyKvoteberegning = !Environment.current().isProd() || SAKER_SOM_MÅ_REBEREGNES.contains(ref.saksnummer());
-        if (kjørNyKvoteberegning) {
+        if (!kjørNyKvoteberegning) {
             return antallDagerFeriepenger;
         }
         var tilgjengeligeDagerOpt = svangerskapspengerFeriekvoteTjeneste.beregnTilgjengeligFeriekvote(ref, beregningsresultat);
