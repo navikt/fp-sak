@@ -5,12 +5,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -28,8 +30,12 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.RettOgOmsorgGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -195,7 +201,10 @@ public class StønadskontoSaldoTjenesteTest {
     }
 
     private UttakInput input(Behandling behandling) {
-        return new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag());
+        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag()
+            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(FamilieHendelse.forFødsel(null, LocalDate.MIN,
+                List.of(), 1)));
+        return new UttakInput(BehandlingReferanse.fra(behandling), null, foreldrepengerGrunnlag);
     }
 
     @Test
@@ -251,6 +260,7 @@ public class StønadskontoSaldoTjenesteTest {
         var fordeling = new OppgittFordelingEntitet(søknadsperioder, true);
         var behandling = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId)
             .medFordeling(fordeling)
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false, false))
             .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100())
             .lagre(repositoryProvider);
 
@@ -264,7 +274,8 @@ public class StønadskontoSaldoTjenesteTest {
     }
 
     private StønadskontoSaldoTjeneste tjeneste() {
-        return new StønadskontoSaldoTjeneste(repositoryProvider, new KontoerGrunnlagBygger(repositoryProvider));
+        return new StønadskontoSaldoTjeneste(repositoryProvider, new KontoerGrunnlagBygger(repositoryProvider,
+            new RettOgOmsorgGrunnlagBygger(repositoryProvider, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()))));
     }
 
 }

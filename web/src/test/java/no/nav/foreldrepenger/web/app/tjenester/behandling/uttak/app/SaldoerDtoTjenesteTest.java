@@ -63,6 +63,7 @@ import no.nav.foreldrepenger.domene.uttak.TapteDagerFpffTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.StønadskontoRegelAdapter;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.RettOgOmsorgGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
@@ -98,8 +99,9 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
         var uttakRepositoryProvider = new UttakRepositoryProvider(entityManager);
-        stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(uttakRepositoryProvider, new KontoerGrunnlagBygger(uttakRepositoryProvider));
-        fpUttakRepository = new FpUttakRepository(entityManager);
+        fpUttakRepository = uttakRepositoryProvider.getFpUttakRepository();
+        stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(uttakRepositoryProvider, new KontoerGrunnlagBygger(uttakRepositoryProvider,
+            new RettOgOmsorgGrunnlagBygger(uttakRepositoryProvider, new ForeldrepengerUttakTjeneste(fpUttakRepository))));
         stønadskontoRegelAdapter = new StønadskontoRegelAdapter();
         tapteDagerFpffTjeneste = new TapteDagerFpffTjeneste(uttakRepositoryProvider,
             new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager)));
@@ -499,6 +501,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         scenarioMor.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET);
         scenarioMor.medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
         scenarioMor.medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+        scenarioMor.medFordeling(new OppgittFordelingEntitet(List.of(), true));
         scenarioMor.medUttak(uttakMor);
         var behandlingMor = scenarioMor.lagre(repositoryProvider);
 
@@ -818,6 +821,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         uttak.leggTilPeriode(periode2);
 
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(), true))
             .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false, true));
         var annenPartAktørId = AktørId.dummy();
         scenario.medSøknadAnnenPart().medAktørId(annenPartAktørId);
@@ -881,6 +885,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         uttak.leggTilPeriode(periode3);
 
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(), true))
             .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false, true));
         var annenPartAktørId = AktørId.dummy();
         scenario.medSøknadAnnenPart().medAktørId(annenPartAktørId);
@@ -990,6 +995,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         }
         scenario.medDefaultBekreftetTerminbekreftelse();
         scenario.medDefaultOppgittDekningsgrad();
+        scenario.medFordeling(new OppgittFordelingEntitet(List.of(), true));
         scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         return scenario.lagre(repositoryProvider);
     }
