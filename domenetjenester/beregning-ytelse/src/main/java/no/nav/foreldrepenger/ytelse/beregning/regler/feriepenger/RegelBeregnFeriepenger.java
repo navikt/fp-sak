@@ -48,9 +48,13 @@ public class RegelBeregnFeriepenger implements RuleService<BeregningsresultatFer
         var finnBrukersFeriepengePeriode =
             rs.beregningsRegel(FinnBrukersFeriepengePeriode.ID, FinnBrukersFeriepengePeriode.BESKRIVELSE, new FinnBrukersFeriepengePeriode(), sjekkOmUttakIFeriepengePeriode);
 
+        // FP_BR 8.8 Har bruker flere dager ignen av feriekvoten?
+        var sjekkOmBrukerHarDagerIgjenAvFeriekvote =
+            rs.beregningHvisRegel(new SjekkOmBrukerHarFeriekvoteTilgjengelig(), finnBrukersFeriepengePeriode, new BeregnetFeriepenger());
+
         // FP_BR 8.2 Har bruker fått utbetalt foreldrepenger i den totale stønadsperioden?
         var sjekkOmBrukerHarFåttUtbetaltFP =
-            rs.beregningHvisRegel(new SjekkOmBrukerHarFåttUtbetaltForeldrepenger(), finnBrukersFeriepengePeriode, new BeregnetFeriepenger());
+            rs.beregningHvisRegel(new SjekkOmBrukerHarFåttUtbetaltForeldrepenger(), sjekkOmBrukerHarDagerIgjenAvFeriekvote, new BeregnetFeriepenger());
 
         // FP_BR 8.1 Er brukers inntektskategori arbeidstaker eller sjømann?
         var sjekkInntektskatoriATellerSjømann =
