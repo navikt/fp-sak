@@ -20,6 +20,9 @@ public class AnnenForelderDto {
 
     private boolean denAndreForelderenHarRettPaForeldrepenger;
 
+    private Boolean morMottarUføretrygd;
+    private Boolean morHarForeldrepengerEØS;
+
     public String getFoedselsnummer() {
         return foedselsnummer;
     }
@@ -58,6 +61,22 @@ public class AnnenForelderDto {
 
     public void setDenAndreForelderenHarRettPaForeldrepenger(Boolean denAndreForelderenHarRettPaForeldrepenger) {
         this.denAndreForelderenHarRettPaForeldrepenger = denAndreForelderenHarRettPaForeldrepenger;
+    }
+
+    public Boolean getMorMottarUføretrygd() {
+        return morMottarUføretrygd;
+    }
+
+    public void setMorMottarUføretrygd(Boolean morMottarUføretrygd) {
+        this.morMottarUføretrygd = morMottarUføretrygd;
+    }
+
+    public Boolean getMorHarForeldrepengerEØS() {
+        return morHarForeldrepengerEØS;
+    }
+
+    public void setMorHarForeldrepengerEØS(Boolean morHarForeldrepengerEØS) {
+        this.morHarForeldrepengerEØS = morHarForeldrepengerEØS;
     }
 
     public static class KanIkkeOppgiBegrunnelse {
