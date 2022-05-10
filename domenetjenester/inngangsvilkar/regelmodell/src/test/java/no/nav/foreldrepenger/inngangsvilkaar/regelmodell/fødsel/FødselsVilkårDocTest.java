@@ -44,7 +44,7 @@ public class FødselsVilkårDocTest {
         var gsource = new FødselsvilkårGrunnlag(RegelKjønn.KVINNE, null, LocalDate.of(2021,4,22),
             null, LocalDate.of(2021,5,20), 1,
             false, false, true,
-            false, true);
+            false, true, false);
         var grunnlag = deserialiser(gammelJson);
         assertThat(grunnlag).isEqualTo(gsource);
     }
@@ -54,7 +54,7 @@ public class FødselsVilkårDocTest {
         var gsource = new FødselsvilkårGrunnlag(RegelKjønn.MANN, RegelSøkerRolle.FARA, LocalDate.now().minusWeeks(1),
             null, LocalDate.now().plusMonths(1), 1,
             false, false, true,
-            true, true);
+            true, true, false);
         var serialisert = DefaultJsonMapper.toJson(gsource);
         var grunnlag = deserialiser(serialisert);
         assertThat(grunnlag).isEqualTo(gsource);

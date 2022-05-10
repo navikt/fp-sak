@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.inngangsvilkaar.fødsel;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -42,6 +44,7 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
     private final SkjæringstidspunktUtils stputil = new SkjæringstidspunktUtils(
         Period.parse("P1Y"), Period.parse("P6M"));
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private MinsterettBehandling2022 mockMinsterett;
 
     private InngangsvilkårOversetter oversetter;
 
@@ -56,8 +59,10 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
             iayTjeneste, Period.parse("P6M"));
         var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
             new RelatertBehandlingTjeneste(repositoryProvider));
+        mockMinsterett = mock(MinsterettBehandling2022.class);
+        when(mockMinsterett.utenMinsterett(any())).thenReturn(false);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, stputil,
-            mock(UtsettelseBehandling2021.class), mock(MinsterettBehandling2022.class));
+            mock(UtsettelseBehandling2021.class), mockMinsterett);
     }
 
     @Test // FP_VK 11.2 Vilkårsutfall oppfylt
@@ -103,8 +108,9 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
     @Test // FP_VK 11.4 Vilkårsutfall ikke oppfylt
     public void skal_vurdere_vilkår_som_ikke_oppfylt_når_søker_er_medmor_og_fødsel_ikke_bekreftet_og_søkt_om_termin_og_mor_frisk() {
         // Arrange
-        var behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, false, false, false);
-
+        var behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, false, false, false,
+            LocalDate.of(2020,1,1));
+        when(mockMinsterett.utenMinsterett(any())).thenReturn(true);
         // Act
         var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
 
@@ -112,6 +118,19 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
         assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
         assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
         assertThat(data.vilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1028);
+    }
+
+    @Test // FP_VK 11.4 Vilkårsutfall ikke oppfylt
+    public void skal_vurdere_vilkår_som_oppfylt_når_søker_er_medmor_og_fødsel_ikke_bekreftet_og_søkt_om_termin_uansett_mors_helse() {
+        // Arrange
+        var behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, false, false, false);
+        when(mockMinsterett.utenMinsterett(any())).thenReturn(false);
+        // Act
+        var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
+
+        // Assert
+        assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
+        assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
     }
 
     @Test // FP_VK 11.4 Vilkårsutfall oppfylt
@@ -129,8 +148,12 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
 
     private Behandling lagBehandlingMedFarEllerMedmor(RelasjonsRolleType rolle, NavBrukerKjønn kjønn, boolean fødselErBekreftet,
                                                       boolean morErSykVedFødsel, boolean erFødsel) {
+        return lagBehandlingMedFarEllerMedmor(rolle, kjønn, fødselErBekreftet, morErSykVedFødsel, erFødsel, LocalDate.now());
+    }
+
+    private Behandling lagBehandlingMedFarEllerMedmor(RelasjonsRolleType rolle, NavBrukerKjønn kjønn, boolean fødselErBekreftet,
+                                                      boolean morErSykVedFødsel, boolean erFødsel, LocalDate fødselsdato) {
         // Setup basis scenario
-        var fødselsdato = LocalDate.now();
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         if (erFødsel) {
             scenario.medSøknadHendelse()
@@ -140,8 +163,8 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
         } else {
             scenario.medSøknadHendelse()
                 .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                    .medTermindato(LocalDate.now())
-                    .medUtstedtDato(LocalDate.now())
+                    .medTermindato(fødselsdato)
+                    .medUtstedtDato(fødselsdato)
                     .medNavnPå("LEGEN min"))
                 .medAntallBarn(1)
                 .medErMorForSykVedFødsel(morErSykVedFødsel);
@@ -155,8 +178,8 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
         if (morErSykVedFødsel) {
             scenario.medOverstyrtHendelse().medErMorForSykVedFødsel(true).medAntallBarn(1)
                 .medTerminbekreftelse(scenario.medOverstyrtHendelse().getTerminbekreftelseBuilder()
-                    .medTermindato(LocalDate.now())
-                    .medUtstedtDato(LocalDate.now())
+                    .medTermindato(fødselsdato)
+                    .medUtstedtDato(fødselsdato)
                     .medNavnPå("LEGEN min"));
         }
 

@@ -20,8 +20,8 @@ public record FødselsvilkårGrunnlag(@JsonProperty("soekersKjonn") RegelKjønn 
                                     boolean erMorForSykVedFødsel,
                                     boolean erSøktOmTermin,
                                     boolean erBehandlingsdatoEtterTidligsteDato,
-                                    @JsonProperty("erTerminBekreftelseUtstedtEtterXUker") boolean erTerminbekreftelseUtstedtEtterTidligsteDato)
-    implements VilkårGrunnlag {
+                                    @JsonProperty("erTerminBekreftelseUtstedtEtterXUker") boolean erTerminbekreftelseUtstedtEtterTidligsteDato,
+                                    boolean farMedmorUttakRundtFødsel) implements VilkårGrunnlag {
 
     /*
      * Jepp det er ikke norske bokstaver - lot det ligge i denne omgangen pga vedtakxml-mapping (den bør også oppdateres)

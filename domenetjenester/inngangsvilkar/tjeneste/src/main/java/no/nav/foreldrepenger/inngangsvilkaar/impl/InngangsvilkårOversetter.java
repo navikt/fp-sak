@@ -111,6 +111,7 @@ public class InngangsvilkårOversetter {
     }
 
     public FødselsvilkårGrunnlag oversettTilRegelModellFødsel(BehandlingReferanse ref) {
+        var medFarMedmorUttakRundtFødsel = !ref.getSkjæringstidspunkt().utenMinsterett();
         final var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(ref.behandlingId());
         var bekreftetFamilieHendelse = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon();
         var gjeldendeTerminbekreftelse = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse();
@@ -132,7 +133,7 @@ public class InngangsvilkårOversetter {
             fristRegistreringUtløpt,
             morForSykVedFødsel, søktOmTermin,
             behandlingsdatoEtterTidligsteDato,
-            terminbekreftelseUtstedtEtterTidligsteDato);
+            terminbekreftelseUtstedtEtterTidligsteDato, medFarMedmorUttakRundtFødsel);
         return grunnlag;
     }
 
