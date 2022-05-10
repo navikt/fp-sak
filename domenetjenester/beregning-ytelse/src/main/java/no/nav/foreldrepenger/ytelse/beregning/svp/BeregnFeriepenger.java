@@ -19,7 +19,8 @@ import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
 @ApplicationScoped
 public class BeregnFeriepenger extends BeregnFeriepengerTjeneste {
     private static Set<Saksnummer> SAKER_SOM_MÅ_REBEREGNES = Set.of(new Saksnummer("147103419"), new Saksnummer("152036097"),
-        new Saksnummer("152019589"), new Saksnummer("152065835"));
+        new Saksnummer("152019589"), new Saksnummer("152065835"), new Saksnummer("147655070"), new Saksnummer("152005062"),
+        new Saksnummer("152076963"), new Saksnummer("152061335"));
 
     private SvangerskapspengerFeriekvoteTjeneste svangerskapspengerFeriekvoteTjeneste;
 
