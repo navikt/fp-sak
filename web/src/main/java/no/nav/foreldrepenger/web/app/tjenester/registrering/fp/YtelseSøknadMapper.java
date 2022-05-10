@@ -8,6 +8,7 @@ import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -226,6 +227,8 @@ public class YtelseSøknadMapper implements SøknadMapper {
             if (!isNull(annenForelder)) {
                 rettighet.setHarAleneomsorgForBarnet(TRUE.equals(annenForelder.getSokerHarAleneomsorg()));
                 rettighet.setHarAnnenForelderRett(TRUE.equals(annenForelder.getDenAndreForelderenHarRettPaForeldrepenger()));
+                Optional.ofNullable(annenForelder.getMorMottarUføretrygd()).ifPresent(rettighet::setHarMorUforetrygd);
+                // TODO (jol) enable når finnes i søknadXML Optional.ofNullable(annenForelder.getMorHarForeldrepengerEØS()).ifPresent(rettighet::setHarMorUforetrygd);
             }
             rettighet.setHarOmsorgForBarnetIPeriodene(true);
             return rettighet;
