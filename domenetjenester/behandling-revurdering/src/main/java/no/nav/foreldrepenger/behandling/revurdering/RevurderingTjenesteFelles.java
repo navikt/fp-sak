@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 @ApplicationScoped
 public class RevurderingTjenesteFelles {
@@ -65,7 +66,8 @@ public class RevurderingTjenesteFelles {
         var revurderingÅrsak = BehandlingÅrsak.builder(revurderingsÅrsak)
                 .medOriginalBehandlingId(opprinneligBehandling.getId())
                 .medManueltOpprettet(manueltOpprettet);
-        if (BehandlingÅrsakType.årsakerForRelatertVedtak().contains(revurderingsÅrsak)) {
+        if (BehandlingÅrsakType.årsakerForRelatertVedtak().contains(revurderingsÅrsak)
+            && opprinneligBehandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER)) {
             var basis = behandlingRevurderingRepository.finnSisteVedtatteIkkeHenlagteBehandlingForMedforelder(opprinneligBehandling.getFagsak())
                     .orElseThrow(() -> new IllegalStateException(
                             "Berørt behandling må ha en tilhørende avlsuttet behandling for medforelder - skal ikke skje")); // NOSONAR
