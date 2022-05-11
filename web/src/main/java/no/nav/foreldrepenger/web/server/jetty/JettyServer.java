@@ -43,14 +43,17 @@ public class JettyServer extends AbstractJettyServer {
     protected void migrerDatabaser() {
         for (var cfg : dataSourceKonfig.getDataSources()) {
             LOG.info("Migrerer {}", cfg);
-            Flyway.configure()
-                .dataSource(cfg.getDatasource())
-                .locations(cfg.getLocations())
-                .baselineOnMigrate(true)
-                .table("schema_version")
-                .load()
-                .migrate();
+            flyway(cfg).migrate();
         }
+    }
+
+    public static Flyway flyway(DBConnProp cfg) {
+        return Flyway.configure()
+            .dataSource(cfg.getDatasource())
+            .locations(cfg.getLocations())
+            .baselineOnMigrate(true)
+            .table("schema_version")
+            .load();
     }
 
     @Override

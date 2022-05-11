@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.web.app.healthchecks.checks;
 
+import static no.nav.foreldrepenger.web.server.jetty.DataSourceKonfig.DEFAULT_DS_NAME;
+
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Locale;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -9,14 +12,18 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.flywaydb.core.api.MigrationState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.web.server.jetty.DBConnProp;
+import no.nav.foreldrepenger.web.server.jetty.JettyServer;
 
 @ApplicationScoped
 public class DatabaseHealthCheck {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseHealthCheck.class);
-    private static final String JDBC_DEFAULT_DS = "jdbc/defaultDS";
+    private static final String JNDI_NAME = "jdbc/" + DEFAULT_DS_NAME;
 
     private String jndiName;
 
@@ -26,7 +33,7 @@ public class DatabaseHealthCheck {
     private String endpoint = null; // ukjent frem til første gangs test
 
     public DatabaseHealthCheck() {
-        this.jndiName = JDBC_DEFAULT_DS;
+        this.jndiName = JNDI_NAME;
     }
 
     public String getDescription() {
@@ -39,7 +46,7 @@ public class DatabaseHealthCheck {
 
     public boolean isOK() {
 
-        DataSource dataSource = null;
+        DataSource dataSource;
         try {
             dataSource = (DataSource) new InitialContext().lookup(jndiName);
         } catch (NamingException e) {
@@ -54,6 +61,12 @@ public class DatabaseHealthCheck {
                 if (!statement.execute(SQL_QUERY)) {
                     throw new SQLException("SQL-spørring ga ikke et resultatsett");
                 }
+            }
+            var flyway = JettyServer.flyway(new DBConnProp(dataSource, DEFAULT_DS_NAME));
+            var flywaySuccess = Arrays.stream(flyway.info().all())
+                .allMatch(migrationInfo -> migrationInfo.getState().equals(MigrationState.SUCCESS));
+            if (!flywaySuccess) {
+                return false;
             }
         } catch (SQLException e) {
             LOG.warn("Feil ved SQL-spørring {} mot databasen", SQL_QUERY);

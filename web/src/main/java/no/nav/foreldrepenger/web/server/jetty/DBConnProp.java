@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.web.server.jetty;
 
 import javax.sql.DataSource;
 
-final class DBConnProp {
+public final class DBConnProp {
 
     private static final String MIGRATIONS_LOCATION = "classpath:/db/migration/";
 

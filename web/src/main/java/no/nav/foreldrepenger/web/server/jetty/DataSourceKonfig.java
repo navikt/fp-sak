@@ -11,15 +11,16 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import no.nav.foreldrepenger.konfig.Environment;
 
-class DataSourceKonfig {
+public class DataSourceKonfig {
 
     private static final Environment ENV = Environment.current();
+    public static final String DEFAULT_DS_NAME = "defaultDS";
 
     private final DBConnProp defaultDS;
     private final List<DBConnProp> dataSources;
 
     DataSourceKonfig() {
-        var defaultDSName = "defaultDS";
+        var defaultDSName = DEFAULT_DS_NAME;
         this.defaultDS = new DBConnProp(ds(defaultDSName), defaultDSName);
         var dvhDSName = "dvhDS";
         dataSources = List.of(this.defaultDS, new DBConnProp(ds(dvhDSName), dvhDSName));
