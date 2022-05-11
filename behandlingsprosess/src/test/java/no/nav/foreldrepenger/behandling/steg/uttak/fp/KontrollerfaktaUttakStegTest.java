@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.domene.uttak.fakta.KontrollerFaktaUttakTjeneste;
 @CdiDbAwareTest
 public class KontrollerfaktaUttakStegTest {
 
-    private static AktørId FAR_AKTØR_ID = AktørId.dummy();
+    private static final AktørId FAR_AKTØR_ID = AktørId.dummy();
 
     private Behandling behandling;
     @Inject
@@ -58,7 +58,9 @@ public class KontrollerfaktaUttakStegTest {
 
     private static ScenarioFarSøkerForeldrepenger opprettBehandlingForFarSomSøker() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(FAR_AKTØR_ID);
-        scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
+        var fødselsdato = LocalDate.now();
+        scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
+        scenario.medBekreftetHendelse().medFødselsDato(fødselsdato);
 
         var personInformasjon = scenario
                 .opprettBuilderForRegisteropplysninger()
@@ -68,12 +70,11 @@ public class KontrollerfaktaUttakStegTest {
 
         scenario.medRegisterOpplysninger(personInformasjon);
 
-        var rettighet = new OppgittRettighetEntitet(true, false, false);
+        var rettighet = new OppgittRettighetEntitet(true, true, false);
         scenario.medOppgittRettighet(rettighet);
-        var now = LocalDate.now();
         scenario.medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
                 .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-                .medPeriode(now.plusWeeks(8), now.plusWeeks(12))
+                .medPeriode(fødselsdato.plusWeeks(8), fødselsdato.plusWeeks(12))
                 .build()), true));
         return scenario;
     }

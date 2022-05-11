@@ -48,7 +48,7 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     void setUp() {
         repositoryProvider = new UttakRepositoryStubProvider();
         personopplysninger = mock(PersonopplysningerForUttak.class);
-        aksjonspunktUtleder = new BrukerHarOmsorgAksjonspunktUtleder(repositoryProvider, personopplysninger);
+        aksjonspunktUtleder = new BrukerHarOmsorgAksjonspunktUtleder(personopplysninger);
     }
 
     @Test
