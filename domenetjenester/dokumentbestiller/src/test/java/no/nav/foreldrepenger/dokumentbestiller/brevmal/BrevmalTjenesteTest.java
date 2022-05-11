@@ -40,16 +40,29 @@ class BrevmalTjenesteTest {
     }
 
     @Test
-    void hent_brevmaler_for_es_revurdering() {
+    void hent_brevmaler_for_es_revurdering_manuelt_opprettet() {
         BrevmalTjeneste brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste);
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
         when(behandling.getType()).thenReturn(BehandlingType.REVURDERING);
+        when(behandling.erManueltOpprettet()).thenReturn(true);
         var brevmalDtos = brevmalTjeneste.hentBrevmalerFor(behandling);
 
         assertThat(brevmalDtos).hasSize(1);
         assertThat(brevmalDtos.stream().map(BrevmalDto::kode).toList()).containsExactlyInAnyOrder(
             DokumentMalType.INNHENTE_OPPLYSNINGER.getKode());
+    }
 
+    @Test
+    void hent_brevmaler_for_es_revurdering_automatisk_opprettet() {
+        BrevmalTjeneste brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste);
+        when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
+        when(behandling.getType()).thenReturn(BehandlingType.REVURDERING);
+        when(behandling.erManueltOpprettet()).thenReturn(false);
+        var brevmalDtos = brevmalTjeneste.hentBrevmalerFor(behandling);
+
+        assertThat(brevmalDtos).hasSize(2);
+        assertThat(brevmalDtos.stream().map(BrevmalDto::kode).toList()).containsExactlyInAnyOrder(
+            DokumentMalType.VARSEL_OM_REVURDERING.getKode(), DokumentMalType.INNHENTE_OPPLYSNINGER.getKode());
     }
 
     @Test

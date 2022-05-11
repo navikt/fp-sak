@@ -56,10 +56,12 @@ public class BrevmalTjeneste {
         // Inntektsmelding trenges ikke heler.
         if (FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
             fjernes.add(DokumentMalType.ETTERLYS_INNTEKTSMELDING);
-            fjernes.add(DokumentMalType.VARSEL_OM_REVURDERING);
             if (BehandlingType.REVURDERING.equals(behandlingType)) {
                 fjernes.add(DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID);
                 fjernes.add(DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL);
+                if (erBehandlingManueltOpprettet) {
+                    fjernes.add(DokumentMalType.VARSEL_OM_REVURDERING);
+                }
             }
         }
         return fjernes;
