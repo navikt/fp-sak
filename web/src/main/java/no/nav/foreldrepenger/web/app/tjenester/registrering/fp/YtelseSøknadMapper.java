@@ -228,7 +228,11 @@ public class YtelseSøknadMapper implements SøknadMapper {
                 rettighet.setHarAleneomsorgForBarnet(TRUE.equals(annenForelder.getSokerHarAleneomsorg()));
                 rettighet.setHarAnnenForelderRett(TRUE.equals(annenForelder.getDenAndreForelderenHarRettPaForeldrepenger()));
                 Optional.ofNullable(annenForelder.getMorMottarUføretrygd()).ifPresent(rettighet::setHarMorUforetrygd);
-                // TODO (jol) enable når finnes i søknadXML Optional.ofNullable(annenForelder.getMorHarForeldrepengerEØS()).ifPresent(rettighet::setHarMorUforetrygd);
+                // Velg uføre dersom både uføre = ja og EØS = ja
+                var oppgittUføre = Boolean.TRUE.equals(annenForelder.getMorMottarUføretrygd());
+                Optional.ofNullable(annenForelder.getMorHarForeldrepengerEØS())
+                    .filter(eøs -> !oppgittUføre || !eøs)
+                    .ifPresent(rettighet::setHarMorForeldrepengerEOS);
             }
             rettighet.setHarOmsorgForBarnetIPeriodene(true);
             return rettighet;

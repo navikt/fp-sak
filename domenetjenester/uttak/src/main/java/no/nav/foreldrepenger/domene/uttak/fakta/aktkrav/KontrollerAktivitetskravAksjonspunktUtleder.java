@@ -63,9 +63,9 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
                                                                                      YtelseFordelingAggregat ytelseFordelingAggregat,
                                                                                      FamilieHendelse familieHendelse,
                                                                                      boolean annenForelderHarRett) {
-        if (helePeriodenErHelg(periode) || erMor(behandlingReferanse) || UttakOmsorgUtil.harAleneomsorg(
-            ytelseFordelingAggregat) || familieHendelse.erStebarnsadopsjon() || MorsAktivitet.UFØRE.equals(
-            periode.getMorsAktivitet()) || ytelseFordelingAggregat.getGjeldendeEndringsdatoHvisEksisterer().isEmpty()) {
+        if (helePeriodenErHelg(periode) || erMor(behandlingReferanse) || UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat) ||
+            familieHendelse.erStebarnsadopsjon() || Set.of(MorsAktivitet.UFØRE, MorsAktivitet.IKKE_OPPGITT).contains(periode.getMorsAktivitet()) ||
+            ytelseFordelingAggregat.getGjeldendeEndringsdatoHvisEksisterer().isEmpty()) {
             return ikkeKontrollerer();
         }
         var periodeType = periode.getPeriodeType();

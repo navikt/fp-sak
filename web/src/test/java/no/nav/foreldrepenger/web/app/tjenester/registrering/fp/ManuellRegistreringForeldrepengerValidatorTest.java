@@ -43,6 +43,8 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
         var feltFeil = ManuellRegistreringSøknadValidator.validerPermisjonsperiode(permisjon);
         assertThat(feltFeil).isPresent();
         assertThat(feltFeil).hasValueSatisfying(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        var feltFeilAktKrav = ManuellRegistreringSøknadValidator.validerAktivitetskravFarMedmor(permisjon);
+        assertThat(feltFeilAktKrav).isEmpty();
     }
 
     @Test
@@ -56,6 +58,8 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
         var feltFeil = ManuellRegistreringSøknadValidator.validerPermisjonsperiode(permisjon);
         assertThat(feltFeil).isPresent();
         assertThat(feltFeil).hasValueSatisfying(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER));
+        var feltFeilAktKrav = ManuellRegistreringSøknadValidator.validerAktivitetskravFarMedmor(permisjon);
+        assertThat(feltFeilAktKrav).isEmpty();
     }
 
     @Test
@@ -65,6 +69,8 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerPermisjonsperiode(permisjon);
         assertThat(feltFeil).isNotPresent();
+        var feltFeilAktKrav = ManuellRegistreringSøknadValidator.validerAktivitetskravFarMedmor(permisjon);
+        assertThat(feltFeilAktKrav).isEmpty();
     }
 
     @Test
@@ -78,6 +84,8 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
         var feltFeil = ManuellRegistreringSøknadValidator.validerPermisjonsperiode(permisjon);
         assertThat(feltFeil).isPresent();
         assertThat(feltFeil).hasValueSatisfying(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO));
+        var feltFeilAktKrav = ManuellRegistreringSøknadValidator.validerAktivitetskravFarMedmor(permisjon);
+        assertThat(feltFeilAktKrav).isEmpty();
     }
 
     @Test
@@ -91,6 +99,8 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
         var feltFeil = ManuellRegistreringSøknadValidator.validerPermisjonsperiode(permisjon);
         assertThat(feltFeil).isPresent();
         assertThat(feltFeil).hasValueSatisfying(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        var feltFeilAktKrav = ManuellRegistreringSøknadValidator.validerAktivitetskravFarMedmor(permisjon);
+        assertThat(feltFeilAktKrav).isEmpty();
     }
 
     @Test
@@ -104,6 +114,8 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
         var feltFeil = ManuellRegistreringSøknadValidator.validerPermisjonsperiode(permisjon);
         assertThat(feltFeil).isPresent();
         assertThat(feltFeil).hasValueSatisfying(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER));
+        var feltFeilAktKrav = ManuellRegistreringSøknadValidator.validerAktivitetskravFarMedmor(permisjon);
+        assertThat(feltFeilAktKrav).isEmpty();
     }
 
     @Test
@@ -117,6 +129,8 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
         var feltFeil = ManuellRegistreringSøknadValidator.validerPermisjonsperiode(permisjon);
         assertThat(feltFeil).isPresent();
         assertThat(feltFeil).hasValueSatisfying(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO));
+        var feltFeilAktKrav = ManuellRegistreringSøknadValidator.validerAktivitetskravFarMedmor(permisjon);
+        assertThat(feltFeilAktKrav).isEmpty();
     }
 
     @Test
@@ -126,6 +140,26 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerPermisjonsperiode(permisjon);
         assertThat(feltFeil).isNotPresent();
+        var feltFeilAktKrav = ManuellRegistreringSøknadValidator.validerAktivitetskravFarMedmor(permisjon);
+        assertThat(feltFeilAktKrav).isEmpty();
+    }
+
+    @Test
+    public void skal_finne_manglende_mors_aktivitet_far_foreldrepenger() {
+        var permisjon = new TidsromPermisjonDto();
+        permisjon.setPermisjonsPerioder(lagGyldigPermisjonPeriode(UttakPeriodeType.FORELDREPENGER));
+
+        var feltFeilAktKrav = ManuellRegistreringSøknadValidator.validerAktivitetskravFarMedmor(permisjon);
+        assertThat(feltFeilAktKrav).isNotEmpty();
+    }
+
+    @Test
+    public void skal_ignorere_manglende_mors_aktivitet_far_fedrekvote() {
+        var permisjon = new TidsromPermisjonDto();
+        permisjon.setPermisjonsPerioder(lagGyldigPermisjonPeriode(UttakPeriodeType.FEDREKVOTE));
+
+        var feltFeilAktKrav = ManuellRegistreringSøknadValidator.validerAktivitetskravFarMedmor(permisjon);
+        assertThat(feltFeilAktKrav).isEmpty();
     }
 
     @Test
@@ -325,7 +359,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
         fellesPeriode2.setPeriodeFom(LocalDate.now().plusWeeks(3));
         fellesPeriode2.setPeriodeTom(LocalDate.now().plusWeeks(5));
         fellesPeriode2.setMorsAktivitet(MorsAktivitet.INNLAGT);
-        permisjonPeriode1.setPeriodeType(UttakPeriodeType.FELLESPERIODE);
+        fellesPeriode2.setPeriodeType(UttakPeriodeType.FELLESPERIODE);
         fellesPerioder.add(fellesPeriode2);
 
         return fellesPerioder;
