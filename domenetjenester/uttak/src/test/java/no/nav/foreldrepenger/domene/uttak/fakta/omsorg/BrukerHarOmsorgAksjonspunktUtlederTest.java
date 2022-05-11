@@ -144,22 +144,6 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     }
 
     @Test
-    public void ingen_aksjonspunkt_dersom_mor_søker_og_ikke_oppgitt_omsorg_til_barnet_med_kortere_søknadsperioden() {
-        // Arrange
-        var periode1 = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .medPeriode(FØDSELSDATO, FØDSELSDATO.plusWeeks(5))
-            .build();
-
-        var behandling = opprettBehandlingForBekreftetFødselMedSøknadsperioder(List.of(periode1));
-        // Act
-        var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, fødselSøknadOgBekreftetStemmer()));
-
-        // Assert
-        assertThat(aksjonspunktResultater).isEmpty();
-    }
-
-    @Test
     public void ingen_aksjonspunkt_dersom_barn_er_død_selvom_de_ikke_har_samme_adresse() {
         // Arrange
         var behandling = opprettBehandling(FØDSELSDATO);

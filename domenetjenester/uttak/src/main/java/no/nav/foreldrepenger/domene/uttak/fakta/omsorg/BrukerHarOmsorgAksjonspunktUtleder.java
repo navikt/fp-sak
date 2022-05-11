@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -60,37 +59,17 @@ public class BrukerHarOmsorgAksjonspunktUtleder implements FaktaUttakAksjonspunk
         if (familieHendelser.getGjeldendeFamilieHendelse().erAlleBarnDøde()) {
             return List.of();
         }
-
-        if (harOppgittOmsorgTilBarnetIHeleSøknadsperioden(ytelseFordelingAggregat) == Utfall.JA) {
-            if (bekreftetFH.isPresent() && erBarnetFødt(bekreftetFH.get()) == Utfall.JA
-                && !personopplysninger.barnHarSammeBosted(ref)) {
-                return List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG);
-            }
-        } else {
-            if (familieHendelser.gjelderTerminFødsel()) {
-                if (erBrukerMor(ref.relasjonRolle()) == Utfall.NEI ||
-                    erSøknadsperiodenLengreEnnAntallUkerForbeholdtMorEtterFødselen(familieHendelse,
-                        ytelseFordelingAggregat) == Utfall.JA) {
-                    return List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG);
-                }
-            } else {
-                return List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG);
-            }
+        if (bekreftetFH.isPresent() && erBarnetFødt(bekreftetFH.get()) == Utfall.JA
+            && !personopplysninger.barnHarSammeBosted(ref)) {
+            return List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG);
         }
+
         return List.of();
     }
 
     @Override
     public boolean skalBrukesVedOppdateringAvYtelseFordeling() {
         return false;
-    }
-
-    private Utfall harOppgittOmsorgTilBarnetIHeleSøknadsperioden(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        var harOmsorgForBarnetIHelePerioden = ytelseFordelingAggregat.getOppgittRettighet()
-            .getHarOmsorgForBarnetIHelePerioden();
-        Objects.requireNonNull(harOmsorgForBarnetIHelePerioden,
-            "harOmsorgForBarnetIHelePerioden må være sett"); //$NON-NLS-1$
-        return harOmsorgForBarnetIHelePerioden ? Utfall.JA : Utfall.NEI;
     }
 
     private Utfall erBarnetFødt(FamilieHendelse bekreftet) {
