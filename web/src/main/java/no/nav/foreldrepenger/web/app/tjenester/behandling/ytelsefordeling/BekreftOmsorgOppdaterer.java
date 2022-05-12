@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.familiehendelse.rest.PeriodeKonverter;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
-@DtoTilServiceAdapter(dto = BekreftFaktaForOmsorgVurderingDto.BekreftOmsorgVurderingDto.class, adapter = AksjonspunktOppdaterer.class)
+@DtoTilServiceAdapter(dto = BekreftFaktaForOmsorgVurderingDto.class, adapter = AksjonspunktOppdaterer.class)
 public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFaktaForOmsorgVurderingDto> {
 
     private BehandlingRepositoryProvider behandlingRepository;
