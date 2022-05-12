@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -17,7 +18,6 @@ public enum MorsAktivitet implements Kodeverdi {
     UDEFINERT("-", "Ikke satt eller valgt kode"),
     ARBEID("ARBEID", "Er i arbeid"),
     UTDANNING("UTDANNING", "Tar utdanning på heltid"),
-    SAMTIDIGUTTAK("SAMTIDIGUTTAK", "Samtidig uttak flerbarnsfødsel"),
     KVALPROG("KVALPROG", "Deltar i kvalifiseringsprogrammet"),
     INTROPROG("INTROPROG", "Deltar i introduksjonsprogram for nykomne innvandrere"),
     TRENGER_HJELP("TRENGER_HJELP", "Er avhengig av hjelp til å ta seg av barnet"),
@@ -27,6 +27,8 @@ public enum MorsAktivitet implements Kodeverdi {
     IKKE_OPPGITT("IKKE_OPPGITT", "Periode uten oppgitt aktivitetskrav"),
     ;
     private static final Map<String, MorsAktivitet> KODER = new LinkedHashMap<>();
+
+    private static final Set<String> LEGACY_KODER = Set.of("SAMTIDIGUTTAK");
 
     public static final String KODEVERK = "MORS_AKTIVITET";
 
@@ -54,6 +56,9 @@ public enum MorsAktivitet implements Kodeverdi {
         }
         var ad = KODER.get(kode);
         if (ad == null) {
+            if (LEGACY_KODER.contains(kode)) {
+                return IKKE_OPPGITT;
+            }
             throw new IllegalArgumentException("Ukjent MorsAktivitet: " + kode);
         }
         return ad;
