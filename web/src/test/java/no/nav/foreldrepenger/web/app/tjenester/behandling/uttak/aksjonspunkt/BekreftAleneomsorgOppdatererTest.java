@@ -55,7 +55,7 @@ public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
         scenario.medSøknad();
-        var rettighet = new OppgittRettighetEntitet(false, false, true);
+        var rettighet = new OppgittRettighetEntitet(false, true, false);
         scenario.medOppgittRettighet(rettighet);
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.VURDER_UTTAK);
 
@@ -95,7 +95,7 @@ public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
         scenario.medSøknad();
-        var rettighet = new OppgittRettighetEntitet(false, false, true);
+        var rettighet = new OppgittRettighetEntitet(false, true, false);
         scenario.medOppgittRettighet(rettighet);
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.VURDER_UTTAK);
 
@@ -135,7 +135,7 @@ public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
         scenario.medSøknad();
-        var rettighet = new OppgittRettighetEntitet(false, false, true);
+        var rettighet = new OppgittRettighetEntitet(false, true, false);
         scenario.medOppgittRettighet(rettighet);
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.VURDER_UTTAK);
 
@@ -184,7 +184,7 @@ public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
         scenario.medSøknad();
-        var rettighet = new OppgittRettighetEntitet(false, false, true);
+        var rettighet = new OppgittRettighetEntitet(false, true, false);
         scenario.medOppgittRettighet(rettighet);
         scenario.medSøknadAnnenPart().medAktørId(annenpart);
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.VURDER_UTTAK);

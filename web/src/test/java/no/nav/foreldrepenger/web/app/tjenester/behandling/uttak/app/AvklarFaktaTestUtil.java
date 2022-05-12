@@ -98,7 +98,7 @@ public class AvklarFaktaTestUtil {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknad();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-        var rettighet = new OppgittRettighetEntitet(false, false, true);
+        var rettighet = new OppgittRettighetEntitet(false, true, false);
         scenario.medOppgittRettighet(rettighet);
         return scenario;
     }

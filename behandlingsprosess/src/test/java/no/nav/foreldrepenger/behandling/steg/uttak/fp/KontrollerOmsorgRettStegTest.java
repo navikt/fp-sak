@@ -105,7 +105,7 @@ public class KontrollerOmsorgRettStegTest {
         var AKTØR_ID_FAR = AktørId.dummy();
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
-        var rettighet = new OppgittRettighetEntitet(false, true, true);
+        var rettighet = new OppgittRettighetEntitet(false, true, false);
 
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
 

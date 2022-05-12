@@ -136,7 +136,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     private Behandling behandlingMedUttak(UttakResultatPerioderEntitet perioder, AbstractTestScenario<?> scenario, LocalDateTime vedtakstidspunkt) {
         scenario.medUttak(perioder);
         scenario.medDefaultOppgittDekningsgrad();
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
         scenario.medBehandlingVedtak().medVedtakstidspunkt(vedtakstidspunkt);
         var behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
@@ -352,7 +352,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, true));
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         var result = tjeneste().mapFra(behandling);

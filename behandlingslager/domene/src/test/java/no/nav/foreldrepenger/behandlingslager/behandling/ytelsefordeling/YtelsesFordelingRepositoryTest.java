@@ -79,7 +79,7 @@ public class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
             UttakPeriodeType.ANNET);
 
         var yf = repository.opprettBuilder(behandling.getId())
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false))
             .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk80())
             .medOppgittFordeling(new OppgittFordelingEntitet(List.of(periode_1, periode_2, periode_3), true))
             .build();

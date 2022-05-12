@@ -52,9 +52,6 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
         var perioderUtenOmsorg = ytelseFordelingAggregat.getPerioderUtenOmsorg();
         List<PeriodeDto> periodeUtenOmsorgListe = new ArrayList<>();
 
-        var harOmsorgForBarnetSokVersjon = ytelseFordelingAggregat
-            .getOppgittRettighet().getHarOmsorgForBarnetIHelePerioden();
-
         Boolean harOmsorgForBarnetBekreftetVersjon = null;
         if (perioderUtenOmsorg.isPresent()) {
             harOmsorgForBarnetBekreftetVersjon = perioderUtenOmsorg.get().getPerioder().isEmpty();
@@ -63,32 +60,35 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
 
         var erEndret = opprettHistorikkInnslagForOmsorg(dto, periodeUtenOmsorgListe, harOmsorgForBarnetBekreftetVersjon);
 
-        var avkreftet = avkrefterBrukersOpplysninger(harOmsorgForBarnetSokVersjon, dto.getOmsorg());
+        var omsorg = dto.getOmsorg();
 
-        var totrinn = setToTrinns(perioderUtenOmsorg, erEndret, avkreftet);
+        var totrinn = setToTrinns(perioderUtenOmsorg, erEndret, Boolean.FALSE.equals(omsorg));
 
         historikkAdapter.tekstBuilder()
             .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
             .medSkjermlenke(SkjermlenkeType.FAKTA_FOR_OMSORG);
 
-        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandlingId, dto.getOmsorg(), PeriodeKonverter.mapIkkeOmsorgsperioder(dto.getIkkeOmsorgPerioder(), dto.getOmsorg()));
+        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandlingId, omsorg,
+            PeriodeKonverter.mapIkkeOmsorgsperioder(dto.getIkkeOmsorgPerioder(), omsorg));
 
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }
 
-    private boolean opprettHistorikkInnslagForOmsorg(BekreftFaktaForOmsorgVurderingDto dto, List<PeriodeDto> periodeUtenOmsorgListe,
+    private boolean opprettHistorikkInnslagForOmsorg(BekreftFaktaForOmsorgVurderingDto dto,
+                                                     List<PeriodeDto> periodeUtenOmsorgListe,
                                                      Boolean harOmsorgForBarnetBekreftetVersjon) {
         boolean erEndretTemp;
 
         if (Boolean.FALSE.equals(dto.getOmsorg())) {
             if (!periodeUtenOmsorgListe.isEmpty()) {
                 erEndretTemp = oppdaterVedEndretVerdi(HistorikkEndretFeltType.IKKE_OMSORG_PERIODEN,
-                    PeriodeKonverter.konvertPerioderTilString(periodeUtenOmsorgListe), PeriodeKonverter.konvertPerioderTilString(dto.getIkkeOmsorgPerioder()),
-                    null);
+                    PeriodeKonverter.konvertPerioderTilString(periodeUtenOmsorgListe),
+                    PeriodeKonverter.konvertPerioderTilString(dto.getIkkeOmsorgPerioder()), null);
             } else {
                 erEndretTemp = oppdaterVedEndretVerdi(HistorikkEndretFeltType.OMSORG,
                     konverterBooleanTilVerdiForOmsorgForBarnet(harOmsorgForBarnetBekreftetVersjon),
-                    konverterBooleanTilVerdiForOmsorgForBarnet(dto.getOmsorg()), PeriodeKonverter.konvertPerioderTilString(dto.getIkkeOmsorgPerioder()));
+                    konverterBooleanTilVerdiForOmsorgForBarnet(dto.getOmsorg()),
+                    PeriodeKonverter.konvertPerioderTilString(dto.getIkkeOmsorgPerioder()));
             }
         } else {
             erEndretTemp = oppdaterVedEndretVerdi(HistorikkEndretFeltType.OMSORG,
@@ -98,9 +98,9 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
         return erEndretTemp;
     }
 
-    private boolean setToTrinns(Optional<PerioderUtenOmsorgEntitet> perioderUtenOmsorg, boolean erEndret, boolean avkreftet) {
+    private boolean setToTrinns(Optional<PerioderUtenOmsorgEntitet> perioderUtenOmsorg, boolean erEndret, boolean ikkeOmsorg) {
         // Totrinns er sett hvis saksbehandler avkreftet først gang eller endret etter han bekreftet
-        return avkreftet || (erEndret && perioderUtenOmsorg.isPresent());
+        return ikkeOmsorg || (erEndret && perioderUtenOmsorg.isPresent());
     }
 
     private String konverterBooleanTilVerdiForOmsorgForBarnet(Boolean omsorgForBarnet) {
@@ -117,14 +117,12 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
                 historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, original, bekreftet);
             } else {
                 // TODO PFP-8740 midlertidig løsning. Inntil en løsning for å støtte dette
-                historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, original, bekreftet.toString().concat(" i perioden ").concat(perioder));
+                historikkAdapter.tekstBuilder()
+                    .medEndretFelt(historikkEndretFeltType, original, bekreftet.toString().concat(" i perioden ").concat(perioder));
             }
             return true;
         }
         return false;
     }
 
-    private boolean avkrefterBrukersOpplysninger(Object original, Object bekreftet) {
-        return !Objects.equals(bekreftet, original);
-    }
 }

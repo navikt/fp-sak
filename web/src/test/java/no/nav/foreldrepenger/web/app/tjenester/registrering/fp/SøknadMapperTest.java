@@ -425,7 +425,6 @@ public class SøknadMapperTest {
 
         assertThat(ytelseFordelingAggregat.getOppgittRettighet()).isNotNull();
         assertThat(ytelseFordelingAggregat.getOppgittRettighet().getHarAnnenForeldreRett()).isTrue();
-        assertThat(ytelseFordelingAggregat.getOppgittRettighet().getHarOmsorgForBarnetIHelePerioden()).isTrue();
         assertThat(ytelseFordelingAggregat.getOppgittFordeling()).isNotNull();
         assertThat(ytelseFordelingAggregat.getOppgittFordeling().getOppgittePerioder()).isNotEmpty();
     }
@@ -480,7 +479,6 @@ public class SøknadMapperTest {
         assertThat(ytelseFordeling.getOppgittRettighet()).isNotNull();
         assertThat(ytelseFordeling.getOppgittRettighet().getHarAnnenForeldreRett()).isFalse();
         assertThat(ytelseFordeling.getOppgittRettighet().getHarAleneomsorgForBarnet()).isTrue();
-        assertThat(ytelseFordeling.getOppgittRettighet().getHarOmsorgForBarnetIHelePerioden()).isTrue();
 
         assertThat(ytelseFordeling.getOppgittFordeling()).isNotNull();
         assertThat(ytelseFordeling.getOppgittFordeling().getOppgittePerioder()).isNotEmpty();
