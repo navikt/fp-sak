@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Oppgitt
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.fakta.omsorg.BrukerHarOmsorgAksjonspunktUtleder;
@@ -44,15 +43,11 @@ public class KontrollerFaktaUttakTjenesteTest {
 
     private KontrollerFaktaUttakTjeneste tjeneste;
 
-    private PersonopplysningerForUttak personopplysninger;
-
     @BeforeEach
     void setUp() {
-        personopplysninger = mock(PersonopplysningerForUttak.class);
-        var uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
+        var personopplysninger = mock(PersonopplysningerForUttak.class);
         var avklarHendelseAksjonspunktUtleder = new AvklarHendelseAksjonspunktUtleder();
-        var brukerHarOmsorgAksjonspunktUtleder = new BrukerHarOmsorgAksjonspunktUtleder(repositoryProvider,
-            personopplysninger);
+        var brukerHarOmsorgAksjonspunktUtleder = new BrukerHarOmsorgAksjonspunktUtleder(personopplysninger);
         var førsteUttaksdatoAksjonspunktUtleder = new FørsteUttaksdatoAksjonspunktUtleder(repositoryProvider);
         var graderingAktivitetUtenBGAksjonspunktUtleder = new GraderingAktivitetUtenBGAksjonspunktUtleder();
         var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository());

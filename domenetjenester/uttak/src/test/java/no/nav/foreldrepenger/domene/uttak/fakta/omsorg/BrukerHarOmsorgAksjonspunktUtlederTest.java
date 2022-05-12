@@ -48,7 +48,7 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     void setUp() {
         repositoryProvider = new UttakRepositoryStubProvider();
         personopplysninger = mock(PersonopplysningerForUttak.class);
-        aksjonspunktUtleder = new BrukerHarOmsorgAksjonspunktUtleder(repositoryProvider, personopplysninger);
+        aksjonspunktUtleder = new BrukerHarOmsorgAksjonspunktUtleder(personopplysninger);
     }
 
     @Test
@@ -141,22 +141,6 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
 
         // Assert
         assertThat(aksjonspunktResultater).containsExactly(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG);
-    }
-
-    @Test
-    public void ingen_aksjonspunkt_dersom_mor_søker_og_ikke_oppgitt_omsorg_til_barnet_med_kortere_søknadsperioden() {
-        // Arrange
-        var periode1 = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .medPeriode(FØDSELSDATO, FØDSELSDATO.plusWeeks(5))
-            .build();
-
-        var behandling = opprettBehandlingForBekreftetFødselMedSøknadsperioder(List.of(periode1));
-        // Act
-        var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, fødselSøknadOgBekreftetStemmer()));
-
-        // Assert
-        assertThat(aksjonspunktResultater).isEmpty();
     }
 
     @Test
