@@ -11,6 +11,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.KontrollerAktivitetskravAvklaring;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
@@ -221,7 +222,7 @@ public final class UttakEnumMapper {
 
     public static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet map(MorsAktivitet morsAktivitet) {
         //Ikke relevant for regler
-        if (MorsAktivitet.UDEFINERT.equals(morsAktivitet) || MorsAktivitet.SAMTIDIGUTTAK.equals(morsAktivitet)) {
+        if (Set.of(MorsAktivitet.UDEFINERT, MorsAktivitet.SAMTIDIGUTTAK, MorsAktivitet.IKKE_OPPGITT).contains(morsAktivitet)) {
             return null;
         }
         return MORS_AKTIVITET_MAPPER

@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.registrering.fp;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet.ARBEID;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet.ARBEID_OG_UTDANNING;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet.IKKE_OPPGITT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet.INNLAGT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet.UFØRE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FEDREKVOTE;
@@ -347,6 +348,21 @@ public class SøknadMapperTest {
             .matches(uttaksperiode -> UFØRE.getKode().equals(uttaksperiode.getMorsAktivitetIPerioden().getKode()));
         assertThat(uttaksperioder).first()
             .matches(uttaksperiode -> FELLESPERIODE.getKode().equals(uttaksperiode.getType().getKode()));
+    }
+
+    @Test
+    public void test_map_mors_aktivitet_ikke_oppgitt() {
+        var mødrekvoteSlutt = LocalDate.now().plusWeeks(3);
+        var fellesperiodeSlutt = mødrekvoteSlutt.plusWeeks(4);
+
+        var uttaksperioder = YtelseSøknadMapper.mapUttaksperioder(
+            List.of(opprettPermisjonPeriodeDto(mødrekvoteSlutt, fellesperiodeSlutt, FORELDREPENGER, IKKE_OPPGITT)));
+        assertThat(uttaksperioder).isNotNull();
+        assertThat(uttaksperioder).hasSize(1);
+        assertThat(uttaksperioder).first()
+            .matches(uttaksperiode -> IKKE_OPPGITT.getKode().equals(uttaksperiode.getMorsAktivitetIPerioden().getKode()));
+        assertThat(uttaksperioder).first()
+            .matches(uttaksperiode -> FORELDREPENGER.getKode().equals(uttaksperiode.getType().getKode()));
     }
 
     @Test

@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
@@ -163,7 +164,6 @@ public class YtelseSøknadMapper implements SøknadMapper {
     }
 
     static Uttaksperiode mapPermisjonPeriodeDto(PermisjonPeriodeDto dto) {
-        var morsAktivitet = dto.getMorsAktivitet();
         var uttaksperiode = new Uttaksperiode();
         uttaksperiode.setFom(dto.getPeriodeFom());
         uttaksperiode.setTom(dto.getPeriodeTom());
@@ -178,11 +178,13 @@ public class YtelseSøknadMapper implements SøknadMapper {
         uttaksperiodetyper.setKode(dto.getPeriodeType().getKode());
         uttaksperiode.setType(uttaksperiodetyper);
 
-        if ((!isNull(morsAktivitet)) && (morsAktivitet.getKode() != null && !morsAktivitet.getKode().isEmpty())) {
-            var morsAktivitetsTyper = new MorsAktivitetsTyper();
-            morsAktivitetsTyper.setKode(morsAktivitet.getKode());
-            uttaksperiode.setMorsAktivitetIPerioden(morsAktivitetsTyper);
-        }
+        Optional.ofNullable(dto.getMorsAktivitet())
+            .filter(ma -> ma.getKode() != null && !ma.getKode().isEmpty() && !MorsAktivitet.SAMTIDIGUTTAK.equals(ma))
+            .ifPresent(ma -> {
+                var morsAktivitetsTyper = new MorsAktivitetsTyper();
+                morsAktivitetsTyper.setKode(ma.getKode());
+                uttaksperiode.setMorsAktivitetIPerioden(morsAktivitetsTyper);
+            });
 
         return uttaksperiode;
     }
@@ -228,7 +230,11 @@ public class YtelseSøknadMapper implements SøknadMapper {
                 rettighet.setHarAleneomsorgForBarnet(TRUE.equals(annenForelder.getSokerHarAleneomsorg()));
                 rettighet.setHarAnnenForelderRett(TRUE.equals(annenForelder.getDenAndreForelderenHarRettPaForeldrepenger()));
                 Optional.ofNullable(annenForelder.getMorMottarUføretrygd()).ifPresent(rettighet::setHarMorUforetrygd);
-                // TODO (jol) enable når finnes i søknadXML Optional.ofNullable(annenForelder.getMorHarForeldrepengerEØS()).ifPresent(rettighet::setHarMorUforetrygd);
+                // Velg uføre dersom både uføre = ja og EØS = ja
+                var oppgittUføre = Boolean.TRUE.equals(annenForelder.getMorMottarUføretrygd());
+                Optional.ofNullable(annenForelder.getMorHarForeldrepengerEØS())
+                    .filter(eøs -> !oppgittUføre || !eøs)
+                    .ifPresent(rettighet::setHarMorForeldrepengerEOS);
             }
             rettighet.setHarOmsorgForBarnetIPeriodene(true);
             return rettighet;
@@ -269,11 +275,13 @@ public class YtelseSøknadMapper implements SøknadMapper {
         }
         utsettelsesperiode.setFom(utsettelserDto.getPeriodeFom());
         utsettelsesperiode.setTom(utsettelserDto.getPeriodeTom());
-        if (!isNull(utsettelserDto.getMorsAktivitet())) {
-            var morsAktivitetsTyper = new MorsAktivitetsTyper();
-            morsAktivitetsTyper.setKode(utsettelserDto.getMorsAktivitet().getKode());
-            utsettelsesperiode.setMorsAktivitetIPerioden(morsAktivitetsTyper);
-        }
+        Optional.ofNullable(utsettelserDto.getMorsAktivitet())
+            .filter(ma -> !MorsAktivitet.SAMTIDIGUTTAK.equals(ma))
+            .ifPresent(ma -> {
+                var morsAktivitetsTyper = new MorsAktivitetsTyper();
+                morsAktivitetsTyper.setKode(ma.getKode());
+                utsettelsesperiode.setMorsAktivitetIPerioden(morsAktivitetsTyper);
+            });
         return utsettelsesperiode;
     }
 

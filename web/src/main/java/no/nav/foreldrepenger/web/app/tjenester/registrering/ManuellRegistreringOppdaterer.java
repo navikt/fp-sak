@@ -8,6 +8,8 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
@@ -42,6 +44,8 @@ import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = ManuellRegistreringDto.class, adapter = AksjonspunktOppdaterer.class)
 public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<ManuellRegistreringDto> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ManuellRegistreringOppdaterer.class);
 
     private FagsakRepository fagsakRepository;
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
@@ -82,6 +86,11 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         }
 
         ManuellRegistreringValidator.validerOpplysninger(dto);
+        try {
+            ManuellRegistreringValidator.validerAktivitetskrav(behandling.getFagsak(), dto);
+        } catch (Exception e) {
+            LOG.warn("PAPIRSØKNAD mangler aktivitetskrav for periode(r) i sak {} behandling {}", behandling.getFagsak().getSaksnummer().getVerdi(), behandlingId);
+        }
 
         var fagsak = fagsakRepository.finnEksaktFagsak(behandling.getFagsakId());
         var navBruker = fagsak.getNavBruker();

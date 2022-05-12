@@ -24,6 +24,7 @@ public enum MorsAktivitet implements Kodeverdi {
     INNLAGT("INNLAGT", "Er innlagt på institusjon"),
     ARBEID_OG_UTDANNING("ARBEID_OG_UTDANNING", "Er i arbeid og utdanning"),
     UFØRE("UFØRE", "Mor mottar uføretrygd"),
+    IKKE_OPPGITT("IKKE_OPPGITT", "Periode uten oppgitt aktivitetskrav"),
     ;
     private static final Map<String, MorsAktivitet> KODER = new LinkedHashMap<>();
 

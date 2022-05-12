@@ -21,6 +21,7 @@ public class ManuellRegistreringValidatorTekster {
     public static final String TERMINDATO_TIDLIGST_TRE_UKER_TILBAKE_I_TID = "Termindato kan ikke være tidligere enn tre uker før dagens dato";
     public static final String TERMINBEKREFTELSESDATO_FØR_TERMINDATO = "Terminbekreftelsesdato må være før termindato";
     public static final String LIK_ELLER_ETTER_MOTTATT_DATO = "Må være lik eller etter mottatt dato";
+    public static final String MANGLER_MORS_AKTIVITET = "Mangler mors aktivitet";
 
     private ManuellRegistreringValidatorTekster() {
         // Klassen skal ikke instansieres

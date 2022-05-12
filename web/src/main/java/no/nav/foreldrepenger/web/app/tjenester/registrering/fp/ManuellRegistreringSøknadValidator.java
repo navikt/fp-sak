@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.fp;
 
 import static java.util.Objects.isNull;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.MANGLER_MORS_AKTIVITET;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.PAAKREVD_FELT;
 
 import java.util.ArrayList;
@@ -9,9 +10,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorUtil;
@@ -61,6 +65,15 @@ public class ManuellRegistreringSøknadValidator {
         }
 
         return feltFeil;
+    }
+
+    public static List<FeltFeilDto> validerAktivitetskravFarMedmor(TidsromPermisjonDto tidsromPermisjonDto) {
+        var manglerMorsAktivitet = Optional.ofNullable(tidsromPermisjonDto)
+            .map(TidsromPermisjonDto::getPermisjonsPerioder).orElse(List.of()).stream()
+            .filter(p -> Set.of(UttakPeriodeType.FELLESPERIODE, UttakPeriodeType.FORELDREPENGER).contains(p.getPeriodeType()))
+            .filter(p -> !p.isFlerbarnsdager())
+            .anyMatch(p -> p.getMorsAktivitet() == null || MorsAktivitet.UDEFINERT.equals(p.getMorsAktivitet()) || MorsAktivitet.SAMTIDIGUTTAK.equals(p.getMorsAktivitet()));
+        return manglerMorsAktivitet ? List.of(new FeltFeilDto("morsAktivitet", MANGLER_MORS_AKTIVITET)) : List.of();
     }
 
     private static void leggTilFeilForVirksomhet(List<FeltFeilDto> feltFeil, VirksomhetDto virksomhet) {
