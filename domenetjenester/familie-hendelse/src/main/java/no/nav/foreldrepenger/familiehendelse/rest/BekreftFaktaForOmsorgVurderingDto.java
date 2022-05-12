@@ -23,7 +23,6 @@ public class BekreftFaktaForOmsorgVurderingDto extends BekreftetAksjonspunktDto 
     private List<PeriodeDto> ikkeOmsorgPerioder;
 
 
-
     BekreftFaktaForOmsorgVurderingDto() { // NOSONAR
         //For Jackson
     }
@@ -46,22 +45,6 @@ public class BekreftFaktaForOmsorgVurderingDto extends BekreftetAksjonspunktDto 
 
     public void setIkkeOmsorgPerioder(List<PeriodeDto> ikkeOmsorgPerioder) {
         this.ikkeOmsorgPerioder = ikkeOmsorgPerioder;
-    }
-
-    @JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG_KODE)
-    public static class BekreftOmsorgVurderingDto extends BekreftFaktaForOmsorgVurderingDto {
-
-
-        @SuppressWarnings("unused") // NOSONAR
-        private BekreftOmsorgVurderingDto() {
-            // For Jackson
-        }
-
-        public BekreftOmsorgVurderingDto(String begrunnelse) { // NOSONAR
-            super(begrunnelse);
-        }
-
-
     }
 
 }
