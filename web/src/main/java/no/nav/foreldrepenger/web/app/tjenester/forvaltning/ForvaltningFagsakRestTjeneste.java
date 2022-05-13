@@ -4,8 +4,6 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
@@ -28,7 +26,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -39,7 +36,7 @@ import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatus;
+import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatusTjeneste;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
@@ -62,7 +59,7 @@ public class ForvaltningFagsakRestTjeneste {
     private BehandlingRepository behandlingRepository;
     private PersonopplysningRepository personopplysningRepository;
     private ProsessTaskTjeneste taskTjeneste;
-    private Instance<OppdaterFagsakStatus> oppdaterFagsakStatuser;
+    private OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste;
     private OpprettSakTjeneste opprettSakTjeneste;
     private PersoninfoAdapter personinfoAdapter;
     private NavBrukerTjeneste brukerTjeneste;
@@ -75,7 +72,7 @@ public class ForvaltningFagsakRestTjeneste {
     @Inject
     public ForvaltningFagsakRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
             ProsessTaskTjeneste taskTjeneste,
-            @Any Instance<OppdaterFagsakStatus> oppdaterFagsakStatuser,
+            OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste,
             OpprettSakTjeneste opprettSakTjeneste,
             PersoninfoAdapter personinfoAdapter,
             NavBrukerTjeneste brukerTjeneste,
@@ -86,7 +83,7 @@ public class ForvaltningFagsakRestTjeneste {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.taskTjeneste = taskTjeneste;
-        this.oppdaterFagsakStatuser = oppdaterFagsakStatuser;
+        this.oppdaterFagsakStatusTjeneste = oppdaterFagsakStatusTjeneste;
         this.overstyrDekningsgradTjeneste = overstyrDekningsgradTjeneste;
         this.opprettSakTjeneste = opprettSakTjeneste;
         this.personinfoAdapter = personinfoAdapter;
@@ -112,9 +109,7 @@ public class ForvaltningFagsakRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         LOG.info("Avslutter fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
-        var oppdaterFagsakStatus = FagsakYtelseTypeRef.Lookup.find(oppdaterFagsakStatuser, fagsak.getYtelseType())
-                .orElseThrow(() -> new ForvaltningException("Ingen implementasjoner funnet for ytelse: " + fagsak.getYtelseType().getKode()));
-        oppdaterFagsakStatus.avsluttFagsakUtenAktiveBehandlinger(fagsak);
+        oppdaterFagsakStatusTjeneste.avsluttFagsakUtenAktiveBehandlinger(fagsak);
         return Response.ok().build();
     }
 
@@ -309,9 +304,7 @@ public class ForvaltningFagsakRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         LOG.info("Avslutter fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
-        var oppdaterFagsakStatus = FagsakYtelseTypeRef.Lookup.find(oppdaterFagsakStatuser, fagsak.getYtelseType())
-            .orElseThrow(() -> new ForvaltningException("Ingen implementasjoner funnet for ytelse: " + fagsak.getYtelseType().getKode()));
-        oppdaterFagsakStatus.settUnderBehandlingNårAktiveBehandlinger(fagsak);
+        oppdaterFagsakStatusTjeneste.settUnderBehandlingNårAktiveBehandlinger(fagsak);
         return Response.ok().build();
     }
 }

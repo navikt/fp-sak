@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.vedtak.intern.fp;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Comparator;
 import java.util.Objects;
@@ -114,6 +113,7 @@ public class FpFagsakRelasjonAvslutningsdatoOppdaterer implements FagsakRelasjon
 
         var behandlingsresultatAvslåttOrOpphørt = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
             .filter(Behandlingsresultat::isBehandlingsresultatAvslåttOrOpphørt).isPresent();
+
         return behandlingsresultatAvslåttOrOpphørt
             && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, LocalDate.now()) ? LocalDate.now().plusDays(1) : avsluttningsdato;
     }
@@ -154,7 +154,7 @@ public class FpFagsakRelasjonAvslutningsdatoOppdaterer implements FagsakRelasjon
             .map(FamilieHendelseEntitet::getSkjæringstidspunkt);
         return familieHendelseDato
             .filter(hendelseDato -> erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, hendelseDato.plusYears(3)))
-            .map(hendelseDato -> hendelseDato.plusYears(3)).orElse(avsluttningsdato);
+            .map(hendelseDato -> hendelseDato.plusYears(3)).orElse(avsluttningsdato); //TODO ANja hvorfor brukes ikke GRENSE_ETTER_FØDSELSDATOÅR her?
     }
 
     private static boolean erAvsluttningsdatoIkkeSattEllerEtter(LocalDate avsluttningsdato, LocalDate nyAvsluttningsdato) {

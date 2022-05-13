@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakRelasjonProsessTask;
 import no.nav.foreldrepenger.domene.vedtak.FagsakStatusOppdateringResultat;
-import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatus;
+import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatusTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -31,7 +31,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
 
     private BehandlingRepository behandlingRepository;
-    private Instance<OppdaterFagsakStatus> oppdaterFagsakStatuser;
+    private OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste;
     private Instance<FagsakRelasjonAvslutningsdatoOppdaterer> fagsakRelasjonAvslutningsdatoOppdaterer;
 
     AutomatiskFagsakAvslutningTask() {
@@ -40,11 +40,11 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
 
     @Inject
     public AutomatiskFagsakAvslutningTask(FagsakLåsRepository fagsakLåsRepository, FagsakRelasjonLåsRepository relasjonLåsRepository, BehandlingRepositoryProvider repositoryProvider,
-                                          @Any Instance<OppdaterFagsakStatus> oppdaterFagsakStatuser,
+                                          OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste,
                                           @Any Instance<FagsakRelasjonAvslutningsdatoOppdaterer> fagsakRelasjonAvslutningsdatoOppdaterer) {
         super(fagsakLåsRepository, relasjonLåsRepository, repositoryProvider.getFagsakRelasjonRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.oppdaterFagsakStatuser = oppdaterFagsakStatuser;
+        this.oppdaterFagsakStatusTjeneste = oppdaterFagsakStatusTjeneste;
         this.fagsakRelasjonAvslutningsdatoOppdaterer = fagsakRelasjonAvslutningsdatoOppdaterer;
     }
 
@@ -54,7 +54,7 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
 
         behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).ifPresent(behandling -> {
             var ytelseType = behandling.getFagsakYtelseType();
-            var resultat = oppdaterFagsakStatus(behandling, ytelseType);
+            var resultat = oppdaterFagsakStatus(behandling);
             if (resultat != FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET) {
                 oppdaterFagsakRelasjonAvslutningsdato(relasjon, relasjonLås, fagsak1Lås, fagsak2Lås, fagsakId, ytelseType);
             }
@@ -70,9 +70,7 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
         }
     }
 
-    private FagsakStatusOppdateringResultat oppdaterFagsakStatus(Behandling behandling, FagsakYtelseType ytelseType) {
-        var oppdaterFagsakStatus = FagsakYtelseTypeRef.Lookup.find(oppdaterFagsakStatuser, ytelseType)
-            .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner av oppdaterFagsakStatus funnet for ytelse: " + ytelseType.getKode()));
-        return oppdaterFagsakStatus.oppdaterFagsakNårBehandlingEndret(behandling);
+    private FagsakStatusOppdateringResultat oppdaterFagsakStatus(Behandling behandling) {
+        return oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAutomatiskAvslBatch(behandling);
     }
 }
