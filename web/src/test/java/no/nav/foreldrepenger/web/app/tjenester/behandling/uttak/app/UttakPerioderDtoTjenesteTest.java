@@ -21,12 +21,12 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
@@ -136,7 +136,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     private Behandling behandlingMedUttak(UttakResultatPerioderEntitet perioder, AbstractTestScenario<?> scenario, LocalDateTime vedtakstidspunkt) {
         scenario.medUttak(perioder);
         scenario.medDefaultOppgittDekningsgrad();
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
+        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
         scenario.medBehandlingVedtak().medVedtakstidspunkt(vedtakstidspunkt);
         var behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
@@ -352,7 +352,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false, false));
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         var result = tjeneste().mapFra(behandling);

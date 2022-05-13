@@ -79,7 +79,7 @@ public class KontrollerFaktaUttakTjenesteTest {
 
     private Behandling opprettBehandlingForFarSomSøker() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
-        var rettighet = new OppgittRettighetEntitet(true, false, false);
+        var rettighet = new OppgittRettighetEntitet(true, false, false, false);
         scenario.medOppgittRettighet(rettighet);
 
         var periode = OppgittPeriodeBuilder.ny()

@@ -191,7 +191,7 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
             .medPeriode(fødselsdato, fødselsdato.plusWeeks(10))
             .build();
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, false))
             .medFordeling(new OppgittFordelingEntitet(List.of(søknadsperiode), true))
             .medAvklarteUttakDatoer(
                 new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(søknadsperiode.getFom()).build())
@@ -366,7 +366,7 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(fellesperiode2, fellesperiode3), true))
             .medJustertFordeling(
                 new OppgittFordelingEntitet(List.of(fellesperiode1, fellesperiode2, fellesperiode3), true))
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false))
             .medAktivitetskravPerioder(List.of(avklartPeriode1, avklartPeriode2))
             .medAvklarteUttakDatoer(avklarteUttakDatoer)
             .lagre(repositoryProvider);
@@ -408,7 +408,7 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
             .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
             .medFordeling(new OppgittFordelingEntitet(List.of(fellesperiode), true))
             .medJustertFordeling(new OppgittFordelingEntitet(List.of(fellesperiode), true))
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false))
             .medAktivitetskravPerioder(List.of(avklartPeriode))
             .medAvklarteUttakDatoer(avklarteUttakDatoer)
             .lagre(repositoryProvider);
@@ -437,7 +437,7 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
             .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
             .medFordeling(new OppgittFordelingEntitet(List.of(fellesperiode), true))
             .medJustertFordeling(new OppgittFordelingEntitet(List.of(fellesperiode), true))
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false))
             .medAktivitetskravPerioder(List.of(avklartPeriode))
             .medSaksbehandledeAktivitetskravPerioder(List.of(avklartPeriode))
             .medAvklarteUttakDatoer(avklarteUttakDatoer)
@@ -465,7 +465,7 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
             .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
             .medFordeling(new OppgittFordelingEntitet(List.of(fellesperiode), true))
             .medJustertFordeling(new OppgittFordelingEntitet(List.of(fellesperiode), true))
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false))
             .medAktivitetskravPerioder(List.of(avklartPeriode))
             .medSaksbehandledeAktivitetskravPerioder(List.of(avklartPeriode))
             .lagre(repositoryProvider);
@@ -492,7 +492,7 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
             .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
             .medFordeling(new OppgittFordelingEntitet(List.of(fellesperiode), true))
             .medJustertFordeling(new OppgittFordelingEntitet(List.of(fellesperiode), true))
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false))
             .medAktivitetskravPerioder(List.of(avklartPeriode))
             .medAvklarteUttakDatoer(
                 new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(fellesperiode.getFom()).build())
@@ -531,7 +531,7 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
     }
 
     private OppgittRettighetEntitet aleneomsorg() {
-        return new OppgittRettighetEntitet(false, true, false);
+        return new OppgittRettighetEntitet(false, true, false, false);
     }
 
     private UttakInput uttakInput(BehandlingReferanse behandlingReferanse, FamilieHendelse familieHendelse) {
@@ -563,7 +563,7 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
             .orElseThrow()
             .getFom();
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(endringsdato).build();
-        var behandling = scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false))
+        var behandling = scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false))
             .medAktivitetskravPerioder(List.of(aktivitetskravPerioder))
             .medAvklarteUttakDatoer(avklarteUttakDatoer)
             .medJustertFordeling(new OppgittFordelingEntitet(søknadsperioder, true))

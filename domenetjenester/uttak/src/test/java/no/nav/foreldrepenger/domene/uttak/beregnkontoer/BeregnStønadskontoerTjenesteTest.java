@@ -55,7 +55,7 @@ public class BeregnStønadskontoerTjenesteTest {
             Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false))
             .medOppgittDekningsgrad(dekningsgrad);
         ytelsesFordelingRepository.lagre(behandlingId, yf.build());
 
@@ -98,7 +98,7 @@ public class BeregnStønadskontoerTjenesteTest {
             Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false))
             .medOppgittDekningsgrad(dekningsgrad);
         ytelsesFordelingRepository.lagre(behandlingId, yf.build());
 
@@ -135,7 +135,7 @@ public class BeregnStønadskontoerTjenesteTest {
             Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false, false))
             .medOppgittDekningsgrad(dekningsgrad);
         ytelsesFordelingRepository.lagre(behandlingId, yf.build());
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
@@ -170,7 +170,7 @@ public class BeregnStønadskontoerTjenesteTest {
             Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, false))
             .medOppgittDekningsgrad(dekningsgrad);
         ytelsesFordelingRepository.lagre(behandlingId, yf.build());
 
@@ -206,7 +206,7 @@ public class BeregnStønadskontoerTjenesteTest {
             Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, false))
             .medOppgittDekningsgrad(dekningsgrad);
         ytelsesFordelingRepository.lagre(behandlingId, yf.build());
 

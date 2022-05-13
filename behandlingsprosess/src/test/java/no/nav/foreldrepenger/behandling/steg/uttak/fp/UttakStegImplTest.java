@@ -289,7 +289,7 @@ public class UttakStegImplTest {
                 .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
                 .medPeriode(fødselsdato, LocalDate.of(2019, 10, 1));
         scenario.medFordeling(new OppgittFordelingEntitet(List.of(periodeBuilder.build()), true));
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
+        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(fødselsdato).build());
         var førstegangsBehandling = scenario.lagre(repositoryProvider);
         byggArbeidForBehandling(førstegangsBehandling);
@@ -539,7 +539,7 @@ public class UttakStegImplTest {
 
         var yfBuilder = YtelseFordelingAggregat.oppdatere(Optional.empty())
             .medOppgittFordeling(fordeling)
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false))
             .medOppgittDekningsgrad(oppgittDekningsgrad)
             .medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(fødselsdato).build());
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());

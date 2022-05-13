@@ -260,7 +260,7 @@ public class StønadskontoSaldoTjenesteTest {
         var fordeling = new OppgittFordelingEntitet(søknadsperioder, true);
         var behandling = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId)
             .medFordeling(fordeling)
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false))
             .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100())
             .lagre(repositoryProvider);
 

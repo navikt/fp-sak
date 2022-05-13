@@ -71,7 +71,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medOriginalBehandling(førsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
-                .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
+                .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
         revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var revurdering = revurderingScenario.lagre(repositoryProvider);
 
@@ -92,7 +92,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medOriginalBehandling(førsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
-                .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
+                .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
         revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var revurdering = revurderingScenario.lagre(repositoryProvider);
 
@@ -126,7 +126,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medOriginalBehandling(førsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
-                .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
+                .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
         revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var revurdering = revurderingScenario.lagre(repositoryProvider);
 
@@ -148,7 +148,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
         avsluttMedVedtak(morBehandling, repositoryProvider);
 
         var farScenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-                .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
+                .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
         farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var farBehandling = farScenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
@@ -174,7 +174,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
         avsluttMedVedtak(morBehandling, repositoryProvider);
 
         var farScenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-                .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
+                .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
         farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var farBehandling = farScenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
@@ -195,7 +195,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
         avsluttMedVedtak(morBehandling, repositoryProvider);
 
         var farScenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-                .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
+                .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
         farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var farBehandling = farScenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);

@@ -121,7 +121,7 @@ public class RettOgOmsorgGrunnlagByggerTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medFordeling(new OppgittFordelingEntitet(Collections.emptyList(), true));
 
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
+        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
         if (harAleneomsorg) {
             var perioderAleneOmsorg = new PerioderAleneOmsorgEntitet(true);
             scenario.medPeriodeMedAleneomsorg(perioderAleneOmsorg);
@@ -148,7 +148,7 @@ public class RettOgOmsorgGrunnlagByggerTest {
                                        boolean søkerRett,
                                        boolean annenForelderHarRett) {
         scenario.medFordeling(new OppgittFordelingEntitet(Collections.emptyList(), true));
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(annenForelderHarRett, false, false));
+        scenario.medOppgittRettighet(new OppgittRettighetEntitet(annenForelderHarRett, false, false, false));
 
         if (!søkerRett) {
             var behandlingsresultat = behandlingsresultatMedAvslåttVilkår();

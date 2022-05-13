@@ -168,7 +168,7 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
     private Behandling opprettRevurderingBehandling(BehandlingÅrsakType behandlingÅrsakType) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknad();
-        var rettighet = new OppgittRettighetEntitet(false, true, false);
+        var rettighet = new OppgittRettighetEntitet(false, true, false, false);
         scenario.medOppgittRettighet(rettighet);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER, BehandlingStegType.KONTROLLER_FAKTA_UTTAK);
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
