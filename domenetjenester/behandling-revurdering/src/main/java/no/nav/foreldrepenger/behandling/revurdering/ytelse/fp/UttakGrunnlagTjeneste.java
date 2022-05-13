@@ -111,7 +111,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
             .medUføretrygdGrunnlag(uføretrygdGrunnlag(ref).orElse(null))
             .medNesteSakGrunnlag(nesteSakGrunnlag(ref).orElse(null));
         if (fagsakRelasjon.isPresent()) {
-            var annenpart = annenpart(fagsakRelasjon.get(), familiehendelser, behandling);
+            var annenpart = annenpart(fagsakRelasjon.get(), behandling);
             grunnlag = grunnlag.medAnnenpart(annenpart.orElse(null));
         }
         return Optional.of(grunnlag);
@@ -129,9 +129,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         return nesteSakRepository.hentGrunnlag(ref.behandlingId());
     }
 
-    private Optional<Annenpart> annenpart(FagsakRelasjon fagsakRelasjon,
-                                          FamilieHendelser familiehendelser,
-                                          Behandling behandling) {
+    private Optional<Annenpart> annenpart(FagsakRelasjon fagsakRelasjon, Behandling behandling) {
         var relatertFagsak = fagsakRelasjon.getRelatertFagsak(behandling.getFagsak());
         if (relatertFagsak.isPresent()) {
             Optional<Behandling> annenPartBehandling;
