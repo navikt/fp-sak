@@ -47,6 +47,8 @@ public class BeregningDtoTjeneste {
         var bgRestDto = BehandlingslagerTilKalkulusMapper.mapGrunnlag(
             beregningsgrunnlagGrunnlagEntitet);
         var inputMedBg = input.medBeregningsgrunnlagGrunnlag(bgRestDto);
+        // Burde egentlig fikset konstruktøren så man ikke trenger ta med avklaringsbehov igjen her, men alt dette skal vekk når fpsak kaller kalulus direkte
+        inputMedBg.medAvklaringsbehov(input.getAvklaringsbehov());
         if (orginaltGrunnlag.isPresent() && orginaltGrunnlag.get().getBeregningsgrunnlag().isPresent()) {
             // Trenger ikke inntektsmeldinger på orginalt grunnlag
             var orginaltBG = BehandlingslagerTilKalkulusMapper.mapGrunnlag(
