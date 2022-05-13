@@ -222,7 +222,7 @@ public final class UttakEnumMapper {
 
     public static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet map(MorsAktivitet morsAktivitet) {
         //Ikke relevant for regler
-        if (Set.of(MorsAktivitet.UDEFINERT, MorsAktivitet.SAMTIDIGUTTAK, MorsAktivitet.IKKE_OPPGITT).contains(morsAktivitet)) {
+        if (Set.of(MorsAktivitet.UDEFINERT, MorsAktivitet.IKKE_OPPGITT).contains(morsAktivitet)) {
             return null;
         }
         return MORS_AKTIVITET_MAPPER

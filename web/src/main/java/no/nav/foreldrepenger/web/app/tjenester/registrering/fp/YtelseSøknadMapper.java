@@ -178,13 +178,11 @@ public class YtelseSøknadMapper implements SøknadMapper {
         uttaksperiodetyper.setKode(dto.getPeriodeType().getKode());
         uttaksperiode.setType(uttaksperiodetyper);
 
-        Optional.ofNullable(dto.getMorsAktivitet())
-            .filter(ma -> ma.getKode() != null && !ma.getKode().isEmpty() && !MorsAktivitet.SAMTIDIGUTTAK.equals(ma))
-            .ifPresent(ma -> {
-                var morsAktivitetsTyper = new MorsAktivitetsTyper();
-                morsAktivitetsTyper.setKode(ma.getKode());
-                uttaksperiode.setMorsAktivitetIPerioden(morsAktivitetsTyper);
-            });
+        Optional.ofNullable(dto.getMorsAktivitet()).ifPresent(ma -> {
+            var morsAktivitetsTyper = new MorsAktivitetsTyper();
+            morsAktivitetsTyper.setKode(ma.getKode());
+            uttaksperiode.setMorsAktivitetIPerioden(morsAktivitetsTyper);
+        });
 
         return uttaksperiode;
     }
@@ -275,13 +273,11 @@ public class YtelseSøknadMapper implements SøknadMapper {
         }
         utsettelsesperiode.setFom(utsettelserDto.getPeriodeFom());
         utsettelsesperiode.setTom(utsettelserDto.getPeriodeTom());
-        Optional.ofNullable(utsettelserDto.getMorsAktivitet())
-            .filter(ma -> !MorsAktivitet.SAMTIDIGUTTAK.equals(ma))
-            .ifPresent(ma -> {
-                var morsAktivitetsTyper = new MorsAktivitetsTyper();
-                morsAktivitetsTyper.setKode(ma.getKode());
-                utsettelsesperiode.setMorsAktivitetIPerioden(morsAktivitetsTyper);
-            });
+        Optional.ofNullable(utsettelserDto.getMorsAktivitet()).ifPresent(ma -> {
+            var morsAktivitetsTyper = new MorsAktivitetsTyper();
+            morsAktivitetsTyper.setKode(ma.getKode());
+            utsettelsesperiode.setMorsAktivitetIPerioden(morsAktivitetsTyper);
+        });
         return utsettelsesperiode;
     }
 

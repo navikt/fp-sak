@@ -72,7 +72,7 @@ public class ManuellRegistreringSøknadValidator {
             .map(TidsromPermisjonDto::getPermisjonsPerioder).orElse(List.of()).stream()
             .filter(p -> Set.of(UttakPeriodeType.FELLESPERIODE, UttakPeriodeType.FORELDREPENGER).contains(p.getPeriodeType()))
             .filter(p -> !p.isFlerbarnsdager())
-            .anyMatch(p -> p.getMorsAktivitet() == null || MorsAktivitet.UDEFINERT.equals(p.getMorsAktivitet()) || MorsAktivitet.SAMTIDIGUTTAK.equals(p.getMorsAktivitet()));
+            .anyMatch(p -> p.getMorsAktivitet() == null || MorsAktivitet.UDEFINERT.equals(p.getMorsAktivitet()));
         return manglerMorsAktivitet ? List.of(new FeltFeilDto("morsAktivitet", MANGLER_MORS_AKTIVITET)) : List.of();
     }
 
