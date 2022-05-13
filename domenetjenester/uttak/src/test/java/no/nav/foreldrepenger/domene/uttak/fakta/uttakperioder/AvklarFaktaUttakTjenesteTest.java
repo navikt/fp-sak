@@ -27,7 +27,7 @@ public class AvklarFaktaUttakTjenesteTest {
 
     private Behandling opprettBehandlingForMorMedSøktePerioder(List<OppgittPeriodeEntitet> perioder) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var rettighet = new OppgittRettighetEntitet(true, true, false);
+        var rettighet = new OppgittRettighetEntitet(true, false, false);
         scenario.medOppgittRettighet(rettighet);
 
         scenario.medFordeling(new OppgittFordelingEntitet(perioder, true));

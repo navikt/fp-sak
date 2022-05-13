@@ -103,7 +103,7 @@ public class UttakRevurderingTestUtil {
             aktørId)
             .medOriginalBehandling(førstegangsbehandling, behandlingÅrsakType)
             .medFordeling(nyFordeling)
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false))
             .medOppgittDekningsgrad(oppgittDekningsgrad);
 
         var revurdering = lagre(revurderingsscenario);

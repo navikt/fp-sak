@@ -486,8 +486,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
     private Optional<OppgittRettighetEntitet> oversettRettighet(Foreldrepenger omYtelse) {
         return Optional.ofNullable(omYtelse.getRettigheter())
-            .map(rettigheter -> new OppgittRettighetEntitet(rettigheter.isHarAnnenForelderRett(),
-                    rettigheter.isHarOmsorgForBarnetIPeriodene(), rettigheter.isHarAleneomsorgForBarnet(),
+            .map(rettigheter -> new OppgittRettighetEntitet(rettigheter.isHarAnnenForelderRett(), rettigheter.isHarAleneomsorgForBarnet(),
                     harOppgittUføreEllerPerioderMedAktivitetUføre(omYtelse, rettigheter.isHarMorUforetrygd())));
     }
 

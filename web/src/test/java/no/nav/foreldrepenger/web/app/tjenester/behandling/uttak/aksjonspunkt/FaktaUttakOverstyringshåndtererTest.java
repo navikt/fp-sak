@@ -117,7 +117,7 @@ public class FaktaUttakOverstyringshåndtererTest {
     }
 
     private Behandling opprettBehandling() {
-        var rettighet = new OppgittRettighetEntitet(false, false, true);
+        var rettighet = new OppgittRettighetEntitet(false, true, false);
         var periode_1 = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now().minusDays(10), LocalDate.now())
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)

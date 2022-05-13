@@ -59,7 +59,7 @@ public class MaksDatoUttakTjenesteImplTest {
         uttak.leggTilPeriode(fellesperiode);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false, false));
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
         scenario.medUttak(uttak);
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -85,7 +85,7 @@ public class MaksDatoUttakTjenesteImplTest {
         uttak.leggTilPeriode(fellesperiode);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false, false));
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
         scenario.medUttak(uttak);
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -118,7 +118,7 @@ public class MaksDatoUttakTjenesteImplTest {
         uttak.leggTilPeriode(fellesperiode);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false, false));
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
         scenario.medUttak(uttak);
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -155,7 +155,7 @@ public class MaksDatoUttakTjenesteImplTest {
         uttak.leggTilPeriode(fellesperiode);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false, false));
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
         scenario.medUttak(uttak);
         var behandling = scenario.lagre(repositoryProvider);
 

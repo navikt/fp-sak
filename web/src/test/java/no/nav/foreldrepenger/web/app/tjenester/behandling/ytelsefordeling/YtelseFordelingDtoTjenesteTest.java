@@ -166,7 +166,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
     private Behandling opprettBehandling(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         // Arrange
         var termindato = LocalDate.now().plusWeeks(16);
-        var rettighet = new OppgittRettighetEntitet(false, false, true);
+        var rettighet = new OppgittRettighetEntitet(false, true, false);
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
             LocalDate.now().minusDays(20)).medOpprinneligEndringsdato(LocalDate.now().minusDays(20)).build();
         var periode_1 = OppgittPeriodeBuilder.ny()
