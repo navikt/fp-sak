@@ -42,8 +42,6 @@ public class OppgittRettighetEntitet extends BaseEntitet {
     @ChangeTracked
     private Boolean morMottarUføretrygd;
 
-    //TODO TFP-4962 palfi, rydd db
-
     OppgittRettighetEntitet() {
     }
 
