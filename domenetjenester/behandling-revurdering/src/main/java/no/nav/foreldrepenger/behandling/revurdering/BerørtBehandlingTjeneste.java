@@ -93,7 +93,6 @@ public class BerørtBehandlingTjeneste {
         var kreverSammenhengendeUttak = uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak();
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         if (foreldrepengerGrunnlag.isBerørtBehandling()) {
-            LOG.info("Skal opprette berørt: Berørt");
             return false;
         }
         if (brukersGjeldendeBehandlingsresultat.isEndretStønadskonto()
@@ -103,8 +102,7 @@ public class BerørtBehandlingTjeneste {
         }
         var brukersUttak = hentUttak(behandlingId).orElse(tomtUttak());
         var annenpartsUttak = hentUttak(behandlingIdAnnenPart);
-        if (annenpartsUttak.isEmpty() || finnMinAktivDato(brukersUttak, annenpartsUttak.get()).isEmpty()) {
-            LOG.info("Skal opprette berørt: Empty");
+        if (annenpartsUttak.isEmpty() || finnMinAktivDatoAnnenPart(annenpartsUttak.get()).isEmpty() || finnMinAktivDato(brukersUttak, annenpartsUttak.get()).isEmpty()) {
             return false;
         }
 
@@ -133,7 +131,9 @@ public class BerørtBehandlingTjeneste {
         }
 
         var opprett = kreverSammenhengendeUttak && !fellesTidslinjeForSammenheng.isContinuous(periodeFomEndringsdato);
-        LOG.info("Skal opprette berørt: Sammenhengende etter uke 6 {}", opprett);
+        if (opprett) {
+            LOG.info("Skal opprette berørt: Sammenhengende etter uke 6 {}", opprett);
+        }
         return opprett;
     }
 
@@ -196,16 +196,23 @@ public class BerørtBehandlingTjeneste {
         return new LocalDateSegment<>(fom, tom, Boolean.TRUE);
     }
 
+    private Optional<LocalDate> finnMinAktivDatoAnnenPart(ForeldrepengerUttak annenpart) {
+        return annenpart.getGjeldendePerioder().stream()
+            .filter(this::isAktivtUttak)
+            .map(ForeldrepengerUttakPeriode::getFom)
+            .min(Comparator.naturalOrder());
+    }
+
     private Optional<LocalDate> finnMinAktivDato(ForeldrepengerUttak bruker, ForeldrepengerUttak annenpart) {
         return Stream.concat(bruker.getGjeldendePerioder().stream(), annenpart.getGjeldendePerioder().stream())
-            .filter(p -> isAktivtUttak(p))
+            .filter(this::isAktivtUttak)
             .map(ForeldrepengerUttakPeriode::getFom)
             .min(Comparator.naturalOrder());
     }
 
     private Optional<LocalDate> finnMaxAktivDato(ForeldrepengerUttak bruker, ForeldrepengerUttak annenpart) {
         return Stream.concat(bruker.getGjeldendePerioder().stream(), annenpart.getGjeldendePerioder().stream())
-            .filter(p -> isAktivtUttak(p))
+            .filter(this::isAktivtUttak)
             .map(ForeldrepengerUttakPeriode::getTom)
             .max(Comparator.naturalOrder());
     }

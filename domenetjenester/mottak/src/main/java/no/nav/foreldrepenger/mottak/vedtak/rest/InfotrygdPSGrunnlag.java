@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class InfotrygdPSGrunnlag {
-    private static final String DEFAULT_URI = "http://infotrygd-grunnlag-paaroerende-sykdom.default/paaroerendeSykdom/grunnlag";
+    private static final String DEFAULT_URI = "http://k9-infotrygd-grunnlag-paaroerende-sykdom.k9saksbehandling/paaroerendeSykdom/grunnlag";
 
     private static final Logger LOG = LoggerFactory.getLogger(InfotrygdPSGrunnlag.class);
 
