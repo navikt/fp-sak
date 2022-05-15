@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.revurdering.BerørtBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -82,7 +83,8 @@ public class BerørtBehandlingKontroller {
     }
 
     private void håndterKøForMedforelder(Fagsak fagsakMedforelder, Fagsak fagsakBruker, Long behandlingIdBruker) {
-        var sistVedtatteYtelsesbehandlingMedforelder = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMedforelder.getId());
+        var sistVedtatteYtelsesbehandlingMedforelder = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMedforelder.getId())
+            .filter(this::ikkeAvslått);
 
         if (sistVedtatteYtelsesbehandlingMedforelder.isPresent()) {
             LOG.info("Siste vedtatte ytelse for annen part: behandlingId {}", sistVedtatteYtelsesbehandlingMedforelder.get().getId());
@@ -102,6 +104,14 @@ public class BerørtBehandlingKontroller {
         } else {
             håndterKø(fagsakBruker);
         }
+    }
+
+    private boolean ikkeAvslått(Behandling b) {
+        // For tilfelle der saker er koblet - men ene partens er avslått, fx pga innvilget ES.
+        return behandlingsresultatRepository.hentHvisEksisterer(b.getId())
+            .map(Behandlingsresultat::getBehandlingResultatType)
+            .filter(BehandlingResultatType.AVSLÅTT::equals)
+            .isEmpty();
     }
 
     /**
@@ -167,9 +177,7 @@ public class BerørtBehandlingKontroller {
         if (gjeldendeTilkjent == null) return false;
         var harAvvikFeriepenger = beregnFeriepenger.avvikBeregnetFeriepengerBeregningsresultat(sisteVedtatteMedForelder, gjeldendeTilkjent);
         if (avsluttetErReberegn && harAvvikFeriepenger) {
-            // TODO: Evaluer om denne opptrer. Hvis ikke kan man droppe sjekk på om avsluttet er en reberegnFeriepenger - ellers undersøk mer
-            // Sjekken var for "avoid cascade" ved batchvis reberegning av feriepenger
-            LOG.info("REBEREGN FERIEPENGER potensiell cascade avsluttet behandlingId {} sak medforelder {}", behandlingIdBruker, fagsakMedforelder.getSaksnummer());
+            LOG.warn("REBEREGN FERIEPENGER potensiell cascade avsluttet behandlingId {} sak medforelder {}", behandlingIdBruker, fagsakMedforelder.getSaksnummer());
             return false;
         }
         return harAvvikFeriepenger;
