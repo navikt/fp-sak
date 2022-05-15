@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
@@ -78,7 +79,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
         List<AksjonspunktResultat> aksjonspunkter = new ArrayList<>();
 
         if (!behandling.harAksjonspunktMedType(MANUELL_MARKERING_AV_UTLAND_SAKSTYPE) && !behandling.erRevurdering()
-                && harOppgittUtenlandskInntekt(kontekst.getBehandlingId())) {
+                && (harOppgittUtenlandskInntekt(kontekst.getBehandlingId()) || harOppgittAnnenForelderHarForeldrepengerFraEØS(kontekst.getBehandlingId()))) {
             aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AUTOMATISK_MARKERING_AV_UTENLANDSSAK));
         }
 
@@ -95,6 +96,13 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
                 .flatMap(InntektArbeidYtelseGrunnlag::getOppgittOpptjening);
         return oppgittOpptening.map(oppgittOpptjening -> oppgittOpptjening.getOppgittArbeidsforhold().stream()
                 .anyMatch(OppgittArbeidsforhold::erUtenlandskInntekt)).orElse(false);
+    }
+
+    private boolean harOppgittAnnenForelderHarForeldrepengerFraEØS(Long behandlingId) {
+        return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
+            .map(YtelseFordelingAggregat::getOppgittRettighet)
+            .filter(OppgittRettighetEntitet::getMorMottarStønadEØS)
+            .isPresent();
     }
 
     private void kobleSakerOppdaterEnhetVedBehov(Behandling behandling) {

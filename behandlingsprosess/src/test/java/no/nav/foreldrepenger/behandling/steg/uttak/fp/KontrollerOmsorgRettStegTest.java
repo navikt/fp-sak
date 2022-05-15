@@ -70,7 +70,7 @@ public class KontrollerOmsorgRettStegTest {
 
         scenario.medRegisterOpplysninger(personInformasjon);
 
-        var rettighet = new OppgittRettighetEntitet(true, false, false);
+        var rettighet = new OppgittRettighetEntitet(true, false, false, false);
         scenario.medOppgittRettighet(rettighet);
         var now = LocalDate.now();
         scenario.medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
@@ -105,7 +105,7 @@ public class KontrollerOmsorgRettStegTest {
         var AKTØR_ID_FAR = AktørId.dummy();
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
-        var rettighet = new OppgittRettighetEntitet(false, true, false);
+        var rettighet = new OppgittRettighetEntitet(false, true, false, false);
 
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
 

@@ -57,7 +57,7 @@ public class AvklarFaktaUttakPerioderTjenesteTest {
             .build();
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(søknadsperiode), true))
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false, false))
             .lagre(repositoryProvider);
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, fpGrunnlag(fom));
         var resultat = tjeneste.hentKontrollerFaktaPerioder(input);

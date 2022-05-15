@@ -500,7 +500,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         scenarioMor.medSøknadHendelse().medFødselsDato(fødseldato);
         scenarioMor.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET);
         scenarioMor.medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
-        scenarioMor.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
+        scenarioMor.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
         scenarioMor.medFordeling(new OppgittFordelingEntitet(List.of(), true));
         scenarioMor.medUttak(uttakMor);
         var behandlingMor = scenarioMor.lagre(repositoryProvider);
@@ -647,7 +647,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
                                              UttakResultatPerioderEntitet uttakFar) {
         var scenarioFar = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenarioFar.medFordeling(new OppgittFordelingEntitet(List.of(), true));
-        scenarioFar.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
+        scenarioFar.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
         scenarioFar.medSøknadHendelse().medFødselsDato(fødseldato);
         scenarioFar.medUttak(uttakFar);
 
@@ -822,7 +822,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, true));
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, true, false));
         var annenPartAktørId = AktørId.dummy();
         scenario.medSøknadAnnenPart().medAktørId(annenPartAktørId);
         var behandling = avsluttetBehandlingMedUttak(fødseldato, scenario, uttak);
@@ -886,7 +886,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(), true))
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, true));
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, true, false));
         var annenPartAktørId = AktørId.dummy();
         scenario.medSøknadAnnenPart().medAktørId(annenPartAktørId);
         var behandling = avsluttetBehandlingMedUttak(fødseldato, scenario, uttak);
@@ -996,7 +996,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         scenario.medDefaultBekreftetTerminbekreftelse();
         scenario.medDefaultOppgittDekningsgrad();
         scenario.medFordeling(new OppgittFordelingEntitet(List.of(), true));
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
+        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
         return scenario.lagre(repositoryProvider);
     }
 }

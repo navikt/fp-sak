@@ -143,7 +143,7 @@ class KontrollerAktivitetskravDtoTjenesteTest {
 
     private Behandling behandlingFraScenario() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false))
             .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(DATO.minusDays(60)).build());
         scenario.medSøknadHendelse().medFødselsDato(DATO.minusDays(60)).medAntallBarn(1);
         return scenario.lagre(repositoryProvider);

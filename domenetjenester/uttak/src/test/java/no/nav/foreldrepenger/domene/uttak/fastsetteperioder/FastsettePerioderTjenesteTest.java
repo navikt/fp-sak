@@ -389,11 +389,11 @@ public class FastsettePerioderTjenesteTest {
     }
 
     private OppgittRettighetEntitet bareFarHarRett() {
-        return new OppgittRettighetEntitet(false, false, false);
+        return new OppgittRettighetEntitet(false, false, false, false);
     }
 
     private OppgittRettighetEntitet beggeRett() {
-        return new OppgittRettighetEntitet(true, false, false);
+        return new OppgittRettighetEntitet(true, false, false, false);
     }
 
     @Test
@@ -480,7 +480,7 @@ public class FastsettePerioderTjenesteTest {
 
         var behandling = behandlingMedSøknadsperioder(List.of(fpffSøknadsperiode, foreldrepengerSøknadsperiode));
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false));
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false, false));
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         byggArbeidForBehandling(behandling, fødselsdato, List.of(virksomhet));
@@ -538,7 +538,7 @@ public class FastsettePerioderTjenesteTest {
         var behandling = behandlingMedSøknadsperioder(List.of(fpffSøknadsperiode, foreldrepengerSøknadsperiode));
 
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false));
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false, false));
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         byggArbeidForBehandling(behandling, fødselsdato, List.of(virksomhet, person));
