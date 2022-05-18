@@ -132,7 +132,7 @@ public class KravperioderMapper {
         LocalDate startRefusjon;
         LocalDate startDatoArbeid = arbeidDto.hentAlleYrkesaktiviteter().stream()
             .filter(y -> y.getArbeidsgiver().getIdentifikator().equals(im.getArbeidsgiver().getIdentifikator()) &&
-                matcherReferanse(y.getArbeidsforholdRef(), im.getArbeidsforholdRef()))
+                y.getArbeidsforholdRef().gjelderFor(im.getArbeidsforholdRef()))
             .flatMap(y -> y.getAlleAktivitetsAvtaler().stream())
             .filter(AktivitetsAvtale::erAnsettelsesPeriode)
             .map(AktivitetsAvtale::getPeriode)
@@ -180,11 +180,6 @@ public class KravperioderMapper {
             .map(r -> new RefusjonsperiodeDto(Intervall.fraOgMedTilOgMed(r.getFom(), r.getTom()), r.getValue()))
             .collect(Collectors.toList());
 
-    }
-
-    private static boolean matcherReferanse(InternArbeidsforholdRef ref1, InternArbeidsforholdRef ref2) {
-        return (ref1 == null && ref2 == null)
-            || (ref1 != null && ref2 != null && Objects.equals(ref1.getReferanse(), ref2.getReferanse()));
     }
 
     public static record Kravnøkkel(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef referanse) { }
