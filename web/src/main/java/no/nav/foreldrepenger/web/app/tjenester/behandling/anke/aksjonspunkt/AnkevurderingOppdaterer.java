@@ -47,6 +47,7 @@ import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = AnkeVurderingResultatAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -87,8 +88,11 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
     @Override
     public OppdateringResultat oppdater(AnkeVurderingResultatAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var ankeBehandling = param.getBehandling();
+        var utvalgteSBH = Optional.ofNullable(SubjectHandler.getSubjectHandler().getUid())
+            .filter(u -> Set.of("A100182", "E137084").contains(u))
+            .isPresent();
 
-        if (!ER_PROD && Optional.ofNullable(dto.getSendTilKabal()).orElse(false)) {
+        if ((!ER_PROD || utvalgteSBH) && Optional.ofNullable(dto.getSendTilKabal()).orElse(false)) {
             var ankeresultat = ankeRepository.hentAnkeResultat(ankeBehandling.getId());
             var påAnketKlageBehandlingId = mapPåAnketKlageBehandlingUuid(dto)
                 .or(() ->  ankeresultat.flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId))
