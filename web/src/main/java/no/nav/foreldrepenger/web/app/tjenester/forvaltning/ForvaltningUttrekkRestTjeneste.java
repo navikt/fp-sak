@@ -92,10 +92,12 @@ public class ForvaltningUttrekkRestTjeneste {
         if (apDef == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        var query = entityManager.createNativeQuery("select saksnummer, ytelse_type, ap.opprettet_tid, ap.frist_tid " +
-                " from fpsak.fagsak fs join fpsak.behandling bh on bh.fagsak_id=fs.id " +
-                " join FPSAK.AKSJONSPUNKT ap on ap.behandling_id=bh.id " +
-                " where aksjonspunkt_def=:apdef and aksjonspunkt_status=:status "); //$NON-NLS-1$
+        var query = entityManager.createNativeQuery("""
+                select saksnummer, ytelse_type, ap.opprettet_tid, ap.frist_tid
+                from fagsak fs
+                join behandling bh on bh.fagsak_id = fs.id
+                join aksjonspunkt ap on ap.behandling_id = bh.id
+                where ap.aksjonspunkt_def = :apdef and ap.aksjonspunkt_status = :status"""); //$NON-NLS-1$
         query.setParameter("apdef", apDef.getKode());
         query.setParameter("status", AksjonspunktStatus.OPPRETTET.getKode());
         @SuppressWarnings("unchecked")
@@ -113,18 +115,18 @@ public class ForvaltningUttrekkRestTjeneste {
     @Path("/flyttTilOmsorgRett")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response flyttTilOmsorgRett() {
-        var query = entityManager.createNativeQuery("select saksnummer, bh.id " +
-            " from fpsak.fagsak fs join fpsak.behandling bh on bh.fagsak_id=fs.id " +
-            " join FPSAK.AKSJONSPUNKT ap on ap.behandling_id=bh.id " +
-            " where aksjonspunkt_def in (:apdef) and aksjonspunkt_status=:status "); //$NON-NLS-1$
+        var query = entityManager.createNativeQuery("""
+            select saksnummer, bh.id
+            from fagsak fs
+            join behandling bh on bh.fagsak_id = fs.id
+            join aksjonspunkt ap on ap.behandling_id = bh.id
+            where aksjonspunkt_def in (:apdef) and aksjonspunkt_status = :status"""); //$NON-NLS-1$
         query.setParameter("apdef", Set.of(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT.getKode(), AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG.getKode()));
         query.setParameter("status", AksjonspunktStatus.OPPRETTET.getKode());
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        var åpneAksjonspunkt = resultatList.stream()
-            .map(r -> new KabalFlytt((String) r[0], ((BigDecimal) r[1]).longValue()))
-            .collect(Collectors.toList());
-        åpneAksjonspunkt.forEach(b -> flyttTilbakeTilOmsorgRett(b));
+        var åpneAksjonspunkt = resultatList.stream().map(r -> new KabalFlytt((String) r[0], ((BigDecimal) r[1]).longValue())).toList();
+        åpneAksjonspunkt.forEach(this::flyttTilbakeTilOmsorgRett);
         return Response.ok().build();
     }
 

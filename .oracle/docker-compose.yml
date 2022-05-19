@@ -4,7 +4,13 @@ services:
         image: gvenzl/oracle-xe:18.4.0-slim
         environment:
             - ORACLE_RANDOM_PASSWORD=true
-        shm_size: 2gb
+        shm_size: 4gb
+        deploy:
+            resources:
+                limits:
+                    memory: 2gb
+                reservations:
+                    memory: 1gb
         ports:
             - "1521:1521"
         volumes:
