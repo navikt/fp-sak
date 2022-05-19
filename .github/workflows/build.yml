@@ -19,17 +19,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-        oracle:
-            image: gvenzl/oracle-xe:18.4.0-slim
-            env:
-                ORACLE_RANDOM_PASSWORD: true
-                APP_USER: fpsak
-                APP_USER_PASSWORD: fpsak
-            ports:
-                - 1521:1521
-            options: --name oracle --health-cmd healthcheck.sh --health-interval 10s --health-timeout 5s --health-retries 5
-
     steps:
       - uses: actions/checkout@v3
       - name: Setup maven
@@ -45,9 +34,20 @@ jobs:
           java-version: 17
           cache: 'maven'
 
-      - name: Opprett ekstra db bruker
+      - name: Login to GitHub Packages Docker Registry
+        uses: docker/login-action@49ed152c8eca782a232dede0303416e8f356c37b # Use commit-sha1 instead of tag for security concerns
+        with:
+            registry: ghcr.io
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Hent og start Oracle image
+        id: oracle
         run: |
-            docker exec oracle createAppUser fpsak_hist fpsak_hist XEPDB1
+            echo "Henter og starter Oracle image"
+            cd .oracle
+            docker-compose up --quiet-pull > nohup.out 2>&1 &
+            sh -c 'tail -n +0 -f nohup.out | { sed "/Database opened./q" && kill $$; }' || true
 
       - name: Set build version
         run: |
@@ -63,14 +63,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }} # Må ha PAT pga avhengighet til private repo: legacy-avhengigheter og ft-kalkulus
           DATABASE_HOST: localhost
           DATABASE_PORT: ${{ job.services.oracle.ports[1521] }}
-          DATABASE_SERVICE: XEPDB1
-
-      - name: Login to GitHub Packages Docker Registry
-        uses: docker/login-action@49ed152c8eca782a232dede0303416e8f356c37b # Use commit-sha1 instead of tag for security concerns
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Bygg, tag og push Docker image
         run: |

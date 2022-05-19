@@ -45,9 +45,20 @@ jobs:
           java-version: 17
           cache: 'maven'
 
-      - name: Opprett ekstra db bruker
+      - name: Login to GitHub Packages Docker Registry
+        uses: docker/login-action@49ed152c8eca782a232dede0303416e8f356c37b # Use commit-sha1 instead of tag for security concerns
+        with:
+            registry: ghcr.io
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Hent og start Oracle image
+        id: oracle
         run: |
-            docker exec oracle createAppUser fpsak_hist fpsak_hist XEPDB1
+            echo "Henter og starter Oracle image"
+            cd .oracle
+            docker-compose up --quiet-pull > nohup.out 2>&1 &
+            sh -c 'tail -n +0 -f nohup.out | { sed "/Database opened./q" && kill $$; }' || true
 
       - name: Set build version
         run: |
@@ -60,4 +71,4 @@ jobs:
         env:
           DATABASE_HOST: localhost
           DATABASE_PORT: ${{ job.services.oracle.ports[1521] }}
-          DATABASE_SERVICE: XEPDB1
+

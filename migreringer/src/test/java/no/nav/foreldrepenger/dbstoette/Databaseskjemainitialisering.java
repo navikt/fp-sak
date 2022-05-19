@@ -10,8 +10,6 @@ import javax.sql.DataSource;
 import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -22,7 +20,6 @@ public final class Databaseskjemainitialisering {
 
     private static final AtomicBoolean GUARD_UNIT_TEST_SKJEMAER = new AtomicBoolean();
 
-    private static final Logger LOG = LoggerFactory.getLogger(Databaseskjemainitialisering.class);
     private static final Environment ENV = Environment.current();
 
     private static final String DB_SCRIPT_LOCATION = "/db/migration/";
