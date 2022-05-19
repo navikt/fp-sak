@@ -212,7 +212,7 @@ public class IAYMapperTilKalkulus {
         dtoBuilder.medArbeidsgiver(yrkesaktivitet.getArbeidsgiver() == null ? null : mapArbeidsgiver(yrkesaktivitet.getArbeidsgiver()));
         dtoBuilder.medArbeidType(ArbeidType.fraKode(yrkesaktivitet.getArbeidType().getKode()));
         yrkesaktivitet.getPermisjon().stream()
-            .filter(perm -> !erRelevantForBeregning(perm, finnBekreftetPermisjon(yrkesaktivitet, arbeidsforholdOverstyringer)))
+            .filter(perm -> erRelevantForBeregning(perm, finnBekreftetPermisjon(yrkesaktivitet, arbeidsforholdOverstyringer)))
             .forEach(perm -> dtoBuilder.leggTilPermisjon(mapPermisjon(perm)));
         return dtoBuilder.build();
     }
@@ -222,7 +222,7 @@ public class IAYMapperTilKalkulus {
             return false;
         }
         return bekreftetPermisjon
-            .map(b -> Objects.equals(b.getPeriode(), perm.getPeriode()) && !BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON.equals(b.getStatus()))
+            .map(b -> Objects.equals(b.getPeriode(), perm.getPeriode()) && !BekreftetPermisjonStatus.BRUK_PERMISJON.equals(b.getStatus()))
             .orElse(true);
     }
 
