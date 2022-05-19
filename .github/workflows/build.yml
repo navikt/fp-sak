@@ -28,7 +28,7 @@ jobs:
                 APP_USER_PASSWORD: fpsak
             ports:
                 - 1521:1521
-            options: --health-cmd healthcheck.sh --health-interval 10s --health-timeout 5s --health-retries 5
+            options: --name oracle --health-cmd healthcheck.sh --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
       - uses: actions/checkout@v3
@@ -44,6 +44,10 @@ jobs:
           distribution: 'temurin'
           java-version: 17
           cache: 'maven'
+
+      - name: Opprett ekstra db bruker
+        run: |
+            docker exec oracle createAppUser fpsak_hist fpsak_hist XEPDB1
 
       - name: Set build version
         run: |

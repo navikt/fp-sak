@@ -73,6 +73,7 @@ public final class Databaseskjemainitialisering {
                 }
             }
         }
+        GUARD_UNIT_TEST_SKJEMAER.compareAndSet(true, false);
     }
 
     public static synchronized DataSource settJdniOppslag() {
