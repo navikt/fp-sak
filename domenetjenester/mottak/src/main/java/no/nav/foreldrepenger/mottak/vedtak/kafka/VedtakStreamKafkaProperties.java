@@ -22,8 +22,8 @@ class VedtakStreamKafkaProperties {
 
     @Inject
     VedtakStreamKafkaProperties(@KonfigVerdi("kafka.fattevedtak.topic") String topicName,
-                                @KonfigVerdi("bootstrap.servers") String bootstrapServers,
-                                @KonfigVerdi("schema.registry.url") String schemaRegistryUrl,
+                                @KonfigVerdi("kafka.bootstrap.servers") String bootstrapServers,
+                                @KonfigVerdi("kafka.schema.registry.url") String schemaRegistryUrl,
                                 @KonfigVerdi("systembruker.username") String username,
                                 @KonfigVerdi("systembruker.password") String password,
                                 @KonfigVerdi(value = "javax.net.ssl.trustStore", required = false) String trustStorePath,

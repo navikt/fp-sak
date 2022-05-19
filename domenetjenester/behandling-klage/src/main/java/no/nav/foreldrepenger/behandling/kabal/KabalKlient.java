@@ -25,8 +25,8 @@ public class KabalKlient {
 
     @Inject
     public KabalKlient(
-        @KonfigVerdi(value = "KABAL_API_URL", defaultVerdi = "https://kabal-api.intern.nav.no/api/oversendelse/v3/sak") URI uri,
-        @KonfigVerdi(value = "KABAL_API_SCOPES", defaultVerdi = "api://prod-gcp.klage.kabal-api/.default") String scope) {
+        @KonfigVerdi(value = "kabal.api.url", defaultVerdi = "https://kabal-api.intern.nav.no/api/oversendelse/v3/sak") URI uri,
+        @KonfigVerdi(value = "kabal.api.scopes", defaultVerdi = "api://prod-gcp.klage.kabal-api/.default") String scope) {
         this.restClient = AzureADRestClient.builder().scope(scope).build();
         this.uri = uri;
         this.uriString = uri.toString();

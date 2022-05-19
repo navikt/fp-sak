@@ -33,8 +33,8 @@ public class DialogHendelseProducer {
     }
 
     @Inject
-    public DialogHendelseProducer(@KonfigVerdi("bootstrap.servers") String bootstrapServers,
-                                  @KonfigVerdi("schema.registry.url") String schemaRegistryUrl,
+    public DialogHendelseProducer(@KonfigVerdi("kafka.bootstrap.servers") String bootstrapServers,
+                                  @KonfigVerdi("kafka.schema.registry.url") String schemaRegistryUrl,
                                   @KonfigVerdi("systembruker.username") String username,
                                   @KonfigVerdi("systembruker.password") String password) {
         var properties = KafkaPropertiesUtil.opprettProperties(bootstrapServers, schemaRegistryUrl, topic.getProducerClientId(), username, password);

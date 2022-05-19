@@ -42,8 +42,8 @@ public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
     public PubliserVedtattYtelseHendelseTask(BehandlingRepositoryProvider repositoryProvider,
                                              VedtattYtelseTjeneste vedtakTjeneste,
                                              @KonfigVerdi("kafka.fattevedtak.topic") String topicName,
-                                             @KonfigVerdi("bootstrap.servers") String bootstrapServers,
-                                             @KonfigVerdi("schema.registry.url") String schemaRegistryUrl,
+                                             @KonfigVerdi("kafka.bootstrap.servers") String bootstrapServers,
+                                             @KonfigVerdi("kafka.schema.registry.url") String schemaRegistryUrl,
                                              @KonfigVerdi("systembruker.username") String username,
                                              @KonfigVerdi("systembruker.password") String password) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
