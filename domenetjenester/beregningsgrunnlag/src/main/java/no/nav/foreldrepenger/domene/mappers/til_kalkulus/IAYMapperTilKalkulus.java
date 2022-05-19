@@ -222,7 +222,7 @@ public class IAYMapperTilKalkulus {
             return false;
         }
         return bekreftetPermisjon
-            .map(b -> Objects.equals(b.getPeriode(), perm.getPeriode()) && !BekreftetPermisjonStatus.BRUK_PERMISJON.equals(b.getStatus()))
+            .map(b -> Objects.equals(b.getPeriode(), perm.getPeriode()) && BekreftetPermisjonStatus.BRUK_PERMISJON.equals(b.getStatus()))
             .orElse(true);
     }
 
