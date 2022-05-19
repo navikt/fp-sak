@@ -47,6 +47,7 @@ public class RettOgOmsorgGrunnlagBygger {
                 .farHarRett(farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
                 .morHarRett(morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
                 .morUføretrygd(morUføretrygd(uttakInput))
+                .morOppgittUføretrygd(morOppgittUføretrygd(uttakInput))
                 .samtykke(samtykke);
     }
 
@@ -90,6 +91,11 @@ public class RettOgOmsorgGrunnlagBygger {
         return fpGrunnlag.getUføretrygdGrunnlag()
             .filter(UføretrygdGrunnlagEntitet::annenForelderMottarUføretrygd)
             .isPresent();
+    }
+
+    private boolean morOppgittUføretrygd(UttakInput uttakInput) {
+        ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
+        return fpGrunnlag.getUføretrygdGrunnlag().isPresent();
     }
 
     private boolean samtykke(YtelseFordelingAggregat ytelseFordelingAggregat) {
