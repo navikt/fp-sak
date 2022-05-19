@@ -8,7 +8,8 @@ RUN mkdir conf
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 \
     -Djava.security.egd=file:/dev/urandom \
     -Duser.timezone=Europe/Oslo \
-    -Dlogback.configurationFile=conf/logback.xml"
+    -Dlogback.configurationFile=conf/logback.xml \
+    -Dapplication.name=fpsak"
 
 # Import vault properties
 COPY .scripts/03-import-appd.sh /init-scripts/03-import-appd.sh
