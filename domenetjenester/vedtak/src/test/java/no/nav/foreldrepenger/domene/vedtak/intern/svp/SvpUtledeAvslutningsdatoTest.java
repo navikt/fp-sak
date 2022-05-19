@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -17,13 +18,11 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -37,30 +36,24 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
-import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
+import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.svp.MaksDatoUttakTjenesteImpl;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class SvpFagsakRelasjonAvslutningsdatoOppdatererTest {
-    private SvpFagsakRelasjonAvslutningsdatoOppdaterer fagsakRelasjonAvslutningsdatoOppdaterer;
+public class SvpUtledeAvslutningsdatoTest {
+    private SvpUtledeAvslutningsdato utledeAvslutningsdato;
+    private static final int KLAGEFRIST_I_MÅNEDER = 3;
 
     @Mock
     private BehandlingRepositoryProvider repositoryProvider;
-
-    @Mock
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
-
     @Mock
     private BehandlingRepository behandlingRepository;
-    @Mock
-    private BehandlingsresultatRepository behandlingsresultatRepository;
     @Mock
     private FamilieHendelseRepository familieHendelseRepository;
     @Mock
     private SvangerskapspengerUttakResultatRepository svpUttakRepository;
-
     @Mock
     private UttakInputTjeneste uttakInputTjeneste;
 
@@ -73,16 +66,15 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdatererTest {
 
         repositoryProvider = mock(BehandlingRepositoryProvider.class);
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
-        when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
         when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(familieHendelseRepository);
 
-        fagsakRelasjonAvslutningsdatoOppdaterer = new SvpFagsakRelasjonAvslutningsdatoOppdaterer(repositoryProvider,
-            uttakInputTjeneste, maksDatoUttakTjeneste, fagsakRelasjonTjeneste);
+        utledeAvslutningsdato = new SvpUtledeAvslutningsdato(repositoryProvider,
+            uttakInputTjeneste, maksDatoUttakTjeneste);
 
         behandling = lagBehandling();
         fagsak = behandling.getFagsak();
 
-        when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag()));
+        when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(new UttakInput(BehandlingReferanse.fra(behandling), null, new SvangerskapspengerGrunnlag()));
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
     }
 
@@ -97,19 +89,16 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdatererTest {
     public void finner_avslutningsdato_fra_sisteuttaksdato(){
         // Arrange
         var fagsakRelasjon = mock(FagsakRelasjon.class);
-        when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
-        var behandlingsresultat = lagBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT);
-        when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()))
-            .thenReturn(behandlingsresultat);
+        var behandlingsresultat = lagBehandlingsresultat(behandling);
         var sisteUttaksdato = LocalDate.now().plusDays(10);
-        when(svpUttakRepository.hentHvisEksisterer(behandling.getId())).thenReturn(lagUttakMedEnGyldigPeriode(LocalDate.now().minusDays(10), sisteUttaksdato, behandlingsresultat.get()));
+        when(svpUttakRepository.hentHvisEksisterer(behandling.getId())).thenReturn(lagUttakMedEnGyldigPeriode(LocalDate.now().minusDays(10), sisteUttaksdato, behandlingsresultat));
 
         // Act
-        var avslutningdato = fagsakRelasjonAvslutningsdatoOppdaterer.finnAvslutningsdato(fagsak.getId(),fagsakRelasjon);
+        var avslutningdato = utledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(),fagsakRelasjon);
 
         // Assert
-        assertThat(avslutningdato).isEqualTo(sisteUttaksdato.plusDays(1));
+        assertThat(avslutningdato).isEqualTo(sisteUttaksdato.plusDays(1).plusMonths(KLAGEFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth()));
 
     }
 
@@ -117,28 +106,25 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdatererTest {
     public void finner_ingen_sisteuttaksdato_for_avslutning(){
         // Arrange
         var fagsakRelasjon = mock(FagsakRelasjon.class);
-        when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
-        var behandlingsresultat = lagBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT);
-        when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()))
-            .thenReturn(behandlingsresultat);
+        var behandlingsresultat = lagBehandlingsresultat(behandling);
+
         var sisteUttaksdato = LocalDate.now().plusDays(10);
-        when(svpUttakRepository.hentHvisEksisterer(behandling.getId())).thenReturn(lagUttakMedEnUgyldigPeriode(LocalDate.now().minusDays(10), sisteUttaksdato, behandlingsresultat.get()));
+        when(svpUttakRepository.hentHvisEksisterer(behandling.getId())).thenReturn(lagUttakMedEnUgyldigPeriode(LocalDate.now().minusDays(10), sisteUttaksdato, behandlingsresultat));
 
         // Act
-        var avslutningdato = fagsakRelasjonAvslutningsdatoOppdaterer.finnAvslutningsdato(fagsak.getId(),fagsakRelasjon);
+        var avslutningdato = utledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(),fagsakRelasjon);
 
         // Assert
         assertThat(avslutningdato).isEqualTo(LocalDate.now().plusDays(1));
 
     }
 
-    private Optional<Behandlingsresultat> lagBehandlingsresultat(Behandling behandling, BehandlingResultatType behandlingResultatType,
-                                                                 KonsekvensForYtelsen konsekvensForYtelsen) {
-        return Optional.of(Behandlingsresultat.builder()
-            .medBehandlingResultatType(behandlingResultatType)
-            .leggTilKonsekvensForYtelsen(konsekvensForYtelsen)
-            .buildFor(behandling));
+    private Behandlingsresultat lagBehandlingsresultat(Behandling behandling) {
+        return Behandlingsresultat.builder()
+            .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
+            .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.UDEFINERT)
+            .buildFor(behandling);
     }
 
     private Optional<SvangerskapspengerUttakResultatEntitet> lagUttakMedEnGyldigPeriode(LocalDate fom,

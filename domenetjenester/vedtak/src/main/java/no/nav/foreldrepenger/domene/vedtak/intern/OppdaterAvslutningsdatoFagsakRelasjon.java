@@ -1,0 +1,48 @@
+package no.nav.foreldrepenger.domene.vedtak.intern;
+
+import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
+
+@ApplicationScoped
+public class OppdaterAvslutningsdatoFagsakRelasjon {
+
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    private Instance<UtledeAvslutningsdatoFagsak> utledeAvslutningsdatoFagsak;
+
+
+    @Inject
+    public OppdaterAvslutningsdatoFagsakRelasjon(FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                                 @Any Instance<UtledeAvslutningsdatoFagsak> utledeAvslutningsdatoFagsak) {
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
+        this.utledeAvslutningsdatoFagsak = utledeAvslutningsdatoFagsak;
+    }
+
+    public OppdaterAvslutningsdatoFagsakRelasjon () {
+        //CDI proxy
+    }
+
+    public void oppdaterFagsakRelasjonAvslutningsdato(FagsakRelasjon relasjon,
+                                                      Long fagsakId,
+                                                      FagsakRelasjonLås lås,
+                                                      Optional<FagsakLås> fagsak1Lås,
+                                                      Optional<FagsakLås> fagsak2Lås,
+                                                      FagsakYtelseType ytelseType) {
+        var utlederAvslutningsdato = FagsakYtelseTypeRef.Lookup.find(this.utledeAvslutningsdatoFagsak, ytelseType)
+            .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner av UtledeAvslutningsdatoFagsak funnet for ytelse: " + ytelseType.getKode()));
+
+        var avslutningsdato = utlederAvslutningsdato.utledAvslutningsdato(fagsakId, relasjon);
+        fagsakRelasjonTjeneste.oppdaterMedAvslutningsdato(relasjon, avslutningsdato, lås, fagsak1Lås, fagsak2Lås);
+    }
+
+}

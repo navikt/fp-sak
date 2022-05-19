@@ -12,5 +12,4 @@ public interface MaksDatoUttakTjeneste {
     default Optional<LocalDate> beregnMaksDatoUttakSakskompleks(UttakInput uttakInput, int restStønadsDager) {
         return beregnMaksDatoUttak(uttakInput);
     }
-
 }
