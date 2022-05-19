@@ -1,6 +1,5 @@
 {
     "environment": "dev",
-    "namespace": "teamforeldrepenger",
     "kafkaPool": "nav-dev",
     "oracleconfig": "oracle/data/dev/config/fpsak_q1",
     "oraclefpsaksecret": "oracle/data/dev/creds/fpsak_q1-fpsak",
