@@ -47,7 +47,7 @@ jobs:
 
       - name: Opprett ekstra db bruker
         run: |
-            docker exec oracle createAppUser 'fpsak_hist' 'fpsak_hist' XEPDB1
+            docker exec oracle createAppUser fpsak_hist fpsak_hist XEPDB1
 
       - name: Set build version
         run: |
