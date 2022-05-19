@@ -26,8 +26,8 @@ public class AksjonspunktKafkaProducer {
 
     @Inject
     public AksjonspunktKafkaProducer(@KonfigVerdi("kafka.aksjonspunkthendelse.topic") String topicName,
-                                     @KonfigVerdi("bootstrap.servers") String bootstrapServers,
-                                     @KonfigVerdi("schema.registry.url") String schemaRegistryUrl,
+                                     @KonfigVerdi("kafka.bootstrap.servers") String bootstrapServers,
+                                     @KonfigVerdi("kafka.schema.registry.url") String schemaRegistryUrl,
                                      @KonfigVerdi("systembruker.username") String username,
                                      @KonfigVerdi("systembruker.password") String password) {
         var properties = new Properties();
