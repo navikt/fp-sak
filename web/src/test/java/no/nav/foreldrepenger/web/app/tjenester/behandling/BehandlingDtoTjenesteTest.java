@@ -41,6 +41,7 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDokStatusTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.ApplicationConfig;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
@@ -50,10 +51,11 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.Behandl
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.TilbakekrevingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAktivitetskravDtoTjeneste;
-import no.nav.foreldrepenger.web.server.jetty.JettyWebKonfigurasjon;
 
 @CdiDbAwareTest
 public class BehandlingDtoTjenesteTest {
+
+    private static final Environment ENV = Environment.current();
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -117,7 +119,7 @@ public class BehandlingDtoTjenesteTest {
     }
 
     private String href(String path) {
-        return JettyWebKonfigurasjon.CONTEXT_PATH + ApplicationConfig.API_URI + path;
+        return ENV.getProperty("context.path", "/fpsak") + ApplicationConfig.API_URI + path;
     }
 
     @Test

@@ -3,11 +3,13 @@ package no.nav.foreldrepenger.web.app.oppgave;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.foreldrepenger.web.server.jetty.JettyWebKonfigurasjon;
 
 @ApplicationScoped
 public class RedirectFactory {
+
+    private static final Environment ENV = Environment.current();
 
     private static final String DEFAULT_PART_URL = "?punkt=default&fakta=default";
 
@@ -25,7 +27,7 @@ public class RedirectFactory {
     }
 
     protected String getBaseUrl() {
-        return loadBalancerUrl + JettyWebKonfigurasjon.CONTEXT_PATH;
+        return loadBalancerUrl + ENV.getProperty("context.path","/fpsak");
     }
 
     @Inject

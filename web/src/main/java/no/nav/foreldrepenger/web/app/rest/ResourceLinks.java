@@ -1,9 +1,11 @@
 package no.nav.foreldrepenger.web.app.rest;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.web.app.ApplicationConfig;
-import no.nav.foreldrepenger.web.server.jetty.JettyWebKonfigurasjon;
 
 public final class ResourceLinks {
+
+    private static final Environment ENV = Environment.current();
 
     private ResourceLinks() {
     }
@@ -27,7 +29,7 @@ public final class ResourceLinks {
     }
 
     private static String href(String path) {
-        var contextPath = JettyWebKonfigurasjon.CONTEXT_PATH;
+        var contextPath = ENV.getProperty("context.path","/fpsak");
         var apiUri = ApplicationConfig.API_URI;
         return contextPath + apiUri + path;
     }
