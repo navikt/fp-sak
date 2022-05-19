@@ -9,7 +9,7 @@
     "ldapserviceuser": "serviceuser/data/dev/srvssolinux",
     "mqserviceuser": "serviceuser/data/dev/srvfpsak",
     "minReplicas": "2",
-    "maxReplicas": "2",
+    "maxReplicas": "3",
     "ingresses": [
         "https://fpsak-q1.nais.preprod.local",
         "https://fpsak-q1.dev.adeo.no/",
@@ -17,22 +17,6 @@
         "https://fpsak.dev.adeo.no/"
     ],
     "env": {
-        "APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD",
-        "FPRISK_URL": "http://fprisk/fprisk",
-        "FPABAKUS_URL": "http://fpabakus/fpabakus",
-        "ABAKUS_CALLBACK_URL": "http://fpsak.teamforeldrepenger/fpsak/api/registerdata/iay/callback",
-        "FPOPPDRAG_OVERRIDE_DIREKTE_URL": "http://fpoppdrag/fpoppdrag/api",
-        "FPTILBAKE_OVERRIDE_DIREKTE_URL": "http://fptilbake/fptilbake/api",
-        "ORGANISASJON_RS_URL": "https://modapp-q1.adeo.no/ereg/api/v1/organisasjon",
-        "OPPGAVE_RS_URI": "http://oppgave-q1.oppgavehandtering/api/v1/oppgaver",
-        "MEDL2_RS_URL": "http://medlemskap-medl-api.team-rocket/api/v1/medlemskapsunntak",
-        "DKIF_RS_URL": "http://dkif.default/api/v1/personer/kontaktinformasjon",
-        "ARBEIDSFORDELING_RS_URL": "http://norg2.default/norg2/api/v1/arbeidsfordeling/enheter",
-        "SAF_BASE_URL": "http://saf-q1.teamdokumenthandtering",
-        "KABAL_API_SCOPES": "api://dev-gcp.klage.kabal-api/.default",
-        "KABAL_API_URL": "https://kabal-api.dev.intern.nav.no/api/oversendelse/v3/sak",
-        "KODEVERK_BASE_URL": "http://kodeverk.org",
-        "SKJERMET_PERSON_RS_URL": "http://skjermede-personer-pip.nom/skjermet",
-        "UFORE_RS_URL": "http://pensjon-pen-q1.teampensjon/pen/springapi/sak/harUforegrad"
+        "APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD"
     }
 }
