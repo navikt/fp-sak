@@ -50,7 +50,6 @@ jobs:
             docker-compose up --quiet-pull > nohup.out 2>&1 &
             sh -c 'tail -n +0 -f nohup.out | { sed "/Database opened./q" && kill $$; }' || true
 
-
       - name: Set build version
         run: |
           echo "BUILD_VERSION=4.0.0-$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
