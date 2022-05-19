@@ -58,8 +58,8 @@ spec:
         kvPath: {{mqserviceuser}}
       - mountPath: /var/run/secrets/nais.io/ldap
         kvPath: {{ldapserviceuser}}
-      - mountPath: /var/run/secrets/nais.io/vault
-        kvPath: /kv/{{cluster}}/fss/fpsak/{{namespace}}
+      - mountPath: /var/run/secrets/nais.io/appdynamics
+        kvPath: /apikey/appdynamics/{{environment}}
   env:
   {{#each env}}
    - name: {{@key}}
