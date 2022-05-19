@@ -24,8 +24,8 @@ jobs:
             image: gvenzl/oracle-xe:18.4.0-slim
             env:
                 ORACLE_RANDOM_PASSWORD: true
-                APP_USER: fpsak_unit
-                APP_USER_PASSWORD: fpsak_unit
+                APP_USER: fpsak
+                APP_USER_PASSWORD: fpsak
             ports:
                 - 1521:1521
             options: --health-cmd healthcheck.sh --health-interval 10s --health-timeout 5s --health-retries 5
