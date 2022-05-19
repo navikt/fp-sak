@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold;
 import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +16,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(FPsakEntityManagerAwareExtension.class)
+@ExtendWith(JpaExtension.class)
 class ArbeidsforholdValgRepositoryTest {
     private ArbeidsforholdValgRepository arbeidsforholdValgRepository;
     private EntityManager entityManager;

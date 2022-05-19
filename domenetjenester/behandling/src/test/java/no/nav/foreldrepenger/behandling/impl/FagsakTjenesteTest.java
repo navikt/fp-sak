@@ -28,11 +28,11 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ExtendWith(MockitoExtension.class)
-@ExtendWith(FPsakEntityManagerAwareExtension.class)
+@ExtendWith(JpaExtension.class)
 public class FagsakTjenesteTest {
 
     private FagsakTjeneste tjeneste;
@@ -132,7 +132,6 @@ public class FagsakTjenesteTest {
         var fagsakNy = tjeneste.opprettFagsak(FagsakYtelseType.ENGANGSTØNAD, søker);
         assertThat(fagsak.getNavBruker().getId()).as("Forventer at fagsakene peker til samme bruker")
                 .isEqualTo(fagsakNy.getNavBruker().getId());
-        assertThat(fagsak.getSaksnummer().getVerdi().compareTo("152001000") > 0).isTrue();
     }
 
 }

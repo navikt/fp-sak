@@ -225,8 +225,8 @@ public class BehandlingRevurderingRepository {
           join BEREGNINGSGRUNNLAG bglag on grbg.beregningsgrunnlag_id=bglag.id
           join br_sats sats on (sats.verdi = bglag.grunnbeloep and sats_type=:grunnbelop)
           join (select ur.behandling_resultat_id bruttak, min(per.fom) uttakfom
-            from fpsak.uttak_resultat_periode per
-            join fpsak.uttak_resultat ur on per.uttak_resultat_perioder_id = nvl(ur.overstyrt_perioder_id,ur.opprinnelig_perioder_id)
+            from uttak_resultat_periode per
+            join uttak_resultat ur on per.uttak_resultat_perioder_id = nvl(ur.overstyrt_perioder_id,ur.opprinnelig_perioder_id)
             where ur.aktiv = 'J'
             and (per.PERIODE_RESULTAT_AARSAK = :sokfrist or per.PERIODE_RESULTAT_TYPE = :utinnvilg)
             group by ur.behandling_resultat_id) futtak on (futtak.bruttak = br.id)

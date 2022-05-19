@@ -1,2 +1,0 @@
-insert into PROSESS_TASK_TYPE (KODE, NAVN, FEIL_MAKS_FORSOEK, FEIL_SEK_MELLOM_FORSOEK, FEILHANDTERING_ALGORITME, BESKRIVELSE)
-values ('iverksetteVedtak.håndterOpphørAvYtelser', 'Håndterer et identifisert overlapp mellom ytelser', 1, 30, 'DEFAULT', 'Oppdaterer eksisterende behandling eller oppretter revurdering, dersom opphør av ytelse må vurderes etter at et overlapp mellom ytelser er identifisert');

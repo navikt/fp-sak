@@ -29,9 +29,9 @@ public class SjekkDbStrukturTest {
 
     @BeforeAll
     public static void setup() {
-        var dbconp = Databaseskjemainitialisering.DEFAULT_DS_PROPERTIES;
-        ds = dbconp.dataSource();
-        schema = dbconp.schema();
+        Databaseskjemainitialisering.migrerUnittestSkjemaer();
+        ds = Databaseskjemainitialisering.initUnitTestDataSource();
+        schema = Databaseskjemainitialisering.DEFAULTDS_USER;
     }
 
     @Test
