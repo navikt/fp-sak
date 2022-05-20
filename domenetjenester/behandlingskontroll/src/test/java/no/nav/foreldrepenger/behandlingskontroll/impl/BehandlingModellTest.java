@@ -29,9 +29,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
-@ExtendWith(FPsakEntityManagerAwareExtension.class)
+@ExtendWith(JpaExtension.class)
 public class BehandlingModellTest {
 
     private static final LocalDateTime FRIST_TID = LocalDateTime.now().plusWeeks(4).withNano(0);

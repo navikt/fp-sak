@@ -1,8 +1,0 @@
--- utvide klage og anke med kabal-referanse
-ALTER TABLE ANKE_RESULTAT add KABAL_REFERANSE VARCHAR2(100 CHAR);
-ALTER TABLE KLAGE_RESULTAT add KABAL_REFERANSE VARCHAR2(100 CHAR);
-COMMENT ON COLUMN ANKE_RESULTAT.KABAL_REFERANSE IS 'Referanse til behandling i VLKA (Kabal)';
-COMMENT ON COLUMN KLAGE_RESULTAT.KABAL_REFERANSE IS 'Referanse til behandling i VLKA (Kabal)';
-
--- fjerne uttakkolonne
-ALTER TABLE UTTAK_RESULTAT_PERIODE SET UNUSED (kl_periode_resultat_aarsak);
