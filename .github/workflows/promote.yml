@@ -72,15 +72,15 @@ jobs:
             github.rest.issues.addLabels({...issue,
                             labels: ['deployment','dev-fss-${{ env.NAMESPACE }}']})
 
-#      - name: Deploy fpsak til prod
-#        if: success() && env.CLUSTER_ARG == 'prod-fss' || env.CLUSTER_ARG == ''
-#        uses: nais/deploy/actions/deploy@v1
-#        env:
-#          PRINT_PAYLOAD: true
-#          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-#          CLUSTER: prod-fss
-#          RESOURCE: .deploy/naiserator.yaml
-#          VARS: .deploy/prod-fss-${{ env.NAMESPACE }}.json
+      - name: Deploy fpsak til prod
+        if: success() && env.CLUSTER_ARG == 'prod-fss' || env.CLUSTER_ARG == ''
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          PRINT_PAYLOAD: true
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-fss
+          RESOURCE: .deploy/naiserator.yaml
+          VARS: .deploy/prod-fss-${{ env.NAMESPACE }}.json
 
       - name: Oppdater kommentar med deployment status ved feil mot prod
         if: failure() && (env.CLUSTER_ARG == 'prod-fss' || env.CLUSTER_ARG == '')
@@ -96,16 +96,16 @@ jobs:
             github.rest.issues.addLabels({...issue,
                             labels: ['deployment-failed']})
 
-#      - name: Oppdater kommentar med deployment status mot prod
-#        if: success() && (env.CLUSTER_ARG == 'prod-fss' || env.CLUSTER_ARG == '')
-#        uses: actions/github-script@v6
-#        with:
-#          github-token: ${{secrets.GITHUB_TOKEN}}
-#          script: |
-#            const issue = { owner: context.issue.owner,
-#                            repo: context.issue.repo,
-#                            issue_number: ${{ github.event.client_payload.github.payload.issue.number }} }
-#            github.rest.issues.createComment({...issue,
-#                            body: 'promote til prod-fss ${{ env.NAMESPACE }} utført'})
-#            github.rest.issues.addLabels({...issue,
-#                            labels: ['deployment','prod-fss-${{ env.NAMESPACE }}']})
+      - name: Oppdater kommentar med deployment status mot prod
+        if: success() && (env.CLUSTER_ARG == 'prod-fss' || env.CLUSTER_ARG == '')
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const issue = { owner: context.issue.owner,
+                            repo: context.issue.repo,
+                            issue_number: ${{ github.event.client_payload.github.payload.issue.number }} }
+            github.rest.issues.createComment({...issue,
+                            body: 'promote til prod-fss ${{ env.NAMESPACE }} utført'})
+            github.rest.issues.addLabels({...issue,
+                            labels: ['deployment','prod-fss-${{ env.NAMESPACE }}']})
