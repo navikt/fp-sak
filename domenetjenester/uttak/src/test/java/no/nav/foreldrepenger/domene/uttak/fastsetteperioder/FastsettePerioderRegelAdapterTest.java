@@ -297,9 +297,9 @@ public class FastsettePerioderRegelAdapterTest {
     @Test
     public void skalReturnereManuellBehandlingForPlanMedForTidligOppstartAvFedrekvote() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
-        var startDato = fødselsdato.plusWeeks(veker_etter_fødsel_mødrekvote_grense).minusWeeks(2);
-        var forventetKnekk = fødselsdato.plusWeeks(veker_etter_fødsel_mødrekvote_grense);
-        var sluttDato = fødselsdato.plusWeeks(veker_etter_fødsel_mødrekvote_grense).plusWeeks(2);
+        var startDato = fødselsdato.minusWeeks(3);
+        var forventetKnekk = fødselsdato;
+        var sluttDato = fødselsdato.plusWeeks(1);
 
         // Arrange
         var virksomhet = virksomhet();
@@ -327,7 +327,7 @@ public class FastsettePerioderRegelAdapterTest {
         assertThat(periode1.getTom()).isEqualTo(forventetKnekk.minusDays(1));
         assertThat(periode1.getResultatType()).isEqualTo(PeriodeResultatType.MANUELL_BEHANDLING);
         assertThat(periode1.getManuellBehandlingÅrsak().getKode()).isEqualTo(
-            String.valueOf(Manuellbehandlingårsak.UGYLDIG_STØNADSKONTO.getId()));
+            String.valueOf(Manuellbehandlingårsak.FAR_SØKER_FØR_FØDSEL.getId()));
 
         var periode2 = uttakResultatPerioder.get(1);
         assertThat(periode2.getFom()).isEqualTo(forventetKnekk);
