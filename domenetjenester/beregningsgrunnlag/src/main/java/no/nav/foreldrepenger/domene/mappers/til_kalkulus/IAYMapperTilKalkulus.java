@@ -1,19 +1,16 @@
 package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
 
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import no.nav.folketrygdloven.kalkulator.modell.iay.AktivitetsAvtaleDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.ArbeidsforholdInformasjonDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.ArbeidsforholdInformasjonDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.ArbeidsforholdOverstyringDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.ArbeidsforholdReferanseDto;
-import no.nav.folketrygdloven.kalkulator.modell.iay.ArbeidsgiverOpplysningerDto;
-import no.nav.folketrygdloven.kalkulator.modell.iay.BekreftetPermisjonDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseAggregatBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDtoBuilder;
@@ -26,15 +23,14 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.NaturalYtelseDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.OppgittAnnenAktivitetDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.OppgittFrilansDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.OppgittOpptjeningDtoBuilder;
-import no.nav.folketrygdloven.kalkulator.modell.iay.PermisjonDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.RefusjonDto;
-import no.nav.folketrygdloven.kalkulator.modell.iay.RefusjonskravDatoDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.VersjonTypeDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YrkesaktivitetDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YrkesaktivitetDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseAnvistDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseAnvistDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseDtoBuilder;
+import no.nav.folketrygdloven.kalkulator.modell.iay.permisjon.PermisjonDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver;
 import no.nav.folketrygdloven.kalkulator.modell.typer.EksternArbeidsforholdRef;
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
@@ -42,7 +38,6 @@ import no.nav.folketrygdloven.kalkulator.modell.typer.Stillingsprosent;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidsforholdHandlingType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.BekreftetPermisjonStatus;
 import no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
@@ -53,7 +48,6 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.TemaUnderkategori;
 import no.nav.folketrygdloven.kalkulus.kodeverk.VirksomhetType;
 import no.nav.folketrygdloven.kalkulus.typer.AktørId;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.AktørInntekt;
@@ -74,17 +68,20 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
-import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.YtelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class IAYMapperTilKalkulus {
+    private static final Set<no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType> IKKE_RELEVANT_FOR_BEREGNING = Set.of(
+        no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER,
+        no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType.UTDANNINGSPERMISJON);
 
     public static InternArbeidsforholdRefDto mapArbeidsforholdRef(InternArbeidsforholdRef arbeidsforholdRef) {
         return InternArbeidsforholdRefDto.ref(arbeidsforholdRef.getReferanse());
@@ -101,28 +98,13 @@ public class IAYMapperTilKalkulus {
 
     public static InntektArbeidYtelseGrunnlagDto mapGrunnlag(InntektArbeidYtelseGrunnlag iayGrunnlag, no.nav.foreldrepenger.domene.typer.AktørId aktørId) {
         var builder = InntektArbeidYtelseGrunnlagDtoBuilder.nytt();
-        iayGrunnlag.getRegisterVersjon().ifPresent(aggregat -> builder.medData(mapAggregat(aggregat, VersjonTypeDto.REGISTER, aktørId)));
-        iayGrunnlag.getSaksbehandletVersjon().ifPresent(aggregat -> builder.medData(mapAggregat(aggregat, VersjonTypeDto.SAKSBEHANDLET, aktørId)));
+        iayGrunnlag.getRegisterVersjon().ifPresent(aggregat -> builder.medData(mapAggregat(aggregat, VersjonTypeDto.REGISTER, aktørId, iayGrunnlag.getArbeidsforholdOverstyringer())));
+        iayGrunnlag.getSaksbehandletVersjon().ifPresent(aggregat -> builder.medData(mapAggregat(aggregat, VersjonTypeDto.SAKSBEHANDLET, aktørId, iayGrunnlag.getArbeidsforholdOverstyringer())));
         iayGrunnlag.getInntektsmeldinger().ifPresent(aggregat -> builder.setInntektsmeldinger(mapInntektsmelding(aggregat, iayGrunnlag.getArbeidsforholdInformasjon())));
         iayGrunnlag.getArbeidsforholdInformasjon().ifPresent(arbeidsforholdInformasjon -> builder.medInformasjon(mapArbeidsforholdInformasjon(arbeidsforholdInformasjon)));
         iayGrunnlag.getOppgittOpptjening().ifPresent(oppgittOpptjening -> builder.medOppgittOpptjening(mapOppgittOpptjening(oppgittOpptjening)));
         builder.medErAktivtGrunnlag(iayGrunnlag.isAktiv());
         return builder.build();
-    }
-
-    public static List<ArbeidsgiverOpplysningerDto> mapArbeidsforholdOpplysninger(Map<no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver, ArbeidsgiverOpplysninger> arbeidsgiverOpplysninger, List<ArbeidsforholdOverstyring> overstyringer) {
-        List<ArbeidsgiverOpplysningerDto> arbeidsgiverOpplysningerDtos = new ArrayList<>();
-        arbeidsgiverOpplysninger.forEach((key, value) -> arbeidsgiverOpplysningerDtos.add(mapOpplysning(key, value)));
-        overstyringer
-            .stream()
-            .filter(overstyring -> overstyring.getArbeidsgiverNavn() != null) // Vi er kun interessert i overstyringer der SBH har endret navn på arbeidsgiver
-            .forEach(arbeidsforhold -> arbeidsgiverOpplysningerDtos.add(new ArbeidsgiverOpplysningerDto(arbeidsforhold.getArbeidsgiver().getIdentifikator(), arbeidsforhold.getArbeidsgiverNavn())));
-        return arbeidsgiverOpplysningerDtos;
-
-    }
-
-    public  static ArbeidsgiverOpplysningerDto mapOpplysning(no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver key, ArbeidsgiverOpplysninger arbeidsgiverOpplysninger) {
-        return new ArbeidsgiverOpplysningerDto(key.getIdentifikator(), arbeidsgiverOpplysninger.getNavn(), arbeidsgiverOpplysninger.getFødselsdato());
     }
 
     private static OppgittOpptjeningDtoBuilder mapOppgittOpptjening(OppgittOpptjening oppgittOpptjening) {
@@ -171,7 +153,6 @@ public class IAYMapperTilKalkulus {
     private static ArbeidsforholdOverstyringDtoBuilder mapOverstyringerDto(ArbeidsforholdOverstyring arbeidsforholdOverstyring) {
         var builder = ArbeidsforholdOverstyringDtoBuilder.oppdatere(Optional.empty());
         arbeidsforholdOverstyring.getArbeidsforholdOverstyrtePerioder().forEach(arbeidsforholdOverstyrtePerioder -> builder.leggTilOverstyrtPeriode(arbeidsforholdOverstyrtePerioder.getOverstyrtePeriode().getFomDato(), arbeidsforholdOverstyrtePerioder.getOverstyrtePeriode().getTomDato()));
-        arbeidsforholdOverstyring.getBekreftetPermisjon().ifPresent(bekreftetPermisjon -> builder.medBekreftetPermisjon(mapBekreftetPermisjonDto(bekreftetPermisjon)));
         builder.medHandling(ArbeidsforholdHandlingType.fraKode(arbeidsforholdOverstyring.getHandling().getKode()));
         builder.medArbeidsgiver(mapArbeidsgiver(arbeidsforholdOverstyring.getArbeidsgiver()));
         builder.medAngittArbeidsgiverNavn(arbeidsforholdOverstyring.getArbeidsgiverNavn());
@@ -181,10 +162,6 @@ public class IAYMapperTilKalkulus {
         builder.medBeskrivelse(arbeidsforholdOverstyring.getBegrunnelse());
 
         return builder;
-    }
-
-    private static BekreftetPermisjonDto mapBekreftetPermisjonDto(BekreftetPermisjon bekreftetPermisjon) {
-        return new BekreftetPermisjonDto(bekreftetPermisjon.getPeriode().getFomDato(), bekreftetPermisjon.getPeriode().getTomDato(), BekreftetPermisjonStatus.fraKode(bekreftetPermisjon.getStatus().getKode()));
     }
 
     private static ArbeidsforholdReferanseDto mapRefDto(ArbeidsforholdReferanse arbeidsforholdReferanse) {
@@ -227,14 +204,35 @@ public class IAYMapperTilKalkulus {
             .medErAnsettelsesPeriode(aktivitetsAvtale.erAnsettelsesPeriode());
     }
 
-    private static YrkesaktivitetDto mapYrkesaktivitet(Yrkesaktivitet yrkesaktivitet) {
+    private static YrkesaktivitetDto mapYrkesaktivitet(Yrkesaktivitet yrkesaktivitet, List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
+        finnBekreftetPermisjon(yrkesaktivitet, arbeidsforholdOverstyringer);
         var dtoBuilder = YrkesaktivitetDtoBuilder.oppdatere(Optional.empty());
         yrkesaktivitet.getAlleAktivitetsAvtaler().forEach(aktivitetsAvtale -> dtoBuilder.leggTilAktivitetsAvtale(mapAktivitetsAvtale(aktivitetsAvtale)));
         dtoBuilder.medArbeidsforholdId(mapArbeidsforholdRef(yrkesaktivitet.getArbeidsforholdRef()));
         dtoBuilder.medArbeidsgiver(yrkesaktivitet.getArbeidsgiver() == null ? null : mapArbeidsgiver(yrkesaktivitet.getArbeidsgiver()));
         dtoBuilder.medArbeidType(ArbeidType.fraKode(yrkesaktivitet.getArbeidType().getKode()));
-        yrkesaktivitet.getPermisjon().forEach(perm -> dtoBuilder.leggTilPermisjon(mapPermisjon(perm)));
+        yrkesaktivitet.getPermisjon().stream()
+            .filter(perm -> erRelevantForBeregning(perm, finnBekreftetPermisjon(yrkesaktivitet, arbeidsforholdOverstyringer)))
+            .forEach(perm -> dtoBuilder.leggTilPermisjon(mapPermisjon(perm)));
         return dtoBuilder.build();
+    }
+
+    private static boolean erRelevantForBeregning(Permisjon perm, Optional<BekreftetPermisjon> bekreftetPermisjon) {
+        if (perm.getPermisjonsbeskrivelseType() == null || IKKE_RELEVANT_FOR_BEREGNING.contains(perm.getPermisjonsbeskrivelseType())) {
+            return false;
+        }
+        return bekreftetPermisjon
+            .map(b -> Objects.equals(b.getPeriode(), perm.getPeriode()) && BekreftetPermisjonStatus.BRUK_PERMISJON.equals(b.getStatus()))
+            .orElse(true);
+    }
+
+    private static Optional<BekreftetPermisjon> finnBekreftetPermisjon(Yrkesaktivitet yrkesaktivitet, List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
+        return arbeidsforholdOverstyringer.stream()
+            .filter(os -> Objects.equals(os.getArbeidsgiver(), yrkesaktivitet.getArbeidsgiver())
+                && os.getArbeidsforholdRef().gjelderFor(yrkesaktivitet.getArbeidsforholdRef()))
+            .map(ArbeidsforholdOverstyring::getBekreftetPermisjon)
+            .flatMap(Optional::stream)
+            .findFirst();
     }
 
     private static PermisjonDtoBuilder mapPermisjon(Permisjon perm) {
@@ -281,15 +279,19 @@ public class IAYMapperTilKalkulus {
         return builder;
     }
 
-    private static InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder mapAktørArbeid(AktørArbeid aktørArbeid) {
+    private static InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder mapAktørArbeid(AktørArbeid aktørArbeid,
+                                                                                        List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
         var builder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(Optional.empty());
-        aktørArbeid.hentAlleYrkesaktiviteter().forEach(yrkesaktivitet -> builder.leggTilYrkesaktivitet(mapYrkesaktivitet(yrkesaktivitet)));
+        aktørArbeid.hentAlleYrkesaktiviteter().forEach(yrkesaktivitet -> builder.leggTilYrkesaktivitet(mapYrkesaktivitet(yrkesaktivitet, arbeidsforholdOverstyringer)));
         return builder;
     }
 
-    private static InntektArbeidYtelseAggregatBuilder mapAggregat(InntektArbeidYtelseAggregat aggregat, VersjonTypeDto versjonTypeDto, no.nav.foreldrepenger.domene.typer.AktørId aktørId) {
+    private static InntektArbeidYtelseAggregatBuilder mapAggregat(InntektArbeidYtelseAggregat aggregat,
+                                                                  VersjonTypeDto versjonTypeDto,
+                                                                  no.nav.foreldrepenger.domene.typer.AktørId aktørId,
+                                                                  List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
         var builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), versjonTypeDto);
-        aggregat.getAktørArbeid().stream().filter(aa -> aa.getAktørId().equals(aktørId)).findFirst().ifPresent(aktørArbeid -> builder.leggTilAktørArbeid(mapAktørArbeid(aktørArbeid)));
+        aggregat.getAktørArbeid().stream().filter(aa -> aa.getAktørId().equals(aktørId)).findFirst().ifPresent(aktørArbeid -> builder.leggTilAktørArbeid(mapAktørArbeid(aktørArbeid, arbeidsforholdOverstyringer)));
         aggregat.getAktørInntekt().stream().filter(ai -> ai.getAktørId().equals(aktørId)).findFirst().ifPresent((aktørInntekt -> builder.leggTilAktørInntekt(mapAktørInntekt(aktørInntekt))));
         aggregat.getAktørYtelse().stream().filter(ay -> ay.getAktørId().equals(aktørId)).findFirst().ifPresent((aktørYtelse -> builder.leggTilAktørYtelse(mapAktørYtelse(aktørYtelse))));
         return builder;
@@ -333,20 +335,5 @@ public class IAYMapperTilKalkulus {
             case no.nav.foreldrepenger.domene.iay.modell.kodeverk.PensjonTrygdType.KODEVERK -> PensjonTrygdType.fraKode(kode);
             default -> throw new IllegalArgumentException("Ukjent UtbetaltYtelseType: " + type);
         };
-    }
-
-    public static List<RefusjonskravDatoDto> mapRefusjonskravDatoer(List<RefusjonskravDato> refusjonskravDatoer) {
-        return refusjonskravDatoer.stream()
-            .map(IAYMapperTilKalkulus::mapRefusjonskravDato)
-            .collect(Collectors.toList());
-    }
-
-    private static RefusjonskravDatoDto mapRefusjonskravDato(RefusjonskravDato refusjonskravDato) {
-        return new RefusjonskravDatoDto(
-            mapArbeidsgiver(refusjonskravDato.getArbeidsgiver()),
-            refusjonskravDato.getFørsteDagMedRefusjonskrav().orElse(null),
-            refusjonskravDato.getFørsteInnsendingAvRefusjonskrav(),
-            refusjonskravDato.harRefusjonFraStart()
-        );
     }
 }
