@@ -61,6 +61,7 @@ BEGIN
             EXECUTE IMMEDIATE ('GRANT SELECT ON UTTAK_RESULTAT_PERIODE_SOKNAD       TO fpinfo_schema WITH GRANT OPTION');
             EXECUTE IMMEDIATE ('GRANT SELECT ON UTTAK_AKTIVITET                     TO fpinfo_schema WITH GRANT OPTION');
             EXECUTE IMMEDIATE ('GRANT SELECT ON YF_FORDELING                        TO fpinfo_schema WITH GRANT OPTION');
+            EXECUTE IMMEDIATE ('GRANT SELECT ON GR_UFORETRYGD                       TO fpinfo_schema WITH GRANT OPTION');
         END IF;
     END;
 END;
