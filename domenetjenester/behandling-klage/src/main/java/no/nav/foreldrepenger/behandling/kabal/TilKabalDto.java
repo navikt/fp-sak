@@ -58,7 +58,7 @@ public record TilKabalDto(@NotNull Klager klager,
                                    List<String> hjemler) {
         return new TilKabalDto(klager, forrigeBehandlendeEnhet, tilknyttedeJournalposter,
             brukersHenvendelseMottattNavDato, innsendtTilNav,
-            Fagsystem.FPSAK.getOffisiellKode(), kildereferanse, behandling.getUuid().toString(),
+            Fagsystem.FPSAK.getOffisiellKode(), kildereferanse, kildereferanse,
             KlageAnke.ANKE, mapYtelseType(behandling), sakMottattKaTidspunkt, sakMottattKaTidspunkt.toLocalDate(),
             new Sak(behandling.getFagsak().getSaksnummer().getVerdi(), Fagsystem.FPSAK.getOffisiellKode()),
             hjemler, "");
