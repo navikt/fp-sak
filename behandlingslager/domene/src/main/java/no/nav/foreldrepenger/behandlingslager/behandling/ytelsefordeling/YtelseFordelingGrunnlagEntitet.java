@@ -75,6 +75,11 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     private PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRettEntitet;
 
     @ManyToOne
+    @JoinColumn(name = "mor_stonad_eos_id", updatable = false, unique = true)
+    @ChangeTracked
+    private PerioderMorStønadEØSEntitet perioderMorStønadEØSEntitet;
+
+    @ManyToOne
     @JoinColumn(name = "opprinnelige_aktkrav_per_id", updatable = false, unique = true)
     @ChangeTracked
     private AktivitetskravPerioderEntitet opprinneligeAktivitetskravPerioder;
@@ -197,6 +202,14 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
         this.perioderAnnenforelderHarRettEntitet = perioderAnnenforelderHarRettEntitet;
     }
 
+    PerioderMorStønadEØSEntitet getPerioderMorStønadEØSEntitet() {
+        return perioderMorStønadEØSEntitet;
+    }
+
+    void setPerioderMorStønadEØSEntitet(PerioderMorStønadEØSEntitet perioderMorStønadEØSEntitet) {
+        this.perioderMorStønadEØSEntitet = perioderMorStønadEØSEntitet;
+    }
+
     AvklarteUttakDatoerEntitet getAvklarteUttakDatoer() {
         return avklarteUttakDatoerEntitet;
     }
@@ -221,12 +234,14 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
             Objects.equals(oppgittRettighet, that.oppgittRettighet) &&
             Objects.equals(oppgittDekningsgrad, that.oppgittDekningsgrad) &&
             Objects.equals(perioderUtenOmsorgEntitet, that.perioderUtenOmsorgEntitet) &&
-            Objects.equals(perioderAleneOmsorgEntitet, that.perioderAleneOmsorgEntitet);
+            Objects.equals(perioderAleneOmsorgEntitet, that.perioderAleneOmsorgEntitet) &&
+            Objects.equals(perioderAnnenforelderHarRettEntitet, that.perioderAnnenforelderHarRettEntitet) &&
+            Objects.equals(perioderMorStønadEØSEntitet, that.perioderMorStønadEØSEntitet);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(oppgittFordeling, oppgittRettighet, oppgittDekningsgrad, perioderUtenOmsorgEntitet,
-            perioderAleneOmsorgEntitet, aktiv);
+            perioderAleneOmsorgEntitet, perioderAnnenforelderHarRettEntitet, perioderMorStønadEØSEntitet, aktiv);
     }
 }

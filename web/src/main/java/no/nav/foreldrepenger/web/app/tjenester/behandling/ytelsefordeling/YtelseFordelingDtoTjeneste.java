@@ -11,7 +11,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.rest.PeriodeKonverter;
 
@@ -41,26 +43,17 @@ public class YtelseFordelingDtoTjeneste {
     public Optional<YtelseFordelingDto> mapFra(Behandling behandling) {
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId());
         var dtoBuilder = new YtelseFordelingDto.Builder();
-        if (ytelseFordelingAggregat.isPresent()) {
-            var perioderUtenOmsorg = ytelseFordelingAggregat.get().getPerioderUtenOmsorg();
-            var perioderAleneOmsorg = ytelseFordelingAggregat.get().getPerioderAleneOmsorg();
-            var avklarteUttakDatoerOpt = ytelseFordelingAggregat.get().getAvklarteDatoer();
-            var perioderAnnenforelderHarRett = ytelseFordelingAggregat.get().getPerioderAnnenforelderHarRett();
-
-            if (perioderAleneOmsorg.isPresent()) {
-                var periodeAleneOmsorgs = perioderAleneOmsorg.get().getPerioder();
-                dtoBuilder.medAleneOmsorgPerioder(PeriodeKonverter.mapAleneOmsorgsperioder(periodeAleneOmsorgs));
-            }
-            if (perioderUtenOmsorg.isPresent()) {
-                var periodeUtenOmsorgs = perioderUtenOmsorg.get().getPerioder();
-                dtoBuilder.medIkkeOmsorgPerioder(PeriodeKonverter.mapUtenOmsorgperioder(periodeUtenOmsorgs));
-            }
-            if (avklarteUttakDatoerOpt.isPresent()) {
-                dtoBuilder.medEndringsdato(avklarteUttakDatoerOpt.get().getGjeldendeEndringsdato());
-            }
+        ytelseFordelingAggregat.ifPresent(yfa -> {
+            yfa.getPerioderAleneOmsorg()
+                .ifPresent(aleneomsorg -> dtoBuilder.medAleneOmsorgPerioder(PeriodeKonverter.mapAleneOmsorgsperioder(aleneomsorg.getPerioder())));
+            dtoBuilder.medRettighetAleneomsorg(new RettighetDto(UttakOmsorgUtil.harAleneomsorg(yfa), yfa.getAleneomsorgAvklaring()));
+            yfa.getPerioderUtenOmsorg()
+                .ifPresent(uenOmsorg -> dtoBuilder.medIkkeOmsorgPerioder(PeriodeKonverter.mapUtenOmsorgperioder(uenOmsorg.getPerioder())));
+            yfa.getAvklarteDatoer().ifPresent(avklarteUttakDatoer -> dtoBuilder.medEndringsdato(avklarteUttakDatoer.getGjeldendeEndringsdato()));
             leggTilFørsteUttaksdato(behandling, dtoBuilder);
-            lagAnnenforelderHarRettDto(behandling, perioderAnnenforelderHarRett, dtoBuilder);
-        }
+            lagAnnenforelderHarRettDto(behandling, yfa.getPerioderAnnenforelderHarRett(), dtoBuilder);
+            dtoBuilder.medRettigheterAnnenforelder(lagAnnenforelderRettDto(behandling, yfa));
+        });
         fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak()).ifPresent(fagsakRelasjon1 -> dtoBuilder.medGjeldendeDekningsgrad(fagsakRelasjon1.getGjeldendeDekningsgrad().getVerdi()));
         return Optional.of(dtoBuilder.build());
     }
@@ -90,6 +83,16 @@ public class YtelseFordelingDtoTjeneste {
             dtoBuilder.medAnnenforelderHarRett(new AnnenforelderHarRettDto(begrunnelse, null, null, avklartMottarUføretrygd, avklareUføretrygd));
         }
 
+    }
+
+    private RettigheterAnnenforelderDto lagAnnenforelderRettDto(Behandling behandling, YtelseFordelingAggregat yfa) {
+        var uføregrunnlag = uføretrygdRepository.hentGrunnlag(behandling.getId());
+        var avklareUføretrygd = uføregrunnlag.filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd).isPresent();
+        var avklareStønadEØS = Boolean.TRUE.equals(yfa.getOppgittRettighet().getMorMottarStønadEØS());
+        var avklartMottarUføretrygd = uføregrunnlag.map(UføretrygdGrunnlagEntitet::getUføretrygdOverstyrt).orElse(null);
+        return new RettigheterAnnenforelderDto(new RettighetDto(UttakOmsorgUtil.harAnnenForelderRett(yfa, Optional.empty()), yfa.getAnnenForelderRettAvklaring()),
+            new RettighetDto(UttakOmsorgUtil.morMottarUføretrygd(uføregrunnlag.orElse(null)), avklartMottarUføretrygd), avklareUføretrygd,
+            new RettighetDto(UttakOmsorgUtil.morMottarForeldrepengerEØS(yfa), yfa.getMorStønadEØSAvklaring()), avklareStønadEØS);
     }
 
 }

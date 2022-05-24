@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapsho
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderMorStønadEØSEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingGrunnlagEntitet;
@@ -99,13 +100,16 @@ public class YtelseFordelingTjeneste {
         new BekreftStartdatoForPeriodenAksjonspunkt(ytelsesFordelingRepository).oppdater(behandlingId, adapter);
     }
 
-    public void bekreftAnnenforelderHarRett(Long behandlingId, Boolean annenforelderHarRett) {
+    public void bekreftAnnenforelderHarRett(Long behandlingId, Boolean annenforelderHarRett, Boolean annenforelderMottarStønadEØS) {
         var perioderAnnenforelderHarRettEntitet = new PerioderAnnenforelderHarRettEntitet(annenforelderHarRett);
 
-        var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(behandlingId)
-            .medPerioderAnnenforelderHarRett(perioderAnnenforelderHarRettEntitet)
-            .build();
-        ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregat);
+        var ytelseFordelingAggregatBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medPerioderAnnenforelderHarRett(perioderAnnenforelderHarRettEntitet);
+        if (annenforelderMottarStønadEØS != null) {
+            var perioderMorStønadEØSEntitet = new PerioderMorStønadEØSEntitet(annenforelderMottarStønadEØS);
+            ytelseFordelingAggregatBuilder.medPerioderMorStønadEØS(perioderMorStønadEØSEntitet);
+        }
+        ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregatBuilder.build());
     }
 
     public Optional<YtelseFordelingGrunnlagEntitet> hentGrunnlagPåId(Long grunnlagId) {

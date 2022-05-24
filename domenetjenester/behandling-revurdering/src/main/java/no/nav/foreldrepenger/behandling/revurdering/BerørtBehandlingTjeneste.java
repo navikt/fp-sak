@@ -86,7 +86,6 @@ public class BerørtBehandlingTjeneste {
         //Må sjekke konsekvens pga overlapp med samtidig uttak
         if (brukersGjeldendeBehandlingsresultat.isBehandlingHenlagt()
             || harKonsekvens(brukersGjeldendeBehandlingsresultat, KonsekvensForYtelsen.INGEN_ENDRING)) {
-            LOG.info("Skal opprette berørt: Henlagt/IngenEndring");
             return false;
         }
         var uttakInput = uttakInputTjeneste.lagInput(brukersGjeldendeBehandlingsresultat.getBehandlingId());

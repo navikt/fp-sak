@@ -27,10 +27,13 @@ public class AvklarAnnenforelderHarRettOppdaterer implements AksjonspunktOppdate
 
     @Override
     public OppdateringResultat oppdater(AvklarAnnenforelderHarRettDto dto, AksjonspunktOppdaterParameter param) {
-        var totrinn = faktaOmsorgRettTjeneste.totrinnForAnnenforelderRett(param, dto.getAnnenforelderHarRett(), dto.getAnnenforelderMottarUføretrygd(), false);
-        faktaOmsorgRettTjeneste.annenforelderRettHistorikkFelt(param, dto.getAnnenforelderHarRett(), dto.getAnnenforelderMottarUføretrygd(), false);
+        var totrinn = faktaOmsorgRettTjeneste.totrinnForAnnenforelderRett(param, dto.getAnnenforelderHarRett(),
+            dto.getAnnenforelderMottarUføretrygd(), false, dto.getAnnenforelderMottarStønadEØS());
+        faktaOmsorgRettTjeneste.annenforelderRettHistorikkFelt(param, dto.getAnnenforelderHarRett(),
+            dto.getAnnenforelderMottarUføretrygd(), false, dto.getAnnenforelderMottarStønadEØS());
         faktaOmsorgRettTjeneste.omsorgRettHistorikkInnslag(param, dto.getBegrunnelse());
-        faktaOmsorgRettTjeneste.oppdaterAnnenforelderRett(param, dto.getAnnenforelderHarRett(), dto.getAnnenforelderMottarUføretrygd(), false, null);
+        faktaOmsorgRettTjeneste.oppdaterAnnenforelderRett(param, dto.getAnnenforelderHarRett(),
+            dto.getAnnenforelderMottarUføretrygd(), false, null, dto.getAnnenforelderMottarStønadEØS());
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }
 

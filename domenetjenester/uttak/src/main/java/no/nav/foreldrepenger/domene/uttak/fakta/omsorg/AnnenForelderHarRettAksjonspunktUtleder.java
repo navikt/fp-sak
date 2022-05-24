@@ -68,7 +68,8 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements OmsorgRettAksjon
             var måAvklareMorUfør = fpGrunnlag.getUføretrygdGrunnlag()
                 .filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd)
                 .isPresent();
-            return !harAnnenForelderInnvilgetES || måAvklareMorUfør ? aksjonspunkt() : List.of();
+            var måAvklareMorStønadEØS = TRUE.equals(ytelseFordelingAggregat.getOppgittRettighet().getMorMottarStønadEØS());
+            return !harAnnenForelderInnvilgetES || måAvklareMorUfør || måAvklareMorStønadEØS ? aksjonspunkt() : List.of();
         }
 
         if (oppgittHarAnnenForeldreRett(ytelseFordelingAggregat) &&

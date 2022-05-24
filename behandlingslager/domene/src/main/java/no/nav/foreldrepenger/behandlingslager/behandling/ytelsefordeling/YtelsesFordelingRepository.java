@@ -66,6 +66,7 @@ public class YtelsesFordelingRepository {
             .medPerioderUttakDokumentasjon(ytelseFordelingGrunnlagEntitet.getPerioderUttakDokumentasjon())
             .medAvklarteDatoer(ytelseFordelingGrunnlagEntitet.getAvklarteUttakDatoer())
             .medPerioderAnnenforelderHarRett(ytelseFordelingGrunnlagEntitet.getPerioderAnnenforelderHarRettEntitet())
+            .medPerioderMorStønadEØS(ytelseFordelingGrunnlagEntitet.getPerioderMorStønadEØSEntitet())
             .medOpprinneligeAktivitetskravPerioder(
                 ytelseFordelingGrunnlagEntitet.getOpprinneligeAktivitetskravPerioder())
             .medSaksbehandledeAktivitetskravPerioder(
@@ -124,6 +125,7 @@ public class YtelsesFordelingRepository {
         lagrePerioderUtenOmsorg(grunnlag);
         lagrePerioderUttakDokumentasjon(grunnlag);
         lagrePerioderAnnenforelderHarRett(grunnlag);
+        lagrePerioderMorStønadEØS(grunnlag);
         lagrePerioderAktivitetskrav(grunnlag.getOpprinneligeAktivitetskravPerioder());
         lagrePerioderAktivitetskrav(grunnlag.getSaksbehandledeAktivitetskravPerioder());
 
@@ -143,6 +145,7 @@ public class YtelsesFordelingRepository {
         aggregat.getJustertFordeling().ifPresent(grunnlag::setJustertFordeling);
         aggregat.getAvklarteDatoer().ifPresent(grunnlag::setAvklarteUttakDatoerEntitet);
         aggregat.getPerioderAnnenforelderHarRett().ifPresent(grunnlag::setPerioderAnnenforelderHarRettEntitet);
+        aggregat.getPerioderMorStønadEØS().ifPresent(grunnlag::setPerioderMorStønadEØSEntitet);
         aggregat.getOpprinneligeAktivitetskravPerioder().ifPresent(grunnlag::setOpprinneligeAktivitetskravPerioder);
         aggregat.getSaksbehandledeAktivitetskravPerioder().ifPresent(grunnlag::setSaksbehandledeAktivitetskravPerioder);
         return grunnlag;
@@ -178,8 +181,16 @@ public class YtelsesFordelingRepository {
     private void lagrePerioderAnnenforelderHarRett(YtelseFordelingGrunnlagEntitet grunnlag) {
         if (grunnlag.getPerioderAnnenforelderHarRettEntitet() != null) {
             entityManager.persist(grunnlag.getPerioderAnnenforelderHarRettEntitet());
-            for (var periode : grunnlag.getPerioderAnnenforelderHarRettEntitet()
-                .getPerioder()) {
+            for (var periode : grunnlag.getPerioderAnnenforelderHarRettEntitet().getPerioder()) {
+                entityManager.persist(periode);
+            }
+        }
+    }
+
+    private void lagrePerioderMorStønadEØS(YtelseFordelingGrunnlagEntitet grunnlag) {
+        if (grunnlag.getPerioderMorStønadEØSEntitet() != null) {
+            entityManager.persist(grunnlag.getPerioderMorStønadEØSEntitet());
+            for (var periode : grunnlag.getPerioderMorStønadEØSEntitet().getPerioder()) {
                 entityManager.persist(periode);
             }
         }
