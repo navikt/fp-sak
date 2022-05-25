@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdReposi
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.rest.PeriodeKonverter;
 
@@ -46,7 +45,7 @@ public class YtelseFordelingDtoTjeneste {
         ytelseFordelingAggregat.ifPresent(yfa -> {
             yfa.getPerioderAleneOmsorg()
                 .ifPresent(aleneomsorg -> dtoBuilder.medAleneOmsorgPerioder(PeriodeKonverter.mapAleneOmsorgsperioder(aleneomsorg.getPerioder())));
-            dtoBuilder.medRettighetAleneomsorg(new RettighetDto(UttakOmsorgUtil.harAleneomsorg(yfa), yfa.getAleneomsorgAvklaring()));
+            dtoBuilder.medBekreftetAleneomsorg(yfa.getAleneomsorgAvklaring());
             yfa.getPerioderUtenOmsorg()
                 .ifPresent(uenOmsorg -> dtoBuilder.medIkkeOmsorgPerioder(PeriodeKonverter.mapUtenOmsorgperioder(uenOmsorg.getPerioder())));
             yfa.getAvklarteDatoer().ifPresent(avklarteUttakDatoer -> dtoBuilder.medEndringsdato(avklarteUttakDatoer.getGjeldendeEndringsdato()));
@@ -90,9 +89,9 @@ public class YtelseFordelingDtoTjeneste {
         var avklareUføretrygd = uføregrunnlag.filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd).isPresent();
         var avklareStønadEØS = Boolean.TRUE.equals(yfa.getOppgittRettighet().getMorMottarStønadEØS());
         var avklartMottarUføretrygd = uføregrunnlag.map(UføretrygdGrunnlagEntitet::getUføretrygdOverstyrt).orElse(null);
-        return new RettigheterAnnenforelderDto(new RettighetDto(UttakOmsorgUtil.harAnnenForelderRett(yfa, Optional.empty()), yfa.getAnnenForelderRettAvklaring()),
-            new RettighetDto(UttakOmsorgUtil.morMottarUføretrygd(uføregrunnlag.orElse(null)), avklartMottarUføretrygd), avklareUføretrygd,
-            new RettighetDto(UttakOmsorgUtil.morMottarForeldrepengerEØS(yfa), yfa.getMorStønadEØSAvklaring()), avklareStønadEØS);
+        return new RettigheterAnnenforelderDto(yfa.getAnnenForelderRettAvklaring(),
+            avklartMottarUføretrygd, avklareUføretrygd,
+            yfa.getMorStønadEØSAvklaring(), avklareStønadEØS);
     }
 
 }

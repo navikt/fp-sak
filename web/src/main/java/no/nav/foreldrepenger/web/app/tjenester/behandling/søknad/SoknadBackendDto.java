@@ -11,6 +11,7 @@ public class SoknadBackendDto {
     private LocalDate mottattDato;
     private LocalDate soknadsdato;
     private OppgittRettighetDto oppgittRettighet;
+    private boolean oppgittAleneomsorg;
     private Språkkode spraakkode;
 
     protected SoknadBackendDto() {
@@ -58,5 +59,13 @@ public class SoknadBackendDto {
 
     public void setSpraakkode(Språkkode spraakkode) {
         this.spraakkode = spraakkode;
+    }
+
+    public boolean isOppgittAleneomsorg() {
+        return oppgittAleneomsorg;
+    }
+
+    public void setOppgittAleneomsorg(boolean oppgittAleneomsorg) {
+        this.oppgittAleneomsorg = oppgittAleneomsorg;
     }
 }

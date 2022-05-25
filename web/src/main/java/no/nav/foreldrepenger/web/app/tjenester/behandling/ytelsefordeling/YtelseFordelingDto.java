@@ -8,7 +8,7 @@ import no.nav.foreldrepenger.familiehendelse.rest.PeriodeDto;
 public class YtelseFordelingDto {
     private List<PeriodeDto> ikkeOmsorgPerioder;
     private List<PeriodeDto> aleneOmsorgPerioder;
-    private RettighetDto rettighetAleneomsorg;
+    private Boolean bekreftetAleneomsorg;
     private AnnenforelderHarRettDto annenforelderHarRettDto;
     private RettigheterAnnenforelderDto rettigheterAnnenforelder;
     private LocalDate endringsdato;
@@ -26,8 +26,8 @@ public class YtelseFordelingDto {
         return aleneOmsorgPerioder;
     }
 
-    public RettighetDto getRettighetAleneomsorg() {
-        return rettighetAleneomsorg;
+    public Boolean getBekreftetAleneomsorg() {
+        return bekreftetAleneomsorg;
     }
 
     public LocalDate getEndringsdato() {
@@ -64,8 +64,8 @@ public class YtelseFordelingDto {
             return this;
         }
 
-        public Builder medRettighetAleneomsorg(RettighetDto rettighetAleneomsorg) {
-            kladd.rettighetAleneomsorg = rettighetAleneomsorg;
+        public Builder medBekreftetAleneomsorg(Boolean bekreftetAleneomsorg) {
+            kladd.bekreftetAleneomsorg = bekreftetAleneomsorg;
             return this;
         }
 

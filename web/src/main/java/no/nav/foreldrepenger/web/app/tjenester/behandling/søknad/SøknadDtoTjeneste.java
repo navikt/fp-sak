@@ -22,6 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
@@ -96,6 +98,10 @@ public class SøknadDtoTjeneste {
 
         ytelsesfordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
             .ifPresent(of -> soknadBackendDto.setOppgittRettighet(OppgittRettighetDto.mapFra(of.getOppgittRettighet())));
+        ytelsesfordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .map(YtelseFordelingAggregat::getOppgittRettighet)
+            .map(OppgittRettighetEntitet::getHarAleneomsorgForBarnet)
+            .ifPresent(soknadBackendDto::setOppgittAleneomsorg);
 
         return soknadBackendDto;
     }

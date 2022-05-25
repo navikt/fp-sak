@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
-public record RettigheterAnnenforelderDto(RettighetDto rettighetAnnenforelder,
-                                          RettighetDto rettighetAnnenforelderUføretrygd,
+public record RettigheterAnnenforelderDto(Boolean bekreftetAnnenforelderRett,
+                                          Boolean bekreftetAnnenforelderUføretrygd,
                                           boolean skalAvklareAnnenforelderUføretrygd,
-                                          RettighetDto rettighetAnnenforelderStønadEØS,
+                                          Boolean bekreftetAnnenforelderStønadEØS,
                                           boolean skalAvklareAnnenforelderStønadEØS) {
 }
