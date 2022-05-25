@@ -15,6 +15,8 @@ public class AvklarAnnenforelderHarRettDto extends BekreftetAksjonspunktDto {
 
     private Boolean annenforelderMottarUføretrygd;
 
+    private Boolean annenforelderMottarStønadEØS;
+
     AvklarAnnenforelderHarRettDto() {
         // For Jackson
     }
@@ -38,5 +40,13 @@ public class AvklarAnnenforelderHarRettDto extends BekreftetAksjonspunktDto {
 
     public void setAnnenforelderMottarUføretrygd(Boolean annenforelderMottarUføretrygd) {
         this.annenforelderMottarUføretrygd = annenforelderMottarUføretrygd;
+    }
+
+    public Boolean getAnnenforelderMottarStønadEØS() {
+        return annenforelderMottarStønadEØS;
+    }
+
+    public void setAnnenforelderMottarStønadEØS(Boolean annenforelderMottarStønadEØS) {
+        this.annenforelderMottarStønadEØS = annenforelderMottarStønadEØS;
     }
 }

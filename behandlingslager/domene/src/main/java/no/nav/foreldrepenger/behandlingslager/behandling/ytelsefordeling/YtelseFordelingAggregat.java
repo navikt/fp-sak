@@ -18,6 +18,7 @@ public class YtelseFordelingAggregat {
     private PerioderUttakDokumentasjonEntitet perioderUttakDokumentasjon;
     private AvklarteUttakDatoerEntitet avklarteDatoer;
     private PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRett;
+    private PerioderMorStønadEØSEntitet perioderMorStønadEØS;
     private AktivitetskravPerioderEntitet opprinneligeAktivitetskravPerioder;
     private AktivitetskravPerioderEntitet saksbehandledeAktivitetskravPerioder;
 
@@ -53,6 +54,10 @@ public class YtelseFordelingAggregat {
         return Optional.ofNullable(perioderAnnenforelderHarRett);
     }
 
+    public Optional<PerioderMorStønadEØSEntitet> getPerioderMorStønadEØS() {
+        return Optional.ofNullable(perioderMorStønadEØS);
+    }
+
     public Optional<AktivitetskravPerioderEntitet> getOpprinneligeAktivitetskravPerioder() {
         return Optional.ofNullable(opprinneligeAktivitetskravPerioder);
     }
@@ -66,22 +71,20 @@ public class YtelseFordelingAggregat {
             : getOpprinneligeAktivitetskravPerioder();
     }
 
-    public Optional<Boolean> getAnnenForelderRettAvklaring() {
-        var perioder = getPerioderAnnenforelderHarRett();
-        if (perioder.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(!perioder.get().getPerioder().isEmpty());
+    public Boolean getAleneomsorgAvklaring() {
+        return getPerioderAleneOmsorg().map(p -> !p.getPerioder().isEmpty()).orElse(null);
+    }
+
+    public Boolean getAnnenForelderRettAvklaring() {
+        return getPerioderAnnenforelderHarRett().map(p -> !p.getPerioder().isEmpty()).orElse(null);
+    }
+
+    public Boolean getMorStønadEØSAvklaring() {
+        return getPerioderMorStønadEØS().map(p -> !p.getPerioder().isEmpty()).orElse(null);
     }
 
     public OppgittFordelingEntitet getGjeldendeSøknadsperioder() {
-        if (getOverstyrtFordeling().isPresent()) {
-            return getOverstyrtFordeling().get();
-        }
-        if (getJustertFordeling().isPresent()) {
-            return getJustertFordeling().get();
-        }
-        return getOppgittFordeling();
+        return getOverstyrtFordeling().or(this::getJustertFordeling).orElseGet(this::getOppgittFordeling);
     }
 
     public Optional<OppgittFordelingEntitet> getJustertFordeling() {
@@ -190,6 +193,11 @@ public class YtelseFordelingAggregat {
 
         public Builder medPerioderAnnenforelderHarRett(PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRett) {
             kladd.perioderAnnenforelderHarRett = perioderAnnenforelderHarRett;
+            return this;
+        }
+
+        public Builder medPerioderMorStønadEØS(PerioderMorStønadEØSEntitet perioderMorStønadEØS) {
+            kladd.perioderMorStønadEØS = perioderMorStønadEØS;
             return this;
         }
 

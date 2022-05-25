@@ -18,6 +18,8 @@ public class AvklarAleneomsorgVurderingDto extends BekreftetAksjonspunktDto {
 
     private Boolean annenforelderMottarUføretrygd;
 
+    private Boolean annenforelderMottarStønadEØS;
+
     AvklarAleneomsorgVurderingDto() { // NOSONAR
         //For Jackson
     }
@@ -49,5 +51,13 @@ public class AvklarAleneomsorgVurderingDto extends BekreftetAksjonspunktDto {
 
     public void setAnnenforelderMottarUføretrygd(Boolean annenforelderMottarUføretrygd) {
         this.annenforelderMottarUføretrygd = annenforelderMottarUføretrygd;
+    }
+
+    public Boolean getAnnenforelderMottarStønadEØS() {
+        return annenforelderMottarStønadEØS;
+    }
+
+    public void setAnnenforelderMottarStønadEØS(Boolean annenforelderMottarStønadEØS) {
+        this.annenforelderMottarStønadEØS = annenforelderMottarStønadEØS;
     }
 }

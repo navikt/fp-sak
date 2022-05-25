@@ -62,11 +62,11 @@ public class ForvaltningUttakTjeneste {
     public void endreAnnenForelderHarRett(UUID behandlingUUID, boolean harRett) {
         var behandlingId = behandlingRepository.hentBehandling(behandlingUUID).getId();
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
-        if (ytelseFordelingAggregat.getPerioderAnnenforelderHarRett().isEmpty()) {
+        if (ytelseFordelingAggregat.getAnnenForelderRettAvklaring() == null) {
             throw new ForvaltningException("Kan ikke endre ettersom annen forelder har rett ikke er avklart");
         }
         if (UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, Optional.empty()) != harRett) {
-            ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandlingId, harRett);
+            ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandlingId, harRett, null);
 
             lagHistorikkinnslagRett(harRett, behandlingId);
         }

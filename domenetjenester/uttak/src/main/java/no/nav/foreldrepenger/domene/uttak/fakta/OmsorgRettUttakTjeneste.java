@@ -60,7 +60,7 @@ public class OmsorgRettUttakTjeneste {
 
     public void avklarOmAnnenForelderHarRett(BehandlingReferanse ref) {
         if (kanAutomatiskAvklareAtAnnenForelderIkkeHarRett(ref)) {
-            ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(ref.behandlingId(), false);
+            ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(ref.behandlingId(), false, null);
         }
     }
 

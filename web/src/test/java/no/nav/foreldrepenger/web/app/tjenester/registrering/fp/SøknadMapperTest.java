@@ -546,6 +546,23 @@ public class SøknadMapperTest {
     }
 
     @Test
+    public void test_mapRettigheter_bareFarRett_morEØS() {
+        var manuellRegistreringForeldrepengerDto = new ManuellRegistreringForeldrepengerDto();
+        oppdaterDtoForFødsel(manuellRegistreringForeldrepengerDto, true, LocalDate.now(), 1);
+        manuellRegistreringForeldrepengerDto.setTidsromPermisjon(opprettTidsromPermisjonDto(null));
+        var annenforelder = opprettAnnenForelderDto(false, false, false);
+        annenforelder.setMorMottarUføretrygd(false);
+        annenforelder.setMorHarForeldrepengerEØS(true);
+        manuellRegistreringForeldrepengerDto.setAnnenForelder(annenforelder);
+        var rettigheter = YtelseSøknadMapper.mapRettigheter(manuellRegistreringForeldrepengerDto);
+        assertThat(rettigheter).isNotNull();
+        assertThat(rettigheter.isHarAnnenForelderRett()).isFalse();
+        assertThat(rettigheter.isHarMorUforetrygd()).isFalse();
+        assertThat(rettigheter.isHarMorForeldrepengerEOS()).isTrue();
+        assertThat(rettigheter.isHarOmsorgForBarnetIPeriodene()).isTrue();
+    }
+
+    @Test
     public void skal_ikke_mappe_og_lagre_oppgitt_opptjening_når_det_allerede_finnes_i_grunnlaget() {
         var iayGrunnlag = mock(InntektArbeidYtelseGrunnlag.class);
         when(personinfoAdapter.hentBrukerKjønnForAktør(any(AktørId.class))).thenReturn(Optional.of(kvinne));

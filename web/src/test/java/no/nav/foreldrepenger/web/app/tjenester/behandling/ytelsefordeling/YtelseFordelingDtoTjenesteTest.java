@@ -97,6 +97,13 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRettPerioder()).hasSize(1);
         assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderMottarUføretrygd()).isNull();
         assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().avklarAnnenforelderMottarUføretrygd()).isFalse();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder()).isNotNull();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderRett()).isNotNull();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderRett()).isTrue();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderUføretrygd()).isNull();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderStønadEØS()).isNull();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().skalAvklareAnnenforelderUføretrygd()).isFalse();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().skalAvklareAnnenforelderStønadEØS()).isFalse();
         assertThat(ytelseFordelingDtoOpt.get().getEndringsdato()).isEqualTo(LocalDate.now().minusDays(20));
         assertThat(ytelseFordelingDtoOpt.get().getGjeldendeDekningsgrad()).isEqualTo(100);
     }
@@ -118,6 +125,12 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRett()).isNotNull();
         assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderMottarUføretrygd()).isNull();
         assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().avklarAnnenforelderMottarUføretrygd()).isFalse();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder()).isNotNull();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderRett()).isNotNull();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderUføretrygd()).isNull();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderStønadEØS()).isNull();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().skalAvklareAnnenforelderUføretrygd()).isFalse();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().skalAvklareAnnenforelderStønadEØS()).isFalse();
     }
 
     @Test
@@ -137,6 +150,12 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRett()).isNotNull();
         assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderMottarUføretrygd()).isNull();
         assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().avklarAnnenforelderMottarUføretrygd()).isTrue();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder()).isNotNull();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderRett()).isNotNull();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderUføretrygd()).isNull();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderStønadEØS()).isNull();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().skalAvklareAnnenforelderUføretrygd()).isTrue();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().skalAvklareAnnenforelderStønadEØS()).isFalse();
     }
 
     @Test
@@ -156,6 +175,12 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRett()).isNotNull();
         assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderMottarUføretrygd()).isTrue();
         assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().avklarAnnenforelderMottarUføretrygd()).isFalse();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder()).isNotNull();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderRett()).isNotNull();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderUføretrygd()).isTrue();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderStønadEØS()).isNull();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().skalAvklareAnnenforelderUføretrygd()).isFalse();
+        assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().skalAvklareAnnenforelderStønadEØS()).isFalse();
     }
 
     private YtelseFordelingDtoTjeneste tjeneste() {

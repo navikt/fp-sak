@@ -29,6 +29,7 @@ class RyddOmsorgRettTjeneste {
             .ifPresent(builder -> {
                 builder.medPerioderAnnenforelderHarRett(null);
                 builder.medPerioderAleneOmsorg(null);
+                builder.medPerioderMorStønadEØS(null);
                 ytelsesFordelingRepository.lagre(kontekst.getBehandlingId(), builder.build());
             });
     }

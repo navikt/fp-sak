@@ -41,7 +41,6 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Avkl
         }
         var totrinn = faktaOmsorgRettTjeneste.totrinnForAleneomsorg(param, dto.getAleneomsorg());
         faktaOmsorgRettTjeneste.aleneomsorgHistorikkFelt(param, dto.getAleneomsorg());
-        faktaOmsorgRettTjeneste.omsorgRettHistorikkInnslag(param, dto.getBegrunnelse());
         faktaOmsorgRettTjeneste.oppdaterAleneomsorg(param, dto.getAleneomsorg());
         if (!dto.getAleneomsorg() && dto.getAnnenforelderHarRett() != null) {
             var opprettUføre = !dto.getAnnenforelderHarRett() && dto.getAnnenforelderMottarUføretrygd() != null;
@@ -52,9 +51,12 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Avkl
                 throw new FunksjonellException("FP-093925", "Mangler oppgitt annenpart for saken kan ikke bekrefte uføretrygd.",
                     "Registrer annenpart eller kontakt support.");
             }
-            totrinn = totrinn || faktaOmsorgRettTjeneste.totrinnForAnnenforelderRett(param, dto.getAnnenforelderHarRett(), dto.getAnnenforelderMottarUføretrygd(), opprettUføre);
-            faktaOmsorgRettTjeneste.annenforelderRettHistorikkFelt(param, dto.getAnnenforelderHarRett(), dto.getAnnenforelderMottarUføretrygd(), opprettUføre);
-            faktaOmsorgRettTjeneste.oppdaterAnnenforelderRett(param, dto.getAnnenforelderHarRett(), dto.getAnnenforelderMottarUføretrygd(), opprettUføre, annenpartAktørId);
+            totrinn = totrinn || faktaOmsorgRettTjeneste.totrinnForAnnenforelderRett(param, dto.getAnnenforelderHarRett(),
+                dto.getAnnenforelderMottarUføretrygd(), opprettUføre, dto.getAnnenforelderMottarStønadEØS());
+            faktaOmsorgRettTjeneste.annenforelderRettHistorikkFelt(param, dto.getAnnenforelderHarRett(),
+                dto.getAnnenforelderMottarUføretrygd(), opprettUføre, dto.getAnnenforelderMottarStønadEØS());
+            faktaOmsorgRettTjeneste.oppdaterAnnenforelderRett(param, dto.getAnnenforelderHarRett(),
+                dto.getAnnenforelderMottarUføretrygd(), opprettUføre, annenpartAktørId, dto.getAnnenforelderMottarStønadEØS());
         }
         faktaOmsorgRettTjeneste.omsorgRettHistorikkInnslag(param, dto.getBegrunnelse());
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();

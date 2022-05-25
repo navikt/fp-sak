@@ -17,6 +17,7 @@ public enum UttakDokumentasjonType implements Kodeverdi {
     UTEN_OMSORG("UTEN_OMSORG", "Søker har ikke omsorg for barnet"),
     ALENEOMSORG("ALENEOMSORG", "Søker har aleneomsorg for barnet"),
     ANNEN_FORELDER_HAR_RETT("ANNEN_FORELDER_HAR_RETT", "Annenforelder har rett for barnet"),
+    MOR_STØNAD_EØS("MOR_STONAD_EOS", "Annenforelder har foreldrepenger fra EØS"),
     SYK_SØKER("SYK_SOKER", "Søker er syk eller skadet"),
     INNLAGT_SØKER("INNLAGT_SOKER", "Søker er innlagt i institusjon"),
     INNLAGT_BARN("INNLAGT_BARN", "Barn er innlagt i institusjon"),
