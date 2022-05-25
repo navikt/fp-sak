@@ -60,7 +60,7 @@ public class InntektsmeldingUtenArbeidsforholdTjeneste {
                                       AktørId aktørId,
                                       LocalDate utledetStp) {
         var harRapportertInntektHosArbeidsgiver = harRapportertInntekt(new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId)), utledetStp, inntektsmelding.getArbeidsgiver());
-        var harIngenArbeidsforholdHosArbeidsgiver = !harArbeidsforholdIRegistreHosArbeidsgiver(aktørId, grunnlag, inntektsmelding.getArbeidsgiver(), inntektsmelding.getArbeidsforholdRef());
+        var harIngenArbeidsforholdHosArbeidsgiver = !harArbeidsforholdIRegistreHosArbeidsgiver(aktørId, grunnlag, inntektsmelding.getArbeidsgiver());
         boolean finnesInntektUtenArbeidsforhold = harRapportertInntektHosArbeidsgiver && harIngenArbeidsforholdHosArbeidsgiver;
         return finnesInntektUtenArbeidsforhold || erFiskerUtenAktivtArbeid(aktørId, utledetStp, grunnlag, inntektsmelding);
     }
@@ -90,7 +90,7 @@ public class InntektsmeldingUtenArbeidsforholdTjeneste {
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
             grunnlag.getAktørArbeidFraRegister(aktørId));
         return filter.getYrkesaktiviteter().stream()
-            .filter(ya -> gjelderInntektsmeldingFor(inntektsmelding.getArbeidsgiver(), inntektsmelding.getArbeidsforholdRef(), ya))
+            .filter(ya -> gjelderInntektsmeldingFor(inntektsmelding.getArbeidsgiver(), ya))
             .noneMatch(ya -> ya.getAlleAktivitetsAvtaler().stream()
                 .filter(AktivitetsAvtale::erAnsettelsesPeriode).anyMatch(aa -> aa.getPeriode().inkluderer(utledetStp)));
     }
@@ -100,19 +100,18 @@ public class InntektsmeldingUtenArbeidsforholdTjeneste {
             oppgittOpptjening -> oppgittOpptjening.getEgenNæring().stream().anyMatch(en -> en.getVirksomhetType().equals(VirksomhetType.FISKE)));
     }
 
-    private static boolean gjelderInntektsmeldingFor(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef, Yrkesaktivitet yr) {
+    private static boolean gjelderInntektsmeldingFor(Arbeidsgiver arbeidsgiver, Yrkesaktivitet yr) {
         return ARBEIDSFORHOLD_TYPER.contains(yr.getArbeidType())
-            && yr.getArbeidsgiver().equals(arbeidsgiver)
-            && yr.getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
+            && yr.getArbeidsgiver().equals(arbeidsgiver);
     }
 
     private static boolean harArbeidsforholdIRegistreHosArbeidsgiver(AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag,
-                                                                     Arbeidsgiver arbeidsgiverFraIM, InternArbeidsforholdRef arbeidsforholdRefFraIM) {
+                                                                     Arbeidsgiver arbeidsgiverFraIM) {
         var filter = new YrkesaktivitetFilter(grunnlag.getAktørArbeidFraRegister(aktørId)
             .map(AktørArbeid::hentAlleYrkesaktiviteter)
             .orElse(Collections.emptyList()));
         return filter.getYrkesaktiviteter().stream()
-            .anyMatch(yr -> gjelderInntektsmeldingFor(arbeidsgiverFraIM, arbeidsforholdRefFraIM, yr));
+            .anyMatch(yr -> gjelderInntektsmeldingFor(arbeidsgiverFraIM, yr));
     }
 
     private static Set<InternArbeidsforholdRef> trekkUtRef(Inntektsmelding inntektsmelding) {
