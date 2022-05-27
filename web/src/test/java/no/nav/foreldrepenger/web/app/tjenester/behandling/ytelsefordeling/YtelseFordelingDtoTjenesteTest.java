@@ -74,8 +74,6 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         }.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
-        assertThat(ytelseFordelingDtoOpt.get().getAleneOmsorgPerioder()).isNotNull();
-        assertThat(ytelseFordelingDtoOpt.get().getAleneOmsorgPerioder()).hasSize(1);
         assertThat(ytelseFordelingDtoOpt.get().getEndringsdato()).isEqualTo(LocalDate.now().minusDays(20));
         assertThat(ytelseFordelingDtoOpt.get().getGjeldendeDekningsgrad()).isEqualTo(100);
     }
@@ -91,12 +89,6 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(), uforeRepoMock)).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRett()).isNotNull();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRett()).isTrue();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRettPerioder()).isNotNull();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRettPerioder()).hasSize(1);
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderMottarUføretrygd()).isNull();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().avklarAnnenforelderMottarUføretrygd()).isFalse();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder()).isNotNull();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderRett()).isNotNull();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderRett()).isTrue();
@@ -122,9 +114,6 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
             .medRegisterUføretrygd(true, LocalDate.now(), LocalDate.now()).build()));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRett()).isNotNull();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderMottarUføretrygd()).isNull();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().avklarAnnenforelderMottarUføretrygd()).isFalse();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder()).isNotNull();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderRett()).isNotNull();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderUføretrygd()).isNull();
@@ -147,9 +136,6 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
             .medRegisterUføretrygd(false, null, null).build()));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRett()).isNotNull();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderMottarUføretrygd()).isNull();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().avklarAnnenforelderMottarUføretrygd()).isTrue();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder()).isNotNull();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderRett()).isNotNull();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderUføretrygd()).isNull();
@@ -172,9 +158,6 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
             .medRegisterUføretrygd(false, null, null).medOverstyrtUføretrygd(true).build()));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderHarRett()).isNotNull();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().annenforelderMottarUføretrygd()).isTrue();
-        assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().avklarAnnenforelderMottarUføretrygd()).isFalse();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder()).isNotNull();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderRett()).isNotNull();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenforelderUføretrygd()).isTrue();

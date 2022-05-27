@@ -6,7 +6,6 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.familiehendelse.rest.SøknadType;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
@@ -18,17 +17,11 @@ public abstract class SoknadDto {
 
     private SøknadType soknadType;
     private LocalDate mottattDato;
-    private LocalDate soknadsdato;
-    private String tilleggsopplysninger;
     private String begrunnelseForSenInnsending;
-    private String annenPartNavn;
     private Integer antallBarn;
-    private Integer dekningsgrad;
     private OppgittTilknytningDto oppgittTilknytning;
     private List<ManglendeVedleggDto> manglendeVedlegg;
-    private OppgittRettighetDto oppgittRettighet;
     private OppgittFordelingDto oppgittFordeling;
-    private Språkkode spraakkode;
 
     protected SoknadDto() {
     }
@@ -41,14 +34,6 @@ public abstract class SoknadDto {
         return mottattDato;
     }
 
-    public LocalDate getSoknadsdato() {
-        return soknadsdato;
-    }
-
-    public String getTilleggsopplysninger() {
-        return tilleggsopplysninger;
-    }
-
     public boolean erSoknadsType(SøknadType søknadType) {
         return søknadType.equals(this.soknadType);
     }
@@ -57,24 +42,12 @@ public abstract class SoknadDto {
         return begrunnelseForSenInnsending;
     }
 
-    public String getAnnenPartNavn() {
-        return annenPartNavn;
-    }
-
     public Integer getAntallBarn() {
         return antallBarn;
     }
 
-    public Integer getDekningsgrad() {
-        return dekningsgrad;
-    }
-
     public OppgittTilknytningDto getOppgittTilknytning() {
         return oppgittTilknytning;
-    }
-
-    public OppgittRettighetDto getOppgittRettighet() {
-        return oppgittRettighet;
     }
 
     public OppgittFordelingDto getOppgittFordeling() {
@@ -89,24 +62,12 @@ public abstract class SoknadDto {
         this.mottattDato = mottattDato;
     }
 
-    public void setTilleggsopplysninger(String tilleggsopplysninger) {
-        this.tilleggsopplysninger = tilleggsopplysninger;
-    }
-
     public void setBegrunnelseForSenInnsending(String begrunnelseForSenInnsending) {
         this.begrunnelseForSenInnsending = begrunnelseForSenInnsending;
     }
 
-    public void setAnnenPartNavn(String annenPartNavn) {
-        this.annenPartNavn = annenPartNavn;
-    }
-
     public void setAntallBarn(Integer antallBarn) {
         this.antallBarn = antallBarn;
-    }
-
-    public void setDekningsgrad(Integer dekningsgrad) {
-        this.dekningsgrad = dekningsgrad;
     }
 
     public void setOppgittTilknytning(OppgittTilknytningDto oppgittTilknytning) {
@@ -121,23 +82,8 @@ public abstract class SoknadDto {
         this.manglendeVedlegg = manglendeVedlegg;
     }
 
-    public void setOppgittRettighet(OppgittRettighetDto oppgittRettighet) {
-        this.oppgittRettighet = oppgittRettighet;
-    }
-
     public void setOppgittFordeling(OppgittFordelingDto oppgittFordeling) {
         this.oppgittFordeling = oppgittFordeling;
     }
 
-    public void setSoknadsdato(LocalDate soknadsdato) {
-        this.soknadsdato = soknadsdato;
-    }
-
-    public Språkkode getSpraakkode() {
-        return spraakkode;
-    }
-
-    public void setSpraakkode(Språkkode spraakkode) {
-        this.spraakkode = spraakkode;
-    }
 }

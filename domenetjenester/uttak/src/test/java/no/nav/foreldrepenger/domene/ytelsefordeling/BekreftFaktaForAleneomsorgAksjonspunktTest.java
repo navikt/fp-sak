@@ -2,13 +2,10 @@ package no.nav.foreldrepenger.domene.ytelsefordeling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
-
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
@@ -24,30 +21,25 @@ public class BekreftFaktaForAleneomsorgAksjonspunktTest {
         var behandlingId = behandling.getId();
         ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForAleneomsorg(behandlingId, false);
 
-        var perioderAleneOmsorgOptional = ytelsesFordelingRepository.hentAggregat(
-            behandlingId).getPerioderAleneOmsorg();
-        assertThat(perioderAleneOmsorgOptional).isPresent();
-        var periodeAleneOmsorg = perioderAleneOmsorgOptional.get().getPerioder();
-        assertThat(periodeAleneOmsorg).isEmpty();
+        var perioderAleneOmsorg = ytelsesFordelingRepository.hentAggregat(
+            behandlingId).getAleneomsorgAvklaring();
+        assertThat(perioderAleneOmsorg).isNotNull();
+        assertThat(perioderAleneOmsorg).isFalse();
 
         var perioderAnnenforelderHarRettOptional = ytelsesFordelingRepository.hentAggregat(
-            behandlingId).getPerioderAnnenforelderHarRett();
-        assertThat(perioderAnnenforelderHarRettOptional).isEmpty();
+            behandlingId).getAnnenForelderRettAvklaring();
+        assertThat(perioderAnnenforelderHarRettOptional).isNull();
 
         //må legge inn etter endret til har aleneomsorg
         ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForAleneomsorg(behandlingId, true);
-        perioderAleneOmsorgOptional = ytelsesFordelingRepository.hentAggregat(behandlingId).getPerioderAleneOmsorg();
-        assertThat(perioderAleneOmsorgOptional).isPresent();
-        periodeAleneOmsorg = perioderAleneOmsorgOptional.get().getPerioder();
-        assertThat(periodeAleneOmsorg).hasSize(1);
-        assertThat(periodeAleneOmsorg.get(0).getPeriode()).isEqualTo(
-            DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()));
+        perioderAleneOmsorg = ytelsesFordelingRepository.hentAggregat(behandlingId).getAleneomsorgAvklaring();
+        assertThat(perioderAleneOmsorg).isNotNull();
+        assertThat(perioderAleneOmsorg).isTrue();
 
         perioderAnnenforelderHarRettOptional = ytelsesFordelingRepository.hentAggregat(behandlingId)
-            .getPerioderAnnenforelderHarRett();
-        assertThat(perioderAnnenforelderHarRettOptional).isPresent();
-        var periodeAnnenforelderHarRett = perioderAnnenforelderHarRettOptional.get().getPerioder();
-        assertThat(periodeAnnenforelderHarRett).isEmpty();
+            .getAnnenForelderRettAvklaring();
+        assertThat(perioderAnnenforelderHarRettOptional).isNotNull();
+        assertThat(perioderAnnenforelderHarRettOptional).isFalse();
     }
 
     private Behandling opprettBehandling() {

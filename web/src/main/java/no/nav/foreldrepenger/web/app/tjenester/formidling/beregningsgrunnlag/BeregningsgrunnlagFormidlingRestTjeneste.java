@@ -36,9 +36,8 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 public class BeregningsgrunnlagFormidlingRestTjeneste {
 
     static final String BASE_PATH = "/formidling";
-    private static final String BEREGNINGSGRUNNLAG_PART_PATH = "/beregningsgrunnlag";
+    private static final String BEREGNINGSGRUNNLAG_PART_PATH = "/beregningsgrunnlag/v2";
     public static final String BEREGNINGSGRUNNLAG_PATH = BASE_PATH + BEREGNINGSGRUNNLAG_PART_PATH;
-    private static final String BEREGNINGSGRUNNLAG_V2_PATH = BEREGNINGSGRUNNLAG_PART_PATH + "/v2";
 
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
@@ -54,30 +53,10 @@ public class BeregningsgrunnlagFormidlingRestTjeneste {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
     }
 
-    @Deprecated(forRemoval = true) //Bruk V2
     @GET
     @Operation(description = "Hent beregningsgrunnlag for angitt behandling for formidlingsbruk", summary = ("Returnerer beregningsgrunnlag for behandling for formidlingsbruk."), tags = "formidling")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Path(BEREGNINGSGRUNNLAG_PART_PATH)
-    public Response hentBeregningsgrunnlagFormidling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var uid = Optional.ofNullable(uuidDto.getBehandlingUuid());
-        var dto = uid.flatMap(behandlingRepository::hentBehandlingHvisFinnes)
-            .flatMap(beh -> beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(beh.getId()))
-            .flatMap(bggr -> new BeregningsgrunnlagFormidlingDtoTjeneste(bggr).map());
-
-        if (dto.isEmpty()) {
-            var responseBuilder = Response.ok();
-            return responseBuilder.build();
-        }
-        var responseBuilder = Response.ok(dto.get());
-        return responseBuilder.build();
-    }
-
-    @GET
-    @Operation(description = "Hent beregningsgrunnlag for angitt behandling for formidlingsbruk", summary = ("Returnerer beregningsgrunnlag for behandling for formidlingsbruk."), tags = "formidling")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Path(BEREGNINGSGRUNNLAG_V2_PATH)
     public Response hentBeregningsgrunnlagFormidlingV2(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                      @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var uid = Optional.ofNullable(uuidDto.getBehandlingUuid());

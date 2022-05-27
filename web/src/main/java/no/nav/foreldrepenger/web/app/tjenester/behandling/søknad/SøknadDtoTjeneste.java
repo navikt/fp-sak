@@ -17,15 +17,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.familiehendelse.rest.SøknadType;
@@ -39,11 +36,9 @@ public class SøknadDtoTjeneste {
     private BehandlingRepositoryProvider repositoryProvider;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private KompletthetsjekkerProvider kompletthetsjekkerProvider;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private YtelsesFordelingRepository ytelsesfordelingRepository;
     private MedlemTjeneste medlemTjeneste;
-    private PersonopplysningRepository personopplysningRepository;
 
     protected SøknadDtoTjeneste() {
         // for CDI proxy
@@ -54,15 +49,12 @@ public class SøknadDtoTjeneste {
                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                  KompletthetsjekkerProvider kompletthetsjekkerProvider,
                                  YtelsesFordelingRepository ytelsesfordelingRepository,
-                                 PersonopplysningRepository personopplysningRepository,
                                  MedlemTjeneste medlemTjeneste) {
         this.repositoryProvider = repositoryProvider;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.kompletthetsjekkerProvider = kompletthetsjekkerProvider;
         this.ytelsesfordelingRepository = ytelsesfordelingRepository;
-        this.personopplysningRepository = personopplysningRepository;
         this.medlemTjeneste = medlemTjeneste;
-        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
     }
 
@@ -92,12 +84,8 @@ public class SøknadDtoTjeneste {
 
         var soknadBackendDto = new SoknadBackendDto();
         soknadBackendDto.setMottattDato(søknad.getMottattDato());
-        soknadBackendDto.setSoknadsdato(søknad.getSøknadsdato());
-        soknadBackendDto.setSpraakkode(søknad.getSpråkkode());
         soknadBackendDto.setSoknadType(familieHendelse.getGjelderFødsel() ? SøknadType.FØDSEL : SøknadType.ADOPSJON);
 
-        ytelsesfordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
-            .ifPresent(of -> soknadBackendDto.setOppgittRettighet(OppgittRettighetDto.mapFra(of.getOppgittRettighet())));
         ytelsesfordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
             .map(YtelseFordelingAggregat::getOppgittRettighet)
             .map(OppgittRettighetEntitet::getHarAleneomsorgForBarnet)
@@ -120,20 +108,13 @@ public class SøknadDtoTjeneste {
         soknadFodselDto.setBegrunnelseForSenInnsending(søknad.getBegrunnelseForSenInnsending());
         soknadFodselDto.setFarSokerType(søknad.getFarSøkerType());
 
-        personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandlingId).map(OppgittAnnenPartEntitet::getNavn).ifPresent(soknadFodselDto::setAnnenPartNavn);
+        ytelsesfordelingRepository.hentAggregatHvisEksisterer(behandlingId)
+            .ifPresent(of -> soknadFodselDto.setOppgittFordeling(OppgittFordelingDto.mapFra(of.getOppgittFordeling(), hentOppgittStartdatoForPermisjon(behandlingId, søknad.getRelasjonsRolleType()))));
 
-        ytelsesfordelingRepository.hentAggregatHvisEksisterer(behandlingId).ifPresent(of -> {
-            soknadFodselDto.setOppgittRettighet(OppgittRettighetDto.mapFra(of.getOppgittRettighet()));
-            soknadFodselDto.setOppgittFordeling(OppgittFordelingDto.mapFra(of.getOppgittFordeling(), hentOppgittStartdatoForPermisjon(behandlingId, søknad.getRelasjonsRolleType())));
-
-        });
-
-        medlemTjeneste.hentMedlemskap(behandlingId).ifPresent(ma -> {
-            soknadFodselDto.setOppgittTilknytning(OppgittTilknytningDto.mapFra(ma.getOppgittTilknytning().orElse(null)));
-        });
+        medlemTjeneste.hentMedlemskap(behandlingId)
+            .ifPresent(ma -> soknadFodselDto.setOppgittTilknytning(OppgittTilknytningDto.mapFra(ma.getOppgittTilknytning().orElse(null))));
 
         soknadFodselDto.setManglendeVedlegg(genererManglendeVedlegg(ref));
-        soknadFodselDto.setDekningsgrad(hentDekningsgrad(ref).orElse(null));
         soknadFodselDto.setFodselsdatoer(fødselsdatoer);
 
         return Optional.of(soknadFodselDto);
@@ -141,9 +122,6 @@ public class SøknadDtoTjeneste {
 
     private void mapFellesSoknadDtoFelter(SøknadEntitet søknad, SoknadDto soknadDto) {
         soknadDto.setMottattDato(søknad.getMottattDato());
-        soknadDto.setSoknadsdato(søknad.getSøknadsdato());
-        soknadDto.setTilleggsopplysninger(søknad.getTilleggsopplysninger());
-        soknadDto.setSpraakkode(søknad.getSpråkkode());
     }
 
     private List<ManglendeVedleggDto> genererManglendeVedlegg(BehandlingReferanse ref) {
@@ -182,18 +160,13 @@ public class SøknadDtoTjeneste {
         soknadAdopsjonDto.setAntallBarn(familieHendelse.getAntallBarn());
         soknadAdopsjonDto.setBegrunnelseForSenInnsending(søknad.getBegrunnelseForSenInnsending());
 
-        personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandlingId).map(OppgittAnnenPartEntitet::getNavn).ifPresent(soknadAdopsjonDto::setAnnenPartNavn);
-
-        ytelsesfordelingRepository.hentAggregatHvisEksisterer(behandlingId).ifPresent(of -> {
-            soknadAdopsjonDto.setOppgittRettighet(OppgittRettighetDto.mapFra(of.getOppgittRettighet()));
-            soknadAdopsjonDto.setOppgittFordeling(OppgittFordelingDto.mapFra(of.getOppgittFordeling(), hentOppgittStartdatoForPermisjon(ref.behandlingId(), null)));
-        });
+        ytelsesfordelingRepository.hentAggregatHvisEksisterer(behandlingId)
+            .ifPresent(of -> soknadAdopsjonDto.setOppgittFordeling(OppgittFordelingDto.mapFra(of.getOppgittFordeling(), hentOppgittStartdatoForPermisjon(ref.behandlingId(), null))));
 
         medlemTjeneste.hentMedlemskap(behandlingId).ifPresent(ma -> {
             soknadAdopsjonDto.setOppgittTilknytning(OppgittTilknytningDto.mapFra(ma.getOppgittTilknytning().orElse(null)));
         });
 
-        soknadAdopsjonDto.setDekningsgrad(hentDekningsgrad(ref).orElse(null));
         soknadAdopsjonDto.setManglendeVedlegg(genererManglendeVedlegg(ref));
         return Optional.of(soknadAdopsjonDto);
     }
@@ -220,8 +193,4 @@ public class SøknadDtoTjeneste {
         }
     }
 
-    private Optional<Integer> hentDekningsgrad(BehandlingReferanse ref) {
-        var fagsakRelasjonOpt = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(ref.saksnummer());
-        return fagsakRelasjonOpt.map(fagsakRelasjon -> fagsakRelasjon.getDekningsgrad().getVerdi());
-    }
 }

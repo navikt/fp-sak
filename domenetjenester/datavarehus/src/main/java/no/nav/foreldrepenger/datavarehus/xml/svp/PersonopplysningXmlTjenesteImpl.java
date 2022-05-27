@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.datavarehus.xml.svp;
 
-import static no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil.harAleneomsorg;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,8 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.DokumentasjonPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAleneOmsorgEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.xml.PersonopplysningXmlFelles;
 import no.nav.foreldrepenger.datavarehus.xml.PersonopplysningXmlTjeneste;
@@ -213,23 +209,12 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
             .createPersonopplysningerSvangerskapspengerDokumentasjonsperioder();
 
         ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId).ifPresent(aggregat -> {
-            leggTilPerioderMedAleneomsorg(aggregat, dokumentasjonsperioder);
             aggregat.getPerioderUttakDokumentasjon().ifPresent(
                 uttakDokumentasjon -> dokumentasjonsperioder.getDokumentasjonperiode().addAll(lagDokumentasjonPerioder(uttakDokumentasjon.getPerioder())));
             aggregat.getPerioderUtenOmsorg()
                 .ifPresent(utenOmsorg -> dokumentasjonsperioder.getDokumentasjonperiode().addAll(lagDokumentasjonPerioder(utenOmsorg.getPerioder())));
-            aggregat.getPerioderAnnenforelderHarRett().ifPresent(
-                annenforelderHarRett -> dokumentasjonsperioder.getDokumentasjonperiode().addAll(lagDokumentasjonPerioder(annenforelderHarRett.getPerioder())));
             personopplysninger.setDokumentasjonsperioder(dokumentasjonsperioder);
         });
-    }
-
-    private void leggTilPerioderMedAleneomsorg(YtelseFordelingAggregat aggregat,
-                                               PersonopplysningerSvangerskapspenger.Dokumentasjonsperioder dokumentasjonsperioder) {
-        if (harAleneomsorg(aggregat)) {
-            dokumentasjonsperioder.getDokumentasjonperiode()
-                .addAll(lagDokumentasjonPerioder(List.of(new PeriodeAleneOmsorgEntitet(LocalDate.now(), LocalDate.now()))));
-        }
     }
 
     private List<? extends DokumentasjonPeriode> lagDokumentasjonPerioder(List<? extends DokumentasjonPeriodeEntitet<?>> perioder) {

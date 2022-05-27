@@ -46,15 +46,15 @@ public class YtelseFordelingAggregat {
         return Optional.ofNullable(perioderUtenOmsorg);
     }
 
-    public Optional<PerioderAleneOmsorgEntitet> getPerioderAleneOmsorg() {
+    Optional<PerioderAleneOmsorgEntitet> getPerioderAleneOmsorg() {
         return Optional.ofNullable(perioderAleneOmsorg);
     }
 
-    public Optional<PerioderAnnenforelderHarRettEntitet> getPerioderAnnenforelderHarRett() {
+    Optional<PerioderAnnenforelderHarRettEntitet> getPerioderAnnenforelderHarRett() {
         return Optional.ofNullable(perioderAnnenforelderHarRett);
     }
 
-    public Optional<PerioderMorStønadEØSEntitet> getPerioderMorStønadEØS() {
+    Optional<PerioderMorStønadEØSEntitet> getPerioderMorStønadEØS() {
         return Optional.ofNullable(perioderMorStønadEØS);
     }
 
