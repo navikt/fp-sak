@@ -46,7 +46,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.Perso
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.SøknadRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
@@ -192,13 +191,10 @@ public class BehandlingFormidlingDtoTjeneste {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             dto.leggTil(get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad", uuidDto));
         } else {
-            dto.leggTil(get(YtelsefordelingRestTjeneste.YTELSESFORDELING_PATH, "ytelsefordeling", uuidDto));
-
             var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId())
                     .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
             if (beregningsgrunnlag.isPresent()) {
-                dto.leggTilFormidlingRessurs(
-                    get(BeregningsgrunnlagFormidlingRestTjeneste.BEREGNINGSGRUNNLAG_PATH, "beregningsgrunnlag", uuidDto));
+                dto.leggTilFormidlingRessurs(get(BeregningsgrunnlagFormidlingRestTjeneste.BEREGNINGSGRUNNLAG_PATH, "beregningsgrunnlag-formidling", uuidDto));
             }
 
             if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
@@ -231,7 +227,6 @@ public class BehandlingFormidlingDtoTjeneste {
                     dto.leggTil(get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger", uuidDto));
                 }
 
-                dto.leggTil(get(FormidlingRestTjeneste.DOKMAL_INNVFP_PATH, "dokmal-innvfp", uuidDto));
                 dto.leggTil(get(FormidlingRestTjeneste.UTSATT_START_PATH, "utsatt-oppstart", uuidDto));
                 dto.leggTil(get(UttakRestTjeneste.SAMMENHENGENDE_UTTAK_PATH, "krever-sammenhengende-uttak", uuidDto));
                 dto.leggTil(get(UttakRestTjeneste.UTEN_MINSTERETT_PATH, "uten-minsterett", uuidDto));

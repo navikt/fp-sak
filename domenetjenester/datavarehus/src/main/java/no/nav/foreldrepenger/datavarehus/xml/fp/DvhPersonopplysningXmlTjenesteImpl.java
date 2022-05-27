@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.DokumentasjonPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAleneOmsorgEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.xml.DvhPersonopplysningXmlTjeneste;
@@ -272,8 +273,10 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
                 uttakDokumentasjon -> dokumentasjonsperioder.getDokumentasjonperiode().addAll(lagDokumentasjonPerioder(uttakDokumentasjon.getPerioder())));
             aggregat.getPerioderUtenOmsorg()
                 .ifPresent(utenOmsorg -> dokumentasjonsperioder.getDokumentasjonperiode().addAll(lagDokumentasjonPerioder(utenOmsorg.getPerioder())));
-            aggregat.getPerioderAnnenforelderHarRett().ifPresent(
-                annenforelderHarRett -> dokumentasjonsperioder.getDokumentasjonperiode().addAll(lagDokumentasjonPerioder(annenforelderHarRett.getPerioder())));
+            if (Boolean.TRUE.equals(aggregat.getAnnenForelderRettAvklaring())) {
+                dokumentasjonsperioder.getDokumentasjonperiode()
+                    .addAll(lagDokumentasjonPerioder(List.of(new PeriodeAnnenforelderHarRettEntitet(LocalDate.now(), LocalDate.now()))));
+            }
             personopplysninger.setDokumentasjonsperioder(dokumentasjonsperioder);
         });
     }

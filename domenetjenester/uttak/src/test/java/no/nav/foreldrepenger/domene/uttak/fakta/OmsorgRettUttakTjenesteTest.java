@@ -54,9 +54,9 @@ public class OmsorgRettUttakTjenesteTest {
 
         var perioderAnnenforelderHarRett = repositoryProvider.getYtelsesFordelingRepository()
             .hentAggregat(behandling.getId())
-            .getPerioderAnnenforelderHarRett();
-        assertThat(perioderAnnenforelderHarRett).isPresent();
-        assertThat(perioderAnnenforelderHarRett.get().getPerioder()).isEmpty();
+            .getAnnenForelderRettAvklaring();
+        assertThat(perioderAnnenforelderHarRett).isNotNull();
+        assertThat(perioderAnnenforelderHarRett).isFalse();
     }
 
     @Test
@@ -71,8 +71,8 @@ public class OmsorgRettUttakTjenesteTest {
 
         var perioderAnnenforelderHarRett = repositoryProvider.getYtelsesFordelingRepository()
             .hentAggregat(behandling.getId())
-            .getPerioderAnnenforelderHarRett();
-        assertThat(perioderAnnenforelderHarRett).isEmpty();
+            .getAnnenForelderRettAvklaring();
+        assertThat(perioderAnnenforelderHarRett).isNull();
     }
 
     @Test
@@ -87,8 +87,8 @@ public class OmsorgRettUttakTjenesteTest {
 
         var perioderAnnenforelderHarRett = repositoryProvider.getYtelsesFordelingRepository()
             .hentAggregat(behandling.getId())
-            .getPerioderAnnenforelderHarRett();
-        assertThat(perioderAnnenforelderHarRett).isEmpty();
+            .getAnnenForelderRettAvklaring();
+        assertThat(perioderAnnenforelderHarRett).isNull();
     }
 
     @Test
@@ -101,8 +101,8 @@ public class OmsorgRettUttakTjenesteTest {
 
         var perioderAnnenforelderHarRett = repositoryProvider.getYtelsesFordelingRepository()
             .hentAggregat(behandling.getId())
-            .getPerioderAnnenforelderHarRett();
-        assertThat(perioderAnnenforelderHarRett).isEmpty();
+            .getAnnenForelderRettAvklaring();
+        assertThat(perioderAnnenforelderHarRett).isNull();
     }
 
 }

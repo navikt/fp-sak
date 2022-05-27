@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAleneOmsorgEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUtenOmsorgEntitet;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
@@ -41,30 +39,6 @@ public class PeriodeKonverter {
     private static String konvertDatoTilString(LocalDate periodeFom, LocalDate periodeTom) {
         return periodeTom == null || periodeTom.equals(DatoIntervallEntitet.TIDENES_ENDE) ?
             DATE_FORMATTER.format(periodeFom).concat("-").concat("") : DATE_FORMATTER.format(periodeFom).concat("-").concat(DATE_FORMATTER.format(periodeTom));
-    }
-
-    public static List<PeriodeDto> mapAleneOmsorgsperioder(List<PeriodeAleneOmsorgEntitet> periodeAleneOmsorgs) {
-        List<PeriodeDto> result = new ArrayList<>();
-        if(!Objects.isNull(periodeAleneOmsorgs) && !periodeAleneOmsorgs.isEmpty()) {
-            result.addAll(periodeAleneOmsorgs.stream().map(PeriodeKonverter::mapAleneOmsorgperiode).collect(Collectors.toList()));
-        }
-        return result;
-    }
-
-    private static PeriodeDto mapAleneOmsorgperiode(PeriodeAleneOmsorgEntitet dto) {
-        return mapPeriode(dto.getPeriode());
-    }
-
-    public static List<PeriodeDto> mapAnnenforelderHarRettPerioder(List<PeriodeAnnenforelderHarRettEntitet> periodeAnnenforelderHarRetts) {
-        List<PeriodeDto> result = new ArrayList<>();
-        if(!Objects.isNull(periodeAnnenforelderHarRetts) && !periodeAnnenforelderHarRetts.isEmpty()) {
-            result.addAll(periodeAnnenforelderHarRetts.stream().map(PeriodeKonverter::mapAnnenforelderHarRett).collect(Collectors.toList()));
-        }
-        return result;
-    }
-
-    private static PeriodeDto mapAnnenforelderHarRett(PeriodeAnnenforelderHarRettEntitet dto) {
-        return mapPeriode(dto.getPeriode());
     }
 
     public static List<PeriodeDto> mapUtenOmsorgperioder(List<PeriodeUtenOmsorgEntitet> periodeUtenOmsorgs) {

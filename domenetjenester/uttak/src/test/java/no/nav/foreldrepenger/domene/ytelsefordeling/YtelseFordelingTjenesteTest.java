@@ -58,11 +58,10 @@ public class YtelseFordelingTjenesteTest {
         tjeneste.bekreftAnnenforelderHarRett(behandling.getId(), false, null);
 
         var perioderAnnenforelderHarRett = tjeneste.hentAggregat(
-            behandling.getId()).getPerioderAnnenforelderHarRett();
+            behandling.getId()).getAnnenForelderRettAvklaring();
 
-        assertThat(perioderAnnenforelderHarRett).isPresent();
-        var perioder = perioderAnnenforelderHarRett.get().getPerioder();
-        assertThat(perioder).isEmpty();
+        assertThat(perioderAnnenforelderHarRett).isNotNull();
+        assertThat(perioderAnnenforelderHarRett).isFalse();
     }
 
     @Test
@@ -73,12 +72,10 @@ public class YtelseFordelingTjenesteTest {
         tjeneste.bekreftAnnenforelderHarRett(behandling.getId(), true, null);
 
         var perioderAnnenforelderHarRett = tjeneste.hentAggregat(
-            behandling.getId()).getPerioderAnnenforelderHarRett();
+            behandling.getId()).getAnnenForelderRettAvklaring();
 
-        assertThat(perioderAnnenforelderHarRett).isPresent();
-        var perioder = perioderAnnenforelderHarRett.get().getPerioder();
-        assertThat(perioder).isNotEmpty();
-        assertThat(perioder).hasSize(1);
+        assertThat(perioderAnnenforelderHarRett).isNotNull();
+        assertThat(perioderAnnenforelderHarRett).isTrue();
     }
 
     @Test
