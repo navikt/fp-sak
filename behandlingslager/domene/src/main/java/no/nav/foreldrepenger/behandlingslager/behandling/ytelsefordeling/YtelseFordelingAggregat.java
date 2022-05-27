@@ -54,7 +54,7 @@ public class YtelseFordelingAggregat {
         return Optional.ofNullable(perioderAnnenforelderHarRett);
     }
 
-    public Optional<PerioderMorStønadEØSEntitet> getPerioderMorStønadEØS() {
+    Optional<PerioderMorStønadEØSEntitet> getPerioderMorStønadEØS() {
         return Optional.ofNullable(perioderMorStønadEØS);
     }
 
