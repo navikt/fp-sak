@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.saksbehandler;
 
 import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
-import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.util.ArrayList;
