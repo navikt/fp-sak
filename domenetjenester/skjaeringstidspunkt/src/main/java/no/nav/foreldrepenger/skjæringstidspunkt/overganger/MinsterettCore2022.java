@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.skjæringstidspunkt.overganger;
 
 import java.time.LocalDate;
+import java.time.Period;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -8,6 +9,9 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
@@ -25,6 +29,8 @@ public class MinsterettCore2022 {
     private static final LocalDate DATO_FOR_PROD = LocalDate.of(2999,8,2); // LA STÅ.
 
     public static final boolean DEFAULT_SAK_UTEN_MINSTERETT = true;
+
+    private static final Period FAR_TIDLIGSTE_UTTAK_FØR_TERMIN = Period.ofWeeks(2); // Vi har ikke uttak-konfig tilgjengelig her.
 
     private LocalDate ikrafttredelseDato = DATO_FOR_PROD;
 
@@ -49,6 +55,25 @@ public class MinsterettCore2022 {
         if (gjeldendeFH == null || gjeldendeFH.getSkjæringstidspunkt() == null) return true;
         if (gjeldendeFH.getSkjæringstidspunkt().isBefore(ikrafttredelseDato)) return true;
         return LocalDate.now().isBefore(ikrafttredelseDato);
+    }
+
+    public static LocalDate førsteUttaksDatoForBeregning(RelasjonsRolleType rolle, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag,
+                                                         LocalDate førsteUttaksdato, boolean utenMinsterett) {
+        // // 14-10 første ledd (far+medmor) med uttak ifm fødsel iht P15L 2021/22. Øvrige tilfelle sendes videre.
+        var gjeldendeFH = familieHendelseGrunnlag.getGjeldendeVersjon();
+        if (!utenMinsterett && gjeldendeFH.getGjelderFødsel() && !RelasjonsRolleType.MORA.equals(rolle)) {
+            // Juster førsteUttaksdato som er før fødsel eller T-2 til tidligste lovlige dato
+            var termindatoMinusPeriode = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse()
+                .map(TerminbekreftelseEntitet::getTermindato)
+                .map(t -> t.minus(FAR_TIDLIGSTE_UTTAK_FØR_TERMIN));
+            var tidligstedato = gjeldendeFH.getFødselsdato()
+                .filter(f -> termindatoMinusPeriode.isEmpty() || f.isBefore(termindatoMinusPeriode.get()))
+                .or(() -> termindatoMinusPeriode);
+            var uttaksdato = tidligstedato.filter(førsteUttaksdato::isBefore).orElse(førsteUttaksdato);
+            return VirkedagUtil.fomVirkedag(uttaksdato);
+        }
+        // 14-10 første ledd (mor), andre ledd. Eldre tilfelle
+        return UtsettelseCore2021.førsteUttaksDatoForBeregning(rolle, familieHendelseGrunnlag, førsteUttaksdato);
     }
 
 }

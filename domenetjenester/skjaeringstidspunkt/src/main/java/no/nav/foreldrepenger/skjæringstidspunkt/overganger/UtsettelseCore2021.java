@@ -78,13 +78,12 @@ public class UtsettelseCore2021 {
         // 14-10 første ledd (mor)
         var termindatoMinusPeriode = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse()
             .map(TerminbekreftelseEntitet::getTermindato)
-            .map(t -> t.minus(SENESTE_UTTAK_FØR_TERMIN))
-            .filter(førsteUttaksdato::isAfter);
+            .map(t -> t.minus(SENESTE_UTTAK_FØR_TERMIN));
         var fødselsdato = gjeldendeFH.getFødselsdato()
-            .filter(førsteUttaksdato::isAfter)
-            .filter(f -> termindatoMinusPeriode.isEmpty() || f.isBefore(termindatoMinusPeriode.get()));
-        var uttaksdato = fødselsdato.or(() -> termindatoMinusPeriode).orElse(førsteUttaksdato);
-        return VirkedagUtil.fomVirkedag(uttaksdato);
+            .filter(f -> termindatoMinusPeriode.isEmpty() || f.isBefore(termindatoMinusPeriode.get()))
+            .or(() -> termindatoMinusPeriode);
+        var senesteStartdatoMor = fødselsdato.filter(førsteUttaksdato::isAfter).orElse(førsteUttaksdato);
+        return VirkedagUtil.fomVirkedag(senesteStartdatoMor);
     }
 
     public static Optional<LocalDate> finnFørsteDatoFraUttakResultat(List<UttakResultatPeriodeEntitet> perioder, boolean kreverSammenhengendeUttak) {
