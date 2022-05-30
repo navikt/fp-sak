@@ -86,11 +86,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         }
 
         ManuellRegistreringValidator.validerOpplysninger(dto);
-        try {
-            ManuellRegistreringValidator.validerAktivitetskrav(behandling.getFagsak(), dto);
-        } catch (Exception e) {
-            LOG.warn("PAPIRSØKNAD mangler aktivitetskrav for periode(r) i sak {} behandling {}", behandling.getFagsak().getSaksnummer().getVerdi(), behandlingId);
-        }
+        ManuellRegistreringValidator.validerAktivitetskrav(behandling.getFagsak(), dto);
 
         var fagsak = fagsakRepository.finnEksaktFagsak(behandling.getFagsakId());
         var navBruker = fagsak.getNavBruker();
