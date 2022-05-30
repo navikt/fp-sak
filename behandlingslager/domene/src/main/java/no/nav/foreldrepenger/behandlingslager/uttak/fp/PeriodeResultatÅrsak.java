@@ -60,8 +60,8 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
     GRADERING_ALENEOMSORG("2032", "§14-15, jf. §14-16: Gradering foreldrepenger ved aleneomsorg", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-15,14-16\"}}}", of(UTTAK), of(FORELDREPENGER)),
     GRADERING_FORELDREPENGER_KUN_FAR_HAR_RETT("2033", "§14-14, jf. §14-13, jf. §14-16: Gradering foreldrepenger, kun far har rett", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-14,14-13,14-16\"}}}", of(UTTAK), of(FORELDREPENGER)),
     GRADERING_FORELDREPENGER_KUN_MOR_HAR_RETT("2034", "§14-10, jf. §14-16: Gradering foreldrepenger, kun mor har rett", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10,14-16\"}}}", of(UTTAK), of(FORELDREPENGER)),
-    GRADERING_KUN_FAR_HAR_RETT_MOR_UFØR("2035", "§14-14 tredje ledd, jf. §14-16: Gradering foreldrepenger, kun far har rett og mor er ufør", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-14,14-16\"}}}", of(UTTAK), of(FORELDREPENGER)),
-    FORELDREPENGER_KUN_FAR_HAR_RETT_MOR_UFØR("2036", "§14-14 tredje ledd: Innvilget foreldrepenger, kun far har rett og mor er ufør", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-14\"}}}", of(UTTAK), of(FORELDREPENGER)),
+    GRADERING_KUN_FAR_HAR_RETT_MOR_UFØR("2035", "§14-14 tredje ledd, jf. §14-16: Gradering foreldrepenger, kun far har rett - dager uten aktivitetskrav", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-14,14-16\"}}}", of(UTTAK), of(FORELDREPENGER)),
+    FORELDREPENGER_KUN_FAR_HAR_RETT_MOR_UFØR("2036", "§14-14 tredje ledd: Innvilget foreldrepenger, kun far har rett - dager uten aktivitetskrav", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-14\"}}}", of(UTTAK), of(FORELDREPENGER)),
     FORELDREPENGER_FELLESPERIODE_TIL_FAR("2037", "§14-9, jf. §14-13: Innvilget fellesperiode til far", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-9\"}}}", of(UTTAK), of(FELLESPERIODE)),
     FORELDREPENGER_REDUSERT_GRAD_PGA_SAMTIDIG_UTTAK("2038", "§14-10 sjette ledd: Samtidig uttak", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10\"}}}", of(UTTAK)),
 

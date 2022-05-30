@@ -56,7 +56,7 @@ public class ManuellRegistreringSøknadValidator {
         List<FeltFeilDto> feltFeil = new ArrayList<>();
         var feltnavn = "harArbeidetIEgenVirksomhet";
         if (egenVirksomhet.getHarArbeidetIEgenVirksomhet() == null) {
-            feltFeil.add(new FeltFeilDto(feltnavn, ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+            feltFeil.add(new FeltFeilDto(feltnavn, PAAKREVD_FELT));
         }
         if (Boolean.TRUE.equals(egenVirksomhet.getHarArbeidetIEgenVirksomhet())) {
             for (var virksomhet : egenVirksomhet.getVirksomheter()) {
@@ -78,20 +78,20 @@ public class ManuellRegistreringSøknadValidator {
 
     private static void leggTilFeilForVirksomhet(List<FeltFeilDto> feltFeil, VirksomhetDto virksomhet) {
         if (virksomhet.getNavn() == null) {
-            feltFeil.add(new FeltFeilDto("virksomhetNavn", ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+            feltFeil.add(new FeltFeilDto("virksomhetNavn", PAAKREVD_FELT));
         }
         if (virksomhet.getVirksomhetRegistrertINorge() == null) {
-            feltFeil.add(new FeltFeilDto("virksomhetRegistrertINorge", ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+            feltFeil.add(new FeltFeilDto("virksomhetRegistrertINorge", PAAKREVD_FELT));
         }
         if (virksomhet.getLandJobberFra() == null) {
-            feltFeil.add(new FeltFeilDto("landJobberFra", ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+            feltFeil.add(new FeltFeilDto("landJobberFra", PAAKREVD_FELT));
         }
         if (Boolean.TRUE.equals(virksomhet.getVirksomhetRegistrertINorge())) {
             if (virksomhet.getOrganisasjonsnummer() == null) {
-                feltFeil.add(new FeltFeilDto("virksomhetOrganisasjonsnummer", ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+                feltFeil.add(new FeltFeilDto("virksomhetOrganisasjonsnummer", PAAKREVD_FELT));
             }
         } else if (virksomhet.getFom() == null) {
-            feltFeil.add(new FeltFeilDto("utenlandskNæringsvirksomhetStartDato", ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+            feltFeil.add(new FeltFeilDto("utenlandskNæringsvirksomhetStartDato", PAAKREVD_FELT));
         }
     }
 
