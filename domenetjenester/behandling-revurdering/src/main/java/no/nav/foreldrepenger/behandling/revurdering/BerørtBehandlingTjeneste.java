@@ -2,8 +2,10 @@ package no.nav.foreldrepenger.behandling.revurdering;
 
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -105,11 +107,11 @@ public class BerørtBehandlingTjeneste {
             .flatMap(YtelseFordelingAggregat::getGjeldendeEndringsdatoHvisEksisterer)
             .orElseGet(() -> finnMinAktivDato(brukersUttak, annenpartsUttak.get()).orElseThrow());
 
-        LocalDate tidligsteBerørtBehovDato = null;
+        Set<LocalDate> berørtBehovDatoer = new HashSet<>();
         if (brukersGjeldendeBehandlingsresultat.isEndretStønadskonto()
             || stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)) {
             LOG.info("Skal opprette berørt: EndretKonto/NegativKonto endringsdato {}", endringsdato);
-            tidligsteBerørtBehovDato = endringsdato;
+            berørtBehovDatoer.add(endringsdato);
         }
 
         var periodeTom = finnMaxAktivDato(brukersUttak, annenpartsUttak.get()).filter(endringsdato::isBefore).orElse(endringsdato);
@@ -118,7 +120,7 @@ public class BerørtBehandlingTjeneste {
         var overlapp = overlappSomIkkeErFulltSamtidigUttak(uttakInput, periodeFomEndringsdato, brukersUttak, annenpartsUttak.get());
         if (overlapp.isPresent()) {
             LOG.info("Skal opprette berørt: OverlappUtenSamtidig fom {} endringsdato {}", overlapp.get(), endringsdato);
-            tidligsteBerørtBehovDato = tidligsteBerørtBehovDato == null || tidligsteBerørtBehovDato.isAfter(overlapp.get()) ? overlapp.get(): tidligsteBerørtBehovDato;
+            berørtBehovDatoer.add(overlapp.get());
         }
 
         var fellesTidslinjeForSammenheng = tidslinjeForSammenhengendeUttaksplan(brukersUttak, annenpartsUttak.get());
@@ -131,7 +133,7 @@ public class BerørtBehandlingTjeneste {
                 var tidslinjeFørsteSeksUker = fellesTidslinjeForSammenheng.intersection(førsteSeksUker);
                 var tidligsteGap = tidslinjeFørsteSeksUker.firstDiscontinuity() != null ? tidslinjeFørsteSeksUker.firstDiscontinuity().getFomDato() : endringsdato;
                 LOG.info("Skal opprette berørt: Første 6 uker gap fom {} endringsdato {}", tidligsteGap, endringsdato);
-                tidligsteBerørtBehovDato = tidligsteBerørtBehovDato == null || tidligsteBerørtBehovDato.isAfter(tidligsteGap) ? tidligsteGap : tidligsteBerørtBehovDato;
+                berørtBehovDatoer.add(tidligsteGap);
             }
         }
 
@@ -140,9 +142,9 @@ public class BerørtBehandlingTjeneste {
             var tidslinjeFomEndringsdato = fellesTidslinjeForSammenheng.intersection(periodeFomEndringsdato);
             var tidligsteGap = tidslinjeFomEndringsdato.firstDiscontinuity() != null ? tidslinjeFomEndringsdato.firstDiscontinuity().getFomDato() : endringsdato;
             LOG.info("Skal opprette berørt: Sammenhengende etter uke 6 gap fom {} endringsdato {}", tidligsteGap, endringsdato);
-            tidligsteBerørtBehovDato = tidligsteBerørtBehovDato == null || tidligsteBerørtBehovDato.isAfter(tidligsteGap) ? tidligsteGap : tidligsteBerørtBehovDato;
+            berørtBehovDatoer.add(tidligsteGap);
         }
-        return Optional.ofNullable(tidligsteBerørtBehovDato).isPresent();
+        return berørtBehovDatoer.stream().min(Comparator.naturalOrder()).isPresent();
     }
 
     private Optional<LocalDate> overlappSomIkkeErFulltSamtidigUttak(UttakInput uttakInput, LocalDateInterval periodeFomEndringsdato,
