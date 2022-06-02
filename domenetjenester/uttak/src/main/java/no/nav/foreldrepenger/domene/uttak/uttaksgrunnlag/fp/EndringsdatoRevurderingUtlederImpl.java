@@ -67,8 +67,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         var endringsdatoTypeEnumSet = utledEndringsdatoTyper(input);
         if (endringsdatoTypeEnumSet.isEmpty()) {
             endringsdatoTypeEnumSet.add(EndringsdatoType.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
-            LOG.info("Kunne ikke utlede endringsdato for revurdering med behandlingId=" + behandlingId
-                + ". Satte FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.");
+            LOG.info("Kunne ikke utlede endringsdato for revurdering med behandlingId={}. Satte FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.",  behandlingId);
         }
         var endringsdato = utledEndringsdato(ref, endringsdatoTypeEnumSet, input.getYtelsespesifiktGrunnlag());
         return endringsdato.orElseThrow(() -> FastsettUttaksgrunnlagFeil.kunneIkkeUtledeEndringsdato(behandlingId));
@@ -220,8 +219,8 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
             .min(Comparator.comparing(UttakResultatPeriodeEntitet::getFom))
             .map(UttakResultatPeriodeEntitet::getFom);
         // Alle perioder er tapt til annenpart
-        if (førsteDatoSomIkkeErTaptTilAnnenpart.isEmpty() && uttakPerioder.size() > 0) {
-            return Optional.ofNullable(uttakPerioder.get(0).getFom());
+        if (førsteDatoSomIkkeErTaptTilAnnenpart.isEmpty()) {
+            return uttakPerioder.stream().map(UttakResultatPeriodeEntitet::getFom).min(Comparator.naturalOrder());
         }
         return førsteDatoSomIkkeErTaptTilAnnenpart;
     }
@@ -244,6 +243,11 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
             .stream()
             .map(OppgittPeriodeEntitet::getFom)
             .min(LOCAL_DATE_COMPARATOR);
+    }
+
+    private Optional<LocalDate> finnEndringsdato(Long behandlingId) {
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
+        return ytelseFordelingAggregat.getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato);
     }
 
     private Optional<UttakResultatPeriodeEntitet> finnVedtattPeriodeMedOverlapp(LocalDate førsteUttaksdatoSøknad,
@@ -328,20 +332,40 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         var annenpartsFørsteUttaksdato = finnFørsteUttaksdato(annenpartBehandling);
         var førsteUttaksdatoGjeldendeVedtak = finnFørsteUttaksdato(finnForrigeBehandling(ref));
 
+        LocalDate klassiskdato = null;
         if (førsteUttaksdatoGjeldendeVedtak.isPresent() && annenpartsFørsteUttaksdato.isPresent()) {
-            if (førsteUttaksdatoGjeldendeVedtak.get().isAfter(annenpartsFørsteUttaksdato.get())) {
-                datoer.add(førsteUttaksdatoGjeldendeVedtak.get());
-            } else {
-                datoer.add(annenpartsFørsteUttaksdato.get());
-            }
+            klassiskdato = førsteUttaksdatoGjeldendeVedtak.get().isAfter(annenpartsFørsteUttaksdato.get()) ? førsteUttaksdatoGjeldendeVedtak.get() : annenpartsFørsteUttaksdato.get();
         } else {
             if (førsteUttaksdatoGjeldendeVedtak.isPresent()) {
-                datoer.add(førsteUttaksdatoGjeldendeVedtak.get());
+                klassiskdato = førsteUttaksdatoGjeldendeVedtak.get();
             }
             if (annenpartsFørsteUttaksdato.isPresent()) {
-                datoer.add(annenpartsFørsteUttaksdato.get());
+                klassiskdato = annenpartsFørsteUttaksdato.get();
             }
         }
+        final var klassiskUtledetDato = klassiskdato;
+        var annenpartsEndringsdato = finnEndringsdato(annenpartBehandling).or(() -> Optional.ofNullable(klassiskUtledetDato));
+        if (annenpartsEndringsdato.isEmpty()) {
+            LOG.info("BERØRT ENDRINGSDATO: Annenparts endringsdato og klassisk dato er tom for behandling {}", ref.behandlingId());
+        } else if (klassiskUtledetDato == null) {
+            LOG.info("BERØRT ENDRINGSDATO: Annenparts endringsdato finnes for behandling {} klassisk dato tom, endringsdato {}", ref.behandlingId(), annenpartsEndringsdato.get());
+        }
+        annenpartsEndringsdato.ifPresent(apd -> {
+            if (klassiskUtledetDato != null && apd.isBefore(klassiskUtledetDato)) {
+                LOG.info("BERØRT ENDRINGSDATO: Annenparts endringsdato er før utledet for behandling {} klassisk dato {} endringsdato {}",
+                    ref.behandlingId(), klassiskUtledetDato, apd);
+                //datoer.add(klassiskUtledetDato);
+            } else if (apd.equals(klassiskUtledetDato)) {
+                LOG.info("BERØRT ENDRINGSDATO: Annenparts endringsdato er lik utledet for behandling {} klassisk dato {} endringsdato {}",
+                    ref.behandlingId(), klassiskUtledetDato, apd);
+                //datoer.add(klassiskUtledetDato);
+            } else {
+                LOG.info("BERØRT ENDRINGSDATO: Annenparts endringsdato er etter utledet for behandling {} klassisk dato {} endringsdato {}",
+                    ref.behandlingId(), klassiskUtledetDato, apd);
+                //datoer.add(apd);
+            }
+        });
+        Optional.ofNullable(klassiskUtledetDato).ifPresent(datoer::add);
     }
 
     private Long finnForrigeBehandling(BehandlingReferanse behandling) {

@@ -122,8 +122,31 @@ class BerørtBehandlingTjenesteTest {
 
     @Test
     public void behandling_med_negativ_saldo_skal_opprette_berørt() {
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var basedato = LocalDate.now();
+
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(basedato.minusWeeks(7)).lagre(repositoryProvider);
+        var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(basedato.minusWeeks(7)).lagre(repositoryProvider);
+
+        var morsMK = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(basedato.minusWeeks(7), basedato.minusWeeks(1).minusDays(1))
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.MØDREKVOTE)))
+            .build();
+        var morsPeriode = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(basedato, basedato.plusWeeks(20).minusDays(1))
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.FELLESPERIODE)))
+            .build();
+        var farsPeriode = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(basedato.plusWeeks(20), basedato.plusWeeks(33).minusDays(1))
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
+            .build();
+        var morUttak = new ForeldrepengerUttak(List.of(morsMK, morsPeriode));
+        lagreUttak(behandling, morUttak);
+
+        var farUttak = new ForeldrepengerUttak(List.of(farsPeriode));
+        lagreUttak(behandlingAnnenpart, farUttak);
 
         var uttakInput = lagUttakInput(behandling);
 
@@ -179,8 +202,31 @@ class BerørtBehandlingTjenesteTest {
 
     @Test
     public void behandling_med_endret_stønadskonto_skal_opprette_berørt() {
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var basedato = LocalDate.now();
+
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(basedato.minusWeeks(7)).lagre(repositoryProvider);
+        var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(basedato.minusWeeks(7)).lagre(repositoryProvider);
+
+        var morsMK = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(basedato.minusWeeks(7), basedato.minusWeeks(1).minusDays(1))
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.MØDREKVOTE)))
+            .build();
+        var morsPeriode = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(basedato, basedato.plusWeeks(20).minusDays(1))
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.FELLESPERIODE)))
+            .build();
+        var farsPeriode = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(basedato.plusWeeks(20), basedato.plusWeeks(33).minusDays(1))
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.FORELDREPENGER)))
+            .build();
+        var morUttak = new ForeldrepengerUttak(List.of(morsMK, morsPeriode));
+        lagreUttak(behandling, morUttak);
+
+        var farUttak = new ForeldrepengerUttak(List.of(farsPeriode));
+        lagreUttak(behandlingAnnenpart, farUttak);
 
         lagUttakInput(behandling);
 
