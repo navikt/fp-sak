@@ -354,13 +354,18 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
             if (klassiskUtledetDato != null && apd.isBefore(klassiskUtledetDato)) {
                 LOG.info("BERØRT ENDRINGSDATO: Annenparts endringsdato er før utledet for behandling {} klassisk dato {} endringsdato {}",
                     ref.behandlingId(), klassiskUtledetDato, apd);
-                datoer.add(klassiskUtledetDato);
+                //datoer.add(klassiskUtledetDato);
+            } else if (apd.equals(klassiskUtledetDato)) {
+                LOG.info("BERØRT ENDRINGSDATO: Annenparts endringsdato er lik utledet for behandling {} klassisk dato {} endringsdato {}",
+                    ref.behandlingId(), klassiskUtledetDato, apd);
+                //datoer.add(klassiskUtledetDato);
             } else {
                 LOG.info("BERØRT ENDRINGSDATO: Annenparts endringsdato er etter utledet for behandling {} klassisk dato {} endringsdato {}",
                     ref.behandlingId(), klassiskUtledetDato, apd);
-                datoer.add(apd);
+                //datoer.add(apd);
             }
         });
+        Optional.ofNullable(klassiskUtledetDato).ifPresent(datoer::add);
     }
 
     private Long finnForrigeBehandling(BehandlingReferanse behandling) {
