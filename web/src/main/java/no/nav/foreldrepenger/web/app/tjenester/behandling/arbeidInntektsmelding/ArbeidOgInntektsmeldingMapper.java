@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -122,7 +123,7 @@ public class ArbeidOgInntektsmeldingMapper {
                                                                List<ArbeidsforholdMangel> alleIdentifiserteMangler,
                                                                List<ArbeidsforholdValg> saksbehandlersVurderingAvMangler,
                                                                List<ArbeidsforholdOverstyring> overstyringer) {
-        var ansettelsesperiode = finnRelevantAnsettelsesperiode(ya, stp);
+        var ansettelsesperiode = finnRelevantAnsettelsesperiode(ya, stp, finnOverstyring(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), overstyringer));
         var mangelInntektsmelding =  finnIdentifisertInntektsmeldingMangel(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), alleIdentifiserteMangler);
         var mangelPermisjon = finnIdentifisertMangelPermisjon(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), alleIdentifiserteMangler);
         var vurdering = finnSaksbehandlersVurderingAvMangel(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), saksbehandlersVurderingAvMangler);
@@ -218,7 +219,17 @@ public class ArbeidOgInntektsmeldingMapper {
             .map(EksternArbeidsforholdRef::getReferanse);
     }
 
-    private static Optional<DatoIntervallEntitet> finnRelevantAnsettelsesperiode(Yrkesaktivitet ya, LocalDate stp) {
+    private static Optional<DatoIntervallEntitet> finnRelevantAnsettelsesperiode(Yrkesaktivitet ya,
+                                                                                 LocalDate stp,
+                                                                                 Optional<ArbeidsforholdOverstyring> arbeidsforholdOverstyring) {
+        var oversyrtePerioder = arbeidsforholdOverstyring
+            .filter(os -> os.getHandling().equals(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE))
+            .map(ArbeidsforholdOverstyring::getArbeidsforholdOverstyrtePerioder)
+            .orElse(Collections.emptyList());
+        if (!oversyrtePerioder.isEmpty()) {
+            return oversyrtePerioder.stream().map(ArbeidsforholdOverstyrtePerioder::getOverstyrtePeriode)
+                .max(Comparator.comparing(DatoIntervallEntitet::getTomDato));
+        }
         return ya.getAlleAktivitetsAvtaler().stream()
             .filter(AktivitetsAvtale::erAnsettelsesPeriode)
             .filter(aa -> aa.getPeriode().inkluderer(stp) || aa.getPeriode().getFomDato().isAfter(stp))
