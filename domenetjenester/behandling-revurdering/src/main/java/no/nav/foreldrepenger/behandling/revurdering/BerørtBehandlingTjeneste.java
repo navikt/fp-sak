@@ -99,7 +99,7 @@ public class BerørtBehandlingTjeneste {
 
         var brukersUttak = hentUttak(behandlingId).orElse(tomtUttak());
         var annenpartsUttak = hentUttak(behandlingIdAnnenPart);
-        if (annenpartsUttak.isEmpty() || finnMinAktivDatoAnnenPart(annenpartsUttak.get()).isEmpty() || finnMinAktivDato(brukersUttak, annenpartsUttak.get()).isEmpty()) {
+        if (annenpartsUttak.isEmpty() || finnMinAktivDato(annenpartsUttak.get()).isEmpty() || finnMinAktivDato(brukersUttak, annenpartsUttak.get()).isEmpty()) {
             return false;
         }
         // Endring fra en søknadsperiode eller fra start?
@@ -131,7 +131,7 @@ public class BerørtBehandlingTjeneste {
                 TidsperiodeForbeholdtMor.tilOgMed(familieHendelseDato));
             if (!fellesTidslinjeForSammenheng.isContinuous(førsteSeksUker)) {
                 var tidslinjeFørsteSeksUker = fellesTidslinjeForSammenheng.intersection(førsteSeksUker);
-                var tidligsteGap = tidslinjeFørsteSeksUker.firstDiscontinuity() != null ? tidslinjeFørsteSeksUker.firstDiscontinuity().getFomDato() : endringsdato;
+                var tidligsteGap = Optional.ofNullable(tidslinjeFørsteSeksUker.firstDiscontinuity()).map(LocalDateInterval::getFomDato).orElse(endringsdato);
                 LOG.info("Skal opprette berørt: Første 6 uker gap fom {} endringsdato {}", tidligsteGap, endringsdato);
                 berørtBehovDatoer.add(tidligsteGap);
             }
@@ -140,7 +140,7 @@ public class BerørtBehandlingTjeneste {
         var opprett = kreverSammenhengendeUttak && !fellesTidslinjeForSammenheng.isContinuous(periodeFomEndringsdato);
         if (opprett) {
             var tidslinjeFomEndringsdato = fellesTidslinjeForSammenheng.intersection(periodeFomEndringsdato);
-            var tidligsteGap = tidslinjeFomEndringsdato.firstDiscontinuity() != null ? tidslinjeFomEndringsdato.firstDiscontinuity().getFomDato() : endringsdato;
+            var tidligsteGap = Optional.ofNullable(tidslinjeFomEndringsdato.firstDiscontinuity()).map(LocalDateInterval::getFomDato).orElse(endringsdato);
             LOG.info("Skal opprette berørt: Sammenhengende etter uke 6 gap fom {} endringsdato {}", tidligsteGap, endringsdato);
             berørtBehovDatoer.add(tidligsteGap);
         }
@@ -209,18 +209,22 @@ public class BerørtBehandlingTjeneste {
         return new LocalDateSegment<>(fom, tom, Boolean.TRUE);
     }
 
-    private Optional<LocalDate> finnMinAktivDatoAnnenPart(ForeldrepengerUttak annenpart) {
-        return annenpart.getGjeldendePerioder().stream()
+    private Optional<LocalDate> finnMinAktivDato(ForeldrepengerUttak uttak) {
+        return uttak.getGjeldendePerioder().stream()
             .filter(this::isAktivtUttak)
             .map(ForeldrepengerUttakPeriode::getFom)
             .min(Comparator.naturalOrder());
     }
 
     private Optional<LocalDate> finnMinAktivDato(ForeldrepengerUttak bruker, ForeldrepengerUttak annenpart) {
-        return Stream.concat(bruker.getGjeldendePerioder().stream(), annenpart.getGjeldendePerioder().stream())
-            .filter(this::isAktivtUttak)
-            .map(ForeldrepengerUttakPeriode::getFom)
+        return Stream.concat(finnMinAktivDato(bruker).stream(), finnMinAktivDato(annenpart).stream())
             .min(Comparator.naturalOrder());
+    }
+
+    // Mulig denne skal brukes om endringsdato mangler
+    private Optional<LocalDate> finnSenesteMinAktivDato(ForeldrepengerUttak bruker, ForeldrepengerUttak annenpart) {
+        return Stream.concat(finnMinAktivDato(bruker).stream(), finnMinAktivDato(annenpart).stream())
+            .max(Comparator.naturalOrder());
     }
 
     private Optional<LocalDate> finnMaxAktivDato(ForeldrepengerUttak bruker, ForeldrepengerUttak annenpart) {
