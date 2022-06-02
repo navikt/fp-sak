@@ -239,10 +239,10 @@ public class IAYMapperTilKalkulus {
         return PermisjonDtoBuilder.ny()
             .medProsentsats(perm.getProsentsats().getVerdi())
             .medPeriode(mapDatoIntervall(perm.getPeriode()))
-            .medPermisjonsbeskrivelseType(mpPermisjontype(perm.getPermisjonsbeskrivelseType()));
+            .medPermisjonsbeskrivelseType(mapPermisjontype(perm.getPermisjonsbeskrivelseType()));
     }
 
-    private static PermisjonsbeskrivelseType mpPermisjontype(no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType permisjonsbeskrivelseType) {
+    private static PermisjonsbeskrivelseType mapPermisjontype(no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType permisjonsbeskrivelseType) {
             return switch (permisjonsbeskrivelseType) {
                 case UDEFINERT -> PermisjonsbeskrivelseType.UDEFINERT;
                 case PERMISJON -> PermisjonsbeskrivelseType.PERMISJON;
@@ -306,7 +306,7 @@ public class IAYMapperTilKalkulus {
     }
 
     private static YtelseDtoBuilder mapYtelse(Ytelse ytelse) {
-        var builder = YtelseDtoBuilder.oppdatere(Optional.empty());
+        var builder = YtelseDtoBuilder.ny();
         ytelse.getYtelseAnvist().forEach(ytelseAnvist -> builder.leggTilYtelseAnvist(mapYtelseAnvist(ytelseAnvist)));
         ytelse.getYtelseGrunnlag().flatMap(YtelseGrunnlag::getVedtaksDagsats).map(Beløp::getVerdi).ifPresent(builder::medVedtaksDagsats);
         builder.medBehandlingsTema(TemaUnderkategori.fraKode(ytelse.getBehandlingsTema().getKode()));
