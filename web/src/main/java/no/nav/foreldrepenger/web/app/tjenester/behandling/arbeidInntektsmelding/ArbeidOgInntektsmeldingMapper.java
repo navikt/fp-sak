@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -45,6 +46,8 @@ import no.nav.vedtak.konfig.Tid;
 
 public class ArbeidOgInntektsmeldingMapper {
     private static final Set<AksjonspunktÅrsak> MANGEL_INNTEKTSMELDING = Set.of(AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING, AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD);
+    private static final Set<ArbeidsforholdHandlingType> MANUELT_ARBEIDSFOROHOLD_HANDLING = Set.of(ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING,
+        ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER);
 
     private ArbeidOgInntektsmeldingMapper() {
         // SKjuler default
@@ -103,14 +106,14 @@ public class ArbeidOgInntektsmeldingMapper {
         return beløp == null ? null : beløp.getVerdi();
     }
 
-    public static List<ArbeidsforholdDto> mapArbeidsforholdUtenOverstyringer(YrkesaktivitetFilter filter,
-                                                                             Collection<ArbeidsforholdReferanse> arbeidsforholdReferanser,
-                                                                             LocalDate stp,
-                                                                             List<ArbeidsforholdMangel> mangler,
-                                                                             List<ArbeidsforholdValg> saksbehandlersVurderingAvMangler,
-                                                                             List<ArbeidsforholdOverstyring> overstyringAvPermisjon) {
+    public static List<ArbeidsforholdDto> mapArbeidsforhold(YrkesaktivitetFilter filter,
+                                                            Collection<ArbeidsforholdReferanse> arbeidsforholdReferanser,
+                                                            LocalDate stp,
+                                                            List<ArbeidsforholdMangel> mangler,
+                                                            List<ArbeidsforholdValg> saksbehandlersVurderingAvMangler,
+                                                            List<ArbeidsforholdOverstyring> overstyringer) {
         List<ArbeidsforholdDto> dtoer = new ArrayList<>();
-        filter.getYrkesaktiviteter().forEach(ya -> mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, ya, mangler, saksbehandlersVurderingAvMangler, overstyringAvPermisjon).ifPresent(dtoer::add));
+        filter.getYrkesaktiviteter().forEach(ya -> mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, ya, mangler, saksbehandlersVurderingAvMangler, overstyringer).ifPresent(dtoer::add));
         return dtoer;
     }
 
@@ -119,11 +122,17 @@ public class ArbeidOgInntektsmeldingMapper {
                                                                Yrkesaktivitet ya,
                                                                List<ArbeidsforholdMangel> alleIdentifiserteMangler,
                                                                List<ArbeidsforholdValg> saksbehandlersVurderingAvMangler,
-                                                               List<ArbeidsforholdOverstyring> overstyringAvPermisjon) {
-        var ansettelsesperiode = finnRelevantAnsettelsesperiode(ya, stp);
+                                                               List<ArbeidsforholdOverstyring> overstyringer) {
+        var ansettelsesperiode = finnRelevantAnsettelsesperiode(ya, stp, finnOverstyring(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), overstyringer));
         var mangelInntektsmelding =  finnIdentifisertInntektsmeldingMangel(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), alleIdentifiserteMangler);
         var mangelPermisjon = finnIdentifisertMangelPermisjon(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), alleIdentifiserteMangler);
         var vurdering = finnSaksbehandlersVurderingAvMangel(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), saksbehandlersVurderingAvMangler);
+
+        // Vurdering og begrunnelse for gammelt aksjonspunkt (5080) der saksbehandler hadde flere valgmuligheter vi må kunne støtte readonly visning for
+        var legacyVurdering = finnOverstyring(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), overstyringer)
+            .map(os -> mapHandlingTilVurdering(os.getHandling()));
+        var legacyBegrunnelse = finnOverstyring(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), overstyringer)
+            .map(ArbeidsforholdOverstyring::getBegrunnelse);
 
         return ansettelsesperiode.map(datoIntervallEntitet -> new ArbeidsforholdDto(ya.getArbeidsgiver() == null ? null : ya.getArbeidsgiver().getIdentifikator(),
                 ya.getArbeidsforholdRef().getReferanse(),
@@ -132,9 +141,32 @@ public class ArbeidOgInntektsmeldingMapper {
                 datoIntervallEntitet.getTomDato(),
                 finnStillingsprosent(ya, datoIntervallEntitet).orElse(null),
                 mangelInntektsmelding.orElse(null),
-                vurdering.map(ArbeidsforholdValg::getVurdering).orElse(null),
-                mapPermisjonOgMangel(ya, stp, mangelPermisjon.orElse(null), overstyringAvPermisjon).orElse(null),
-                vurdering.map(ArbeidsforholdValg::getBegrunnelse).orElse(null)));
+                vurdering.map(ArbeidsforholdValg::getVurdering).orElse(legacyVurdering.orElse(null)),
+                mapPermisjonOgMangel(ya, stp, mangelPermisjon.orElse(null), overstyringer).orElse(null),
+                vurdering.map(ArbeidsforholdValg::getBegrunnelse).orElse(legacyBegrunnelse.orElse(null))));
+    }
+
+    private static Optional<ArbeidsforholdOverstyring> finnOverstyring(Arbeidsgiver arbeidsgiver,
+                                                                       InternArbeidsforholdRef arbeidsforholdRef,
+                                                                       List<ArbeidsforholdOverstyring> overstyringer) {
+        return overstyringer.stream()
+            .filter(os -> Objects.equals(os.getArbeidsgiver(), arbeidsgiver) && os.getArbeidsforholdRef().gjelderFor(arbeidsforholdRef))
+            .findFirst();
+    }
+
+    private static ArbeidsforholdKomplettVurderingType mapHandlingTilVurdering(ArbeidsforholdHandlingType handling) {
+        return switch(handling) {
+            case UDEFINERT -> ArbeidsforholdKomplettVurderingType.UDEFINERT;
+            case LAGT_TIL_AV_SAKSBEHANDLER -> ArbeidsforholdKomplettVurderingType.MANUELT_OPPRETTET_AV_SAKSBEHANDLER;
+            case BASERT_PÅ_INNTEKTSMELDING -> ArbeidsforholdKomplettVurderingType.OPPRETT_BASERT_PÅ_INNTEKTSMELDING;
+            case BRUK_UTEN_INNTEKTSMELDING -> ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING;
+            case IKKE_BRUK -> ArbeidsforholdKomplettVurderingType.IKKE_OPPRETT_BASERT_PÅ_INNTEKTSMELDING;
+            case BRUK -> ArbeidsforholdKomplettVurderingType.BRUK;
+            case NYTT_ARBEIDSFORHOLD -> ArbeidsforholdKomplettVurderingType.NYTT_ARBEIDSFORHOLD;
+            case INNTEKT_IKKE_MED_I_BG -> ArbeidsforholdKomplettVurderingType.INNTEKT_IKKE_MED_I_BG;
+            case BRUK_MED_OVERSTYRT_PERIODE -> ArbeidsforholdKomplettVurderingType.BRUK_MED_OVERSTYRT_PERIODE;
+            case SLÅTT_SAMMEN_MED_ANNET -> ArbeidsforholdKomplettVurderingType.SLÅTT_SAMMEN_MED_ANNET;
+        };
     }
 
     private static Optional<PermisjonOgMangelDto> mapPermisjonOgMangel(Yrkesaktivitet ya, LocalDate stp, AksjonspunktÅrsak årsak,  List<ArbeidsforholdOverstyring> overstyringAvPermisjon) {
@@ -187,7 +219,17 @@ public class ArbeidOgInntektsmeldingMapper {
             .map(EksternArbeidsforholdRef::getReferanse);
     }
 
-    private static Optional<DatoIntervallEntitet> finnRelevantAnsettelsesperiode(Yrkesaktivitet ya, LocalDate stp) {
+    private static Optional<DatoIntervallEntitet> finnRelevantAnsettelsesperiode(Yrkesaktivitet ya,
+                                                                                 LocalDate stp,
+                                                                                 Optional<ArbeidsforholdOverstyring> arbeidsforholdOverstyring) {
+        var oversyrtePerioder = arbeidsforholdOverstyring
+            .filter(os -> os.getHandling().equals(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE))
+            .map(ArbeidsforholdOverstyring::getArbeidsforholdOverstyrtePerioder)
+            .orElse(Collections.emptyList());
+        if (!oversyrtePerioder.isEmpty()) {
+            return oversyrtePerioder.stream().map(ArbeidsforholdOverstyrtePerioder::getOverstyrtePeriode)
+                .max(Comparator.comparing(DatoIntervallEntitet::getTomDato));
+        }
         return ya.getAlleAktivitetsAvtaler().stream()
             .filter(AktivitetsAvtale::erAnsettelsesPeriode)
             .filter(aa -> aa.getPeriode().inkluderer(stp) || aa.getPeriode().getFomDato().isAfter(stp))
@@ -218,13 +260,12 @@ public class ArbeidOgInntektsmeldingMapper {
             post.getInntektspostType());
     }
 
-    public static List<ArbeidsforholdDto> mapOverstyrteArbeidsforhold(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer,
-                                                                      Collection<ArbeidsforholdReferanse> referanser,
-                                                                      List<ArbeidsforholdMangel> mangler ) {
+    public static List<ArbeidsforholdDto> mapManueltOpprettedeArbeidsforhold(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer,
+                                                                             Collection<ArbeidsforholdReferanse> referanser,
+                                                                             List<ArbeidsforholdMangel> mangler ) {
         // Trenger kun arbeidsforhold opprettet av handlinger som  kan oppstå i 5085
         return arbeidsforholdOverstyringer.stream()
-            .filter(os -> ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING.equals(os.getHandling())
-                || ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER.equals(os.getHandling()))
+            .filter(os -> MANUELT_ARBEIDSFOROHOLD_HANDLING.contains(os.getHandling()))
             .map(overstyring -> mapManueltArbeidsforhold(overstyring, referanser, mangler))
             .collect(Collectors.toList());
     }

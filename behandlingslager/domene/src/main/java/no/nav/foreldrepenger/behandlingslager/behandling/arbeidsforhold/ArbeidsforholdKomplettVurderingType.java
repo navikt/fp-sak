@@ -25,6 +25,18 @@ public enum ArbeidsforholdKomplettVurderingType implements Kodeverdi {
     FJERN_FRA_BEHANDLINGEN("FJERN_FRA_BEHANDLINGEN", "Saksbehandler har slettet dette arbeidsforholdet fra behandlingen." +
         " Kan kun velges for arbeidsforhold som er manuelt opprettet, ikke registerdata."),
 
+    // Følgende kodeverk skal ikke brukes til annet enn visning av valg gjort i gammelt aksjonspunkt (5080)
+    @Deprecated
+    SLÅTT_SAMMEN_MED_ANNET("SLÅTT_SAMMEN_MED_ANNET", "Arbeidsforholdet er slått sammen med et annet"),
+    @Deprecated
+    BRUK_MED_OVERSTYRT_PERIODE("BRUK_MED_OVERSTYRT_PERIODE", "Bruk arbeidsforholdet med overstyrt periode"),
+    @Deprecated
+    INNTEKT_IKKE_MED_I_BG("INNTEKT_IKKE_MED_I_BG", "Inntekten til arbeidsforholdet skal ikke være med i beregningsgrunnlaget"),
+    @Deprecated
+    BRUK("BRUK", "Bruk"),
+    @Deprecated
+    NYTT_ARBEIDSFORHOLD("NYTT_ARBEIDSFORHOLD", "Arbeidsforholdet er ansett som nytt"),
+
     UDEFINERT("-", "Ikke definert"),
     ;
     public static final String KODEVERK = "ARBEIDSFORHOLD_KOMPLETT_VURDERING_TYPE";
