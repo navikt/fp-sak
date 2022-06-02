@@ -22,13 +22,16 @@ final class SøknadsfristRegelAdapter {
             throw new IllegalArgumentException("Prøver å kjøre søknadsfristregel uten oppgitte perioder");
         }
 
+        var søknadMottattDato = søknad.getMottattDato();
+
         var førsteUttaksdato = oppgittePerioder.stream()
             .filter(p -> !p.isUtsettelse())
+            .filter(p -> p.getTidligstMottattDato().filter(tmd -> tmd.isBefore(søknadMottattDato)).isEmpty()) // TMD er fra vedtatt original
             .min(Comparator.comparing(OppgittPeriodeEntitet::getFom))
             .map(o -> o.getFom());
 
         return SøknadsfristGrunnlag.builder()
-            .søknadMottattDato(søknad.getMottattDato())
+            .søknadMottattDato(søknadMottattDato)
             .førsteUttaksdato(førsteUttaksdato.orElse(null))
             .build();
     }
