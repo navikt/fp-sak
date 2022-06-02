@@ -94,13 +94,13 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
         var referanser = iayGrunnlag.getArbeidsforholdInformasjon()
             .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser)
             .orElse(Collections.emptyList());
-        var arbeidsforholdFraRegister = ArbeidOgInntektsmeldingMapper.mapArbeidsforholdUtenOverstyringer(filter,
+        var arbeidsforholdFraRegister = ArbeidOgInntektsmeldingMapper.mapArbeidsforhold(filter,
                 referanser,
                 behandlingReferanse.getUtledetSkjæringstidspunkt(),
                 mangler,
                 saksbehandlersVurderinger,
                 iayGrunnlag.getArbeidsforholdOverstyringer());
-        var arbeidsforholdFraOverstyringer = ArbeidOgInntektsmeldingMapper.mapOverstyrteArbeidsforhold(iayGrunnlag.getArbeidsforholdOverstyringer(),
+        var arbeidsforholdFraOverstyringer = ArbeidOgInntektsmeldingMapper.mapManueltOpprettedeArbeidsforhold(iayGrunnlag.getArbeidsforholdOverstyringer(),
             referanser,
             mangler);
 
