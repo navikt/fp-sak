@@ -7,13 +7,17 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -252,12 +256,13 @@ public class UttakRevurderingTestUtil {
     }
 
     public Behandling byggFørstegangsbehandlingForRevurderingBerørtSak(AktørId aktørId,
-                                                                       List<UttakResultatPeriodeEntitet> perioder) {
-        return byggFørstegangsbehandlingForRevurderingBerørtSak(aktørId, perioder, null);
+                                                                       List<UttakResultatPeriodeEntitet> perioder, YtelseFordelingAggregat aggregat) {
+        return byggFørstegangsbehandlingForRevurderingBerørtSak(aktørId, perioder, aggregat, null);
     }
 
     public Behandling byggFørstegangsbehandlingForRevurderingBerørtSak(AktørId aktørId,
                                                                        List<UttakResultatPeriodeEntitet> perioder,
+                                                                       YtelseFordelingAggregat aggregat,
                                                                        Fagsak relatertFagsak) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenario.medDefaultInntektArbeidYtelse();
@@ -272,12 +277,22 @@ public class UttakRevurderingTestUtil {
                 .kobleFagsaker(førstegangsbehandling.getFagsak(), relatertFagsak, førstegangsbehandling);
         }
         opprettUttakResultat(førstegangsbehandling, perioder);
+        repositoryProvider.getYtelsesFordelingRepository().lagre(førstegangsbehandling.getId(), aggregat);
         return førstegangsbehandling;
     }
 
     public List<UttakResultatPeriodeEntitet> uttaksresultatBerørtSak(LocalDate fom) {
         return Collections.singletonList(new UttakResultatPeriodeEntitet.Builder(fom, fom.plusDays(10)).medResultatType(
             PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build());
+    }
+
+    public YtelseFordelingAggregat søknadsAggregatBerørtSak(LocalDate fom) {
+        return YtelseFordelingAggregat.oppdatere(Optional.empty())
+            .medOppgittFordeling(new OppgittFordelingEntitet(List.of(
+                OppgittPeriodeBuilder.ny().medPeriode(fom, fom.plusDays(10))
+                    .medPeriodeType(UttakPeriodeType.FELLESPERIODE).medPeriodeKilde(FordelingPeriodeKilde.SØKNAD).build()), true))
+            .medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(fom).build())
+            .build();
     }
 
     public Behandling opprettRevurderingBerørtSak(AktørId aktørId,
