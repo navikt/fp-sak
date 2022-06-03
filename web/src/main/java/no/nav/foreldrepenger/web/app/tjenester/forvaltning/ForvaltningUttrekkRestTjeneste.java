@@ -34,13 +34,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemTask;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
@@ -112,7 +113,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Flytt tilbake til omsorgrett", tags = "FORVALTNING-uttrekk")
-    @Path("/flyttTilOmsorgRett")
+    @Path("/flyttTilStartUttak")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response flyttTilOmsorgRett() {
         var query = entityManager.createNativeQuery("""
@@ -120,9 +121,11 @@ public class ForvaltningUttrekkRestTjeneste {
             from fagsak fs
             join behandling bh on bh.fagsak_id = fs.id
             join aksjonspunkt ap on ap.behandling_id = bh.id
-            where aksjonspunkt_def in (:apdef) and aksjonspunkt_status = :status"""); //$NON-NLS-1$
-        query.setParameter("apdef", Set.of(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT.getKode(), AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG.getKode()));
+            where aksjonspunkt_def in (:apdef) and aksjonspunkt_status = :status and behandling_type = :btype
+             """); //$NON-NLS-1$
+        query.setParameter("apdef", Set.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST.getKode()));
         query.setParameter("status", AksjonspunktStatus.OPPRETTET.getKode());
+        query.setParameter("btype", BehandlingType.REVURDERING.getKode());
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         var åpneAksjonspunkt = resultatList.stream().map(r -> new KabalFlytt((String) r[0], ((BigDecimal) r[1]).longValue())).toList();
@@ -134,7 +137,7 @@ public class ForvaltningUttrekkRestTjeneste {
 
     private void flyttTilbakeTilOmsorgRett(KabalFlytt behandlingRef) {
         var behandling = behandlingRepository.hentBehandling(behandlingRef.behandlingId());
-        if (BehandlingStegType.KONTROLLER_OMSORG_RETT.equals(behandling.getAktivtBehandlingSteg())) {
+        if (StartpunktType.UTTAKSVILKÅR.getBehandlingSteg().equals(behandling.getAktivtBehandlingSteg())) {
             return;
         }
         var tilKabalTask = ProsessTaskData.forProsessTask(MigrerTilOmsorgRettTask.class);
