@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.klage;
 
-import static java.util.Collections.singletonList;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -14,7 +12,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -47,8 +44,7 @@ public class KlageNkSteg implements BehandlingSteg {
 
         if (KlageVurderingTjeneste.skalBehandlesAvKlageInstans(KlageVurdertAv.NFP, klageVurderingNFP.getKlageVurdering())
             && !klageVurderingNFP.getKlageResultat().erBehandletAvKabal()) {
-            var aksjonspunktDefinisjons = singletonList(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK);
-            return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjons);
+            throw new IllegalStateException("Utviklerfeil: Skal ikke lenger gjennomføre BehandlingSteg KlageKA. Mangler Kabal-utfall");
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }

@@ -4,9 +4,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTy
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.FORESLÅ_VEDTAK;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering.ANKE_AVVIS;
-import static no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering.ANKE_OMGJOER;
-import static no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering.ANKE_STADFESTE_YTELSESVEDTAK;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
@@ -20,13 +17,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 
 /**
@@ -49,61 +43,26 @@ public class ScenarioAnkeEngangsstønad {
     private Behandling ankeBehandling;
     private BehandlingStegType startSteg;
     private AnkeVurderingResultatEntitet.Builder vurderingResultat = AnkeVurderingResultatEntitet.builder();
-    private BehandlingVedtak behandlingVedtak;
 
     private ScenarioAnkeEngangsstønad() {
-    }
-
-    public static ScenarioAnkeEngangsstønad forStadfestet(AbstractTestScenario<?> abstractTestScenario) {
-        return new ScenarioAnkeEngangsstønad().setup(abstractTestScenario, ANKE_STADFESTE_YTELSESVEDTAK);
     }
 
     public static ScenarioAnkeEngangsstønad forAvvistAnke(AbstractTestScenario<?> abstractTestScenario) {
         return new ScenarioAnkeEngangsstønad().setup(abstractTestScenario, ANKE_AVVIS);
     }
 
-    public static ScenarioAnkeEngangsstønad forOpphevOgHjemsende(AbstractTestScenario<?> abstractTestScenario) {
-        return new ScenarioAnkeEngangsstønad().setup(abstractTestScenario, ANKE_OPPHEVE_OG_HJEMSENDE);
-    }
-
-    public static ScenarioAnkeEngangsstønad forOmgjør(AbstractTestScenario<?> abstractTestScenario) {
-        return new ScenarioAnkeEngangsstønad().setup(abstractTestScenario, ANKE_OMGJOER);
-    }
-
-    public static ScenarioAnkeEngangsstønad forUtenVurderingResultat(AbstractTestScenario<?> abstractTestScenario) {
-        return new ScenarioAnkeEngangsstønad().setup(abstractTestScenario).medBehandlingStegStart(ANKE);
-    }
-
-    private ScenarioAnkeEngangsstønad setup(AbstractTestScenario<?> abstractTestScenario) {
-        return setup(abstractTestScenario, ANKE, MANUELL_VURDERING_AV_ANKE);
-    }
-
-    private ScenarioAnkeEngangsstønad setup(AbstractTestScenario<?> abstractTestScenario, BehandlingStegType stegType,
-            AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+    private ScenarioAnkeEngangsstønad setup(AbstractTestScenario<?> abstractTestScenario, AnkeVurdering ankeVurdering) {
         this.abstractTestScenario = abstractTestScenario;
 
         // default steg (kan bli overskrevet av andre setup metoder som kaller denne)
-        this.startSteg = stegType;
+        this.startSteg = ANKE;
 
-        this.opprettedeAksjonspunktDefinisjoner.put(aksjonspunktDefinisjon, stegType);
-        return this;
-    }
-
-    private ScenarioAnkeEngangsstønad setup(AbstractTestScenario<?> abstractTestScenario, AnkeVurdering ankeVurdering) {
-        setup(abstractTestScenario);
         this.ankeVurdering = ankeVurdering;
 
-        this.opprettedeAksjonspunktDefinisjoner.remove(MANUELL_VURDERING_AV_ANKE);
         this.utførteAksjonspunktDefinisjoner.put(MANUELL_VURDERING_AV_ANKE, ANKE);
 
-        // default steg (kan bli overskrevet av andre setup metoder som kaller denne)
-        if (ankeVurdering.equals(AnkeVurdering.ANKE_STADFESTE_YTELSESVEDTAK)) {
-            this.startSteg = ANKE;
-            this.opprettedeAksjonspunktDefinisjoner.put(MANUELL_VURDERING_AV_ANKE, ANKE);
-        } else {
-            this.startSteg = BehandlingStegType.FORESLÅ_VEDTAK;
-            this.opprettedeAksjonspunktDefinisjoner.put(FORESLÅ_VEDTAK, BehandlingStegType.FORESLÅ_VEDTAK);
-        }
+        this.startSteg = BehandlingStegType.FORESLÅ_VEDTAK;
+        this.opprettedeAksjonspunktDefinisjoner.put(FORESLÅ_VEDTAK, BehandlingStegType.FORESLÅ_VEDTAK);
 
         return this;
     }
@@ -151,16 +110,6 @@ public class ScenarioAnkeEngangsstønad {
         return ankeBehandling;
     }
 
-    public ScenarioAnkeEngangsstønad medAnkeOmgjørÅrsak(AnkeOmgjørÅrsak ankeOmgjørÅrsak) {
-        vurderingResultat.medAnkeOmgjørÅrsak(ankeOmgjørÅrsak);
-        return this;
-    }
-
-    public ScenarioAnkeEngangsstønad medAnkeVurderingOmgjør(AnkeVurderingOmgjør ankeVurderingOmgjør) {
-        vurderingResultat.medAnkeVurderingOmgjør(ankeVurderingOmgjør);
-        return this;
-    }
-
     public ScenarioAnkeEngangsstønad medBegrunnelse(String begrunnelse) {
         vurderingResultat.medBegrunnelse(begrunnelse);
         return this;
@@ -194,16 +143,6 @@ public class ScenarioAnkeEngangsstønad {
 
     public Fagsak getFagsak() {
         return abstractTestScenario.getFagsak();
-    }
-
-    public ScenarioAnkeEngangsstønad medAksjonspunkt(AksjonspunktDefinisjon apDef, BehandlingStegType stegType) {
-        opprettedeAksjonspunktDefinisjoner.put(apDef, stegType);
-        return this;
-    }
-
-    public ScenarioAnkeEngangsstønad medUtførtAksjonspunkt(AksjonspunktDefinisjon apDef, BehandlingStegType stegType) {
-        utførteAksjonspunktDefinisjoner.put(apDef, stegType);
-        return this;
     }
 
     public ScenarioAnkeEngangsstønad medBehandlingStegStart(BehandlingStegType startSteg) {

@@ -1,11 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.testutilities.behandling;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.KLAGE_NFP;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.KLAGE_NK;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.KLAGE_VURDER_FORMKRAV_NFP;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.FORESLÅ_VEDTAK;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP;
 import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.STADFESTE_YTELSESVEDTAK;
@@ -66,10 +64,6 @@ public class ScenarioKlageEngangsstønad {
 
     public static ScenarioKlageEngangsstønad forAvvistNFP(AbstractTestScenario<?> abstractTestScenario) {
         return new ScenarioKlageEngangsstønad().setup(abstractTestScenario, KlageVurdering.AVVIS_KLAGE);
-    }
-
-    public static ScenarioKlageEngangsstønad forStadfestetNFP(AbstractTestScenario<?> abstractTestScenario) {
-        return new ScenarioKlageEngangsstønad().setup(abstractTestScenario, STADFESTE_YTELSESVEDTAK).medBehandlingStegStart(KLAGE_NK);
     }
 
     public static ScenarioKlageEngangsstønad forMedholdNK(AbstractTestScenario<?> abstractTestScenario) {
@@ -136,13 +130,9 @@ public class ScenarioKlageEngangsstønad {
         this.utførteAksjonspunktDefinisjoner.put(MANUELL_VURDERING_AV_KLAGE_NFP, KLAGE_NFP);
 
         // default steg (kan bli overskrevet av andre setup metoder som kaller denne)
-        if (resultatTypeNFP.equals(STADFESTE_YTELSESVEDTAK)) {
-            this.startSteg = KLAGE_NK;
-            this.opprettedeAksjonspunktDefinisjoner.put(MANUELL_VURDERING_AV_KLAGE_NK, KLAGE_NK);
-        } else {
-            this.startSteg = BehandlingStegType.FORESLÅ_VEDTAK;
-            this.opprettedeAksjonspunktDefinisjoner.put(FORESLÅ_VEDTAK, BehandlingStegType.FORESLÅ_VEDTAK);
-        }
+        this.startSteg = BehandlingStegType.FORESLÅ_VEDTAK;
+        this.opprettedeAksjonspunktDefinisjoner.put(FORESLÅ_VEDTAK, BehandlingStegType.FORESLÅ_VEDTAK);
+
         // setter default resultat NFP trenger kanskje en utledning fra resultattype
         this.vurderingResultatNFP.medBegrunnelse("DEFAULT")
                 .medKlageVurdering(KlageVurdering.AVVIS_KLAGE);
@@ -153,9 +143,6 @@ public class ScenarioKlageEngangsstønad {
             KlageVurdering resultatTypeNK) {
         setup(abstractTestScenario, resultatTypeNFP);
         this.vurderingNK = resultatTypeNK;
-
-        this.opprettedeAksjonspunktDefinisjoner.remove(MANUELL_VURDERING_AV_KLAGE_NK);
-        this.utførteAksjonspunktDefinisjoner.put(MANUELL_VURDERING_AV_KLAGE_NK, KLAGE_NK);
 
         // default steg (de fleste scenarioene starter her. De resterende overstyrer i
         // static metoden)

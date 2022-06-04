@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
@@ -15,30 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioK
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 
 public class KlageNkStegTest {
-
-    @Test
-    public void skalOppretteAksjonspunktKlageNKVedYtelsesStadfestet() {
-        // Arrange
-        var scenario = ScenarioKlageEngangsstønad.forStadfestetNFP(ScenarioMorSøkerEngangsstønad.forAdopsjon());
-        var klageBehandling = scenario.lagMocked();
-        var kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(),
-                new BehandlingLås(klageBehandling.getId()));
-
-        var klageRepository = scenario.getKlageRepository();
-
-        var steg = new KlageNkSteg(scenario.mockBehandlingRepository(), klageRepository);
-
-        // Act
-        var behandlingStegResultat = steg.utførSteg(kontekst);
-
-        // Assert
-        assertThat(behandlingStegResultat).isNotNull();
-        assertThat(behandlingStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
-        assertThat(behandlingStegResultat.getAksjonspunktListe()).hasSize(1);
-
-        var aksjonspunktDefinisjon = behandlingStegResultat.getAksjonspunktListe().get(0);
-        assertThat(aksjonspunktDefinisjon).isEqualTo(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK);
-    }
 
     @Test
     public void skalUtføreUtenAksjonspunktNårBehandlingsresultatTypeIkkeErYtelsesStadfestet() {

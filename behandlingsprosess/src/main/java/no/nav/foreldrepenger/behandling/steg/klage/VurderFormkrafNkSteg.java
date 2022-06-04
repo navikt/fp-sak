@@ -52,6 +52,14 @@ public class VurderFormkrafNkSteg implements BehandlingSteg {
         this.taskTjeneste = taskTjeneste;
     }
 
+    /**
+     * Kompleks håndtering:
+     * - Første gang: Hvis NFP Stadfest -> Kabel, ellers passere i stillhet
+     * - Retur 1: Kabalutfall utenom RETUR foreligger og tatt av vent (på kabal) - gå videre
+     * - Retur 2: Kabalutfall RETUR foreligger og fortsatt stadfestet - send til Kabal på nytt. Utfall RETUR avbryter autopunkt.
+     * - Retur 3: Manuelt tatt av vent (på kabal) - gå tilbake på vent og ikke send på nytt. Ta av vent setter autopunkt utført.
+     * - Ikke håndtert: Henlagt i VL, fulgt av utfall RETUR el fra Kabal.
+     */
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var klageVurderingResultat = klageRepository.hentKlageVurderingResultat(kontekst.getBehandlingId(), KlageVurdertAv.NFP)
