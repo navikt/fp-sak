@@ -69,7 +69,7 @@ public class AnkeSteg implements BehandlingSteg {
             .or(() -> utledLagrePåanketKlageBehandling(behandling));
         if (klageId.isEmpty()) {
             // TODO håndtere flere/ingen klager - obs oversendelse
-            BehandleStegResultat.utførtMedAksjonspunkter(List.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE));
+            return BehandleStegResultat.utførtMedAksjonspunkter(List.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE));
         }
         /**
          * TODO: Gå opp dynamikk rundt kabal. Må håndtere en del scenarier
