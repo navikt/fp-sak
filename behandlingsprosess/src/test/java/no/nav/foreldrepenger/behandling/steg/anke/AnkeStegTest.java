@@ -13,8 +13,8 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioAnkeEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 
@@ -31,7 +31,7 @@ public class AnkeStegTest {
         var kontekst = new BehandlingskontrollKontekst(ankeBehandling.getFagsakId(),
                 ankeBehandling.getAktørId(), new BehandlingLås(ankeBehandling.getId()));
 
-        var steg = new AnkeSteg(ankeRepository, rProvider.getBehandlingRepository());
+        var steg = new AnkeSteg(ankeRepository, Mockito.mock(KlageRepository.class), rProvider);
 
         // Act
         var behandlingStegResultat = steg.utførSteg(kontekst);

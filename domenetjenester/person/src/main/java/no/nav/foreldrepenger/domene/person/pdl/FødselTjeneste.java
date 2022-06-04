@@ -67,6 +67,7 @@ public class FødselTjeneste {
         person.getForelderBarnRelasjon().stream()
             .filter(b -> ForelderBarnRelasjonRolle.BARN.equals(b.getRelatertPersonsRolle()))
             .map(ForelderBarnRelasjon::getRelatertPersonsIdent)
+            .filter(Objects::nonNull)
             .map(this::fraIdent)
             .filter(Objects::nonNull)
             .forEach(alleBarn::add);
@@ -87,6 +88,7 @@ public class FødselTjeneste {
         return person.getForelderBarnRelasjon().stream()
                 .filter(f -> !ForelderBarnRelasjonRolle.BARN.equals(f.getRelatertPersonsRolle()))
                 .map(ForelderBarnRelasjon::getRelatertPersonsIdent)
+                .filter(Objects::nonNull)
                 .map(PersonIdent::fra)
                 .collect(Collectors.toList());
     }

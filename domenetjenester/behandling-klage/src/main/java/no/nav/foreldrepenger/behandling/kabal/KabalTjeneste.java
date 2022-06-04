@@ -131,7 +131,7 @@ public class KabalTjeneste {
         var kildereferanse = bleKlageBehandletKabal ? klageBehandling.getUuid().toString() : ankeBehandling.getUuid().toString();
         var sakMottattKaDato = ankeBehandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE)
             .map(Aksjonspunkt::getOpprettetTidspunkt)
-            .orElse(LocalDateTime.now());
+            .orElseGet(ankeBehandling::getOpprettetTidspunkt);
         var request = TilKabalDto.anke(ankeBehandling, kildereferanse, klager, enhet,
             finnDokumentReferanserForAnke(ankeBehandling.getId(), ankeResultat, bleKlageBehandletKabal),
             ankeMottattDato, ankeMottattDato, sakMottattKaDato, List.of(brukHjemmel.getKabal()));

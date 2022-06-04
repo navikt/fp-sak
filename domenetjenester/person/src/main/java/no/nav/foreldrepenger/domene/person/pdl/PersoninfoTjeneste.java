@@ -377,6 +377,7 @@ public class PersoninfoTjeneste {
         Set<FamilierelasjonVL> relasjoner = new HashSet<>();
 
         familierelasjoner.stream()
+                .filter(r -> r.getRelatertPersonsIdent() != null)
                 .map(r -> new FamilierelasjonVL(new PersonIdent(r.getRelatertPersonsIdent()), mapRelasjonsrolle(r.getRelatertPersonsRolle())))
                 .forEach(relasjoner::add);
         sivilstandliste.stream()
