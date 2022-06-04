@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.testutilities.behandling;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.ANKE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.FORESLÅ_VEDTAK;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering.ANKE_AVVIS;
 import static org.mockito.Mockito.when;
 
@@ -59,10 +57,7 @@ public class ScenarioAnkeEngangsstønad {
 
         this.ankeVurdering = ankeVurdering;
 
-        this.utførteAksjonspunktDefinisjoner.put(MANUELL_VURDERING_AV_ANKE, ANKE);
-
         this.startSteg = BehandlingStegType.FORESLÅ_VEDTAK;
-        this.opprettedeAksjonspunktDefinisjoner.put(FORESLÅ_VEDTAK, BehandlingStegType.FORESLÅ_VEDTAK);
 
         return this;
     }
@@ -137,7 +132,6 @@ public class ScenarioAnkeEngangsstønad {
         var repositoryProvider = abstractTestScenario.mockBehandlingRepositoryProvider();
         lagre(repositoryProvider);
         ankeBehandling.setId(AbstractTestScenario.nyId());
-        // Whitebox.setInternalState(ankeBehandling, "id", AbstractTestScenario.nyId());
         return ankeBehandling;
     }
 

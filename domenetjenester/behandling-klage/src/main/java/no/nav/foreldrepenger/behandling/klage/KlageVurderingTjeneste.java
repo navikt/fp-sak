@@ -71,6 +71,10 @@ public class KlageVurderingTjeneste {
         return klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
     }
 
+    public Optional<KlageResultatEntitet> hentKlageResultatHvisEksisterer(Behandling behandling) {
+        return klageRepository.hentKlageResultatHvisEksisterer(behandling.getId());
+    }
+
     public Optional<KlageFormkravEntitet> hentKlageFormkrav(Behandling klageBehandling, KlageVurdertAv vurdertAv) {
         return klageRepository.hentKlageFormkrav(klageBehandling.getId(), vurdertAv);
     }

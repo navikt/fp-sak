@@ -7,6 +7,7 @@ import java.time.LocalTime;
 import java.time.MonthDay;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +17,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.batch.BatchSupportTjeneste;
+import no.nav.foreldrepenger.regler.uttak.felles.BevegeligeHelligdagerUtil;
+import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.LukketPeriode;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -78,6 +81,8 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
             MonthDay.of(12, 26),
             MonthDay.of(12, 31));
 
+    private Map<Integer, List<LocalDate>> bevegeligeHelligdager = new HashMap<>();
+
     private static final Set<DayOfWeek> HELG = Set.of(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
 
     private BatchSupportTjeneste batchSupportTjeneste;
@@ -104,7 +109,7 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
         batchSupportTjeneste.opprettScheduledTasks(gruppeScheduler);
 
         // Ingenting å kjøre i helgene enn så lenge
-        if (HELG.contains(dagensUkedag) || erFastInfotrygdStengtDag(dagensDato)) {
+        if (HELG.contains(dagensUkedag) || erStengtDag(dagensDato)) {
             return;
         }
 
@@ -137,14 +142,17 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
 
     private int beregnAntallDager(LocalDate dato) {
         var sjekkDato = dato.minusDays(1);
-        if (HELG.contains(DayOfWeek.from(sjekkDato)) || erFastInfotrygdStengtDag(sjekkDato)) {
+        if (HELG.contains(DayOfWeek.from(sjekkDato)) || erStengtDag(sjekkDato)) {
             return 1 + beregnAntallDager(sjekkDato);
         }
         return 1;
     }
 
-    private boolean erFastInfotrygdStengtDag(LocalDate dato) {
-        return fasteStengteDager.contains(MonthDay.from(dato));
+    private boolean erStengtDag(LocalDate dato) {
+        if (bevegeligeHelligdager.isEmpty() || bevegeligeHelligdager.get(dato.getYear()) == null) {
+            bevegeligeHelligdager.put(dato.getYear(), BevegeligeHelligdagerUtil.finnBevegeligeHelligdagerUtenHelg(new LukketPeriode(dato, dato)));
+        }
+        return fasteStengteDager.contains(MonthDay.from(dato)) || bevegeligeHelligdager.get(dato.getYear()).contains(dato);
     }
 
     private record BatchConfig(int time, int minutt, String batchName, String params) {
