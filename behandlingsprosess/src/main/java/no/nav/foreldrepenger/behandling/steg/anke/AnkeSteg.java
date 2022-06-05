@@ -1,11 +1,15 @@
 package no.nav.foreldrepenger.behandling.steg.anke;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.kabal.SendTilKabalTask;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
@@ -28,6 +32,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -40,6 +46,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 @FagsakYtelseTypeRef
 @ApplicationScoped
 public class AnkeSteg implements BehandlingSteg {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AnkeSteg.class);
 
     private AnkeRepository ankeRepository;
     private KlageRepository klageRepository;
@@ -63,35 +71,25 @@ public class AnkeSteg implements BehandlingSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        var klageId = ankeRepository.hentAnkeResultat(kontekst.getBehandlingId())
-            .flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId)
-            .or(() -> utledLagrePåanketKlageBehandling(behandling));
-        if (klageId.isEmpty()) {
-            // TODO håndtere flere/ingen klager - obs oversendelse
-            return BehandleStegResultat.utførtMedAksjonspunkter(List.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE));
-        }
-        /**
-         * TODO: Gå opp dynamikk rundt kabal. Må håndtere en del scenarier
+        /*
+         * Ved første besøk kan anke være opprettet manuelt i VL eller pga opprettet-anke-hendelse fra KABAL med referanse
+         * Ved senere besøk kan hoppet tilbake, ta av kabal-vent uten resultat, eller avsluttet-anke-hendelse fra KABAL med referanse
          * - Anke opprettet i VL, uten kabalhendelse -> overfør til kabal manuelt/automatisk/begge - tenk steg + oppdaterer. Sett på vent
          * - Anke opprettet i KABAL og behandling i VL med referanse -> settes på vent til behandling i Kabal avsluttet
          * - Anke avsluttet / trukket -> henlegges utenfor steg
          * - Anke avsluttet / retur -> ukjent betydning, exception utenfor steg
          * - Anke avsluttet / andre utfall -> fortsett/avslutt uten flere AP.
-         *
         */
-        // Ved første besøk kan anke være opprettet manuelt i VL eller pga opprettet-anke-hendelse fra KABAL med referanse
-        // Ved senere besøk kan hoppet tilbake, ta av kabal-vent uten resultat, eller avsluttet-anke-hendelse fra KABAL med referanse
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var klageId = ankeRepository.hentAnkeResultat(kontekst.getBehandlingId())
+            .flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId)
+            .or(() -> utledLagrePåanketKlageBehandling(behandling));
         var kabalReferanse = ankeRepository.hentAnkeResultat(kontekst.getBehandlingId())
             .map(AnkeResultatEntitet::erBehandletAvKabal).orElse(false);
         var harVentKabal = behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE);
-        var erOpprettetAvKabal = kabalReferanse && !harVentKabal;
 
         if (kabalReferanse) { // Skal ikke oversendes
-            // Første gang med kabalRef -> reset kabalreferanse, vent på kabal
-            if (erOpprettetAvKabal) {
-                ankeRepository.settKabalReferanse(behandling.getId(), null);
-            }
+            // Første gang med kabalRef -> vent på kabal
             // Tatt av vent med kabalref -> har mottatt resultat fra kabal. gå videre
             if (!harVentKabal || manglerAnkeVurdering(behandling.getId())) {
                 return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(ventPåKabal()));
@@ -99,7 +97,8 @@ public class AnkeSteg implements BehandlingSteg {
                 return BehandleStegResultat.utførtUtenAksjonspunkter();
             }
         }
-        if (!harVentKabal) { // Hos Kabal, mangler utfall
+
+        if (!harVentKabal) { // Har ikke vært sent til kabal, send over.
             var hjemmel = klageId.flatMap(k -> klageRepository.hentKlageVurderingResultat(k, KlageVurdertAv.NFP))
                 .map(KlageVurderingResultat::getKlageHjemmel)
                 .filter(h -> !KlageHjemmel.UDEFINERT.equals(h))
@@ -130,13 +129,25 @@ public class AnkeSteg implements BehandlingSteg {
             .filter(Behandling::erSaksbehandlingAvsluttet)
             .filter(b -> behandlingsresultatRepository.hentHvisEksisterer(b.getId()).filter(br -> !br.isBehandlingHenlagt()).isPresent())
             .collect(Collectors.toList());
-        // TODO vurder å velge sist avsluttet elns dersom flere klager
         if (aktuelleKlager.size() == 1) {
-            var klageId = aktuelleKlager.get(0).getId();
-            ankeRepository.settPåAnketKlageBehandling(anke.getId(), klageId);
-            return Optional.of(klageId);
+            return Optional.of(lagrePåanketBehandling(anke, aktuelleKlager.get(0)));
+        } else if (aktuelleKlager.size() > 1) {
+            var utvalgtKlage = aktuelleKlager.stream()
+                .filter(k -> klageRepository.hentKlageResultatHvisEksisterer(k.getId()).filter(KlageResultatEntitet::erBehandletAvKabal).isPresent())
+                .max(Comparator.comparing(Behandling::getAvsluttetDato))
+                .or(() -> aktuelleKlager.stream()
+                    .filter(k -> klageRepository.hentGjeldendeKlageVurderingResultat(k).filter(kvr -> KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(kvr.getKlageVurdering())).isPresent())
+                    .max(Comparator.comparing(Behandling::getAvsluttetDato)))
+                .orElseGet(() -> aktuelleKlager.stream().max(Comparator.comparing(Behandling::getAvsluttetDato)).orElseThrow());
+            return Optional.of(lagrePåanketBehandling(anke, utvalgtKlage));
         }
+        LOG.warn("ANKE steg: kunne ikke utlede klagebehandling automatisk sak {} anke {}", anke.getFagsak().getSaksnummer().getVerdi(), anke.getId());
         return Optional.empty();
+    }
+
+    private Long lagrePåanketBehandling(Behandling anke, Behandling klage) {
+        ankeRepository.settPåAnketKlageBehandling(anke.getId(), klage.getId());
+        return klage.getId();
     }
 
     @Override

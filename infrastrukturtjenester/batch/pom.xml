@@ -37,6 +37,10 @@
             <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
             <artifactId>felles-sikkerhet</artifactId>
         </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>uttak-regler</artifactId>
+        </dependency>
 
 
         <!-- Test -->

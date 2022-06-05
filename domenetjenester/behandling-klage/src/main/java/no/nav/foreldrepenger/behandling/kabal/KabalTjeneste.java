@@ -106,7 +106,7 @@ public class KabalTjeneste {
             .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(klageBehandling.getFagsakYtelseType()));
         var enhet = utledEnhet(klageBehandling.getFagsak());
         var klageMottattDato  = utledDokumentMottattDato(klageBehandling);
-        var klager = utledKlager(klageBehandling, resultat.getKlageResultat());
+        var klager = utledKlager(klageBehandling, Optional.of(resultat.getKlageResultat()));
         var sakMottattKaDato = klageBehandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA)
             .map(Aksjonspunkt::getOpprettetTidspunkt)
             .orElse(LocalDateTime.now());
@@ -120,15 +120,15 @@ public class KabalTjeneste {
             throw new IllegalArgumentException("Utviklerfeil: Prøver sende noe annet enn klage/anke til Kabal!");
         }
         var ankeResultat = ankeVurderingTjeneste.hentAnkeResultat(ankeBehandling);
-        var klageBehandling = ankeResultat.getPåAnketKlageBehandlingId().map(behandlingRepository::hentBehandling).orElseThrow();
-        var klageResultat = klageVurderingTjeneste.hentEvtOpprettKlageResultat(klageBehandling);
+        var klageBehandling = ankeResultat.getPåAnketKlageBehandlingId().map(behandlingRepository::hentBehandling);
+        var klageResultat = klageBehandling.flatMap(kb -> klageVurderingTjeneste.hentKlageResultatHvisEksisterer(kb));
         var brukHjemmel = Optional.ofNullable(hjemmel)
             .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(ankeBehandling.getFagsakYtelseType()));
-        var enhet = utledEnhet(klageBehandling.getFagsak());
+        var enhet = utledEnhet(ankeBehandling.getFagsak());
         var ankeMottattDato  = utledDokumentMottattDato(ankeBehandling);
         var klager = utledKlager(ankeBehandling, klageResultat);
-        var bleKlageBehandletKabal = klageResultat.erBehandletAvKabal();
-        var kildereferanse = bleKlageBehandletKabal ? klageBehandling.getUuid().toString() : ankeBehandling.getUuid().toString();
+        var bleKlageBehandletKabal = klageResultat.filter(KlageResultatEntitet::erBehandletAvKabal).isPresent();
+        var kildereferanse = klageBehandling.filter(k -> bleKlageBehandletKabal).orElse(ankeBehandling).getUuid().toString();
         var sakMottattKaDato = ankeBehandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE)
             .map(Aksjonspunkt::getOpprettetTidspunkt)
             .orElseGet(ankeBehandling::getOpprettetTidspunkt);
@@ -202,9 +202,9 @@ public class KabalTjeneste {
         return behandlendeEnhetTjeneste.gyldigEnhetNfpNk(enhet) ? enhet : behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak).enhetId();
     }
 
-    private TilKabalDto.Klager utledKlager(Behandling behandling, KlageResultatEntitet resultat) {
+    private TilKabalDto.Klager utledKlager(Behandling behandling, Optional<KlageResultatEntitet> resultat) {
         var verge = vergeRepository.hentAggregat(behandling.getId())
-            .or(() -> resultat.getPåKlagdBehandlingId().flatMap(b -> vergeRepository.hentAggregat(b)))
+            .or(() -> resultat.flatMap(KlageResultatEntitet::getPåKlagdBehandlingId).flatMap(b -> vergeRepository.hentAggregat(b)))
             .flatMap(VergeAggregat::getVerge)
             .map(v -> v.getVergeOrganisasjon().isPresent() ?
                 new TilKabalDto.Part(TilKabalDto.PartsType.VIRKSOMHET, v.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElseThrow()) :

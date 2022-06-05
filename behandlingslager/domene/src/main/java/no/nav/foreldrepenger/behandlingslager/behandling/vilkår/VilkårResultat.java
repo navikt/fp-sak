@@ -321,11 +321,12 @@ public class VilkårResultat extends BaseEntitet {
         }
 
         public Builder kopierVilkårFraAnnenBehandling(Vilkår vilkår, boolean settTilIkkeVurdert, boolean nullstillManuellVurdering) {
+            var skalKopiereManuellVurdering = !nullstillManuellVurdering && !vilkår.erOverstyrt() && vilkår.erManueltVurdert();
             var builder = VilkårBuilder.ny()
                 .medVilkårType(vilkår.getVilkårType())
                 .medUtfallOverstyrt(vilkår.getVilkårUtfallOverstyrt(), vilkår.getAvslagsårsak())
-                .medUtfallManuell(nullstillManuellVurdering ? VilkårUtfallType.UDEFINERT : vilkår.getVilkårUtfallManuelt(),
-                    nullstillManuellVurdering ? Avslagsårsak.UDEFINERT : vilkår.getAvslagsårsak())
+                .medUtfallManuell(skalKopiereManuellVurdering ? vilkår.getVilkårUtfallManuelt() : VilkårUtfallType.UDEFINERT,
+                    skalKopiereManuellVurdering ? vilkår.getAvslagsårsak() : Avslagsårsak.UDEFINERT)
                 .medMerknadParametere(vilkår.getMerknadParametere())
                 .medRegelEvaluering(vilkår.getRegelEvaluering())
                 .medRegelInput(vilkår.getRegelInput());

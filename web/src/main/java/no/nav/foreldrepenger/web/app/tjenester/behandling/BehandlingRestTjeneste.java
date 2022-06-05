@@ -317,12 +317,10 @@ public class BehandlingRestTjeneste {
         }
 
         var fagsak = funnetFagsak.get();
-        try {
-            if (!behandlingsoppretterTjeneste.kanOppretteNyBehandlingAvType(fagsak.getId(), kode)) {
-                LOG.info("BEHREST opprett behandling får nei for sak {} behandlingtype {}", fagsak.getSaksnummer().getVerdi(), kode.getKode());
-            }
-        } catch (Exception e) {
-            LOG.info("BEHREST opprett behandling feil", e);
+
+        if (!behandlingsoppretterTjeneste.kanOppretteNyBehandlingAvType(fagsak.getId(), kode)) {
+            throw new FunksjonellException("FP-235433", "Kan ikke opprettet behandling av type " + kode.getNavn(),
+                "Se om det allerede finnes en åpen behandling eller se over sakstilstand");
         }
 
         if (BehandlingType.INNSYN.equals(kode)) {
