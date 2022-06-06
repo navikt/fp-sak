@@ -2,68 +2,39 @@ package no.nav.foreldrepenger.behandling.revurdering;
 
 import java.time.LocalDate;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBegrunnelseType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.TidsperiodeFarRundtFødsel;
-import no.nav.foreldrepenger.domene.uttak.TidsperiodeForbeholdtMor;
-import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
-import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
+import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoBerørtUtleder;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
-import no.nav.fpsak.tidsserie.LocalDateSegment;
-import no.nav.fpsak.tidsserie.LocalDateTimeline;
-import no.nav.fpsak.tidsserie.StandardCombinators;
 
 @ApplicationScoped
 public class BerørtBehandlingTjeneste {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BerørtBehandlingTjeneste.class);
-
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
-    private HistorikkRepository historikkRepository;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
 
     @Inject
     public BerørtBehandlingTjeneste(StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
-                                    BehandlingRepositoryProvider repositoryProvider,
                                     UttakInputTjeneste uttakInputTjeneste,
                                     ForeldrepengerUttakTjeneste uttakTjeneste,
                                     YtelseFordelingTjeneste ytelseFordelingTjeneste) {
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
-        this.historikkRepository = repositoryProvider.getHistorikkRepository();
         this.uttakTjeneste = uttakTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
@@ -77,137 +48,45 @@ public class BerørtBehandlingTjeneste {
      * Finner ut om det skal opprettes en berørt behandling på med forelders sak.
      *
      * @param brukersGjeldendeBehandlingsresultat brukers behandlingsresultat
-     * @param behandlingId                        brukers siste vedtatte behandling
+     * @param behandling                          brukers siste vedtatte behandling
      * @param behandlingIdAnnenPart               medforelders siste vedtatte
      *                                            behandling.
      * @return true dersom berørt behandling skal opprettes, ellers false.
      */
     public boolean skalBerørtBehandlingOpprettes(Behandlingsresultat brukersGjeldendeBehandlingsresultat,
-                                                 Long behandlingId,
+                                                 Behandling behandling,
                                                  Long behandlingIdAnnenPart) {
         //Må sjekke konsekvens pga overlapp med samtidig uttak
-        if (brukersGjeldendeBehandlingsresultat.isBehandlingHenlagt()
-            || harKonsekvens(brukersGjeldendeBehandlingsresultat, KonsekvensForYtelsen.INGEN_ENDRING)) {
+        if (ikkeAktuellForVurderBerørt(behandling, brukersGjeldendeBehandlingsresultat)) {
             return false;
         }
-        var uttakInput = uttakInputTjeneste.lagInput(brukersGjeldendeBehandlingsresultat.getBehandlingId());
-        var kreverSammenhengendeUttak = uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak();
-        ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        if (foreldrepengerGrunnlag.isBerørtBehandling()) {
-            return false;
-        }
+        var uttakInput = uttakInputTjeneste.lagInput(behandling.getId());
 
-        var brukersUttak = hentUttak(behandlingId).orElse(tomtUttak());
+        var brukersUttak = hentUttak(behandling.getId()).orElse(tomtUttak());
         var annenpartsUttak = hentUttak(behandlingIdAnnenPart);
         if (annenpartsUttak.isEmpty() || finnMinAktivDato(annenpartsUttak.get()).isEmpty() || finnMinAktivDato(brukersUttak, annenpartsUttak.get()).isEmpty()) {
             return false;
         }
-        // Endring fra en søknadsperiode eller fra start?
-        var endringsdato = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId)
-            .flatMap(YtelseFordelingAggregat::getGjeldendeEndringsdatoHvisEksisterer)
-            .orElseGet(() -> finnMinAktivDato(brukersUttak, annenpartsUttak.get()).orElseThrow());
-
-        Set<LocalDate> berørtBehovDatoer = new HashSet<>();
-        if (brukersGjeldendeBehandlingsresultat.isEndretStønadskonto()
-            || stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)) {
-            LOG.info("Skal opprette berørt: EndretKonto/NegativKonto endringsdato {}", endringsdato);
-            berørtBehovDatoer.add(endringsdato);
-        }
-
-        var periodeTom = finnMaxAktivDato(brukersUttak, annenpartsUttak.get()).filter(endringsdato::isBefore).orElse(endringsdato);
-        var periodeFomEndringsdato = new LocalDateInterval(endringsdato, periodeTom);
-
-        var overlapp = overlappSomIkkeErFulltSamtidigUttak(uttakInput, periodeFomEndringsdato, brukersUttak, annenpartsUttak.get());
-        if (overlapp.isPresent()) {
-            LOG.info("Skal opprette berørt: OverlappUtenSamtidig fom {} endringsdato {}", overlapp.get(), endringsdato);
-            berørtBehovDatoer.add(overlapp.get());
-        }
-
-        var fellesTidslinjeForSammenheng = tidslinjeForSammenhengendeUttaksplan(brukersUttak, annenpartsUttak.get());
-        // Sikre at periode reservert mor er komplett med uttak, utsettelser, overføringer
-        if (foreldrepengerGrunnlag.getFamilieHendelser().gjelderTerminFødsel()) {
-            var familieHendelseDato = foreldrepengerGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
-            var førsteSeksUker = new LocalDateInterval(VirkedagUtil.lørdagSøndagTilMandag(familieHendelseDato),
-                TidsperiodeForbeholdtMor.tilOgMed(familieHendelseDato));
-            if (!fellesTidslinjeForSammenheng.isContinuous(førsteSeksUker)) {
-                var tidslinjeFørsteSeksUker = fellesTidslinjeForSammenheng.intersection(førsteSeksUker);
-                var tidligsteGap = Optional.ofNullable(tidslinjeFørsteSeksUker.firstDiscontinuity()).map(LocalDateInterval::getFomDato).orElse(endringsdato);
-                LOG.info("Skal opprette berørt: Første 6 uker gap fom {} endringsdato {}", tidligsteGap, endringsdato);
-                berørtBehovDatoer.add(tidligsteGap);
-            }
-        }
-
-        var opprett = kreverSammenhengendeUttak && !fellesTidslinjeForSammenheng.isContinuous(periodeFomEndringsdato);
-        if (opprett) {
-            var tidslinjeFomEndringsdato = fellesTidslinjeForSammenheng.intersection(periodeFomEndringsdato);
-            var tidligsteGap = Optional.ofNullable(tidslinjeFomEndringsdato.firstDiscontinuity()).map(LocalDateInterval::getFomDato).orElse(endringsdato);
-            LOG.info("Skal opprette berørt: Sammenhengende etter uke 6 gap fom {} endringsdato {}", tidligsteGap, endringsdato);
-            berørtBehovDatoer.add(tidligsteGap);
-        }
-        return berørtBehovDatoer.stream().min(Comparator.naturalOrder()).isPresent();
+        return EndringsdatoBerørtUtleder.utledEndringsdatoForBerørtBehandling(brukersUttak,
+            ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId()),
+            brukersGjeldendeBehandlingsresultat,
+            stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput),
+            annenpartsUttak,
+            uttakInput,
+            "Skal opprette berørt").isPresent();
     }
 
-    private Optional<LocalDate> overlappSomIkkeErFulltSamtidigUttak(UttakInput uttakInput, LocalDateInterval periodeFomEndringsdato,
-                                                                           ForeldrepengerUttak brukersUttak, ForeldrepengerUttak annenpartsUttak) {
-        var tidslinjeBruker = lagTidslinje(brukersUttak, p -> !p.isOpphold(), this::helgFomMandagSegment);
-        var tidslinjeAnnenpart = lagTidslinje(annenpartsUttak, p -> !p.isOpphold(), this::helgFomMandagSegment);
-        // Tidslinje der begge har uttak - fom endringsdato.
-        var tidslinjeOverlappendeUttakFomEndringsdato = tidslinjeAnnenpart.intersection(tidslinjeBruker).intersection(periodeFomEndringsdato);
-        if (tidslinjeOverlappendeUttakFomEndringsdato.isEmpty()) {
-            return Optional.empty();
-        }
 
-        var farRundtFødsel = TidsperiodeFarRundtFødsel.intervallFarRundtFødsel(uttakInput).orElse(null);
-        var tidslinjeBrukerSamtidig = lagTidslinje(brukersUttak, p -> akseptertFulltSamtidigUttak(p, farRundtFødsel), this::helgFomMandagSegment);
-        var tidslinjeAnnenpartSamtidig = lagTidslinje(annenpartsUttak, p -> akseptertFulltSamtidigUttak(p, farRundtFødsel), this::helgFomMandagSegment);
-        var tidslinjeSamtidigUttak = slåSammenTidslinjer(tidslinjeBrukerSamtidig, tidslinjeAnnenpartSamtidig);
-
-        var overlappUtenomAkseptertFulltSamtidigUttak = tidslinjeOverlappendeUttakFomEndringsdato.disjoint(tidslinjeSamtidigUttak);
-        return overlappUtenomAkseptertFulltSamtidigUttak.isEmpty() ? Optional.empty() : Optional.of(overlappUtenomAkseptertFulltSamtidigUttak.getMinLocalDate());
-    }
-
-    private static boolean akseptertFulltSamtidigUttak(ForeldrepengerUttakPeriode periode, LocalDateInterval farRundtFødsel) {
-        var periodeRundtFødsel = Optional.ofNullable(farRundtFødsel).filter(f -> f.contains(periode.getTidsperiode())).isPresent();
-        return periode.isSamtidigUttak() && (periode.isFlerbarnsdager() || periodeRundtFødsel);
-    }
-
-    private LocalDateTimeline<Boolean> tidslinjeForSammenhengendeUttaksplan(ForeldrepengerUttak brukersUttak, ForeldrepengerUttak annenpartsUttak) {
-        var tidslinjeBruker = lagTidslinje(brukersUttak, p -> true, this::helgTomSøndagSegment);
-        var tidslinjeAnnenpart = lagTidslinje(annenpartsUttak, p -> true, this::helgTomSøndagSegment);
-        return slåSammenTidslinjer(tidslinjeBruker, tidslinjeAnnenpart);
-    }
-
-    private LocalDateTimeline<Boolean> slåSammenTidslinjer(LocalDateTimeline<Boolean> tidslinje1, LocalDateTimeline<Boolean> tidslinje2) {
-        // Slår sammen uttaksplanene med TRUE der en eller begge har uttak.
-        return tidslinje1.crossJoin(tidslinje2, StandardCombinators::alwaysTrueForMatch).compress();
-    }
-
-    private LocalDateTimeline<Boolean> lagTidslinje(ForeldrepengerUttak uttak, Predicate<ForeldrepengerUttakPeriode> periodefilter,
-                                                    Function<ForeldrepengerUttakPeriode, LocalDateSegment<Boolean>> segmentMapper) {
-        var segmenter = uttak.getGjeldendePerioder().stream()
-            .filter(p -> isAktivtUttak(p))
-            .filter(periodefilter)
-            .map(segmentMapper)
-            .toList();
-        return new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch).compress();
+    private boolean ikkeAktuellForVurderBerørt(Behandling behandling, Behandlingsresultat behandlingsresultat) {
+        // Vurder å inkludere
+        return (SpesialBehandling.erBerørtBehandling(behandling) && SpesialBehandling.skalUttakVurderes(behandling)) ||
+            behandlingsresultat.isBehandlingHenlagt() || harKonsekvens(behandlingsresultat, KonsekvensForYtelsen.INGEN_ENDRING);
     }
 
     private boolean isAktivtUttak(ForeldrepengerUttakPeriode p) {
         return p.harAktivtUttak() || p.isInnvilgetOpphold();
     }
 
-    private LocalDateSegment<Boolean> helgFomMandagSegment(ForeldrepengerUttakPeriode periode) {
-        var fom = VirkedagUtil.lørdagSøndagTilMandag(periode.getFom());
-        var tom = periode.getTom();
-        var brukFom = fom.isAfter(tom) ? periode.getFom() : fom;
-        return new LocalDateSegment<>(brukFom, tom, Boolean.TRUE);
-    }
-
-    private LocalDateSegment<Boolean> helgTomSøndagSegment(ForeldrepengerUttakPeriode periode) {
-        var fom = periode.getFom();
-        var tom = VirkedagUtil.fredagLørdagTilSøndag(periode.getTom());
-        return new LocalDateSegment<>(fom, tom, Boolean.TRUE);
-    }
 
     private Optional<LocalDate> finnMinAktivDato(ForeldrepengerUttak uttak) {
         return uttak.getGjeldendePerioder().stream()
@@ -221,48 +100,12 @@ public class BerørtBehandlingTjeneste {
             .min(Comparator.naturalOrder());
     }
 
-    // Mulig denne skal brukes om endringsdato mangler
-    private Optional<LocalDate> finnSenesteMinAktivDato(ForeldrepengerUttak bruker, ForeldrepengerUttak annenpart) {
-        return Stream.concat(finnMinAktivDato(bruker).stream(), finnMinAktivDato(annenpart).stream())
-            .max(Comparator.naturalOrder());
-    }
-
-    private Optional<LocalDate> finnMaxAktivDato(ForeldrepengerUttak bruker, ForeldrepengerUttak annenpart) {
-        return Stream.concat(bruker.getGjeldendePerioder().stream(), annenpart.getGjeldendePerioder().stream())
-            .filter(this::isAktivtUttak)
-            .map(ForeldrepengerUttakPeriode::getTom)
-            .max(Comparator.naturalOrder());
-    }
-
     private Optional<ForeldrepengerUttak> hentUttak(Long behandling) {
         return uttakTjeneste.hentUttakHvisEksisterer(behandling);
     }
 
-    public boolean harKonsekvens(Behandlingsresultat behandlingsresultat, KonsekvensForYtelsen konsekvens) {
+    public static boolean harKonsekvens(Behandlingsresultat behandlingsresultat, KonsekvensForYtelsen konsekvens) {
         return behandlingsresultat.getKonsekvenserForYtelsen().contains(konsekvens);
-    }
-
-    public void opprettHistorikkinnslagOmRevurdering(Behandling behandling,
-                                                     HistorikkBegrunnelseType historikkBegrunnelseType) {
-        opprettHistorikkinnslag(behandling, historikkBegrunnelseType);
-    }
-
-    public void opprettHistorikkinnslagOmRevurdering(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        opprettHistorikkinnslag(behandling, behandlingÅrsakType);
-    }
-
-    private void opprettHistorikkinnslag(Behandling behandling, Kodeverdi begrunnelse) {
-        var revurderingsInnslag = new Historikkinnslag();
-        revurderingsInnslag.setBehandling(behandling);
-        var historikkinnslagType = HistorikkinnslagType.REVURD_OPPR;
-        revurderingsInnslag.setType(historikkinnslagType);
-        revurderingsInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        var historiebygger = new HistorikkInnslagTekstBuilder().medHendelse(historikkinnslagType);
-        historiebygger.medBegrunnelse(begrunnelse);
-
-        historiebygger.build(revurderingsInnslag);
-
-        historikkRepository.lagre(revurderingsInnslag);
     }
 
     private ForeldrepengerUttak tomtUttak() {

@@ -67,7 +67,7 @@ class BerørtBehandlingTjenesteTest {
         foreldrepengerUttakTjeneste = mock(ForeldrepengerUttakTjeneste.class);
         uttakInputTjeneste = mock(UttakInputTjeneste.class);
         saldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
-        tjeneste = new BerørtBehandlingTjeneste(saldoTjeneste, repositoryProvider, uttakInputTjeneste,
+        tjeneste = new BerørtBehandlingTjeneste(saldoTjeneste, uttakInputTjeneste,
             foreldrepengerUttakTjeneste,
             new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
     }
@@ -232,7 +232,7 @@ class BerørtBehandlingTjenesteTest {
 
         var br = Behandlingsresultat.builder().medEndretStønadskonto(true).buildFor(behandling);
 
-        var resultat = tjeneste.skalBerørtBehandlingOpprettes(br, behandling.getId(), behandlingAnnenpart.getId());
+        var resultat = tjeneste.skalBerørtBehandlingOpprettes(br, behandling, behandlingAnnenpart.getId());
 
         assertThat(resultat).isTrue();
     }
@@ -1111,7 +1111,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     private boolean skalBerørtOpprettes(Behandling behandling, Behandling annenpartsBehandling) {
-        return tjeneste.skalBerørtBehandlingOpprettes(getBehandlingsresultat(behandling.getId()), behandling.getId(),
+        return tjeneste.skalBerørtBehandlingOpprettes(getBehandlingsresultat(behandling.getId()), behandling,
             annenpartsBehandling.getId());
     }
 

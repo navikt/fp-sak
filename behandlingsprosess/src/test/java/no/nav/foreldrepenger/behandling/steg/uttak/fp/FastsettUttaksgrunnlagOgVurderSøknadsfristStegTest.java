@@ -53,6 +53,7 @@ import no.nav.foreldrepenger.domene.uttak.KopierForeldrepengerUttaktjeneste;
 import no.nav.foreldrepenger.domene.uttak.RelevanteArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
+import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoFørstegangsbehandlingUtleder;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoRevurderingUtlederImpl;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.FastsettUttaksgrunnlagTjeneste;
@@ -101,8 +102,9 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
         var fpUttakRepository = uttakRepositoryProvider.getFpUttakRepository();
         var relevanteArbeidsforholdTjeneste = new RelevanteArbeidsforholdTjeneste(
             fpUttakRepository);
+        var saldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
         var endringsdatoRevurderingUtleder = new EndringsdatoRevurderingUtlederImpl(uttakRepositoryProvider, dekningsgradTjeneste,
-            relevanteArbeidsforholdTjeneste);
+            relevanteArbeidsforholdTjeneste, saldoTjeneste);
         var fastsettUttaksgrunnlagTjeneste = new FastsettUttaksgrunnlagTjeneste(uttakRepositoryProvider, endringsdatoFørstegangsbehandlingUtleder,
                 endringsdatoRevurderingUtleder);
         var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(ytelsesFordelingRepository);

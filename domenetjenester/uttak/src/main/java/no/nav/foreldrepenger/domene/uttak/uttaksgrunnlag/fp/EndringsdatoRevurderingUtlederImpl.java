@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -25,11 +27,14 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.RelevanteArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.EndringsdatoRevurderingUtleder;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.FastsettUttaksgrunnlagFeil;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
@@ -45,15 +50,22 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private DekningsgradTjeneste dekningsgradTjeneste;
     private RelevanteArbeidsforholdTjeneste relevanteArbeidsforholdTjeneste;
+    private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
 
     @Inject
     public EndringsdatoRevurderingUtlederImpl(UttakRepositoryProvider repositoryProvider,
                                               DekningsgradTjeneste dekningsgradTjeneste,
-                                              RelevanteArbeidsforholdTjeneste relevanteArbeidsforholdTjeneste) {
+                                              RelevanteArbeidsforholdTjeneste relevanteArbeidsforholdTjeneste,
+                                              StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste) {
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.relevanteArbeidsforholdTjeneste = relevanteArbeidsforholdTjeneste;
+        this.uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
+        this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
     }
 
     EndringsdatoRevurderingUtlederImpl() {
@@ -69,14 +81,15 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
             endringsdatoTypeEnumSet.add(EndringsdatoType.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
             LOG.info("Kunne ikke utlede endringsdato for revurdering med behandlingId={}. Satte FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.",  behandlingId);
         }
-        var endringsdato = utledEndringsdato(ref, endringsdatoTypeEnumSet, input.getYtelsespesifiktGrunnlag());
+        var endringsdato = utledEndringsdato(ref, endringsdatoTypeEnumSet, input, input.getYtelsespesifiktGrunnlag());
         return endringsdato.orElseThrow(() -> FastsettUttaksgrunnlagFeil.kunneIkkeUtledeEndringsdato(behandlingId));
     }
 
     private Optional<LocalDate> utledEndringsdato(BehandlingReferanse ref,
                                                   EnumSet<EndringsdatoType> endringsdatoTypeEnumSet,
+                                                  UttakInput uttakInput,
                                                   ForeldrepengerGrunnlag fpGrunnlag) {
-        var endringsdato = finnFørsteDato(endringsdatoTypeEnumSet, ref, fpGrunnlag);
+        var endringsdato = finnFørsteDato(endringsdatoTypeEnumSet, ref, uttakInput, fpGrunnlag);
         // Sjekk om endringsdato overlapper med tidligere vedtak. Hvis periode i tidligere vedtak er manuelt behandling så skal endringsdato flyttes
         // start av perioden
         var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(finnForrigeBehandling(ref));
@@ -275,6 +288,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
 
     private LocalDate finnFørsteDato(Set<EndringsdatoType> endringsdatoer,
                                      BehandlingReferanse ref,
+                                     UttakInput uttakInput,
                                      ForeldrepengerGrunnlag fpGrunnlag) {
         Set<LocalDate> datoer = new HashSet<>();
 
@@ -290,7 +304,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
                     datoer::add);
                 case SISTE_UTTAKSDATO_GJELDENDE_VEDTAK -> finnEndringsdatoForEndringssøknad(ref, datoer);
                 case ENDRINGSDATO_I_BEHANDLING_SOM_FØRTE_TIL_BERØRT_BEHANDLING -> finnEndringsdatoForBerørtBehandling(
-                    ref, fpGrunnlag, datoer);
+                    ref, uttakInput, fpGrunnlag, datoer);
                 case MANUELT_SATT_FØRSTE_UTTAKSDATO -> finnManueltSattFørsteUttaksdato(ref).ifPresent(datoer::add);
                 case OMSORGSOVERTAKELSEDATO -> fpGrunnlag.getFamilieHendelser()
                     .getGjeldendeFamilieHendelse()
@@ -323,6 +337,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private void finnEndringsdatoForBerørtBehandling(BehandlingReferanse ref,
+                                                     UttakInput uttakInput,
                                                      ForeldrepengerGrunnlag fpGrunnlag,
                                                      Set<LocalDate> datoer) {
         var annenpartBehandling = fpGrunnlag.getAnnenpart()
@@ -350,22 +365,48 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         } else if (klassiskUtledetDato == null) {
             LOG.info("BERØRT ENDRINGSDATO: Annenparts endringsdato finnes for behandling {} klassisk dato tom, endringsdato {}", ref.behandlingId(), annenpartsEndringsdato.get());
         }
+        var beregnetEndringsdato = beregnetEndringsdatoBerørtBehandling(uttakInput, annenpartBehandling);
+        var beregnetEndringsdatoStr = beregnetEndringsdato.map(LocalDate::toString).orElse("");
+        if (beregnetEndringsdato.isEmpty()) {
+            LOG.info("BERØRT ENDRINGSDATO: fant ikke beregnet dato for behandling {}", ref.behandlingId());
+        }
         annenpartsEndringsdato.ifPresent(apd -> {
             if (klassiskUtledetDato != null && apd.isBefore(klassiskUtledetDato)) {
-                LOG.info("BERØRT ENDRINGSDATO: Annenparts endringsdato er før utledet for behandling {} klassisk dato {} endringsdato {}",
-                    ref.behandlingId(), klassiskUtledetDato, apd);
-                //datoer.add(klassiskUtledetDato);
-            } else if (apd.equals(klassiskUtledetDato)) {
-                LOG.info("BERØRT ENDRINGSDATO: Annenparts endringsdato er lik utledet for behandling {} klassisk dato {} endringsdato {}",
-                    ref.behandlingId(), klassiskUtledetDato, apd);
-                //datoer.add(klassiskUtledetDato);
+                LOG.info("BERØRT ENDRINGSDATO: FØR behandling {} klassisk dato {} endringsdato {} beregnet {}",
+                    ref.behandlingId(), klassiskUtledetDato, apd, beregnetEndringsdatoStr);
+                datoer.add(klassiskUtledetDato);
             } else {
-                LOG.info("BERØRT ENDRINGSDATO: Annenparts endringsdato er etter utledet for behandling {} klassisk dato {} endringsdato {}",
-                    ref.behandlingId(), klassiskUtledetDato, apd);
-                //datoer.add(apd);
+                if (apd.equals(klassiskUtledetDato)) {
+                    LOG.info("BERØRT ENDRINGSDATO: LIK behandling {} klassisk dato {} endringsdato {} beregnet {}",
+                        ref.behandlingId(), klassiskUtledetDato, apd, beregnetEndringsdatoStr);
+                    datoer.add(apd);
+                } else if (beregnetEndringsdato.filter(bed -> bed.isAfter(apd)).isPresent()) {
+                    LOG.info("BERØRT ENDRINGSDATO: BEREGN behandling {} klassisk dato {} endringsdato {} beregnet {}",
+                        ref.behandlingId(), klassiskUtledetDato, apd, beregnetEndringsdatoStr);
+                    datoer.add(apd);
+                } else {
+                    LOG.info("BERØRT ENDRINGSDATO: ETTER behandling {} klassisk dato {} endringsdato {} beregnet {}",
+                        ref.behandlingId(), klassiskUtledetDato, apd, beregnetEndringsdatoStr);
+                }
+                datoer.add(apd);
             }
         });
-        Optional.ofNullable(klassiskUtledetDato).ifPresent(datoer::add);
+    }
+
+    private Optional<LocalDate> beregnetEndringsdatoBerørtBehandling(UttakInput input, Long utløsendeBehandlingId) {
+        var utløsendeUttak = hentUttak(utløsendeBehandlingId).orElseGet(() -> new ForeldrepengerUttak(List.of()));
+        var berørtUttak = hentUttak(input.getBehandlingReferanse().originalBehandlingId());
+        return EndringsdatoBerørtUtleder.utledEndringsdatoForBerørtBehandling(utløsendeUttak,
+            ytelsesFordelingRepository.hentAggregatHvisEksisterer(utløsendeBehandlingId),
+            behandlingsresultatRepository.hent(utløsendeBehandlingId),
+            stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(input), // Gambler på samme resultat for input fra begge partene
+            berørtUttak,
+            input,
+            "Berørt endringsdato");
+    }
+
+    private Optional<ForeldrepengerUttak> hentUttak(Long behandling) {
+        return uttakTjeneste.hentUttakHvisEksisterer(behandling);
     }
 
     private Long finnForrigeBehandling(BehandlingReferanse behandling) {

@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
-import static no.nav.foreldrepenger.regler.uttak.beregnkontoer.Minsterett.UTTAK_RUNDT_FØDSEL_DAGER;
-
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
@@ -61,14 +59,6 @@ public class KontoerGrunnlagBygger {
         return getBuilder(uttakInput, stønadskontoer).kontoList(stønadskontoer.stream()
             //Flerbarnsdager er stønadskontotype i stønadskontoberegningen, men ikke i fastsette perioder
             .filter(sk -> !sk.getStønadskontoType().equals(StønadskontoType.FLERBARNSDAGER)).map(this::map).collect(Collectors.toList()));
-    }
-
-    public static Kontoer.Builder byggKunRettighetFarUttakRundtFødsel(BehandlingReferanse ref) {
-        if (ref.getSkjæringstidspunkt().utenMinsterett()) {
-            return new Kontoer.Builder();
-        } else {
-            return new Kontoer.Builder().farUttakRundtFødselDager(UTTAK_RUNDT_FØDSEL_DAGER);
-        }
     }
 
     private Konto.Builder map(Stønadskonto stønadskonto) {
