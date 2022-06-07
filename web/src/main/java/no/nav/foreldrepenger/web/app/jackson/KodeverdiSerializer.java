@@ -46,12 +46,14 @@ public class KodeverdiSerializer extends StdSerializer<Kodeverdi> {
             jgen.writeStringField("lovHjemmel", l.getLovHjemmelData());
         }
         if (value instanceof PeriodeResultatÅrsak årsak) {
+            jgen.writeStringField("sortering", årsak.getSortering());
             if (årsak.getUtfallType() != null) {
                 jgen.writeStringField("utfallType", årsak.getUtfallType().name());
             }
             writeArray(jgen, årsak.getGyldigForLovendringer(), "gyldigForLovendringer");
             writeArray(jgen, årsak.getUttakTyper(), "uttakTyper");
             writeArray(jgen, årsak.getValgbarForKonto(), "valgbarForKonto");
+            writeArray(jgen, årsak.getSynligForRolle(), "synligForRolle");
         }
 
         jgen.writeEndObject();
