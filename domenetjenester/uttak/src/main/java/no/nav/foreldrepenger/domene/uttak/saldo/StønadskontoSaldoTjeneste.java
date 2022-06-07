@@ -9,6 +9,9 @@ import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
@@ -42,6 +45,8 @@ import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
 
 @ApplicationScoped
 public class StønadskontoSaldoTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(StønadskontoSaldoTjeneste.class);
 
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private FpUttakRepository fpUttakRepository;
@@ -102,10 +107,15 @@ public class StønadskontoSaldoTjeneste {
         return saldoUtregning.negativSaldoPåNoenKonto();
     }
 
-    public boolean erOriginalNegativSaldoPåNoenKonto(UttakInput uttakInput) {
+    public boolean erOriginalNegativSaldoPåNoenKontoForsiktig(UttakInput uttakInput) {
         var perioderSøker = perioderSøker(uttakInput.getBehandlingReferanse().getOriginalBehandlingId().orElseThrow());
         var saldoUtregning = finnSaldoUtregning(uttakInput, mapTilRegelPerioder(perioderSøker));
-        return saldoUtregning.negativSaldoPåNoenKonto();
+        var originalFørst = saldoUtregning.negativSaldoPåNoenKontoKonservativ();
+        var annenpartFørst = saldoUtregning.negativSaldoPåNoenKontoByttParterKonservativ();
+        if (originalFørst != annenpartFørst) {
+            LOG.info("NEGATIV SALDO ulike verdier original {} annenpart {}", originalFørst, annenpartFørst);
+        }
+        return originalFørst || annenpartFørst;
     }
 
     private List<FastsattUttakPeriode> mapTilRegelPerioder(List<UttakResultatPeriodeEntitet> perioder) {
