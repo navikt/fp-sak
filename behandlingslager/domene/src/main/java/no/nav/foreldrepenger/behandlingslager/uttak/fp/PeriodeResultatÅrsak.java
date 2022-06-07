@@ -413,7 +413,7 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
             of(FELLESPERIODE, MØDREKVOTE, FEDREKVOTE, FORELDREPENGER, FORELDREPENGER_FØR_FØDSEL)
             : valgbarForKonto;
         this.gyldigForLovendringer = gyldigForLovendringer == null ? of(LovEndring.values()) : gyldigForLovendringer;
-        this.synligForRolle = this.synligForRolle == null ? of(SynligFor.values()) : this.synligForRolle;
+        this.synligForRolle = synligForRolle == null ? Set.of(SynligFor.values()) : synligForRolle;
     }
 
     PeriodeResultatÅrsak(String kode,
