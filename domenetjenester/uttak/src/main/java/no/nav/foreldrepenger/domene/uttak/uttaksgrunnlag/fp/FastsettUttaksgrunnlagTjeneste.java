@@ -10,6 +10,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -82,7 +83,7 @@ public class FastsettUttaksgrunnlagTjeneste {
         }
 
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
-        if (fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel()) {
+        if (fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel() && RelasjonsRolleType.erMor(ref.relasjonRolle())) {
             justertePerioder = justerFordelingEtterFamilieHendelse(fpGrunnlag, justertePerioder);
         }
         if (ref.getSkjæringstidspunkt().kreverSammenhengendeUttak()) {

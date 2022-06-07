@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -23,7 +24,6 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
     private ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles;
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
 
-
     @Inject
     public FødselForretningshendelseHåndtererImpl(BehandlingRepositoryProvider repositoryProvider,
                                                   ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles) {
@@ -39,13 +39,22 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
 
     @Override
     public void håndterAvsluttetBehandling(Behandling avsluttetBehandling, ForretningshendelseType forretningshendelseType, BehandlingÅrsakType behandlingÅrsakType) {
-        forretningshendelseHåndtererFelles.opprettRevurderingLagStartTask(avsluttetBehandling.getFagsak(), behandlingÅrsakType);
+        var fagsak = avsluttetBehandling.getFagsak();
+        if (erMor(fagsak)) {
+            forretningshendelseHåndtererFelles.opprettRevurderingLagStartTask(fagsak, behandlingÅrsakType);
+        }
     }
 
     @Override
     public void håndterKøetBehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         var køetBehandlingOpt = behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
-        forretningshendelseHåndtererFelles.håndterKøetBehandling(fagsak, behandlingÅrsakType, køetBehandlingOpt);
+        if (erMor(fagsak)) {
+            forretningshendelseHåndtererFelles.håndterKøetBehandling(fagsak, behandlingÅrsakType, køetBehandlingOpt);
+        }
+    }
+
+    private static boolean erMor(Fagsak fagsak) {
+        return RelasjonsRolleType.erMor(fagsak.getRelasjonsRolleType());
     }
 }
 
