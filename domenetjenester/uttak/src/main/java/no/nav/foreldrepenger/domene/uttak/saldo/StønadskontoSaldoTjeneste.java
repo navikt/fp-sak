@@ -102,6 +102,12 @@ public class StønadskontoSaldoTjeneste {
         return saldoUtregning.negativSaldoPåNoenKonto();
     }
 
+    public boolean erOriginalNegativSaldoPåNoenKonto(UttakInput uttakInput) {
+        var perioderSøker = perioderSøker(uttakInput.getBehandlingReferanse().getOriginalBehandlingId().orElseThrow());
+        var saldoUtregning = finnSaldoUtregning(uttakInput, mapTilRegelPerioder(perioderSøker));
+        return saldoUtregning.negativSaldoPåNoenKonto();
+    }
+
     private List<FastsattUttakPeriode> mapTilRegelPerioder(List<UttakResultatPeriodeEntitet> perioder) {
         return perioder.stream().map(StønadskontoSaldoTjeneste::map).collect(Collectors.toList());
     }

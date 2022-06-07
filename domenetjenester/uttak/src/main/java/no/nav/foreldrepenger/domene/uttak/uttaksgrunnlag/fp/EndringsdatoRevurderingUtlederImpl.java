@@ -399,7 +399,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         return EndringsdatoBerørtUtleder.utledEndringsdatoForBerørtBehandling(utløsendeUttak,
             ytelsesFordelingRepository.hentAggregatHvisEksisterer(utløsendeBehandlingId),
             behandlingsresultatRepository.hent(utløsendeBehandlingId),
-            stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(input), // Gambler på samme resultat for input fra begge partene
+            stønadskontoSaldoTjeneste.erOriginalNegativSaldoPåNoenKonto(input), // Gambler på samme resultat for input fra begge partene
             berørtUttak,
             input,
             "Berørt endringsdato");
