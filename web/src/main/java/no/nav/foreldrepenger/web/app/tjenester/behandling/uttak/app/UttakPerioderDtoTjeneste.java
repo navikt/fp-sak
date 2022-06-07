@@ -11,6 +11,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -73,7 +74,7 @@ public class UttakPerioderDtoTjeneste {
 
         var perioderSøker = finnUttakResultatPerioderSøker(behandling.getId());
         var perioder = new UttakResultatPerioderDto(perioderSøker,
-            annenpartUttaksperioder,
+            annenpartUttaksperioder, RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()),
             ytelseFordeling.map(yf -> UttakOmsorgUtil.harAnnenForelderRett(yf, annenpartUttak)).orElse(false),
             ytelseFordeling.map(UttakOmsorgUtil::harAleneomsorg).orElse(false));
         return Optional.of(perioder);
