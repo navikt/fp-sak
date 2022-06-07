@@ -30,10 +30,10 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenpartUtt
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Kontoer;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregningGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregningTjeneste;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.LukketPeriode;
 import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
 
@@ -78,7 +78,7 @@ public class StønadskontoSaldoTjeneste {
             .orElse(null);
         if (stønadskontoer.isPresent() && perioderSøker.size() > 0) {
             var perioderAnnenpart = perioderAnnenpart(fpGrunnlag);
-            var kontoer = kontoerGrunnlagBygger.byggGrunnlag(uttakInput).build();
+            var kontoer  = kontoerGrunnlagBygger.byggGrunnlag(uttakInput).build();
             Optional<LukketPeriode> periodeFar = Optional.empty();
             // TODO: trengs dette eller kan vi sende inn en tom periode? SaldoValidering?
             if (!uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().utenMinsterett()

@@ -1,0 +1,354 @@
+package no.nav.foreldrepenger.domene.vedtak.intern.fp;
+
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.List;
+import java.util.Optional;
+
+import javax.inject.Inject;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
+import no.nav.foreldrepenger.domene.uttak.input.Barn;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
+import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
+import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
+import no.nav.foreldrepenger.domene.uttak.saldo.fp.MaksDatoUttakTjenesteImpl;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
+import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
+import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
+
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+public class FpUtledeAvslutningsdatoTest {
+
+    private FpUtledeAvslutningsdato fpUtledeAvslutningsdato;
+    private static final int SØKNADSFRIST_I_MÅNEDER = 3;
+
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
+
+    @Mock
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+
+    @Mock
+    private BehandlingRepository behandlingRepository;
+    @Mock
+    private BehandlingsresultatRepository behandlingsresultatRepository;
+
+    @Mock
+    private FpUttakRepository fpUttakRepository;
+
+    @Mock
+    private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
+
+    @Mock
+    private SaldoUtregning saldoUtregning;
+
+    @Mock
+    private UttakInputTjeneste uttakInputTjeneste;
+
+    private Fagsak fagsak;
+    private Behandling behandling;
+
+    @BeforeEach
+    public void setUp() {
+        when(stønadskontoSaldoTjeneste.finnSaldoUtregning(any(UttakInput.class))).thenReturn(saldoUtregning);
+
+        var maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(fpUttakRepository,
+            stønadskontoSaldoTjeneste);
+
+        repositoryProvider = mock(BehandlingRepositoryProvider.class);
+        var fagsakLåsRepository = mock(FagsakLåsRepository.class);
+        when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
+        when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
+        when(repositoryProvider.getFagsakLåsRepository()).thenReturn(fagsakLåsRepository);
+
+
+        fpUtledeAvslutningsdato = new FpUtledeAvslutningsdato(repositoryProvider,
+            stønadskontoSaldoTjeneste, uttakInputTjeneste, maksDatoUttakTjeneste, fagsakRelasjonTjeneste);
+
+        behandling = lagBehandling();
+        fagsak = behandling.getFagsak();
+
+    }
+
+    @Test
+    public void testAvslutningsdatoIngenFamiliehendelseEllerAvslutningsdato() {
+        var fagsakRelasjon = mock(FagsakRelasjon.class);
+        var fødselsdato = LocalDate.now().minusDays(5);
+        when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
+            Optional.of(behandling));
+
+        var stp = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(fødselsdato)
+            .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
+            .medKreverSammenhengendeUttak(false);
+
+        when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
+            new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, new ForeldrepengerGrunnlag()));
+
+        var forventetAvslutningsdato = LocalDate.now().plusDays(1);
+
+        // Act and assert
+        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isEqualTo(forventetAvslutningsdato);
+    }
+
+    @Test
+    public void testAvslutningsdatoAlleBarnaDøde() {
+        // Arrange
+        var fødselsdato = LocalDate.now().minusDays(5);
+        var dødsdato = fødselsdato.plusWeeks(1);
+        var fagsakRelasjon = mock(FagsakRelasjon.class);
+        when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
+            Optional.of(behandling));
+
+        var familieHendelseDødeBarn = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(new Barn(dødsdato)), 1);
+        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medSøknadHendelse(familieHendelseDødeBarn));
+        var stp = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(fødselsdato)
+            .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
+            .medKreverSammenhengendeUttak(false);
+
+        when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
+            new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
+
+        var forventetAvslutningsdato = dødsdato.plusDays(1).plusWeeks(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now()))
+            .plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
+
+        // Act and assert
+        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isEqualTo(forventetAvslutningsdato);
+    }
+
+    @Test
+    public void testikkeUttak() {
+
+        // Arrange
+        var fagsakRelasjon = mock(FagsakRelasjon.class);
+        var fødselsdato = LocalDate.now().minusDays(5);
+        when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
+            Optional.of(behandling));
+
+        when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(Optional.empty());
+
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(familieHendelse));
+        var stp = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(fødselsdato)
+            .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
+            .medKreverSammenhengendeUttak(false);
+
+        when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
+            new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
+
+        var forventetAvslutningsdato = fødselsdato.plusYears(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.GRENSE_ETTER_FØDSELSDATO_ÅR, LocalDate.now()));
+        // Act and assert
+        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isEqualTo(forventetAvslutningsdato);
+
+    }
+    @Test
+    public void testOpphørOgIkkeKobletTilAnnenPart() {
+        var fagsakRelasjon = mock(FagsakRelasjon.class);
+        var fødselsdato = LocalDate.now().minusDays(5);
+        when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak))
+            .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, null, Dekningsgrad._80, null, null)));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
+            Optional.of(behandling));
+        when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(
+            lagBehandlingsresultat(behandling, BehandlingResultatType.OPPHØR, KonsekvensForYtelsen.UDEFINERT));
+
+        var periodeStartDato = LocalDate.now().minusDays(10);
+        var periodeAvsluttetDato = LocalDate.now().plusDays(10);
+        when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(
+            lagUttakResultat(periodeStartDato, periodeAvsluttetDato));
+
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(familieHendelse));
+        var stp = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(fødselsdato)
+            .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
+            .medKreverSammenhengendeUttak(false);
+
+        when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
+            new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
+        when(saldoUtregning.saldo(any(Stønadskontotype.class))).thenReturn(0);
+        when(stønadskontoSaldoTjeneste.finnStønadRest(any(UttakInput.class))).thenReturn(0);
+
+        var forventetAvslutningsdato = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
+        // Act and assert
+        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isEqualTo(forventetAvslutningsdato);
+    }
+
+    @Test
+    public void testOpphørOgErKobletTilAnnenPart() {
+        var fagsakRelasjon = mock(FagsakRelasjon.class);
+        var fødselsdato = LocalDate.now().minusDays(5);
+        when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak))
+            .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), behandling.getFagsak(), null, null, Dekningsgrad._80, null, null)));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
+            Optional.of(behandling));
+        when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(
+            lagBehandlingsresultat(behandling, BehandlingResultatType.OPPHØR, KonsekvensForYtelsen.UDEFINERT));
+
+        var periodeStartDato = LocalDate.now().minusDays(10);
+        var periodeAvsluttetDato = LocalDate.now().plusDays(10);
+        when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(
+            lagUttakResultat(periodeStartDato, periodeAvsluttetDato));
+
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(familieHendelse));
+        var stp = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(fødselsdato)
+            .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
+            .medKreverSammenhengendeUttak(false);
+
+        when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
+            new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
+        when(saldoUtregning.saldo(any(Stønadskontotype.class))).thenReturn(0);
+        when(stønadskontoSaldoTjeneste.finnStønadRest(any(UttakInput.class))).thenReturn(0);
+
+        var forventetAvslutningsdato = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
+        // Act and assert
+        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isEqualTo(forventetAvslutningsdato);
+    }
+
+    @Test
+    public void testOppbruktStønadsdager() {
+        // Arrange
+        var fagsakRelasjon = mock(FagsakRelasjon.class);
+        var fødselsdato = LocalDate.now().minusDays(5);
+        when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
+            Optional.of(behandling));
+
+        var periodeStartDato = LocalDate.now().minusDays(10);
+        var periodeAvsluttetDato = LocalDate.now().plusDays(10);
+        when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(
+            lagUttakResultat(periodeStartDato, periodeAvsluttetDato));
+
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(familieHendelse));
+        var stp = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(fødselsdato)
+            .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
+            .medKreverSammenhengendeUttak(false);
+
+        when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
+            new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
+        when(saldoUtregning.saldo(any(Stønadskontotype.class))).thenReturn(0);
+        when(stønadskontoSaldoTjeneste.finnStønadRest(any(UttakInput.class))).thenReturn(0);
+
+        var forventetAvslutningsdato = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
+        // Act and assert
+        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isEqualTo(forventetAvslutningsdato);
+    }
+
+    @Test
+    public void testStønadsdagerIgjen() {
+        // Arrange
+        var fagsakRelasjon = mock(FagsakRelasjon.class);
+        when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
+            Optional.of(behandling));
+        when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(
+            lagBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT));
+
+        var dato = LocalDate.now();
+        var fødselsdato = dato.minusDays(5);
+        var periodeStartDato = dato.minusDays(10);
+        var periodeAvsluttetDato = dato.plusDays(10);
+        when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(
+            lagUttakResultat(periodeStartDato, periodeAvsluttetDato));
+
+
+        var familieHendelse2 = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(familieHendelse2));
+        var stp = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(fødselsdato)
+            .medFørsteUttaksdato(VirkedagUtil.fomVirkedag(fødselsdato))
+            .medKreverSammenhengendeUttak(false);
+
+        when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
+            new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
+
+        var totalRest = 3;
+        when(saldoUtregning.saldo(any(Stønadskontotype.class))).thenReturn(1);
+        when(stønadskontoSaldoTjeneste.finnStønadRest(any(UttakInput.class))).thenReturn(
+            totalRest); //summen for de tre stønadskotoene
+
+        var forventetAvslutningsdato = fødselsdato.plusYears(3);
+
+        // Assert and act
+        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isEqualTo(forventetAvslutningsdato);
+    }
+
+    private Behandling lagBehandling() {
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
+        scenario.medBehandlingType(BehandlingType.REVURDERING);
+        return scenario.lagMocked();
+    }
+
+    private Optional<Behandlingsresultat> lagBehandlingsresultat(Behandling behandling,
+                                                                 BehandlingResultatType behandlingResultatType,
+                                                                 KonsekvensForYtelsen konsekvensForYtelsen) {
+        return Optional.of(Behandlingsresultat.builder()
+            .medBehandlingResultatType(behandlingResultatType)
+            .leggTilKonsekvensForYtelsen(konsekvensForYtelsen)
+            .buildFor(behandling));
+    }
+
+    private Optional<UttakResultatEntitet> lagUttakResultat(LocalDate fom, LocalDate tom) {
+        var periode = new UttakResultatPeriodeEntitet.Builder(fom, tom).medResultatType(PeriodeResultatType.INNVILGET,
+            PeriodeResultatÅrsak.UKJENT).build();
+        var perioder = new UttakResultatPerioderEntitet();
+        perioder.leggTilPeriode(periode);
+        var behandlingsresultat = new Behandlingsresultat.Builder().build();
+
+        return Optional.of(
+            new UttakResultatEntitet.Builder(behandlingsresultat).medOpprinneligPerioder(perioder).build());
+    }
+}

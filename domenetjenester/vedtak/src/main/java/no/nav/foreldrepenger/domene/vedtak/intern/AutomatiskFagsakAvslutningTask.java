@@ -3,11 +3,8 @@ package no.nav.foreldrepenger.domene.vedtak.intern;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -32,7 +29,7 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
 
     private BehandlingRepository behandlingRepository;
     private OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste;
-    private Instance<FagsakRelasjonAvslutningsdatoOppdaterer> fagsakRelasjonAvslutningsdatoOppdaterer;
+    private OppdaterAvslutningsdatoFagsakRelasjon oppdaterAvslutningsdatoFagsakRelasjon;
 
     AutomatiskFagsakAvslutningTask() {
         // for CDI proxy
@@ -41,11 +38,11 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
     @Inject
     public AutomatiskFagsakAvslutningTask(FagsakLåsRepository fagsakLåsRepository, FagsakRelasjonLåsRepository relasjonLåsRepository, BehandlingRepositoryProvider repositoryProvider,
                                           OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste,
-                                          @Any Instance<FagsakRelasjonAvslutningsdatoOppdaterer> fagsakRelasjonAvslutningsdatoOppdaterer) {
+                                          OppdaterAvslutningsdatoFagsakRelasjon oppdaterAvslutningsdatoFagsakRelasjon) {
         super(fagsakLåsRepository, relasjonLåsRepository, repositoryProvider.getFagsakRelasjonRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.oppdaterFagsakStatusTjeneste = oppdaterFagsakStatusTjeneste;
-        this.fagsakRelasjonAvslutningsdatoOppdaterer = fagsakRelasjonAvslutningsdatoOppdaterer;
+        this.oppdaterAvslutningsdatoFagsakRelasjon = oppdaterAvslutningsdatoFagsakRelasjon;
     }
 
     @Override
@@ -63,11 +60,9 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
     }
 
     private void oppdaterFagsakRelasjonAvslutningsdato(Optional<FagsakRelasjon> relasjon, FagsakRelasjonLås relasjonLås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås, Long fagsakId, FagsakYtelseType ytelseType) {
-        if(relasjon.isPresent()) {
-            var oppdaterer = FagsakYtelseTypeRef.Lookup.find(this.fagsakRelasjonAvslutningsdatoOppdaterer, ytelseType)
-                .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner av FagsakRelasjonAvslutningsdatoOppdaterer funnet for ytelse: " + ytelseType.getKode()));
-            oppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(relasjon.get(), fagsakId, relasjonLås, fagsak1Lås, fagsak2Lås);
-        }
+        relasjon.ifPresent(
+            fagsakRelasjon -> oppdaterAvslutningsdatoFagsakRelasjon.oppdaterFagsakRelasjonAvslutningsdato(fagsakRelasjon, fagsakId, relasjonLås,
+                fagsak1Lås, fagsak2Lås, ytelseType));
     }
 
     private FagsakStatusOppdateringResultat oppdaterFagsakStatus(Behandling behandling) {

@@ -112,8 +112,8 @@ public class FagsakRelasjonTjeneste {
         return fagsakRepository.finnEksaktFagsak(fagsakId);
     }
 
-    public void oppdaterMedAvsluttningsdato(FagsakRelasjon relasjon, LocalDate avsluttningsdato, FagsakRelasjonLås lås,
-            Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
+    public void oppdaterMedAvslutningsdato(FagsakRelasjon relasjon, LocalDate avsluttningsdato, FagsakRelasjonLås lås,
+                                           Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
         var fagsakRelasjonOpt = fagsakRelasjonRepository.oppdaterMedAvsluttningsdato(relasjon, avsluttningsdato, lås, fagsak1Lås,
                 fagsak2Lås);
         fagsakRelasjonOpt.ifPresent(fagsakRelasjon -> fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon));

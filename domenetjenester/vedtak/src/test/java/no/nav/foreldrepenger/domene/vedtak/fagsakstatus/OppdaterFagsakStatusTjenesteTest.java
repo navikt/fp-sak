@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarnEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
@@ -52,10 +53,12 @@ public class OppdaterFagsakStatusTjenesteTest {
     private FamilieHendelseRepository familieHendelseRepository;
 
 
+
     private Behandling behandling;
     private OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste;
     private final Behandlingsresultat behandlingsresultatInnvilget = new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).build();
     private final Behandlingsresultat behandlingsresultatAvslått = new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).build();
+    private final Behandlingsresultat behandlingsresultatOpphørt = new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.OPPHØR).build();
 
 
     @BeforeEach
@@ -67,7 +70,7 @@ public class OppdaterFagsakStatusTjenesteTest {
         BehandlingRepositoryProvider behandlingRepositoryProvider = scenario.mockBehandlingRepositoryProvider();
         behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
 
-        oppdaterFagsakStatusTjeneste = new OppdaterFagsakStatusTjeneste(behandlingRepositoryProvider.getFagsakRepository(), fagsakStatusEventPubliserer, behandlingsresultatRepository, behandlingRepository, fagsakRelasjonRepository);
+        oppdaterFagsakStatusTjeneste = new OppdaterFagsakStatusTjeneste(behandlingRepositoryProvider.getFagsakRepository(), fagsakStatusEventPubliserer, behandlingsresultatRepository, behandlingRepository, fagsakRelasjonRepository, familieHendelseRepository);
     }
 
     @Test
@@ -77,10 +80,10 @@ public class OppdaterFagsakStatusTjenesteTest {
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET))
             .lagMocked();
 
-        Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(behandling.getFagsakId())).thenReturn(Collections.emptyList());
-        Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId())).thenReturn(Optional.of(behandlingES));
+        Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(behandlingES.getFagsakId())).thenReturn(Collections.emptyList());
+        Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandlingES.getFagsakId())).thenReturn(Optional.of(behandlingES));
 
-        var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling);
+        var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandlingES.getFagsak(), behandling);
         assertThat(resultat).isEqualTo(FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET);
     }
 
@@ -106,21 +109,22 @@ public class OppdaterFagsakStatusTjenesteTest {
     }
 
     @Test
-    public void oppdater_fasakstatus_når_harYtelse_og_avslutningsdato() {
+    public void ikke_avslutt_fasakstatus_når_harYtelse_og_avslutningsdato() {
         Long fagsakId = behandling.getFagsakId();
 
         Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId)).thenReturn(Collections.emptyList());
         Mockito.when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(Optional.of(behandlingsresultatInnvilget));
         Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId)).thenReturn(Optional.of(behandling));
         Mockito.when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(lagfamilieHendelse()));
-        Mockito.when(fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsakId)).thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, null, Dekningsgrad._80, null, LocalDate.of(2099, 12, 31))));
+        Mockito.when(fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak()))
+            .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, null, Dekningsgrad._80, null, LocalDate.of(2099, 12, 31))));
 
         var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling);
         assertThat(resultat).isEqualTo(FagsakStatusOppdateringResultat.FAGSAK_LØPENDE);
     }
 
     @Test
-    public void oppdater_fasakstatus_når_harYtelse_og_ikke_avslutningsdato() {
+    public void avslutt_fasakstatus_når_harYtelse_og_ingen_avslutningsdato() {
         Long fagsakId = behandling.getFagsakId();
 
         Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId)).thenReturn(Collections.emptyList());
@@ -134,7 +138,7 @@ public class OppdaterFagsakStatusTjenesteTest {
     }
 
     @Test
-    public void oppdater_fasakstatus_når_harYtelse_og_avslått() {
+    public void avslutt_fasakstatus_når_harYtelse_og_avslått() {
         Long fagsakId = behandling.getFagsakId();
 
         Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId)).thenReturn(Collections.emptyList());
@@ -146,10 +150,63 @@ public class OppdaterFagsakStatusTjenesteTest {
         assertThat(resultat).isEqualTo(FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET);
     }
 
+    @Test
+    public void ikke_avslutt_sak_når_enkeltopphør_og_ikke_er_koblet_til_annen_part() {
+        Long fagsakId = behandling.getFagsakId();
+
+        Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId)).thenReturn(Collections.emptyList());
+        Mockito.when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(Optional.of(behandlingsresultatOpphørt));
+        Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId)).thenReturn(Optional.of(behandling));
+        Mockito.when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(lagfamilieHendelse()));
+        Mockito.when(fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak()))
+            .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null, null, null, Dekningsgrad._80, null, LocalDate.now().plusMonths(2))));
+
+        var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling);
+        assertThat(resultat).isEqualTo(FagsakStatusOppdateringResultat.FAGSAK_LØPENDE);
+    }
+
+    @Test
+    public void avslutt_sak_når_enkeltopphør_og_er_koblet_til_annen_part() {
+        Long fagsakId = behandling.getFagsakId();
+
+        Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId)).thenReturn(Collections.emptyList());
+        Mockito.when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(Optional.of(behandlingsresultatOpphørt));
+        Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId)).thenReturn(Optional.of(behandling));
+        Mockito.when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(lagfamilieHendelse()));
+        Mockito.when(fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak()))
+            .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), behandling.getFagsak(), null, null, Dekningsgrad._80, null, LocalDate.now().plusMonths(2))));
+
+        var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling);
+        assertThat(resultat).isEqualTo(FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET);
+    }
+
+    @Test
+    public void ikke_avslutt_sak_når_opphører_hele_sakskomplekset_feks_pga_alle_barna_er_døde() {
+        Long fagsakId = behandling.getFagsakId();
+
+        Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId)).thenReturn(Collections.emptyList());
+        Mockito.when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(Optional.of(behandlingsresultatOpphørt));
+        Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId)).thenReturn(Optional.of(behandling));
+        Mockito.when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(lagfamilieHendelseDød()));
+        Mockito.when(fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak()))
+            .thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), behandling.getFagsak(), null, null, Dekningsgrad._80, null, LocalDate.of(2099, 12, 31))));
+
+        var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling);
+        assertThat(resultat).isEqualTo(FagsakStatusOppdateringResultat.FAGSAK_LØPENDE);
+    }
+
+
     private FamilieHendelseGrunnlagEntitet lagfamilieHendelse() {
         var build = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.BEKREFTET)
             .medAntallBarn(1)
             .medFødselsDato(LocalDate.now().minusDays(1));
+        return FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty()).medBekreftetVersjon(build).build();
+    }
+
+    private FamilieHendelseGrunnlagEntitet lagfamilieHendelseDød() {
+        var build = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.BEKREFTET)
+            .medAntallBarn(1)
+            .leggTilBarn(new UidentifisertBarnEntitet(1, LocalDate.now().minusDays(1), LocalDate.now()));
         return FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty()).medBekreftetVersjon(build).build();
     }
 
