@@ -197,12 +197,15 @@ final class SøknadsperiodeDokKontrollerer {
 
     private boolean erBalansertUttakRundtFødsel(OppgittPeriodeEntitet søknadsperiode) {
         if (farMedmorUtenomFlerbarnsdager(søknadsperiode)) {
-            var fedrekvoteMedSamtidigUttak = FEDREKVOTE.equals(søknadsperiode.getPeriodeType()) && søknadsperiode.isSamtidigUttak();
+            // FAB-direktiv - far/medmor kan ta ut "ifm" fødsel (før termin og første 6 uker).
+            // FEDREKVOTE er begrenset til et antall dager - derfor sjekk på om periden er innenfor
+            // FORELEDREPENGER kan tas ut ifm fødsel og videre dvs >6uker fom fødsel er ok. Derfor kun sjekk om periode/fom er innenfor intervall
+            var fedrekvoteMedSamtidigUttak = FEDREKVOTE.equals(søknadsperiode.getPeriodeType()) && søknadsperiode.isSamtidigUttak() &&
+                farUttakRundtFødsel.filter(p -> p.encloses(søknadsperiode.getFom()) && p.encloses(søknadsperiode.getTom())).isPresent();
             var foreldrepengerUtenomSykdom = FORELDREPENGER.equals(søknadsperiode.getPeriodeType()) &&
-                !Set.of(MorsAktivitet.TRENGER_HJELP, MorsAktivitet.INNLAGT).contains(søknadsperiode.getMorsAktivitet());
+                farUttakRundtFødsel.filter(p -> p.encloses(søknadsperiode.getFom())).isPresent();
             var periodeKanAvklaresAutomatisk = fedrekvoteMedSamtidigUttak || foreldrepengerUtenomSykdom;
-            // FAB-direktiv - søknadsperioden er helt innenfor periode rundt fødsel der far/medmor kan ta ut
-            return periodeKanAvklaresAutomatisk && farUttakRundtFødsel.filter(p -> p.encloses(søknadsperiode.getFom()) && p.encloses(søknadsperiode.getTom())).isPresent();
+            return periodeKanAvklaresAutomatisk;
         }
         return false;
     }
