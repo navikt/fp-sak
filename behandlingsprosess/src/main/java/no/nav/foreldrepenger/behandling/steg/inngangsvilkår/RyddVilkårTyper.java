@@ -68,12 +68,12 @@ class RyddVilkårTyper {
 
     void ryddVedOverhoppFramover(List<VilkårType> vilkårTyper) {
         slettAvklarteFakta(vilkårTyper);
-        nullstillVilkår(vilkårTyper);
+        nullstillVilkår(vilkårTyper, false);
     }
 
-    void ryddVedTilbakeføring(List<VilkårType> vilkårTyper) {
+    void ryddVedTilbakeføring(List<VilkårType> vilkårTyper, boolean nullstillManueltAvklartVilkår) {
         nullstillInngangsvilkår();
-        nullstillVilkår(vilkårTyper);
+        nullstillVilkår(vilkårTyper, nullstillManueltAvklartVilkår);
         nullstillVedtaksresultat();
     }
 
@@ -111,7 +111,7 @@ class RyddVilkårTyper {
                 .buildFor(behandling));
     }
 
-    private void nullstillVilkår(List<VilkårType> vilkårTyper) {
+    private void nullstillVilkår(List<VilkårType> vilkårTyper, boolean nullstillManueltAvklartVilkår) {
         Optional.ofNullable(getBehandlingsresultat(behandling))
             .map(Behandlingsresultat::getVilkårResultat)
             .ifPresent(vilkårResultat -> {
@@ -121,7 +121,7 @@ class RyddVilkårTyper {
                     .collect(toList());
                 if (!vilkårSomSkalNullstilles.isEmpty()) {
                     var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
-                    vilkårSomSkalNullstilles.forEach(builder::nullstillVilkår);
+                    vilkårSomSkalNullstilles.forEach(v -> builder.nullstillVilkår(v, nullstillManueltAvklartVilkår));
                     builder.buildFor(behandling);
                 }
             });
