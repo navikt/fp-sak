@@ -52,6 +52,7 @@ public class VurderSøknadsfristOppdatererTjenesteFP extends VurderSøknadsfrist
                     builder.medMottattDato(mottattDato);
                 }
                 if (Objects.equals(p.getPeriodeKilde(), FordelingPeriodeKilde.SØKNAD) &&
+                    p.getTidligstMottattDato().filter(d -> d.isBefore(p.getMottattDato())).isEmpty() && 
                     p.getTidligstMottattDato().filter(d -> d.isBefore(mottattDato)).isEmpty()) {
                     builder.medTidligstMottattDato(mottattDato);
                 }
