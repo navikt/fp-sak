@@ -18,13 +18,19 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBegrunnelseType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.ytelse.beregning.fp.BeregnFeriepenger;
 
@@ -44,6 +50,7 @@ public class BerørtBehandlingKontroller {
     private BehandlingRepository behandlingRepository;
     private BerørtBehandlingTjeneste berørtBehandlingTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
+    private HistorikkRepository historikkRepository;
     private BeregningsresultatRepository tilkjentRepository;
     private BeregnFeriepenger beregnFeriepenger;
     private FagsakLåsRepository fagsakLåsRepository;
@@ -63,6 +70,7 @@ public class BerørtBehandlingKontroller {
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.behandlingsoppretter = behandlingsoppretter;
         this.tilkjentRepository = behandlingRepositoryProvider.getBeregningsresultatRepository();
+        this.historikkRepository = behandlingRepositoryProvider.getHistorikkRepository();
         this.beregnFeriepenger = beregnFeriepenger;
         this.køKontroller = køKontroller;
     }
@@ -71,38 +79,37 @@ public class BerørtBehandlingKontroller {
         // NOSONAR
     }
 
-    public void vurderNesteOppgaveIBehandlingskø(Long behandlingId) {
-        var fagsakBruker = behandlingRepository.hentBehandling(behandlingId).getFagsak();
-        var fagsakPåMedforelder = behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsakBruker);
+    public void vurderNesteOppgaveIBehandlingskø(Long vedtattBehandlingId) {
+        var vedtattBehandling = behandlingRepository.hentBehandling(vedtattBehandlingId);
+        var fagsakPåMedforelder = behandlingRevurderingRepository.finnFagsakPåMedforelder(vedtattBehandling.getFagsak());
         if (fagsakPåMedforelder.isPresent()) {
-            var kobletFagsak = fagsakPåMedforelder.get();
-            håndterKøForMedforelder(kobletFagsak, fagsakBruker, behandlingId);
+            håndterKøForMedforelder(fagsakPåMedforelder.get(), vedtattBehandling);
         } else {
-            håndterKø(fagsakBruker);
+            håndterKø(vedtattBehandling.getFagsak());
         }
     }
 
-    private void håndterKøForMedforelder(Fagsak fagsakMedforelder, Fagsak fagsakBruker, Long behandlingIdBruker) {
-        var sistVedtatteYtelsesbehandlingMedforelder = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMedforelder.getId())
+    private void håndterKøForMedforelder(Fagsak fagsakMedforelder, Behandling vedtattBehandling) {
+        var sistVedtatteBehandlingForMedforelder = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMedforelder.getId())
             .filter(this::ikkeAvslått);
 
-        if (sistVedtatteYtelsesbehandlingMedforelder.isPresent()) {
-            LOG.info("Siste vedtatte ytelse for annen part: behandlingId {}", sistVedtatteYtelsesbehandlingMedforelder.get().getId());
-            var avsluttetBehandlingsresultatBruker = behandlingsresultatRepository.hent(behandlingIdBruker);
-            var skalBerørtBehandlingOpprettes = berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(avsluttetBehandlingsresultatBruker,
-                behandlingIdBruker, sistVedtatteYtelsesbehandlingMedforelder.get().getId());
+        if (sistVedtatteBehandlingForMedforelder.isPresent()) {
+            LOG.info("Siste vedtatte ytelse for annen part: behandlingId {}", sistVedtatteBehandlingForMedforelder.get().getId());
+            var vedtattBehandlingsresultat = behandlingsresultatRepository.hent(vedtattBehandling.getId());
+            var skalBerørtBehandlingOpprettes = berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(vedtattBehandlingsresultat, vedtattBehandling,
+                sistVedtatteBehandlingForMedforelder.get().getId());
             if (skalBerørtBehandlingOpprettes) {
-                opprettBerørtBehandling(fagsakMedforelder, avsluttetBehandlingsresultatBruker);
+                opprettBerørtBehandling(fagsakMedforelder, vedtattBehandlingsresultat);
             } else {
-                if (skalFeriepengerReberegnesForMedForelder(fagsakMedforelder, sistVedtatteYtelsesbehandlingMedforelder.get(), behandlingIdBruker)) {
-                    LOG.info("REBEREGN FERIEPENGER oppretter reberegning av sak {} pga behandling {}", fagsakMedforelder.getSaksnummer(), behandlingIdBruker);
-                    opprettFerieBerørtBehandling(fagsakMedforelder, avsluttetBehandlingsresultatBruker);
+                if (skalFeriepengerReberegnesForMedForelder(fagsakMedforelder, sistVedtatteBehandlingForMedforelder.get(), vedtattBehandling.getId())) {
+                    LOG.info("REBEREGN FERIEPENGER oppretter reberegning av sak {} pga behandling {}", fagsakMedforelder.getSaksnummer(), vedtattBehandling.getId());
+                    opprettFerieBerørtBehandling(fagsakMedforelder, vedtattBehandlingsresultat);
                 } else {
                     håndterKø(fagsakMedforelder);
                 }
             }
         } else {
-            håndterKø(fagsakBruker);
+            håndterKø(vedtattBehandling.getFagsak());
         }
     }
 
@@ -120,11 +127,11 @@ public class BerørtBehandlingKontroller {
     private void opprettHistorikkinnslag(Behandling behandlingMedForelder,
                                          Behandlingsresultat behandlingsresultatBruker) {
         if (behandlingsresultatBruker.isEndretStønadskonto()) {
-            berørtBehandlingTjeneste.opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, HistorikkBegrunnelseType.BERORT_BEH_ENDRING_DEKNINGSGRAD);
-        } else if (berørtBehandlingTjeneste.harKonsekvens(behandlingsresultatBruker, KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER)) {
-            berørtBehandlingTjeneste.opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, HistorikkBegrunnelseType.BERORT_BEH_OPPHOR);
+            opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, HistorikkBegrunnelseType.BERORT_BEH_ENDRING_DEKNINGSGRAD);
+        } else if (BerørtBehandlingTjeneste.harKonsekvens(behandlingsresultatBruker, KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER)) {
+            opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, HistorikkBegrunnelseType.BERORT_BEH_OPPHOR);
         } else {
-            berørtBehandlingTjeneste.opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, BehandlingÅrsakType.BERØRT_BEHANDLING);
+            opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, BehandlingÅrsakType.BERØRT_BEHANDLING);
         }
     }
 
@@ -187,5 +194,27 @@ public class BerørtBehandlingKontroller {
         køKontroller.håndterSakskompleks(fagsak);
     }
 
+    private void opprettHistorikkinnslagOmRevurdering(Behandling behandling,
+                                                     HistorikkBegrunnelseType historikkBegrunnelseType) {
+        opprettHistorikkinnslag(behandling, historikkBegrunnelseType);
+    }
+
+    public void opprettHistorikkinnslagOmRevurdering(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
+        opprettHistorikkinnslag(behandling, behandlingÅrsakType);
+    }
+
+    private void opprettHistorikkinnslag(Behandling behandling, Kodeverdi begrunnelse) {
+        var revurderingsInnslag = new Historikkinnslag();
+        revurderingsInnslag.setBehandling(behandling);
+        var historikkinnslagType = HistorikkinnslagType.REVURD_OPPR;
+        revurderingsInnslag.setType(historikkinnslagType);
+        revurderingsInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
+        var historiebygger = new HistorikkInnslagTekstBuilder().medHendelse(historikkinnslagType);
+        historiebygger.medBegrunnelse(begrunnelse);
+
+        historiebygger.build(revurderingsInnslag);
+
+        historikkRepository.lagre(revurderingsInnslag);
+    }
 
 }

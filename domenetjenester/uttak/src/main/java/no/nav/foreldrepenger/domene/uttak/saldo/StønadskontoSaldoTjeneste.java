@@ -9,20 +9,25 @@ import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.AnnenPartGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.BehandlingGrunnlagBygger;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.DatoerGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.SøknadGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FarUttakRundtFødsel;
@@ -40,6 +45,8 @@ import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
 
 @ApplicationScoped
 public class StønadskontoSaldoTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(StønadskontoSaldoTjeneste.class);
 
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private FpUttakRepository fpUttakRepository;
@@ -83,9 +90,9 @@ public class StønadskontoSaldoTjeneste {
             // TODO: trengs dette eller kan vi sende inn en tom periode? SaldoValidering?
             if (!uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().utenMinsterett()
                 && !BehandlingGrunnlagBygger.søkerErMor(uttakInput.getBehandlingReferanse())) {
-                var type = SøknadGrunnlagBygger.type(fpGrunnlag);
-                var datoer = DatoerGrunnlagBygger.byggForenkletGrunnlagKunFamiliehendelse(uttakInput).build();
-                periodeFar = FarUttakRundtFødsel.utledFarsPeriodeRundtFødsel(datoer, kontoer, type, StandardKonfigurasjon.KONFIGURASJON);
+                var familiehendelse  = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
+                periodeFar = FarUttakRundtFødsel.utledFarsPeriodeRundtFødsel(false, familiehendelse.gjelderFødsel(),
+                    familiehendelse.getFamilieHendelseDato(), familiehendelse.getTermindato().orElse(null), StandardKonfigurasjon.KONFIGURASJON);
             }
             return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(perioderSøker,
                 fpGrunnlag.isBerørtBehandling(), perioderAnnenpart, kontoer, søknadOpprettetTidspunkt,
@@ -98,6 +105,17 @@ public class StønadskontoSaldoTjeneste {
     public boolean erNegativSaldoPåNoenKonto(UttakInput uttakInput) {
         var saldoUtregning = finnSaldoUtregning(uttakInput);
         return saldoUtregning.negativSaldoPåNoenKonto();
+    }
+
+    public boolean erOriginalNegativSaldoPåNoenKontoForsiktig(UttakInput uttakInput) {
+        var perioderSøker = perioderSøker(uttakInput.getBehandlingReferanse().getOriginalBehandlingId().orElseThrow());
+        var saldoUtregning = finnSaldoUtregning(uttakInput, mapTilRegelPerioder(perioderSøker));
+        var originalFørst = saldoUtregning.negativSaldoPåNoenKontoKonservativ();
+        var annenpartFørst = saldoUtregning.negativSaldoPåNoenKontoByttParterKonservativ();
+        if (originalFørst != annenpartFørst) {
+            LOG.info("NEGATIV SALDO ulike verdier original {} annenpart {}", originalFørst, annenpartFørst);
+        }
+        return originalFørst || annenpartFørst;
     }
 
     private List<FastsattUttakPeriode> mapTilRegelPerioder(List<UttakResultatPeriodeEntitet> perioder) {
@@ -115,33 +133,21 @@ public class StønadskontoSaldoTjeneste {
     }
 
     private Optional<UttakResultatEntitet> annenPartUttak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
-        var annenpart = foreldrepengerGrunnlag.getAnnenpart();
-        if (annenpart.isPresent()) {
-            return fpUttakRepository.hentUttakResultatHvisEksisterer(annenpart.get().gjeldendeVedtakBehandlingId());
-        }
-        return Optional.empty();
+        return foreldrepengerGrunnlag.getAnnenpart()
+            .map(Annenpart::gjeldendeVedtakBehandlingId)
+            .flatMap(fpUttakRepository::hentUttakResultatHvisEksisterer);
     }
 
     private List<UttakResultatPeriodeEntitet> perioderSøker(Long behandlingId) {
-        var opt = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId);
-        if (opt.isPresent()) {
-            return opt.get().getGjeldendePerioder().getPerioder();
-        }
-        return List.of();
+        return fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId)
+            .map(UttakResultatEntitet::getGjeldendePerioder)
+            .map(UttakResultatPerioderEntitet::getPerioder).orElse(List.of());
     }
 
     private Optional<Set<Stønadskonto>> stønadskontoer(BehandlingReferanse ref) {
-        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(ref.saksnummer());
-        if (fagsakRelasjon.isPresent() && fagsakRelasjon.get().getGjeldendeStønadskontoberegning().isPresent()) {
-            var stønadskontoer = fagsakRelasjon.get().getGjeldendeStønadskontoberegning().get().getStønadskontoer();
-            return Optional.ofNullable(stønadskontoer);
-        }
-
-        return Optional.empty();
-    }
-
-    public boolean erSluttPåStønadsdager(UttakInput uttakInput) {
-        return finnStønadRest(uttakInput) == 0;
+        return fagsakRelasjonRepository.finnRelasjonHvisEksisterer(ref.saksnummer())
+            .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning)
+            .map(Stønadskontoberegning::getStønadskontoer);
     }
 
     public int finnStønadRest(UttakInput uttakInput) {

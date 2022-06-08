@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.revurdering.BerørtBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -29,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.mottak.sakskompleks.BerørtBehandlingKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
@@ -44,7 +44,7 @@ public class ForvaltningSvangerskapspengerRestTjeneste {
 
     private SVPFeriepengekontrollTjeneste svpFeriepengekontrollTjeneste;
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
-    private BerørtBehandlingTjeneste berørtBehandlingTjeneste;
+    private BerørtBehandlingKontroller berørtBehandlingTjeneste;
     private FagsakRepository fagsakRepository;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private RevurderingTjeneste revurderingTjeneste;
@@ -53,7 +53,7 @@ public class ForvaltningSvangerskapspengerRestTjeneste {
     @Inject
     public ForvaltningSvangerskapspengerRestTjeneste(SVPFeriepengekontrollTjeneste svpFeriepengekontrollTjeneste,
                                                      BehandlingRevurderingRepository behandlingRevurderingRepository,
-                                                     BerørtBehandlingTjeneste berørtBehandlingTjeneste,
+                                                     BerørtBehandlingKontroller berørtBehandlingTjeneste,
                                                      FagsakRepository fagsakRepository,
                                                      BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                                      @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) RevurderingTjeneste revurderingTjeneste,

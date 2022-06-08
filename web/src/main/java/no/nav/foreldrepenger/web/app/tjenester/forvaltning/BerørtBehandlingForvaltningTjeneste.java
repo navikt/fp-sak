@@ -3,13 +3,13 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.revurdering.BerørtBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.mottak.sakskompleks.BerørtBehandlingKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
 @ApplicationScoped
@@ -17,7 +17,7 @@ public class BerørtBehandlingForvaltningTjeneste {
 
     private RevurderingTjeneste revurderingTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
-    private BerørtBehandlingTjeneste berørtBehandlingTjeneste;
+    private BerørtBehandlingKontroller berørtBehandlingTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     BerørtBehandlingForvaltningTjeneste() {
@@ -27,7 +27,7 @@ public class BerørtBehandlingForvaltningTjeneste {
     @Inject
     public BerørtBehandlingForvaltningTjeneste(@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingTjeneste revurderingTjeneste,
                                                BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
-                                               BerørtBehandlingTjeneste berørtBehandlingTjeneste,
+                                               BerørtBehandlingKontroller berørtBehandlingTjeneste,
                                                BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         this.revurderingTjeneste = revurderingTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;

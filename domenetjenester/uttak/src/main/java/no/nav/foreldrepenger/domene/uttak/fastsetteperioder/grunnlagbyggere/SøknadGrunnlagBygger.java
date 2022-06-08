@@ -40,9 +40,9 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedSy
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedTiltakIRegiAvNav;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeUtenOmsorg;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.SamtidigUttaksprosent;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Søknad;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Søknadstype;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 
 @ApplicationScoped
 public class SøknadGrunnlagBygger {
@@ -204,7 +204,7 @@ public class SøknadGrunnlagBygger {
         }
     }
 
-    public static Søknadstype type(ForeldrepengerGrunnlag fpGrunnlag) {
+    private static Søknadstype type(ForeldrepengerGrunnlag fpGrunnlag) {
         var hendelser = fpGrunnlag.getFamilieHendelser();
         if (hendelser.gjelderTerminFødsel() && hendelser.erSøktTermin()) {
             return Søknadstype.TERMIN;
