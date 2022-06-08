@@ -290,16 +290,18 @@ public class VilkårResultat extends BaseEntitet {
             return this;
         }
 
-        public Builder nullstillVilkår(Vilkår vilkår) {
+        public Builder nullstillVilkår(Vilkår vilkår, boolean nullstillManuelt) {
             if (VilkårUtfallType.erFastsatt(vilkår.getVilkårUtfallOverstyrt())) {
                 throw new IllegalStateException("Utviklerfeil - vilkåret er overstyrt");
             }
-            if (VilkårUtfallType.erFastsatt(vilkår.getVilkårUtfallManuelt())) {
-                LOG.info("VILKÅR: Nullstiller vilkår {} som er manuelt vurdert {}", vilkår.getVilkårType(), vilkår.getVilkårUtfallManuelt());
+            if (!nullstillManuelt && VilkårUtfallType.erFastsatt(vilkår.getVilkårUtfallManuelt())) {
+                LOG.info("VILKÅR: Nullstiller ikke vilkår {} som er manuelt vurdert {}", vilkår.getVilkårType(), vilkår.getVilkårUtfallManuelt());
             }
             var builder = getBuilderFor(vilkår.getVilkårType())
                 .medVilkårUtfall(VilkårUtfallType.IKKE_VURDERT, VilkårUtfallMerknad.UDEFINERT);
-                // TODO(jol) sjekk logg og vurdere denne .medUtfallManuell(VilkårUtfallType.UDEFINERT, Avslagsårsak.UDEFINERT);
+            if (nullstillManuelt) {
+                builder.medUtfallManuell(VilkårUtfallType.UDEFINERT, Avslagsårsak.UDEFINERT);
+            }
             vilkårene.put(vilkår.getVilkårType(), builder.build());
             modifisert = true;
             return this;
