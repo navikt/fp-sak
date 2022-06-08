@@ -71,12 +71,14 @@ public class StønadskontoSaldoTjeneste {
     public SaldoUtregning finnSaldoUtregning(UttakInput uttakInput, List<FastsattUttakPeriode> perioderSøker) {
         var ref = uttakInput.getBehandlingReferanse();
         var stønadskontoer = stønadskontoer(ref);
-        var saldoUtregningGrunnlag = saldoUtregningGrunnlag(perioderSøker, uttakInput, stønadskontoer);
+        ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
+        var saldoUtregningGrunnlag = saldoUtregningGrunnlag(perioderSøker, uttakInput, fpGrunnlag.isBerørtBehandling(), stønadskontoer);
         return SaldoUtregningTjeneste.lagUtregning(saldoUtregningGrunnlag);
     }
 
     private SaldoUtregningGrunnlag saldoUtregningGrunnlag(List<FastsattUttakPeriode> perioderSøker,
                                                           UttakInput uttakInput,
+                                                          boolean berørtBehandling,
                                                           Optional<Set<Stønadskonto>> stønadskontoer) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var søknadOpprettetTidspunkt = uttakInput.getSøknadOpprettetTidspunkt();
@@ -95,10 +97,10 @@ public class StønadskontoSaldoTjeneste {
                     familiehendelse.getFamilieHendelseDato(), familiehendelse.getTermindato().orElse(null), StandardKonfigurasjon.KONFIGURASJON);
             }
             return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(perioderSøker,
-                fpGrunnlag.isBerørtBehandling(), perioderAnnenpart, kontoer, søknadOpprettetTidspunkt,
+                berørtBehandling, perioderAnnenpart, kontoer, søknadOpprettetTidspunkt,
                 sisteSøknadOpprettetTidspunktAnnenpart, periodeFar);
         }
-        return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(List.of(), fpGrunnlag.isBerørtBehandling(),
+        return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(List.of(), berørtBehandling,
             List.of(), new Kontoer.Builder().build(), søknadOpprettetTidspunkt, sisteSøknadOpprettetTidspunktAnnenpart, Optional.empty());
     }
 
@@ -108,8 +110,11 @@ public class StønadskontoSaldoTjeneste {
     }
 
     public boolean erOriginalNegativSaldoPåNoenKontoForsiktig(UttakInput uttakInput) {
-        var perioderSøker = perioderSøker(uttakInput.getBehandlingReferanse().getOriginalBehandlingId().orElseThrow());
-        var saldoUtregning = finnSaldoUtregning(uttakInput, mapTilRegelPerioder(perioderSøker));
+        var perioderSøker = mapTilRegelPerioder(perioderSøker(uttakInput.getBehandlingReferanse().getOriginalBehandlingId().orElseThrow()));
+        var ref = uttakInput.getBehandlingReferanse();
+        var stønadskontoer = stønadskontoer(ref);
+        var saldoUtregningGrunnlag = saldoUtregningGrunnlag(perioderSøker, uttakInput, false, stønadskontoer);
+        var saldoUtregning = SaldoUtregningTjeneste.lagUtregning(saldoUtregningGrunnlag);
         var originalFørst = saldoUtregning.negativSaldoPåNoenKontoKonservativ();
         var annenpartFørst = saldoUtregning.negativSaldoPåNoenKontoByttParterKonservativ();
         if (originalFørst != annenpartFørst) {
