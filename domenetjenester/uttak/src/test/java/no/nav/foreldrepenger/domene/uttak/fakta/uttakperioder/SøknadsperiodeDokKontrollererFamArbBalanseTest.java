@@ -73,18 +73,18 @@ public class SøknadsperiodeDokKontrollererFamArbBalanseTest {
     }
 
     @Test
-    public void farEllerMedmorSøktForeldrepengerSykdomsAktivitetOmUttakRundtTilSjekk() {
+    public void farEllerMedmorSøktForeldrepengerForTidligUtTilSjekk() {
         var oppgittPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medSamtidigUttak(false)
             .medMorsAktivitet(MorsAktivitet.TRENGER_HJELP)
-            .medPeriode(FOM, FOM.plusWeeks(7))
+            .medPeriode(FOM, FOM.plusWeeks(3))
             .build();
 
         var fødselsDatoTilTidligOppstart = FOM;
         var kontrollerer = new SøknadsperiodeDokKontrollerer(List.of(), fødselsDatoTilTidligOppstart,
             new UtsettelseDokKontrollererFrittUttak(fødselsDatoTilTidligOppstart), List.of(),
-            Optional.of(new LocalDateInterval(FOM, FOM.plusWeeks(6).minusDays(1))));
+            Optional.of(new LocalDateInterval(FOM.plusWeeks(1), FOM.plusWeeks(7).minusDays(1))));
 
         var kontrollerFaktaPeriode = kontrollerer.kontrollerSøknadsperiode(oppgittPeriode);
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isFalse();
