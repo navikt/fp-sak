@@ -34,6 +34,7 @@ public class FagsakStatusEventObserver {
                                      FagsakRepository fagsakRepository) {
         this.oppdaterFagsakStatusTjeneste = oppdaterFagsakStatusTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.fagsakRepository = fagsakRepository;
     }
 
     public void observerBehandlingOpprettetEvent(@Observes BehandlingStatusEvent.BehandlingOpprettetEvent event) {
