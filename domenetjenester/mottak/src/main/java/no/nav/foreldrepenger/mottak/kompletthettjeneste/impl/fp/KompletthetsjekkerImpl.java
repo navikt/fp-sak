@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
-import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerInntektsmelding;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerSøknad;
 
 @ApplicationScoped
@@ -31,7 +30,6 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
 
 
     private KompletthetssjekkerSøknad kompletthetssjekkerSøknad;
-    private KompletthetssjekkerInntektsmelding kompletthetssjekkerInntektsmelding;
     private KompletthetsjekkerFelles fellesUtil;
 
     KompletthetsjekkerImpl() {
@@ -40,10 +38,8 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
 
     @Inject
     public KompletthetsjekkerImpl(@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) @BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD) KompletthetssjekkerSøknad kompletthetssjekkerSøknad,
-                                KompletthetssjekkerInntektsmelding kompletthetssjekkerInntektsmelding,
-                                KompletthetsjekkerFelles fellesUtil) {
+                                  KompletthetsjekkerFelles fellesUtil) {
         this.kompletthetssjekkerSøknad = kompletthetssjekkerSøknad;
-        this.kompletthetssjekkerInntektsmelding = kompletthetssjekkerInntektsmelding;
         this.fellesUtil = fellesUtil;
     }
 
@@ -96,7 +92,6 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     @Override
     public List<ManglendeVedlegg> utledAlleManglendeVedleggForForsendelse(BehandlingReferanse ref) {
         var manglendeVedlegg = kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(ref);
-        manglendeVedlegg.addAll(kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldingerFraGrunnlag(ref));
         return manglendeVedlegg;
     }
 
