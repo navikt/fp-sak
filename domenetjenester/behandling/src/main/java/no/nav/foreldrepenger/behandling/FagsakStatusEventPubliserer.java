@@ -29,6 +29,10 @@ public class FagsakStatusEventPubliserer {
     }
 
     public void fireEvent(Fagsak fagsak, Behandling behandling, FagsakStatus gammelStatusIn, FagsakStatus nyStatusIn) {
+        fireEventBehandlingId(fagsak, behandling != null ? behandling.getId() : null, gammelStatusIn, nyStatusIn);
+    }
+
+    public void fireEventBehandlingId(Fagsak fagsak, Long behandlingId, FagsakStatus gammelStatusIn, FagsakStatus nyStatusIn) {
         if (((gammelStatusIn == null) && (nyStatusIn == null)) // NOSONAR
                 || Objects.equals(gammelStatusIn, nyStatusIn)) { // NOSONAR
             // gjør ingenting
@@ -41,9 +45,8 @@ public class FagsakStatusEventPubliserer {
             var gammelStatus = gammelStatusIn.getKode(); // NOSONAR false positive NPE dereference
             var nyStatus = nyStatusIn == null ? null : nyStatusIn.getKode();
 
-            if (behandling != null) {
-                LOG.info("Fagsak status oppdatert: {} -> {}; fagsakId [{}] behandlingId [{}]", gammelStatus, nyStatus, fagsakId, //$NON-NLS-1$
-                        behandling.getId());
+            if (behandlingId != null) {
+                LOG.info("Fagsak status oppdatert: {} -> {}; fagsakId [{}] behandlingId [{}]", gammelStatus, nyStatus, fagsakId, behandlingId);
             } else {
                 LOG.info("Fagsak status oppdatert: {} -> {}; fagsakId [{}]", gammelStatus, nyStatus, fagsakId); //$NON-NLS-1$
             }

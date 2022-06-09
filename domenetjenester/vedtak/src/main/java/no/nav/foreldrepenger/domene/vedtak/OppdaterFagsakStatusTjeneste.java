@@ -51,23 +51,23 @@ public class OppdaterFagsakStatusTjeneste {
             this.familieHendelseRepository = familieHendelseRepository;
     }
 
-    public void oppdaterFagsakNårBehandlingOpprettet(Behandling behandling) {
+    public void oppdaterFagsakNårBehandlingOpprettet(Fagsak fagsak, Long behandlingId, BehandlingStatus nyStatus) {
         //Fagsak har status under behandling eller løpende - det opprettes ny behandling
-        if (erBehandlingOpprettetEllerUnderBehandling(behandling.getStatus())) {
-            oppdaterFagsakStatus(behandling.getFagsak(), behandling, FagsakStatus.UNDER_BEHANDLING);
+        if (erBehandlingOpprettetEllerUnderBehandling(nyStatus)) {
+            oppdaterFagsakStatusBehandlingId(fagsak, behandlingId, FagsakStatus.UNDER_BEHANDLING);
         } else {
             throw new IllegalStateException(String.format("Utviklerfeil: oppdaterFagsakNårBehandlingOpprettet ble trigget for behandlingId %s med status %s. Det skal ikke skje og må følges opp",
-                behandling.getId() ,behandling.getStatus()));
+                behandlingId , nyStatus));
         }
     }
 
-    public void oppdaterFagsakNårBehandlingAvsluttet(Behandling behandling) {
+    public void oppdaterFagsakNårBehandlingAvsluttet(Behandling behandling, BehandlingStatus nyStatus) {
         //Fagsakstatus har som oftest under behandling
-        if (BehandlingStatus.AVSLUTTET.equals(behandling.getStatus())) {
+        if (BehandlingStatus.AVSLUTTET.equals(nyStatus)) {
             oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling);
         } else {
             throw new IllegalStateException(String.format("Utviklerfeil: oppdaterFagsakNårBehandlingAvsluttet ble trigget for behandlingId %s med status %s. Det skal ikke skje og må følges opp",
-                behandling.getId() ,behandling.getStatus()));
+                behandling.getId() ,nyStatus));
         }
     }
 
@@ -140,6 +140,16 @@ public class OppdaterFagsakStatusTjeneste {
 
         if (fagsakStatusEventPubliserer != null) {
             fagsakStatusEventPubliserer.fireEvent(fagsak, behandling, gammelStatus, nyStatus);
+        }
+    }
+
+    private void oppdaterFagsakStatusBehandlingId(Fagsak fagsak, Long behandlingId, FagsakStatus nyStatus) {
+        var gammelStatus = fagsak.getStatus();
+        var fagsakId = fagsak.getId();
+        fagsakRepository.oppdaterFagsakStatus(fagsakId, nyStatus);
+
+        if (fagsakStatusEventPubliserer != null) {
+            fagsakStatusEventPubliserer.fireEventBehandlingId(fagsak, behandlingId, gammelStatus, nyStatus);
         }
     }
 

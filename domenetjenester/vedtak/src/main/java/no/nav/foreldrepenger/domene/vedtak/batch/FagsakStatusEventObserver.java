@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatusTjeneste;
 
 /**
@@ -21,26 +22,29 @@ public class FagsakStatusEventObserver {
 
     private OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste;
     private BehandlingRepository behandlingRepository;
+    private FagsakRepository fagsakRepository;
 
     FagsakStatusEventObserver() {
         // For CDI
     }
 
     @Inject
-    public FagsakStatusEventObserver(OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste, BehandlingRepository behandlingRepository) {
+    public FagsakStatusEventObserver(OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste,
+                                     BehandlingRepository behandlingRepository,
+                                     FagsakRepository fagsakRepository) {
         this.oppdaterFagsakStatusTjeneste = oppdaterFagsakStatusTjeneste;
         this.behandlingRepository = behandlingRepository;
     }
 
     public void observerBehandlingOpprettetEvent(@Observes BehandlingStatusEvent.BehandlingOpprettetEvent event) {
         LOG.debug("Oppdaterer status på Fagsak etter endring i behandling {}", event.getBehandlingId());//NOSONAR
-        var behandling = behandlingRepository.hentBehandling(event.getBehandlingId());
-        oppdaterFagsakStatusTjeneste.oppdaterFagsakNårBehandlingOpprettet(behandling);
+        var fagsak = fagsakRepository.finnEksaktFagsak(event.getFagsakId());
+        oppdaterFagsakStatusTjeneste.oppdaterFagsakNårBehandlingOpprettet(fagsak, event.getBehandlingId(), event.getNyStatus());
     }
 
     public void observerBehandlingAvsluttetEvent(@Observes BehandlingStatusEvent.BehandlingAvsluttetEvent event) {
         LOG.debug("Oppdaterer status på Fagsak etter endring i behandling {}", event.getBehandlingId());//NOSONAR
         var behandling = behandlingRepository.hentBehandling(event.getBehandlingId());
-        oppdaterFagsakStatusTjeneste.oppdaterFagsakNårBehandlingAvsluttet(behandling);
+        oppdaterFagsakStatusTjeneste.oppdaterFagsakNårBehandlingAvsluttet(behandling, event.getNyStatus());
     }
 }
