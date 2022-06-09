@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -84,7 +85,8 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     public LocalDate utledEndringsdato(UttakInput input) {
         var ref = input.getBehandlingReferanse();
         var behandlingId = ref.behandlingId();
-        var årsaker = behandlingRepository.hentBehandling(ref.behandlingId()).getBehandlingÅrsaker().stream()
+        var årsaker = behandlingRepository.hentBehandlingHvisFinnes(ref.behandlingUuid())
+            .map(Behandling::getBehandlingÅrsaker).orElse(List.of()).stream()
             .map(BehandlingÅrsak::getBehandlingÅrsakType).collect(Collectors.toSet());
         var endringsdatoTypeEnumSet = utledEndringsdatoTyper(input);
         if (endringsdatoTypeEnumSet.isEmpty()) {
