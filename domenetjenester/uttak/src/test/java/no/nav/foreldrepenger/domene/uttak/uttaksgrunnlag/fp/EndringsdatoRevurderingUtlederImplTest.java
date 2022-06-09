@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.BERØRT_BEHANDLING;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_HENDELSE_FØDSEL;
@@ -32,6 +33,7 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
@@ -152,6 +154,23 @@ public class EndringsdatoRevurderingUtlederImplTest {
         var endringsdato = utleder.utledEndringsdato(lagInput(revurdering));
 
         assertThat(endringsdato).isEqualTo(opprinneligPeriode.getFom());
+    }
+
+    @Test
+    public void skal_utlede_at_endringsdatoen_er_startdato_ny_sak_dersom_ny_stønadsperiode() {
+        var baselineDato = Virkedager.justerHelgTilMandag(LocalDate.now());
+        var startdatoNySak = baselineDato.plusWeeks(12);
+        var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(
+            baselineDato, baselineDato.plusWeeks(15)).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
+        var opprinneligUttak = Collections.singletonList(opprinneligPeriode);
+        var oppgittDekningsgrad = OppgittDekningsgradEntitet.bruk80();
+        var revurdering = testUtil.opprettRevurdering(AktørId.dummy(), OPPHØR_YTELSE_NYTT_BARN, opprinneligUttak,
+            new OppgittFordelingEntitet(Collections.emptyList(), true), oppgittDekningsgrad);
+
+        var endringsdato = utleder.utledEndringsdato(lagInput(revurdering, startdatoNySak));
+
+        assertThat(endringsdato).isEqualTo(startdatoNySak);
     }
 
     @Test // #1.1
@@ -736,6 +755,28 @@ public class EndringsdatoRevurderingUtlederImplTest {
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familiehendelser)
             .medOriginalBehandling(new OriginalBehandling(behandling.getOriginalBehandlingId().get(),
                 new FamilieHendelser().medBekreftetHendelse(bekreftetHendelse)));
+        return new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
+            uttakBeregningsandelTjeneste.hentStatuser());
+    }
+
+    private UttakInput lagInput(Behandling behandling, LocalDate startdatoNySak) {
+        var årsaker = behandling.getBehandlingÅrsaker()
+            .stream()
+            .map(behandlingÅrsak -> behandlingÅrsak.getBehandlingÅrsakType())
+            .collect(Collectors.toSet());
+        return lagInput(behandling,
+            FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn()), 1), startdatoNySak).medBehandlingÅrsaker(årsaker);
+    }
+
+    private UttakInput lagInput(Behandling behandling, FamilieHendelse bekreftetHendelse, LocalDate startdatoNySak) {
+        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(bekreftetHendelse.getFamilieHendelseDato()).build());
+        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
+        var familiehendelser = new FamilieHendelser().medBekreftetHendelse(bekreftetHendelse);
+        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familiehendelser)
+            .medOriginalBehandling(new OriginalBehandling(behandling.getOriginalBehandlingId().get(),
+                new FamilieHendelser().medBekreftetHendelse(bekreftetHendelse)))
+            .medNesteSakGrunnlag(NesteSakGrunnlagEntitet.Builder.oppdatere(Optional.empty()).medSaksnummer(new Saksnummer("1234")).medBehandlingId(behandling.getId())
+                .medStartdato(startdatoNySak).medHendelsedato(startdatoNySak.plusWeeks(3)).build());
         return new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
             uttakBeregningsandelTjeneste.hentStatuser());
     }
