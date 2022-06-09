@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -33,6 +34,7 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(AutomatiskGrunnbelopReguleringTask.class);
     private BehandlingRepository behandlingRepository;
+    private FagsakRepository fagsakRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private BeregningsresultatRepository beregningsresultatRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -51,6 +53,7 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
             BehandlingFlytkontroll flytkontroll) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
@@ -60,6 +63,9 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
+        // For å sikre at fagsaken hentes opp i cache - ellers dukker den opp via readonly-query og det blir problem.
+        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+
         // Implisitt precondition fra utvalget i batches: Ingen ytelsesbehandlinger
         // utenom evt berørt behandling.
         var åpneYtelsesBehandlinger = behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsakId);
@@ -67,14 +73,13 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
             LOG.info("GrunnbeløpRegulering finnes allerede åpen revurdering på fagsakId = {}", fagsakId);
             return;
         }
-        var sisteVedtatte = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).orElseThrow();
         if (prosessTaskData.getPropertyValue(MANUELL_KEY) == null) {
+            var sisteVedtatte = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).orElseThrow();
             var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(sisteVedtatte.getId());
             var satsFom = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
             if (skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp().isBefore(satsFom)) return;
         }
 
-        var fagsak = sisteVedtatte.getFagsak();
         var skalKøes = flytkontroll.nyRevurderingSkalVente(fagsak);
         var enhet = enhetTjeneste.finnBehandlendeEnhetFor(fagsak);
         var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow();

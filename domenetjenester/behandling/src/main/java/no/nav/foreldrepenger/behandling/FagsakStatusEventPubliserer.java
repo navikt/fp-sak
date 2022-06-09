@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandling;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -9,7 +10,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 
@@ -28,27 +28,20 @@ public class FagsakStatusEventPubliserer {
         this.fagsakStatusEvent = fagsakStatusEvent;
     }
 
-    public void fireEvent(Fagsak fagsak, Behandling behandling, FagsakStatus gammelStatusIn, FagsakStatus nyStatusIn) {
-        fireEventBehandlingId(fagsak, behandling != null ? behandling.getId() : null, gammelStatusIn, nyStatusIn);
-    }
-
-    public void fireEventBehandlingId(Fagsak fagsak, Long behandlingId, FagsakStatus gammelStatusIn, FagsakStatus nyStatusIn) {
-        if (((gammelStatusIn == null) && (nyStatusIn == null)) // NOSONAR
-                || Objects.equals(gammelStatusIn, nyStatusIn)) { // NOSONAR
-            // gjør ingenting
+    public void fireEvent(Fagsak fagsak, Long behandlingId, FagsakStatus gammelStatusIn, FagsakStatus nyStatusIn) {
+        if (Objects.equals(gammelStatusIn, nyStatusIn)) {
             return;
         }
-        if ((gammelStatusIn == null) && (nyStatusIn != null)) {// NOSONAR
+        if (gammelStatusIn == null) {
             LOG.info("Fagsak status opprettet: id [{}]; type [{}];", fagsak.getId(), fagsak.getYtelseType());
         } else {
-            var fagsakId = fagsak.getId();
-            var gammelStatus = gammelStatusIn.getKode(); // NOSONAR false positive NPE dereference
-            var nyStatus = nyStatusIn == null ? null : nyStatusIn.getKode();
+            var gammelStatus = gammelStatusIn.getKode();
+            var nyStatus = Optional.ofNullable(nyStatusIn).map(FagsakStatus::getKode).orElse("null");
 
             if (behandlingId != null) {
-                LOG.info("Fagsak status oppdatert: {} -> {}; fagsakId [{}] behandlingId [{}]", gammelStatus, nyStatus, fagsakId, behandlingId);
+                LOG.info("Fagsak status oppdatert: {} -> {}; fagsakId [{}] behandlingId [{}]", gammelStatus, nyStatus, fagsak.getId(), behandlingId);
             } else {
-                LOG.info("Fagsak status oppdatert: {} -> {}; fagsakId [{}]", gammelStatus, nyStatus, fagsakId); //$NON-NLS-1$
+                LOG.info("Fagsak status oppdatert: {} -> {}; fagsakId [{}]", gammelStatus, nyStatus, fagsak.getId()); //$NON-NLS-1$
             }
         }
 
