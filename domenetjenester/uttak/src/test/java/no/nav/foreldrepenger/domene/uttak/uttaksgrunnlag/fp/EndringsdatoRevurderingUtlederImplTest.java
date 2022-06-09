@@ -174,7 +174,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test
-    public void skal_utlede_at_endringsdatoen_er_startdato_ny_sak_dersom_ny_stønadsperiode_begynner_etter() {
+    public void skal_utlede_at_endringsdatoen_er_tom_dvs_start_uttak_dersom_ny_stønadsperiode_begynner_etter() {
         var baselineDato = Virkedager.justerHelgTilMandag(LocalDate.now());
         var startdatoNySak = baselineDato.plusWeeks(16);
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(
