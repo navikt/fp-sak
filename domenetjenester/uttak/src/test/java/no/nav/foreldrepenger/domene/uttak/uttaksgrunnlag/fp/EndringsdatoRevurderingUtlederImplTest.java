@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -97,7 +98,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     private final UttakRevurderingTestUtil testUtil = new UttakRevurderingTestUtil(repositoryProvider, iayTjeneste);
     private final StønadskontoSaldoTjeneste saldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
     private final EndringsdatoRevurderingUtlederImpl utleder = new EndringsdatoRevurderingUtlederImpl(
-        repositoryProvider, dekningsgradTjeneste, new RelevanteArbeidsforholdTjeneste(repositoryProvider.getFpUttakRepository()), saldoTjeneste);
+        repositoryProvider, mock(BehandlingRepository.class), dekningsgradTjeneste, new RelevanteArbeidsforholdTjeneste(repositoryProvider.getFpUttakRepository()), saldoTjeneste);
 
     @Test
     public void skal_utlede_at_endringsdatoen_er_første_uttaksdato_til_startdato_for_uttak_når_dekningsgrad_er_endret() {

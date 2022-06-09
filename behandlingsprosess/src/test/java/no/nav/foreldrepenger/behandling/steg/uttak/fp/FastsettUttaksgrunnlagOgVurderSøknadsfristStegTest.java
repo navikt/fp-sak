@@ -103,7 +103,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
         var relevanteArbeidsforholdTjeneste = new RelevanteArbeidsforholdTjeneste(
             fpUttakRepository);
         var saldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
-        var endringsdatoRevurderingUtleder = new EndringsdatoRevurderingUtlederImpl(uttakRepositoryProvider, dekningsgradTjeneste,
+        var endringsdatoRevurderingUtleder = new EndringsdatoRevurderingUtlederImpl(uttakRepositoryProvider, mock(BehandlingRepository.class), dekningsgradTjeneste,
             relevanteArbeidsforholdTjeneste, saldoTjeneste);
         var fastsettUttaksgrunnlagTjeneste = new FastsettUttaksgrunnlagTjeneste(uttakRepositoryProvider, endringsdatoFørstegangsbehandlingUtleder,
                 endringsdatoRevurderingUtleder);
