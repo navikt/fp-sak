@@ -34,6 +34,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -42,6 +43,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemTask;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
@@ -80,6 +82,34 @@ public class ForvaltningUttrekkRestTjeneste {
         this.behandlingRepository = behandlingRepository;
         this.taskTjeneste = taskTjeneste;
         this.overlappRepository = overlappRepository;
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Setter saker med revurdering til under behandling", tags = "FORVALTNING-uttrekk")
+    @Path("/openIkkeLopendeSaker")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    public Response openIkkeLopendeSaker(@Parameter(description = "Aksjonspunktkoden") @BeanParam @Valid AksjonspunktKodeDto dto) {
+        var apDef = dto.getAksjonspunktDefinisjon();
+        if (apDef == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        var query = entityManager.createNativeQuery("""
+                select saksnummer, id from fagsak where fagsak_status in (:fstatus)
+                and id in (select fagsak_id from behandling where behandling_status not in (:bstatus))
+                """); //$NON-NLS-1$
+        query.setParameter("fstatus", List.of(FagsakStatus.AVSLUTTET.getKode(), FagsakStatus.LØPENDE.getKode()));
+        query.setParameter("bstatus", List.of(BehandlingStatus.IVERKSETTER_VEDTAK.getKode(), BehandlingStatus.AVSLUTTET.getKode()));
+        @SuppressWarnings("unchecked")
+        List<Object[]> resultatList = query.getResultList();
+        var saker = resultatList.stream()
+            .map(row -> new FagsakTreff((String) row[0], ((BigDecimal) row[1]).longValue())).collect(Collectors.toList()); // NOSONAR
+        saker.forEach(f -> fagsakRepository.oppdaterFagsakStatus(f.fagsakId(), FagsakStatus.UNDER_BEHANDLING));
+        return Response.ok().build();
+    }
+
+    public static record FagsakTreff(String saksnummer, Long fagsakId) {
     }
 
     @POST
