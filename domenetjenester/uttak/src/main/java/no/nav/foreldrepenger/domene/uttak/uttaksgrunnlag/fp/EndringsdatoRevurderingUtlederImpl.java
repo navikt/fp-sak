@@ -130,7 +130,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         førsteUttaksdatoGjeldendeVedtakEndringsdato(input).ifPresent(endringsdatoTypeEnumSet::add);
         adopsjonEndringsdato(fpGrunnlag).ifPresent(endringsdatoTypeEnumSet::add);
         forrigeBehandlingUtenUttakEndringsdato(ref).ifPresent(endringsdatoTypeEnumSet::add);
-        nesteSakEndringstype(fpGrunnlag).ifPresent(endringsdatoTypeEnumSet::add);
+        nesteSakEndringstype(ref, fpGrunnlag).ifPresent(endringsdatoTypeEnumSet::add);
 
         return endringsdatoTypeEnumSet;
     }
@@ -161,11 +161,16 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         return Optional.empty();
     }
 
-    private Optional<EndringsdatoType> nesteSakEndringstype(ForeldrepengerGrunnlag fpGrunnlag) {
-        return fpGrunnlag.getNesteSakGrunnlag().isPresent() ? Optional.of(EndringsdatoType.NESTE_STØNADSPERIODE) : Optional.empty();
+    private Optional<EndringsdatoType> nesteSakEndringstype(BehandlingReferanse ref, ForeldrepengerGrunnlag fpGrunnlag) {
+        var sisteUttakdato = finnSisteUttaksdatoGjeldendeVedtak(finnForrigeBehandling(ref))
+            .map(d -> Virkedager.plusVirkedager(d, 1));
+        // Gi bare utslag dersom neste stønadsperiode finnes of begynner på eller før nåværende siste uttaksdato
+        return fpGrunnlag.getNesteSakGrunnlag()
+            .filter(neste -> sisteUttakdato.filter(d -> neste.getStartdato().isBefore(d)).isPresent())
+            .isPresent() ? Optional.of(EndringsdatoType.NESTE_STØNADSPERIODE) : Optional.empty();
     }
 
-    private Optional<LocalDate> finnNesteStønadsperiode(BehandlingReferanse ref, ForeldrepengerGrunnlag fpGrunnlag) {
+    private Optional<LocalDate> finnNesteStønadsperiode(ForeldrepengerGrunnlag fpGrunnlag) {
         return fpGrunnlag.getNesteSakGrunnlag().map(NesteSakGrunnlagEntitet::getStartdato).map(Virkedager::justerHelgTilMandag);
     }
 
@@ -334,7 +339,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
                     .getAnkomstNorge()
                     .ifPresent(datoer::add);
                 case FØRSTE_UTTAKSDATO_SØKNAD_FORRIGE_BEHANDLING -> finnFørsteUttaksdatoSøknadForrigeBehandling(ref).ifPresent(datoer::add);
-                case NESTE_STØNADSPERIODE -> finnNesteStønadsperiode(ref, fpGrunnlag).ifPresent(datoer::add);
+                case NESTE_STØNADSPERIODE -> finnNesteStønadsperiode(fpGrunnlag).ifPresent(datoer::add);
                 default -> new IllegalStateException("Støtter ikke EndringsdatoType. " + endringsdatoType);
             }
         }

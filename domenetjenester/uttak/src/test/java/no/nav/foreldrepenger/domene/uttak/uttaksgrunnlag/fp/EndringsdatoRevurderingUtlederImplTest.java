@@ -173,6 +173,23 @@ public class EndringsdatoRevurderingUtlederImplTest {
         assertThat(endringsdato).isEqualTo(startdatoNySak);
     }
 
+    @Test
+    public void skal_utlede_at_endringsdatoen_er_startdato_ny_sak_dersom_ny_stønadsperiode_begynner_etter() {
+        var baselineDato = Virkedager.justerHelgTilMandag(LocalDate.now());
+        var startdatoNySak = baselineDato.plusWeeks(16);
+        var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(
+            baselineDato, baselineDato.plusWeeks(15)).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
+        var opprinneligUttak = Collections.singletonList(opprinneligPeriode);
+        var oppgittDekningsgrad = OppgittDekningsgradEntitet.bruk80();
+        var revurdering = testUtil.opprettRevurdering(AktørId.dummy(), OPPHØR_YTELSE_NYTT_BARN, opprinneligUttak,
+            new OppgittFordelingEntitet(Collections.emptyList(), true), oppgittDekningsgrad);
+
+        var endringsdato = utleder.utledEndringsdato(lagInput(revurdering, startdatoNySak));
+
+        assertThat(endringsdato).isEqualTo(baselineDato);
+    }
+
     @Test // #1.1
     public void skal_utlede_at_endringsdato_er_fødselsdato_når_fødsel_har_forekommet_før_første_uttaksdato() {
         // Arrange
