@@ -102,7 +102,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
                 dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste);
         søknadRepository = repositoryProvider.getSøknadRepository();
         kompletthetsjekkerImpl = new KompletthetsjekkerImpl(kompletthetssjekkerSøknadImpl,
-                kompletthetssjekkerInntektsmelding, kompletthetsjekkerFelles);
+                kompletthetsjekkerFelles);
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
     }
 
