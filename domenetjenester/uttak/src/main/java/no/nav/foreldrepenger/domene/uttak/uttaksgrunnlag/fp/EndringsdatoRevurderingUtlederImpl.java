@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -293,13 +292,11 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private boolean harManueltSattFørsteUttaksdato(BehandlingReferanse revurdering) {
-        var original = revurdering.getOriginalBehandlingId().flatMap(this::finnManueltSattFørsteUttaksdato);
-        var aktuell = finnManueltSattFørsteUttaksdato(revurdering.behandlingId());
-        return aktuell.isPresent() && !Objects.equals(original, aktuell);
+        return finnManueltSattFørsteUttaksdato(revurdering).isPresent();
     }
 
-    private Optional<LocalDate> finnManueltSattFørsteUttaksdato(Long behandlingId) {
-        return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
+    private Optional<LocalDate> finnManueltSattFørsteUttaksdato(BehandlingReferanse revurdering) {
+        return ytelsesFordelingRepository.hentAggregatHvisEksisterer(revurdering.behandlingId())
             .flatMap(YtelseFordelingAggregat::getAvklarteDatoer)
             .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato);
     }
@@ -327,7 +324,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
                 case FØRSTE_UTTAKSDATO_SØKNAD -> finnFørsteUttaksdatoSøknad(ref.behandlingId()).ifPresent(datoer::add);
                 case SISTE_UTTAKSDATO_GJELDENDE_VEDTAK -> finnEndringsdatoForEndringssøknad(ref, datoer);
                 case ENDRINGSDATO_I_BEHANDLING_SOM_FØRTE_TIL_BERØRT_BEHANDLING -> finnEndringsdatoForBerørtBehandling(ref, uttakInput, fpGrunnlag, datoer);
-                case MANUELT_SATT_FØRSTE_UTTAKSDATO -> finnManueltSattFørsteUttaksdato(ref.behandlingId()).ifPresent(datoer::add);
+                case MANUELT_SATT_FØRSTE_UTTAKSDATO -> finnManueltSattFørsteUttaksdato(ref).ifPresent(datoer::add);
                 case OMSORGSOVERTAKELSEDATO -> fpGrunnlag.getFamilieHendelser()
                     .getGjeldendeFamilieHendelse()
                     .getOmsorgsovertakelse()
