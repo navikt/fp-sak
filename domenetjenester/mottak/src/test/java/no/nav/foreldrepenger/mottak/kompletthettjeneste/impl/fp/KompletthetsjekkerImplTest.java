@@ -286,7 +286,6 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     public void skal_returnere_hvilke_vedlegg_som_mangler() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
         opprettSøknadMedPåkrevdVedlegg(behandling);
 
         // Act
@@ -294,11 +293,11 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
                 lagRef(behandling));
 
         // Assert
-        assertThat(manglendeVedlegg).hasSize(2);
+        assertThat(manglendeVedlegg).hasSize(1);
         var koder = manglendeVedlegg.stream()
                 .map(ManglendeVedlegg::getDokumentType)
                 .collect(Collectors.toList());
-        assertThat(koder).containsExactlyInAnyOrder(DokumentTypeId.DOK_INNLEGGELSE, DokumentTypeId.INNTEKTSMELDING);
+        assertThat(koder).containsExactlyInAnyOrder(DokumentTypeId.DOK_INNLEGGELSE);
     }
 
     private void opprettSøknadMedPåkrevdVedlegg(Behandling behandling) {
