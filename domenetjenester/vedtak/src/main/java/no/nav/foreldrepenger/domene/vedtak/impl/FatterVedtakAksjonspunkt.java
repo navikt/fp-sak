@@ -11,7 +11,9 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakAksjonspunktData;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
@@ -25,6 +27,7 @@ public class FatterVedtakAksjonspunkt {
     private VedtakTjeneste vedtakTjeneste;
     private TotrinnTjeneste totrinnTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     public FatterVedtakAksjonspunkt() {
     }
@@ -33,11 +36,13 @@ public class FatterVedtakAksjonspunkt {
     public FatterVedtakAksjonspunkt(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                     KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
                                     VedtakTjeneste vedtakTjeneste,
-                                    TotrinnTjeneste totrinnTjeneste) {
+                                    TotrinnTjeneste totrinnTjeneste,
+                                    InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
         this.vedtakTjeneste = vedtakTjeneste;
         this.totrinnTjeneste = totrinnTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
     public void oppdater(Behandling behandling, Collection<VedtakAksjonspunktData> aksjonspunkter) {
@@ -72,6 +77,10 @@ public class FatterVedtakAksjonspunkt {
         // Noe spesialhåndtering ifm totrinn og tilbakeføring fra FVED
         if (!skalReåpnes.isEmpty()) {
             behandlingskontrollTjeneste.lagreAksjonspunkterReåpnet(kontekst, skalReåpnes, false, true);
+            // Litt spesialbehandling siden dette aksjonspunktet er ekstra sticky pga mange tilbakehopp - nå kan det løses på nytt
+            if (skalReåpnes.stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).anyMatch(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING::equals)) {
+                inntektArbeidYtelseTjeneste.fjernSaksbehandletVersjon(behandling.getId());
+            }
         }
     }
 
