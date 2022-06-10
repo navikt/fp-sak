@@ -383,7 +383,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
             .filter(senestAvFørsteUttaksdatoEllerAnnenpartsEndringsdato::isBefore)
             .orElse(senestAvFørsteUttaksdatoEllerAnnenpartsEndringsdato);
 
-        LOG.info("BERØRT ENDRINGSDATO: behandling {} klassisk dato {} endringsdato {} beregnet {}", senesteFørsteUttakDato,
+        LOG.info("BERØRT ENDRINGSDATO: behandling {} klassisk dato {} endringsdato {} beregnet {}", ref.behandlingId(), senesteFørsteUttakDato,
             senestAvFørsteUttaksdatoEllerAnnenpartsEndringsdato, beregnetEndringsdato);
         datoer.add(beregnetEndringsdato);
     }
