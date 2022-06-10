@@ -9,12 +9,17 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
 @ApplicationScoped
 public class OppgittPeriodeTidligstMottattDatoTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(OppgittPeriodeTidligstMottattDatoTjeneste.class);
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
 
@@ -46,7 +51,10 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
                 " for periode" + periode.getFom() + " - " + periode.getTom());
         }
         var matchendePeriode = matchendePerioderIOriginalBehandling.get(0);
-        return Optional.ofNullable(matchendePeriode.getTidligstMottattDato().orElse(matchendePeriode.getMottattDato()));
+        var tidligstMottattDato = matchendePeriode.getTidligstMottattDato().orElse(matchendePeriode.getMottattDato());
+        LOG.info("Fant matchende periode for søknadsperiode {}. Matchet med periode {}. Setter mottatt dato på søknadsperiode {}",
+            periode.getTidsperiode(), matchendePeriode.getTidsperiode(), tidligstMottattDato);
+        return Optional.ofNullable(tidligstMottattDato);
     }
 
     private List<OppgittPeriodeEntitet> finnMatchendePerioder(OppgittPeriodeEntitet periode, Long originalBehandling) {
