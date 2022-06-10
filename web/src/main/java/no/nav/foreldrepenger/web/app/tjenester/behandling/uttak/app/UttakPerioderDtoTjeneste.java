@@ -10,6 +10,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
@@ -52,6 +53,14 @@ public class UttakPerioderDtoTjeneste {
     }
 
     public Optional<UttakResultatPerioderDto> mapFra(Behandling behandling) {
+        return mapFra(behandling, false, false);
+    }
+
+    public Optional<UttakResultatPerioderDto> mapFra(Behandling behandling, Skjæringstidspunkt skjæringstidspunkt) {
+        return mapFra(behandling, skjæringstidspunkt.kreverSammenhengendeUttak(), skjæringstidspunkt.utenMinsterett());
+    }
+
+    private Optional<UttakResultatPerioderDto> mapFra(Behandling behandling, boolean kreverSammenhengendeUttak, boolean utenMinsterett) {
         var ytelseFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId());
 
         final List<UttakResultatPeriodeDto> annenpartUttaksperioder;
@@ -73,10 +82,12 @@ public class UttakPerioderDtoTjeneste {
         }
 
         var perioderSøker = finnUttakResultatPerioderSøker(behandling.getId());
+        var filter = new UttakResultatPerioderDto.FilterDto(kreverSammenhengendeUttak, utenMinsterett,
+            RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()));
         var perioder = new UttakResultatPerioderDto(perioderSøker,
             annenpartUttaksperioder, RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()),
             ytelseFordeling.map(yf -> UttakOmsorgUtil.harAnnenForelderRett(yf, annenpartUttak)).orElse(false),
-            ytelseFordeling.map(UttakOmsorgUtil::harAleneomsorg).orElse(false));
+            ytelseFordeling.map(UttakOmsorgUtil::harAleneomsorg).orElse(false), filter);
         return Optional.of(perioder);
     }
 

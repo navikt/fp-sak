@@ -122,6 +122,8 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getProsentArbeid()).isEqualTo(periodeAktivitet.getArbeidsprosent());
         assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getUtbetalingsgrad()).isEqualTo(periodeAktivitet.getUtbetalingsgrad());
         assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getUttakArbeidType()).isEqualTo(periodeAktivitet.getUttakArbeidType());
+        assertThat(result.get().årsakFilter().søkerErMor()).isTrue();
+        assertThat(result.get().årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     private Behandling morBehandlingMedUttak(UttakResultatPerioderEntitet perioder) {
@@ -183,6 +185,8 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(result.get().perioderSøker()).hasSize(2);
         assertThat(result.get().perioderSøker().get(0).getAktiviteter()).hasSize(2);
         assertThat(result.get().perioderSøker().get(1).getAktiviteter()).hasSize(1);
+        assertThat(result.get().årsakFilter().søkerErMor()).isTrue();
+        assertThat(result.get().årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     private UttakResultatPeriodeAktivitetEntitet periodeAktivitet(UttakResultatPeriodeEntitet periode, String orgnr) {
@@ -236,6 +240,8 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         assertThat(result.get().perioderAnnenpart()).hasSize(1);
         assertThat(result.get().perioderAnnenpart().get(0).getAktiviteter()).hasSize(1);
+        assertThat(result.get().årsakFilter().søkerErMor()).isTrue();
+        assertThat(result.get().årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     @Test
@@ -277,6 +283,8 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         assertThat(result.get().perioderAnnenpart()).hasSize(1);
         assertThat(result.get().perioderAnnenpart().get(0).getAktiviteter()).hasSize(1);
+        assertThat(result.get().årsakFilter().søkerErMor()).isTrue();
+        assertThat(result.get().årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     private ArbeidsforholdInformasjonBuilder lagFiktivtArbeidsforholdOverstyring(InternArbeidsforholdRef internArbeidsforholdRef) {
@@ -321,6 +329,8 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         assertThat(result.get().perioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
         assertThat(result.get().perioderSøker().get(0).getSamtidigUttaksprosent()).isEqualTo(periode.getSamtidigUttaksprosent());
+        assertThat(result.get().årsakFilter().søkerErMor()).isTrue();
+        assertThat(result.get().årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     @Test
@@ -335,6 +345,23 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var result = tjeneste.mapFra(behandling);
         assertThat(result.get().annenForelderHarRett()).isFalse();
         assertThat(result.get().aleneomsorg()).isFalse();
+        assertThat(result.get().årsakFilter().søkerErMor()).isTrue();
+        assertThat(result.get().årsakFilter().kreverSammenhengendeUttak()).isFalse();
+    }
+
+    @Test
+    public void skal_setteFilterFar() {
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        scenario.medFordeling(null);
+        var behandling = scenario.lagre(repositoryProvider);
+        repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
+
+        var tjeneste = tjeneste();
+
+        var result = tjeneste.mapFra(behandling);
+        assertThat(result.get().annenForelderHarRett()).isFalse();
+        assertThat(result.get().aleneomsorg()).isFalse();
+        assertThat(result.get().årsakFilter().søkerErMor()).isFalse();
     }
 
     @Test
@@ -358,6 +385,8 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var result = tjeneste().mapFra(behandling);
         assertThat(result.get().annenForelderHarRett()).isTrue();
         assertThat(result.get().aleneomsorg()).isTrue();
+        assertThat(result.get().årsakFilter().søkerErMor()).isTrue();
+        assertThat(result.get().årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     private UttakResultatPeriodeEntitet.Builder periodeBuilder(LocalDate fom, LocalDate tom) {
