@@ -178,7 +178,8 @@ public class UttakRestTjeneste {
     public UttakResultatPerioderDto hentUttakResultatPerioder(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = hentBehandling(uuidDto);
-        return uttakResultatPerioderDtoTjeneste.mapFra(behandling).orElse(null);
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        return uttakResultatPerioderDtoTjeneste.mapFra(behandling, skjæringstidspunkt).orElse(null);
     }
 
     @GET

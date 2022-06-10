@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 import static java.util.Set.of;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.LovEndring.FRITT_UTTAK;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.LovEndring.KREVER_SAMMENHENGENDE_UTTAK;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.LovEndring.MINSTERETT_2022;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.SynligFor.IKKE_MOR;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.SynligFor.MOR;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FEDREKVOTE;
@@ -93,19 +94,19 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
             of(UTTAK), of(MØDREKVOTE, FEDREKVOTE)),
     UTSETTELSE_GYLDIG
         ("2024", "14-11", "§14-11: Gyldig utsettelse", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}",
-            of(UTSETTELSE), null, of(FRITT_UTTAK), null),
+            of(UTSETTELSE), null, of(FRITT_UTTAK, MINSTERETT_2022), null),
     UTSETTELSE_GYLDIG_SEKS_UKER_INNLEGGELSE
         ("2025", "14-11", "§14-11: Gyldig utsettelse første 6 uker pga. innleggelse", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}",
-            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK), of(MOR)),
+            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK, MINSTERETT_2022), of(MOR)),
     UTSETTELSE_GYLDIG_SEKS_UKER_FRI_BARN_INNLAGT
         ("2026", "14-11", "§14-11: Gyldig utsettelse første 6 uker pga. barn innlagt", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}",
-            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK), of(MOR)),
+            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK, MINSTERETT_2022), of(MOR)),
     UTSETTELSE_GYLDIG_SEKS_UKER_FRI_SYKDOM
         ("2027", "14-11", "§14-11: Gyldig utsettelse første 6 uker pga. sykdom", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}",
-            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK), of(MOR)),
+            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK, MINSTERETT_2022), of(MOR)),
     UTSETTELSE_GYLDIG_BFR_AKT_KRAV_OPPFYLT
         ("2028", "14-14", "§14-14, jf. 14-13: Bare far rett, aktivitetskravet oppfylt", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-14,14-13\"}}}",
-            of(UTSETTELSE), of(FORELDREPENGER), of(FRITT_UTTAK), of(IKKE_MOR)),
+            of(UTSETTELSE), of(FORELDREPENGER), of(FRITT_UTTAK, MINSTERETT_2022), of(IKKE_MOR)),
     GRADERING_FELLESPERIODE_ELLER_FORELDREPENGER
         ("2030", "14-16", "§14-9, jf. §14-16: Gradering av fellesperiode/foreldrepenger", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-9,14-16\"}}}",
             of(UTTAK), of(FELLESPERIODE, FORELDREPENGER)),
@@ -334,34 +335,41 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
         ("4100", "14-10-2", "§14-10 andre ledd: Uttak før omsorgsovertakelse", "", of(UTTAK)),
     BARE_FAR_RETT_IKKE_SØKT
         ("4102", "14-14", "§14-14, jf 14-13: Bare far har rett, mangler søknad uttak/aktivitetskrav", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-14,14-13\"}}}",
-            of(UTTAK), of(FORELDREPENGER), of(FRITT_UTTAK), of(IKKE_MOR)),
+            of(UTTAK), of(FORELDREPENGER), of(FRITT_UTTAK, MINSTERETT_2022), of(IKKE_MOR)),
     MOR_FØRSTE_SEKS_UKER_IKKE_SØKT
         ("4103", "14-09-6", "§14-9 sjette ledd: Mangler søknad for første 6 uker etter fødsel", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-9\"}}}",
-            of(UTTAK), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK), of(MOR)),
+            of(UTTAK), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK, MINSTERETT_2022), of(MOR)),
     STØNADSPERIODE_NYTT_BARN
         ("4104", "14-10-3", "§14-10 tredje ledd: Stønadsperiode for nytt barn", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10\"}}}",
             of(UTTAK, UTSETTELSE)),
     FAR_SØKT_FØR_FØDSEL
         ("4105", "14-09-6", "§14-9 sjette ledd: Far/medmor søker uttak før fødsel/omsorg", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-9\"}}}",
             of(UTTAK)),
+    FAR_MER_ENN_TI_DAGER_FEDREKVOTE_IFM_FØDSEL
+        ("4106", "14-10-1", "§14-10 første ledd: Far/medmor søker mer enn 10 dager ifm fødsel", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10\"}}}",
+            of(UTTAK), of(FEDREKVOTE), of(MINSTERETT_2022), of(IKKE_MOR)),
+    // TODO (jol): vurdere å tilby denne for alle lov-versjoner
+    BARE_FAR_RETT_MANGLER_MORS_AKTIVITET
+        ("4107", "14-14", "§14-14, jf 14-13: Bare far har rett, aktivitetskravet ikke oppgitt eller ikke dokumentert", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-14,14-13\"}}}",
+            of(UTTAK, UTSETTELSE), of(FORELDREPENGER), of(MINSTERETT_2022), of(IKKE_MOR)),
     SØKERS_SYKDOM_SKADE_SEKS_UKER_IKKE_OPPFYLT
         ("4110", "14-11", "§14-11: Søkers sykdom/skade første 6 uker ikke oppfylt", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}",
-            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK), of(MOR)),
+            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK, MINSTERETT_2022), of(MOR)),
     SØKERS_INNLEGGELSE_SEKS_UKER_IKKE_OPPFYLT
         ("4111", "14-11", "§14-11: Søkers innleggelse første 6 uker ikke oppfylt", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}",
-            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK), of(MOR)),
+            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK, MINSTERETT_2022), of(MOR)),
     BARNETS_INNLEGGELSE_SEKS_UKER_IKKE_OPPFYLT
         ("4112", "14-11", "§14-11: Barnets innleggelse første 6 uker ikke oppfylt", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}",
-            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK), of(MOR)),
+            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK, MINSTERETT_2022), of(MOR)),
     SØKERS_SYKDOM_ELLER_SKADE_SEKS_UKER_IKKE_DOKUMENTERT
         ("4115", "14-11", "§14-11, jf §21-3: Søkers sykdom/skade første 6 uker ikke dokumentert", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11,21-3\"}}}",
-            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK), of(MOR)),
+            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK, MINSTERETT_2022), of(MOR)),
     SØKERS_INNLEGGELSE_SEKS_UKER_IKKE_DOKUMENTERT
         ("4116", "14-11", "§14-11, jf §21-3: Søkers innleggelse første 6 uker ikke dokumentert", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11,21-3\"}}}",
-            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK), of(MOR)),
+            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK, MINSTERETT_2022), of(MOR)),
     BARNETS_INNLEGGELSE_SEKS_UKER_IKKE_DOKUMENTERT
         ("4117", "14-11", "§14-11, jf §21-3: Barnets innleggelse første 6 uker ikke dokumentert", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11,21-3\"}}}",
-            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK), of(MOR)),
+            of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK, MINSTERETT_2022), of(MOR)),
     ;
 
     private static final Map<String, PeriodeResultatÅrsak> KODER = new LinkedHashMap<>();
@@ -525,7 +533,8 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
 
     public enum LovEndring {
         KREVER_SAMMENHENGENDE_UTTAK,
-        FRITT_UTTAK
+        FRITT_UTTAK,
+        MINSTERETT_2022
     }
 
     public enum UtfallType {
