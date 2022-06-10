@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import no.nav.foreldrepenger.domene.arbeidsforhold.aksjonspunkt.AvklarArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto;
@@ -59,7 +58,6 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
         // hack - additional locations to scan (jars uten rest services) - trenger det
         // her p.t. for å bestemme hvilke jars / maven moduler som skal scannes for
         // andre dtoer
-        scanClasses.add(AvklarArbeidsforholdDto.class);
         scanClasses.add(VurderFaktaOmBeregningDto.class);
         scanClasses.add(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto.class);
         scanClasses.add(VurderTilbaketrekkDto.class);
