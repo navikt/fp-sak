@@ -51,23 +51,23 @@ public class OppdaterFagsakStatusTjeneste {
             this.familieHendelseRepository = familieHendelseRepository;
     }
 
-    public void oppdaterFagsakNårBehandlingOpprettet(Behandling behandling) {
+    public void oppdaterFagsakNårBehandlingOpprettet(Fagsak fagsak, Long behandlingId, BehandlingStatus nyStatus) {
         //Fagsak har status under behandling eller løpende - det opprettes ny behandling
-        if (erBehandlingOpprettetEllerUnderBehandling(behandling.getStatus())) {
-            oppdaterFagsakStatus(behandling.getFagsak(), behandling, FagsakStatus.UNDER_BEHANDLING);
+        if (erBehandlingOpprettetEllerUnderBehandling(nyStatus)) {
+            oppdaterFagsakStatus(fagsak, behandlingId, FagsakStatus.UNDER_BEHANDLING);
         } else {
             throw new IllegalStateException(String.format("Utviklerfeil: oppdaterFagsakNårBehandlingOpprettet ble trigget for behandlingId %s med status %s. Det skal ikke skje og må følges opp",
-                behandling.getId() ,behandling.getStatus()));
+                behandlingId , nyStatus));
         }
     }
 
-    public void oppdaterFagsakNårBehandlingAvsluttet(Behandling behandling) {
+    public void oppdaterFagsakNårBehandlingAvsluttet(Behandling behandling, BehandlingStatus nyStatus) {
         //Fagsakstatus har som oftest under behandling
-        if (BehandlingStatus.AVSLUTTET.equals(behandling.getStatus())) {
+        if (BehandlingStatus.AVSLUTTET.equals(nyStatus)) {
             oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling);
         } else {
             throw new IllegalStateException(String.format("Utviklerfeil: oppdaterFagsakNårBehandlingAvsluttet ble trigget for behandlingId %s med status %s. Det skal ikke skje og må følges opp",
-                behandling.getId() ,behandling.getStatus()));
+                behandling.getId() ,nyStatus));
         }
     }
 
@@ -77,7 +77,7 @@ public class OppdaterFagsakStatusTjeneste {
             throw new IllegalStateException(String.format("Utviklerfeil: BehandlingId: %s med ytelsestype %s skal ikke trigges av AutomatiskFagsakAvslutningTask. Noe er galt.",  behandling.getId() ,behandling.getStatus()));
         } else {
             if (alleAndreBehandlingerErLukket(fagsak, behandling)) {
-                oppdaterFagsakStatus(fagsak, behandling, FagsakStatus.AVSLUTTET);
+                oppdaterFagsakStatus(fagsak, behandling.getId(), FagsakStatus.AVSLUTTET);
                 return FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET;
             }
         }
@@ -91,21 +91,22 @@ public class OppdaterFagsakStatusTjeneste {
     public void settUnderBehandlingNårAktiveBehandlinger(Fagsak fagsak) {
         if (behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsak.getId()) && FagsakStatus.LØPENDE.equals(fagsak.getStatus())) {
             var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).orElseThrow();
-            oppdaterFagsakStatus(fagsak, behandling, FagsakStatus.UNDER_BEHANDLING);
+            oppdaterFagsakStatus(fagsak, behandling.getId(), FagsakStatus.UNDER_BEHANDLING);
         }
     }
 
     public FagsakStatusOppdateringResultat oppdaterFagsakStatusNårAlleBehandlingerErLukket(Fagsak fagsak, Behandling behandling) {
+        var behandlingId = behandling != null ? behandling.getId() : null;
         if (alleAndreBehandlingerErLukket(fagsak, behandling)) {
             if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
-                oppdaterFagsakStatus(fagsak, behandling, FagsakStatus.AVSLUTTET);
+                oppdaterFagsakStatus(fagsak,behandlingId, FagsakStatus.AVSLUTTET);
                 return FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET;
             } else {
                 if (behandling == null || ingenLøpendeYtelseVedtak(behandling)) {
-                    oppdaterFagsakStatus(fagsak, behandling, FagsakStatus.AVSLUTTET);
+                    oppdaterFagsakStatus(fagsak, behandlingId, FagsakStatus.AVSLUTTET);
                     return FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET;
                 }
-                oppdaterFagsakStatus(fagsak, behandling, FagsakStatus.LØPENDE);
+                oppdaterFagsakStatus(fagsak, behandlingId, FagsakStatus.LØPENDE);
                 return FagsakStatusOppdateringResultat.FAGSAK_LØPENDE;
             }
         }
@@ -133,13 +134,13 @@ public class OppdaterFagsakStatusTjeneste {
         return BehandlingStatus.OPPRETTET.equals(status) || BehandlingStatus.UTREDES.equals(status) ;
     }
 
-    private void oppdaterFagsakStatus(Fagsak fagsak, Behandling behandling, FagsakStatus nyStatus) {
+    private void oppdaterFagsakStatus(Fagsak fagsak, Long behandlingId, FagsakStatus nyStatus) {
         var gammelStatus = fagsak.getStatus();
         var fagsakId = fagsak.getId();
         fagsakRepository.oppdaterFagsakStatus(fagsakId, nyStatus);
 
         if (fagsakStatusEventPubliserer != null) {
-            fagsakStatusEventPubliserer.fireEvent(fagsak, behandling, gammelStatus, nyStatus);
+            fagsakStatusEventPubliserer.fireEvent(fagsak, behandlingId, gammelStatus, nyStatus);
         }
     }
 
