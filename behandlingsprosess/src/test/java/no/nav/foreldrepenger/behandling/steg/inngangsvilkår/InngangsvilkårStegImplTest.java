@@ -367,7 +367,7 @@ public class InngangsvilkårStegImplTest {
 
         SutOpptjeningSteg(BehandlingRepositoryProvider repositoryProvider,
                           InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
-            super(repositoryProvider, inngangsvilkårFellesTjeneste);
+            super(repositoryProvider, inngangsvilkårFellesTjeneste, null);
         }
 
         @Override

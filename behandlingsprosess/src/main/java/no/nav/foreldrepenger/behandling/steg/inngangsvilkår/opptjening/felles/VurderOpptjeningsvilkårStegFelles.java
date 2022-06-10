@@ -13,10 +13,13 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.domene.abakus.AbakusInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårResultat;
 
@@ -26,12 +29,17 @@ public abstract class VurderOpptjeningsvilkårStegFelles extends Inngangsvilkår
     private static final List<VilkårType> STØTTEDE_VILKÅR = singletonList(OPPTJENINGSVILKÅRET);
 
     private BehandlingRepositoryProvider repositoryProvider;
+    private AbakusInntektArbeidYtelseTjeneste abakusInntektArbeidYtelseTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     public VurderOpptjeningsvilkårStegFelles(BehandlingRepositoryProvider repositoryProvider,
                                              InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste,
-                                             BehandlingStegType behandlingStegType) {
+                                             BehandlingStegType behandlingStegType,
+                                             AbakusInntektArbeidYtelseTjeneste abakusInntektArbeidYtelseTjeneste) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, behandlingStegType);
         this.repositoryProvider = repositoryProvider;
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.abakusInntektArbeidYtelseTjeneste = abakusInntektArbeidYtelseTjeneste;
     }
 
     protected VurderOpptjeningsvilkårStegFelles() {
@@ -76,6 +84,10 @@ public abstract class VurderOpptjeningsvilkårStegFelles extends Inngangsvilkår
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType hoppesTilSteg,
             BehandlingStegType hoppesFraSteg) {
         super.vedHoppOverBakover(kontekst, modell, hoppesTilSteg, hoppesFraSteg);
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING)) {
+            abakusInntektArbeidYtelseTjeneste.fjernSaksbehandletVersjon(behandling.getId());
+        }
         if (!erVilkårOverstyrt(kontekst.getBehandlingId())) {
             new RyddOpptjening(repositoryProvider, kontekst).ryddOppAktiviteter();
         }

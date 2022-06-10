@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetKlassifisering;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.abakus.AbakusInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårResultat;
 
@@ -31,8 +32,9 @@ public class VurderOpptjeningsvilkårSteg extends VurderOpptjeningsvilkårStegFe
 
     @Inject
     public VurderOpptjeningsvilkårSteg(BehandlingRepositoryProvider repositoryProvider,
-                                       InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
-        super(repositoryProvider, inngangsvilkårFellesTjeneste, BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
+                                       InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste,
+                                       AbakusInntektArbeidYtelseTjeneste abakusInntektArbeidYtelseTjeneste) {
+        super(repositoryProvider, inngangsvilkårFellesTjeneste, BehandlingStegType.VURDER_OPPTJENINGSVILKÅR, abakusInntektArbeidYtelseTjeneste);
     }
 
     @Override

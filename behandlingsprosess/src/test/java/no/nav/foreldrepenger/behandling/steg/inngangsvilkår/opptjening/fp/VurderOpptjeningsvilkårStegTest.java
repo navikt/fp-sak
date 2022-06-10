@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.domene.abakus.AbakusInntektArbeidYtelseTjeneste;
 
 @CdiDbAwareTest
 public class VurderOpptjeningsvilkårStegTest {
@@ -23,6 +24,8 @@ public class VurderOpptjeningsvilkårStegTest {
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     public InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste;
+    @Inject
+    public AbakusInntektArbeidYtelseTjeneste abakusInntektArbeidYtelseTjeneste;
 
     private final LocalDate idag = LocalDate.now();
 
@@ -58,7 +61,7 @@ public class VurderOpptjeningsvilkårStegTest {
                 .utførSteg(kontekst);
 
         // vurder vilkåret
-        new VurderOpptjeningsvilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste)
+        new VurderOpptjeningsvilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste, abakusInntektArbeidYtelseTjeneste)
                 .utførSteg(kontekst);
     }
 }
