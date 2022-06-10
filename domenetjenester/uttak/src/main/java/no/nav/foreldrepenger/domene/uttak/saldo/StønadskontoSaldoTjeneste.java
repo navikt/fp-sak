@@ -115,12 +115,8 @@ public class StønadskontoSaldoTjeneste {
         var stønadskontoer = stønadskontoer(ref);
         var saldoUtregningGrunnlag = saldoUtregningGrunnlag(perioderSøker, uttakInput, false, stønadskontoer);
         var saldoUtregning = SaldoUtregningTjeneste.lagUtregning(saldoUtregningGrunnlag);
-        var originalFørst = saldoUtregning.negativSaldoPåNoenKontoKonservativ();
         var annenpartFørst = saldoUtregning.negativSaldoPåNoenKontoByttParterKonservativ();
-        if (originalFørst != annenpartFørst) {
-            LOG.info("NEGATIV SALDO ulike verdier original {} annenpart {}", originalFørst, annenpartFørst);
-        }
-        return originalFørst || annenpartFørst;
+        return annenpartFørst;
     }
 
     private List<FastsattUttakPeriode> mapTilRegelPerioder(List<UttakResultatPeriodeEntitet> perioder) {

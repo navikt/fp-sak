@@ -371,50 +371,21 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         var annenpartsFørsteUttaksdato = finnFørsteUttaksdato(annenpartBehandling);
         var førsteUttaksdatoGjeldendeVedtak = finnFørsteUttaksdato(finnForrigeBehandling(ref));
 
-        LocalDate klassiskdato = null;
-        if (førsteUttaksdatoGjeldendeVedtak.isPresent() && annenpartsFørsteUttaksdato.isPresent()) {
-            klassiskdato = førsteUttaksdatoGjeldendeVedtak.get().isAfter(annenpartsFørsteUttaksdato.get()) ? førsteUttaksdatoGjeldendeVedtak.get() : annenpartsFørsteUttaksdato.get();
-        } else {
-            if (førsteUttaksdatoGjeldendeVedtak.isPresent()) {
-                klassiskdato = førsteUttaksdatoGjeldendeVedtak.get();
-            }
-            if (annenpartsFørsteUttaksdato.isPresent()) {
-                klassiskdato = annenpartsFørsteUttaksdato.get();
-            }
-        }
-        final var klassiskUtledetDato = klassiskdato;
-        var annenpartsEndringsdato = finnEndringsdato(annenpartBehandling).or(() -> Optional.ofNullable(klassiskUtledetDato));
-        if (annenpartsEndringsdato.isEmpty()) {
-            LOG.info("BERØRT ENDRINGSDATO: Annenparts endringsdato og klassisk dato er tom for behandling {}", ref.behandlingId());
-        } else if (klassiskUtledetDato == null) {
-            LOG.info("BERØRT ENDRINGSDATO: Annenparts endringsdato finnes for behandling {} klassisk dato tom, endringsdato {}", ref.behandlingId(), annenpartsEndringsdato.get());
-        }
-        var beregnetEndringsdato = beregnetEndringsdatoBerørtBehandling(uttakInput, annenpartBehandling);
-        var beregnetEndringsdatoStr = beregnetEndringsdato.map(LocalDate::toString).orElse("");
-        if (beregnetEndringsdato.isEmpty()) {
-            LOG.info("BERØRT ENDRINGSDATO: fant ikke beregnet dato for behandling {}", ref.behandlingId());
-        }
-        annenpartsEndringsdato.ifPresent(apd -> {
-            if (klassiskUtledetDato != null && apd.isBefore(klassiskUtledetDato)) {
-                LOG.info("BERØRT ENDRINGSDATO: FØR behandling {} klassisk dato {} endringsdato {} beregnet {}",
-                    ref.behandlingId(), klassiskUtledetDato, apd, beregnetEndringsdatoStr);
-                datoer.add(klassiskUtledetDato);
-            } else {
-                if (apd.equals(klassiskUtledetDato)) {
-                    LOG.info("BERØRT ENDRINGSDATO: LIK behandling {} klassisk dato {} endringsdato {} beregnet {}",
-                        ref.behandlingId(), klassiskUtledetDato, apd, beregnetEndringsdatoStr);
-                    datoer.add(apd);
-                } else if (beregnetEndringsdato.filter(bed -> bed.isAfter(apd)).isPresent()) {
-                    LOG.info("BERØRT ENDRINGSDATO: BEREGN behandling {} klassisk dato {} endringsdato {} beregnet {}",
-                        ref.behandlingId(), klassiskUtledetDato, apd, beregnetEndringsdatoStr);
-                    datoer.add(apd);
-                } else {
-                    LOG.info("BERØRT ENDRINGSDATO: ETTER behandling {} klassisk dato {} endringsdato {} beregnet {}",
-                        ref.behandlingId(), klassiskUtledetDato, apd, beregnetEndringsdatoStr);
-                }
-                datoer.add(apd);
-            }
-        });
+        var senesteFørsteUttakDato = førsteUttaksdatoGjeldendeVedtak
+            .filter(førsteUttaksdato -> annenpartsFørsteUttaksdato.filter(førsteUttaksdato::isAfter).isPresent())
+            .or(() -> annenpartsFørsteUttaksdato)
+            .orElseThrow(); // Da skulle det ikke ha blitt berørt i første omgang
+
+        var senestAvFørsteUttaksdatoEllerAnnenpartsEndringsdato = finnEndringsdato(annenpartBehandling)
+            .filter(senesteFørsteUttakDato::isBefore).orElse(senesteFørsteUttakDato);
+
+        var beregnetEndringsdato = beregnetEndringsdatoBerørtBehandling(uttakInput, annenpartBehandling)
+            .filter(senestAvFørsteUttaksdatoEllerAnnenpartsEndringsdato::isBefore)
+            .orElse(senestAvFørsteUttaksdatoEllerAnnenpartsEndringsdato);
+
+        LOG.info("BERØRT ENDRINGSDATO: behandling {} klassisk dato {} endringsdato {} beregnet {}", senesteFørsteUttakDato,
+            senestAvFørsteUttaksdatoEllerAnnenpartsEndringsdato, beregnetEndringsdato);
+        datoer.add(beregnetEndringsdato);
     }
 
     private Optional<LocalDate> beregnetEndringsdatoBerørtBehandling(UttakInput input, Long utløsendeBehandlingId) {
