@@ -92,7 +92,7 @@ public class VurderRefusjonBeregningsgrunnlagSteg implements BeregningsgrunnlagS
             var kreverefusjonFraStart = input.getInntektsmeldinger()
                 .stream()
                 .filter(ya::gjelderFor)
-                .anyMatch(im -> im.getRefusjonBeløpPerMnd().getVerdi().compareTo(BigDecimal.ZERO) > 0);
+                .anyMatch(im -> im.getRefusjonBeløpPerMnd() != null && im.getRefusjonBeløpPerMnd().getVerdi().compareTo(BigDecimal.ZERO) > 0);
             if (finnesTilkommetPermisjon && kreverefusjonFraStart) {
                 var msg = String.format("FP-564876: Saksnummer %s har tilkommet permisjon og krever refusjon fra start", saksnummer.getVerdi());
                 LOG.info(msg);
