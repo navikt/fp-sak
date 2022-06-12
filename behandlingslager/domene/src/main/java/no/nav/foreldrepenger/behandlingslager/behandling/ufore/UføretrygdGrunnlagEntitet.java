@@ -182,6 +182,7 @@ public class UføretrygdGrunnlagEntitet extends BaseEntitet {
         }
 
         public Builder medManueltAvklartUføretrygd(boolean erUføretrygdet) {
+            // Brukes for tilfelle der søknad pga andre valg neppe har angitt om mor er ufør og dette bekreftes manuelt (Aleneomsorg-bekreftelse)
             this.kladd.uføretrygdOverstyrt = erUføretrygdet;
             return this;
         }

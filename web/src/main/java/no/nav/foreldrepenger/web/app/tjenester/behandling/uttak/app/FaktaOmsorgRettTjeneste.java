@@ -160,8 +160,7 @@ public class FaktaOmsorgRettTjeneste {
             if (uføreGrunnlag.isEmpty() && opprettUføreGrunnlagHvisMangler) {
                 uføretrygdRepository.lagreUføreGrunnlagAvkreftetAleneomsorgVersjon(param.getBehandlingId(), annenpartAktørId, annenforelderMottarUføretrygd);
             } else {
-                uføreGrunnlag.filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd)
-                    .ifPresent(g -> uføretrygdRepository.lagreUføreGrunnlagOverstyrtVersjon(g.getBehandlingId(), annenforelderMottarUføretrygd));
+                uføreGrunnlag.ifPresent(g -> uføretrygdRepository.lagreUføreGrunnlagOverstyrtVersjon(g.getBehandlingId(), annenforelderMottarUføretrygd));
             }
         }
     }
