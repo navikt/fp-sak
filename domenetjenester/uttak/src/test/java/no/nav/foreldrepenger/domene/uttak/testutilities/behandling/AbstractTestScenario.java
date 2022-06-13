@@ -21,6 +21,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderMorStønadEØSEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUtenOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -65,6 +67,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private Set<BehandlingÅrsakType> behandlingÅrsaker;
     private PerioderUtenOmsorgEntitet perioderUtenOmsorg;
     private PerioderAleneOmsorgEntitet perioderMedAleneomsorg;
+    private PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRett;
+    private PerioderMorStønadEØSEntitet perioderMorStønadEØS;
     private UttakResultatPerioderEntitet uttak;
     private AktivitetskravPerioderEntitet opprinneligeAktivitetskravPerioder;
     private AktivitetskravPerioderEntitet saksbehandledeAktivitetskravPerioder;
@@ -170,6 +174,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             .medAvklarteDatoer(avklarteUttakDatoer)
             .medPerioderUtenOmsorg(perioderUtenOmsorg)
             .medPerioderAleneOmsorg(perioderMedAleneomsorg)
+            .medPerioderAnnenforelderHarRett(perioderAnnenforelderHarRett)
+            .medPerioderMorStønadEØS(perioderMorStønadEØS)
             .medOpprinneligeAktivitetskravPerioder(opprinneligeAktivitetskravPerioder)
             .medSaksbehandledeAktivitetskravPerioder(saksbehandledeAktivitetskravPerioder)
             ;
@@ -279,6 +285,18 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S medPeriodeMedAleneomsorg(PerioderAleneOmsorgEntitet perioderAleneOmsorg) {
         this.perioderMedAleneomsorg = perioderAleneOmsorg;
+        return (S) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public S medPeriodeAnnenforelderHarRett(PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRett) {
+        this.perioderAnnenforelderHarRett = perioderAnnenforelderHarRett;
+        return (S) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public S medPeriodeMorStønadEØS(PerioderMorStønadEØSEntitet perioderMorStønadEØS) {
+        this.perioderMorStønadEØS = perioderMorStønadEØS;
         return (S) this;
     }
 

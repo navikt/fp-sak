@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
@@ -46,8 +45,8 @@ public class RettOgOmsorgGrunnlagBygger {
                 .aleneomsorg(aleneomsorg(ytelseFordelingAggregat))
                 .farHarRett(farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
                 .morHarRett(morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
-                .morUføretrygd(morUføretrygd(uttakInput))
-                .morOppgittUføretrygd(morOppgittUføretrygd(uttakInput))
+                .morUføretrygd(morUføretrygd(uttakInput) || morStønadEØS(ytelseFordelingAggregat))
+                .morOppgittUføretrygd(morOppgittUføretrygd(uttakInput) || morOppgittStønadEØS(ytelseFordelingAggregat))
                 .samtykke(samtykke);
     }
 
@@ -89,13 +88,21 @@ public class RettOgOmsorgGrunnlagBygger {
     private boolean morUføretrygd(UttakInput uttakInput) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         return fpGrunnlag.getUføretrygdGrunnlag()
-            .filter(UføretrygdGrunnlagEntitet::annenForelderMottarUføretrygd)
+            .filter(UttakOmsorgUtil::morMottarUføretrygd)
             .isPresent();
     }
 
     private boolean morOppgittUføretrygd(UttakInput uttakInput) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         return fpGrunnlag.getUføretrygdGrunnlag().isPresent();
+    }
+
+    private boolean morStønadEØS(YtelseFordelingAggregat ytelseFordelingAggregat) {
+        return UttakOmsorgUtil.morMottarForeldrepengerEØS(ytelseFordelingAggregat);
+    }
+
+    private boolean morOppgittStønadEØS(YtelseFordelingAggregat ytelseFordelingAggregat) {
+        return UttakOmsorgUtil.morOppgittForeldrepengerEØS(ytelseFordelingAggregat);
     }
 
     private boolean samtykke(YtelseFordelingAggregat ytelseFordelingAggregat) {

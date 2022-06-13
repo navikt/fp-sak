@@ -2,13 +2,18 @@ package no.nav.foreldrepenger.domene.uttak;
 
 import static java.lang.Boolean.TRUE;
 
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.konfig.Environment;
 
 public final class UttakOmsorgUtil {
+
+    private static final LocalDate IKRAFTTREDELSE = LocalDate.of(2022,8,2); // LA STÅ inntil gitt dato - fjern etter det
+    private static final boolean ER_PROD = Environment.current().isProd();
 
     private UttakOmsorgUtil() {
     }
@@ -37,8 +42,11 @@ public final class UttakOmsorgUtil {
     }
 
     public static boolean morMottarForeldrepengerEØS(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return Optional.ofNullable(ytelseFordelingAggregat.getMorStønadEØSAvklaring())
-            .orElseGet(() -> TRUE.equals(ytelseFordelingAggregat.getOppgittRettighet().getMorMottarStønadEØS()));
+        return godtasStønadFraEØS() && TRUE.equals(ytelseFordelingAggregat.getMorStønadEØSAvklaring());
+    }
+
+    public static boolean morOppgittForeldrepengerEØS(YtelseFordelingAggregat ytelseFordelingAggregat) {
+        return godtasStønadFraEØS() && TRUE.equals(ytelseFordelingAggregat.getOppgittRettighet().getMorMottarStønadEØS());
     }
 
     public static boolean annenForelderHarUttakMedUtbetaling(Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan) {
@@ -48,4 +56,9 @@ public final class UttakOmsorgUtil {
     private static boolean harUtbetaling(ForeldrepengerUttak resultat) {
         return resultat.getGjeldendePerioder().stream().anyMatch(p -> p.harUtbetaling());
     }
+
+    private static boolean godtasStønadFraEØS() {
+        return !(ER_PROD && LocalDate.now().isBefore(IKRAFTTREDELSE));
+    }
+
 }
