@@ -342,12 +342,12 @@ public class BeregningsgrunnlagRepository {
         beregningsgrunnlag.ifPresent(orig -> lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.kopi(orig), beregningsgrunnlagTilstand));
     }
 
-    public boolean oppdaterGrunnlagMedGrunnbeløp(Long gammelBehandlingId, Long nyBehandlingId, BeregningsgrunnlagTilstand tilstand) {
+    public boolean oppdaterGrunnlagMedGrunnbeløp(Long gammelBehandlingId, Long nyBehandlingId, BeregningsgrunnlagTilstand tilstand, LocalDate førsteUttaksdato) {
         var beregningsgrunnlag = hentSisteBeregningsgrunnlagGrunnlagEntitet(gammelBehandlingId, tilstand);
         if (beregningsgrunnlag.isPresent()) {
             if (beregningsgrunnlag.get().getBeregningsgrunnlag().isPresent()) {
                 var bg = beregningsgrunnlag.get().getBeregningsgrunnlag().orElseThrow(() -> new IllegalStateException("Skal ha BG"));
-                var beregningSats = finnEksaktSats(BeregningSatsType.GRUNNBELØP, bg.getSkjæringstidspunkt());
+                var beregningSats = finnEksaktSats(BeregningSatsType.GRUNNBELØP, førsteUttaksdato);
                 lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.kopi(beregningsgrunnlag.get())
                     .medBeregningsgrunnlag(BeregningsgrunnlagEntitet.builder(bg).medGrunnbeløp(BigDecimal.valueOf(beregningSats.getVerdi())).build()), tilstand);
             } else {

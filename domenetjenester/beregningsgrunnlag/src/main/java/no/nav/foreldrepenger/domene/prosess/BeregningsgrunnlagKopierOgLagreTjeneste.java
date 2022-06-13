@@ -250,12 +250,12 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
                     behandlingId, tilstand));
     }
 
-    public void kopierResultatForGRegulering(Long originalBehandlingId, Long behandlingId) {
+    public void kopierResultatForGRegulering(Long originalBehandlingId, Long behandlingId, LocalDate førsteUttaksdato) {
         Stream.of(BeregningsgrunnlagTilstand.values())
             .filter(tilstand -> tilstand.erFør(KOFAKBER_UT) || tilstand.equals(KOFAKBER_UT))
             .sorted(TILSTAND_COMPARATOR)
             .forEach(tilstand -> beregningsgrunnlagRepository.oppdaterGrunnlagMedGrunnbeløp(originalBehandlingId,
-                behandlingId, tilstand));
+                behandlingId, tilstand, førsteUttaksdato));
     }
 
     /**

@@ -132,17 +132,18 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             // Suksessive eksekveringer av stegets aksjonspunktsutledere skjer utenfor steget
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
+
+        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
         // Spesialhåndtering for enkelte behandlinger
         if (SpesialBehandling.erSpesialBehandling(behandling)) {
             var startpunkt = SpesialBehandling.skalUttakVurderes(behandling) ?
                 StartpunktType.UTTAKSVILKÅR : StartpunktType.TILKJENT_YTELSE;
             behandling.setStartpunkt(startpunkt);
-            kopierResultaterAvhengigAvStartpunkt(behandling, kontekst);
+            kopierResultaterAvhengigAvStartpunkt(behandling, kontekst, ref);
             return utledStegResultat(startpunkt, List.of());
         }
 
-        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
         behandlingÅrsakTjeneste.lagHistorikkForRegisterEndringerMotOriginalBehandling(behandling);
 
         var startpunkt = utledStartpunkt(ref, behandling);
@@ -151,7 +152,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         // Kopier aksjonspunkter
         List<AksjonspunktResultat> aksjonspunktResultater = startpunkt.getRangering() <= StartpunktType.OPPTJENING.getRangering() ?
             tjeneste.utledAksjonspunkterTilHøyreForStartpunkt(ref, startpunkt) : List.of();
-        kopierResultaterAvhengigAvStartpunkt(behandling, kontekst);
+        kopierResultaterAvhengigAvStartpunkt(behandling, kontekst, ref);
 
         return utledStegResultat(startpunkt, aksjonspunktResultater);
     }
@@ -290,7 +291,9 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                 .anyMatch(a -> a.mottarYtelse().orElse(false));
     }
 
-    private void kopierResultaterAvhengigAvStartpunkt(Behandling revurdering, BehandlingskontrollKontekst kontekst) {
+    private void kopierResultaterAvhengigAvStartpunkt(Behandling revurdering,
+                                                      BehandlingskontrollKontekst kontekst,
+                                                      BehandlingReferanse ref) {
         var origBehandling = revurdering.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
                 .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
 
@@ -299,7 +302,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
         if (StartpunktType.BEREGNING_FORESLÅ.equals(revurdering.getStartpunkt())) {
             beregningsgrunnlagKopierOgLagreTjeneste.kopierResultatForGRegulering(finnBehandlingSomHarKjørtBeregning(origBehandling).getId(),
-                    revurdering.getId());
+                    revurdering.getId(), ref.getSkjæringstidspunkt().getFørsteUttaksdatoGrunnbeløp());
         }
 
         if (StartpunktType.UTTAKSVILKÅR.equals(revurdering.getStartpunkt()) || StartpunktType.TILKJENT_YTELSE.equals(revurdering.getStartpunkt())) {
