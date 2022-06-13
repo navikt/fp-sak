@@ -171,7 +171,7 @@ class MapTilKalkulatorInput {
         }
         if (ytelsespesifiktGrunnlag instanceof no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag fpGrunnlag) {
             var aktivitetGraderingDto = mapAktivitetGradering(fpGrunnlag.getAktivitetGradering());
-            return new ForeldrepengerGrunnlag(BigDecimal.valueOf(fpGrunnlag.getDekningsgrad(null, null)), fpGrunnlag.isKvalifisererTilBesteberegning(), aktivitetGraderingDto);
+            return new ForeldrepengerGrunnlag(BigDecimal.valueOf(fpGrunnlag.getDekningsgrad()), fpGrunnlag.isKvalifisererTilBesteberegning(), aktivitetGraderingDto);
         }
         return null;
     }
