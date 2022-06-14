@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
@@ -64,6 +65,8 @@ public class BeregneYtelseStegImplTest {
     private FpUttakRepository fpUttakRepository;
     @Inject
     private BehandlingRepository behandlingRepository;
+    @Inject
+    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     @Mock
     private BeregnYtelseTjeneste beregnYtelseTjeneste;
@@ -77,7 +80,7 @@ public class BeregneYtelseStegImplTest {
         steg = new BeregneYtelseStegImpl(behandlingRepository,
                 beregningsresultatRepository,
                 new UnitTestLookupInstanceImpl<>(beregnFeriepengerTjeneste),
-                beregnYtelseTjeneste);
+                beregnYtelseTjeneste, inntektArbeidYtelseTjeneste);
     }
 
     private BeregningsresultatEntitet opprettBeregningsresultat() {
