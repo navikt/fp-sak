@@ -100,30 +100,29 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         var result = tjeneste.mapFra(behandling);
 
-        assertThat(result).isPresent();
-        assertThat(result.get().perioderSøker()).hasSize(1);
-        assertThat(result.get().perioderSøker().get(0).getFom()).isEqualTo(periode.getFom());
-        assertThat(result.get().perioderSøker().get(0).getTom()).isEqualTo(periode.getTom());
-        assertThat(result.get().perioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
-        assertThat(result.get().perioderSøker().get(0).getPeriodeResultatType()).isEqualTo(periode.getResultatType());
-        assertThat(result.get().perioderSøker().get(0).getBegrunnelse()).isEqualTo(periode.getBegrunnelse());
-        assertThat(result.get().perioderSøker().get(0).getGradertAktivitet().getArbeidsforholdId()).isEqualTo(internArbeidsforholdId.getReferanse());
-        assertThat(result.get().perioderSøker().get(0).getGradertAktivitet().getEksternArbeidsforholdId()).isEqualTo(eksternArbeidsforholdId.getReferanse());
-        assertThat(result.get().perioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
-        assertThat(result.get().perioderSøker().get(0).getSamtidigUttaksprosent()).isEqualTo(periode.getSamtidigUttaksprosent());
-        assertThat(result.get().perioderSøker().get(0).getPeriodeType()).isEqualTo(periodeType);
-        assertThat(result.get().perioderSøker().get(0).getMottattDato()).isEqualTo(mottattDato);
-        assertThat(result.get().perioderSøker().get(0).getAktiviteter()).hasSize(1);
-        assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getArbeidsforholdId()).isEqualTo(periodeAktivitet.getArbeidsforholdRef().getReferanse());
-        assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getEksternArbeidsforholdId()).isEqualTo(eksternArbeidsforholdId.getReferanse());
-        assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getArbeidsgiverReferanse()).isEqualTo(periodeAktivitet.getArbeidsgiver().getIdentifikator());
-        assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getStønadskontoType()).isEqualTo(periodeAktivitet.getTrekkonto());
-        assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getTrekkdager()).isEqualTo(periodeAktivitet.getTrekkdager().decimalValue());
-        assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getProsentArbeid()).isEqualTo(periodeAktivitet.getArbeidsprosent());
-        assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getUtbetalingsgrad()).isEqualTo(periodeAktivitet.getUtbetalingsgrad());
-        assertThat(result.get().perioderSøker().get(0).getAktiviteter().get(0).getUttakArbeidType()).isEqualTo(periodeAktivitet.getUttakArbeidType());
-        assertThat(result.get().årsakFilter().søkerErMor()).isTrue();
-        assertThat(result.get().årsakFilter().kreverSammenhengendeUttak()).isFalse();
+        assertThat(result.perioderSøker()).hasSize(1);
+        assertThat(result.perioderSøker().get(0).getFom()).isEqualTo(periode.getFom());
+        assertThat(result.perioderSøker().get(0).getTom()).isEqualTo(periode.getTom());
+        assertThat(result.perioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
+        assertThat(result.perioderSøker().get(0).getPeriodeResultatType()).isEqualTo(periode.getResultatType());
+        assertThat(result.perioderSøker().get(0).getBegrunnelse()).isEqualTo(periode.getBegrunnelse());
+        assertThat(result.perioderSøker().get(0).getGradertAktivitet().getArbeidsforholdId()).isEqualTo(internArbeidsforholdId.getReferanse());
+        assertThat(result.perioderSøker().get(0).getGradertAktivitet().getEksternArbeidsforholdId()).isEqualTo(eksternArbeidsforholdId.getReferanse());
+        assertThat(result.perioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
+        assertThat(result.perioderSøker().get(0).getSamtidigUttaksprosent()).isEqualTo(periode.getSamtidigUttaksprosent());
+        assertThat(result.perioderSøker().get(0).getPeriodeType()).isEqualTo(periodeType);
+        assertThat(result.perioderSøker().get(0).getMottattDato()).isEqualTo(mottattDato);
+        assertThat(result.perioderSøker().get(0).getAktiviteter()).hasSize(1);
+        assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getArbeidsforholdId()).isEqualTo(periodeAktivitet.getArbeidsforholdRef().getReferanse());
+        assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getEksternArbeidsforholdId()).isEqualTo(eksternArbeidsforholdId.getReferanse());
+        assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getArbeidsgiverReferanse()).isEqualTo(periodeAktivitet.getArbeidsgiver().getIdentifikator());
+        assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getStønadskontoType()).isEqualTo(periodeAktivitet.getTrekkonto());
+        assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getTrekkdager()).isEqualTo(periodeAktivitet.getTrekkdager().decimalValue());
+        assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getProsentArbeid()).isEqualTo(periodeAktivitet.getArbeidsprosent());
+        assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getUtbetalingsgrad()).isEqualTo(periodeAktivitet.getUtbetalingsgrad());
+        assertThat(result.perioderSøker().get(0).getAktiviteter().get(0).getUttakArbeidType()).isEqualTo(periodeAktivitet.getUttakArbeidType());
+        assertThat(result.årsakFilter().søkerErMor()).isTrue();
+        assertThat(result.årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     private Behandling morBehandlingMedUttak(UttakResultatPerioderEntitet perioder) {
@@ -181,12 +180,11 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         var result = tjeneste.mapFra(behandling);
 
-        assertThat(result).isPresent();
-        assertThat(result.get().perioderSøker()).hasSize(2);
-        assertThat(result.get().perioderSøker().get(0).getAktiviteter()).hasSize(2);
-        assertThat(result.get().perioderSøker().get(1).getAktiviteter()).hasSize(1);
-        assertThat(result.get().årsakFilter().søkerErMor()).isTrue();
-        assertThat(result.get().årsakFilter().kreverSammenhengendeUttak()).isFalse();
+        assertThat(result.perioderSøker()).hasSize(2);
+        assertThat(result.perioderSøker().get(0).getAktiviteter()).hasSize(2);
+        assertThat(result.perioderSøker().get(1).getAktiviteter()).hasSize(1);
+        assertThat(result.årsakFilter().søkerErMor()).isTrue();
+        assertThat(result.årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     private UttakResultatPeriodeAktivitetEntitet periodeAktivitet(UttakResultatPeriodeEntitet periode, String orgnr) {
@@ -233,15 +231,14 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         var result = tjeneste.mapFra(behandlingSøker);
 
-        assertThat(result).isPresent();
-        assertThat(result.get().perioderSøker()).hasSize(2);
-        assertThat(result.get().perioderSøker().get(0).getAktiviteter()).hasSize(1);
-        assertThat(result.get().perioderSøker().get(1).getAktiviteter()).hasSize(1);
+        assertThat(result.perioderSøker()).hasSize(2);
+        assertThat(result.perioderSøker().get(0).getAktiviteter()).hasSize(1);
+        assertThat(result.perioderSøker().get(1).getAktiviteter()).hasSize(1);
 
-        assertThat(result.get().perioderAnnenpart()).hasSize(1);
-        assertThat(result.get().perioderAnnenpart().get(0).getAktiviteter()).hasSize(1);
-        assertThat(result.get().årsakFilter().søkerErMor()).isTrue();
-        assertThat(result.get().årsakFilter().kreverSammenhengendeUttak()).isFalse();
+        assertThat(result.perioderAnnenpart()).hasSize(1);
+        assertThat(result.perioderAnnenpart().get(0).getAktiviteter()).hasSize(1);
+        assertThat(result.årsakFilter().søkerErMor()).isTrue();
+        assertThat(result.årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     @Test
@@ -277,14 +274,13 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         var result = tjeneste.mapFra(behandlingSøker);
 
-        assertThat(result).isPresent();
-        assertThat(result.get().perioderSøker()).hasSize(1);
-        assertThat(result.get().perioderSøker().get(0).getAktiviteter()).hasSize(1);
+        assertThat(result.perioderSøker()).hasSize(1);
+        assertThat(result.perioderSøker().get(0).getAktiviteter()).hasSize(1);
 
-        assertThat(result.get().perioderAnnenpart()).hasSize(1);
-        assertThat(result.get().perioderAnnenpart().get(0).getAktiviteter()).hasSize(1);
-        assertThat(result.get().årsakFilter().søkerErMor()).isTrue();
-        assertThat(result.get().årsakFilter().kreverSammenhengendeUttak()).isFalse();
+        assertThat(result.perioderAnnenpart()).hasSize(1);
+        assertThat(result.perioderAnnenpart().get(0).getAktiviteter()).hasSize(1);
+        assertThat(result.årsakFilter().søkerErMor()).isTrue();
+        assertThat(result.årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     private ArbeidsforholdInformasjonBuilder lagFiktivtArbeidsforholdOverstyring(InternArbeidsforholdRef internArbeidsforholdRef) {
@@ -327,10 +323,10 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         var result = tjeneste.mapFra(behandling);
 
-        assertThat(result.get().perioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
-        assertThat(result.get().perioderSøker().get(0).getSamtidigUttaksprosent()).isEqualTo(periode.getSamtidigUttaksprosent());
-        assertThat(result.get().årsakFilter().søkerErMor()).isTrue();
-        assertThat(result.get().årsakFilter().kreverSammenhengendeUttak()).isFalse();
+        assertThat(result.perioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
+        assertThat(result.perioderSøker().get(0).getSamtidigUttaksprosent()).isEqualTo(periode.getSamtidigUttaksprosent());
+        assertThat(result.årsakFilter().søkerErMor()).isTrue();
+        assertThat(result.årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     @Test
@@ -343,10 +339,10 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var tjeneste = tjeneste();
 
         var result = tjeneste.mapFra(behandling);
-        assertThat(result.get().annenForelderHarRett()).isFalse();
-        assertThat(result.get().aleneomsorg()).isFalse();
-        assertThat(result.get().årsakFilter().søkerErMor()).isTrue();
-        assertThat(result.get().årsakFilter().kreverSammenhengendeUttak()).isFalse();
+        assertThat(result.annenForelderHarRett()).isFalse();
+        assertThat(result.aleneomsorg()).isFalse();
+        assertThat(result.årsakFilter().søkerErMor()).isTrue();
+        assertThat(result.årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     @Test
@@ -359,9 +355,9 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var tjeneste = tjeneste();
 
         var result = tjeneste.mapFra(behandling);
-        assertThat(result.get().annenForelderHarRett()).isFalse();
-        assertThat(result.get().aleneomsorg()).isFalse();
-        assertThat(result.get().årsakFilter().søkerErMor()).isFalse();
+        assertThat(result.annenForelderHarRett()).isFalse();
+        assertThat(result.aleneomsorg()).isFalse();
+        assertThat(result.årsakFilter().søkerErMor()).isFalse();
     }
 
     @Test
@@ -383,10 +379,10 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         var result = tjeneste().mapFra(behandling);
-        assertThat(result.get().annenForelderHarRett()).isTrue();
-        assertThat(result.get().aleneomsorg()).isTrue();
-        assertThat(result.get().årsakFilter().søkerErMor()).isTrue();
-        assertThat(result.get().årsakFilter().kreverSammenhengendeUttak()).isFalse();
+        assertThat(result.annenForelderHarRett()).isTrue();
+        assertThat(result.aleneomsorg()).isTrue();
+        assertThat(result.årsakFilter().søkerErMor()).isTrue();
+        assertThat(result.årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     private UttakResultatPeriodeEntitet.Builder periodeBuilder(LocalDate fom, LocalDate tom) {

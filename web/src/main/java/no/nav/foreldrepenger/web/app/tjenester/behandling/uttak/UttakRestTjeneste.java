@@ -179,7 +179,7 @@ public class UttakRestTjeneste {
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = hentBehandling(uuidDto);
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        return uttakResultatPerioderDtoTjeneste.mapFra(behandling, skjæringstidspunkt).orElse(null);
+        return uttakResultatPerioderDtoTjeneste.mapFra(behandling, skjæringstidspunkt);
     }
 
     @GET
