@@ -5,6 +5,9 @@ import java.util.Collections;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.FagsakStatusEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -31,6 +34,7 @@ public class OppdaterFagsakStatusTjeneste {
     protected BehandlingRepository behandlingRepository;
     protected FagsakRelasjonRepository fagsakRelasjonRepository;
     protected FamilieHendelseRepository familieHendelseRepository;
+    private static final Logger LOG = LoggerFactory.getLogger(OppdaterFagsakStatusTjeneste.class);
 
     public OppdaterFagsakStatusTjeneste() {
         //CDI
@@ -121,7 +125,10 @@ public class OppdaterFagsakStatusTjeneste {
             if (erBehandlingResultatAvslått(sisteYtelsesvedtak.get())) return true;
 
             //spesialhåndtering når saken er opphørt og skal avsluttes, men annen part ikke skal avsluttes - avslutningsdato kan da ikke settes. Inntil vi har løst tfp-5062
-            if(behandlingHarEnkeltOpphør(behandling) && sakErKobletTIlAnnenPart(behandling)) return true;
+            if(behandlingHarEnkeltOpphør(behandling) && sakErKobletTIlAnnenPart(behandling)) {
+                LOG.info("OppdaterFagsakStausTjenest: Saksnummer: {} settes til avsluttet grunnet enkeltopphør når sak er koblet til annen part", behandling.getFagsak().getSaksnummer());
+                return true;
+            }
 
             //Dersom saken har en avslutningsdato vil avslutning av saken hånderes av AutomatiskFagsakAvslutningBatchTjeneste
             //Hvis den ikke har en avslutningsdato skal den derfor avsluttes
