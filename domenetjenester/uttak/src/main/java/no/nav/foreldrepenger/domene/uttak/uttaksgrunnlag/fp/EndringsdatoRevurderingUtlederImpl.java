@@ -374,6 +374,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         var senesteFørsteUttakDato = førsteUttaksdatoGjeldendeVedtak
             .filter(førsteUttaksdato -> annenpartsFørsteUttaksdato.filter(førsteUttaksdato::isAfter).isPresent())
             .or(() -> annenpartsFørsteUttaksdato)
+            .or(() -> førsteUttaksdatoGjeldendeVedtak) // Annen part har typisk utsatt start. Kan være hull første 6 uker.
             .orElseThrow(); // Da skulle det ikke ha blitt berørt i første omgang
 
         var senestAvFørsteUttaksdatoEllerAnnenpartsEndringsdato = finnEndringsdato(annenpartBehandling)

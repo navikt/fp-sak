@@ -67,7 +67,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     public void skal_opprette_revurderingsbehandling_med_årsak_når_avsluttet_behandling() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any()))
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(any()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusWeeks(3)).build());
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
@@ -123,7 +123,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(flytkontroll.nyRevurderingSkalVente(any())).thenReturn(true);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any()))
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(any()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusWeeks(3)).build());
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
@@ -142,7 +142,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     @Test
     public void skal_ikke_opprette_revurdering_dersom_skal_ha_gammel_sats() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any()))
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(any()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusYears(2)).build());
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
