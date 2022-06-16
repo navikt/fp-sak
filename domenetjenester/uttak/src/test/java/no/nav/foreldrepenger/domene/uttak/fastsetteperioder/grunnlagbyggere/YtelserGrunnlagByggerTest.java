@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilde
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -118,7 +117,7 @@ class YtelserGrunnlagByggerTest {
     }
 
     private static BehandlingReferanse lagBehandlingReferanse() {
-        return new BehandlingReferanse(Saksnummer.arena("1234"),
+        return new BehandlingReferanse(new Saksnummer("1234"),
             1234L,
             FagsakYtelseType.FORELDREPENGER,
             4321L,

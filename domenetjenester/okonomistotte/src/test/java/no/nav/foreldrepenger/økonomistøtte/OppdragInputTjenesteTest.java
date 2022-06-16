@@ -78,7 +78,7 @@ class OppdragInputTjenesteTest {
     @BeforeEach
     public void setup() {
         behandling = Behandling.nyBehandlingFor(
-            Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()), Saksnummer.arena("123456789")),
+            Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("123456789")),
             BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandlingId = 123L;
 

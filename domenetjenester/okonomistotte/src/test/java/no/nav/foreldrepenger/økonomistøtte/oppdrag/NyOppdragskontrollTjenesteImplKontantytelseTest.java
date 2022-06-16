@@ -40,7 +40,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
 
     public static final long PROSESS_TASK_ID = 23L;
     public static final String BRUKER_FNR = "12345678901";
-    public static final Saksnummer SAKSNUMMER = Saksnummer.infotrygd("101000");
+    public static final Saksnummer SAKSNUMMER = new Saksnummer("101000");
     public static final long BEHANDLING_ID = 123456L;
     public static final String ANSVARLIG_SAKSBEHANDLER = "Katarzyna";
     public static final LocalDate VEDTAKSDATO = LocalDate.now();

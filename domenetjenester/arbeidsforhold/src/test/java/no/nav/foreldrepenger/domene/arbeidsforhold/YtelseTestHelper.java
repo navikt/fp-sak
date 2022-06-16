@@ -27,7 +27,7 @@ public class YtelseTestHelper {
             RelatertYtelseTilstand relatertYtelseTilstand, String saksnummer, RelatertYtelseType ytelseType) {
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom);
         var ytelseBuilder = aktørYtelseBuilder.getYtelselseBuilderForType(Fagsystem.INFOTRYGD, ytelseType,
-                Saksnummer.infotrygd(saksnummer));
+                new Saksnummer(saksnummer));
         ytelseBuilder.medPeriode(periode);
         ytelseBuilder.medStatus(relatertYtelseTilstand);
         ytelseBuilder.medYtelseAnvist(
