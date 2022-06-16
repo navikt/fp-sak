@@ -75,9 +75,12 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
         }
         if (prosessTaskData.getPropertyValue(MANUELL_KEY) == null) {
             var sisteVedtatte = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).orElseThrow();
-            var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(sisteVedtatte.getId());
+            var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(sisteVedtatte.getId());
             var satsFom = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
-            if (skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp().isBefore(satsFom)) return;
+            if (skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp().isBefore(satsFom)) {
+                LOG.info("GrunnbeløpRegulering stp er før ny satsdato fagsakId = {} stp {}", fagsakId, skjæringstidspunkt);
+                return;
+            }
         }
 
         var skalKøes = flytkontroll.nyRevurderingSkalVente(fagsak);

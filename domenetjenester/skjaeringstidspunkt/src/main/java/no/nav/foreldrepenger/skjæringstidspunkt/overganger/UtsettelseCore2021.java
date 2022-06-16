@@ -67,7 +67,7 @@ public class UtsettelseCore2021 {
     }
 
     public static LocalDate førsteUttaksDatoForBeregning(RelasjonsRolleType rolle, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag, LocalDate førsteUttaksdato) {
-        // FAR/MEDMOR skal ikke vurderes
+        // FAR/MEDMOR eller adopsjon skal ikke begynnne før familiehendelsedato
         var gjeldendeFH = familieHendelseGrunnlag.getGjeldendeVersjon();
         if (!gjeldendeFH.getGjelderFødsel() || !RelasjonsRolleType.MORA.equals(rolle)) {
             // 14-10 første ledd (far+medmor), andre ledd
@@ -75,7 +75,7 @@ public class UtsettelseCore2021 {
                 gjeldendeFH.getSkjæringstidspunkt() : førsteUttaksdato;
             return VirkedagUtil.fomVirkedag(uttaksdato);
         }
-        // 14-10 første ledd (mor)
+        // 14-10 første ledd (mor) - settes til tidligst av (førstuttaksdato, termin-3, fødsel). Ingen sjekk på før T-12uker.
         var termindatoMinusPeriode = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse()
             .map(TerminbekreftelseEntitet::getTermindato)
             .map(t -> t.minus(SENESTE_UTTAK_FØR_TERMIN));
