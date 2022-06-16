@@ -48,7 +48,7 @@ public class SimulerInntrekkSjekkeTjenesteTest {
         tilbakekrevingRepository = mock(TilbakekrevingRepository.class);
         historikkRepository = mock(HistorikkRepository.class);
         behandling = Behandling.nyBehandlingFor(
-            Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), Saksnummer.arena("123456789")),
+            Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("123456789")),
             BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandling.setId(123L);
         simulerInntrekkSjekkeTjeneste = new SimulerInntrekkSjekkeTjeneste(simuleringIntegrasjonTjeneste, simulerOppdragTjeneste,

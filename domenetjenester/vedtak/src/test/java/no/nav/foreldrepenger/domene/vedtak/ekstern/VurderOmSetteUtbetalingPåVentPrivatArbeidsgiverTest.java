@@ -301,7 +301,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     private Oppdragskontroll byggOppdagskontroll() {
         return Oppdragskontroll.builder()
             .medVenterKvittering(false)
-            .medSaksnummer(Saksnummer.infotrygd("12342234"))
+            .medSaksnummer(new Saksnummer("12342234"))
             .medBehandlingId(behandling.getId())
             .medProsessTaskId(0L)
             .build();
