@@ -83,6 +83,23 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     }
 
     @Override
+    public Skjæringstidspunkt getSkjæringstidspunkterForAvsluttetBehandling(Long behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var førsteUttak = finnFørsteDatoMedUttak(behandling).orElseThrow();
+        var skjæringstidspunkt = opptjeningRepository.finnOpptjening(behandlingId).map(o -> o.getTom().plusDays(1)).orElse(førsteUttak);
+
+        return Skjæringstidspunkt.builder()
+            .medFørsteUttaksdato(førsteUttak)
+            .medFørsteUttaksdatoGrunnbeløp(førsteUttak)
+            .medFørsteUttaksdatoSøknad(førsteUttak)
+            .medUtledetSkjæringstidspunkt(førsteUttak)
+            .medSkjæringstidspunktOpptjening(skjæringstidspunkt)
+            .medUtledetMedlemsintervall(utledYtelseintervall(behandlingId, førsteUttak))
+            .medGjelderFødsel(true)
+            .build();
+    }
+
+    @Override
     public LocalDate utledSkjæringstidspunktForRegisterInnhenting(Long behandlingId) {
         return utledSkjæringstidspunktRegisterinnhenting(behandlingId);
     }
