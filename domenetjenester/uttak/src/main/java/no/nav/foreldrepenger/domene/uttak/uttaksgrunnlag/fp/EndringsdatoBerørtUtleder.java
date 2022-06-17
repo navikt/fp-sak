@@ -79,7 +79,8 @@ public final class EndringsdatoBerørtUtleder {
             }
         }
 
-        var opprett = kreverSammenhengendeUttak && !fellesTidslinjeForSammenheng.isContinuous(periodeFomEndringsdato);
+        var opprett = kreverSammenhengendeUttak && !fellesTidslinjeForSammenheng.intersection(periodeFomEndringsdato).isEmpty() &&
+            !fellesTidslinjeForSammenheng.isContinuous(periodeFomEndringsdato);
         if (opprett) {
             var tidslinjeFomEndringsdato = fellesTidslinjeForSammenheng.intersection(periodeFomEndringsdato);
             var tidligsteGap = Optional.ofNullable(tidslinjeFomEndringsdato.firstDiscontinuity()).map(LocalDateInterval::getFomDato).orElse(endringsdato);
