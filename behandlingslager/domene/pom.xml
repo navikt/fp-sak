@@ -55,7 +55,6 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
         </dependency>
-
         <!-- Test -->
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
