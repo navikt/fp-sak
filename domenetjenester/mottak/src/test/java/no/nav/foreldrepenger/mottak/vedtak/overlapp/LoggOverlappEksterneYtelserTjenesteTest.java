@@ -295,7 +295,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
 
     private Vedtak lagVedtakForGrunnlag(LocalDate fom, LocalDate tom, int utbetGrad) {
         var periode = new Periode(fom, tom);
-        return new Vedtak(periode, utbetGrad);
+        return new Vedtak(periode, utbetGrad,"arbOrgnr", false, 100);
     }
 
     private Grunnlag lagGrunnlagSPIT(LocalDate fom, LocalDate tom, List<Vedtak> vedtakPerioder) {
