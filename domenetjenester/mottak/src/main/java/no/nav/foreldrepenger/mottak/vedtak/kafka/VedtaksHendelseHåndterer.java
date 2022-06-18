@@ -156,8 +156,7 @@ public class VedtaksHendelseHåndterer {
             // Unngå gå i beina på på iverksettingstasker med sen respons
             if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
                 if (isProd) {
-                    var startberørtdelay = 1 + LocalDateTime.now().getNano() % 3;
-                    lagreProsesstaskFor(behandling, TaskType.forProsessTask(StartBerørtBehandlingTask.class), startberørtdelay);
+                    lagreProsesstaskFor(behandling, TaskType.forProsessTask(StartBerørtBehandlingTask.class), 2);
                     lagreProsesstaskFor(behandling, TaskType.forProsessTask(VurderOpphørAvYtelserTask.class), 5);
                 } else {
                     lagreProsesstaskFor(behandling, TaskType.forProsessTask(StartBerørtBehandlingTask.class), 0);
