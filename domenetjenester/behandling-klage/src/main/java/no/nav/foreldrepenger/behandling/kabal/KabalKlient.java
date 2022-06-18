@@ -39,7 +39,7 @@ public class KabalKlient {
     public void sendTilKabal(TilKabalDto request) {
         if (!erDeployment) return;
         try {
-            restClient.postAcceptConflict(uri, request, Object.class);
+            restClient.postAcceptConflict(uri, request);
         } catch (Exception e) {
             LOG.warn("KABAL oversend: feil ved sending til KABAL {}", uriString, e);
             throw new TekniskException( "FP-180127", String.format("KABAL %s gir feil, ta opp med team klage.", uriString), e);
