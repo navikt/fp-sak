@@ -99,7 +99,7 @@ public class MaksDatoUttakTjenesteImplTest {
 
     private UttakInput input(Behandling behandling) {
         var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(FamilieHendelse.forFødsel(null, LocalDate.now(),
+            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(FamilieHendelse.forFødsel(null, LocalDate.MIN,
                 List.of(), 1)));
         return new UttakInput(BehandlingReferanse.fra(behandling), null, foreldrepengerGrunnlag);
     }

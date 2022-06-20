@@ -88,12 +88,20 @@ public class StønadskontoSaldoTjeneste {
         if (stønadskontoer.isPresent() && perioderSøker.size() > 0) {
             var perioderAnnenpart = perioderAnnenpart(fpGrunnlag);
             var kontoer  = kontoerGrunnlagBygger.byggGrunnlag(uttakInput).build();
+            Optional<LukketPeriode> periodeFar = Optional.empty();
+            // TODO: trengs dette eller kan vi sende inn en tom periode? SaldoValidering?
+            if (!uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().utenMinsterett()
+                && !BehandlingGrunnlagBygger.søkerErMor(uttakInput.getBehandlingReferanse())) {
+                var familiehendelse  = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
+                periodeFar = FarUttakRundtFødsel.utledFarsPeriodeRundtFødsel(false, familiehendelse.gjelderFødsel(),
+                    familiehendelse.getFamilieHendelseDato(), familiehendelse.getTermindato().orElse(null), StandardKonfigurasjon.KONFIGURASJON);
+            }
             return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(perioderSøker,
                 berørtBehandling, perioderAnnenpart, kontoer, søknadOpprettetTidspunkt,
-                sisteSøknadOpprettetTidspunktAnnenpart);
+                sisteSøknadOpprettetTidspunktAnnenpart, periodeFar);
         }
         return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(List.of(), berørtBehandling,
-            List.of(), new Kontoer.Builder().build(), søknadOpprettetTidspunkt, sisteSøknadOpprettetTidspunktAnnenpart);
+            List.of(), new Kontoer.Builder().build(), søknadOpprettetTidspunkt, sisteSøknadOpprettetTidspunktAnnenpart, Optional.empty());
     }
 
     public boolean erNegativSaldoPåNoenKonto(UttakInput uttakInput) {
