@@ -80,7 +80,7 @@ public class VergeRestTjeneste {
 
         vergeTjeneste.opprettVergeAksjonspunktOgHoppTilbakeTilFORVEDSTEGHvisSenereSteg(behandling);
 
-        behandling = behandlingsprosessTjeneste.hentBehandling(behandling.getId());
+        behandling = behandlingsprosessTjeneste.hentBehandling(behandling.getUuid());
         return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), Optional.empty());
     }
 
@@ -102,7 +102,7 @@ public class VergeRestTjeneste {
 
         vergeTjeneste.fjernVergeGrunnlagOgAksjonspunkt(behandling);
 
-        behandling = behandlingsprosessTjeneste.hentBehandling(behandling.getId());
+        behandling = behandlingsprosessTjeneste.hentBehandling(behandling.getUuid());
         return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), Optional.empty());
     }
 
