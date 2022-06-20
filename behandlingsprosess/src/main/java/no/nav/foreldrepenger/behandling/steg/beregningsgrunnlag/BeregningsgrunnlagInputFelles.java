@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -107,13 +108,10 @@ public abstract class BeregningsgrunnlagInputFelles {
 
         List<KravperioderPrArbeidsforholdDto> kravperioder = mapKravperioder(ref, iayGrunnlag);
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
-        var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
-            .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
-            .orElse(Collections.emptyList());
         var beregningsgrunnlagInput = new BeregningsgrunnlagInput(
                 MapBehandlingRef.mapRef(ref),
                 iayGrunnlagDto,
-                OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter.orElseThrow(), inntektsmeldinger),
+                OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter.orElseThrow(), iayGrunnlag, ref),
                 kravperioder,
                 ytelseGrunnlag);
         kalkulusKonfigInjecter.leggTilFeatureToggles(beregningsgrunnlagInput);
