@@ -113,7 +113,7 @@ public class KontoerGrunnlagBygger {
         builder.minsterettDager(minsteretter.getOrDefault(Minsterett.GENERELL_MINSTERETT, 0));
         builder.utenAktivitetskravDager(minsteretter.getOrDefault(Minsterett.UTEN_AKTIVITETSKRAV, 0));
         builder.farUttakRundtFødselDager(minsteretter.getOrDefault(Minsterett.FAR_UTTAK_RUNDT_FØDSEL, 0));
-
+        builder.etterNesteStønadsperiodeDager(minsteretter.getOrDefault(Minsterett.TETTE_FØDSLER, 0));
         return builder;
     }
 
