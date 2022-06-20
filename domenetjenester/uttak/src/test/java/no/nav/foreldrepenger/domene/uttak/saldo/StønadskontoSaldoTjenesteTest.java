@@ -202,7 +202,7 @@ public class StønadskontoSaldoTjenesteTest {
 
     private UttakInput input(Behandling behandling) {
         var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(FamilieHendelse.forFødsel(null, LocalDate.MIN,
+            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(FamilieHendelse.forFødsel(null, LocalDate.now(),
                 List.of(), 1)));
         return new UttakInput(BehandlingReferanse.fra(behandling), null, foreldrepengerGrunnlag);
     }
