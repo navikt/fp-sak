@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -14,7 +13,6 @@ import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytk
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
@@ -40,7 +38,6 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
-    private BeregningsresultatRepository beregningsresultatRepository;
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BehandlendeEnhetTjeneste enhetTjeneste;
@@ -60,12 +57,11 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
+        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.enhetTjeneste = enhetTjeneste;
         this.flytkontroll = flytkontroll;
-        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
     }
 
     @Override
@@ -83,31 +79,29 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
         if (prosessTaskData.getPropertyValue(MANUELL_KEY) == null) {
             var sisteVedtatte = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).orElseThrow();
             var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(sisteVedtatte.getId());
-            var g = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(sisteVedtatte.getId())
-                .map(BeregningsgrunnlagEntitet::getGrunnbeløp).map(Beløp::getVerdi).map(BigDecimal::longValue).orElse(0L);
-            var satsFom = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
-            var sats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp()).getVerdi();
-            if (g == sats) {
-                LOG.info("GrunnbeløpRegulering stp før ny satsdato saksnummer = {} stp {}", fagsak.getSaksnummer().getVerdi(), skjæringstidspunkt);
-            } else {
-                LOG.info("GrunnbeløpRegulering behov for regulering saksnummer = {} stp {}", fagsak.getSaksnummer().getVerdi(), skjæringstidspunkt);
+            var grunnbeløpFraSisteVedtatt = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(sisteVedtatte.getId())
+                .map(BeregningsgrunnlagEntitet::getGrunnbeløp)
+                .map(Beløp::getVerdi).map(BigDecimal::longValue).orElse(0L);
+            var skalBrukeGrunnbeløp = beregningsgrunnlagRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp()).getVerdi();
+            if (grunnbeløpFraSisteVedtatt == skalBrukeGrunnbeløp) {
+                LOG.info("GrunnbeløpRegulering har rett G for saksnummer = {} stp {}", fagsak.getSaksnummer().getVerdi(), skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp());
+                return;
             }
         }
-        return;
-/*
+
         var skalKøes = flytkontroll.nyRevurderingSkalVente(fagsak);
         var enhet = enhetTjeneste.finnBehandlendeEnhetFor(fagsak);
         var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow();
         var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, BehandlingÅrsakType.RE_SATS_REGULERING, enhet);
 
-        LOG.info("GrunnbeløpRegulering har opprettet revurdering på fagsak med fagsakId = {}", fagsakId);
+        LOG.info("GrunnbeløpRegulering har opprettet revurdering på saksnummer = {}", fagsak.getSaksnummer().getVerdi());
 
         if (skalKøes) {
             flytkontroll.settNyRevurderingPåVent(revurdering);
         } else {
             behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
         }
-        */
+
 
     }
 }
