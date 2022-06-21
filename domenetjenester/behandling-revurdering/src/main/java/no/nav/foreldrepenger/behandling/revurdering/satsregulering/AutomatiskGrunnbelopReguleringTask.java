@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -20,6 +21,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølg
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -37,6 +41,7 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
     private FagsakRepository fagsakRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private BeregningsresultatRepository beregningsresultatRepository;
+    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BehandlendeEnhetTjeneste enhetTjeneste;
     private BehandlingFlytkontroll flytkontroll;
@@ -49,6 +54,7 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
     public AutomatiskGrunnbelopReguleringTask(BehandlingRepositoryProvider repositoryProvider,
                                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                               BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
+                                              BeregningsgrunnlagRepository beregningsgrunnlagRepository,
             BehandlendeEnhetTjeneste enhetTjeneste,
             BehandlingFlytkontroll flytkontroll) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
@@ -59,6 +65,7 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.enhetTjeneste = enhetTjeneste;
         this.flytkontroll = flytkontroll;
+        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
     }
 
     @Override
@@ -76,8 +83,11 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
         if (prosessTaskData.getPropertyValue(MANUELL_KEY) == null) {
             var sisteVedtatte = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).orElseThrow();
             var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(sisteVedtatte.getId());
+            var g = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(sisteVedtatte.getId())
+                .map(BeregningsgrunnlagEntitet::getGrunnbeløp).map(Beløp::getVerdi).map(BigDecimal::longValue).orElse(0L);
             var satsFom = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
-            if (skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp().isBefore(satsFom)) {
+            var sats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp()).getVerdi();
+            if (g == sats) {
                 LOG.info("GrunnbeløpRegulering stp før ny satsdato saksnummer = {} stp {}", fagsak.getSaksnummer().getVerdi(), skjæringstidspunkt);
             } else {
                 LOG.info("GrunnbeløpRegulering behov for regulering saksnummer = {} stp {}", fagsak.getSaksnummer().getVerdi(), skjæringstidspunkt);
