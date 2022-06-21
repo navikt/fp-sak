@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -99,7 +101,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
 
     private AutomatiskGrunnbelopReguleringTask createTask() {
         return new AutomatiskGrunnbelopReguleringTask(repositoryProvider,
-            skjæringstidspunktTjeneste, prosesseringTjeneste, enhetsTjeneste, flytkontroll);
+            skjæringstidspunktTjeneste, prosesseringTjeneste, mock(BeregningsgrunnlagRepository.class), enhetsTjeneste, flytkontroll);
 
     }
 
