@@ -78,11 +78,13 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
             var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(sisteVedtatte.getId());
             var satsFom = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
             if (skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp().isBefore(satsFom)) {
-                LOG.info("GrunnbeløpRegulering stp er før ny satsdato fagsakId = {} stp {}", fagsakId, skjæringstidspunkt);
-                return;
+                LOG.info("GrunnbeløpRegulering stp før ny satsdato saksnummer = {} stp {}", fagsak.getSaksnummer().getVerdi(), skjæringstidspunkt);
+            } else {
+                LOG.info("GrunnbeløpRegulering behov for regulering saksnummer = {} stp {}", fagsak.getSaksnummer().getVerdi(), skjæringstidspunkt);
             }
         }
-
+        return;
+/*
         var skalKøes = flytkontroll.nyRevurderingSkalVente(fagsak);
         var enhet = enhetTjeneste.finnBehandlendeEnhetFor(fagsak);
         var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow();
@@ -95,5 +97,7 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
         } else {
             behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
         }
+        */
+
     }
 }
