@@ -235,7 +235,6 @@ public class BehandlingRevurderingRepository {
     private static final String REGULERING_WHERE_STD_FP = """
         where b.behandling_status in (:avsluttet) and b.behandling_type in (:ytelse)
           and futtak.uttakfom > sats.tom
-          and futtak.uttakfom >= :fomdato
           and f.id not in ( select beh.fagsak_id from behandling beh
             where beh.behandling_status not in (:avsluttet) and beh.behandling_type in (:ytelse)
               and beh.id not in (select ba.behandling_id from behandling_arsak ba where behandling_arsak_type in (:berort)) )
@@ -340,7 +339,6 @@ public class BehandlingRevurderingRepository {
     private void setStandardParametersFP(Query query, LocalDate gjeldendeFom) {
         query.setParameter("restyper", RES_TYPER_REGULERING)
             .setParameter(AVSLUTTET_KEY, STATUS_FERDIG)
-            .setParameter("fomdato", gjeldendeFom)
             .setParameter("ytelse", YTELSE_TYPER)
             .setParameter("berort", BehandlingÅrsakType.alleTekniskeÅrsaker().stream().map(BehandlingÅrsakType::getKode).collect(Collectors.toList()))
             .setParameter("grunnbelop", BeregningSatsType.GRUNNBELØP.getKode())
