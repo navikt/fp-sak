@@ -2,11 +2,13 @@ package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -26,6 +28,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -36,7 +40,10 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -46,6 +53,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 public class AutomatiskGrunnbelopReguleringTaskTest {
 
     private static LocalDate TERMINDATO = LocalDate.now().plusWeeks(3);
+    private static Beløp EKSISTERENDE_G = new Beløp(100000);
+    private static LocalDate EKSISTERENDE_STP_B = TERMINDATO.minusMonths(1);
 
     @Mock
     private BehandlingFlytkontroll flytkontroll;
@@ -55,6 +64,8 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     private BehandlingProsesseringTjeneste prosesseringTjeneste;
     @Mock
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    @Mock
+    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
@@ -63,8 +74,14 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
+        lenient().when(beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(any())).thenReturn(Optional.of(BeregningsgrunnlagEntitet.ny()
+            .medGrunnbeløp(EKSISTERENDE_G).medSkjæringstidspunkt(EKSISTERENDE_STP_B).build()));
+        lenient().when(beregningsgrunnlagRepository.finnEksaktSats(eq(BeregningSatsType.GRUNNBELØP), any()))
+            .thenReturn(new BeregningSats(BeregningSatsType.GRUNNBELØP, DatoIntervallEntitet.fraOgMedTilOgMed(TERMINDATO.minusYears(1), TERMINDATO),
+                EKSISTERENDE_G.getVerdi().longValue() + 1000));
     }
 
+    @Test
     public void skal_opprette_revurderingsbehandling_med_årsak_når_avsluttet_behandling() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
@@ -101,7 +118,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
 
     private AutomatiskGrunnbelopReguleringTask createTask() {
         return new AutomatiskGrunnbelopReguleringTask(repositoryProvider,
-            skjæringstidspunktTjeneste, prosesseringTjeneste, mock(BeregningsgrunnlagRepository.class), enhetsTjeneste, flytkontroll);
+            skjæringstidspunktTjeneste, prosesseringTjeneste, beregningsgrunnlagRepository, enhetsTjeneste, flytkontroll);
 
     }
 
@@ -119,6 +136,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         assertIngenRevurdering(behandling.getFagsak());
     }
 
+    @Test
     public void skal_køe_revurdering_dersom_åpen_berørt_på_fagsak() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(flytkontroll.nyRevurderingSkalVente(any())).thenReturn(true);
@@ -144,6 +162,9 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(any()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusYears(2)).build());
+        when(beregningsgrunnlagRepository.finnEksaktSats(eq(BeregningSatsType.GRUNNBELØP), any()))
+            .thenReturn(new BeregningSats(BeregningSatsType.GRUNNBELØP, DatoIntervallEntitet.fraOgMedTilOgMed(EKSISTERENDE_STP_B.minusYears(1), EKSISTERENDE_STP_B),
+                EKSISTERENDE_G.getVerdi().longValue()));
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
@@ -155,6 +176,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         assertIngenRevurdering(behandling.getFagsak());
     }
 
+    @Test
     public void skal_opprette_revurdering_ved_manuell_oppretting() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
