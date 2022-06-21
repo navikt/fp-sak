@@ -63,7 +63,6 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         behandlingRepository = new BehandlingRepository(entityManager);
     }
 
-    @Test
     public void skal_opprette_revurderingsbehandling_med_årsak_når_avsluttet_behandling() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
@@ -118,7 +117,6 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         assertIngenRevurdering(behandling.getFagsak());
     }
 
-    @Test
     public void skal_køe_revurdering_dersom_åpen_berørt_på_fagsak() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(flytkontroll.nyRevurderingSkalVente(any())).thenReturn(true);
@@ -155,7 +153,6 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         assertIngenRevurdering(behandling.getFagsak());
     }
 
-    @Test
     public void skal_opprette_revurdering_ved_manuell_oppretting() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
