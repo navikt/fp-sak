@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,6 +126,7 @@ class JusterFordelingTjeneste {
     private List<OppgittPeriodeEntitet> justerVedFødselFørTermin(List<OppgittPeriodeEntitet> oppgittePerioder,
                                                                  LocalDate gammelFamiliehendelse,
                                                                  LocalDate nyFamiliehendelse) {
+        oppgittePerioder = fyllHull(oppgittePerioder);
         var ikkeFlyttbarePerioder = ikkeFlyttbarePerioder(oppgittePerioder);
         var virkedagerSomSkalSkyves = beregnAntallLedigeVirkedager(gammelFamiliehendelse, nyFamiliehendelse, ikkeFlyttbarePerioder);
 
@@ -308,6 +310,7 @@ class JusterFordelingTjeneste {
     private List<OppgittPeriodeEntitet> justerVedFødselEtterTermin(List<OppgittPeriodeEntitet> oppgittePerioder,
                                                                    LocalDate gammelFamiliehendelse,
                                                                    LocalDate nyFamiliehendelse) {
+        oppgittePerioder = fyllHull(oppgittePerioder);
         var ikkeFlyttbarePerioder = ikkeFlyttbarePerioder(oppgittePerioder);
         var virkedagerSomSkalSkyves = beregnAntallLedigeVirkedager(gammelFamiliehendelse, nyFamiliehendelse, ikkeFlyttbarePerioder);
 
@@ -323,6 +326,11 @@ class JusterFordelingTjeneste {
             justertePerioder = fjernPerioderEtterSisteSøkteDato(justertePerioder, oppgittePerioder.get(oppgittePerioder.size() - 1).getTom());
         }
         return justertePerioder;
+    }
+
+    private List<OppgittPeriodeEntitet> fyllHull(List<OppgittPeriodeEntitet> oppgittePerioder) {
+        var hull = hullPerioder(oppgittePerioder);
+        return sorterEtterFom(Stream.concat(oppgittePerioder.stream(), hull.stream()).toList());
     }
 
     private OppgittPeriodeEntitet lagEkstraPeriodeFraOpprinneligUttaksdato(List<OppgittPeriodeEntitet> oppgittePerioder,
@@ -399,11 +407,9 @@ class JusterFordelingTjeneste {
     }
 
     private List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        var ikkeFlyttbare = oppgittePerioder.stream()
+        return oppgittePerioder.stream()
             .filter(periode -> !erPeriodeFlyttbar(periode))
             .collect(Collectors.toList());
-        ikkeFlyttbare.addAll(hullPerioder(oppgittePerioder));
-        return ikkeFlyttbare;
     }
 
     private List<OppgittPeriodeEntitet> hullPerioder(List<OppgittPeriodeEntitet> oppgittePerioder) {
@@ -479,11 +485,11 @@ class JusterFordelingTjeneste {
     /**
      * Intern bruk for å håndtere ikke søkte perioder som hull
      */
-    private static class JusterPeriodeHull extends OppgittPeriodeEntitet {
+    static class JusterPeriodeHull extends OppgittPeriodeEntitet {
         private final LocalDate fom;
         private final LocalDate tom;
 
-        private JusterPeriodeHull(LocalDate fom, LocalDate tom) {
+        JusterPeriodeHull(LocalDate fom, LocalDate tom) {
             this.fom = fom;
             this.tom = tom;
         }
