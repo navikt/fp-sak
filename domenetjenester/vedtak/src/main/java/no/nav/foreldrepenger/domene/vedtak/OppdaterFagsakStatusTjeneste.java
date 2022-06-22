@@ -1,22 +1,13 @@
 package no.nav.foreldrepenger.domene.vedtak;
 
-import java.util.Collections;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.FagsakStatusEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
@@ -33,8 +24,6 @@ public class OppdaterFagsakStatusTjeneste {
     protected BehandlingsresultatRepository behandlingsresultatRepository;
     protected BehandlingRepository behandlingRepository;
     protected FagsakRelasjonRepository fagsakRelasjonRepository;
-    protected FamilieHendelseRepository familieHendelseRepository;
-    private static final Logger LOG = LoggerFactory.getLogger(OppdaterFagsakStatusTjeneste.class);
 
     public OppdaterFagsakStatusTjeneste() {
         //CDI
@@ -45,14 +34,12 @@ public class OppdaterFagsakStatusTjeneste {
                                         FagsakStatusEventPubliserer fagsakStatusEventPubliserer,
                                         BehandlingsresultatRepository behandlingsresultatRepository,
                                         BehandlingRepository behandlingRepository,
-                                        FagsakRelasjonRepository fagsakRelasjonRepository,
-                                        FamilieHendelseRepository familieHendelseRepository) {
+                                        FagsakRelasjonRepository fagsakRelasjonRepository) {
         this.fagsakRepository = fagsakRepository;
         this.fagsakStatusEventPubliserer = fagsakStatusEventPubliserer;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.behandlingRepository = behandlingRepository;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
-            this.familieHendelseRepository = familieHendelseRepository;
     }
 
     public void oppdaterFagsakNårBehandlingOpprettet(Fagsak fagsak, Long behandlingId, BehandlingStatus nyStatus) {
@@ -124,12 +111,6 @@ public class OppdaterFagsakStatusTjeneste {
             //avlutter fagsak når avslått da fagsakstatus er under behandling, og vil ikke plukkes opp av AutomatiskFagsakAvslutningBatchTjeneste
             if (erBehandlingResultatAvslått(sisteYtelsesvedtak.get())) return true;
 
-            //spesialhåndtering når saken er opphørt og skal avsluttes, men annen part ikke skal avsluttes - avslutningsdato kan da ikke settes. Inntil vi har løst tfp-5062
-            if(behandlingHarEnkeltOpphør(behandling) && sakErKobletTIlAnnenPart(behandling)) {
-                LOG.info("OppdaterFagsakStausTjenest: Saksnummer: {} settes til avsluttet grunnet enkeltopphør når sak er koblet til annen part", behandling.getFagsak().getSaksnummer());
-                return true;
-            }
-
             //Dersom saken har en avslutningsdato vil avslutning av saken hånderes av AutomatiskFagsakAvslutningBatchTjeneste
             //Hvis den ikke har en avslutningsdato skal den derfor avsluttes
             return ingenAvslutningsdato(behandling.getFagsak());
@@ -149,24 +130,6 @@ public class OppdaterFagsakStatusTjeneste {
         if (fagsakStatusEventPubliserer != null) {
             fagsakStatusEventPubliserer.fireEvent(fagsak, behandlingId, gammelStatus, nyStatus);
         }
-    }
-
-    private boolean behandlingHarEnkeltOpphør(Behandling behandling) {
-        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
-            .filter(Behandlingsresultat::isBehandlingsresultatOpphørt)
-            .isPresent() &&
-            !behandling.harBehandlingÅrsak(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN)  && !alleBarnaErDøde(behandling);
-    }
-
-    private boolean sakErKobletTIlAnnenPart(Behandling behandling) {
-        return fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak()).filter(fagsakRelasjon -> fagsakRelasjon.getFagsakNrTo().isPresent()).isPresent();
-    }
-
-    private boolean alleBarnaErDøde(Behandling behandling) {
-        return familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
-            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getBarna).orElse(Collections.emptyList())
-            .stream().allMatch(b-> b.getDødsdato().isPresent());
     }
 
     private boolean erBehandlingResultatAvslått(Behandling behandling) {
