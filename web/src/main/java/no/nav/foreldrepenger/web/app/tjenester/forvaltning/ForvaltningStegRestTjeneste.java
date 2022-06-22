@@ -86,11 +86,7 @@ public class ForvaltningStegRestTjeneste {
     @Path("/generell")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hoppTilbake(@BeanParam @Valid HoppTilbakeDto dto) {
-        var behandlingStegTypeStr = dto.getBehandlingStegType();
-        var tilSteg = BehandlingStegType.fraKode(behandlingStegTypeStr);
-
-        hoppTilbake(dto, tilSteg);
-
+        hoppTilbake(dto, dto.getBehandlingStegType());
         return Response.ok().build();
     }
 

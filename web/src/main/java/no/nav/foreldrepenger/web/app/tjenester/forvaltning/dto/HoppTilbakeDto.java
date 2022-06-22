@@ -1,18 +1,17 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.ws.rs.QueryParam;
 
-import no.nav.vedtak.util.InputValideringRegex;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 
 public class HoppTilbakeDto extends ForvaltningBehandlingIdDto {
 
     @NotNull
     @QueryParam("behandlingStegType")
-    private String behandlingStegType;
+    private BehandlingStegType behandlingStegType;
 
-    public String getBehandlingStegType() {
+    public BehandlingStegType getBehandlingStegType() {
         return behandlingStegType;
     }
 }

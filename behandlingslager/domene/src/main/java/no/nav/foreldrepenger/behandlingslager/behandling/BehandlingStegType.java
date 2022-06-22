@@ -104,12 +104,8 @@ public enum BehandlingStegType implements Kodeverdi {
 
     private String navn;
 
-    @JsonValue
     private String kode;
 
-    BehandlingStegType(String kode) {
-        this.kode = kode;
-    }
 
     BehandlingStegType(String kode, String navn, BehandlingStatus definertBehandlingStatus) {
         this.kode = kode;
@@ -134,6 +130,7 @@ public enum BehandlingStegType implements Kodeverdi {
     }
 
     @Override
+    @JsonValue // Swagger tillater nå bare verdiene i feltet 'kode' som input. Fungere ikke når den er satt på field!
     public String getKode() {
         return kode;
     }
@@ -148,7 +145,8 @@ public enum BehandlingStegType implements Kodeverdi {
         return KODEVERK;
     }
 
-    public static BehandlingStegType fraKode(String kode) {
+    // Denne metoden brukes ifm @QueryParam ved setting av verdi fra kode. For at dette skal være mulig må navnet enten være 'fromString' eller 'valueOf'. 'valueOf' kan ikke overskrives.
+    public static BehandlingStegType fromString(String kode) {
         if (kode == null) {
             return null;
         }
@@ -177,7 +175,7 @@ public enum BehandlingStegType implements Kodeverdi {
 
         @Override
         public BehandlingStegType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : BehandlingStegType.fraKode(dbData);
+            return dbData == null ? null : BehandlingStegType.fromString(dbData);
         }
     }
 
