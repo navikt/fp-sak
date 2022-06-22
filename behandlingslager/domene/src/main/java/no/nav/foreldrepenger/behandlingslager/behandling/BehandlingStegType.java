@@ -130,7 +130,7 @@ public enum BehandlingStegType implements Kodeverdi {
     }
 
     @Override
-    @JsonValue // Swagger tillater nå bare verdiene i feltet 'kode' som input. Fungere ikke når den er satt på field!
+    @JsonValue // Swagger foreslår og tillater nå bare verdiene i feltet 'kode' som input. Fungere ikke når den er satt på field!
     public String getKode() {
         return kode;
     }
