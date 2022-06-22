@@ -70,7 +70,8 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
 
     // Skal kjøres enkelte ukedager
     private static final Map<DayOfWeek, List<BatchConfig>> BATCH_OPPSETT_UKEDAG = Map.of(
-        DayOfWeek.WEDNESDAY, List.of(new BatchConfig(11, 30, "BVL005", null)) // Kodeverk
+        DayOfWeek.WEDNESDAY, List.of(new BatchConfig(11, 30, "BVL005", null)), // Kodeverk
+        DayOfWeek.TUESDAY, List.of(new BatchConfig(11, 30, "BVL012", null) ) // Avslutter saker med kobling til annen part og enkeltopphør
     );
 
     private final Set<MonthDay> fasteStengteDager = Set.of(
