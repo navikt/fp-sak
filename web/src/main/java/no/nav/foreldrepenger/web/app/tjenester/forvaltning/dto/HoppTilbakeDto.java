@@ -10,7 +10,6 @@ public class HoppTilbakeDto extends ForvaltningBehandlingIdDto {
 
     @NotNull
     @QueryParam("behandlingStegType")
-    @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String behandlingStegType;
 
     public String getBehandlingStegType() {
