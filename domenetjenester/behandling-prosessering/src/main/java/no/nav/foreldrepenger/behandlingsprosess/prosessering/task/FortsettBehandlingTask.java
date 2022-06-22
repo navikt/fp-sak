@@ -92,7 +92,7 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
         if (gjenopptaSteg == null) {
             return null;
         }
-        var stegtype = BehandlingStegType.fraKode(gjenopptaSteg);
+        var stegtype = BehandlingStegType.fromString(gjenopptaSteg);
         if (stegtype == null) {
             throw new IllegalStateException("Utviklerfeil: ukjent steg " + gjenopptaSteg);
         }
