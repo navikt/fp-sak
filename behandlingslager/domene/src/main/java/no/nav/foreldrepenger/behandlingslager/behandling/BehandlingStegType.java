@@ -60,7 +60,6 @@ public enum BehandlingStegType implements Kodeverdi {
     FASTSETT_BEREGNINGSGRUNNLAG("FAST_BERGRUNN", "Fastsett beregningsgrunnlag", UTREDES),
     SØKNADSFRIST_FORELDREPENGER("SØKNADSFRIST_FP", "Vurder søknadsfrist foreldrepenger", UTREDES),
     KONTROLLER_FAKTA_UTTAK("KOFAKUT", "Kontroller fakta for uttak", UTREDES),
-    KONTROLLER_FAKTA_ARBEIDSFORHOLD("KOARB", "Kontroller arbeidsforhold", UTREDES),
     KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING("KO_ARB_IM", "Kontroller arbeidsforhold", UTREDES),
     FASTSETT_OPPTJENINGSPERIODE("VURDER_OPPTJ_PERIODE", "Vurder Opptjening Periode", UTREDES),
     KONTROLLER_LØPENDE_MEDLEMSKAP("KOFAK_LOP_MEDL", "Kontroller løpende medlemskap", UTREDES),
@@ -82,8 +81,11 @@ public enum BehandlingStegType implements Kodeverdi {
     INREG_AVSL("INREG_AVSL", "Innhent registeropplysninger - resterende oppgaver", UTREDES),
     VURDER_OPPTJENING_FAKTA("VURDER_OPPTJ_FAKTA", "Vurder opptjeningfakta", UTREDES),
     KONTROLLER_OMSORG_RETT("KONTROLLER_OMSORG_RETT", "Kontroller aleneomsorg og rett", UTREDES),
-    KONTROLLER_AKTIVITETSKRAV("KONTROLLER_AKTIVITETSKRAV", "Kontroller aktivitetskrav", UTREDES);
+    KONTROLLER_AKTIVITETSKRAV("KONTROLLER_AKTIVITETSKRAV", "Kontroller aktivitetskrav", UTREDES),
 
+    @Deprecated(forRemoval=true)
+    // Gammelt steg som håndterte aksjonspunkt 5080 (erstattet av 5085 og steg KO_ARB_IM)
+    KONTROLLER_FAKTA_ARBEIDSFORHOLD("KOARB", "Kontroller arbeidsforhold", UTREDES);
 
     static final String KODEVERK = "BEHANDLING_STEG_TYPE";
 

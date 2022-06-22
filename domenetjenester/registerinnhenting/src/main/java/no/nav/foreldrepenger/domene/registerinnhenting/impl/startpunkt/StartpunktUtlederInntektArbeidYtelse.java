@@ -28,10 +28,7 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntekts
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.HåndterePermisjoner;
 import no.nav.foreldrepenger.domene.arbeidsforhold.IAYGrunnlagDiff;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.VurderArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdInntektsmeldingToggleTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.impl.SakInntektsmeldinger;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 
@@ -42,7 +39,6 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     private String klassenavn = this.getClass().getSimpleName();
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private StartpunktUtlederInntektsmelding startpunktUtlederInntektsmelding;
-    private VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste; // Denne bør kunne ryddes bort når saker ikke lenger stopper i 5080
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -59,13 +55,11 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
                                          BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                          BehandlingRepositoryProvider repositoryProvider,
                                          StartpunktUtlederInntektsmelding startpunktUtlederInntektsmelding,
-                                         VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste,
                                          ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
                                          ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
         this.iayTjeneste = iayTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.startpunktUtlederInntektsmelding = startpunktUtlederInntektsmelding;
-        this.vurderArbeidsforholdTjeneste = vurderArbeidsforholdTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
@@ -105,14 +99,10 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         var aktørYtelseEndringForSøker = iayGrunnlagDiff.endringPåAktørYtelseForAktør(saksnummer, skjæringstidspunkt, ref.aktørId());
 
         if (vurderArbeidsforhold) {
-            var skalTaStillingTilEndringerIArbeidsforhold = skalTaStillingTilEndringerIArbeidsforhold(ref);
-
             var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId()); // TODO burde ikke være nødvendig (bør velge grunnlagId1, grunnlagId2)
-            var sakInntektsmeldinger = skalTaStillingTilEndringerIArbeidsforhold ? iayTjeneste.hentInntektsmeldinger(ref.saksnummer()) : null /* ikke hent opp */;
 
             //Må rydde opp eventuelle tidligere aksjonspunkt
-            var erPåkrevdManuelleAvklaringer = trengsManuelleAvklaringer(ref, skalTaStillingTilEndringerIArbeidsforhold, iayGrunnlag,
-                sakInntektsmeldinger);
+            var erPåkrevdManuelleAvklaringer = trengsManuelleAvklaringer(ref);
             var måVurderePermisjonUtenSluttdato = sjekkOmMåVurderePermisjonerUtenSluttdato(ref, iayGrunnlag);
 
             if (erPåkrevdManuelleAvklaringer) {
@@ -149,14 +139,8 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         return startpunkter;
     }
 
-    private boolean trengsManuelleAvklaringer(BehandlingReferanse ref,
-                                                   boolean skalTaStillingTilEndringerIArbeidsforhold,
-                                                   InntektArbeidYtelseGrunnlag iayGrunnlag,
-                                                   SakInntektsmeldinger sakInntektsmeldinger) {
-        var trengerAvklaringI5080 = !vurderArbeidsforholdTjeneste.vurder(ref, iayGrunnlag, sakInntektsmeldinger, skalTaStillingTilEndringerIArbeidsforhold).isEmpty();
-        var trengerAvklaringI5085 = ArbeidsforholdInntektsmeldingToggleTjeneste.erTogglePå() &&
-        !arbeidsforholdInntektsmeldingMangelTjeneste.utledManglerPåArbeidsforholdInntektsmelding(ref).isEmpty();
-        return trengerAvklaringI5080 || trengerAvklaringI5085;
+    private boolean trengsManuelleAvklaringer(BehandlingReferanse ref) {
+        return !arbeidsforholdInntektsmeldingMangelTjeneste.utledManglerPåArbeidsforholdInntektsmelding(ref).isEmpty();
     }
 
     private boolean sjekkOmMåVurderePermisjonerUtenSluttdato(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
@@ -176,8 +160,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     private void ryddOppAksjonspunktForInntektsmeldingHvisEksisterer(BehandlingReferanse behandlingReferanse) {
         var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
         var aksjonspunkter = behandling.getAksjonspunkter().stream()
-            .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD)
-                || ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING))
+            .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING))
             .filter(Aksjonspunkt::erÅpentAksjonspunkt)
             .collect(Collectors.toList());
 

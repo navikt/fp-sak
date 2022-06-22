@@ -13,12 +13,11 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.arbeidsforhold.VurderArbeidsforholdTjeneste;
 
 @ApplicationScoped
 public class PåkrevdeInntektsmeldingerTjeneste {
 
-    private static final Logger LOG = LoggerFactory.getLogger(VurderArbeidsforholdTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PåkrevdeInntektsmeldingerTjeneste.class);
 
     private InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste;
     private SøknadRepository søknadRepository;

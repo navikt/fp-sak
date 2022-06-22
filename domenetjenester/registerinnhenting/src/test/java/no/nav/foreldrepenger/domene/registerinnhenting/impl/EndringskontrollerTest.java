@@ -97,7 +97,7 @@ public class EndringskontrollerTest {
         var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.REVURDERING)
             .lagMocked();
-        forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD, BehandlingStegStatus.UTGANG, BehandlingStegStatus.UTGANG);
+        forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING, BehandlingStegStatus.UTGANG, BehandlingStegStatus.UTGANG);
         var startpunktKoarb = StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
 
         when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(EndringsresultatDiff.class))).thenReturn(startpunktKoarb);

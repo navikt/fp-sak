@@ -44,7 +44,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.ArbeidsforholdWrapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.VurderArbeidsforholdTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste.UtledArbeidsforholdParametere;
 import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
@@ -103,7 +102,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         arbeidsgiverSetMap.put(arbeidsgiver, arbeidsforholdRefSet);
         when(vurderArbeidsforholdTjeneste.vurder(any(), any(), any(), ArgumentMatchers.anyBoolean())).thenReturn(arbeidsgiverSetMap);
 
-        arbeidsforholdTjeneste = new ArbeidsforholdAdministrasjonTjeneste(vurderArbeidsforholdTjeneste, inntektsmeldingTjeneste, iayTjeneste);
+        arbeidsforholdTjeneste = new ArbeidsforholdAdministrasjonTjeneste(inntektsmeldingTjeneste, iayTjeneste);
     }
 
     @Test
@@ -124,9 +123,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         assertThat(wrapperList).hasSize(1);
         var arbeidsforhold = wrapperList.iterator().next();
 
-        assertThat(arbeidsforhold.getMottattDatoInntektsmelding()).isEqualTo(mottattDato);
-        assertThat(arbeidsforhold.getBrukArbeidsforholdet()).isTrue();
-        assertThat(arbeidsforhold.getFortsettBehandlingUtenInntektsmelding()).isFalse();
         assertThat(arbeidsforhold.getFomDato()).isEqualTo(ARBEIDSFORHOLD_FRA);
         assertThat(arbeidsforhold.getTomDato()).isEqualTo(ARBEIDSFORHOLD_TIL);
     }
@@ -167,10 +163,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         assertThat(wrapperList).hasSize(1);
         var arbeidsforhold = wrapperList.iterator().next();
 
-        assertThat(arbeidsforhold.getMottattDatoInntektsmelding()).isEqualTo(mottattDato);
-        assertThat(arbeidsforhold.getKilde()).isEqualTo(ArbeidsforholdKilde.INNTEKTSMELDING);
-        assertThat(arbeidsforhold.getBrukArbeidsforholdet()).isTrue();
-        assertThat(arbeidsforhold.getFortsettBehandlingUtenInntektsmelding()).isFalse();
         assertThat(arbeidsforhold.getFomDato()).isEqualTo(LocalDate.now()); // null-verdi
     }
 
@@ -192,9 +184,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         assertThat(wrapperList).hasSize(1);
         var arbeidsforhold = wrapperList.iterator().next();
 
-        assertThat(arbeidsforhold.getMottattDatoInntektsmelding()).isEqualTo(mottattDato);
-        assertThat(arbeidsforhold.getBrukArbeidsforholdet()).isTrue();
-        assertThat(arbeidsforhold.getFortsettBehandlingUtenInntektsmelding()).isFalse();
         assertThat(arbeidsforhold.getFomDato()).isEqualTo(ARBEIDSFORHOLD_FRA);
         assertThat(arbeidsforhold.getTomDato()).isEqualTo(ARBEIDSFORHOLD_TIL);
     }
@@ -202,7 +191,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
     private Set<ArbeidsforholdWrapper> hentArbeidsforholdFerdigUtledet(Behandling behandling) {
         var ref = lagRef(behandling);
         var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
-        return arbeidsforholdTjeneste.hentArbeidsforholdFerdigUtledet(ref, iayGrunnlag, null, new UtledArbeidsforholdParametere(true));
+        return arbeidsforholdTjeneste.hentArbeidsforholdFerdigUtledet(ref, iayGrunnlag);
     }
 
     @Test
@@ -223,9 +212,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         assertThat(wrapperList).hasSize(1);
         var arbeidsforhold = wrapperList.iterator().next();
 
-        assertThat(arbeidsforhold.getMottattDatoInntektsmelding()).isEqualTo(mottattDato);
-        assertThat(arbeidsforhold.getBrukArbeidsforholdet()).isTrue();
-        assertThat(arbeidsforhold.getFortsettBehandlingUtenInntektsmelding()).isFalse();
         assertThat(arbeidsforhold.getFomDato()).isEqualTo(ARBEIDSFORHOLD_FRA);
         assertThat(arbeidsforhold.getTomDato()).isEqualTo(ARBEIDSFORHOLD_TIL);
         assertThat(arbeidsforhold.getStillingsprosent()).isEqualTo(BigDecimal.ONE);
@@ -246,11 +232,8 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         assertThat(wrapperList).hasSize(1);
         var arbeidsforhold = wrapperList.iterator().next();
 
-        assertThat(arbeidsforhold.getBrukArbeidsforholdet()).isTrue();
-        assertThat(arbeidsforhold.getFortsettBehandlingUtenInntektsmelding()).isFalse();
         assertThat(arbeidsforhold.getFomDato()).isEqualTo(ARBEIDSFORHOLD_FRA);
         assertThat(arbeidsforhold.getTomDato()).isEqualTo(ARBEIDSFORHOLD_TIL);
-        assertThat(arbeidsforhold.getKilde()).isEqualTo(ArbeidsforholdKilde.AAREGISTERET);
         assertThat(arbeidsforhold.getStillingsprosent()).isEqualTo(BigDecimal.ONE);
     }
 
@@ -276,9 +259,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         // Assert
         assertThat(wrapperList).hasSize(1);
         var arbeidsforhold = wrapperList.iterator().next();
-        assertThat(arbeidsforhold.getMottattDatoInntektsmelding()).isEqualTo(mottattDato);
-        assertThat(arbeidsforhold.getBrukArbeidsforholdet()).isTrue();
-        assertThat(arbeidsforhold.getFortsettBehandlingUtenInntektsmelding()).isFalse();
         assertThat(arbeidsforhold.getFomDato()).isEqualTo(ARBEIDSFORHOLD_FRA);
         assertThat(arbeidsforhold.getTomDato()).isEqualTo(ARBEIDSFORHOLD_TIL);
     }
@@ -302,9 +282,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         // Assert
         assertThat(wrapperList).hasSize(1);
         var arbeidsforhold = wrapperList.iterator().next();
-        assertThat(arbeidsforhold.getBrukArbeidsforholdet()).isTrue();
-        assertThat(arbeidsforhold.getLagtTilAvSaksbehandler()).isTrue();
-        assertThat(arbeidsforhold.getFortsettBehandlingUtenInntektsmelding()).isTrue();
         assertThat(arbeidsforhold.getFomDato()).isEqualTo(mottattDato.minusYears(1L));
         assertThat(arbeidsforhold.getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
     }
@@ -316,7 +293,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         opprettOppgittOpptjening(behandling);
         opprettInntektArbeidYtelseAggregatForMultiYrkesaktivitet(AKTØRID, ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.ONE,
                 behandling);
-        opprettAksjonspunkt(behandling, LocalDateTime.now());
+//        opprettAksjonspunkt(behandling, LocalDateTime.now());
 
         // Act
         var wrapperList = hentArbeidsforholdFerdigUtledet(behandling);
@@ -325,11 +302,8 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         assertThat(wrapperList).hasSize(1);
         var arbeidsforhold = wrapperList.iterator().next();
 
-        assertThat(arbeidsforhold.getBrukArbeidsforholdet()).isTrue();
-        assertThat(arbeidsforhold.getFortsettBehandlingUtenInntektsmelding()).isFalse();
         assertThat(arbeidsforhold.getFomDato()).isEqualTo(ARBEIDSFORHOLD_FRA);
         assertThat(arbeidsforhold.getTomDato()).isEqualTo(ARBEIDSFORHOLD_TIL);
-        assertThat(arbeidsforhold.getKilde()).isEqualTo(ArbeidsforholdKilde.AAREGISTERET);
         assertThat(arbeidsforhold.getStillingsprosent()).isEqualTo(BigDecimal.ONE);
     }
 

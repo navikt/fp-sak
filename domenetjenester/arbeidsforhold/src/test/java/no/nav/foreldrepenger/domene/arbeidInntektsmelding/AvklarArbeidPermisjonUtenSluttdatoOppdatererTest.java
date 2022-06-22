@@ -86,7 +86,7 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
         when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(lagVirksomhet(NAV_ORGNR));
         arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(personIdentTjeneste, virksomhetTjeneste);
         var arbeidsforholdAdministrasjonTjeneste = new ArbeidsforholdAdministrasjonTjeneste(
-            vurderArbeidsforholdTjeneste, inntektsmeldingTjeneste, iayTjeneste);
+                inntektsmeldingTjeneste, iayTjeneste);
         var historikkRepository = new HistorikkRepository(entityManager);
         var historikkAdapter = new HistorikkTjenesteAdapter(historikkRepository, dokumentArkivTjeneste,
             provider.getBehandlingRepository());

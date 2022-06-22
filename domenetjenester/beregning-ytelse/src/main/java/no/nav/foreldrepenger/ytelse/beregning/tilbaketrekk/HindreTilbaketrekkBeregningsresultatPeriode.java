@@ -13,12 +13,11 @@ import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.domene.arbeidsforhold.VurderArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 
 class HindreTilbaketrekkBeregningsresultatPeriode {
-    private static final Logger LOG = LoggerFactory.getLogger(VurderArbeidsforholdTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HindreTilbaketrekkBeregningsresultatPeriode.class);
 
     private HindreTilbaketrekkBeregningsresultatPeriode() {
         // skjul public constructor

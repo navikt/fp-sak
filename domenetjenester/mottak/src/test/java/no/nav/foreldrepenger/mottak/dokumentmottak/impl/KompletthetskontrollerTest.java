@@ -100,7 +100,7 @@ public class KompletthetskontrollerTest {
     public void skal_beholde_behandling_på_vent_dersom_kompletthet_ikke_er_oppfylt_deretter_slippe_videre() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING, BehandlingStegType.INREG_AVSL);
         var behandling = scenario.lagMocked();
         var ventefrist = LocalDateTime.now().plusDays(1);
 
