@@ -15,6 +15,8 @@ import javax.persistence.LockModeType;
 import org.hibernate.jpa.QueryHints;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -212,5 +214,25 @@ public class FagsakRepository {
         fagsak.setStengt(false);
         entityManager.persist(fagsak);
         entityManager.flush();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Fagsak> hentFagsakerRelevanteForAvslutning() {
+        var query = entityManager.createNativeQuery("""
+        select f.*
+        from fpsak.fagsak f
+        join fpsak.fagsak_relasjon fr  on (aktiv = :aktiv and f.id in (fagsak_en_id, fagsak_to_id))
+        where fagsak_to_id is not null
+        and fagsak_status = :lopende
+        and exists (select * from fpsak.fagsak f2 join fpsak.behandling b on b.fagsak_id = f2.id join fpsak.behandling_resultat br on br.behandling_id = b.id where f2.id = f.id and br.behandling_resultat_type = :opphor)
+        and not exists (select * from fpsak.behandling b2 where b2.fagsak_id = f.id and behandling_status <> :avsluttet)
+        and not exists (select * from fpsak.gr_nestesak ns join fpsak.behandling b3 on b3.id = ns.behandling_id join fpsak.fagsak f3 on f3.id = b3.fagsak_id where f3.id = f.ID and ns.aktiv = :aktiv )
+        """, Fagsak.class);
+        query.setParameter("aktiv", true);
+        query.setParameter("lopende", FagsakStatus.LØPENDE);
+        query.setParameter("opphor", BehandlingResultatType.OPPHØR);
+        query.setParameter("avsluttet", BehandlingStatus.AVSLUTTET);
+
+        return query.getResultList();
     }
 }
