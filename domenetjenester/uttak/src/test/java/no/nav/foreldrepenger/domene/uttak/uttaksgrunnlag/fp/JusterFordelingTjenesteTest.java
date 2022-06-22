@@ -1064,6 +1064,36 @@ public class JusterFordelingTjenesteTest {
         assertThat(likePerioder(oppgittePerioder, justertePerioder)).isTrue();
     }
 
+    @Test
+    public void ikke_fylle_hull_når_hele_siste_periode_skyves_igjen_hullet_ved_fødsel_før_termin() {
+        var termindato = LocalDate.of(2022, 6, 7);
+        var fødselsdato = termindato.minusWeeks(2);
+        var fpff = OppgittPeriodeBuilder.ny()
+            .medPeriode(termindato.minusWeeks(3), termindato.minusDays(1))
+            .medPeriodeType(FORELDREPENGER_FØR_FØDSEL)
+            .build();
+        var mk1 = OppgittPeriodeBuilder.ny()
+            .medPeriode(termindato, termindato.plusWeeks(10))
+            .medPeriodeType(MØDREKVOTE)
+            .build();
+        //Hull
+        var mk2 = OppgittPeriodeBuilder.ny()
+            .medPeriode(termindato.plusWeeks(12), termindato.plusWeeks(13))
+            .medPeriodeType(MØDREKVOTE)
+            .build();
+        var oppgittePerioder = List.of(fpff, mk1, mk2);
+
+        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder,
+            termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(3);
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(fødselsdato);
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(mk1.getTom());
+
+        assertThat(justertePerioder.get(2).getFom()).isEqualTo(mk2.getFom());
+        assertThat(justertePerioder.get(2).getTom()).isEqualTo(mk2.getTom());
+    }
+
     private OppgittPeriodeEntitet lagPeriode(UttakPeriodeType uttakPeriodeType, LocalDate fom, LocalDate tom) {
         return OppgittPeriodeBuilder.ny().medPeriode(fom, tom).medPeriodeType(uttakPeriodeType).build();
     }
