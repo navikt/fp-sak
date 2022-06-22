@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjen
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk.ArbeidPermHistorikkInnslagTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.VurderArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.person.PersonIdentTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
@@ -61,8 +60,6 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
     private static final String INTERN_ARBEIDSFORHOLD_ID = "a6ea6724-868f-11e9-bc42-526af7764f64";
     private static final String INTERN_ARBEIDSFORHOLD_ID_2 = "a6ea6724-868f-11e9-bc42-526af7764f65";
 
-    @Inject
-    private VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste;
     @Inject
     private IAYRepositoryProvider provider;
     @Mock

@@ -10,12 +10,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.persistence.EntityManager;
@@ -23,7 +19,6 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -45,7 +40,6 @@ import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjen
 import no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjenesteMock;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.VurderArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
@@ -100,14 +94,6 @@ public class InntektsmeldingTjenesteTest {
 
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet1);
-        var vurderArbeidsforholdTjeneste = mock(VurderArbeidsforholdTjeneste.class);
-        var arbeidsgiver2 = Arbeidsgiver.virksomhet(virksomhet2.getOrgnr());
-        Set<InternArbeidsforholdRef> arbeidsforholdRefSet = new HashSet<>();
-        arbeidsforholdRefSet.add(ARBEIDSFORHOLD_ID);
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgiverSetMap = new HashMap<>();
-        arbeidsgiverSetMap.put(arbeidsgiver2, arbeidsforholdRefSet);
-        when(vurderArbeidsforholdTjeneste.vurder(any(), any(), any(), ArgumentMatchers.anyBoolean())).thenReturn(arbeidsgiverSetMap);
-
     }
 
     private BehandlingReferanse lagReferanse(Behandling behandling) {
@@ -118,30 +104,15 @@ public class InntektsmeldingTjenesteTest {
     public void skal_ikke_ta_med_arbeidsforhold_det_ikke_er_søkt_for_når_manglende_im_utledes_for_svp() {
         // Arrange
         var arbId1Intern = ARBEIDSFORHOLD_ID;
-        var arbId1 = ARBEIDSFORHOLD_ID_EKSTERN;
 
         var ARBEIDSFORHOLD_ID_2 = InternArbeidsforholdRef.ref("a6ea6724-868f-11e9-bc42-526af7764f64");
 
-        var arbId2Intern = ARBEIDSFORHOLD_ID_2;
-
         var virksomhet1 = lagVirksomhet();
-        var virksomhet2 = lagAndreVirksomhet();
 
         this.arbeidsgiver = Arbeidsgiver.virksomhet(virksomhet1.getOrgnr());
 
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet1);
-
-        var vurderArbeidsforholdTjeneste = mock(VurderArbeidsforholdTjeneste.class);
-        var arbeidsgiver2 = Arbeidsgiver.virksomhet(virksomhet2.getOrgnr());
-        Set<InternArbeidsforholdRef> arbeidsforholdRefSet = new HashSet<>();
-        arbeidsforholdRefSet.add(ARBEIDSFORHOLD_ID);
-        Set<InternArbeidsforholdRef> arbeidsforholdRefSet2 = new HashSet<>();
-        arbeidsforholdRefSet2.add(ARBEIDSFORHOLD_ID_2);
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgiverSetMap = new HashMap<>();
-        arbeidsgiverSetMap.put(arbeidsgiver2, arbeidsforholdRefSet);
-        arbeidsgiverSetMap.put(arbeidsgiver, arbeidsforholdRefSet2);
-        when(vurderArbeidsforholdTjeneste.vurder(any(), any(), any(), ArgumentMatchers.anyBoolean())).thenReturn(arbeidsgiverSetMap);
 
         final var behandling = opprettBehandling();
         opprettOppgittOpptjening(behandling);
@@ -149,8 +120,7 @@ public class InntektsmeldingTjenesteTest {
                 DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
                 arbId1Intern, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
         opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
-                DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
-                arbId2Intern, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
+                DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL), ARBEIDSFORHOLD_ID_2, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
 
         var behandlingReferanse = lagReferanse(behandling);
 
@@ -165,7 +135,7 @@ public class InntektsmeldingTjenesteTest {
         // Act+Assert
         assertThat(inntektsmeldingArkivTjenesteSvp.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, false)).isNotEmpty();
 
-        lagreInntektsmelding(I_DAG.minusDays(2), behandling, arbId1Intern, arbId1);
+        lagreInntektsmelding(I_DAG.minusDays(2), behandling, arbId1Intern, ARBEIDSFORHOLD_ID_EKSTERN);
 
         // Act+Assert
         assertThat(inntektsmeldingArkivTjenesteSvp.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, false)).isEmpty();

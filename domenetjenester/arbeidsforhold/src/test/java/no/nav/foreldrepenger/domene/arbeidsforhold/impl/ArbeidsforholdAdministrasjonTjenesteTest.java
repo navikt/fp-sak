@@ -2,16 +2,10 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -20,16 +14,11 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -39,11 +28,9 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.ArbeidsforholdKilde;
 import no.nav.foreldrepenger.domene.arbeidsforhold.ArbeidsforholdWrapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.VurderArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
@@ -92,15 +79,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         var virksomhet2 = lagAndreVirksomheten();
 
         arbeidsgiver = Arbeidsgiver.virksomhet(virksomhet1.getOrgnr());
-
-        var vurderArbeidsforholdTjeneste = mock(VurderArbeidsforholdTjeneste.class);
-
-        var arbeidsgiver = Arbeidsgiver.virksomhet(virksomhet2.getOrgnr());
-        Set<InternArbeidsforholdRef> arbeidsforholdRefSet = new HashSet<>();
-        arbeidsforholdRefSet.add(ARBEIDSFORHOLD_ID);
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgiverSetMap = new HashMap<>();
-        arbeidsgiverSetMap.put(arbeidsgiver, arbeidsforholdRefSet);
-        when(vurderArbeidsforholdTjeneste.vurder(any(), any(), any(), ArgumentMatchers.anyBoolean())).thenReturn(arbeidsgiverSetMap);
 
         arbeidsforholdTjeneste = new ArbeidsforholdAdministrasjonTjeneste(inntektsmeldingTjeneste, iayTjeneste);
     }
@@ -293,7 +271,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         opprettOppgittOpptjening(behandling);
         opprettInntektArbeidYtelseAggregatForMultiYrkesaktivitet(AKTØRID, ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.ONE,
                 behandling);
-//        opprettAksjonspunkt(behandling, LocalDateTime.now());
 
         // Act
         var wrapperList = hentArbeidsforholdFerdigUtledet(behandling);
@@ -618,13 +595,5 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         final var behandling = builder.build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         return behandling;
-    }
-
-    private Aksjonspunkt opprettAksjonspunkt(Behandling behandling,
-            LocalDateTime frist) {
-
-        var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
-        AksjonspunktTestSupport.setFrist(aksjonspunkt, frist, Venteårsak.UDEFINERT);
-        return aksjonspunkt;
     }
 }
