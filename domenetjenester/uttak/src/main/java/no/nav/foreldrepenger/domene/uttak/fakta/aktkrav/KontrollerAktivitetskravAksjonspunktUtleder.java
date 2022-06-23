@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 public class KontrollerAktivitetskravAksjonspunktUtleder {
 
     private static final Set<UtsettelseÅrsak> BFHR_MED_AKTIVITETSKRAV = Set.of(UtsettelseÅrsak.ARBEID, UtsettelseÅrsak.FERIE,
-        UtsettelseÅrsak.SYKDOM, UtsettelseÅrsak.INSTITUSJON_BARN, UtsettelseÅrsak.INSTITUSJON_SØKER);
+        UtsettelseÅrsak.SYKDOM, UtsettelseÅrsak.INSTITUSJON_BARN, UtsettelseÅrsak.INSTITUSJON_SØKER, UtsettelseÅrsak.FRI);
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
@@ -69,8 +69,9 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
             return ikkeKontrollerer();
         }
         var periodeType = periode.getPeriodeType();
-        var harKravTilAktivitet = !periode.isFlerbarnsdager() &&
-            (Set.of(UttakPeriodeType.FELLESPERIODE, UttakPeriodeType.FORELDREPENGER).contains(periodeType) || bareFarHarRettOgSøkerUtsettelse(periode, annenForelderHarRett));
+        var harKravTilAktivitet =
+            !periode.isFlerbarnsdager() && (periodeType.equals(UttakPeriodeType.FELLESPERIODE) || periodeType.equals(
+                UttakPeriodeType.FORELDREPENGER) || bareFarHarRettOgSøkerUtsettelse(periode, annenForelderHarRett));
         if (!harKravTilAktivitet) {
             return ikkeKontrollerer();
         }
@@ -90,8 +91,7 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
     private static boolean bareFarHarRettOgSøkerUtsettelse(OppgittPeriodeEntitet periode,
                                                            boolean annenForelderHarRett) {
         //Reglene sjekker ikke aktivitetskrav hvis tiltak nav eller hv
-        return !annenForelderHarRett && (BFHR_MED_AKTIVITETSKRAV.contains(periode.getÅrsak()) ||
-            (UtsettelseÅrsak.FRI.equals(periode.getÅrsak()) && MorsAktivitet.forventerDokumentasjon(periode.getMorsAktivitet())));
+        return !annenForelderHarRett && (BFHR_MED_AKTIVITETSKRAV.contains(periode.getÅrsak()));
     }
 
     private static Set<AktivitetskravPeriodeEntitet> finnAvklartePerioderSomDekkerSøknadsperiode(OppgittPeriodeEntitet periode,

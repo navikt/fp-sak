@@ -160,32 +160,8 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
     }
 
     @Test
-    public void utledeAPForFarSomHarSøktUtsettelseFriOgBareFarRettUdefinertAktivitet() {
+    public void utledeAPForFarSomHarSøktUtsettelseFriOgBareFarRett() {
         var uttakInput = bareFarRettMedSøktUtsettelse(UtsettelseÅrsak.FRI);
-        var ap = utleder.utledFor(uttakInput);
-
-        assertThat(ap).isEmpty();
-    }
-
-    @Test
-    public void utledeAPForFarSomHarSøktUtsettelseFriOgBareFarRettUføre() {
-        var uttakInput = bareFarRettMedSøktUtsettelse(UtsettelseÅrsak.FRI, MorsAktivitet.UFØRE);
-        var ap = utleder.utledFor(uttakInput);
-
-        assertThat(ap).isEmpty();
-    }
-
-    @Test
-    public void utledeAPForFarSomHarSøktUtsettelseFriOgBareFarRettUtenAktivitet() {
-        var uttakInput = bareFarRettMedSøktUtsettelse(UtsettelseÅrsak.FRI, MorsAktivitet.IKKE_OPPGITT);
-        var ap = utleder.utledFor(uttakInput);
-
-        assertThat(ap).isEmpty();
-    }
-
-    @Test
-    public void utledeAPForFarSomHarSøktUtsettelseFriOgBareFarRettMedAktivitet() {
-        var uttakInput = bareFarRettMedSøktUtsettelse(UtsettelseÅrsak.FRI, MorsAktivitet.UTDANNING);
         var ap = utleder.utledFor(uttakInput);
 
         assertThat(ap).containsOnly(KONTROLLER_AKTIVITETSKRAV);
@@ -208,14 +184,9 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
     }
 
     private UttakInput bareFarRettMedSøktUtsettelse(UtsettelseÅrsak utsettelseÅrsak) {
-        return bareFarRettMedSøktUtsettelse(utsettelseÅrsak, MorsAktivitet.UDEFINERT);
-    }
-
-    private UttakInput bareFarRettMedSøktUtsettelse(UtsettelseÅrsak utsettelseÅrsak, MorsAktivitet morsAktivitet) {
         var fødselsdato = LocalDate.of(2020, 1, 1);
         var søknadsperiode = OppgittPeriodeBuilder.ny()
             .medÅrsak(utsettelseÅrsak)
-            .medMorsAktivitet(morsAktivitet)
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fødselsdato, fødselsdato.plusWeeks(10))
             .build();
