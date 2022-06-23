@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLåsRepository;
@@ -30,6 +31,7 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
     private BehandlingRepository behandlingRepository;
     private OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste;
     private OppdaterAvslutningsdatoFagsakRelasjon oppdaterAvslutningsdatoFagsakRelasjon;
+    private FagsakRepository fagsakRepository;
 
     AutomatiskFagsakAvslutningTask() {
         // for CDI proxy
@@ -38,16 +40,20 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
     @Inject
     public AutomatiskFagsakAvslutningTask(FagsakLåsRepository fagsakLåsRepository, FagsakRelasjonLåsRepository relasjonLåsRepository, BehandlingRepositoryProvider repositoryProvider,
                                           OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste,
-                                          OppdaterAvslutningsdatoFagsakRelasjon oppdaterAvslutningsdatoFagsakRelasjon) {
+                                          OppdaterAvslutningsdatoFagsakRelasjon oppdaterAvslutningsdatoFagsakRelasjon,
+                                          FagsakRepository fagsakRepository) {
         super(fagsakLåsRepository, relasjonLåsRepository, repositoryProvider.getFagsakRelasjonRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.oppdaterFagsakStatusTjeneste = oppdaterFagsakStatusTjeneste;
         this.oppdaterAvslutningsdatoFagsakRelasjon = oppdaterAvslutningsdatoFagsakRelasjon;
+        this.fagsakRepository = fagsakRepository;
     }
 
     @Override
     public void prosesser(ProsessTaskData prosessTaskData, Optional<FagsakRelasjon> relasjon, FagsakRelasjonLås relasjonLås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
         var fagsakId = prosessTaskData.getFagsakId();
+        // For å sikre at fagsaken hentes opp i cache - ellers dukker den opp via readonly-query og det blir problem.
+        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
 
         behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).ifPresent(behandling -> {
             var ytelseType = behandling.getFagsakYtelseType();
