@@ -348,10 +348,9 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
     FAR_MER_ENN_TI_DAGER_FEDREKVOTE_IFM_FØDSEL
         ("4106", "14-10-1", "§14-10 første ledd: Far/medmor søker mer enn 10 dager ifm fødsel", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10\"}}}",
             of(UTTAK), of(FEDREKVOTE), of(MINSTERETT_2022), of(IKKE_MOR)),
-    // TODO (jol): vurdere å tilby denne for alle lov-versjoner
     BARE_FAR_RETT_MANGLER_MORS_AKTIVITET
-        ("4107", "14-14", "§14-14, jf 14-13: Bare far har rett, aktivitetskravet ikke oppgitt eller ikke dokumentert", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-14,14-13\"}}}",
-            of(UTTAK, UTSETTELSE), of(FORELDREPENGER), of(MINSTERETT_2022), of(IKKE_MOR)),
+        ("4107", "14-14-3", "§14-14 tredje ledd: Ikke nok dager uten aktivitetskrav", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-14,14-13\"}}}",
+            of(UTTAK), of(FORELDREPENGER), null, of(IKKE_MOR)),
     SØKERS_SYKDOM_SKADE_SEKS_UKER_IKKE_OPPFYLT
         ("4110", "14-11", "§14-11: Søkers sykdom/skade første 6 uker ikke oppfylt", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}",
             of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK, MINSTERETT_2022), of(MOR)),

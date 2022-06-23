@@ -35,6 +35,8 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
     private static final Set<UtsettelseÅrsak> BFHR_MED_AKTIVITETSKRAV = Set.of(UtsettelseÅrsak.ARBEID, UtsettelseÅrsak.FERIE,
         UtsettelseÅrsak.SYKDOM, UtsettelseÅrsak.INSTITUSJON_BARN, UtsettelseÅrsak.INSTITUSJON_SØKER);
 
+    private static final Set<UttakPeriodeType> UTTAK_MED_AKTIVITETSKRAV = Set.of(UttakPeriodeType.FELLESPERIODE, UttakPeriodeType.FORELDREPENGER);
+
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
 
@@ -70,7 +72,7 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
         }
         var periodeType = periode.getPeriodeType();
         var harKravTilAktivitet = !periode.isFlerbarnsdager() &&
-            (Set.of(UttakPeriodeType.FELLESPERIODE, UttakPeriodeType.FORELDREPENGER).contains(periodeType) || bareFarHarRettOgSøkerUtsettelse(periode, annenForelderHarRett));
+            (UTTAK_MED_AKTIVITETSKRAV.contains(periodeType) || bareFarHarRettOgSøkerUtsettelse(periode, annenForelderHarRett));
         if (!harKravTilAktivitet) {
             return ikkeKontrollerer();
         }
@@ -89,9 +91,10 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
 
     private static boolean bareFarHarRettOgSøkerUtsettelse(OppgittPeriodeEntitet periode,
                                                            boolean annenForelderHarRett) {
-        //Reglene sjekker ikke aktivitetskrav hvis tiltak nav eller hv
-        return !annenForelderHarRett && (BFHR_MED_AKTIVITETSKRAV.contains(periode.getÅrsak()) ||
-            (UtsettelseÅrsak.FRI.equals(periode.getÅrsak()) && MorsAktivitet.forventerDokumentasjon(periode.getMorsAktivitet())));
+        // Reglene sjekker ikke aktivitetskrav hvis tiltak nav eller hv
+        // TODO TFP-5099: legg inn unntak for FRI utsettelse uten spesifisert aktivitet
+        return !annenForelderHarRett && (BFHR_MED_AKTIVITETSKRAV.contains(periode.getÅrsak()) || UtsettelseÅrsak.FRI.equals(periode.getÅrsak()));
+        // TODO || (UtsettelseÅrsak.FRI.equals(periode.getÅrsak()) && MorsAktivitet.forventerDokumentasjon(periode.getMorsAktivitet())));
     }
 
     private static Set<AktivitetskravPeriodeEntitet> finnAvklartePerioderSomDekkerSøknadsperiode(OppgittPeriodeEntitet periode,
