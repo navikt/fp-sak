@@ -67,6 +67,10 @@ public enum MorsAktivitet implements Kodeverdi {
         return Collections.unmodifiableMap(KODER);
     }
 
+    public static boolean forventerDokumentasjon(MorsAktivitet aktivitet) {
+        return aktivitet != null && !Set.of(UDEFINERT, UFØRE, IKKE_OPPGITT).contains(aktivitet);
+    }
+
     @Override
     public String getNavn() {
         return navn;
