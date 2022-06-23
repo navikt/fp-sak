@@ -75,6 +75,8 @@ public class InntektArbeidYtelseDtoMapper {
     private ArbeidsforholdDto mapArbeidsforhold(ArbeidsforholdWrapper wrapper) {
         var arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setId(lagId(wrapper));
+        arbeidsforholdDto.setEksternArbeidsforholdId(wrapper.getEksternArbeidsforholdId());
+        arbeidsforholdDto.setArbeidsforholdId(wrapper.getArbeidsforholdId());
         arbeidsforholdDto.setFomDato(wrapper.getFomDato());
         arbeidsforholdDto.setTomDato((wrapper.getTomDato() != null) && wrapper.getTomDato().equals(Tid.TIDENES_ENDE) ? null : wrapper.getTomDato());
         mapArbeidsgiverIdentifikator(wrapper, arbeidsforholdDto);
