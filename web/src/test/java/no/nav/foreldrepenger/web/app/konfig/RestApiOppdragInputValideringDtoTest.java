@@ -52,12 +52,19 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.foreldrepenger.web.app.IndexClasses;
 
-public class RestApiOppdragInputValideringDtoTest extends RestApiTester {
+class RestApiOppdragInputValideringDtoTest extends RestApiTester {
+
+    // NB: Bare DTOer som brukes av forvaltningstjenestene
+    private static final List<String> UNNTATTE_FEILDS = List.of(
+        "private java.lang.String no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerTermindatoDto.begrunnelse",
+        "private java.lang.String no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerAnnenpartIdentDto.begrunnelse",
+        "private java.lang.String no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto.key");
 
     /**
      * IKKE ignorer eller fjern denne testen, den sørger for at inputvalidering er i orden for REST-grensesnittene
@@ -66,13 +73,13 @@ public class RestApiOppdragInputValideringDtoTest extends RestApiTester {
      */
     @ParameterizedTest
     @MethodSource("finnAlleDtoTyper")
-    public void alle_felter_i_objekter_som_brukes_som_inputDTO_skal_enten_ha_valideringsannotering_eller_være_av_godkjent_type(Class<?> dto) throws Exception {
+    void alle_felter_i_objekter_som_brukes_som_inputDTO_skal_enten_ha_valideringsannotering_eller_være_av_godkjent_type(Class<?> dto) throws Exception {
         Set<Class<?>> validerteKlasser = new HashSet<>(); // trengs for å unngå løkker og unngå å validere samme klasse flere multipliser dobbelt
         validerRekursivt(validerteKlasser, dto, null);
     }
 
     private static final Set<Class<? extends Object>> ALLOWED_ENUM_ANNOTATIONS = Set.of(JsonProperty.class,
-        JsonValue.class, JsonIgnore.class, Valid.class, Null.class, NotNull.class, ValidKodeverk.class, QueryParam.class);
+        JsonValue.class, JsonIgnore.class, Valid.class, Null.class, NotNull.class, ValidKodeverk.class, QueryParam.class, Schema.class);
 
     @SuppressWarnings("rawtypes")
     private static final Map<Class, List<List<Class<? extends Annotation>>>> UNNTATT_FRA_VALIDERING = new HashMap<>() {
@@ -95,8 +102,7 @@ public class RestApiOppdragInputValideringDtoTest extends RestApiTester {
     @SuppressWarnings("rawtypes")
     private static final Map<Class, List<List<Class<? extends Annotation>>>> VALIDERINGSALTERNATIVER = new HashMap<>() {
         {
-            put(String.class,
-                asList(asList(Pattern.class, Size.class), asList(Pattern.class), singletonList(Digits.class)));
+            put(String.class, asList(asList(Pattern.class, Size.class), asList(Pattern.class), singletonList(Digits.class)));
             put(Long.class, asList(asList(Min.class, Max.class), asList(Digits.class)));
             put(long.class, asList(asList(Min.class, Max.class), asList(Digits.class)));
             put(Integer.class, singletonList(asList(Min.class, Max.class)));
@@ -268,6 +274,9 @@ public class RestApiOppdragInputValideringDtoTest extends RestApiTester {
     }
 
     private static void validerRiktigAnnotert(Field field) {
+        if (UNNTATTE_FEILDS.contains(field.toString())) {
+            return;
+        }
         var alternativer = getVurderingsalternativer(field);
         for (var alternativ : alternativer) {
             var harAlleAnnoteringerForAlternativet = true;

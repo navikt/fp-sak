@@ -11,11 +11,11 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
-import no.nav.vedtak.util.InputValideringRegex;
 
 public class BeregningSatsDto implements AbacDto {
 
@@ -23,7 +23,8 @@ public class BeregningSatsDto implements AbacDto {
 
     @NotNull
     @QueryParam("satsType")
-    @Pattern(regexp = InputValideringRegex.FRITEKST)
+    @Pattern(regexp = "^(?:ENGANG|GRUNNBELØP|GSNITT)$")
+    @Schema(allowableValues = {"ENGANG", "GRUNNBELØP", "GSNITT"})
     private String satsType;
 
     @NotNull
@@ -38,18 +39,12 @@ public class BeregningSatsDto implements AbacDto {
     private String satsTom;
 
     @NotNull
+    @Parameter(description = "Minumum satsverdi er satt til 75000")
     @QueryParam("satsVerdi")
-    @DefaultValue("0")
+    @DefaultValue("75000")
     @Min(75000)
     @Max(Long.MAX_VALUE)
     private Long satsVerdi;
-
-    public BeregningSatsDto(@NotNull String satsType, @NotNull String satsFom, String satsTom, @NotNull Long satsVerdi) {
-        this.satsFom = satsFom;
-        this.satsTom = satsTom;
-        this.satsType = satsType;
-        this.satsVerdi = satsVerdi;
-    }
 
     public BeregningSatsDto(BeregningSats sats) {
         this.satsFom = sats.getPeriode().getFomDato().toString();

@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
-import no.nav.vedtak.util.InputValideringRegex;
 
 public class SaksnummerTermindatoDto implements AbacDto {
 
@@ -31,7 +30,6 @@ public class SaksnummerTermindatoDto implements AbacDto {
 
     @Parameter(description = "Begrunnelse, fx FAGSYSTEM-nr")
     @QueryParam("begrunnelse")
-    @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String begrunnelse;
 
     public SaksnummerTermindatoDto(@NotNull String saksnummer, @NotNull String termindato, String begrunnelse) {

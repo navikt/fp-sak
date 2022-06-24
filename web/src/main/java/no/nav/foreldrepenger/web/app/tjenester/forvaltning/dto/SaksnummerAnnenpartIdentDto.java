@@ -2,14 +2,12 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.ws.rs.QueryParam;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
-import no.nav.vedtak.util.InputValideringRegex;
 
 public class SaksnummerAnnenpartIdentDto implements AbacDto {
 
@@ -28,7 +26,6 @@ public class SaksnummerAnnenpartIdentDto implements AbacDto {
 
     @Parameter(description = "Begrunnelse, fx FAGSYSTEM-nr")
     @QueryParam("begrunnelse")
-    @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String begrunnelse;
 
     public SaksnummerAnnenpartIdentDto(@NotNull String saksnummer, @NotNull String identAnnenPart, String begrunnelse) {
