@@ -26,14 +26,17 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.vedtak.intern.AutomatiskFagsakAvslutningTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class AvslutteFagsakerEnkeltOpphørTjeneste {
-    BehandlingRepository behandlingRepository;
-    FamilieHendelseRepository familieHendelseRepository;
-    BehandlingsresultatRepository behandlingsresultatRepository;
-    BeregningsresultatRepository beregningsresultatRepository;
-    FagsakRepository fagsakRepository;
+    private BehandlingRepository behandlingRepository;
+    private FamilieHendelseRepository familieHendelseRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
+    private BeregningsresultatRepository beregningsresultatRepository;
+    private FagsakRepository fagsakRepository;
+    private ProsessTaskTjeneste taskTjeneste;
+
 
     private static final Logger LOG = LoggerFactory.getLogger(AvslutteFagsakerEnkeltOpphørTjeneste.class);
 
@@ -46,12 +49,14 @@ public class AvslutteFagsakerEnkeltOpphørTjeneste {
                                                 FamilieHendelseRepository familieHendelseRepository,
                                                 BehandlingsresultatRepository behandlingsresultatRepository,
                                                 BeregningsresultatRepository beregningsresultatRepository,
-                                                FagsakRepository fagsakRepository) {
+                                                FagsakRepository fagsakRepository,
+                                                ProsessTaskTjeneste taskTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.familieHendelseRepository = familieHendelseRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.fagsakRepository = fagsakRepository;
+        this.taskTjeneste = taskTjeneste;
     }
 
     public int avslutteSakerMedEnkeltOpphør() {
@@ -63,17 +68,18 @@ public class AvslutteFagsakerEnkeltOpphørTjeneste {
             Behandling sisteBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElseThrow(() -> new IllegalStateException("Ugyldig tilstand for faksak " + fagsak.getSaksnummer()));
 
             if (!alleBarnaErDøde(sisteBehandling) && erBehandlingResultatOpphørt(sisteBehandling)) {
-                //avslutter saken om opphørsdato + 3 måneder er passert dagens dato
                 var opphørsdato = hentSisteUtbetalingsdato(sisteBehandling).plusDays(1);
-                LOG.info("AvslutteFagsakerEnkeltOpphørTjeneste: Sak {} er plukket ut, og oppfyller kriteriene. Opphørsdato + 3 måneder er {}", fagsak.getSaksnummer().toString(), leggPåSøknadsfristMåneder(opphørsdato));
+                LOG.info("AvslutteFagsakerEnkeltOpphørTjeneste: Sak med {} oppfyller kriteriene. Opphørsdato + 3 måneder: {}", fagsak.getSaksnummer().toString(), leggPåSøknadsfristMåneder(opphørsdato));
 
                 if (leggPåSøknadsfristMåneder(opphørsdato).isAfter(LocalDate.now())) {
-                    //kommenterer ut dette inntil sjekket i produksjon
-                    //var callId = MDCOperations.getCallId();
-                    //callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
+                    //kommenterer ut dette inntil funksjonalitet er verifisert i produksjon
+/*                    var callId = MDCOperations.getCallId();
+                    callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
 
-                    //opprettFagsakAvslutningTask(fagsak, callId + fagsak.getSaksnummer());
-                    LOG.info("Sak med saksnummer {} skal avsluttes.", fagsak.getSaksnummer().toString());
+                    var avslutningstaskData = opprettFagsakAvslutningTask(fagsak, callId + fagsak.getSaksnummer());
+                    taskTjeneste.lagre(avslutningstaskData);*/
+
+                    LOG.info("AvslutteFagsakerEnkeltOpphørTjeneste: Sak med {} vil avsluttes.", fagsak.getSaksnummer().toString());
                     antallSakerSomSkalAvsluttes++;
                 }
             }
