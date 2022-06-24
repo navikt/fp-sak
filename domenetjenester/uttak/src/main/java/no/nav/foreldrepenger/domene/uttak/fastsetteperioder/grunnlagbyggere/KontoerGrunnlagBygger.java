@@ -87,6 +87,7 @@ public class KontoerGrunnlagBygger {
         var morHarUføretrygd = rettOgOmsorg.getMorUføretrygd();
         var dekningsgrad = UttakEnumMapper.map(fagsakRelasjonRepository.finnRelasjonFor(ref.saksnummer()).getGjeldendeDekningsgrad().getVerdi());
 
+        var antallBarn = foreldrepengerGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getAntallBarn();
         var flerbarnsdager = stønadskontoer.stream()
             .filter(k -> StønadskontoType.FLERBARNSDAGER.equals(k.getStønadskontoType()))
             .findFirst()
@@ -103,6 +104,7 @@ public class KontoerGrunnlagBygger {
             .bareFarHarRett(bareFarHarRett)
             .morHarUføretrygd(morHarUføretrygd)
             .mor(erMor)
+            .antallBarn(antallBarn)
             .aleneomsorg(aleneomsorg)
             .minsterett(minsterett)
             .familieHendelseDato(familieHendelse)
