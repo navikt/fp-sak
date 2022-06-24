@@ -335,7 +335,7 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
         ("4100", "14-10-2", "§14-10 andre ledd: Uttak før omsorgsovertakelse", "", of(UTTAK)),
     BARE_FAR_RETT_IKKE_SØKT
         ("4102", "14-14", "§14-14, jf 14-13: Bare far har rett, mangler søknad uttak/aktivitetskrav", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-14,14-13\"}}}",
-            of(UTTAK), of(FORELDREPENGER), of(FRITT_UTTAK, MINSTERETT_2022), of(IKKE_MOR)),
+            of(UTTAK, UTSETTELSE), of(FORELDREPENGER), of(FRITT_UTTAK, MINSTERETT_2022), of(IKKE_MOR)),
     MOR_FØRSTE_SEKS_UKER_IKKE_SØKT
         ("4103", "14-09-6", "§14-9 sjette ledd: Mangler søknad for første 6 uker etter fødsel", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-9\"}}}",
             of(UTTAK), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK, MINSTERETT_2022), of(MOR)),
