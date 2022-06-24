@@ -18,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -44,7 +43,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ExtendWith(JpaExtension.class)
-public class AksjonspunktutlederTilbaketrekkTest {
+public class VurderTilbaketrekkTjenesteTest {
 
     public static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now().minusMonths(2);
     public static final String ORGNR1 = KUNSTIG_ORG + "1";
@@ -55,7 +54,7 @@ public class AksjonspunktutlederTilbaketrekkTest {
     public static final long ORIGINAL_BEHANDLING_ID = 83724923L;
 
     private final BeregningsresultatRepository beregningsresultatRepository = mock(BeregningsresultatRepository.class);
-    private AksjonspunktutlederTilbaketrekk aksjonspunktutlederTilbaketrekk;
+    private VurderTilbaketrekkTjeneste vurderTilbaketrekkTjeneste;
     private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -63,7 +62,7 @@ public class AksjonspunktutlederTilbaketrekkTest {
     void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var beregningsresultatTidslinjetjeneste = new BeregningsresultatTidslinjetjeneste(beregningsresultatRepository);
-        aksjonspunktutlederTilbaketrekk = new AksjonspunktutlederTilbaketrekk(beregningsresultatTidslinjetjeneste, inntektArbeidYtelseTjeneste);
+        vurderTilbaketrekkTjeneste = new VurderTilbaketrekkTjeneste(beregningsresultatTidslinjetjeneste, inntektArbeidYtelseTjeneste);
     }
 
     private BehandlingReferanse mockReferanse(Behandling behandling) {
@@ -94,11 +93,10 @@ public class AksjonspunktutlederTilbaketrekkTest {
         lagIayForAvsluttetOgTilkommetArbeid(behandling);
 
         // Act
-        var param = new AksjonspunktUtlederInput(mockReferanse(behandling));
-        var aksjonspunktResultater = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(param);
+        var aksjonspunktResultater = vurderTilbaketrekkTjeneste.skalVurdereTilbaketrekk(mockReferanse(behandling));
 
         // Assert
-        assertThat(aksjonspunktResultater).hasSize(1);
+        assertThat(aksjonspunktResultater).isTrue();
     }
 
     @Test
@@ -126,11 +124,10 @@ public class AksjonspunktutlederTilbaketrekkTest {
         lagBeregningsresultatForTilkommetArbeidMedRefusjon(arbeidsgiver2, arbeidsgiver, SKJÆRINGSTIDSPUNKT.plusMonths(1), behandling.getId());
 
         // Act
-        var param = new AksjonspunktUtlederInput(mockReferanse(behandling));
-        var aksjonspunktResultater = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(param);
+        var aksjonspunktResultater = vurderTilbaketrekkTjeneste.skalVurdereTilbaketrekk(mockReferanse(behandling));
 
         // Assert
-        assertThat(aksjonspunktResultater).hasSize(1);
+        assertThat(aksjonspunktResultater).isTrue();
     }
 
     private void leggTilYrkesaktiviteter(Behandling behandling, InntektArbeidYtelseAggregatBuilder registerBuilder, YrkesaktivitetBuilder... yas) {

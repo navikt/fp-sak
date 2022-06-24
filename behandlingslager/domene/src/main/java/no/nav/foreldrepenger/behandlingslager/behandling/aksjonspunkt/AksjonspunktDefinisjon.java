@@ -273,9 +273,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AV_BESTEBEREGNING_KODE, AksjonspunktType.MANUELL, "Kontroller den automatiske besteberegningen",
         BehandlingStegType.FORESLÅ_BESTEBEREGNING, VurderingspunktType.UT, VilkårType.BEREGNINGSGRUNNLAGVILKÅR, SkjermlenkeType.BESTEBEREGNING,
         ENTRINN, EnumSet.of(FP)),
-    VURDER_TILBAKETREKK(AksjonspunktKodeDefinisjon.VURDER_TILBAKETREKK_KODE,
-            AksjonspunktType.MANUELL, "Vurder tilbaketrekk", BehandlingStegType.VURDER_TILBAKETREKK, VurderingspunktType.UT, UTEN_VILKÅR,
-            SkjermlenkeType.TILKJENT_YTELSE, TOTRINN, EnumSet.of(FP)),
     VURDER_SVP_TILRETTELEGGING(
             AksjonspunktKodeDefinisjon.VURDER_SVP_TILRETTELEGGING_KODE, AksjonspunktType.MANUELL, "Vurder tilrettelegging svangerskapspenger",
             BehandlingStegType.KONTROLLER_FAKTA, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.PUNKT_FOR_SVP_INNGANG, ENTRINN, EnumSet.of(ES, FP, SVP)),
@@ -424,6 +421,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     _5079("5079", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser opphørt"),
     @Deprecated
     _5088("5088", AksjonspunktType.MANUELL, "Oppgitt at annen forelder ikke rett, men har løpende utbetaling"),
+    @Deprecated
+    _5090("5090", AksjonspunktType.MANUELL, "Vurder tilbaketrekk"),
     @Deprecated
     _7006("7006", AksjonspunktType.AUTOPUNKT, "Venter på opptjeningsopplysninger"),
     @Deprecated

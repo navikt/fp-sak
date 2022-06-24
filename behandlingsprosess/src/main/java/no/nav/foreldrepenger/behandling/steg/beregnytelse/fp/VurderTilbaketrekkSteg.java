@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -24,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.AksjonspunktutlederTilbaketrekk;
+import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.VurderTilbaketrekkTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.KopierUtbetResultatTjeneste;
 
 @BehandlingStegRef(BehandlingStegType.VURDER_TILBAKETREKK)
@@ -35,7 +34,7 @@ import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.KopierUtbetResultatTj
 public class VurderTilbaketrekkSteg implements BehandlingSteg {
     private static final Logger LOGGER = LoggerFactory.getLogger(VurderTilbaketrekkSteg.class);
 
-    private AksjonspunktutlederTilbaketrekk aksjonspunktutlederTilbaketrekk;
+    private VurderTilbaketrekkTjeneste vurderTilbaketrekkTjeneste;
     private BehandlingRepository behandlingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -46,12 +45,12 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
     }
 
     @Inject
-    public VurderTilbaketrekkSteg(AksjonspunktutlederTilbaketrekk aksjonspunktutlederTilbaketrekk,
+    public VurderTilbaketrekkSteg(VurderTilbaketrekkTjeneste vurderTilbaketrekkTjeneste,
                                   BehandlingRepository behandlingRepository,
                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                   BeregningsresultatRepository beregningsresultatRepository,
                                   KopierUtbetResultatTjeneste kopierUtbetResultatTjeneste) {
-        this.aksjonspunktutlederTilbaketrekk = aksjonspunktutlederTilbaketrekk;
+        this.vurderTilbaketrekkTjeneste = vurderTilbaketrekkTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
@@ -71,9 +70,9 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
 
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
-        var aksjonspunkter = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref));
+        var harBehovForTilbaketrekk = vurderTilbaketrekkTjeneste.skalVurdereTilbaketrekk(ref);
 
-        if (aksjonspunkter.isEmpty()) {
+        if (!harBehovForTilbaketrekk) {
             // I saker som er opprettet pga feriepenger må reberegnes kan det komme tilfeller der vi ikke kan omfordele igjen pga tilkommede arbeidsforhold,
             // i slike tilfeller må vi sjekke om foreslått resultat er likt og om det finnes et utbet. resultat vi kan kopiere, og isåfall kopiere dette
             // TFP-4279

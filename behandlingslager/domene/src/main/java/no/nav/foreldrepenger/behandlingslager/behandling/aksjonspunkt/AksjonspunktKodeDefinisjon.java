@@ -141,7 +141,6 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String AUTOMATISK_MARKERING_AV_UTENLANDSSAK_KODE = "5068";
     public static final String MANUELL_MARKERING_AV_UTLAND_SAKSTYPE_KODE = "6068";
-    public static final String VURDER_TILBAKETREKK_KODE = "5090";
 
     public static final String VURDER_SVP_TILRETTELEGGING_KODE = "5091";
     public static final String MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET_KODE = "5092";

@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.IndexClasses;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
-import no.nav.foreldrepenger.ytelse.beregning.rest.VurderTilbaketrekkDto;
 
 @Provider
 public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
@@ -62,7 +61,6 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
         scanClasses.add(AvklarAktivitetsPerioderDto.class);
         scanClasses.add(VurderFaktaOmBeregningDto.class);
         scanClasses.add(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto.class);
-        scanClasses.add(VurderTilbaketrekkDto.class);
         scanClasses.add(AvklarVergeDto.class);
 
         // avled code location fra klassene
