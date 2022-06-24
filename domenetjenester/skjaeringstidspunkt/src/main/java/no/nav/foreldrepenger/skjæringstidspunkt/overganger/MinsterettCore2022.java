@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
 public class MinsterettCore2022 {
 
     private static final String PROP_NAME_DATO = "dato.for.minsterett.forste";
-    private static final LocalDate DATO_FOR_PROD = LocalDate.of(2999,8,2); // LA STÅ.
+    private static final LocalDate DATO_FOR_PROD = LocalDate.of(2022,8,2); // LA STÅ.
 
     public static final boolean DEFAULT_SAK_UTEN_MINSTERETT = true;
 
