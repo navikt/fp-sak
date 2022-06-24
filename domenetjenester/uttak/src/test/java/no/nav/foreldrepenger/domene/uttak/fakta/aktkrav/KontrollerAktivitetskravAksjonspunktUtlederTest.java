@@ -160,11 +160,11 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
     }
 
     @Test
-    public void utledeAPForFarSomHarSøktUtsettelseFriOgBareFarRettUdefinertAktivitet() {
+    public void ikkeUtledeAPForFarSomHarSøktUtsettelseFriOgBareFarRettUdefinertAktivitet() {
         var uttakInput = bareFarRettMedSøktUtsettelse(UtsettelseÅrsak.FRI);
         var ap = utleder.utledFor(uttakInput);
 
-        assertThat(ap).containsOnly(KONTROLLER_AKTIVITETSKRAV); // TODO TFP-5099 endre til empty
+        assertThat(ap).isEmpty();
     }
 
     @Test

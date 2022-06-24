@@ -92,9 +92,8 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
     private static boolean bareFarHarRettOgSøkerUtsettelse(OppgittPeriodeEntitet periode,
                                                            boolean annenForelderHarRett) {
         // Reglene sjekker ikke aktivitetskrav hvis tiltak nav eller hv
-        // TODO TFP-5099: legg inn unntak for FRI utsettelse uten spesifisert aktivitet
-        return !annenForelderHarRett && (BFHR_MED_AKTIVITETSKRAV.contains(periode.getÅrsak()) || UtsettelseÅrsak.FRI.equals(periode.getÅrsak()));
-        // TODO || (UtsettelseÅrsak.FRI.equals(periode.getÅrsak()) && MorsAktivitet.forventerDokumentasjon(periode.getMorsAktivitet())));
+        return !annenForelderHarRett && (BFHR_MED_AKTIVITETSKRAV.contains(periode.getÅrsak()) ||
+            (UtsettelseÅrsak.FRI.equals(periode.getÅrsak()) && MorsAktivitet.forventerDokumentasjon(periode.getMorsAktivitet())));
     }
 
     private static Set<AktivitetskravPeriodeEntitet> finnAvklartePerioderSomDekkerSøknadsperiode(OppgittPeriodeEntitet periode,
