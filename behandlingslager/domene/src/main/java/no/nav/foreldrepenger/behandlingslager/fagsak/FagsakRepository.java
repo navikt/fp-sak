@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 
 import org.hibernate.jpa.QueryHints;
+import org.hibernate.query.NativeQuery;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -218,20 +219,21 @@ public class FagsakRepository {
 
     @SuppressWarnings("unchecked")
     public List<Fagsak> hentFagsakerRelevanteForAvslutning() {
-         var query = entityManager
+         var query = (NativeQuery<Fagsak>) entityManager
             .createNativeQuery(
-            "SELECT f.* FROM FAGSAK f JOIN FAGSAK_RELASJON fr ON (fr.aktiv = :aktiv AND f.id IN (fr.fagsak_en_id, fr.fagsak_to_id)) "
+            "SELECT f.* FROM FAGSAK f JOIN FAGSAK_RELASJON fr ON (fr.aktiv = :aktivRelasjon AND f.id IN (fr.fagsak_en_id, fr.fagsak_to_id)) "
                 + " WHERE fagsak_to_id IS NOT NULL "
                 + " AND fagsak_status = :lopende "
                 + " AND EXISTS (select * FROM FAGSAK f2 join BEHANDLING b on b.fagsak_id = f2.id join BEHANDLING_RESULTAT br ON br.behandling_id = b.id WHERE f2.id = f.id AND br.behandling_resultat_type = :opphor ) "
                 + " AND NOT EXISTS (select * FROM BEHANDLING b2 WHERE b2.fagsak_id = f.id AND behandling_status <> :avsluttet ) "
-                + " AND NOT EXISTS (select * FROM GR_NESTESAK ns join BEHANDLING b3 ON b3.id = ns.behandling_id JOIN FAGSAK f3 ON f3.id = b3.fagsak_id WHERE f3.id = f.ID AND ns.aktiv = :aktiv ) ",
+                + " AND NOT EXISTS (select * FROM GR_NESTESAK ns join BEHANDLING b3 ON b3.id = ns.behandling_id JOIN FAGSAK f3 ON f3.id = b3.fagsak_id WHERE f3.id = f.ID AND ns.aktiv = :aktivNesteSak ) ",
                 Fagsak.class);
 
-        query.setParameter("aktiv", "J")
+        query.setParameter("aktivRelasjon", "J")
             .setParameter("lopende", FagsakStatus.LØPENDE.getKode())
             .setParameter("opphor", BehandlingResultatType.OPPHØR.getKode())
-            .setParameter("avsluttet", BehandlingStatus.AVSLUTTET.getKode());
+            .setParameter("avsluttet", BehandlingStatus.AVSLUTTET.getKode())
+            .setParameter("aktivNesteSak", "J");
 
        return query.getResultList();
     }
