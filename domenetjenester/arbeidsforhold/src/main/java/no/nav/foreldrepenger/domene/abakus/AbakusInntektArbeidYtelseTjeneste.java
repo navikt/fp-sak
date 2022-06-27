@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingerDto;
-import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.RefusjonskravDatoerDto;
 import no.nav.abakus.iaygrunnlag.request.Dataset;
 import no.nav.abakus.iaygrunnlag.request.InntektArbeidYtelseGrunnlagRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektArbeidYtelseGrunnlagRequest.GrunnlagVersjon;
@@ -42,7 +41,6 @@ import no.nav.foreldrepenger.domene.abakus.mapping.IAYFraDtoMapper;
 import no.nav.foreldrepenger.domene.abakus.mapping.IAYTilDtoMapper;
 import no.nav.foreldrepenger.domene.abakus.mapping.KodeverkMapper;
 import no.nav.foreldrepenger.domene.abakus.mapping.MapInntektsmeldinger;
-import no.nav.foreldrepenger.domene.abakus.mapping.MapRefusjonskravDatoer;
 import no.nav.foreldrepenger.domene.arbeidsforhold.IAYDiffsjekker;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.SakInntektsmeldinger;
@@ -55,7 +53,6 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -195,19 +192,6 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
             var fagsak = fagsakOpt.get();
             // Hent grunnlag fra abakus
             return hentOgMapAlleInntektsmeldinger(fagsak);
-
-        }
-        return List.of();
-    }
-
-    @Override
-    public List<RefusjonskravDato> hentRefusjonskravDatoerForSak(Saksnummer saksnummer) {
-        var fagsakOpt = fagsakRepository.hentSakGittSaksnummer(saksnummer);
-
-        if (fagsakOpt.isPresent()) {
-            var fagsak = fagsakOpt.get();
-            // Hent grunnlag fra abakus
-            return hentOgMapAlleRefusjonskravDatoer(fagsak);
 
         }
         return List.of();
@@ -415,14 +399,6 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         }
     }
 
-    private RefusjonskravDatoerDto hentRefusjonskravDatoer(InntektsmeldingerRequest request) {
-        try {
-            return abakusTjeneste.hentRefusjonskravDatoer(request);
-        } catch (IOException e) {
-            throw feilVedKallTilAbakus("Kunne ikke hente inntektsmeldinger fra Abakus: " + e.getMessage(), e);
-        }
-    }
-
     private InntektArbeidYtelseGrunnlagDto hentGrunnlag(InntektArbeidYtelseGrunnlagRequest request) {
         try {
             return abakusTjeneste.hentGrunnlag(request);
@@ -443,10 +419,6 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         var mapInntektsmeldinger = new MapInntektsmeldinger.MapFraDto();
         var dummyBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         return mapInntektsmeldinger.map(dummyBuilder, dto);
-    }
-
-    private List<RefusjonskravDato> mapResult(RefusjonskravDatoerDto dto) {
-        return MapRefusjonskravDatoer.map(dto);
     }
 
     private InntektArbeidYtelseGrunnlag mapResult(AktørId aktørId, InntektArbeidYtelseGrunnlagDto dto, boolean isAktiv) {
@@ -484,12 +456,6 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         var request = initInntektsmeldingerRequest(fagsak);
         var dto = hentUnikeInntektsmeldinger(request);
         return mapResult(dto).getAlleInntektsmeldinger();
-    }
-
-    private List<RefusjonskravDato> hentOgMapAlleRefusjonskravDatoer(Fagsak fagsak) {
-        var request = initInntektsmeldingerRequest(fagsak);
-        var dto = hentRefusjonskravDatoer(request);
-        return mapResult(dto);
     }
 
     private List<InntektArbeidYtelseGrunnlag> hentOgMapAlleGrunnlag(Fagsak fagsak) {

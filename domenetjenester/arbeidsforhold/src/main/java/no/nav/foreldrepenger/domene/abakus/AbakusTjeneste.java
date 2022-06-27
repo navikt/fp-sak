@@ -61,7 +61,6 @@ public class AbakusTjeneste {
     private final ObjectReader uuidReader = iayMapper.readerFor(UuidDto.class);
     private final ObjectReader iayGrunnlagSnapshotReader = iayMapper.readerFor(InntektArbeidYtelseGrunnlagSakSnapshotDto.class);
     private final ObjectReader inntektsmeldingerReader = iayMapper.readerFor(InntektsmeldingerDto.class);
-    private final ObjectReader refusjonskravDatoerReader = iayMapper.readerFor(RefusjonskravDatoerDto.class);
     private URI innhentRegisterdata;
     private OidcRestClient oidcRestClient;
     private URI abakusEndpoint;
@@ -73,7 +72,6 @@ public class AbakusTjeneste {
     private URI endpointKopierGrunnlag;
     private URI endpointGrunnlagSnapshot;
     private URI endpointInntektsmeldinger;
-    private URI endpointRefusjonskravdatoer;
     private URI endpointInntektsmeldingerDiff;
     private URI endpointYtelser;
     private URI endpointOverstyring;
@@ -98,7 +96,6 @@ public class AbakusTjeneste {
         this.endpointKopierGrunnlag = toUri("/api/iay/grunnlag/v1/kopier");
         this.innhentRegisterdata = toUri("/api/registerdata/v1/innhent/async");
         this.endpointInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/hentAlle");
-        this.endpointRefusjonskravdatoer = toUri("/api/iay/inntektsmeldinger/v1/hentRefusjonskravDatoer");
         this.endpointInntektsmeldingerDiff = toUri("/api/iay/inntektsmeldinger/v1/hentDiff");
         this.endpointYtelser = toUri("/api/ytelse/v1/hentVedtakForAktoer");
         this.endpointLagreYtelse = toUri("/api/ytelse/v1/vedtatt");
@@ -170,15 +167,6 @@ public class AbakusTjeneste {
     public InntektsmeldingerDto hentInntektsmeldingDiff(InntektsmeldingDiffRequest request) throws IOException {
         var endpoint = endpointInntektsmeldingerDiff;
         var responseHandler = new ObjectReaderResponseHandler<InntektsmeldingerDto>(endpoint, inntektsmeldingerReader);
-        var json = iayJsonWriter.writeValueAsString(request);
-
-        return hentFraAbakus(endpoint, responseHandler, json);
-    }
-
-    public RefusjonskravDatoerDto hentRefusjonskravDatoer(InntektsmeldingerRequest request) throws IOException {
-        var endpoint = endpointRefusjonskravdatoer;
-        var responseHandler = new ObjectReaderResponseHandler<RefusjonskravDatoerDto>(endpoint,
-            refusjonskravDatoerReader);
         var json = iayJsonWriter.writeValueAsString(request);
 
         return hentFraAbakus(endpoint, responseHandler, json);

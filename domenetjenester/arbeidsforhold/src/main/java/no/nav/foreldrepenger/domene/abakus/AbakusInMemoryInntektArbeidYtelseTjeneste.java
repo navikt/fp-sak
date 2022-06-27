@@ -1,12 +1,9 @@
 package no.nav.foreldrepenger.domene.abakus;
 
-import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -39,8 +36,6 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
-import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -126,29 +121,6 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     @Override
     public List<Inntektsmelding> hentUnikeInntektsmeldingerForSak(Saksnummer saksnummer) {
         return new ArrayList<>(hentInntektsmeldinger(saksnummer).getAlleInntektsmeldinger());
-    }
-
-    @Override
-    public List<RefusjonskravDato> hentRefusjonskravDatoerForSak(Saksnummer saksnummer) {
-        return hentInntektsmeldinger(saksnummer).getAlleInntektsmeldinger().stream()
-                .filter(im -> !im.getRefusjonBeløpPerMnd().erNullEllerNulltall() || !im.getEndringerRefusjon().isEmpty())
-                .collect(Collectors.groupingBy(Inntektsmelding::getArbeidsgiver)).entrySet().stream()
-                .map(entry -> {
-                    var førsteInnsendingAvRefusjon = entry.getValue().stream().map(Inntektsmelding::getInnsendingstidspunkt)
-                            .min(Comparator.naturalOrder()).map(LocalDateTime::toLocalDate).orElse(TIDENES_ENDE);
-                    var førsteDatoForRefusjon = entry.getValue().stream()
-                            .map(im -> {
-                                if (!im.getRefusjonBeløpPerMnd().erNullEllerNulltall()) {
-                                    return im.getStartDatoPermisjon().orElse(TIDENES_ENDE);
-                                }
-                                return im.getEndringerRefusjon().stream()
-                                        .filter(er -> !er.getRefusjonsbeløp().erNullEllerNulltall())
-                                        .min(Comparator.comparing(Refusjon::getFom))
-                                        .map(Refusjon::getFom).orElse(TIDENES_ENDE);
-                            }).min(Comparator.naturalOrder()).orElse(TIDENES_ENDE);
-                    return new RefusjonskravDato(entry.getKey(), førsteDatoForRefusjon, førsteInnsendingAvRefusjon,
-                            entry.getValue().stream().anyMatch(im -> !im.getRefusjonBeløpPerMnd().erNullEllerNulltall()));
-                }).collect(Collectors.toList());
     }
 
     @Override
