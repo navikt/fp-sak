@@ -60,12 +60,6 @@ import no.nav.foreldrepenger.web.app.IndexClasses;
 
 class RestApiOppdragInputValideringDtoTest extends RestApiTester {
 
-    // NB: Bare DTOer som brukes av forvaltningstjenestene
-    private static final List<String> UNNTATTE_FEILDS = List.of(
-        "private java.lang.String no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerTermindatoDto.begrunnelse",
-        "private java.lang.String no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerAnnenpartIdentDto.begrunnelse",
-        "private java.lang.String no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto.key");
-
     /**
      * IKKE ignorer eller fjern denne testen, den sørger for at inputvalidering er i orden for REST-grensesnittene
      * <p>
@@ -274,9 +268,6 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
     }
 
     private static void validerRiktigAnnotert(Field field) {
-        if (UNNTATTE_FEILDS.contains(field.toString())) {
-            return;
-        }
         var alternativer = getVurderingsalternativer(field);
         for (var alternativ : alternativer) {
             var harAlleAnnoteringerForAlternativet = true;

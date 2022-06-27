@@ -59,7 +59,7 @@ public class ForvaltningSøknadRestTjeneste {
 
     @POST
     @Path("/endreTermindato")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Operation(description = "Oppdater termindato åpen/siste behandling ifm prematur situasjons", tags = "FORVALTNING-søknad")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK, sporingslogg = false)
     public Response endreTermindato(@BeanParam @Valid SaksnummerTermindatoDto dto) {
@@ -75,7 +75,7 @@ public class ForvaltningSøknadRestTjeneste {
 
     @POST
     @Path("/manglendeTermindato")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Operation(description = "Legg til terminbekreftelse på åpen/siste behandling ifm prematur situasjons", tags = "FORVALTNING-søknad")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK, sporingslogg = false)
     public Response manglendeTermindato(@BeanParam @Valid SaksnummerTermindatoDto dto) {
@@ -97,7 +97,7 @@ public class ForvaltningSøknadRestTjeneste {
 
     @POST
     @Path("/settNorskIdentAnnenpart")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Operation(description = "Oppdater annen part men kun hvis oppgitt = bruker", tags = "FORVALTNING-søknad")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK, sporingslogg = false)
     public Response settNorskIdentAnnenpart(@BeanParam @Valid SaksnummerAnnenpartIdentDto dto) {
@@ -124,7 +124,7 @@ public class ForvaltningSøknadRestTjeneste {
 
     @POST
     @Path("/settUtlandskIdentAnnenpart")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Operation(description = "Oppdater annen part men kun hvis oppgitt = bruker", tags = "FORVALTNING-søknad")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK, sporingslogg = false)
     public Response settUtlandskIdentAnnenpart(@BeanParam @Valid SaksnummerAnnenpartIdentDto dto) {
