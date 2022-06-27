@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
+import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.LeggTilOppgittNæringDto.Utfall.JA;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -47,12 +47,6 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @ApplicationScoped
 @Transactional
 public class ForvaltningOpptjeningRestTjeneste {
-
-    private static final Map<String, VirksomhetType> NÆRING_TYPE_KODE_MAP = Map.of(
-            "A", VirksomhetType.ANNEN,
-            "D", VirksomhetType.DAGMAMMA,
-            "F", VirksomhetType.FISKE,
-            "J", VirksomhetType.JORDBRUK_SKOGBRUK);
 
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
@@ -101,33 +95,31 @@ public class ForvaltningOpptjeningRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Legg til innslag for oppgitt næring som fisker", tags = "FORVALTNING-opptjening")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
-    public Response leggTilOppgittNæring(@BeanParam @Valid LeggTilOppgittNæringDto dto) {
-        var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
+    public Response leggTilOppgittNæring(@Valid LeggTilOppgittNæringDto dto) {
+        var behandling = behandlingsprosessTjeneste.hentBehandling(dto.behandlingUuid());
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
-        if (iayGrunnlag.getOppgittOpptjening().isPresent() || behandling.erSaksbehandlingAvsluttet()
-                || NÆRING_TYPE_KODE_MAP.get(dto.getTypeKode()) == null
-                || ("J".equals(dto.getVarigEndring()) && dto.getEndringsDato() == null)) {
+        if (iayGrunnlag.getOppgittOpptjening().isPresent() || behandling.erSaksbehandlingAvsluttet()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        Optional<Virksomhet> virksomhet = dto.getOrgnummer() != null ? virksomhetTjeneste.finnOrganisasjon(dto.getOrgnummer()) : Optional.empty();
-        var brutto = new BigDecimal(Long.parseLong(dto.getBruttoBeløp()));
-        var periode = dto.getTom() != null ? DatoIntervallEntitet.fraOgMedTilOgMed(dto.getFom(), dto.getTom())
-                : DatoIntervallEntitet.fraOgMed(dto.getFom());
+        Optional<Virksomhet> virksomhet = dto.orgnummer() != null ? virksomhetTjeneste.finnOrganisasjon(dto.orgnummer()) : Optional.empty();
+        var brutto = new BigDecimal(dto.bruttoBeløp());
+        var periode = dto.tom() != null ? DatoIntervallEntitet.fraOgMedTilOgMed(dto.fom(), dto.tom())
+                : DatoIntervallEntitet.fraOgMed(dto.fom());
         var enBuilder = OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
-                .medVirksomhetType(NÆRING_TYPE_KODE_MAP.get(dto.getTypeKode()))
+                .medVirksomhetType(VirksomhetType.fraKode(dto.typeKode()))
                 .medPeriode(periode)
                 .medBruttoInntekt(brutto)
                 .medNærRelasjon(false)
                 .medNyIArbeidslivet(false)
                 .medNyoppstartet(false)
                 .medVarigEndring(false)
-                .medRegnskapsførerNavn(dto.getRegnskapNavn())
-                .medRegnskapsførerTlf(dto.getRegnskapTlf());
+                .medRegnskapsførerNavn(dto.regnskapNavn())
+                .medRegnskapsførerTlf(dto.regnskapTlf());
         virksomhet.ifPresent(v -> enBuilder.medVirksomhet(v.getOrgnr()));
-        if ("J".equals(dto.getVarigEndring())) {
-            enBuilder.medVarigEndring(true).medBegrunnelse(dto.getBegrunnelse()).medEndringDato(dto.getEndringsDato());
+        if (JA.equals(dto.varigEndring())) {
+            enBuilder.medVarigEndring(true).medBegrunnelse(dto.begrunnelse()).medEndringDato(dto.endringsDato());
         }
-        if ("J".equals(dto.getNyoppstartet())) {
+        if (JA.equals(dto.nyoppstartet())) {
             enBuilder.medNyoppstartet(true);
         }
         var ooBuilder = OppgittOpptjeningBuilder.ny(iayGrunnlag.getEksternReferanse(), iayGrunnlag.getOpprettetTidspunkt())
