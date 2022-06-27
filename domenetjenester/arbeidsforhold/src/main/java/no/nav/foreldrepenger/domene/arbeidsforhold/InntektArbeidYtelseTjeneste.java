@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -140,8 +139,6 @@ public interface InntektArbeidYtelseTjeneste {
     void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long fraBehandlingId, Long tilBehandlingId);
 
     List<Inntektsmelding> hentUnikeInntektsmeldingerForSak(Saksnummer saksnummer);
-
-    List<RefusjonskravDato> hentRefusjonskravDatoerForSak(Saksnummer saksnummer);
 
     /**
      * Hent alle inntektsmeldinger registrert på saksnummer, indeksert på

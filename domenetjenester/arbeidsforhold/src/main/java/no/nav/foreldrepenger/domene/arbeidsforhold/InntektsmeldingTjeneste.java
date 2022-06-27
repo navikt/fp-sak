@@ -162,20 +162,6 @@ public class InntektsmeldingTjeneste {
     }
 
     /**
-     * Henter ut alle datoer for innsending av refusjonskrav og første gyldige
-     * refusjonskrav for alle inntektsmeldinger koblet til fagsaken på alle
-     * behandlinger, uavhengig av status <br>
-     * <b>NB!</b> Tar ikke hensyn til om inntektsmeldingen for det aktuelle
-     * refusjonskravet er knyttet til et inaktivt arbeidsforhold
-     *
-     * @param saksnummer som gjelder fagsaken
-     * @return Liste med inntektsmeldinger {@link Inntektsmelding}
-     */
-    public List<RefusjonskravDato> hentAlleRefusjonskravDatoerForFagsak(Saksnummer saksnummer) {
-        return List.copyOf(iayTjeneste.hentRefusjonskravDatoerForSak(saksnummer));
-    }
-
-    /**
      * Henter ut alle inntektsmeldinger som ikke ligger i både revurderingen og
      * originalbehandlingen, altså alle tilkomne inntektsmeldinger <br>
      *
