@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
+import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.InputValideringRegexDato.DATO_PATTERN;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -18,8 +20,6 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
 public class BeregningSatsDto implements AbacDto {
-
-    private static final String DATO_PATTERN = "(\\d{4}-\\d{2}-\\d{2})";
 
     @NotNull
     @QueryParam("satsType")

@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
+import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.InputValideringRegexDato.DATO_PATTERN;
 import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.LeggTilOppgittNæringDto.Utfall.JA;
 import static no.nav.vedtak.util.InputValideringRegex.FRITEKST;
 
@@ -25,8 +26,6 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
 public class LeggTilOppgittNæringDto implements AbacDto {
-
-    private static final String DATO_PATTERN = "^(\\d{4}-\\d{2}-\\d{2})?$";
 
     @Valid
     @NotNull
