@@ -43,7 +43,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.FormParam;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -52,7 +52,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
@@ -73,7 +72,7 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
     }
 
     private static final Set<Class<? extends Object>> ALLOWED_ENUM_ANNOTATIONS = Set.of(JsonProperty.class,
-        JsonValue.class, JsonIgnore.class, Valid.class, Null.class, NotNull.class, ValidKodeverk.class, QueryParam.class, Schema.class);
+        JsonValue.class, JsonIgnore.class, Valid.class, Null.class, NotNull.class, ValidKodeverk.class, FormParam.class);
 
     @SuppressWarnings("rawtypes")
     private static final Map<Class, List<List<Class<? extends Annotation>>>> UNNTATT_FRA_VALIDERING = new HashMap<>() {
