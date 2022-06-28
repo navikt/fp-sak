@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.dbstoette;
 
 import static java.lang.Runtime.getRuntime;
 
+import java.io.File;
+import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.naming.NamingException;
@@ -50,7 +52,7 @@ public final class Databaseskjemainitialisering {
         if (GUARD_UNIT_TEST_SKJEMAER.compareAndSet(false, true)) {
             var flyway = Flyway.configure()
                 .dataSource(createDs(user))
-                .locations(DB_SCRIPT_LOCATION + schemaName)
+                .locations(getScriptLocation(schemaName))
                 .table("schema_version")
                 .baselineOnMigrate(true)
                 .cleanOnValidationError(true)
@@ -60,7 +62,11 @@ public final class Databaseskjemainitialisering {
                     throw new IllegalStateException("Forventer at denne migreringen bare kjøres lokalt");
                 }
                 flyway.migrate();
-            } catch (FlywayException fwe) {
+                var connection = flyway.getConfiguration().getDataSource().getConnection();
+                if (!connection.isClosed()) {
+                    connection.close();
+                }
+            } catch (FlywayException ex) {
                 try {
                     // prøver igjen
                     flyway.clean();
@@ -68,9 +74,36 @@ public final class Databaseskjemainitialisering {
                 } catch (FlywayException fwe2) {
                     throw new IllegalStateException("Migrering feiler", fwe2);
                 }
+            } catch (SQLException sqlex) {
+                // nothing to do here
             }
         }
         GUARD_UNIT_TEST_SKJEMAER.compareAndSet(true, false);
+    }
+
+    private static String getScriptLocation(String dsName) {
+        if (DBTestUtil.kjøresAvMaven()) {
+            return classpathScriptLocation(dsName);
+        }
+        return fileScriptLocation(dsName);
+    }
+
+    private static String classpathScriptLocation(String dsName) {
+        return "classpath:" + DB_SCRIPT_LOCATION + dsName;
+    }
+
+    private static String fileScriptLocation(String dsName) {
+        var relativePath = "migreringer/src/main/resources" + DB_SCRIPT_LOCATION + dsName;
+        var baseDir = new File(".").getAbsoluteFile();
+        var location = new File(baseDir, relativePath);
+        while (!location.exists()) {
+            baseDir = baseDir.getParentFile();
+            if (baseDir == null || !baseDir.isDirectory()) {
+                throw new IllegalArgumentException("Klarte ikke finne : " + baseDir);
+            }
+            location = new File(baseDir, relativePath);
+        }
+        return "filesystem:" + location.getPath();
     }
 
     public static synchronized DataSource settJdniOppslag() {
