@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
+import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.InputValideringRegexDato.DATO_PATTERN;
 import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.LeggTilOppgittNæringDto.Utfall.JA;
 import static no.nav.vedtak.util.InputValideringRegex.FRITEKST;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import javax.validation.Valid;
@@ -25,8 +25,6 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
 public class LeggTilOppgittNæringDto implements AbacDto {
-
-    private static final String DATO_PATTERN = "^(\\d{4}-\\d{2}-\\d{2})?$";
 
     @Valid
     @NotNull
@@ -97,7 +95,7 @@ public class LeggTilOppgittNæringDto implements AbacDto {
     @AssertTrue(message = "Når [varigEndring] er JA, må også [endringsDato] være satt!")
     public boolean isEndringsdatoSattVedVarigEndringOK() {
         if (JA.equals(varigEndring)) {
-            return endringsDato != null;
+            return erDatoSatt(endringsDato);
         }
         return true;
     }
@@ -151,10 +149,14 @@ public class LeggTilOppgittNæringDto implements AbacDto {
     }
 
     private LocalDate getLocalDate(String datoString) {
-        if (datoString != null) {
-            return LocalDate.parse(datoString, DateTimeFormatter.ISO_LOCAL_DATE);
+        if (erDatoSatt(datoString)) {
+            return LocalDate.parse(datoString);
         }
         return null;
+    }
+
+    private boolean erDatoSatt(String datoString) {
+        return datoString != null && !datoString.isEmpty();
     }
 
     public enum Utfall {
