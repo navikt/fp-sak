@@ -76,6 +76,7 @@ public class ForeldrepengerModellProducer {
             BehandlingStegType.INNHENT_REGISTEROPP,
             BehandlingStegType.INREG_AVSL,
             BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING,
+            BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON,
             BehandlingStegType.KONTROLLER_FAKTA,
             BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT,
             BehandlingStegType.SØKERS_RELASJON_TIL_BARN,
