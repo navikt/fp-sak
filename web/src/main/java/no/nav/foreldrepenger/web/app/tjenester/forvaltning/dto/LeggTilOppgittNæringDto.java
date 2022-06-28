@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.LeggTilOpp
 import static no.nav.vedtak.util.InputValideringRegex.FRITEKST;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import javax.validation.Valid;
@@ -96,7 +95,7 @@ public class LeggTilOppgittNæringDto implements AbacDto {
     @AssertTrue(message = "Når [varigEndring] er JA, må også [endringsDato] være satt!")
     public boolean isEndringsdatoSattVedVarigEndringOK() {
         if (JA.equals(varigEndring)) {
-            return endringsDato != null;
+            return erDatoSatt(endringsDato);
         }
         return true;
     }
@@ -150,10 +149,14 @@ public class LeggTilOppgittNæringDto implements AbacDto {
     }
 
     private LocalDate getLocalDate(String datoString) {
-        if (datoString != null) {
-            return LocalDate.parse(datoString, DateTimeFormatter.ISO_LOCAL_DATE);
+        if (erDatoSatt(datoString)) {
+            return LocalDate.parse(datoString);
         }
         return null;
+    }
+
+    private boolean erDatoSatt(String datoString) {
+        return datoString != null && !datoString.isEmpty();
     }
 
     public enum Utfall {
