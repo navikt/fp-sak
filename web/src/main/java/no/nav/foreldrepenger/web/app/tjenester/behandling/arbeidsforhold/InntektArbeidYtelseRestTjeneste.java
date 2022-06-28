@@ -145,14 +145,9 @@ public class InntektArbeidYtelseRestTjeneste {
 
         // finn annen part
         var annenPartAktørId = getAnnenPart(behandling.getId());
-        var param = new UtledArbeidsforholdParametere(
-                behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD));
-
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-
-        var sakInntektsmeldinger = iayTjeneste.hentInntektsmeldinger(behandling.getFagsak().getSaksnummer());
         return iayTjeneste.finnGrunnlag(behandling.getId())
-            .map(iayg -> dtoMapper.mapFra(ref, iayg, sakInntektsmeldinger, annenPartAktørId, param))
+            .map(iayg -> dtoMapper.mapFra(ref, iayg, annenPartAktørId))
             .orElseGet(InntektArbeidYtelseDto::new);
     }
 

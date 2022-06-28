@@ -2,16 +2,10 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -20,16 +14,11 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -39,12 +28,9 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.ArbeidsforholdKilde;
 import no.nav.foreldrepenger.domene.arbeidsforhold.ArbeidsforholdWrapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.VurderArbeidsforholdTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste.UtledArbeidsforholdParametere;
 import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
@@ -94,16 +80,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
 
         arbeidsgiver = Arbeidsgiver.virksomhet(virksomhet1.getOrgnr());
 
-        var vurderArbeidsforholdTjeneste = mock(VurderArbeidsforholdTjeneste.class);
-
-        var arbeidsgiver = Arbeidsgiver.virksomhet(virksomhet2.getOrgnr());
-        Set<InternArbeidsforholdRef> arbeidsforholdRefSet = new HashSet<>();
-        arbeidsforholdRefSet.add(ARBEIDSFORHOLD_ID);
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgiverSetMap = new HashMap<>();
-        arbeidsgiverSetMap.put(arbeidsgiver, arbeidsforholdRefSet);
-        when(vurderArbeidsforholdTjeneste.vurder(any(), any(), any(), ArgumentMatchers.anyBoolean())).thenReturn(arbeidsgiverSetMap);
-
-        arbeidsforholdTjeneste = new ArbeidsforholdAdministrasjonTjeneste(vurderArbeidsforholdTjeneste, inntektsmeldingTjeneste, iayTjeneste);
+        arbeidsforholdTjeneste = new ArbeidsforholdAdministrasjonTjeneste(inntektsmeldingTjeneste, iayTjeneste);
     }
 
     @Test
@@ -124,9 +101,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         assertThat(wrapperList).hasSize(1);
         var arbeidsforhold = wrapperList.iterator().next();
 
-        assertThat(arbeidsforhold.getMottattDatoInntektsmelding()).isEqualTo(mottattDato);
-        assertThat(arbeidsforhold.getBrukArbeidsforholdet()).isTrue();
-        assertThat(arbeidsforhold.getFortsettBehandlingUtenInntektsmelding()).isFalse();
         assertThat(arbeidsforhold.getFomDato()).isEqualTo(ARBEIDSFORHOLD_FRA);
         assertThat(arbeidsforhold.getTomDato()).isEqualTo(ARBEIDSFORHOLD_TIL);
     }
@@ -167,10 +141,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         assertThat(wrapperList).hasSize(1);
         var arbeidsforhold = wrapperList.iterator().next();
 
-        assertThat(arbeidsforhold.getMottattDatoInntektsmelding()).isEqualTo(mottattDato);
-        assertThat(arbeidsforhold.getKilde()).isEqualTo(ArbeidsforholdKilde.INNTEKTSMELDING);
-        assertThat(arbeidsforhold.getBrukArbeidsforholdet()).isTrue();
-        assertThat(arbeidsforhold.getFortsettBehandlingUtenInntektsmelding()).isFalse();
         assertThat(arbeidsforhold.getFomDato()).isEqualTo(LocalDate.now()); // null-verdi
     }
 
@@ -192,9 +162,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         assertThat(wrapperList).hasSize(1);
         var arbeidsforhold = wrapperList.iterator().next();
 
-        assertThat(arbeidsforhold.getMottattDatoInntektsmelding()).isEqualTo(mottattDato);
-        assertThat(arbeidsforhold.getBrukArbeidsforholdet()).isTrue();
-        assertThat(arbeidsforhold.getFortsettBehandlingUtenInntektsmelding()).isFalse();
         assertThat(arbeidsforhold.getFomDato()).isEqualTo(ARBEIDSFORHOLD_FRA);
         assertThat(arbeidsforhold.getTomDato()).isEqualTo(ARBEIDSFORHOLD_TIL);
     }
@@ -202,7 +169,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
     private Set<ArbeidsforholdWrapper> hentArbeidsforholdFerdigUtledet(Behandling behandling) {
         var ref = lagRef(behandling);
         var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
-        return arbeidsforholdTjeneste.hentArbeidsforholdFerdigUtledet(ref, iayGrunnlag, null, new UtledArbeidsforholdParametere(true));
+        return arbeidsforholdTjeneste.hentArbeidsforholdFerdigUtledet(ref, iayGrunnlag);
     }
 
     @Test
@@ -223,9 +190,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         assertThat(wrapperList).hasSize(1);
         var arbeidsforhold = wrapperList.iterator().next();
 
-        assertThat(arbeidsforhold.getMottattDatoInntektsmelding()).isEqualTo(mottattDato);
-        assertThat(arbeidsforhold.getBrukArbeidsforholdet()).isTrue();
-        assertThat(arbeidsforhold.getFortsettBehandlingUtenInntektsmelding()).isFalse();
         assertThat(arbeidsforhold.getFomDato()).isEqualTo(ARBEIDSFORHOLD_FRA);
         assertThat(arbeidsforhold.getTomDato()).isEqualTo(ARBEIDSFORHOLD_TIL);
         assertThat(arbeidsforhold.getStillingsprosent()).isEqualTo(BigDecimal.ONE);
@@ -246,11 +210,8 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         assertThat(wrapperList).hasSize(1);
         var arbeidsforhold = wrapperList.iterator().next();
 
-        assertThat(arbeidsforhold.getBrukArbeidsforholdet()).isTrue();
-        assertThat(arbeidsforhold.getFortsettBehandlingUtenInntektsmelding()).isFalse();
         assertThat(arbeidsforhold.getFomDato()).isEqualTo(ARBEIDSFORHOLD_FRA);
         assertThat(arbeidsforhold.getTomDato()).isEqualTo(ARBEIDSFORHOLD_TIL);
-        assertThat(arbeidsforhold.getKilde()).isEqualTo(ArbeidsforholdKilde.AAREGISTERET);
         assertThat(arbeidsforhold.getStillingsprosent()).isEqualTo(BigDecimal.ONE);
     }
 
@@ -276,9 +237,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         // Assert
         assertThat(wrapperList).hasSize(1);
         var arbeidsforhold = wrapperList.iterator().next();
-        assertThat(arbeidsforhold.getMottattDatoInntektsmelding()).isEqualTo(mottattDato);
-        assertThat(arbeidsforhold.getBrukArbeidsforholdet()).isTrue();
-        assertThat(arbeidsforhold.getFortsettBehandlingUtenInntektsmelding()).isFalse();
         assertThat(arbeidsforhold.getFomDato()).isEqualTo(ARBEIDSFORHOLD_FRA);
         assertThat(arbeidsforhold.getTomDato()).isEqualTo(ARBEIDSFORHOLD_TIL);
     }
@@ -302,9 +260,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         // Assert
         assertThat(wrapperList).hasSize(1);
         var arbeidsforhold = wrapperList.iterator().next();
-        assertThat(arbeidsforhold.getBrukArbeidsforholdet()).isTrue();
-        assertThat(arbeidsforhold.getLagtTilAvSaksbehandler()).isTrue();
-        assertThat(arbeidsforhold.getFortsettBehandlingUtenInntektsmelding()).isTrue();
         assertThat(arbeidsforhold.getFomDato()).isEqualTo(mottattDato.minusYears(1L));
         assertThat(arbeidsforhold.getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
     }
@@ -316,7 +271,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         opprettOppgittOpptjening(behandling);
         opprettInntektArbeidYtelseAggregatForMultiYrkesaktivitet(AKTØRID, ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.ONE,
                 behandling);
-        opprettAksjonspunkt(behandling, LocalDateTime.now());
 
         // Act
         var wrapperList = hentArbeidsforholdFerdigUtledet(behandling);
@@ -325,11 +279,8 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         assertThat(wrapperList).hasSize(1);
         var arbeidsforhold = wrapperList.iterator().next();
 
-        assertThat(arbeidsforhold.getBrukArbeidsforholdet()).isTrue();
-        assertThat(arbeidsforhold.getFortsettBehandlingUtenInntektsmelding()).isFalse();
         assertThat(arbeidsforhold.getFomDato()).isEqualTo(ARBEIDSFORHOLD_FRA);
         assertThat(arbeidsforhold.getTomDato()).isEqualTo(ARBEIDSFORHOLD_TIL);
-        assertThat(arbeidsforhold.getKilde()).isEqualTo(ArbeidsforholdKilde.AAREGISTERET);
         assertThat(arbeidsforhold.getStillingsprosent()).isEqualTo(BigDecimal.ONE);
     }
 
@@ -644,13 +595,5 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         final var behandling = builder.build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         return behandling;
-    }
-
-    private Aksjonspunkt opprettAksjonspunkt(Behandling behandling,
-            LocalDateTime frist) {
-
-        var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
-        AksjonspunktTestSupport.setFrist(aksjonspunkt, frist, Venteårsak.UDEFINERT);
-        return aksjonspunkt;
     }
 }

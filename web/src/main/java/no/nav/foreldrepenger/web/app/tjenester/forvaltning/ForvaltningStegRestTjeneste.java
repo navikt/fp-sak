@@ -1,12 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.KONTROLLER_FAKTA;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType.FØRSTEGANGSSØKNAD;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-
-import java.util.Collections;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -24,7 +20,6 @@ import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -33,13 +28,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdInntektsmeldingToggleTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
@@ -56,7 +46,6 @@ public class ForvaltningStegRestTjeneste {
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
     private HistorikkRepository historikkRepository;
     private FamilieHendelseRepository familieHendelseRepository;
-    private VilkårResultatRepository vilkårResultatRepository;
     private BehandlingRepository behandlingRepository;
     private OpptjeningRepository opptjeningRepository;
 
@@ -64,14 +53,12 @@ public class ForvaltningStegRestTjeneste {
     public ForvaltningStegRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
                                        BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                        ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
-                                       BehandlingRepositoryProvider repositoryProvider,
-                                       VilkårResultatRepository vilkårResultatRepository) {
+                                       BehandlingRepositoryProvider repositoryProvider) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.vilkårResultatRepository = vilkårResultatRepository;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
     }
@@ -96,11 +83,11 @@ public class ForvaltningStegRestTjeneste {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hopp tilbake til 5080", tags = "FORVALTNING-steg-hopp")
-    @Path("/5080")
+    @Operation(description = "Hopp tilbake til 5085", tags = "FORVALTNING-steg-hopp")
+    @Path("/5085")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
-    public Response hoppTilbakeTil5080(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        hoppTilbake(dto, KONTROLLER_FAKTA_ARBEIDSFORHOLD);
+    public Response hoppTilbakeTil5085(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+        hoppTilbake(dto, KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
 
         return Response.ok().build();
     }
@@ -114,44 +101,6 @@ public class ForvaltningStegRestTjeneste {
         var behandlingId = getBehandling(dto).getId();
         arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandlerOpptjening(behandlingId);
 
-        return Response.ok().build();
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hopp tilbake til 5080 og fjern OPPTJENINGSVILKÅRET", tags = "FORVALTNING-steg-hopp")
-    @Path("/fjern-opptjeningsvilkåret")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
-    public Response hoppTilbakeTil5080OgFjernOverstyringAvOpptjening(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandling = getBehandling(dto);
-
-        var behandlingId = behandling.getId();
-        var vilkårResultatOpt = vilkårResultatRepository.hentHvisEksisterer(behandlingId);
-
-        if (vilkårResultatOpt.isPresent()) {
-            var vilkårResultat = vilkårResultatOpt.get();
-            var opptjeningsvilkåretOpt = vilkårResultat.getVilkårene()
-                    .stream()
-                    .filter(v -> v.getVilkårType() == VilkårType.OPPTJENINGSVILKÅRET)
-                    .filter(Vilkår::erOverstyrt)
-                    .findFirst();
-
-            if (opptjeningsvilkåretOpt.isPresent()) {
-                var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-                var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
-                builder.fjernVilkår(VilkårType.OPPTJENINGSVILKÅRET);
-
-                var nyttVilkårResulatat = builder.buildFor(behandling);
-                behandlingRepository.lagre(nyttVilkårResulatat, kontekst.getSkriveLås());
-                behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-
-                if (behandling.erRevurdering()) {
-                    hoppTilbake(dto, KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
-                } else if (behandling.getType() == FØRSTEGANGSSØKNAD) {
-                    hoppTilbake(dto, KONTROLLER_FAKTA_ARBEIDSFORHOLD);
-                }
-            }
-        }
         return Response.ok().build();
     }
 
@@ -199,13 +148,8 @@ public class ForvaltningStegRestTjeneste {
     private void hoppTilbake(ForvaltningBehandlingIdDto dto, BehandlingStegType tilSteg) {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(dto.getBehandlingUuid());
         var behandling = getBehandling(dto);
-        if (KONTROLLER_FAKTA_ARBEIDSFORHOLD.equals(tilSteg)) {
+        if (KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING.equals(tilSteg)) {
             arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(behandling.getId(), behandling.getAktørId());
-            var ap5080 = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
-            if (ArbeidsforholdInntektsmeldingToggleTjeneste.erTogglePå() && ap5080.isPresent()) {
-                behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, KONTROLLER_FAKTA_ARBEIDSFORHOLD, Collections.singletonList(
-                    ap5080.get()));
-            }
             resetStartpunkt(behandling);
         }
         if (KONTROLLER_FAKTA.equals(tilSteg)) {

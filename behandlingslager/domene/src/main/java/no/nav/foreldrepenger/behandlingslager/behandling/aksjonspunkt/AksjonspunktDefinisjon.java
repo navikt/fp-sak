@@ -238,9 +238,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST(
             AksjonspunktKodeDefinisjon.KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST_KODE, AksjonspunktType.MANUELL, "Kontroller opplysninger om søknadsfrist",
             BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
-    VURDER_ARBEIDSFORHOLD(AksjonspunktKodeDefinisjon.VURDER_ARBEIDSFORHOLD_KODE,
-            AksjonspunktType.MANUELL, "Avklar arbeidsforhold", BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD, VurderingspunktType.UT, UTEN_VILKÅR,
-            SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD, ENTRINN, EnumSet.of(FP, SVP)),
     VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING(AksjonspunktKodeDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING_KODE,
         AksjonspunktType.MANUELL, "Avklar mangler rundt arbeidsforhold og inntektsmelding", BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING, VurderingspunktType.UT, UTEN_VILKÅR,
         SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_INNTEKTSMELDING, ENTRINN, EnumSet.of(FP, SVP)),
@@ -419,6 +416,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     _5078("5078", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser innvilget"),
     @Deprecated
     _5079("5079", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser opphørt"),
+    @Deprecated // Erstattet av 5085
+    _5080("5080", AksjonspunktType.MANUELL, "Avklar arbeidsforhold"),
     @Deprecated
     _5088("5088", AksjonspunktType.MANUELL, "Oppgitt at annen forelder ikke rett, men har løpende utbetaling"),
     @Deprecated

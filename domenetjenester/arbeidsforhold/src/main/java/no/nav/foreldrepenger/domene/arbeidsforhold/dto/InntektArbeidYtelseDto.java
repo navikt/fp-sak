@@ -10,8 +10,6 @@ public class InntektArbeidYtelseDto {
     private List<RelaterteYtelserDto> relatertTilgrensendeYtelserForAnnenForelder = Collections.emptyList();
     private List<RelaterteYtelserDto> innvilgetRelatertTilgrensendeYtelserForAnnenForelder = Collections.emptyList();
     private List<ArbeidsforholdDto> arbeidsforhold = Collections.emptyList();
-    private boolean skalKunneLeggeTilNyeArbeidsforhold = false;
-    private boolean skalKunneLageArbeidsforholdBasertPaInntektsmelding = false;
 
     public void setInntektsmeldinger(List<InntektsmeldingDto> inntektsmeldinger) {
         this.inntektsmeldinger = inntektsmeldinger;
@@ -51,21 +49,5 @@ public class InntektArbeidYtelseDto {
 
     public void setArbeidsforhold(List<ArbeidsforholdDto> arbeidsforhold) {
         this.arbeidsforhold = arbeidsforhold;
-    }
-
-    public boolean getSkalKunneLeggeTilNyeArbeidsforhold() {
-        return skalKunneLeggeTilNyeArbeidsforhold;
-    }
-
-    public void setSkalKunneLeggeTilNyeArbeidsforhold(boolean skalKunneLeggeTilNyeArbeidsforhold) {
-        this.skalKunneLeggeTilNyeArbeidsforhold = skalKunneLeggeTilNyeArbeidsforhold;
-    }
-
-    public void setSkalKunneLageArbeidsforholdBasrtPåInntektsmelding(boolean skalKunneLageArbeidsforholdBasertPaInntektsmelding) {
-        this.skalKunneLageArbeidsforholdBasertPaInntektsmelding = skalKunneLageArbeidsforholdBasertPaInntektsmelding;
-    }
-
-    public boolean getSkalKunneLageArbeidsforholdBasertPaInntektsmelding() {
-        return skalKunneLageArbeidsforholdBasertPaInntektsmelding;
     }
 }

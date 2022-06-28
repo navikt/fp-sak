@@ -15,7 +15,6 @@ public class TotrinnskontrollAksjonspunkterDto {
     private Boolean totrinnskontrollGodkjent;
     private Set<VurderÅrsak> vurderPaNyttArsaker;
     private List<UttakPeriodeEndringDto> uttakPerioder;
-    private List<TotrinnsArbeidsforholdDto> arbeidforholdDtos;
 
 
     public String getAksjonspunktKode() {
@@ -44,10 +43,6 @@ public class TotrinnskontrollAksjonspunkterDto {
 
     public List<UttakPeriodeEndringDto> getUttakPerioder() {
         return uttakPerioder;
-    }
-
-    public List<TotrinnsArbeidsforholdDto> getArbeidforholdDtos() {
-        return arbeidforholdDtos;
     }
 
     public static class Builder {
@@ -90,11 +85,6 @@ public class TotrinnskontrollAksjonspunkterDto {
 
         public TotrinnskontrollAksjonspunkterDto build() {
             return kladd;
-        }
-
-        public Builder medArbeidsforhold(List<TotrinnsArbeidsforholdDto> totrinnsArbeidsforholdDtos) {
-            kladd.arbeidforholdDtos = totrinnsArbeidsforholdDtos;
-            return this;
         }
     }
 }

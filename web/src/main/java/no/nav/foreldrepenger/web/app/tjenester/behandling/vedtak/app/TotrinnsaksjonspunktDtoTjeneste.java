@@ -19,7 +19,6 @@ public class TotrinnsaksjonspunktDtoTjeneste {
     private TotrinnsBeregningDtoTjeneste totrinnsBeregningDtoTjeneste;
     private TotrinnskontrollAktivitetDtoTjeneste totrinnskontrollAktivitetDtoTjeneste;
     private UttakPeriodeEndringDtoTjeneste uttakPeriodeEndringDtoTjeneste;
-    private TotrinnArbeidsforholdDtoTjeneste totrinnArbeidsforholdDtoTjeneste;
 
 
     protected TotrinnsaksjonspunktDtoTjeneste() {
@@ -29,13 +28,10 @@ public class TotrinnsaksjonspunktDtoTjeneste {
 
     @Inject
     public TotrinnsaksjonspunktDtoTjeneste(TotrinnsBeregningDtoTjeneste totrinnsBeregningDtoTjeneste,
-                                           UttakPeriodeEndringDtoTjeneste uttakPeriodeEndringDtoTjeneste,
-                                           TotrinnArbeidsforholdDtoTjeneste totrinnArbeidsforholdDtoTjeneste,
-                                           TotrinnskontrollAktivitetDtoTjeneste totrinnskontrollAktivitetDtoTjeneste) {
+                                           UttakPeriodeEndringDtoTjeneste uttakPeriodeEndringDtoTjeneste, TotrinnskontrollAktivitetDtoTjeneste totrinnskontrollAktivitetDtoTjeneste) {
         this.totrinnskontrollAktivitetDtoTjeneste = totrinnskontrollAktivitetDtoTjeneste;
         this.totrinnsBeregningDtoTjeneste = totrinnsBeregningDtoTjeneste;
         this.uttakPeriodeEndringDtoTjeneste = uttakPeriodeEndringDtoTjeneste;
-        this.totrinnArbeidsforholdDtoTjeneste = totrinnArbeidsforholdDtoTjeneste;
     }
 
     public TotrinnskontrollAksjonspunkterDto lagTotrinnskontrollAksjonspunktDto(Totrinnsvurdering aksjonspunkt,
@@ -48,8 +44,6 @@ public class TotrinnsaksjonspunktDtoTjeneste {
             .medBeregningDto(totrinnsBeregningDtoTjeneste.hentBeregningDto(aksjonspunkt, behandling,
                 totrinnresultatgrunnlag.flatMap(Totrinnresultatgrunnlag::getBeregningsgrunnlagId)))
             .medBesluttersBegrunnelse(aksjonspunkt.getBegrunnelse())
-            .medArbeidsforhold(totrinnArbeidsforholdDtoTjeneste.hentArbeidsforhold(behandling, aksjonspunkt,
-                totrinnresultatgrunnlag.flatMap(Totrinnresultatgrunnlag::getGrunnlagUuid)))
             .medTotrinnskontrollGodkjent(aksjonspunkt.isGodkjent())
             .medVurderPaNyttArsaker(hentVurderPåNyttÅrsaker(aksjonspunkt))
             .medEndretUttakPerioder(uttakPeriodeEndringDtoTjeneste.hentEndringPåUttakPerioder(aksjonspunkt, behandling, totrinnresultatgrunnlag))
