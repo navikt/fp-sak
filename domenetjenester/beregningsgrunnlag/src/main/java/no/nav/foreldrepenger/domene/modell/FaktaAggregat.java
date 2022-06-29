@@ -16,7 +16,7 @@ public class FaktaAggregat {
     private List<FaktaArbeidsforhold> faktaArbeidsforholdListe = new ArrayList<>();
     private FaktaAktør faktaAktør;
 
-    public FaktaAggregat() {
+    private FaktaAggregat() {
     }
 
     public FaktaAggregat(FaktaAggregat faktaAggregatDto) {

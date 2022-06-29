@@ -11,10 +11,6 @@ public class BeregningRefusjonPeriode {
     private InternArbeidsforholdRef arbeidsforholdRef;
     private LocalDate startdatoRefusjon;
 
-    BeregningRefusjonPeriode() {
-        // Hibernate
-    }
-
     public BeregningRefusjonPeriode(InternArbeidsforholdRef arbeidsforholdRef, LocalDate startdatoRefusjon) {
         Objects.requireNonNull(startdatoRefusjon, "startdatorefusjon");
         this.arbeidsforholdRef = arbeidsforholdRef;

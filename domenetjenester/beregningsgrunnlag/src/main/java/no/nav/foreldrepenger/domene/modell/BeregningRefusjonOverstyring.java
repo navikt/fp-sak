@@ -14,11 +14,6 @@ public class BeregningRefusjonOverstyring {
     private LocalDate førsteMuligeRefusjonFom;
     private List<BeregningRefusjonPeriode> refusjonPerioder = new ArrayList<>();
 
-
-    BeregningRefusjonOverstyring() {
-        // Hibernate
-    }
-
     public BeregningRefusjonOverstyring(Arbeidsgiver arbeidsgiver, LocalDate førsteMuligeRefusjonFom) {
         Objects.requireNonNull(arbeidsgiver);
         Objects.requireNonNull(førsteMuligeRefusjonFom);

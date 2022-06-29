@@ -12,9 +12,6 @@ public class BeregningAktivitetNøkkel {
     private String arbeidsgiverIdentifikator;
     private String arbeidsforholdRef;
 
-    private BeregningAktivitetNøkkel() {
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {

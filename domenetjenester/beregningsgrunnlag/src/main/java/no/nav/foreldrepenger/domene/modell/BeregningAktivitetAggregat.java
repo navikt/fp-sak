@@ -11,10 +11,6 @@ public class BeregningAktivitetAggregat {
     private List<BeregningAktivitet> aktiviteter = new ArrayList<>();
     private LocalDate skjæringstidspunktOpptjening;
 
-    public BeregningAktivitetAggregat() {
-        // NOSONAR
-    }
-
     public List<BeregningAktivitet> getBeregningAktiviteter() {
         return Collections.unmodifiableList(aktiviteter);
     }

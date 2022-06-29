@@ -18,8 +18,8 @@ public class BeregningAktivitet {
     private InternArbeidsforholdRef arbeidsforholdRef;
     private OpptjeningAktivitetType opptjeningAktivitetType = OpptjeningAktivitetType.UDEFINERT;
 
-    public BeregningAktivitet() {
-        // hibernate
+    private BeregningAktivitet() {
+
     }
 
     public BeregningAktivitet(BeregningAktivitet original) {

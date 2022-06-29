@@ -13,7 +13,7 @@ public class FaktaAktør {
     private FaktaVurdering skalBesteberegnes;
     private FaktaVurdering mottarEtterlønnSluttpakke;
 
-    public FaktaAktør() { }
+    private FaktaAktør() { }
 
     public FaktaAktør(FaktaAktør original) {
         this.erNyIArbeidslivetSN = original.getErNyIArbeidslivetSN();

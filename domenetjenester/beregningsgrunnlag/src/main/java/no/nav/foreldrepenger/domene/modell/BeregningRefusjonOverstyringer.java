@@ -8,10 +8,6 @@ public class BeregningRefusjonOverstyringer {
 
     private List<BeregningRefusjonOverstyring> overstyringer = new ArrayList<>();
 
-    protected BeregningRefusjonOverstyringer() {
-        // Hibernate
-    }
-
     public List<BeregningRefusjonOverstyring> getRefusjonOverstyringer() {
         return Collections.unmodifiableList(overstyringer);
     }
