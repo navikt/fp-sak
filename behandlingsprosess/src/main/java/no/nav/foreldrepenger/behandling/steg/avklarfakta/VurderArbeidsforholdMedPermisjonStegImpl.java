@@ -45,7 +45,9 @@ public class VurderArbeidsforholdMedPermisjonStegImpl implements VurderArbeidsfo
 
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
+
         var aksjonspunktResultat = utlederArbForholdMedPermisjoner.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref));
+
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunktResultat);
     }
 }

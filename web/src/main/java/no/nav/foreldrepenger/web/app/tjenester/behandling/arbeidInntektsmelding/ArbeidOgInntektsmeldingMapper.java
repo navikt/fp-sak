@@ -173,8 +173,8 @@ public class ArbeidOgInntektsmeldingMapper {
         return HåndterePermisjoner.hentPermisjonOgMangel(ya, stp, årsak, utledBekreftetStatus(ya.getArbeidsforholdRef(), overstyringAvPermisjon) );
     }
 
-    private static BekreftetPermisjonStatus utledBekreftetStatus(InternArbeidsforholdRef internArbeidsforholdRef, List<ArbeidsforholdOverstyring> overstyringAvPermisjon) {
-        return overstyringAvPermisjon.stream()
+    private static BekreftetPermisjonStatus utledBekreftetStatus(InternArbeidsforholdRef internArbeidsforholdRef, List<ArbeidsforholdOverstyring> overstyringer) {
+        return overstyringer.stream()
                 .filter(os -> internArbeidsforholdRef.equals(os.getArbeidsforholdRef()))
                 .findFirst()
                 .flatMap(ArbeidsforholdOverstyring::getBekreftetPermisjon)

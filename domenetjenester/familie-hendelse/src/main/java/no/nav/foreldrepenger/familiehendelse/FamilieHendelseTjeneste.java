@@ -145,7 +145,7 @@ public class FamilieHendelseTjeneste {
 
         if (bekreftetTps.isEmpty()) {
             if (tidligereRegistrertFødselsdato != null) {
-                LOG.warn("Ungt Barn Forsvunnet fra Register for sak {} behandling {}", behandling.getFagsak().getSaksnummer(), behandling.getId());
+                LOG.info("Ungt Barn Forsvunnet fra Register for sak {} behandling {}", behandling.getFagsak().getSaksnummer(), behandling.getId());
             }
             return;
         }
