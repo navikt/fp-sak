@@ -8,11 +8,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 public class BeregningAktivitetNøkkel {
     private OpptjeningAktivitetType opptjeningAktivitetType;
     private LocalDate fom;
+    private LocalDate tom;
     private String arbeidsgiverIdentifikator;
     private String arbeidsforholdRef;
-
-    private BeregningAktivitetNøkkel() {
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -22,16 +20,17 @@ public class BeregningAktivitetNøkkel {
         if (!(o instanceof BeregningAktivitetNøkkel)) {
             return false;
         }
-        var that = (BeregningAktivitetNøkkel) o;
+        BeregningAktivitetNøkkel that = (BeregningAktivitetNøkkel) o;
         return Objects.equals(opptjeningAktivitetType, that.opptjeningAktivitetType)
                 && Objects.equals(fom, that.fom)
+                && Objects.equals(tom, that.tom)
                 && Objects.equals(arbeidsgiverIdentifikator, that.arbeidsgiverIdentifikator)
                 && Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(opptjeningAktivitetType, fom, arbeidsgiverIdentifikator, arbeidsforholdRef);
+        return Objects.hash(opptjeningAktivitetType, fom, tom, arbeidsgiverIdentifikator, arbeidsforholdRef);
     }
 
     public static Builder builder() {
@@ -52,6 +51,11 @@ public class BeregningAktivitetNøkkel {
 
         public Builder medFom(LocalDate fom) {
             kladd.fom = fom;
+            return this;
+        }
+
+        public Builder medTom(LocalDate tom) {
+            kladd.tom = tom;
             return this;
         }
 

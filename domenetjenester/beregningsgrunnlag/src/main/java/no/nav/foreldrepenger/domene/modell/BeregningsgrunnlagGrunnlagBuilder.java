@@ -3,80 +3,70 @@ package no.nav.foreldrepenger.domene.modell;
 import java.util.Objects;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 
 public class BeregningsgrunnlagGrunnlagBuilder {
-    private BeregningsgrunnlagGrunnlagEntitet kladd;
+    private BeregningsgrunnlagGrunnlag kladd;
     private boolean built;
 
-    private BeregningsgrunnlagGrunnlagBuilder(BeregningsgrunnlagGrunnlagEntitet kladd) {
+    private BeregningsgrunnlagGrunnlagBuilder(BeregningsgrunnlagGrunnlag kladd) {
         this.kladd = kladd;
     }
 
-    public static BeregningsgrunnlagGrunnlagBuilder nytt() {
-        return new BeregningsgrunnlagGrunnlagBuilder(new BeregningsgrunnlagGrunnlagEntitet());
+    static BeregningsgrunnlagGrunnlagBuilder nytt() {
+        return new BeregningsgrunnlagGrunnlagBuilder(new BeregningsgrunnlagGrunnlag());
     }
 
-    public static BeregningsgrunnlagGrunnlagBuilder oppdatere(BeregningsgrunnlagGrunnlagEntitet kladd) {
-        return new BeregningsgrunnlagGrunnlagBuilder(kladd);
+    public static BeregningsgrunnlagGrunnlagBuilder oppdatere(BeregningsgrunnlagGrunnlag kladd) {
+        return new BeregningsgrunnlagGrunnlagBuilder(new BeregningsgrunnlagGrunnlag(kladd));
     }
 
-    public static BeregningsgrunnlagGrunnlagBuilder kopi(BeregningsgrunnlagGrunnlagEntitet kladd) {
-        return new BeregningsgrunnlagGrunnlagBuilder(new BeregningsgrunnlagGrunnlagEntitet(kladd));
-    }
-
-    public static BeregningsgrunnlagGrunnlagBuilder oppdatere(Optional<BeregningsgrunnlagGrunnlagEntitet> kladd) {
+    public static BeregningsgrunnlagGrunnlagBuilder oppdatere(Optional<BeregningsgrunnlagGrunnlag> kladd) {
         return kladd.map(BeregningsgrunnlagGrunnlagBuilder::oppdatere).orElseGet(BeregningsgrunnlagGrunnlagBuilder::nytt);
     }
 
-    public static BeregningsgrunnlagGrunnlagBuilder kopi(Optional<BeregningsgrunnlagGrunnlagEntitet> kladd) {
-        return kladd.map(BeregningsgrunnlagGrunnlagBuilder::kopi).orElseGet(BeregningsgrunnlagGrunnlagBuilder::nytt);
-    }
-
-    public BeregningsgrunnlagEntitet.Builder getBeregningsgrunnlagBuilder() {
-        return BeregningsgrunnlagEntitet.Builder.oppdater(kladd.getBeregningsgrunnlag());
-    }
-
-    public BeregningsgrunnlagGrunnlagBuilder medBeregningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlag) {
+    public BeregningsgrunnlagGrunnlagBuilder medBeregningsgrunnlag(Beregningsgrunnlag beregningsgrunnlag) {
         verifiserKanModifisere();
         kladd.setBeregningsgrunnlag(beregningsgrunnlag);
         return this;
     }
 
-    public BeregningsgrunnlagGrunnlagBuilder medRegisterAktiviteter(BeregningAktivitetAggregatEntitet registerAktiviteter) {
+    public BeregningsgrunnlagGrunnlagBuilder medFakta(FaktaAggregat faktaAggregat) {
+        verifiserKanModifisere();
+        kladd.setFaktaAggregat(faktaAggregat);
+        return this;
+    }
+
+
+    public BeregningsgrunnlagGrunnlagBuilder medRegisterAktiviteter(BeregningAktivitetAggregat registerAktiviteter) {
         verifiserKanModifisere();
         kladd.setRegisterAktiviteter(registerAktiviteter);
         return this;
     }
 
-    public BeregningsgrunnlagGrunnlagBuilder medRefusjonOverstyring(BeregningRefusjonOverstyringerEntitet beregningRefusjonOverstyringer){
+    public BeregningsgrunnlagGrunnlagBuilder medRefusjonOverstyring(BeregningRefusjonOverstyringer beregningRefusjonOverstyringer){
         verifiserKanModifisere();
         kladd.setRefusjonOverstyringer(beregningRefusjonOverstyringer);
         return this;
     }
 
-    public BeregningsgrunnlagGrunnlagBuilder medSaksbehandletAktiviteter(BeregningAktivitetAggregatEntitet saksbehandletAktiviteter) {
+    public BeregningsgrunnlagGrunnlagBuilder medSaksbehandletAktiviteter(BeregningAktivitetAggregat saksbehandletAktiviteter) {
         verifiserKanModifisere();
         kladd.setSaksbehandletAktiviteter(saksbehandletAktiviteter);
         return this;
     }
 
-    public BeregningsgrunnlagGrunnlagEntitet build(Long behandlingId, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
+    public BeregningsgrunnlagGrunnlag build(BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         if(built) {
             return kladd;
         }
-        Objects.requireNonNull(behandlingId);
         Objects.requireNonNull(beregningsgrunnlagTilstand);
-        kladd.setBehandlingId(behandlingId);
         kladd.setBeregningsgrunnlagTilstand(beregningsgrunnlagTilstand);
         built = true;
         return kladd;
     }
 
-    public BeregningsgrunnlagGrunnlagEntitet buildUtenIdOgTilstand() {
-        return kladd;
-    }
-
-    public BeregningsgrunnlagGrunnlagBuilder medOverstyring(BeregningAktivitetOverstyringerEntitet beregningAktivitetOverstyringer) {
+    public BeregningsgrunnlagGrunnlagBuilder medOverstyring(BeregningAktivitetOverstyringer beregningAktivitetOverstyringer) {
         verifiserKanModifisere();
         kladd.setOverstyringer(beregningAktivitetOverstyringer);
         return this;

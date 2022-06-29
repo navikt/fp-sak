@@ -9,214 +9,44 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Version;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
-import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
-@Entity(name = "BeregningsgrunnlagPrStatusOgAndel")
-@Table(name = "BG_PR_STATUS_OG_ANDEL")
-public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
+public class BeregningsgrunnlagPrStatusOgAndel {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BG_PR_STATUS_OG_ANDEL")
-    private Long id;
-
-    @Column(name = "andelsnr", nullable = false)
     private Long andelsnr;
-
-    @Version
-    @Column(name = "versjon", nullable = false)
-    private long versjon;
-
-    @JsonBackReference
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "bg_periode_id", nullable = false, updatable = false)
     private BeregningsgrunnlagPeriode beregningsgrunnlagPeriode;
-
-    @Convert(converter=AktivitetStatus.KodeverdiConverter.class)
-    @Column(name="aktivitet_status", nullable = false)
     private AktivitetStatus aktivitetStatus;
-
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "fomDato", column = @Column(name = "beregningsperiode_fom")),
-        @AttributeOverride(name = "tomDato", column = @Column(name = "beregningsperiode_tom"))
-    })
     private ÅpenDatoIntervallEntitet beregningsperiode;
-
-    @Convert(converter = OpptjeningAktivitetType.KodeverdiConverter.class)
-    @Column(name="arbeidsforhold_type", nullable = false)
     private OpptjeningAktivitetType arbeidsforholdType;
-
-    @Column(name = "brutto_pr_aar")
     private BigDecimal bruttoPrÅr;
-
-    @Column(name = "overstyrt_pr_aar")
     private BigDecimal overstyrtPrÅr;
-
-    @Column(name = "avkortet_pr_aar")
     private BigDecimal avkortetPrÅr;
-
-    @Column(name = "redusert_pr_aar")
     private BigDecimal redusertPrÅr;
-
-    @Column(name = "beregnet_pr_aar")
     private BigDecimal beregnetPrÅr;
-
-    @Column(name = "fordelt_pr_aar")
     private BigDecimal fordeltPrÅr;
-
-    @Column(name = "manuelt_fordelt_pr_aar")
-    private BigDecimal manueltFordeltPrÅr;
-
-    @Column(name = "maksimal_refusjon_pr_aar")
     private BigDecimal maksimalRefusjonPrÅr;
-
-    @Column(name = "avkortet_refusjon_pr_aar")
     private BigDecimal avkortetRefusjonPrÅr;
-
-    @Column(name = "redusert_refusjon_pr_aar")
     private BigDecimal redusertRefusjonPrÅr;
-
-    @Column(name = "avkortet_brukers_andel_pr_aar")
     private BigDecimal avkortetBrukersAndelPrÅr;
-
-    @Column(name = "redusert_brukers_andel_pr_aar")
     private BigDecimal redusertBrukersAndelPrÅr;
-
-    @Column(name = "dagsats_bruker")
     private Long dagsatsBruker;
-
-    @Column(name = "dagsats_arbeidsgiver")
     private Long dagsatsArbeidsgiver;
-
-    @Column(name = "pgi_snitt")
     private BigDecimal pgiSnitt;
-
-    @Column(name = "pgi1")
     private BigDecimal pgi1;
-
-    @Column(name = "pgi2")
     private BigDecimal pgi2;
-
-    @Column(name = "pgi3")
     private BigDecimal pgi3;
-
-    @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "verdi", column = @Column(name = "aarsbeloep_tilstoetende_ytelse")))
-    @ChangeTracked
     private Beløp årsbeløpFraTilstøtendeYtelse;
-
-    @Convert(converter = BooleanToStringConverter.class)
-    @Column(name = "ny_i_arbeidslivet")
-    private Boolean nyIArbeidslivet;
-
-    @Convert(converter = BooleanToStringConverter.class)
-    @Column(name = "fastsatt_av_saksbehandler", nullable = false)
-    private Boolean fastsattAvSaksbehandler = false;
-
-    @Column(name = "besteberegning_pr_aar")
-    private BigDecimal besteberegningPrÅr;
-
-    @Convert(converter=Inntektskategori.KodeverdiConverter.class)
-    @Column(name="inntektskategori", nullable = false)
+    private Boolean fastsattAvSaksbehandler = Boolean.FALSE;
     private Inntektskategori inntektskategori = Inntektskategori.UDEFINERT;
-
-    @Convert(converter=Inntektskategori.KodeverdiConverter.class)
-    @Column(name="inntektskategori_manuell_fordeling")
-    private Inntektskategori inntektskategoriManuellFordeling;
-
-    @Convert(converter=Inntektskategori.KodeverdiConverter.class)
-    @Column(name="inntektskategori_fordeling")
-    private Inntektskategori inntektskategoriAutomatiskFordeling;
-
-    @Convert(converter=AndelKilde.KodeverdiConverter.class)
-    @Column(name="kilde", nullable = false)
-    private AndelKilde kilde = AndelKilde.PROSESS_START;
-
-    @OneToOne(mappedBy = "beregningsgrunnlagPrStatusOgAndel", cascade = CascadeType.PERSIST)
+    private Boolean lagtTilAvSaksbehandler = Boolean.FALSE;
     private BGAndelArbeidsforhold bgAndelArbeidsforhold;
-
-    @Column(name = "dagsats_tilstoetende_ytelse")
     private Long orginalDagsatsFraTilstøtendeYtelse;
-
-    @OneToOne(mappedBy = "beregningsgrunnlagPrStatusOgAndel", cascade = CascadeType.PERSIST)
-    private BeregningsgrunnlagFrilansAndel beregningsgrunnlagFrilansAndel;
-
-    @OneToOne(mappedBy = "beregningsgrunnlagPrStatusOgAndel", cascade = CascadeType.PERSIST)
-    private BeregningsgrunnlagArbeidstakerAndel beregningsgrunnlagArbeidstakerAndel;
-
-    public BeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel beregningsgrunnlagPrStatusOgAndel) {
-        this.beregnetPrÅr = beregningsgrunnlagPrStatusOgAndel.getBeregnetPrÅr();
-        this.aktivitetStatus = beregningsgrunnlagPrStatusOgAndel.getAktivitetStatus();
-        this.andelsnr = beregningsgrunnlagPrStatusOgAndel.getAndelsnr();
-        this.arbeidsforholdType = beregningsgrunnlagPrStatusOgAndel.getArbeidsforholdType();
-        this.avkortetBrukersAndelPrÅr = beregningsgrunnlagPrStatusOgAndel.getAvkortetBrukersAndelPrÅr();
-        this.avkortetPrÅr = beregningsgrunnlagPrStatusOgAndel.getAvkortetPrÅr();
-        this.avkortetRefusjonPrÅr = beregningsgrunnlagPrStatusOgAndel.getAvkortetRefusjonPrÅr();
-        this.beregningsperiode = beregningsgrunnlagPrStatusOgAndel.beregningsperiode;
-        this.besteberegningPrÅr = beregningsgrunnlagPrStatusOgAndel.getBesteberegningPrÅr();
-        this.bruttoPrÅr = beregningsgrunnlagPrStatusOgAndel.getBruttoPrÅr();
-        this.dagsatsArbeidsgiver = beregningsgrunnlagPrStatusOgAndel.getDagsatsArbeidsgiver();
-        this.dagsatsBruker = beregningsgrunnlagPrStatusOgAndel.getDagsatsBruker();
-        this.fastsattAvSaksbehandler = beregningsgrunnlagPrStatusOgAndel.getFastsattAvSaksbehandler();
-        this.fordeltPrÅr = beregningsgrunnlagPrStatusOgAndel.getFordeltPrÅr();
-        this.manueltFordeltPrÅr = beregningsgrunnlagPrStatusOgAndel.getManueltFordeltPrÅr();
-        this.inntektskategori = beregningsgrunnlagPrStatusOgAndel.getInntektskategori();
-        this.inntektskategoriAutomatiskFordeling = beregningsgrunnlagPrStatusOgAndel.getInntektskategoriAutomatiskFordeling();
-        this.inntektskategoriManuellFordeling = beregningsgrunnlagPrStatusOgAndel.getInntektskategoriManuellFordeling();
-        this.kilde = beregningsgrunnlagPrStatusOgAndel.getKilde();
-        this.maksimalRefusjonPrÅr = beregningsgrunnlagPrStatusOgAndel.getMaksimalRefusjonPrÅr();
-        this.nyIArbeidslivet = beregningsgrunnlagPrStatusOgAndel.getNyIArbeidslivet();
-        this.orginalDagsatsFraTilstøtendeYtelse = beregningsgrunnlagPrStatusOgAndel.getOrginalDagsatsFraTilstøtendeYtelse();
-        this.overstyrtPrÅr = beregningsgrunnlagPrStatusOgAndel.getOverstyrtPrÅr();
-        this.pgi1 = beregningsgrunnlagPrStatusOgAndel.getPgi1();
-        this.pgi2 = beregningsgrunnlagPrStatusOgAndel.getPgi2();
-        this.pgi3 = beregningsgrunnlagPrStatusOgAndel.getPgi3();
-        this.pgiSnitt = beregningsgrunnlagPrStatusOgAndel.getPgiSnitt();
-        this.redusertBrukersAndelPrÅr = beregningsgrunnlagPrStatusOgAndel.getRedusertBrukersAndelPrÅr();
-        this.redusertPrÅr = beregningsgrunnlagPrStatusOgAndel.getRedusertPrÅr();
-        this.redusertRefusjonPrÅr = beregningsgrunnlagPrStatusOgAndel.getRedusertRefusjonPrÅr();
-        this.årsbeløpFraTilstøtendeYtelse = beregningsgrunnlagPrStatusOgAndel.getÅrsbeløpFraTilstøtendeYtelse();
-        beregningsgrunnlagPrStatusOgAndel.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::new)
-            .ifPresent(this::setBgAndelArbeidsforhold);
-        beregningsgrunnlagPrStatusOgAndel.getBeregningsgrunnlagArbeidstakerAndel()
-            .map(BeregningsgrunnlagArbeidstakerAndel::new)
-            .ifPresent(this::setBeregningsgrunnlagArbeidstakerAndel);
-        beregningsgrunnlagPrStatusOgAndel.getBeregningsgrunnlagFrilansAndel()
-            .map(BeregningsgrunnlagFrilansAndel::new)
-            .ifPresent(this::setBeregningsgrunnlagFrilansAndel);
-    }
-
-    public BeregningsgrunnlagPrStatusOgAndel() {
-    }
-
-    public Long getId() {
-        return id;
-    }
 
     public BeregningsgrunnlagPeriode getBeregningsgrunnlagPeriode() {
         return beregningsgrunnlagPeriode;
@@ -234,23 +64,6 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
         return beregningsperiode != null ? beregningsperiode.getTomDato() : null;
     }
 
-    public Optional<Boolean> mottarYtelse() {
-        if (beregningsgrunnlagFrilansAndel != null) {
-            return Optional.ofNullable(beregningsgrunnlagFrilansAndel.getMottarYtelse());
-        }
-        if (beregningsgrunnlagArbeidstakerAndel != null) {
-            return Optional.ofNullable(beregningsgrunnlagArbeidstakerAndel.getMottarYtelse());
-        }
-        return Optional.empty();
-    }
-
-    public Optional<Boolean> erNyoppstartet() {
-        if (beregningsgrunnlagFrilansAndel != null) {
-            return Optional.ofNullable(beregningsgrunnlagFrilansAndel.getNyoppstartet());
-        }
-        return Optional.empty();
-    }
-
     public boolean gjelderSammeArbeidsforhold(BeregningsgrunnlagPrStatusOgAndel that) {
         if (!Objects.equals(this.getAktivitetStatus(), AktivitetStatus.ARBEIDSTAKER) || !Objects.equals(that.getAktivitetStatus(), AktivitetStatus.ARBEIDSTAKER)) {
             return false;
@@ -263,13 +76,37 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
         return gjelderSammeArbeidsforhold(Optional.ofNullable(arbeidsgiver), arbeidsforholdRef);
     }
 
+    public boolean gjelderInntektsmeldingFor(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
+        Optional<BGAndelArbeidsforhold> bgAndelArbeidsforholdOpt = getBgAndelArbeidsforhold();
+        if (!Objects.equals(getAktivitetStatus(), AktivitetStatus.ARBEIDSTAKER) || bgAndelArbeidsforholdOpt.isEmpty()) {
+            return false;
+        }
+        if (!Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver), Optional.of(arbeidsgiver))) {
+            return false;
+        }
+        LocalDate stpBeregning = this.getBeregningsgrunnlagPeriode().getBeregningsgrunnlag().getSkjæringstidspunkt();
+        boolean slutterFørStp = this.bgAndelArbeidsforhold.getArbeidsperiodeTom()
+                .map(d -> d.isBefore(stpBeregning)).orElse(false);
+        if (slutterFørStp) {
+            return false;
+        }
+        return  bgAndelArbeidsforholdOpt.get().getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
+    }
+
     private boolean gjelderSammeArbeidsforhold(Optional<Arbeidsgiver> arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
-        var bgAndelArbeidsforholdOpt = getBgAndelArbeidsforhold();
-        if (!Objects.equals(getAktivitetStatus(), AktivitetStatus.ARBEIDSTAKER) || !bgAndelArbeidsforholdOpt.isPresent()) {
+        Optional<BGAndelArbeidsforhold> bgAndelArbeidsforholdOpt = getBgAndelArbeidsforhold();
+        if (!Objects.equals(getAktivitetStatus(), AktivitetStatus.ARBEIDSTAKER) || bgAndelArbeidsforholdOpt.isEmpty()) {
             return false;
         }
         return Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver), arbeidsgiver)
                 && bgAndelArbeidsforholdOpt.get().getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
+    }
+
+    public boolean matchUtenInntektskategori(BeregningsgrunnlagPrStatusOgAndel other) {
+        return Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus())
+                && Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver), other.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver))
+                && Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef), other.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef))
+                && Objects.equals(this.getArbeidsforholdType(), other.getArbeidsforholdType());
     }
 
     public OpptjeningAktivitetType getArbeidsforholdType() {
@@ -300,10 +137,6 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
         return fordeltPrÅr;
     }
 
-    public BigDecimal getManueltFordeltPrÅr() {
-        return manueltFordeltPrÅr;
-    }
-
     public BigDecimal getMaksimalRefusjonPrÅr() {
         return maksimalRefusjonPrÅr;
     }
@@ -324,10 +157,6 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
         return redusertBrukersAndelPrÅr;
     }
 
-    public Boolean getNyIArbeidslivet() {
-        return nyIArbeidslivet;
-    }
-
     public Boolean getFastsattAvSaksbehandler() {
         return fastsattAvSaksbehandler;
     }
@@ -336,32 +165,10 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
         return inntektskategori;
     }
 
-    public Inntektskategori getInntektskategoriManuellFordeling() {
-        return inntektskategoriManuellFordeling;
-    }
-
-    public Inntektskategori getInntektskategoriAutomatiskFordeling() {
-        return inntektskategoriAutomatiskFordeling;
-    }
-
-    // Rekkefølge er viktig
-    public Inntektskategori getGjeldendeInntektskategori() {
-        if (inntektskategoriManuellFordeling != null) {
-            return inntektskategoriManuellFordeling;
-        } else if (inntektskategoriAutomatiskFordeling != null) {
-            return inntektskategoriAutomatiskFordeling;
-        }
-        return inntektskategori;
-    }
-
-    public AndelKilde getKilde() {
-        return kilde;
-    }
-
     public BigDecimal getBruttoInkludertNaturalYtelser() {
-        var naturalytelseBortfalt = getBgAndelArbeidsforhold().flatMap(BGAndelArbeidsforhold::getNaturalytelseBortfaltPrÅr).orElse(BigDecimal.ZERO);
-        var naturalYtelseTilkommet = getBgAndelArbeidsforhold().flatMap(BGAndelArbeidsforhold::getNaturalytelseTilkommetPrÅr).orElse(BigDecimal.ZERO);
-        var brutto = bruttoPrÅr != null ? bruttoPrÅr : BigDecimal.ZERO;
+        BigDecimal naturalytelseBortfalt = getBgAndelArbeidsforhold().flatMap(BGAndelArbeidsforhold::getNaturalytelseBortfaltPrÅr).orElse(BigDecimal.ZERO);
+        BigDecimal naturalYtelseTilkommet = getBgAndelArbeidsforhold().flatMap(BGAndelArbeidsforhold::getNaturalytelseTilkommetPrÅr).orElse(BigDecimal.ZERO);
+        BigDecimal brutto = bruttoPrÅr != null ? bruttoPrÅr : BigDecimal.ZERO;
         return brutto.add(naturalytelseBortfalt).subtract(naturalYtelseTilkommet);
     }
 
@@ -412,12 +219,8 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
         return andelsnr;
     }
 
-    public BigDecimal getBesteberegningPrÅr() {
-        return besteberegningPrÅr;
-    }
-
-    public Boolean erLagtTilAvSaksbehandler() {
-        return AndelKilde.SAKSBEHANDLER_FORDELING.equals(kilde) || AndelKilde.SAKSBEHANDLER_KOFAKBER.equals(kilde);
+    public Boolean getLagtTilAvSaksbehandler() {
+        return lagtTilAvSaksbehandler;
     }
 
     public Optional<BGAndelArbeidsforhold> getBgAndelArbeidsforhold() {
@@ -429,57 +232,27 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
     }
 
     public Optional<Arbeidsgiver> getArbeidsgiver() {
-        var beregningArbeidsforhold = getBgAndelArbeidsforhold();
+        Optional<BGAndelArbeidsforhold> beregningArbeidsforhold = getBgAndelArbeidsforhold();
         return beregningArbeidsforhold.map(BGAndelArbeidsforhold::getArbeidsgiver);
     }
 
     public Optional<InternArbeidsforholdRef> getArbeidsforholdRef() {
-        var beregningArbeidsforhold = getBgAndelArbeidsforhold();
+        Optional<BGAndelArbeidsforhold> beregningArbeidsforhold = getBgAndelArbeidsforhold();
         return beregningArbeidsforhold.map(BGAndelArbeidsforhold::getArbeidsforholdRef);
-    }
-
-    public Optional<BeregningsgrunnlagFrilansAndel> getBeregningsgrunnlagFrilansAndel() {
-        return Optional.ofNullable(beregningsgrunnlagFrilansAndel);
-    }
-
-    public Optional<BeregningsgrunnlagArbeidstakerAndel> getBeregningsgrunnlagArbeidstakerAndel() {
-        return Optional.ofNullable(beregningsgrunnlagArbeidstakerAndel);
-    }
-
-    void setBgAndelArbeidsforhold(BGAndelArbeidsforhold bgAndelArbeidsforhold) {
-        bgAndelArbeidsforhold.setBeregningsgrunnlagPrStatusOgAndel(this);
-        this.bgAndelArbeidsforhold = bgAndelArbeidsforhold;
-    }
-
-    void setBeregningsgrunnlagFrilansAndel(BeregningsgrunnlagFrilansAndel beregningsgrunnlagFrilansAndel) {
-        beregningsgrunnlagFrilansAndel.setBeregningsgrunnlagPrStatusOgAndel(this);
-        this.beregningsgrunnlagFrilansAndel = beregningsgrunnlagFrilansAndel;
-    }
-
-    void setBeregningsgrunnlagArbeidstakerAndel(BeregningsgrunnlagArbeidstakerAndel beregningsgrunnlagArbeidstakerAndel) {
-        beregningsgrunnlagArbeidstakerAndel.setBeregningsgrunnlagPrStatusOgAndel(this);
-        this.beregningsgrunnlagArbeidstakerAndel = beregningsgrunnlagArbeidstakerAndel;
-    }
-
-    void setBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
-        this.beregningsgrunnlagPeriode = beregningsgrunnlagPeriode;
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        }
-        if (!(obj instanceof BeregningsgrunnlagPrStatusOgAndel)) {
+        } else if (!(obj instanceof BeregningsgrunnlagPrStatusOgAndel)) {
             return false;
         }
         // Endring av denne har store konsekvenser for matching av andeler
         // Resultat av endringer må testes manuelt
-        var other = (BeregningsgrunnlagPrStatusOgAndel) obj;
+        BeregningsgrunnlagPrStatusOgAndel other = (BeregningsgrunnlagPrStatusOgAndel) obj;
         return Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus())
                 && Objects.equals(this.getInntektskategori(), other.getInntektskategori())
-                && Objects.equals(this.getInntektskategoriAutomatiskFordeling(), other.getInntektskategoriAutomatiskFordeling())
-                && Objects.equals(this.getInntektskategoriManuellFordeling(), other.getInntektskategoriManuellFordeling())
                 && Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver),
                     other.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver))
                 && Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef),
@@ -499,8 +272,7 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-                "id=" + id + ", " //$NON-NLS-2$
+        return getClass().getSimpleName() + "<" //$NON-NLS-1$
                 + "beregningsgrunnlagPeriode=" + beregningsgrunnlagPeriode + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "aktivitetStatus=" + aktivitetStatus + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "beregningsperiode=" + beregningsperiode + ", " //$NON-NLS-1$ //$NON-NLS-2$
@@ -523,7 +295,6 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
                 + "pgi2=" + pgi2 + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "pgi3=" + pgi3 + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "årsbeløpFraTilstøtendeYtelse=" + årsbeløpFraTilstøtendeYtelse //$NON-NLS-1$
-                + "besteberegningPrÅr=" + besteberegningPrÅr //$NON-NLS-1$
                 + ">"; //$NON-NLS-1$
     }
 
@@ -532,13 +303,10 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
     }
 
     public static Builder builder(BeregningsgrunnlagPrStatusOgAndel eksisterendeBGPrStatusOgAndel) {
-        if (eksisterendeBGPrStatusOgAndel.getId() != null) {
-            throw new IllegalArgumentException("Utviklerfeil: Kan ikke bygge på en allerede lagret andel.");
-        }
         return new Builder(eksisterendeBGPrStatusOgAndel);
     }
-    public static class Builder {
 
+    public static class Builder {
         /** Når det er built kan ikke denne builderen brukes til annet enn å returnere samme objekt. */
         private boolean built;
 
@@ -581,7 +349,7 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
         public Builder medOverstyrtPrÅr(BigDecimal overstyrtPrÅr) {
             verifiserKanModifisere();
             kladd.overstyrtPrÅr = overstyrtPrÅr;
-            if (overstyrtPrÅr != null && kladd.besteberegningPrÅr == null && kladd.fordeltPrÅr == null) {
+            if (overstyrtPrÅr != null && kladd.fordeltPrÅr == null) {
                 kladd.bruttoPrÅr = overstyrtPrÅr;
                 if (kladd.getBeregningsgrunnlagPeriode() != null) {
                     kladd.beregningsgrunnlagPeriode.updateBruttoPrÅr();
@@ -602,17 +370,6 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
             return this;
         }
 
-        public Builder medManueltFordeltPrÅr(BigDecimal manueltFordeltPrÅr) {
-            verifiserKanModifisere();
-            kladd.manueltFordeltPrÅr = manueltFordeltPrÅr;
-            if (manueltFordeltPrÅr != null) {
-                kladd.bruttoPrÅr = manueltFordeltPrÅr;
-                if (kladd.getBeregningsgrunnlagPeriode() != null) {
-                    kladd.beregningsgrunnlagPeriode.updateBruttoPrÅr();
-                }
-            }
-            return this;
-        }
 
         public Builder medAvkortetPrÅr(BigDecimal avkortetPrÅr) {
             verifiserKanModifisere();
@@ -635,6 +392,11 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
         public Builder medAvkortetRefusjonPrÅr(BigDecimal avkortetRefusjonPrÅr) {
             verifiserKanModifisere();
             kladd.avkortetRefusjonPrÅr = avkortetRefusjonPrÅr;
+            return this;
+        }
+
+        public Builder medBruttoPrÅr(BigDecimal bruttoPrÅr) {
+            kladd.bruttoPrÅr = bruttoPrÅr;
             return this;
         }
 
@@ -687,88 +449,15 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
             return this;
         }
 
-        public Builder medNyIArbeidslivet(Boolean nyIArbeidslivet) {
-            verifiserKanModifisere();
-            kladd.nyIArbeidslivet = nyIArbeidslivet;
-            return this;
-        }
-
-        public Builder medMottarYtelse(Boolean mottarYtelse, AktivitetStatus aktivitetStatus) {
-            verifiserKanModifisere();
-            kladd.aktivitetStatus = aktivitetStatus;
-            if (kladd.aktivitetStatus.erFrilanser()) {
-                if (kladd.beregningsgrunnlagFrilansAndel == null) {
-                    kladd.beregningsgrunnlagFrilansAndel = BeregningsgrunnlagFrilansAndel.builder()
-                            .medMottarYtelse(mottarYtelse)
-                            .build(kladd);
-                } else {
-                    BeregningsgrunnlagFrilansAndel.builder(kladd.beregningsgrunnlagFrilansAndel)
-                    .medMottarYtelse(mottarYtelse);
-                }
-            } else if (kladd.aktivitetStatus.erArbeidstaker()) {
-                if (kladd.beregningsgrunnlagArbeidstakerAndel == null) {
-                    kladd.beregningsgrunnlagArbeidstakerAndel = BeregningsgrunnlagArbeidstakerAndel.builder()
-                            .medMottarYtelse(mottarYtelse)
-                            .build(kladd);
-                } else {
-                    BeregningsgrunnlagArbeidstakerAndel.builder(kladd.beregningsgrunnlagArbeidstakerAndel)
-                    .medMottarYtelse(mottarYtelse);
-                }
-            }
-            return this;
-        }
-
-        public Builder medNyoppstartet(Boolean nyoppstartet, AktivitetStatus aktivitetStatus) {
-            verifiserKanModifisere();
-            kladd.aktivitetStatus = aktivitetStatus;
-            if (kladd.aktivitetStatus.erFrilanser()) {
-                if (kladd.beregningsgrunnlagFrilansAndel == null) {
-                    kladd.beregningsgrunnlagFrilansAndel = BeregningsgrunnlagFrilansAndel.builder()
-                            .medNyoppstartet(nyoppstartet)
-                            .build(kladd);
-                } else {
-                    BeregningsgrunnlagFrilansAndel.builder(kladd.beregningsgrunnlagFrilansAndel)
-                    .medNyoppstartet(nyoppstartet);
-                }
-            } else {
-                throw new IllegalArgumentException("Andel må vere frilans for å sette nyoppstartet");
-            }
-            return this;
-        }
-
         public Builder medInntektskategori(Inntektskategori inntektskategori) {
             verifiserKanModifisere();
             kladd.inntektskategori = inntektskategori;
             return this;
         }
 
-        public Builder medInntektskategoriManuellFordeling(Inntektskategori inntektskategoriManuellFordeling) {
-            verifiserKanModifisere();
-            kladd.inntektskategoriManuellFordeling = inntektskategoriManuellFordeling;
-            return this;
-        }
-
-        public Builder medInntektskategoriAutomatiskFordeling(Inntektskategori inntektskategoriAutomatiskFordeling) {
-            verifiserKanModifisere();
-            kladd.inntektskategoriAutomatiskFordeling = inntektskategoriAutomatiskFordeling;
-            return this;
-        }
-
         public Builder medFastsattAvSaksbehandler(Boolean fastsattAvSaksbehandler) {
             verifiserKanModifisere();
-            kladd.fastsattAvSaksbehandler = fastsattAvSaksbehandler;
-            return this;
-        }
-
-        public Builder medBesteberegningPrÅr(BigDecimal besteberegningPrÅr) {
-            verifiserKanModifisere();
-            kladd.besteberegningPrÅr = besteberegningPrÅr;
-            if (besteberegningPrÅr != null && kladd.fordeltPrÅr == null) {
-                kladd.bruttoPrÅr = besteberegningPrÅr;
-                if (kladd.getBeregningsgrunnlagPeriode() != null) {
-                    kladd.beregningsgrunnlagPeriode.updateBruttoPrÅr();
-                }
-            }
+            kladd.fastsattAvSaksbehandler = fastsattAvSaksbehandler == null?false: fastsattAvSaksbehandler;
             return this;
         }
 
@@ -778,15 +467,21 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
             return this;
         }
 
-        public Builder medKilde(AndelKilde kilde) {
+        public Builder nyttAndelsnr(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
             verifiserKanModifisere();
-            kladd.kilde = kilde;
+            finnOgSettAndelsnr(beregningsgrunnlagPeriode);
+            return this;
+        }
+
+        public Builder medLagtTilAvSaksbehandler(Boolean lagtTilAvSaksbehandler) {
+            verifiserKanModifisere();
+            kladd.lagtTilAvSaksbehandler = Boolean.TRUE.equals(lagtTilAvSaksbehandler);
             return this;
         }
 
         public Builder medBGAndelArbeidsforhold(BGAndelArbeidsforhold.Builder bgAndelArbeidsforholdBuilder) {
             verifiserKanModifisere();
-            kladd.bgAndelArbeidsforhold = bgAndelArbeidsforholdBuilder.build(kladd);
+            kladd.bgAndelArbeidsforhold = bgAndelArbeidsforholdBuilder.build();
             return this;
         }
 
@@ -800,11 +495,13 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
             if(built) {
                 return kladd;
             }
+            kladd.beregningsgrunnlagPeriode = beregningsgrunnlagPeriode;
             verifyStateForBuild();
             if (kladd.andelsnr == null) {
+                // TODO (OleSandbu): Ikke mod input!
                 finnOgSettAndelsnr(beregningsgrunnlagPeriode);
             }
-            // TODO (EspenVelsvik): Ikke mod input!
+            // TODO (OleSandbu): Ikke mod input!
             beregningsgrunnlagPeriode.addBeregningsgrunnlagPrStatusOgAndel(kladd);
             beregningsgrunnlagPeriode.updateBruttoPrÅr();
             verifiserAndelsnr();
@@ -840,6 +537,7 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
         }
 
         public void verifyStateForBuild() {
+            Objects.requireNonNull(kladd.beregningsgrunnlagPeriode, "beregningsgrunnlagPeriode");
             Objects.requireNonNull(kladd.aktivitetStatus, "aktivitetStatus");
             if (kladd.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER)
                 && kladd.getArbeidsforholdType().equals(OpptjeningAktivitetType.ARBEID)) {

@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
-import no.nav.foreldrepenger.domene.modell.Inntektskategori;
+import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
 
 public class MapInntektskategoriFraBehandlingslagerTilBeregningsgrunnlag {
 

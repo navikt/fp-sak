@@ -51,7 +51,7 @@ final class AktivitetStatusMapper {
         throw new IllegalArgumentException("Ukjent AktivitetStatus " + andel.getAktivitetStatus().name());
     }
 
-    static no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus fraVLTilRegel(no.nav.foreldrepenger.domene.modell.AktivitetStatus vlAktivitetStatus) {
+    static no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus fraVLTilRegel(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus vlAktivitetStatus) {
         if (VL_TIL_REGEL_MAP.containsKey(AktivitetStatus.fraKode(vlAktivitetStatus.getKode()))) {
             return VL_TIL_REGEL_MAP.get(AktivitetStatus.fraKode(vlAktivitetStatus.getKode()));
         }
