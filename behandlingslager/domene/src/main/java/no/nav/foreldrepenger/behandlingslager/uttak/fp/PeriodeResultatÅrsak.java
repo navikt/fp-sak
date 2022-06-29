@@ -134,6 +134,10 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
     FORELDREPENGER_REDUSERT_GRAD_PGA_SAMTIDIG_UTTAK
         ("2038", "14-10-6", "§14-10 sjette ledd: Samtidig uttak", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10\"}}}",
             of(UTTAK)),
+    MSP_INNVILGET_FØRSTE_6_UKENE
+        ("2039", "14-09-6", "§14-9 sjette ledd: Innvilget første 6 uker etter fødsel", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-9\"}}}",
+            of(UTTAK), Set.of(MØDREKVOTE), null, of(MOR)),
+
 
     // Regel ikke oppfylt, resultat = avslått
     IKKE_STØNADSDAGER_IGJEN
