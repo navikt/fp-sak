@@ -24,10 +24,15 @@ public class Beregningsgrunnlag {
     private List<SammenligningsgrunnlagPrStatus> sammenligningsgrunnlagPrStatusListe = new ArrayList<>();
     private Beløp grunnbeløp;
     private List<BeregningsgrunnlagFaktaOmBeregningTilfelle> faktaOmBeregningTilfeller = new ArrayList<>();
+    private BesteberegningGrunnlag besteberegningGrunnlag;
     private boolean overstyrt = false;
 
     public LocalDate getSkjæringstidspunkt() {
         return skjæringstidspunkt;
+    }
+
+    public Optional<BesteberegningGrunnlag> getBesteberegningGrunnlag() {
+        return Optional.ofNullable(besteberegningGrunnlag);
     }
 
     public List<BeregningsgrunnlagAktivitetStatus> getAktivitetStatuser() {
@@ -202,6 +207,12 @@ public class Beregningsgrunnlag {
         public Builder medSammenligningsgrunnlag(Sammenligningsgrunnlag sammenligningsgrunnlag) {
             verifiserKanModifisere();
             kladd.sammenligningsgrunnlag = sammenligningsgrunnlag;
+            return this;
+        }
+
+        public Builder medBesteberegningsgrunnlag(BesteberegningGrunnlag besteberegningGrunnlag) {
+            verifiserKanModifisere();
+            kladd.besteberegningGrunnlag = besteberegningGrunnlag;
             return this;
         }
 

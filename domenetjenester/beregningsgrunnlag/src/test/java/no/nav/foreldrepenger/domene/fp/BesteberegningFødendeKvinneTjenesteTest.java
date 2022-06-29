@@ -33,18 +33,19 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitet;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregat;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetAggregatEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagBuilder;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 
@@ -64,7 +65,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     @Mock
     private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
     @Mock
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    private BeregningTjeneste beregningTjeneste;
     @Mock
     private FagsakRepository fagsakRepository;
     @Mock
@@ -81,7 +82,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandlingReferanse.behandlingId(),
             InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER));
         besteberegningFødendeKvinneTjeneste = new BesteberegningFødendeKvinneTjeneste(familieHendelseRepository, opptjeningForBeregningTjeneste,
-            inntektArbeidYtelseTjeneste, beregningsgrunnlagRepository, behandlingRepository, beregningsresultatRepository, fagsakRepository);
+            inntektArbeidYtelseTjeneste, beregningTjeneste, behandlingRepository, beregningsresultatRepository, fagsakRepository);
     }
 
     @Test
@@ -170,9 +171,10 @@ public class BesteberegningFødendeKvinneTjenesteTest {
         when(familieHendelseRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(lagfamilieHendelse()));
         var opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
             new Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));
-        var overstyrtBG = BeregningsgrunnlagEntitet.ny().medOverstyring(true).medSkjæringstidspunkt(LocalDate.now()).build();
+        var bg = Beregningsgrunnlag.builder().medSkjæringstidspunkt(LocalDate.now()).medOverstyring(true).build();
+        var overstyrtGrunnlag = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(bg).build(BeregningsgrunnlagTilstand.FORESLÅTT);
         when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any())).thenReturn(Optional.of(opptjeningAktiviteter));
-        when(beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(any())).thenReturn(Optional.of(overstyrtBG));
+        when(beregningTjeneste.hent(any())).thenReturn(Optional.of(overstyrtGrunnlag));
 
         // Act
         var resultat = besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(behandlingReferanse);
@@ -186,14 +188,14 @@ public class BesteberegningFødendeKvinneTjenesteTest {
         when(familieHendelseRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(lagfamilieHendelse()));
         var opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
             new Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));
-        var grunnlag = BeregningsgrunnlagEntitet.ny().medSkjæringstidspunkt(LocalDate.now()).build();
+        var grunnlag = Beregningsgrunnlag.builder().medSkjæringstidspunkt(LocalDate.now()).build();
         var bgGr = BeregningsgrunnlagGrunnlagBuilder.nytt()
             .medBeregningsgrunnlag(grunnlag)
             .medRegisterAktiviteter(lagAggregat(OpptjeningAktivitetType.ARBEID, OpptjeningAktivitetType.DAGPENGER))
             .medSaksbehandletAktiviteter(lagAggregat(OpptjeningAktivitetType.ARBEID))
-            .buildUtenIdOgTilstand();
+            .build(BeregningsgrunnlagTilstand.FORESLÅTT);
         when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any())).thenReturn(Optional.of(opptjeningAktiviteter));
-        when(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(any())).thenReturn(Optional.of(bgGr));
+        when(beregningTjeneste.hent(any())).thenReturn(Optional.of(bgGr));
 
         // Act
         var resultat = besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(behandlingReferanse);
@@ -202,10 +204,10 @@ public class BesteberegningFødendeKvinneTjenesteTest {
         assertThat(resultat).isFalse();
     }
 
-    private BeregningAktivitetAggregatEntitet lagAggregat(OpptjeningAktivitetType... typer) {
-        var builder = BeregningAktivitetAggregatEntitet.builder();
+    private BeregningAktivitetAggregat lagAggregat(OpptjeningAktivitetType... typer) {
+        var builder = BeregningAktivitetAggregat.builder();
         Arrays.asList(typer)
-            .forEach(type -> builder.leggTilAktivitet(BeregningAktivitetEntitet.builder()
+            .forEach(type -> builder.leggTilAktivitet(BeregningAktivitet.builder()
                 .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(OPPTJENINGSPERIODE.getFomDato(), OPPTJENINGSPERIODE.getTomDato()))
                 .medOpptjeningAktivitetType(type)
                 .build()));

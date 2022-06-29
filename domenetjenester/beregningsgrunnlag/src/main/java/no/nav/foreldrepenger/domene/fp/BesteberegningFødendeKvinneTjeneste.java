@@ -27,14 +27,14 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetAggregatEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
-import no.nav.foreldrepenger.domene.entiteter.BesteberegninggrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregat;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.modell.BesteberegningGrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -50,7 +50,7 @@ public class BesteberegningFødendeKvinneTjeneste {
     private FamilieHendelseRepository familieHendelseRepository;
     private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    private BeregningTjeneste beregningTjeneste;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private FagsakRepository fagsakRepository;
@@ -63,14 +63,14 @@ public class BesteberegningFødendeKvinneTjeneste {
     public BesteberegningFødendeKvinneTjeneste(FamilieHendelseRepository familieHendelseRepository,
                                                OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste,
                                                InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                               BeregningsgrunnlagRepository beregningsgrunnlagRepository,
+                                               BeregningTjeneste beregningTjeneste,
                                                BehandlingRepository behandlingRepository,
                                                BeregningsresultatRepository beregningsresultatRepository,
                                                FagsakRepository fagsakRepository) {
         this.familieHendelseRepository = familieHendelseRepository;
         this.opptjeningForBeregningTjeneste = opptjeningForBeregningTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
-        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
+        this.beregningTjeneste = beregningTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.fagsakRepository = fagsakRepository;
@@ -119,22 +119,23 @@ public class BesteberegningFødendeKvinneTjeneste {
     }
 
     private boolean erDagpengerManueltFjernetFraBeregningen(BehandlingReferanse behandlingReferanse) {
-        Optional<BeregningsgrunnlagGrunnlagEntitet> bgGrunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.behandlingId());
-        boolean harDPFraRegister = dagpengerLiggerIAktivitet(bgGrunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getRegisterAktiviteter));
-        boolean harDPIGjeldendeAggregat = dagpengerLiggerIAktivitet(bgGrunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getGjeldendeAktiviteter));
+        Optional<BeregningsgrunnlagGrunnlag> bgGrunnlag = beregningTjeneste.hent(behandlingReferanse.behandlingId());
+        boolean harDPFraRegister = dagpengerLiggerIAktivitet(bgGrunnlag.map(BeregningsgrunnlagGrunnlag::getRegisterAktiviteter));
+        boolean harDPIGjeldendeAggregat = dagpengerLiggerIAktivitet(bgGrunnlag.map(BeregningsgrunnlagGrunnlag::getGjeldendeAktiviteter));
         return harDPFraRegister && !harDPIGjeldendeAggregat;
     }
 
-    private boolean dagpengerLiggerIAktivitet(Optional<BeregningAktivitetAggregatEntitet> aggregat) {
-        return aggregat.map(BeregningAktivitetAggregatEntitet::getBeregningAktiviteter)
+    private boolean dagpengerLiggerIAktivitet(Optional<BeregningAktivitetAggregat> aggregat) {
+        return aggregat.map(BeregningAktivitetAggregat::getBeregningAktiviteter)
             .orElse(Collections.emptyList())
             .stream()
             .anyMatch(akt -> OpptjeningAktivitetType.DAGPENGER.equals(akt.getOpptjeningAktivitetType()));
     }
 
     private boolean beregningsgrunnlagErOverstyrt(BehandlingReferanse behandlingReferanse) {
-        Optional<BeregningsgrunnlagEntitet> bg = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandlingReferanse.behandlingId());
-        return bg.map(BeregningsgrunnlagEntitet::isOverstyrt).orElse(false);
+        Optional<Beregningsgrunnlag> bg = beregningTjeneste.hent(behandlingReferanse.behandlingId()).flatMap(
+            BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
+        return bg.map(Beregningsgrunnlag::isOverstyrt).orElse(false);
     }
 
     public List<Ytelsegrunnlag> lagBesteberegningYtelseinput(BehandlingReferanse behandlingReferanse) {
@@ -166,8 +167,8 @@ public class BesteberegningFødendeKvinneTjeneste {
     }
 
     private boolean erBesteberegningManueltVurdert(BehandlingReferanse ref) {
-        var beregningsgrunnlagEntitet = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(ref.behandlingId());
-        return beregningsgrunnlagEntitet.map(BeregningsgrunnlagEntitet::getFaktaOmBeregningTilfeller)
+        var beregningsgrunnlagEntitet = beregningTjeneste.hent(ref.behandlingId()).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
+        return beregningsgrunnlagEntitet.map(Beregningsgrunnlag::getFaktaOmBeregningTilfeller)
             .orElse(Collections.emptyList()).stream().anyMatch(tilf ->tilf.equals(FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
     }
 
@@ -198,9 +199,10 @@ public class BesteberegningFødendeKvinneTjeneste {
             skjæringstidspunkt);
     }
     public boolean trengerManuellKontrollAvAutomatiskBesteberegning(BehandlingReferanse behandlingReferanse) {
-        var besteberegnetAvvik = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandlingReferanse.behandlingId())
-            .flatMap(BeregningsgrunnlagEntitet::getBesteberegninggrunnlag)
-            .flatMap(BesteberegninggrunnlagEntitet::getAvvik);
+        var besteberegnetAvvik = beregningTjeneste.hent(behandlingReferanse.behandlingId())
+            .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag)
+            .flatMap(Beregningsgrunnlag::getBesteberegningGrunnlag)
+            .flatMap(BesteberegningGrunnlag::getAvvik);
         if (besteberegnetAvvik.isEmpty()) {
             return false;
         }

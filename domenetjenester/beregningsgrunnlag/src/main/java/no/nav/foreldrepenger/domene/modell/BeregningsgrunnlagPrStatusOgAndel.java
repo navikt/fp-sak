@@ -9,10 +9,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
