@@ -70,6 +70,10 @@ public class PersoninfoAdapter {
         return aktørConsumer.hentAktørIdForPersonIdent(personIdent).map(a -> hentKjerneinformasjon(a, personIdent));
     }
 
+    public boolean sjekkOmBrukerManglerAdresse(AktørId aktørId) {
+        return aktørConsumer.hentPersonIdentForAktørId(aktørId).map(i -> personinfoTjeneste.brukerManglerAdresse(i)).orElse(true);
+    }
+
     private Personinfo hentKjerneinformasjon(AktørId aktørId, PersonIdent personIdent) {
         return personinfoTjeneste.hentPersoninfo(aktørId, personIdent);
     }
