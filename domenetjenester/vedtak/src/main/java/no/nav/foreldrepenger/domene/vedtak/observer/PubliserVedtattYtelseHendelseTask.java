@@ -73,10 +73,7 @@ public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
         var violations = validator.validate(ytelse);
         if (!violations.isEmpty()) {
             // Har feilet validering
-            var allErrors = violations
-                .stream()
-                .map(it -> it.getPropertyPath().toString() + " :: " + it.getMessage())
-                .collect(Collectors.toList());
+            var allErrors = violations.stream().map(it -> it.getPropertyPath().toString() + " :: " + it.getMessage()).toList();
             throw new IllegalArgumentException("Vedtatt-ytelse valideringsfeil \n " + allErrors);
         }
         return toJson(ytelse);

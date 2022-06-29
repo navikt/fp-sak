@@ -147,6 +147,39 @@ public class PersoninfoTjeneste {
         this.poststedKodeverkRepository = repository;
     }
 
+    public boolean brukerManglerAdresse(PersonIdent personIdent) {
+        var query = new HentPersonQueryRequest();
+        query.setIdent(personIdent.getIdent());
+
+        var projection = new PersonResponseProjection()
+            .bostedsadresse(new BostedsadresseResponseProjection().gyldigFraOgMed().angittFlyttedato()
+                .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().postnummer())
+                .matrikkeladresse(new MatrikkeladresseResponseProjection().matrikkelId().bruksenhetsnummer().tilleggsnavn().postnummer())
+                .ukjentBosted(new UkjentBostedResponseProjection().bostedskommune())
+                .utenlandskAdresse(new UtenlandskAdresseResponseProjection().adressenavnNummer().bygningEtasjeLeilighet().postboksNummerNavn()
+                    .bySted().regionDistriktOmraade().postkode().landkode()))
+            .oppholdsadresse(new OppholdsadresseResponseProjection().gyldigFraOgMed()
+                .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().postnummer())
+                .matrikkeladresse(new MatrikkeladresseResponseProjection().matrikkelId().bruksenhetsnummer().tilleggsnavn().postnummer())
+                .utenlandskAdresse(new UtenlandskAdresseResponseProjection().adressenavnNummer().bygningEtasjeLeilighet().postboksNummerNavn()
+                    .bySted().regionDistriktOmraade().postkode().landkode()))
+            .kontaktadresse(new KontaktadresseResponseProjection().type().gyldigFraOgMed()
+                .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().postnummer())
+                .postboksadresse(new PostboksadresseResponseProjection().postboks().postbokseier().postnummer())
+                .postadresseIFrittFormat(
+                    new PostadresseIFrittFormatResponseProjection().adresselinje1().adresselinje2().adresselinje3().postnummer())
+                .utenlandskAdresse(new UtenlandskAdresseResponseProjection().adressenavnNummer().bygningEtasjeLeilighet().postboksNummerNavn()
+                    .bySted().regionDistriktOmraade().postkode().landkode())
+                .utenlandskAdresseIFrittFormat(new UtenlandskAdresseIFrittFormatResponseProjection().adresselinje1().adresselinje2()
+                    .adresselinje3().byEllerStedsnavn().postkode().landkode()));
+
+        var person = pdlKlient.hentPerson(query, projection);
+
+        var adresser = mapAdresser(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse());
+
+        return adresser.stream().map(Adresseinfo::getGjeldendePostadresseType).allMatch(AdresseType.UKJENT_ADRESSE::equals);
+    }
+
     public Personinfo hentPersoninfo(AktørId aktørId, PersonIdent personIdent) {
 
         var query = new HentPersonQueryRequest();
