@@ -60,14 +60,14 @@ import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
-import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriodeRegelType;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.modell.PeriodeÅrsak;
-import no.nav.foreldrepenger.domene.modell.Sammenligningsgrunnlag;
+import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagPeriodeRegelType;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
+import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -369,7 +369,7 @@ public class VedtakXmlTest {
 
     private BeregningsgrunnlagAktivitetStatus buildBgAktivitetStatus(BeregningsgrunnlagEntitet beregningsgrunnlag) {
         return BeregningsgrunnlagAktivitetStatus.builder()
-                .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
+                .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
                 .build(beregningsgrunnlag);
     }
 
@@ -390,7 +390,7 @@ public class VedtakXmlTest {
                 .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
         return BeregningsgrunnlagPrStatusOgAndel.builder()
                 .medBGAndelArbeidsforhold(bga)
-                .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
+                .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
                 .medBeregningsperiode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5))
                 .medOverstyrtPrÅr(BigDecimal.valueOf(4444432.32))
                 .medAvkortetPrÅr(BigDecimal.valueOf(423.23))
