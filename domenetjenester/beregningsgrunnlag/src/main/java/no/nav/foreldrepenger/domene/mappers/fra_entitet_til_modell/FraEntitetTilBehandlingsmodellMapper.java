@@ -101,7 +101,7 @@ public class FraEntitetTilBehandlingsmodellMapper {
 
         beregningsgrunnlagDto.getAktivitetStatuser()
             .forEach(aktivitetStatus -> builder.leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder()
-                .medAktivitetStatus(aktivitetStatus.getAktivitetStatus())));
+                .medAktivitetStatus(aktivitetStatus.getAktivitetStatus()).medHjemmel(aktivitetStatus.getHjemmel())));
         beregningsgrunnlagDto.getBesteberegninggrunnlag().ifPresent(bb -> builder.medBesteberegningsgrunnlag(mapBesteberegning(bb)));
         if (beregningsgrunnlagDto.getFaktaOmBeregningTilfeller() != null) {
             builder.leggTilFaktaOmBeregningTilfeller(beregningsgrunnlagDto.getFaktaOmBeregningTilfeller());
@@ -200,8 +200,9 @@ public class FraEntitetTilBehandlingsmodellMapper {
         return no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold.builder()
             .medArbeidsforholdRef(bgAndelArbeidsforhold.getArbeidsforholdRef())
             .medArbeidsgiver(bgAndelArbeidsforhold.getArbeidsgiver())
+            .medRefusjonskravPrÅr(bgAndelArbeidsforhold.getGjeldendeRefusjon())
             .medArbeidsperiodeFom(bgAndelArbeidsforhold.getArbeidsperiodeFom())
-            .medArbeidsperiodeTom(bgAndelArbeidsforhold.getArbeidsperiodeFom())
+            .medArbeidsperiodeTom(bgAndelArbeidsforhold.getArbeidsperiodeTom().orElse(null))
             .medNaturalytelseBortfaltPrÅr(bgAndelArbeidsforhold.getNaturalytelseBortfaltPrÅr().orElse(null))
             .medNaturalytelseTilkommetPrÅr(bgAndelArbeidsforhold.getNaturalytelseTilkommetPrÅr().orElse(null));
     }
