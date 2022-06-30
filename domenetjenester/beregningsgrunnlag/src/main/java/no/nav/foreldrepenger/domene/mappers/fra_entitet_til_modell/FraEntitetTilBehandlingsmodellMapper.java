@@ -66,6 +66,7 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .medArbeidsgiver(beregningAktivitetOverstyringEntitet.getArbeidsgiver().orElse(null))
             .medArbeidsforholdRef(beregningAktivitetOverstyringEntitet.getArbeidsforholdRef())
             .medHandling(beregningAktivitetOverstyringEntitet.getHandling())
+            .medOpptjeningAktivitetType(beregningAktivitetOverstyringEntitet.getOpptjeningAktivitetType())
             .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(beregningAktivitetOverstyringEntitet.getPeriode().getFomDato(),
                 beregningAktivitetOverstyringEntitet.getPeriode().getTomDato()))
             .build();

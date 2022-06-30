@@ -13,10 +13,9 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 public class BeregningAktivitet {
 
     private ÅpenDatoIntervallEntitet periode;
-    private BeregningAktivitetAggregat beregningAktiviteter;
     private Arbeidsgiver arbeidsgiver;
     private InternArbeidsforholdRef arbeidsforholdRef;
-    private OpptjeningAktivitetType opptjeningAktivitetType = OpptjeningAktivitetType.UDEFINERT;
+    private OpptjeningAktivitetType opptjeningAktivitetType;
 
     private BeregningAktivitet() {
 
@@ -43,14 +42,6 @@ public class BeregningAktivitet {
 
     public OpptjeningAktivitetType getOpptjeningAktivitetType() {
         return opptjeningAktivitetType != null ? opptjeningAktivitetType : OpptjeningAktivitetType.UDEFINERT;
-    }
-
-    public BeregningAktivitetAggregat getBeregningAktiviteter() {
-        return beregningAktiviteter;
-    }
-
-    void setBeregningAktiviteter(BeregningAktivitetAggregat beregningAktiviteter) {
-        this.beregningAktiviteter = beregningAktiviteter;
     }
 
     public BeregningAktivitetNøkkel getNøkkel() {

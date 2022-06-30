@@ -20,7 +20,6 @@ public class BeregningAktivitetAggregat {
     }
 
     private void leggTilAktivitet(BeregningAktivitet beregningAktivitet) {
-        beregningAktivitet.setBeregningAktiviteter(this);
         aktiviteter.add(beregningAktivitet);
     }
 
