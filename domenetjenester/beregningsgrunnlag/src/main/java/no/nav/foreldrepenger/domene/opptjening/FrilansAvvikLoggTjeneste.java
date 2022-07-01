@@ -13,8 +13,9 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
 public class FrilansAvvikLoggTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(FrilansAvvikLoggTjeneste.class);
 
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    private BeregningTjeneste beregningTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
 
@@ -43,15 +44,15 @@ public class FrilansAvvikLoggTjeneste {
     }
 
     @Inject
-    public FrilansAvvikLoggTjeneste(BeregningsgrunnlagRepository beregningsgrunnlagRepository,
+    public FrilansAvvikLoggTjeneste(BeregningTjeneste beregningTjeneste,
                                     InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
-        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
+        this.beregningTjeneste = beregningTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
     public void loggFrilansavvikVedBehov(BehandlingReferanse ref) {
-        Optional<BeregningsgrunnlagEntitet> bg = beregningsgrunnlagRepository.hentBeregningsgrunnlagForId(ref.behandlingId());
-        Optional<LocalDate> stpBGOpt = bg.map(BeregningsgrunnlagEntitet::getSkjæringstidspunkt);
+        Optional<Beregningsgrunnlag> bg = beregningTjeneste.hent(ref.behandlingId()).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
+        Optional<LocalDate> stpBGOpt = bg.map(Beregningsgrunnlag::getSkjæringstidspunkt);
 
         if (stpBGOpt.isEmpty()) {
             return;

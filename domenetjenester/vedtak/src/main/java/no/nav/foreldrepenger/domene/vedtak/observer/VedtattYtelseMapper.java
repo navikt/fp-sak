@@ -22,8 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -61,7 +61,7 @@ class VedtattYtelseMapper {
         return mapPeriode(periode, periode.getDagsatsFraBg(), periode.getKalkulertUtbetalingsgrad());
     }
 
-    List<Anvisning> mapSvangerskapspenger(BeregningsresultatEntitet tilkjent, BeregningsgrunnlagEntitet beregningsgrunnlag) {
+    List<Anvisning> mapSvangerskapspenger(BeregningsresultatEntitet tilkjent, Beregningsgrunnlag beregningsgrunnlag) {
         var grunnlagSatsUtbetGrad = beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
             .filter(p -> p.getDagsats() > 0)
             .map(p -> new LocalDateSegment<>(p.getBeregningsgrunnlagPeriodeFom(), p.getBeregningsgrunnlagPeriodeTom(), beregnGrunnlagSatsUtbetGradSvp(p, beregningsgrunnlag.getGrunnbeløp().getVerdi())))

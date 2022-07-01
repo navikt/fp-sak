@@ -31,9 +31,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -65,7 +66,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
     private static final boolean IS_PROD = Environment.current().isProd();
 
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    private BeregningTjeneste beregningtjeneste;
     private BeregningsresultatRepository beregningsresultatRepository;
     private BehandlingRepository behandlingRepository;
     private PersoninfoAdapter personinfoAdapter;
@@ -77,7 +78,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
 
     @Inject
-    public LoggOverlappEksterneYtelserTjeneste(BeregningsgrunnlagRepository beregningsgrunnlagRepository,
+    public LoggOverlappEksterneYtelserTjeneste(BeregningTjeneste beregningtjeneste,
                                                BeregningsresultatRepository beregningsresultatRepository,
                                                PersoninfoAdapter personinfoAdapter,
                                                InfotrygdPSGrunnlag infotrygdPSGrTjeneste,
@@ -86,7 +87,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
                                                Spøkelse spøkelse,
                                                OverlappVedtakRepository overlappRepository,
                                                BehandlingRepository behandlingRepository) {
-        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
+        this.beregningtjeneste = beregningtjeneste;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.behandlingRepository = behandlingRepository;
         this.personinfoAdapter = personinfoAdapter;
@@ -199,7 +200,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
     }
 
     private LocalDateTimeline<BigDecimal> getTidslinjeForBehandlingSVP(Long behandlingId) {
-        var beregningsgrunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandlingId)
+        var beregningsgrunnlag = beregningtjeneste.hent(behandlingId).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag)
             .orElse(null);
         if (beregningsgrunnlag == null) {
             return new LocalDateTimeline<>(Collections.emptyList());
