@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.modell;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningAktivitetHandlingType;
@@ -83,7 +84,14 @@ public class BeregningAktivitetOverstyring {
         }
 
         public BeregningAktivitetOverstyring build() {
+            verifyStateForBuild();
             return kladd;
         }
+
+        private void verifyStateForBuild() {
+            Objects.requireNonNull(kladd.opptjeningAktivitetType, "opptjeningAktivitetType");
+            Objects.requireNonNull(kladd.periode, "periode");
+        }
+
     }
 }

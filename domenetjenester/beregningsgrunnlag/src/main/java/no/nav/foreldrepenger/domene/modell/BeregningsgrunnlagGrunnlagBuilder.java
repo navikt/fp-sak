@@ -13,7 +13,7 @@ public class BeregningsgrunnlagGrunnlagBuilder {
         this.kladd = kladd;
     }
 
-    static BeregningsgrunnlagGrunnlagBuilder nytt() {
+    public static BeregningsgrunnlagGrunnlagBuilder nytt() {
         return new BeregningsgrunnlagGrunnlagBuilder(new BeregningsgrunnlagGrunnlag());
     }
 
