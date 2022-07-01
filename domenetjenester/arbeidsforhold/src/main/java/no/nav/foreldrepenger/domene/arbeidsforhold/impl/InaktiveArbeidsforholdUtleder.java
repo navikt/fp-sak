@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 /**
  * Tjeneste som skal utlede om en arbeidsgiver er inaktiv eller ikke,
@@ -44,7 +45,7 @@ public class InaktiveArbeidsforholdUtleder {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> kunAktiveArbeidsforhold = new HashMap<>();
 
         påkrevdeInntektsmeldinger.forEach((key, value) -> {
-            boolean erInaktivt = erInaktivt(key, inntektArbeidYtelseGrunnlag, referanse.aktørId(), referanse.getUtledetSkjæringstidspunkt());
+            boolean erInaktivt = erInaktivt(key, inntektArbeidYtelseGrunnlag, referanse.aktørId(), referanse.getUtledetSkjæringstidspunkt(), referanse.saksnummer());
             if (!erInaktivt) {
                 List<InternArbeidsforholdRef> aktiveArbeidsforholdsRef = new ArrayList<>();
                 //Sjekker om hvert arbeidsforhold under virksomheten har registrert permisjon som overlapper skjæringstidspunkt. Fjerne de som har det
@@ -62,7 +63,11 @@ public class InaktiveArbeidsforholdUtleder {
     }
 
 
-    public static boolean erInaktivt(Arbeidsgiver arbeidsgiverSomSjekkes, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, AktørId søkerAktørId, LocalDate stp) {
+    public static boolean erInaktivt(Arbeidsgiver arbeidsgiverSomSjekkes,
+                                     Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                     AktørId søkerAktørId,
+                                     LocalDate stp,
+                                     Saksnummer saksnummer) {
         if (inntektArbeidYtelseGrunnlag.isEmpty()) {
             return false;
         }
@@ -72,7 +77,7 @@ public class InaktiveArbeidsforholdUtleder {
         if (harMottattIMFraAG(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get())) {
             return false;
         }
-        if (harHattYtelseForArbeidsgiver(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get(), søkerAktørId, stp)) {
+        if (harHattYtelseForArbeidsgiver(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get(), søkerAktørId, stp, saksnummer)) {
             return false;
         }
         return !harHattInntektIPeriode(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get(), søkerAktørId, stp);
@@ -96,13 +101,18 @@ public class InaktiveArbeidsforholdUtleder {
             .orElse(false);
     }
 
-    private static boolean harHattYtelseForArbeidsgiver(Arbeidsgiver arbeidsgiver, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag, AktørId søkerAktørId, LocalDate stp) {
+    private static boolean harHattYtelseForArbeidsgiver(Arbeidsgiver arbeidsgiver,
+                                                        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag,
+                                                        AktørId søkerAktørId,
+                                                        LocalDate stp,
+                                                        Saksnummer saksnummer) {
         var periodeViDefinererSomAkivt = DatoIntervallEntitet.fraOgMedTilOgMed(stp.minusMonths(AKTIVE_MÅNEDER_FØR_STP), stp);
         Collection<Ytelse> ytelser = inntektArbeidYtelseGrunnlag.getAktørYtelseFraRegister(søkerAktørId)
             .map(AktørYtelse::getAlleYtelser)
             .orElse(Collections.emptyList());
         return ytelser.stream()
             .filter(yt-> !YTELSER_SOM_IKKE_PÅVIRKER_IM.contains(yt.getRelatertYtelseType()))
+            .filter(yt -> !saksnummer.equals(yt.getSaksnummer())) // Bryr oss ikke om tidligere vedtak på saken vi nå behandler
             .anyMatch(yt -> harYtelseForArbeidsforholdIPeriode(yt, periodeViDefinererSomAkivt, arbeidsgiver));
     }
 

@@ -321,7 +321,7 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     private boolean utled(Arbeidsgiver ag, InntektArbeidYtelseGrunnlag iay) {
-        return InaktiveArbeidsforholdUtleder.erInaktivt(ag, Optional.ofNullable(iay), AKTØR, STP);
+        return InaktiveArbeidsforholdUtleder.erInaktivt(ag, Optional.ofNullable(iay), AKTØR, STP, new Saksnummer("999999999"));
     }
 
     private InntektArbeidYtelseGrunnlag byggIAY() {
