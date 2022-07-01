@@ -279,7 +279,7 @@ public class ForvaltningFagsakRestTjeneste {
         if (brukerForGjeldendeAktørId.isPresent()) {
             fagsakRepository.oppdaterBruker(fagsak.getId(), brukerForGjeldendeAktørId.orElse(null));
         } else {
-            fagsakRepository.oppdaterBrukerMedAktørId(fagsak.getNavBruker().getId(), gjeldendeAktørId);
+            fagsakRepository.oppdaterBrukerMedAktørId(fagsak.getId(), gjeldendeAktørId);
         }
         personopplysningRepository.oppdaterAktørIdFor(eksisterendeAktørId, gjeldendeAktørId);
         return Response.ok().build();
