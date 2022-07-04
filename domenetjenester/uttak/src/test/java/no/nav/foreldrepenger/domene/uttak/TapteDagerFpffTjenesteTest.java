@@ -150,6 +150,66 @@ public class TapteDagerFpffTjenesteTest {
         assertThat(resultat).isEqualTo(maksdager);
     }
 
+    @Test
+    public void ingen_tapte_dager_ut_ifra_gjeldendefødselshendelse() {
+        var søktFpff = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+            //15 virkedager
+            .medPeriode(LocalDate.of(2022, 5, 30), LocalDate.of(2022, 6, 19))
+            .build();
+        var mødrekvote = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2022, 6, 20), LocalDate.of(2022, 7, 30))
+            .build();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(søktFpff, mødrekvote), true))
+            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+        var behandling = scenario.lagre(repositoryProvider);
+
+        opprettFagsakRelasjon(behandling, 15);
+
+        var termindato = LocalDate.of(2022, 7, 13);
+        var temindateBekreftetHendelse = LocalDate.of(2022, 6, 20);
+        var fødselsdato = LocalDate.of(2022, 6, 20);
+        var familieHendelser = new FamilieHendelser()
+            .medSøknadHendelse(familieHendelse(termindato, null))
+            .medBekreftetHendelse(familieHendelse(temindateBekreftetHendelse, fødselsdato));
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
+        var resultat = tjeneste().antallTapteDagerFpff(input);
+
+        assertThat(resultat).isEqualTo(0);
+    }
+
+    @Test
+    public void tapte_dager_ut_ifra_gjeldendefødselshendelse() {
+        var søktFpff = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+            //15 virkedager
+            .medPeriode(LocalDate.of(2022, 5, 30), LocalDate.of(2022, 6, 19))
+            .build();
+        var mødrekvote = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2022, 6, 20), LocalDate.of(2022, 7, 30))
+            .build();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(søktFpff, mødrekvote), true))
+            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+        var behandling = scenario.lagre(repositoryProvider);
+
+        opprettFagsakRelasjon(behandling, 15);
+
+        var termindato = LocalDate.of(2022, 7, 13);
+        var temindateBekreftetHendelse = LocalDate.of(2022, 6, 20);
+        var fødselsdato = LocalDate.of(2022, 6, 15);
+        var familieHendelser = new FamilieHendelser()
+            .medSøknadHendelse(familieHendelse(termindato, null))
+            .medBekreftetHendelse(familieHendelse(temindateBekreftetHendelse, fødselsdato));
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
+        var resultat = tjeneste().antallTapteDagerFpff(input);
+
+        assertThat(resultat).isEqualTo(3);
+    }
+
     private void opprettFagsakRelasjon(Behandling behandling, int maksdagerFpff) {
         var stønadskontoberegning = new Stønadskontoberegning.Builder()
             .medStønadskonto(new Stønadskonto.Builder()

@@ -45,7 +45,7 @@ public class TapteDagerFpffTjeneste {
         var familieHendelser = fpGrunnlag.getFamilieHendelser();
         if (harSøktPåTermin(familieHendelser) && skjeddFødselFørTermin(fpGrunnlag)) {
             var virkedager = Virkedager.beregnAntallVirkedager(familieHendelser.getGjeldendeFamilieHendelse().getFødselsdato().orElseThrow(),
-                familieHendelser.getSøknadFamilieHendelse().getTermindato().orElseThrow().minusDays(1));
+                familieHendelser.getGjeldendeFamilieHendelse().getTermindato().orElseThrow().minusDays(1));
             var maxdagerFpff = finnMaksdagerFpff(input.getBehandlingReferanse().saksnummer());
             return Math.min(virkedager, maxdagerFpff);
         }
@@ -103,7 +103,7 @@ public class TapteDagerFpffTjeneste {
 
     private boolean skjeddFødselFørTermin(ForeldrepengerGrunnlag fpGrunnlag) {
         var familiehendelser = fpGrunnlag.getFamilieHendelser();
-        var termindato = familiehendelser.getSøknadFamilieHendelse().getTermindato().orElseThrow();
+        var termindato = familiehendelser.getGjeldendeFamilieHendelse().getTermindato().orElseThrow();
         var gjeldendeFødselsdato = familiehendelser.getGjeldendeFamilieHendelse().getFødselsdato();
         return gjeldendeFødselsdato.isPresent() && gjeldendeFødselsdato.get().isBefore(termindato);
     }
