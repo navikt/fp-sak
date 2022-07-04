@@ -34,10 +34,24 @@ class VedtattYtelseForeldrepengerMapperTest {
             .build();
 
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("123566324");
+        BeregningsresultatPeriode periode = BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))
+            .build(resultat);
         InternArbeidsforholdRef arbeidsforholdRef = InternArbeidsforholdRef.nyRef();
         String eksternReferanse = "jifesjsioejf";
         int dagsats = 500;
         ArbeidsforholdReferanse arbeidsforholdReferanse = lagReferanser(arbeidsgiver, arbeidsforholdRef, eksternReferanse);
+        BeregningsresultatAndel.builder()
+            .medArbeidsforholdRef(arbeidsforholdRef)
+            .medArbeidsgiver(arbeidsgiver)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
+            .medDagsats(dagsats)
+            .medDagsatsFraBg(dagsats)
+            .medBrukerErMottaker(true)
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .build(periode);
 
         List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(arbeidsforholdReferanse);
         List<Anvisning> anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
