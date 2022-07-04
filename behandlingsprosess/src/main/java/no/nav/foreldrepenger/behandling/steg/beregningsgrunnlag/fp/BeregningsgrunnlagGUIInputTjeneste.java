@@ -59,7 +59,7 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
                                               HentOgLagreBeregningsgrunnlagTjeneste hentOgLagreBeregningsgrunnlagTjeneste,
                                               OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste) {
         super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste,
-                inntektsmeldingTjeneste, opptjeningForBeregningTjeneste);
+                opptjeningForBeregningTjeneste);
         this.fagsakRelasjonRepository = Objects.requireNonNull(behandlingRepositoryProvider.getFagsakRelasjonRepository(),
                 "fagsakRelasjonRepository");
         this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;

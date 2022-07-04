@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingSomIkkeKommer;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
-import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
@@ -159,17 +158,6 @@ public class InntektsmeldingTjeneste {
      */
     private List<Inntektsmelding> hentAlleInntektsmeldingerForFagsak(Saksnummer saksnummer) {
         return List.copyOf(iayTjeneste.hentUnikeInntektsmeldingerForSak(saksnummer));
-    }
-
-    /**
-     * Henter ut alle inntektsmeldinger som ikke ligger i både revurderingen og
-     * originalbehandlingen, altså alle tilkomne inntektsmeldinger <br>
-     *
-     * @param referanse referansen til revurderingen
-     * @return Liste med inntektsmeldinger {@link Inntektsmelding}
-     */
-    public List<Inntektsmelding> hentInntektsmeldingDiffFraOriginalbehandling(BehandlingReferanse referanse) {
-        return List.copyOf(iayTjeneste.finnInntektsmeldingDiff(referanse));
     }
 
     /**
