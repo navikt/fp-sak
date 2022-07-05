@@ -72,7 +72,6 @@ public class AbakusTjeneste {
     private URI endpointKopierGrunnlag;
     private URI endpointGrunnlagSnapshot;
     private URI endpointInntektsmeldinger;
-    private URI endpointInntektsmeldingerDiff;
     private URI endpointYtelser;
     private URI endpointOverstyring;
     private URI endpointLagreYtelse;
@@ -96,7 +95,6 @@ public class AbakusTjeneste {
         this.endpointKopierGrunnlag = toUri("/api/iay/grunnlag/v1/kopier");
         this.innhentRegisterdata = toUri("/api/registerdata/v1/innhent/async");
         this.endpointInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/hentAlle");
-        this.endpointInntektsmeldingerDiff = toUri("/api/iay/inntektsmeldinger/v1/hentDiff");
         this.endpointYtelser = toUri("/api/ytelse/v1/hentVedtakForAktoer");
         this.endpointLagreYtelse = toUri("/api/ytelse/v1/vedtatt");
         this.endpointOverstyring = toUri("/api/iay/grunnlag/v1/overstyrt");
@@ -158,14 +156,6 @@ public class AbakusTjeneste {
 
     public InntektsmeldingerDto hentUnikeUnntektsmeldinger(InntektsmeldingerRequest request) throws IOException {
         var endpoint = endpointInntektsmeldinger;
-        var responseHandler = new ObjectReaderResponseHandler<InntektsmeldingerDto>(endpoint, inntektsmeldingerReader);
-        var json = iayJsonWriter.writeValueAsString(request);
-
-        return hentFraAbakus(endpoint, responseHandler, json);
-    }
-
-    public InntektsmeldingerDto hentInntektsmeldingDiff(InntektsmeldingDiffRequest request) throws IOException {
-        var endpoint = endpointInntektsmeldingerDiff;
         var responseHandler = new ObjectReaderResponseHandler<InntektsmeldingerDto>(endpoint, inntektsmeldingerReader);
         var json = iayJsonWriter.writeValueAsString(request);
 

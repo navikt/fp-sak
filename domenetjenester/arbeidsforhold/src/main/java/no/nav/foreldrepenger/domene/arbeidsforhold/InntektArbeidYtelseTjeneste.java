@@ -84,14 +84,6 @@ public interface InntektArbeidYtelseTjeneste {
     InntektArbeidYtelseAggregatBuilder opprettBuilderForSaksbehandlet(Long behandlingId);
 
     /**
-     * @param behandlingUuid
-     * @return Saksbehanldet inntekt og arbeid (Opprett for å endre eller legge til
-     *         saksbehanldet)
-     */
-    InntektArbeidYtelseAggregatBuilder opprettBuilderForSaksbehandlet(UUID behandlingUuid, UUID angittReferanse,
-            LocalDateTime angittOpprettetTidspunkt);
-
-    /**
      * Lagre nytt grunnlag (gitt builder for å generere). Builder bør ikke
      * gjenbrukes etter å ha kalt her.
      *
@@ -166,11 +158,4 @@ public interface InntektArbeidYtelseTjeneste {
      * @param builders     - Collection med {@link InntektsmeldingBuilder}
      */
     void lagreInntektsmeldinger(Saksnummer saksnummer, Long behandlingId, Collection<InntektsmeldingBuilder> builders);
-
-    /**
-     * Lagre en eller flere inntektsmeldinger på en behandling for en sak.
-     *
-     * @param referanse - behandlingreferanse
-     */
-    List<Inntektsmelding> finnInntektsmeldingDiff(BehandlingReferanse referanse);
 }

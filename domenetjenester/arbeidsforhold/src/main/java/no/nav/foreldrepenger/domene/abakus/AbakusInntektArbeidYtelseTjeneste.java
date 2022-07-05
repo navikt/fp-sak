@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -24,7 +23,6 @@ import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingerDto;
 import no.nav.abakus.iaygrunnlag.request.Dataset;
 import no.nav.abakus.iaygrunnlag.request.InntektArbeidYtelseGrunnlagRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektArbeidYtelseGrunnlagRequest.GrunnlagVersjon;
-import no.nav.abakus.iaygrunnlag.request.InntektsmeldingDiffRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerMottattRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerRequest;
 import no.nav.abakus.iaygrunnlag.request.KopierGrunnlagRequest;
@@ -32,7 +30,6 @@ import no.nav.abakus.iaygrunnlag.request.OppgittOpptjeningMottattRequest;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagSakSnapshotDto;
 import no.nav.abakus.iaygrunnlag.v1.OverstyrtInntektArbeidYtelseDto;
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -178,13 +175,6 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     }
 
     @Override
-    public InntektArbeidYtelseAggregatBuilder opprettBuilderForSaksbehandlet(UUID behandlingUuid, UUID angittReferanse,
-            LocalDateTime angittOpprettetTidspunkt) {
-        var iayGrunnlag = Optional.ofNullable(hentGrunnlag(behandlingUuid));
-        return opprettBuilderFor(VersjonType.SAKSBEHANDLET, angittReferanse, angittOpprettetTidspunkt, iayGrunnlag);
-    }
-
-    @Override
     public List<Inntektsmelding> hentUnikeInntektsmeldingerForSak(Saksnummer saksnummer) {
         var fagsakOpt = fagsakRepository.hentSakGittSaksnummer(saksnummer);
 
@@ -195,27 +185,6 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
         }
         return List.of();
-    }
-
-    @Override
-    public List<Inntektsmelding> finnInntektsmeldingDiff(BehandlingReferanse referanse) {
-        var originalBehandlingId = referanse.getOriginalBehandlingId();
-        if (originalBehandlingId.isEmpty()) {
-            return Collections.emptyList();
-        }
-        var originalBehandling = behandlingRepository.hentBehandling(originalBehandlingId.get());
-        var revurderingUUID = referanse.behandlingUuid();
-        var req = new InntektsmeldingDiffRequest(new AktørIdPersonident(referanse.aktørId().getId()));
-        req.setEksternRefEn(revurderingUUID);
-        req.setEksternRefTo(originalBehandling.getUuid());
-        req.setSaksnummer(referanse.saksnummer().getVerdi());
-        req.setYtelseType(KodeverkMapper.fraFagsakYtelseType(referanse.fagsakYtelseType()));
-        try {
-            var inntektsmeldingerDto = abakusTjeneste.hentInntektsmeldingDiff(req);
-            return mapResult(inntektsmeldingerDto).getAlleInntektsmeldinger();
-        } catch (IOException e) {
-            throw feilVedKallTilAbakus("Hente inntektsmeldingdiff: " + e.getMessage(), e);
-        }
     }
 
     @Override

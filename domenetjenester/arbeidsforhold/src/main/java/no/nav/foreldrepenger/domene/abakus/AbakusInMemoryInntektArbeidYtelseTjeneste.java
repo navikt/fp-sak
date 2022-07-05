@@ -155,13 +155,6 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
         return opprettBuilderFor(VersjonType.SAKSBEHANDLET, UUID.randomUUID(), LocalDateTime.now(), iayGrunnlag);
     }
 
-    @Override
-    public InntektArbeidYtelseAggregatBuilder opprettBuilderForSaksbehandlet(UUID behandlingUuid, UUID angittReferanse,
-            LocalDateTime angittOpprettetTidspunkt) {
-        var iayGrunnlag = hentInntektArbeidYtelseGrunnlagForBehandling(behandlingUuid);
-        return opprettBuilderFor(VersjonType.SAKSBEHANDLET, angittReferanse, angittOpprettetTidspunkt, iayGrunnlag);
-    }
-
     private static Optional<InntektArbeidYtelseGrunnlag> hentInntektArbeidYtelseGrunnlagForBehandling(UUID behandlingUUid) {
         var iayGrunnlag = getAktivtInntektArbeidGrunnlag(behandlingUUid);
         return iayGrunnlag.isPresent() ? Optional.of(iayGrunnlag.get()) : Optional.empty();
@@ -254,11 +247,6 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
         builder.medInformasjon(informasjon.build());
 
         lagreOgFlush(behandlingId, builder.build());
-    }
-
-    @Override
-    public List<Inntektsmelding> finnInntektsmeldingDiff(BehandlingReferanse referanse) {
-        return Collections.emptyList();
     }
 
     @Override
