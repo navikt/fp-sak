@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -29,6 +28,7 @@ import no.nav.foreldrepenger.domene.vedtak.intern.AutomatiskFagsakAvslutningTask
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.log.mdc.MDCOperations;
 
 
 @ApplicationScoped
@@ -77,20 +77,13 @@ public class AvslutteFagsakerEnkeltOpphørTjeneste {
                 var opphørsdato = hentSisteUtbetalingsdato(sisteBehandling).plusDays(1);
                 LOG.info("AvslutteFagsakerEnkeltOpphørTjeneste: Sak med {} oppfyller kriteriene. Opphørsdato + 3 måneder: {}", fagsak.getSaksnummer().toString(), leggPåSøknadsfristMåneder(opphørsdato));
 
-                if (RelasjonsRolleType.MORA.equals(fagsak.getRelasjonsRolleType())) {
-                    //skal ikke avsluttes om far har restdager eller åpne behandlinger - hvor ofte skjer dette i praksis? Sjekke det først
-                    LOG.info("AvslutteFagsakerEnkeltOpphørTjeneste: Sak med {} på mor, sjekk om hvofor", fagsak.getSaksnummer().toString());
-                    continue;
-                }
-
                 if (LocalDate.now().isAfter(leggPåSøknadsfristMåneder(opphørsdato))) {
                     if (!fptilbakeRestKlient.harÅpenTilbakekrevingsbehandling(fagsak.getSaksnummer())) {
-                        //kommenterer ut dette inntil funksjonalitet er verifisert i produksjon
-/*                      var callId = MDCOperations.getCallId();
+                        var callId = MDCOperations.getCallId();
                         callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
 
                         var avslutningstaskData = opprettFagsakAvslutningTask(fagsak, callId + fagsak.getSaksnummer());
-                        taskTjeneste.lagre(avslutningstaskData);*/
+                        taskTjeneste.lagre(avslutningstaskData);
 
                         LOG.info("AvslutteFagsakerEnkeltOpphørTjeneste: Sak med {} vil avsluttes.", fagsak.getSaksnummer().toString());
                         antallSakerSomSkalAvsluttes++;
