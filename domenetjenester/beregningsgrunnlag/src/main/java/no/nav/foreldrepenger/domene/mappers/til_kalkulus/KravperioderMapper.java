@@ -9,9 +9,10 @@ import no.nav.folketrygdloven.kalkulus.typer.AktørId;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
-import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -25,7 +26,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,8 +36,10 @@ public class KravperioderMapper {
     public static List<KravperioderPrArbeidsforholdDto> map(BehandlingReferanse referanse,
                                                             Collection<Inntektsmelding> inntektsmeldinger,
                                                             InntektArbeidYtelseGrunnlag grunnlagDto) {
-        var aktørArbeid = grunnlagDto.getAktørArbeidFraRegister(referanse.aktørId());
-        if (aktørArbeid.isEmpty()) {
+        YrkesaktivitetFilter filter = new YrkesaktivitetFilter(grunnlagDto.getArbeidsforholdInformasjon(),
+            grunnlagDto.getAktørArbeidFraRegister(referanse.aktørId()));
+        Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
+        if (yrkesaktiviteter.isEmpty()) {
             return Collections.emptyList();
         }
         Map<Kravnøkkel, Inntektsmelding> sisteIMPrArbeidsforhold = finnSisteInntektsmeldingMedRefusjonPrArbeidsforhold(inntektsmeldinger);
@@ -47,7 +49,7 @@ public class KravperioderMapper {
             .entrySet()
             .stream()
             .filter(e -> sisteIMPrArbeidsforhold.containsKey(e.getKey()))
-            .map(e -> mapTilKravPrArbeidsforhold(referanse, aktørArbeid.get(), sisteIMPrArbeidsforhold, e))
+            .map(e -> mapTilKravPrArbeidsforhold(referanse, yrkesaktiviteter, sisteIMPrArbeidsforhold, e))
             .collect(Collectors.toList());
     }
 
@@ -67,13 +69,15 @@ public class KravperioderMapper {
         return grupperEneste(filtrerKunRefusjon(inntektsmeldinger));
     }
 
-    private static KravperioderPrArbeidsforholdDto mapTilKravPrArbeidsforhold(BehandlingReferanse referanse, AktørArbeid aktørArbeid,
-                                                                              Map<Kravnøkkel, Inntektsmelding> sisteIMPrArbeidsforhold, Map.Entry<Kravnøkkel, List<Inntektsmelding>> e) {
-        List<PerioderForKravDto> alleTidligereKravPerioder = lagPerioderForAlle(referanse, aktørArbeid, e.getValue());
+    private static KravperioderPrArbeidsforholdDto mapTilKravPrArbeidsforhold(BehandlingReferanse referanse,
+                                                                              Collection<Yrkesaktivitet> yrkesaktiviteter,
+                                                                              Map<Kravnøkkel, Inntektsmelding> sisteIMPrArbeidsforhold,
+                                                                              Map.Entry<Kravnøkkel, List<Inntektsmelding>> e) {
+        List<PerioderForKravDto> alleTidligereKravPerioder = lagPerioderForAlle(referanse, yrkesaktiviteter, e.getValue());
         PerioderForKravDto sistePerioder = lagPerioderForKrav(
             sisteIMPrArbeidsforhold.get(e.getKey()),
             referanse.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening(),
-            aktørArbeid);
+            yrkesaktiviteter);
         return new KravperioderPrArbeidsforholdDto(
             mapTilArbeidsgiver(e.getKey().arbeidsgiver),
             mapReferanse(e.getKey().referanse),
@@ -87,9 +91,9 @@ public class KravperioderMapper {
             : no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver.virksomhet(arbeidsgiver.getOrgnr());
     }
 
-    private static List<PerioderForKravDto> lagPerioderForAlle(BehandlingReferanse referanse, AktørArbeid aktørArbeid, List<Inntektsmelding> inntektsmeldinger) {
+    private static List<PerioderForKravDto> lagPerioderForAlle(BehandlingReferanse referanse, Collection<Yrkesaktivitet> yrkesaktiviteter, List<Inntektsmelding> inntektsmeldinger) {
         return inntektsmeldinger.stream()
-            .map(im -> lagPerioderForKrav(im, referanse.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening(), aktørArbeid))
+            .map(im -> lagPerioderForKrav(im, referanse.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening(), yrkesaktiviteter))
             .collect(Collectors.toList());
     }
 
@@ -122,15 +126,15 @@ public class KravperioderMapper {
 
     private static PerioderForKravDto lagPerioderForKrav(Inntektsmelding im,
                                                          LocalDate skjæringstidspunktBeregning,
-                                                         AktørArbeid arbeidDto) {
-        LocalDate startRefusjon = finnStartdatoRefusjon(im, skjæringstidspunktBeregning, arbeidDto);
+                                                         Collection<Yrkesaktivitet> yrkesaktiviteter) {
+        LocalDate startRefusjon = finnStartdatoRefusjon(im, skjæringstidspunktBeregning, yrkesaktiviteter);
         return new PerioderForKravDto(im.getInnsendingstidspunkt().toLocalDate(), mapRefusjonsperioder(im, startRefusjon));
     }
 
     private static LocalDate finnStartdatoRefusjon(Inntektsmelding im, LocalDate skjæringstidspunktBeregning,
-                                                   AktørArbeid arbeidDto) {
+                                                   Collection<Yrkesaktivitet> yrkesaktiviteter) {
         LocalDate startRefusjon;
-        LocalDate startDatoArbeid = arbeidDto.hentAlleYrkesaktiviteter().stream()
+        LocalDate startDatoArbeid = yrkesaktiviteter.stream()
             .filter(y -> y.getArbeidsgiver().getIdentifikator().equals(im.getArbeidsgiver().getIdentifikator()) &&
                 y.getArbeidsforholdRef().gjelderFor(im.getArbeidsforholdRef()))
             .flatMap(y -> y.getAlleAktivitetsAvtaler().stream())
