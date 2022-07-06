@@ -186,15 +186,16 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     private void loggAdvarselHvisAksjonspunktForPermisjonUtenSluttdatIkkeEksisterer(BehandlingReferanse behandlingReferanse) {
         var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
 
-        if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && vilIkkeFåAksjonspunkt(behandling)) {
+        if (harIkkeAksjonspunktForPermisjon(behandling)) {
             LOG.warn("BehandlingId {} har arbeidsforhold med permisjon uten sluttdato, men har ikke åpent aksjonspunkt av type VURDER_PERMISJON_UTEN_SLUTTDATO", behandling.getId());
         }
     }
 
-    private boolean vilIkkeFåAksjonspunkt(Behandling behandling) {
+    private boolean harIkkeAksjonspunktForPermisjon(Behandling behandling) {
         return behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON) &&
-            !behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO);
+            !behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO);
     }
+
     private void leggTilStartpunkt(List<StartpunktType> startpunkter, UUID grunnlagId1, UUID grunnlagId2, StartpunktType startpunkt, String endringLoggtekst) {
         startpunkter.add(startpunkt);
         FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(klassenavn, startpunkt, endringLoggtekst, grunnlagId1, grunnlagId2);
