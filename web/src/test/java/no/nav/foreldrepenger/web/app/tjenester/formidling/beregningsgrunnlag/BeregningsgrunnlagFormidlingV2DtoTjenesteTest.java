@@ -8,15 +8,14 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
-import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagBuilder;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagPeriodeRegelType;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
@@ -33,7 +32,7 @@ class BeregningsgrunnlagFormidlingV2DtoTjenesteTest {
         // Arrange
         var gr = BeregningsgrunnlagGrunnlagBuilder.nytt()
             .medBeregningsgrunnlag(buildBeregningsgrunnlag())
-            .build(123L, BeregningsgrunnlagTilstand.FASTSATT);
+            .build(BeregningsgrunnlagTilstand.FASTSATT);
 
         // Act
         var dto = new BeregningsgrunnlagFormidlingV2DtoTjeneste(gr).map().orElse(null);
@@ -62,7 +61,7 @@ class BeregningsgrunnlagFormidlingV2DtoTjenesteTest {
         assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).bruttoPrÅr()).isEqualByComparingTo(andel.getBruttoPrÅr());
         assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).avkortetPrÅr()).isEqualByComparingTo(andel.getAvkortetPrÅr());
         assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).arbeidsforholdType().name()).isEqualTo(andel.getArbeidsforholdType().name());
-        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).erNyIArbeidslivet()).isEqualTo(andel.getNyIArbeidslivet());
+        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).erNyIArbeidslivet()).isNull();
         assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).arbeidsforhold().arbeidsforholdRef()).isEqualTo(andel.getBgAndelArbeidsforhold().get().getArbeidsforholdRef().getReferanse());
         assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).arbeidsforhold().arbeidsgiverIdent()).isEqualTo(andel.getBgAndelArbeidsforhold().get().getArbeidsforholdOrgnr());
         assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).arbeidsforhold().naturalytelseBortfaltPrÅr()).isEqualTo(andel.getBgAndelArbeidsforhold().get().getNaturalytelseBortfaltPrÅr().orElse(BigDecimal.ZERO));
@@ -70,16 +69,25 @@ class BeregningsgrunnlagFormidlingV2DtoTjenesteTest {
         assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).erTilkommetAndel()).isFalse();
     }
 
-    private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        return BeregningsgrunnlagPeriode.ny()
+    private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode(Beregningsgrunnlag beregningsgrunnlag) {
+        return BeregningsgrunnlagPeriode.builder()
             .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(15))
             .medBruttoPrÅr(BigDecimal.valueOf(500000))
             .medAvkortetPrÅr(BigDecimal.valueOf(500000))
             .medRedusertPrÅr(BigDecimal.valueOf(500000))
-            .medRegelEvaluering("input1", "clob1", BeregningsgrunnlagPeriodeRegelType.FORESLÅ)
-            .medRegelEvaluering("input2", "clob2", BeregningsgrunnlagPeriodeRegelType.FASTSETT)
             .leggTilPeriodeÅrsak(PeriodeÅrsak.UDEFINERT)
             .build(beregningsgrunnlag);
+    }
+
+    private Beregningsgrunnlag buildBeregningsgrunnlag() {
+        var beregningsgrunnlag = Beregningsgrunnlag.builder()
+            .medSkjæringstidspunkt(LocalDate.now())
+            .medGrunnbeløp(BigDecimal.valueOf(100000))
+            .build();
+        buildBgAktivitetStatus(beregningsgrunnlag);
+        var bgPeriode = buildBeregningsgrunnlagPeriode(beregningsgrunnlag);
+        buildBgPrStatusOgAndel(bgPeriode);
+        return beregningsgrunnlag;
     }
 
     private BeregningsgrunnlagPrStatusOgAndel buildBgPrStatusOgAndel(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
@@ -101,21 +109,7 @@ class BeregningsgrunnlagFormidlingV2DtoTjenesteTest {
             .build(beregningsgrunnlagPeriode);
     }
 
-    private BeregningsgrunnlagEntitet buildBeregningsgrunnlag() {
-        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
-            .medSkjæringstidspunkt(LocalDate.now())
-            .medGrunnbeløp(BigDecimal.valueOf(100000))
-            .medRegelloggSkjæringstidspunkt("input1", "clob1")
-            .medRegelloggBrukersStatus("input2", "clob2")
-            .medRegelinputPeriodisering("input3")
-            .build();
-        buildBgAktivitetStatus(beregningsgrunnlag);
-        var bgPeriode = buildBeregningsgrunnlagPeriode(beregningsgrunnlag);
-        buildBgPrStatusOgAndel(bgPeriode);
-        return beregningsgrunnlag;
-    }
-
-    private BeregningsgrunnlagAktivitetStatus buildBgAktivitetStatus(BeregningsgrunnlagEntitet beregningsgrunnlag) {
+    private BeregningsgrunnlagAktivitetStatus buildBgAktivitetStatus(Beregningsgrunnlag beregningsgrunnlag) {
         return BeregningsgrunnlagAktivitetStatus.builder()
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medHjemmel(Hjemmel.F_14_7_8_28_8_30)

@@ -12,6 +12,7 @@ import java.util.Set;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
@@ -35,6 +36,7 @@ public class BeregningsgrunnlagPrStatusOgAndel {
     private BigDecimal redusertRefusjonPrÅr;
     private BigDecimal avkortetBrukersAndelPrÅr;
     private BigDecimal redusertBrukersAndelPrÅr;
+    private BigDecimal besteberegnetPrÅr;
     private Long dagsatsBruker;
     private Long dagsatsArbeidsgiver;
     private BigDecimal pgiSnitt;
@@ -47,6 +49,7 @@ public class BeregningsgrunnlagPrStatusOgAndel {
     private Boolean lagtTilAvSaksbehandler = Boolean.FALSE;
     private BGAndelArbeidsforhold bgAndelArbeidsforhold;
     private Long orginalDagsatsFraTilstøtendeYtelse;
+    private AndelKilde kilde;
 
     public BeregningsgrunnlagPeriode getBeregningsgrunnlagPeriode() {
         return beregningsgrunnlagPeriode;
@@ -189,6 +192,10 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         }
         return dagsatsBruker + dagsatsArbeidsgiver;
     }
+    
+    public AndelKilde getKilde() {
+        return kilde;
+    }
 
     public BigDecimal getPgiSnitt() {
         return pgiSnitt;
@@ -241,6 +248,10 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         return beregningArbeidsforhold.map(BGAndelArbeidsforhold::getArbeidsforholdRef);
     }
 
+    public BigDecimal getBesteberegnetPrÅr() {
+        return besteberegnetPrÅr;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
@@ -284,6 +295,7 @@ public class BeregningsgrunnlagPrStatusOgAndel {
                 + "redusertBrukersAndelPrÅr=" + redusertBrukersAndelPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "beregnetPrÅr=" + beregnetPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "fordeltPrÅr=" + fordeltPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
+                + "besteberegnetPrÅr=" + besteberegnetPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "overstyrtPrÅr=" + overstyrtPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "bruttoPrÅr=" + bruttoPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "avkortetPrÅr=" + avkortetPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
@@ -349,7 +361,7 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         public Builder medOverstyrtPrÅr(BigDecimal overstyrtPrÅr) {
             verifiserKanModifisere();
             kladd.overstyrtPrÅr = overstyrtPrÅr;
-            if (overstyrtPrÅr != null && kladd.fordeltPrÅr == null) {
+            if (overstyrtPrÅr != null && kladd.fordeltPrÅr == null && kladd.besteberegnetPrÅr == null) {
                 kladd.bruttoPrÅr = overstyrtPrÅr;
                 if (kladd.getBeregningsgrunnlagPeriode() != null) {
                     kladd.beregningsgrunnlagPeriode.updateBruttoPrÅr();
@@ -363,6 +375,18 @@ public class BeregningsgrunnlagPrStatusOgAndel {
             kladd.fordeltPrÅr = fordeltPrÅr;
             if (fordeltPrÅr != null) {
                 kladd.bruttoPrÅr = fordeltPrÅr;
+                if (kladd.getBeregningsgrunnlagPeriode() != null) {
+                    kladd.beregningsgrunnlagPeriode.updateBruttoPrÅr();
+                }
+            }
+            return this;
+        }
+
+        public Builder medBesteberegningPrÅr(BigDecimal besteberegningPrÅr) {
+            verifiserKanModifisere();
+            kladd.besteberegnetPrÅr = besteberegningPrÅr;
+            if (besteberegningPrÅr != null && kladd.fordeltPrÅr == null) {
+                kladd.bruttoPrÅr = besteberegningPrÅr;
                 if (kladd.getBeregningsgrunnlagPeriode() != null) {
                     kladd.beregningsgrunnlagPeriode.updateBruttoPrÅr();
                 }
@@ -400,6 +424,12 @@ public class BeregningsgrunnlagPrStatusOgAndel {
             return this;
         }
 
+        public Builder medKilde(AndelKilde kilde) {
+            verifiserKanModifisere();
+            kladd.kilde = kilde;
+            return this;
+        }
+
         public Builder medRedusertRefusjonPrÅr(BigDecimal redusertRefusjonPrÅr) {
             verifiserKanModifisere();
             kladd.redusertRefusjonPrÅr = redusertRefusjonPrÅr;
@@ -425,7 +455,7 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         public Builder medBeregnetPrÅr(BigDecimal beregnetPrÅr) {
             verifiserKanModifisere();
             kladd.beregnetPrÅr = beregnetPrÅr;
-            if (kladd.fordeltPrÅr == null && kladd.overstyrtPrÅr == null) {
+            if (kladd.fordeltPrÅr == null && kladd.overstyrtPrÅr == null && kladd.besteberegnetPrÅr == null) {
                 kladd.bruttoPrÅr = beregnetPrÅr;
                 if (kladd.getBeregningsgrunnlagPeriode() != null) {
                     kladd.beregningsgrunnlagPeriode.updateBruttoPrÅr();
