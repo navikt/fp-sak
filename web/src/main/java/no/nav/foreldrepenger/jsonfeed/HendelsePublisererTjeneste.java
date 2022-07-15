@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.jsonfeed;
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -33,6 +33,9 @@ import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.SvangerskapspengerEndret;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.SvangerskapspengerInnvilget;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.SvangerskapspengerOpphoert;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.fpsak.tidsserie.StandardCombinators;
 
 @ApplicationScoped
 public class HendelsePublisererTjeneste {
@@ -48,8 +51,7 @@ public class HendelsePublisererTjeneste {
     }
 
     @Inject
-    public HendelsePublisererTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
-            FeedRepository feedRepository) {
+    public HendelsePublisererTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider, FeedRepository feedRepository) {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.beregningsresultatRepository = behandlingRepositoryProvider.getBeregningsresultatRepository();
         this.feedRepository = feedRepository;
@@ -168,13 +170,19 @@ public class HendelsePublisererTjeneste {
     }
 
     private Optional<LocalDateInterval> finnPeriode(Long behandlingId) {
-        var førsteUtbetDato = finnMinsteUtbetDato(behandlingId);
-        var sisteUtbetDato = finnSisteUtbetDato(behandlingId);
-
-        if (førsteUtbetDato.isPresent() && sisteUtbetDato.isPresent()) {
-            return Optional.of(new LocalDateInterval(førsteUtbetDato.get(), sisteUtbetDato.get()));
+        LocalDateTimeline<Boolean> tilkjentYtelseTidslinje = finnTilkjentYtelseTidlinje(behandlingId);
+        if (tilkjentYtelseTidslinje.isEmpty()) {
+            return Optional.empty();
         }
-        return Optional.empty();
+        LocalDate førsteUtbetDato = VirkedagUtil.fomVirkedag(tilkjentYtelseTidslinje.getMinLocalDate());
+        LocalDate sisteUtbetDato = VirkedagUtil.tomVirkedag(tilkjentYtelseTidslinje.getMaxLocalDate());
+
+        //bruken av VikedagUtil vil gjøre at hvis hele tidslinjen består av kun en helg, blir førsteUtbetDato etter sisteUtbetDato
+        boolean bareTilkjentYtelseIHelg = førsteUtbetDato.isAfter(sisteUtbetDato);
+        if (bareTilkjentYtelseIHelg) {
+            return Optional.empty();
+        }
+        return Optional.of(new LocalDateInterval(førsteUtbetDato, sisteUtbetDato));
     }
 
     private static Innhold mapVedtakTilInnholdFp(Behandling behandling, Meldingstype meldingstype, LocalDateInterval utbetPeriode) {
@@ -184,8 +192,9 @@ public class HendelsePublisererTjeneste {
             innhold = new ForeldrepengerInnvilget();
         } else if (Meldingstype.FORELDREPENGER_OPPHOERT.equals(meldingstype)) {
             innhold = new ForeldrepengerOpphoert();
-        } else
+        } else {
             innhold = new ForeldrepengerEndret();
+        }
 
         innhold.setFoersteStoenadsdag(utbetPeriode.getFomDato());
         innhold.setSisteStoenadsdag(utbetPeriode.getTomDato());
@@ -202,8 +211,9 @@ public class HendelsePublisererTjeneste {
             innhold = new SvangerskapspengerInnvilget();
         } else if (Meldingstype.SVANGERSKAPSPENGER_OPPHOERT.equals(meldingstype)) {
             innhold = new SvangerskapspengerOpphoert();
-        } else
+        } else {
             innhold = new SvangerskapspengerEndret();
+        }
 
         innhold.setFoersteStoenadsdag(utbetPeriode.getFomDato());
         innhold.setSisteStoenadsdag(utbetPeriode.getTomDato());
@@ -213,23 +223,16 @@ public class HendelsePublisererTjeneste {
         return innhold;
     }
 
-    private Optional<LocalDate> finnMinsteUtbetDato(Long behandlingId) {
-        var berResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
+    private LocalDateTimeline<Boolean> finnTilkjentYtelseTidlinje(Long behandlingId) {
+        var brResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
 
-        return berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
-                .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
-                .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
-                .min(Comparator.naturalOrder())
-                .map(VirkedagUtil::fomVirkedag);
-    }
-
-    private Optional<LocalDate> finnSisteUtbetDato(Long behandlingId) {
-        var berResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
-        return berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
-                .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
-                .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
-                .max(Comparator.naturalOrder())
-                .map(VirkedagUtil::tomVirkedag);
+        List<BeregningsresultatPeriode> brPerioder = brResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList());
+        List<LocalDateSegment<Boolean>> segmenterFinnesYtelse = brPerioder.stream()
+            .filter(brPeriode -> brPeriode.getDagsats() > 0)
+            .map(brPeriode -> new LocalDateSegment<>(brPeriode.getBeregningsresultatPeriodeFom(), brPeriode.getBeregningsresultatPeriodeTom(), true))
+            .sorted()
+            .toList();
+        return new LocalDateTimeline<>(segmenterFinnesYtelse, StandardCombinators::alwaysTrueForMatch);
     }
 
     private boolean hendelseEksistererAllerede(BehandlingVedtak vedtak) {
