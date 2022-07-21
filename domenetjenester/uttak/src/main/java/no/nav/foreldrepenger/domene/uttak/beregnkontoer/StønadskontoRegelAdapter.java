@@ -37,8 +37,8 @@ public class StønadskontoRegelAdapter {
                                                          FagsakRelasjon fagsakRelasjon,
                                                          Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                          ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
-        var grunnlag = stønadskontoRegelOversetter.tilRegelmodell(ref.relasjonRolle(), ytelseFordelingAggregat,
-            fagsakRelasjon, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag);
+        var grunnlag = stønadskontoRegelOversetter.tilRegelmodell(ytelseFordelingAggregat,
+            fagsakRelasjon, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag, ref);
 
         return stønadskontoRegel.beregnKontoer(grunnlag);
     }
