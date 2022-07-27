@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -368,15 +369,14 @@ public class RegelBeregnFeriepengerTest {
     public void skalBeregneFeriepengerPeriodeForSvangerskapspenger() {
         var periode1 = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
         var periode2 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 5, 1));
-        byggAndelerForPeriode(periode1, 350, 600, arbeidsforhold1);
-        byggAndelerForPeriode(periode2, 150, 400, arbeidsforhold1);
+        byggAndelerForPeriode(periode1, 700, 500, arbeidsforhold1);
+        byggAndelerForPeriode(periode2, 300, 200, arbeidsforhold1);
 
-        List<BeregningsresultatPeriode> annenPartsBeregningsresultatPerioder = List.of();
         var regelModell = BeregningsresultatFeriepengerRegelModell.builder()
                 .medBeregningsresultatPerioder(List.of(periode1, periode2))
-                .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
-                .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
-                .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+                .medAnnenPartsBeregningsresultatPerioder(List.of())
+                .medInntektskategorier(Set.of(Inntektskategori.ARBEIDSTAKER))
+                .medAnnenPartsInntektskategorier(Set.of())
                 .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
                 .medErForelder1(true)
                 .medAntallDagerFeriepenger(64) // SVP-spesifikt
@@ -389,6 +389,84 @@ public class RegelBeregnFeriepengerTest {
         assertThat(sporing).isNotNull();
         assertThat(regelModell.getFeriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 1, 6));
         assertThat(regelModell.getFeriepengerPeriode().getTomDato()).isEqualTo(LocalDate.of(2018, 4, 5));
+
+        regelModell.getBeregningsresultatPerioder().get(0).getBeregningsresultatAndelList()
+            .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
+
+        assertThat(periode1.getBeregningsresultatAndelList().get(0).getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(3213));
+    }
+
+    @Test
+    public void skalIkkeBeregneFeriepengerPeriodeForSvangerskapspengerSN() {
+        var periode1 = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
+        var periode2 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 5, 1));
+        byggSNAndelForPeriode(periode1, 700);
+        byggSNAndelForPeriode(periode2, 300);
+
+        var regelModell = BeregningsresultatFeriepengerRegelModell.builder()
+            .medBeregningsresultatPerioder(List.of(periode1, periode2))
+            .medAnnenPartsBeregningsresultatPerioder(List.of())
+            .medInntektskategorier(Set.of(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE))
+            .medAnnenPartsInntektskategorier(Set.of())
+            .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .medErForelder1(true)
+            .medAntallDagerFeriepenger(64) // SVP-spesifikt
+            .build();
+
+        var regel = new RegelBeregnFeriepenger();
+        var evaluation = regel.evaluer(regelModell);
+        var sporing = EvaluationSerializer.asJson(evaluation);
+
+        assertThat(sporing).isNotNull();
+        assertThat(regelModell.getFeriepengerPeriode()).isNull();
+
+        regelModell.getBeregningsresultatPerioder().get(0).getBeregningsresultatAndelList()
+            .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty());
+    }
+
+    // Skal beregne feriepenger fom tilkommet AT-andel
+    @Test
+    public void skalBeregneFeriepengerPeriodeForSvangerskapspengerTilkommetAT() {
+        var periode1 = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
+        var periode2 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 7, 1));
+        byggSNAndelForPeriode(periode1, 700);
+        byggSNAndelForPeriode(periode2, 300);
+        byggAndelerForPeriode(periode2, 625, 250, arbeidsforhold1);
+
+        var regelModell = BeregningsresultatFeriepengerRegelModell.builder()
+            .medBeregningsresultatPerioder(List.of(periode1, periode2))
+            .medAnnenPartsBeregningsresultatPerioder(List.of())
+            .medInntektskategorier(Set.of(Inntektskategori.ARBEIDSTAKER, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE))
+            .medAnnenPartsInntektskategorier(Set.of())
+            .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .medErForelder1(true)
+            .medAntallDagerFeriepenger(64) // SVP-spesifikt
+            .build();
+
+        var regel = new RegelBeregnFeriepenger();
+        var evaluation = regel.evaluer(regelModell);
+        var sporing = EvaluationSerializer.asJson(evaluation);
+
+        assertThat(sporing).isNotNull();
+        assertThat(regelModell.getFeriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 3, 10));
+        assertThat(regelModell.getFeriepengerPeriode().getTomDato()).isEqualTo(LocalDate.of(2018, 6, 7));
+
+        regelModell.getBeregningsresultatPerioder().get(0).getBeregningsresultatAndelList()
+            .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty());
+        regelModell.getBeregningsresultatPerioder().get(1).getBeregningsresultatAndelList()
+            .stream().filter(p -> Inntektskategori.ARBEIDSTAKER.equals(p.getInntektskategori()))
+            .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
+
+        assertThat(periode1.getBeregningsresultatAndelList().get(0).getInntektskategori()).isEqualTo(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE);
+        assertThat(periode1.getBeregningsresultatAndelList().get(0).getBeregningsresultatFeriepengerPrÅrListe()).isEmpty();
+
+        assertThat(periode2.getBeregningsresultatAndelList().stream().filter(a -> Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE.equals(a.getInntektskategori())).findFirst())
+            .hasValueSatisfying(a -> assertThat(a.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty());
+        assertThat(periode2.getBeregningsresultatAndelList().stream().filter(a -> Inntektskategori.ARBEIDSTAKER.equals(a.getInntektskategori()) && a.erBrukerMottaker()).findFirst())
+            .hasValueSatisfying(a -> assertThat(a.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(4080)));
+        assertThat(periode2.getBeregningsresultatAndelList().stream().filter(a -> Inntektskategori.ARBEIDSTAKER.equals(a.getInntektskategori()) && !a.erBrukerMottaker()).findFirst())
+            .hasValueSatisfying(a -> assertThat(a.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(1632)));
+
     }
 
     private BeregningsresultatPeriode byggBRPeriode(LocalDate fom, LocalDate tom) {
@@ -416,6 +494,16 @@ public class RegelBeregnFeriepengerTest {
                     .medArbeidsforhold(arbeidsforhold1)
                     .build(periode);
         }
+    }
+
+    private void byggSNAndelForPeriode(BeregningsresultatPeriode periode, int dagsats) {
+        BeregningsresultatAndel.builder()
+            .medDagsats((long) dagsats)
+            .medDagsatsFraBg((long) dagsats)
+            .medAktivitetStatus(AktivitetStatus.SN)
+            .medInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE)
+            .medBrukerErMottaker(true)
+            .build(periode);
     }
 
 }
