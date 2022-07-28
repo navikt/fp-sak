@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.økonomistøtte.queue.config;
 
-import javax.jms.JMSException;
+import jakarta.jms.JMSException;
 
-import com.ibm.mq.jms.MQConnectionFactory;
-import com.ibm.mq.jms.MQQueue;
-import com.ibm.msg.client.jms.JmsConstants;
-import com.ibm.msg.client.wmq.WMQConstants;
-import com.ibm.msg.client.wmq.compat.jms.internal.JMSC;
+import com.ibm.mq.jakarta.jms.MQConnectionFactory;
+import com.ibm.mq.jakarta.jms.MQQueue;
+import com.ibm.msg.client.jakarta.jms.JmsConstants;
+import com.ibm.msg.client.jakarta.wmq.WMQConstants;
+import com.ibm.msg.client.jakarta.wmq.compat.jms.internal.JMSC;
 
 import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
 

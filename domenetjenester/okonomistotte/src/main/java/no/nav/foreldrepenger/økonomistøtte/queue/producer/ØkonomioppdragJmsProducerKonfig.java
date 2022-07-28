@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.økonomistøtte.queue.producer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.jms.JMSException;
+import jakarta.jms.JMSException;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.økonomistøtte.queue.config.FellesJmsKonfig;
