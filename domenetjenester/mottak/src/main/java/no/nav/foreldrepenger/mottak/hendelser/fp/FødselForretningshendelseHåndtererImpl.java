@@ -6,7 +6,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -21,8 +20,8 @@ import no.nav.foreldrepenger.mottak.hendelser.håndterer.ForretningshendelseHån
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 public class FødselForretningshendelseHåndtererImpl implements ForretningshendelseHåndterer {
 
-    private ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles;
-    private BehandlingRevurderingRepository behandlingRevurderingRepository;
+    private final ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles;
+    private final BehandlingRevurderingRepository behandlingRevurderingRepository;
 
     @Inject
     public FødselForretningshendelseHåndtererImpl(BehandlingRepositoryProvider repositoryProvider,
@@ -38,23 +37,18 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
     }
 
     @Override
-    public void håndterAvsluttetBehandling(Behandling avsluttetBehandling, ForretningshendelseType forretningshendelseType, BehandlingÅrsakType behandlingÅrsakType) {
+    public void håndterAvsluttetBehandling(Behandling avsluttetBehandling,
+                                           ForretningshendelseType forretningshendelseType,
+                                           BehandlingÅrsakType behandlingÅrsakType) {
         var fagsak = avsluttetBehandling.getFagsak();
-        if (erMor(fagsak)) {
-            forretningshendelseHåndtererFelles.opprettRevurderingLagStartTask(fagsak, behandlingÅrsakType);
-        }
+        forretningshendelseHåndtererFelles.opprettRevurderingLagStartTask(fagsak, behandlingÅrsakType);
+
     }
 
     @Override
     public void håndterKøetBehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         var køetBehandlingOpt = behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
-        if (erMor(fagsak)) {
-            forretningshendelseHåndtererFelles.håndterKøetBehandling(fagsak, behandlingÅrsakType, køetBehandlingOpt);
-        }
-    }
-
-    private static boolean erMor(Fagsak fagsak) {
-        return RelasjonsRolleType.erMor(fagsak.getRelasjonsRolleType());
+        forretningshendelseHåndtererFelles.håndterKøetBehandling(fagsak, behandlingÅrsakType, køetBehandlingOpt);
     }
 }
 
