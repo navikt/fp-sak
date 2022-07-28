@@ -64,6 +64,7 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
         final var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
         oppdatertOverstyrtHendelse
             .tilbakestillBarn()
+            .medAntallBarn(dto.getFodselsdatoer().keySet().size())
             .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
                 .medOmsorgsovertakelseDato(dto.getOmsorgsovertakelseDato()));
         dto.getFodselsdatoer()
