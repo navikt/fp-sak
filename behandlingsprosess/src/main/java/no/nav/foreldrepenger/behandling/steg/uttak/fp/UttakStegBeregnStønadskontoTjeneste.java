@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTje
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.felles.PrematurukerUtil;
-import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
+import no.nav.foreldrepenger.regler.uttak.konfig.Konfigurasjon;
 
 @ApplicationScoped
 public class UttakStegBeregnStønadskontoTjeneste {
@@ -81,7 +81,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
         var gjeldendeFamilieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
         var fødselsdato = gjeldendeFamilieHendelse.getFødselsdato().orElse(null);
         var termindato = gjeldendeFamilieHendelse.getTermindato().orElse(null);
-        return PrematurukerUtil.oppfyllerKravTilPrematuruker(fødselsdato, termindato, StandardKonfigurasjon.KONFIGURASJON);
+        return PrematurukerUtil.oppfyllerKravTilPrematuruker(fødselsdato, termindato, Konfigurasjon.STANDARD);
     }
 
     private boolean finnesLøpendeInnvilgetFP(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
