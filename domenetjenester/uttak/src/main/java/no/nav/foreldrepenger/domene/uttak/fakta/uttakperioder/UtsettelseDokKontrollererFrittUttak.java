@@ -7,8 +7,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.uttak.TidsperiodeForbeholdtMor;
+import no.nav.foreldrepenger.regler.uttak.konfig.Konfigurasjon;
 import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
-import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
 
 class UtsettelseDokKontrollererFrittUttak implements UtsettelseDokKontrollerer {
 
@@ -40,6 +40,6 @@ class UtsettelseDokKontrollererFrittUttak implements UtsettelseDokKontrollerer {
 
     private static LocalDate fomTidsperiodeForbeholdtMor(LocalDate familiehendelse) {
         return familiehendelse.minusWeeks(
-            StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.UTTAK_FELLESPERIODE_FØR_FØDSEL_UKER, familiehendelse));
+            Konfigurasjon.STANDARD.getParameter(Parametertype.UTTAK_FELLESPERIODE_FØR_FØDSEL_UKER, familiehendelse));
     }
 }

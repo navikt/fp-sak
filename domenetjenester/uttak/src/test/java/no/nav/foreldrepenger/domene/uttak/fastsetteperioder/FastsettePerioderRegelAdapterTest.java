@@ -100,14 +100,13 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.Manuellbehandlingårsak;
 import no.nav.foreldrepenger.regler.uttak.konfig.Konfigurasjon;
 import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
-import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
 
 public class FastsettePerioderRegelAdapterTest {
 
     private final LocalDate fødselsdato = LocalDate.of(2018, 6, 22);
     private final LocalDate mottattDato = LocalDate.of(2018, 6, 22);
 
-    private final Konfigurasjon konfigurasjon = StandardKonfigurasjon.KONFIGURASJON;
+    private final Konfigurasjon konfigurasjon = Konfigurasjon.STANDARD;
     private final int uker_før_fødsel_fellesperiode_grense = konfigurasjon.getParameter(
         Parametertype.LOVLIG_UTTAK_FØR_FØDSEL_UKER, fødselsdato);
     private final int uker_før_fødsel_foreldrepenger_grense = konfigurasjon.getParameter(
