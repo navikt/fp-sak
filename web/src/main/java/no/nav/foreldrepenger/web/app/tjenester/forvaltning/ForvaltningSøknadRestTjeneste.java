@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 
+import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -27,7 +29,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerAnnenpartIdentDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerFødselsdatoDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerTermindatoDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
@@ -42,15 +46,19 @@ public class ForvaltningSøknadRestTjeneste {
     private PersonopplysningRepository personopplysningRepository;
     private EntityManager entityManager;
     private PersoninfoAdapter personinfoAdapter;
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
 
     @Inject
-    public ForvaltningSøknadRestTjeneste(BehandlingRepositoryProvider repositoryProvider, PersoninfoAdapter personinfoAdapter) {
+    public ForvaltningSøknadRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
+                                         FamilieHendelseTjeneste familieHendelseTjeneste,
+                                         PersoninfoAdapter personinfoAdapter) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.entityManager = repositoryProvider.getEntityManager();
         this.personinfoAdapter = personinfoAdapter;
+        this.familieHendelseTjeneste = familieHendelseTjeneste;
     }
 
     public ForvaltningSøknadRestTjeneste() {
@@ -91,6 +99,30 @@ public class ForvaltningSøknadRestTjeneste {
             .medTermindato(dto.getTermindato())
             .medNavnPå(dto.getBegrunnelse());
         familieHendelseRepository.lagre(behandling, hendelsebuilder.medTerminbekreftelse(terminbuilder));
+
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/manglendeFødselsdato")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Operation(description = "Legg til fødsels/dødsdato på åpen/siste behandling", tags = "FORVALTNING-søknad")
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK, sporingslogg = false)
+    public Response manglendeFødselsdato(@BeanParam @Valid SaksnummerFødselsdatoDto dto) {
+        var fagsakId = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).map(Fagsak::getId).orElseThrow();
+        var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakIdForUpdate(fagsakId).stream()
+            .filter(SpesialBehandling::erIkkeSpesialBehandling)
+            .findFirst().orElseGet(() -> behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsakId).orElseThrow());
+        var gjeldende = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
+        if (gjeldende.isEmpty() || !gjeldende.map(FamilieHendelseGrunnlagEntitet::getGjeldendeBarna).orElse(List.of()).isEmpty() ||
+            gjeldende.map(FamilieHendelseGrunnlagEntitet::getGjeldendeAntallBarn).filter(ab -> ab > 0).isPresent())
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        var hendelsebuilder = familieHendelseRepository.opprettBuilderFor(behandling)
+            .medAntallBarn(1)
+            .erFødsel() // Settes til fødsel for å sikre at typen blir fødsel selv om det ikke er født barn.
+            .medErMorForSykVedFødsel(null)
+            .leggTilBarn(dto.getFødselsdato(), dto.getDødsdato());
+        familieHendelseTjeneste.lagreOverstyrtHendelse(behandling, hendelsebuilder);
 
         return Response.ok().build();
     }

@@ -182,7 +182,7 @@ public class FamilieHendelseTjeneste {
 
         final var familieHendelseGrunnlag = hentAggregat(behandling.getId());
         if (TERMIN.equals(familieHendelseGrunnlag.getSøknadVersjon().getType()) &&
-            familieHendelseGrunnlag.getOverstyrtVersjon().map(FamilieHendelseEntitet::getType).map(FØDSEL::equals).orElse(Boolean.FALSE) ){
+            familieHendelseGrunnlag.getOverstyrtVersjon().map(FamilieHendelseEntitet::getType).filter(FØDSEL::equals).isPresent()) {
             familiehendelseEventPubliserer.fireEventTerminFødsel(behandling, tidligereGjeldendeFødselsdato, sisteGjeldendeFødselsdato);
         }
     }
