@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -115,7 +116,9 @@ public class BehandlingFormidlingDtoTjeneste {
         var vedtaksDato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
             .map(BehandlingVedtak::getVedtaksdato)
             .orElse(null);
-        BehandlingDtoUtil.setStandardfelter(behandling, dto, vedtaksDato);
+        var behandlingsresultat = Optional.ofNullable(getBehandlingsresultat(behandling.getId()))
+            .map(Behandlingsresultat::getBehandlingResultatType).orElse(BehandlingResultatType.IKKE_FASTSATT);
+        BehandlingDtoUtil.setStandardfelter(behandling, behandlingsresultat, dto, vedtaksDato);
         dto.setSpråkkode(getSpråkkode(behandling, søknadRepository, behandlingRepository));
         var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));

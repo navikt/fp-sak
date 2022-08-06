@@ -14,7 +14,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårT
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -22,6 +21,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -38,6 +38,7 @@ class RyddVilkårTyper {
     static Map<VilkårType, Consumer<RyddVilkårTyper>> OPPRYDDER_FOR_AVKLARTE_DATA = new HashMap<>();
     private FamilieHendelseRepository familieGrunnlagRepository;
     private MedlemskapRepository medlemskapRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
 
     static {
         OPPRYDDER_FOR_AVKLARTE_DATA.put(FØDSELSVILKÅRET_MOR,
@@ -62,6 +63,7 @@ class RyddVilkårTyper {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.medlemskapRepository = repositoryProvider.getMedlemskapRepository();
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandling = behandling;
         this.kontekst = kontekst;
     }
@@ -79,18 +81,18 @@ class RyddVilkårTyper {
 
     private void nullstillVedtaksresultat() {
         var behandlingsresultat = getBehandlingsresultat(behandling);
-        if ((behandlingsresultat == null) ||
-                Objects.equals(behandlingsresultat.getBehandlingResultatType(), BehandlingResultatType.IKKE_FASTSATT)) {
+        if (behandlingsresultat.isEmpty() ||
+            behandlingsresultat.filter(r -> BehandlingResultatType.IKKE_FASTSATT.equals(r.getBehandlingResultatType())).isPresent()) {
             return;
         }
 
-        Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling))
+        Behandlingsresultat.builderEndreEksisterende(behandlingsresultat.get())
                 .medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT);
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
     }
 
-    private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
-        return behandling.getBehandlingsresultat();
+    private Optional<Behandlingsresultat> getBehandlingsresultat(Behandling behandling) {
+        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
     }
 
     private void slettAvklarteFakta(List<VilkårType> vilkårTyper) {
@@ -103,7 +105,7 @@ class RyddVilkårTyper {
     }
 
     private void nullstillInngangsvilkår() {
-        Optional.ofNullable(getBehandlingsresultat(behandling))
+        getBehandlingsresultat(behandling)
             .map(Behandlingsresultat::getVilkårResultat)
             .filter(inng -> !inng.erOverstyrt() && !IKKE_FASTSATT.equals(inng.getVilkårResultatType()))
             .ifPresent(iv -> VilkårResultat.builderFraEksisterende(iv)
@@ -112,7 +114,7 @@ class RyddVilkårTyper {
     }
 
     private void nullstillVilkår(List<VilkårType> vilkårTyper, boolean nullstillManueltAvklartVilkår) {
-        Optional.ofNullable(getBehandlingsresultat(behandling))
+        getBehandlingsresultat(behandling)
             .map(Behandlingsresultat::getVilkårResultat)
             .ifPresent(vilkårResultat -> {
                 var vilkårSomSkalNullstilles = vilkårResultat.getVilkårene().stream()

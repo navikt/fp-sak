@@ -1,13 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 
 
@@ -18,24 +19,22 @@ class VilkårDtoMapper {
     }
 
     static List<VilkårDto> lagVilkarDto(Behandling behandling, Behandlingsresultat behandlingsresultat) {
-        if (behandlingsresultat != null) {
-            var vilkårResultat = behandlingsresultat.getVilkårResultat();
-            if (vilkårResultat != null) {
-                var list = vilkårResultat.getVilkårene().stream().map(vilkår -> {
-                    var dto = new VilkårDto();
-                    dto.setAvslagKode(vilkår.getAvslagsårsak() != null ? vilkår.getAvslagsårsak().getKode() : null);
-                    dto.setVilkarType(vilkår.getVilkårType());
-                    dto.setLovReferanse(vilkår.getVilkårType().getLovReferanse(behandling.getFagsakYtelseType()));
-                    dto.setVilkarStatus(vilkår.getGjeldendeVilkårUtfall());
-                    dto.setMerknadParametere(vilkår.getMerknadParametere());
-                    dto.setOverstyrbar(erOverstyrbar(vilkår, behandling));
+        return Optional.ofNullable(behandlingsresultat)
+            .map(Behandlingsresultat::getVilkårResultat)
+            .map(VilkårResultat::getVilkårene).orElse(List.of()).stream()
+            .map(vilkår -> lagVilkårDto(behandling, vilkår))
+            .collect(Collectors.toList());
+    }
 
-                    return dto;
-                }).collect(Collectors.toList());
-                return list;
-            }
-        }
-        return Collections.emptyList();
+    private static VilkårDto lagVilkårDto(Behandling behandling, Vilkår vilkår) {
+        var dto = new VilkårDto();
+        dto.setAvslagKode(vilkår.getAvslagsårsak() != null ? vilkår.getAvslagsårsak().getKode() : null);
+        dto.setVilkarType(vilkår.getVilkårType());
+        dto.setLovReferanse(vilkår.getVilkårType().getLovReferanse(behandling.getFagsakYtelseType()));
+        dto.setVilkarStatus(vilkår.getGjeldendeVilkårUtfall());
+        dto.setOverstyrbar(erOverstyrbar(vilkår, behandling));
+
+        return dto;
     }
 
     // Angir om vilkåret kan overstyres (forutsetter at bruker har tilgang til å overstyre)

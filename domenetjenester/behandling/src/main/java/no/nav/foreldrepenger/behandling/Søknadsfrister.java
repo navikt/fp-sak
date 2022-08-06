@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.skjæringstidspunkt;
+package no.nav.foreldrepenger.behandling;
 
 import java.time.LocalDate;
 import java.time.Period;

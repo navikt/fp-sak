@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.Søknadsfrister;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -15,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
@@ -58,9 +60,11 @@ public class UttakXmlTjeneste {
     public void setUttak(Beregningsresultat beregningsresultat, Behandling behandling) {
         var uttakForeldrepenger = uttakObjectFactory.createUttakForeldrepenger();
 
-        var uttaksperiodegrenseOptional = uttaksperiodegrenseRepository.hentHvisEksisterer(behandling.getId());
-        uttaksperiodegrenseOptional.ifPresent(uttaksperiodegrense ->
-            VedtakXmlUtil.lagDateOpplysning(uttaksperiodegrense.getFørsteLovligeUttaksdag()).ifPresent(dateOpplysning -> uttakForeldrepenger.setFoersteLovligeUttaksdag(dateOpplysning)));
+        uttaksperiodegrenseRepository.hentHvisEksisterer(behandling.getId())
+            .map(Uttaksperiodegrense::getMottattDato)
+            .map(Søknadsfrister::tidligsteDatoDagytelse)
+            .flatMap(VedtakXmlUtil::lagDateOpplysning)
+            .ifPresent(uttakForeldrepenger::setFoersteLovligeUttaksdag);
 
         setStoenadskontoer(uttakForeldrepenger, behandling);
         setUttaksresultatPerioder(uttakForeldrepenger, behandling);

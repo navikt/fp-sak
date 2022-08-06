@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.uttak;
 
 import java.time.LocalDate;
-import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -10,7 +9,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -34,17 +32,6 @@ public class Uttaksperiodegrense extends BaseEntitet {
     @Column(name = "MOTTATTDATO", nullable = false)
     private LocalDate mottattDato;
 
-    @Column(name = "FOERSTE_LOVLIGE_UTTAKSDAG", nullable = false)
-    private LocalDate førsteLovligeUttaksdag;
-
-    @Lob
-    @Column(name = "SPORING_INPUT")
-    private String sporingInput;
-
-    @Lob
-    @Column(name = "SPORING_REGEL")
-    private String sporingRegel;
-
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "aktiv", nullable = false)
     private boolean aktiv = true;
@@ -53,8 +40,19 @@ public class Uttaksperiodegrense extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    Uttaksperiodegrense() {
+    }
+
+    public Uttaksperiodegrense(LocalDate mottattDato) {
+        this.mottattDato = mottattDato;
+    }
+
     public Long getId(){
         return id;
+    }
+
+    void setBehandlingsresultat(Behandlingsresultat behandlingsresultat) {
+        this.behandlingsresultat = behandlingsresultat;
     }
 
     public boolean getErAktivt() {
@@ -67,44 +65,5 @@ public class Uttaksperiodegrense extends BaseEntitet {
 
     public LocalDate getMottattDato() {
         return mottattDato;
-    }
-
-    public LocalDate getFørsteLovligeUttaksdag() {
-        return førsteLovligeUttaksdag;
-    }
-
-    public static class Builder {
-        Uttaksperiodegrense kladd;
-
-        public Builder(Behandlingsresultat behandlingsresultat) {
-            kladd = new Uttaksperiodegrense();
-            kladd.behandlingsresultat = behandlingsresultat;
-        }
-
-        public Builder medSporingInput(String sporingInput) {
-            kladd.sporingInput = sporingInput;
-            return this;
-        }
-
-        public Builder medSporingRegel(String sporingRegel) {
-            kladd.sporingRegel = sporingRegel;
-            return this;
-        }
-
-        public Builder medMottattDato(LocalDate mottattDato){
-            Objects.requireNonNull(mottattDato);
-            kladd.mottattDato = mottattDato;
-            return this;
-        }
-
-        public Builder medFørsteLovligeUttaksdag(LocalDate førsteLovligeUttaksdag){
-            Objects.requireNonNull(førsteLovligeUttaksdag);
-            kladd.førsteLovligeUttaksdag = førsteLovligeUttaksdag;
-            return this;
-        }
-
-        public Uttaksperiodegrense build() {
-            return kladd;
-        }
     }
 }

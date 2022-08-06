@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.svpvilkåret;
 
-import static java.util.Collections.singletonList;
+import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -24,7 +24,7 @@ public class InngangsvilkårSvangerskapspenger implements Inngangsvilkår {
     public VilkårData vurderVilkår(BehandlingReferanse ref) {
         //alltid manuell
         return new VilkårData(VilkårType.SVANGERSKAPSPENGERVILKÅR, VilkårUtfallType.IKKE_VURDERT,
-            singletonList(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET));
+            List.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET));
     }
 
 }

@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -12,20 +11,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.skjæringstidspunkt.Søknadsfrister;
 
 public abstract class VurderSøknadsfristOppdatererTjeneste {
 
     private HistorikkTjenesteAdapter historikkAdapter;
     private SøknadRepository søknadRepository;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     public VurderSøknadsfristOppdatererTjeneste(HistorikkTjenesteAdapter historikkAdapter,
                                                 BehandlingRepositoryProvider repositoryProvider) {
         this.historikkAdapter = historikkAdapter;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
-        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.uttaksperiodegrenseRepository = repositoryProvider.getUttaksperiodegrenseRepository();
     }
 
@@ -45,12 +41,7 @@ public abstract class VurderSøknadsfristOppdatererTjeneste {
 
     private void lagreResultat(Long behandlingId, VurderSøknadsfristDto dto, SøknadEntitet søknad) {
         var mottattDato = dto.harGyldigGrunn() ? dto.getAnsesMottattDato() : søknad.getMottattDato();
-        var førsteLovligeUttaksdag = Søknadsfrister.tidligsteDatoDagytelse(mottattDato);
-        var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
-        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
-            .medMottattDato(mottattDato)
-            .medFørsteLovligeUttaksdag(førsteLovligeUttaksdag)
-            .build();
+        var uttaksperiodegrense = new Uttaksperiodegrense(mottattDato);
         uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense);
         lagreYtelseSpesifikkeData(behandlingId, uttaksperiodegrense);
     }

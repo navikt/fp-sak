@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.søknad;
 
-import static java.util.Collections.singletonList;
-
-import java.util.Collections;
+import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -39,10 +37,10 @@ public class InngangsvilkårSøkersOpplysningsplikt implements Inngangsvilkår {
     }
 
     private VilkårData vurderOpplysningspliktOppfyltAutomatisk(BehandlingReferanse ref) {
-        var oppfylt = new VilkårData(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT, Collections.emptyList());
+        var oppfylt = new VilkårData(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT, List.of());
 
         var manuellVurdering = new VilkårData(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_VURDERT,
-            singletonList(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU));
+            List.of(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU));
 
         var ytelseType = ref.fagsakYtelseType();
         var behandlingType = ref.behandlingType();

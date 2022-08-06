@@ -35,8 +35,7 @@ public class AvklarteDatoerTjenesteTest {
     public void opprett_avklarte_datoer_for_søknad_med_termindato() {
         var behandling = grunnlagOppretter.lagreBehandling();
         var termindato = LocalDate.of(2019, Month.SEPTEMBER, 1);
-        grunnlagOppretter.lagreUttaksgrenser(behandling.getId(), LocalDate.of(2019, Month.MAY, 1),
-            LocalDate.of(2019, Month.AUGUST, 1));
+        grunnlagOppretter.lagreUttaksgrenser(behandling.getId(), LocalDate.of(2019, Month.AUGUST, 1));
 
         var input = input(behandling, termindato, null);
         var avklarteDatoer = avklarteDatoerTjeneste.finn(input);
@@ -67,8 +66,7 @@ public class AvklarteDatoerTjenesteTest {
         var behandling = grunnlagOppretter.lagreBehandling();
         var termindato = LocalDate.of(2019, Month.SEPTEMBER, 1);
         var fødselsdato = termindato.plusDays(2);
-        grunnlagOppretter.lagreUttaksgrenser(behandling.getId(), LocalDate.of(2019, Month.MAY, 1),
-            LocalDate.of(2019, Month.AUGUST, 1));
+        grunnlagOppretter.lagreUttaksgrenser(behandling.getId(), LocalDate.of(2019, Month.AUGUST, 1));
 
         var input = input(behandling, termindato, fødselsdato);
         var avklarteDatoer = avklarteDatoerTjeneste.finn(input);

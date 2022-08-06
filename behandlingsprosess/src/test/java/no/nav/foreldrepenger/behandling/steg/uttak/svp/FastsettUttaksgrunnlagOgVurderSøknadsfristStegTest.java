@@ -11,6 +11,7 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.Søknadsfrister;
 import no.nav.foreldrepenger.behandling.steg.søknadsfrist.svp.FastsettUttaksgrunnlagOgVurderSøknadsfristSteg;
 import no.nav.foreldrepenger.behandling.steg.søknadsfrist.svp.FørsteLovligeUttaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -83,9 +84,11 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
 
         var gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository()
             .hentHvisEksisterer(behandling.getId());
-        assertThat(gjeldendeUttaksperiodegrense).isPresent();
-        assertThat(gjeldendeUttaksperiodegrense.get().getFørsteLovligeUttaksdag()).isEqualTo(LocalDate.of(2019, Month.FEBRUARY, 1));
-        assertThat(gjeldendeUttaksperiodegrense.get().getMottattDato()).isEqualTo(mottatdato);
+        assertThat(gjeldendeUttaksperiodegrense).hasValueSatisfying(upg -> {
+            assertThat(upg).isNotNull();
+            assertThat(upg.getMottattDato()).isEqualTo(mottatdato);
+            assertThat(Søknadsfrister.tidligsteDatoDagytelse(upg.getMottattDato())).isEqualTo(LocalDate.of(2019, Month.FEBRUARY, 1));
+        });
     }
 
     @Test
@@ -114,9 +117,11 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
 
         var gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository()
             .hentHvisEksisterer(behandling.getId());
-        assertThat(gjeldendeUttaksperiodegrense).isPresent();
-        assertThat(gjeldendeUttaksperiodegrense.get().getFørsteLovligeUttaksdag()).isEqualTo(LocalDate.of(2019, Month.JUNE, 1));
-        assertThat(gjeldendeUttaksperiodegrense.get().getMottattDato()).isEqualTo(mottatdato);
+        assertThat(gjeldendeUttaksperiodegrense).hasValueSatisfying(upg -> {
+            assertThat(upg).isNotNull();
+            assertThat(upg.getMottattDato()).isEqualTo(mottatdato);
+            assertThat(Søknadsfrister.tidligsteDatoDagytelse(upg.getMottattDato())).isEqualTo(LocalDate.of(2019, Month.JUNE, 1));
+        });
     }
 
     private SøknadEntitet opprettSøknad(LocalDate fødselsdato, LocalDate mottattDato) {

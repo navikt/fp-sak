@@ -1782,11 +1782,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     private void lagreUttaksperiodegrense(Long behandlingId) {
-        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
-        var grense = new Uttaksperiodegrense.Builder(br)
-            .medFørsteLovligeUttaksdag(mottattDato.minusMonths(3))
-            .medMottattDato(mottattDato)
-            .build();
+        var grense = new Uttaksperiodegrense(mottattDato);
         repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandlingId, grense);
     }
 

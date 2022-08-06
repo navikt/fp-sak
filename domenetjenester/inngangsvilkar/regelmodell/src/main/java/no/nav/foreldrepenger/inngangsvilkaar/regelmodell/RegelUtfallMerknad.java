@@ -25,9 +25,6 @@ public enum RegelUtfallMerknad {
 
     RVM_1051("1051", "Stebarnsadopsjon ikke flere dager igjen"),
 
-    // Ikke vurdert av vilkåret, aksjonspunkt for manuell vilkårsvurdering
-    RVM_5007("5007", "søknadsfristvilkåret"),
-
     UDEFINERT("-", "Ikke definert"),
 
     ;

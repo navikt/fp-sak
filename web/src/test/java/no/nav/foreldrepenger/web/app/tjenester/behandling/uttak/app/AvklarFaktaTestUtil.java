@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -87,10 +86,7 @@ public class AvklarFaktaTestUtil {
             .medOppgittFordeling(fordeling);
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
 
-        var behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
-        var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
-        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat).medMottattDato(
-            LocalDate.now().minusMonths(1)).medFørsteLovligeUttaksdag(LocalDate.of(2010, 1, 1)).build();
+        var uttaksperiodegrense = new Uttaksperiodegrense(LocalDate.now().minusMonths(1));
         new UttaksperiodegrenseRepository(entityManager).lagre(behandlingId, uttaksperiodegrense);
     }
 

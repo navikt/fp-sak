@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 
 import java.util.Optional;
-import java.util.Properties;
 
 public class VilkårBuilder {
     private Vilkår kladd;
@@ -55,12 +54,6 @@ public class VilkårBuilder {
             throw new IllegalArgumentException("Mangler avslagsårsak");
         kladd.setVilkårUtfallOverstyrt(vilkårUtfallOverstyrt);
         kladd.setAvslagsårsak(avslagsårsak);
-        return this;
-    }
-
-    public VilkårBuilder medMerknadParametere(Properties merknadParametere) {
-        if (merknadParametere != null && !merknadParametere.isEmpty())
-            kladd.setMerknadParametere(merknadParametere);
         return this;
     }
 

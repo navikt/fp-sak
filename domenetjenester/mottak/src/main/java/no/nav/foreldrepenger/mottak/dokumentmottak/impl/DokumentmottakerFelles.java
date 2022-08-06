@@ -10,6 +10,8 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -39,6 +41,7 @@ public class DokumentmottakerFelles {
     private TomtUttakTjeneste tomtUttakTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private HistorikkinnslagTjeneste historikkinnslagTjeneste;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private Behandlingsoppretter behandlingsoppretter;
@@ -61,6 +64,7 @@ public class DokumentmottakerFelles {
         this.tomtUttakTjeneste = tomtUttakTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.historikkinnslagTjeneste = historikkinnslagTjeneste;
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.behandlingsoppretter = behandlingsoppretter;
@@ -230,6 +234,10 @@ public class DokumentmottakerFelles {
         if (behandling == null && !mottattDokument.getDokumentType().erSøknadType())
             throw new IllegalStateException("Fant ingen behandling som passet for saksnummer: " + fagsak.getSaksnummer());
         return behandling;
+    }
+
+    boolean erBehandlingHenlagt(Long behandlingId) {
+        return behandlingsresultatRepository.hentHvisEksisterer(behandlingId).filter(Behandlingsresultat::isBehandlingHenlagt).isPresent();
     }
 
     void standardForAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument, Fagsak fagsak, Behandling avsluttetBehandling,

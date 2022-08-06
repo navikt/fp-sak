@@ -133,7 +133,7 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
     public void opprettFraTidligereAvsluttetBehandling(Fagsak fagsak, Long avsluttetMedSøknadBehandlingId, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType, boolean opprettSomKøet) {
         var avsluttetBehandlingMedSøknad = behandlingRepository.hentBehandling(avsluttetMedSøknadBehandlingId);
         var harÅpenBehandling = !revurderingRepository.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsak.getId()).map(Behandling::erSaksbehandlingAvsluttet).orElse(Boolean.TRUE);
-        if (harÅpenBehandling || erAvslag(avsluttetBehandlingMedSøknad) || avsluttetBehandlingMedSøknad.isBehandlingHenlagt()) {
+        if (harÅpenBehandling || erAvslag(avsluttetBehandlingMedSøknad) || dokumentmottakerFelles.erBehandlingHenlagt(avsluttetBehandlingMedSøknad.getId())) {
             dokumentmottakerFelles.opprettNyFørstegangFraBehandlingMedSøknad(fagsak, behandlingÅrsakType, avsluttetBehandlingMedSøknad, mottattDokument);
         } else {
             var revurdering = dokumentmottakerFelles.opprettManuellRevurdering(fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType), opprettSomKøet);

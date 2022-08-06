@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.omsorgsovertakelse;
 
-import static java.util.Collections.singletonList;
+import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -23,6 +23,6 @@ public class InngangsvilkårEngangsstønadForeldreansvar1 implements Inngangsvil
     @Override
     public VilkårData vurderVilkår(BehandlingReferanse ref) {
         return new VilkårData(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårUtfallType.IKKE_VURDERT,
-                singletonList(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD));
+                List.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD));
     }
 }

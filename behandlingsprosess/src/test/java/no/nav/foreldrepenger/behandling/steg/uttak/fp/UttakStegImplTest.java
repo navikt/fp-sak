@@ -63,12 +63,12 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -603,10 +603,7 @@ public class UttakStegImplTest {
     }
 
     private void opprettUttaksperiodegrense(LocalDate mottattDato, Behandling behandling) {
-        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandling.getBehandlingsresultat())
-                .medMottattDato(mottattDato)
-                .medFørsteLovligeUttaksdag(mottattDato.withDayOfMonth(1).minusMonths(3))
-                .build();
+        var uttaksperiodegrense = new Uttaksperiodegrense(mottattDato);
 
         uttaksperiodegrenseRepository.lagre(behandling.getId(), uttaksperiodegrense);
     }
