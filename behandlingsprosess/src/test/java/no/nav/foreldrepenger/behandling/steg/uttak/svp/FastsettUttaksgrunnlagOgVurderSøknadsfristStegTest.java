@@ -11,10 +11,8 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandling.steg.søknadsfrist.SøktPeriodeTjeneste;
 import no.nav.foreldrepenger.behandling.steg.søknadsfrist.svp.FastsettUttaksgrunnlagOgVurderSøknadsfristSteg;
-import no.nav.foreldrepenger.behandling.steg.søknadsfrist.svp.SøktPeriodeTjenesteImpl;
+import no.nav.foreldrepenger.behandling.steg.søknadsfrist.svp.FørsteLovligeUttaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -23,9 +21,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.uttak.svp.FørsteLovligeUttaksdatoTjeneste;
-import no.nav.foreldrepenger.domene.uttak.svp.RegelmodellSøknaderMapper;
 
 @CdiDbAwareTest
 public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
@@ -37,13 +34,13 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
     private BehandlingRepository behandlingRepository;
 
     @Inject
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
+
+    @Inject
     private SvangerskapspengerRepository svangerskapspengerRepository;
 
     @Inject
     private FørsteLovligeUttaksdatoTjeneste førsteLovligeUttaksdatoTjeneste;
-
-    @Inject
-    private UttakInputTjeneste uttakInputTjeneste;
 
     private Behandling behandling;
     private SvpHelper svpHelper;
@@ -58,10 +55,8 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
         em.flush();
         em.clear();
 
-        var regelmodellSøknaderMapper = new RegelmodellSøknaderMapper();
-        SøktPeriodeTjeneste søktPeriodeTjeneste = new SøktPeriodeTjenesteImpl(regelmodellSøknaderMapper);
-        fastsettUttaksgrunnlagOgVurderSøknadsfristSteg = new FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(repositoryProvider, uttakInputTjeneste,
-                søktPeriodeTjeneste, førsteLovligeUttaksdatoTjeneste);
+        fastsettUttaksgrunnlagOgVurderSøknadsfristSteg = new FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(uttaksperiodegrenseRepository,
+                førsteLovligeUttaksdatoTjeneste);
     }
 
     @Test

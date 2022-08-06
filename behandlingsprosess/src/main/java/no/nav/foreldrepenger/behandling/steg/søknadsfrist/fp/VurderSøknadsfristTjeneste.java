@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.behandling.steg.søknadsfrist.fp;
 
 import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -11,11 +13,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
-import no.nav.foreldrepenger.regler.soknadsfrist.SøknadsfristResultat;
+import no.nav.foreldrepenger.skjæringstidspunkt.Søknadsfrister;
+import no.nav.foreldrepenger.skjæringstidspunkt.fp.SøknadsperiodeFristTjenesteImpl;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
@@ -39,11 +45,11 @@ public class VurderSøknadsfristTjeneste {
     }
 
     public Optional<AksjonspunktDefinisjon> vurder(Long behandlingId) {
-        var fordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
-        var oppgittePerioder = fordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder();
-        // Ingen perioder betyr behandling ut ny søknad. Trenger ikke å sjekke
-        // søknadsfrist på nytt ettersom uttaksperiodegrense
-        // er kopiert fra forrige behandling
+        var oppgittePerioder = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
+            .map(YtelseFordelingAggregat::getGjeldendeSøknadsperioder)
+            .map(OppgittFordelingEntitet::getOppgittePerioder).orElse(List.of());
+        // Ingen perioder betyr behandling ut ny søknad.
+        // Trenger ikke å sjekke søknadsfrist på nytt ettersom uttaksperiodegrense er kopiert fra forrige behandling
         if (oppgittePerioder.isEmpty()) {
             if (uttaksperiodegrenseRepository.hentHvisEksisterer(behandlingId).isEmpty()) {
                 throw new IllegalStateException("Forventet at uttaksperiodegrense er kopiert fra original behandling");
@@ -51,26 +57,24 @@ public class VurderSøknadsfristTjeneste {
             return Optional.empty();
         }
 
-        var søknad = søknadRepository.hentSøknad(behandlingId);
-        var resultat = SøknadsfristRegelAdapter.vurderSøknadsfristFor(søknad, oppgittePerioder);
+        var søknadMottattDato = søknadRepository.hentSøknad(behandlingId).getMottattDato();
+        var tidligsteLovligeUttakDato = Søknadsfrister.tidligsteDatoDagytelse(søknadMottattDato);
 
-        lagreResultat(behandlingId, resultat, søknad.getMottattDato());
-        return utledAksjonspunkt(resultat);
-    }
-
-    private void lagreResultat(Long behandlingId, SøknadsfristResultat resultat, LocalDate mottattDato) {
         var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
         var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
-                .medFørsteLovligeUttaksdag(resultat.getTidligsteLovligeUttak())
-                .medMottattDato(mottattDato)
-                .medSporingInput(resultat.getInnsendtGrunnlag())
-                .medSporingRegel(resultat.getEvalueringResultat())
-                .build();
+            .medFørsteLovligeUttaksdag(tidligsteLovligeUttakDato)
+            .medMottattDato(søknadMottattDato)
+            .build();
         uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense);
+
+        var førsteUttaksdato = finnFørsteUttaksdato(oppgittePerioder, søknadMottattDato).orElse(null);
+        var forTidligUttak = førsteUttaksdato != null && førsteUttaksdato.isBefore(tidligsteLovligeUttakDato);
+        return forTidligUttak ? Optional.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST) : Optional.empty();
     }
 
-    private Optional<AksjonspunktDefinisjon> utledAksjonspunkt(SøknadsfristResultat resultat) {
-        var årsakKode = resultat.getÅrsakKodeIkkeVurdert();
-        return !resultat.isRegelOppfylt() ? årsakKode.map(AksjonspunktDefinisjon::fraKode) : Optional.empty();
+    private Optional<LocalDate> finnFørsteUttaksdato(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate søknadMottattDato) {
+        return SøknadsperiodeFristTjenesteImpl.perioderSkalVurderes(oppgittePerioder, søknadMottattDato).stream()
+            .map(OppgittPeriodeEntitet::getFom)
+            .min(Comparator.naturalOrder());
     }
 }

@@ -8,6 +8,7 @@ import java.util.Optional;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -39,7 +40,9 @@ public abstract class VilkårsgrunnlagXmlTjeneste {
 
     public void setVilkårsgrunnlag(Behandling behandling, Vilkår vilkårFraBehandling, Vilkaar vilkår) {
         var søknad = søknadRepository.hentSøknadHvisEksisterer(behandling.getId());
-        var vilkaarsgrunnlag = getVilkaarsgrunnlag(behandling, vilkårFraBehandling, søknad); //Må implementeres i hver subklasse
+        var familieHendelseDato = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getSkjæringstidspunkt);
+        var vilkaarsgrunnlag = getVilkaarsgrunnlag(behandling, vilkårFraBehandling, søknad, familieHendelseDato); //Må implementeres i hver subklasse
 
         if (Objects.nonNull(vilkaarsgrunnlag)) {
             var vilkaarsgrunnlag1 = new no.nav.vedtak.felles.xml.vedtak.v2.Vilkaarsgrunnlag();
@@ -48,7 +51,7 @@ public abstract class VilkårsgrunnlagXmlTjeneste {
         }
     }
 
-    protected abstract Vilkaarsgrunnlag getVilkaarsgrunnlag(Behandling behandling, Vilkår vilkårFraBehandling, Optional<SøknadEntitet> søknad);
+    protected abstract Vilkaarsgrunnlag getVilkaarsgrunnlag(Behandling behandling, Vilkår vilkårFraBehandling, Optional<SøknadEntitet> søknad, Optional<LocalDate> familieHendelseDato);
 
     protected boolean erBarnetFødt(Behandling behandling) {
         final var familieHendelseGrunnlag = familieHendelseRepository.hentAggregat(behandling.getId());

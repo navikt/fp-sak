@@ -51,7 +51,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.BekreftetAdops
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.MedlemskapsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.RegelPersonStatusType;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.SøknadsfristvilkårGrunnlag;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.vedtak.exception.TekniskException;
@@ -212,15 +211,6 @@ public class InngangsvilkårOversetter {
 
     private SimpleLocalDateInterval byggIntervall(LocalDate fomDato, LocalDate tomDato) {
         return SimpleLocalDateInterval.fraOgMedTomNotNull(fomDato, tomDato);
-    }
-
-    public SøknadsfristvilkårGrunnlag oversettTilRegelModellSøknad(BehandlingReferanse ref) {
-        final var søknad = søknadRepository.hentSøknad(ref.behandlingId());
-        var skjæringsdato = ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        return new SøknadsfristvilkårGrunnlag(
-            søknad.getElektroniskRegistrert(),
-            skjæringsdato,
-            søknad.getMottattDato());
     }
 
     public AdopsjonsvilkårGrunnlag oversettTilRegelModellAdopsjon(BehandlingReferanse ref) {

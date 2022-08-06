@@ -18,7 +18,6 @@ public class SkjæringstidspunktTjenesteImplTest {
     public void skal_utlede_skjæringstidspunktet() {
         var forventetResultat = LocalDate.of(2019, 7, 10);
 
-        var tjeneste = new SkjæringstidspunktTjenesteImpl();
         var svpGrunnlagEntitet = new SvpGrunnlagEntitet.Builder();
         var svp = new SvpTilretteleggingEntitet.Builder();
         svp.medBehovForTilretteleggingFom(forventetResultat);
@@ -31,7 +30,7 @@ public class SkjæringstidspunktTjenesteImplTest {
         svpGrunnlagEntitet.medOpprinneligeTilrettelegginger(List.of(tilretteleggingEntitet));
         svpGrunnlagEntitet.medBehandlingId(1337L);
 
-        var dag = tjeneste.utledBasertPåGrunnlag(svpGrunnlagEntitet.build());
+        var dag = SkjæringstidspunktTjenesteImpl.utledBasertPåGrunnlag(svpGrunnlagEntitet.build());
 
         assertThat(dag).isEqualTo(forventetResultat);
     }

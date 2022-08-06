@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.søknadsfrist;
+package no.nav.foreldrepenger.domene.uttak.søknadsfrist;
 
 import java.util.Optional;
 
