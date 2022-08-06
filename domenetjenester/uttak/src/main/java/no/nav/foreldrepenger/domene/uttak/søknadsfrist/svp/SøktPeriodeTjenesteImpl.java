@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.søknadsfrist.svp;
+package no.nav.foreldrepenger.domene.uttak.søknadsfrist.svp;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -6,11 +6,11 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.steg.søknadsfrist.SøktPeriodeTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.svp.RegelmodellSøknaderMapper;
+import no.nav.foreldrepenger.domene.uttak.søknadsfrist.SøktPeriodeTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.svangerskapspenger.domene.søknad.Søknad;
 import no.nav.svangerskapspenger.tjeneste.opprettperioder.UttaksperioderTjeneste;
@@ -39,6 +39,7 @@ public class SøktPeriodeTjenesteImpl implements SøktPeriodeTjeneste {
 
         var førsteUttaksdato = uttaksperioder.finnFørsteUttaksdato();
         var sisteUttaksdato = uttaksperioder.finnSisteUttaksdato();
+
         if (førsteUttaksdato.isPresent() && sisteUttaksdato.isPresent()) {
             return Optional.of(new LocalDateInterval(førsteUttaksdato.get(), sisteUttaksdato.get()));
         }

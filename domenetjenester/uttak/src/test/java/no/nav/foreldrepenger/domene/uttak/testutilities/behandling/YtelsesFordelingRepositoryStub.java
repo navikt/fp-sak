@@ -23,11 +23,7 @@ class YtelsesFordelingRepositoryStub extends YtelsesFordelingRepository {
 
     @Override
     public Optional<YtelseFordelingAggregat> hentAggregatHvisEksisterer(Long behandlingId) {
-        var yf = ytelseFordelingAggregatMap.get(behandlingId);
-        if (yf == null) {
-            return Optional.empty();
-        }
-        return Optional.of(yf);
+        return Optional.ofNullable(ytelseFordelingAggregatMap.get(behandlingId));
     }
 
     @Override

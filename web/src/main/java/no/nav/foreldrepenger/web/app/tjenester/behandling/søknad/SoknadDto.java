@@ -22,6 +22,7 @@ public abstract class SoknadDto {
     private OppgittTilknytningDto oppgittTilknytning;
     private List<ManglendeVedleggDto> manglendeVedlegg;
     private OppgittFordelingDto oppgittFordeling;
+    private SøknadsfristDto søknadsfrist;
 
     protected SoknadDto() {
     }
@@ -86,4 +87,11 @@ public abstract class SoknadDto {
         this.oppgittFordeling = oppgittFordeling;
     }
 
+    public SøknadsfristDto getSøknadsfrist() {
+        return søknadsfrist;
+    }
+
+    public void setSøknadsfrist(SøknadsfristDto søknadsfrist) {
+        this.søknadsfrist = søknadsfrist;
+    }
 }

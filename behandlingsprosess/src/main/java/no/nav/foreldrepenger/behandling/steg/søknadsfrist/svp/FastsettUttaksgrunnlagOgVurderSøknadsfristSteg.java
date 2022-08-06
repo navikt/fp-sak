@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.behandling.steg.søknadsfrist.svp;
 
-import java.util.List;
+import static java.util.Collections.singletonList;
+
 import java.util.Objects;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandling.steg.søknadsfrist.SøktPeriodeTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
@@ -16,53 +15,37 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
-import no.nav.foreldrepenger.domene.uttak.svp.FørsteLovligeUttaksdatoTjeneste;
 
-//TODO(SVP-team) rename steget.. skal ikke ha ytelsespsifikke stegnavn..
 @BehandlingStegRef(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER)
 @BehandlingTypeRef
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @ApplicationScoped
 public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements BehandlingSteg {
 
-    private SøktPeriodeTjeneste søktPeriodeTjeneste;
     private FørsteLovligeUttaksdatoTjeneste førsteLovligeUttaksdatoTjeneste;
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
-    private UttakInputTjeneste uttakInputTjeneste;
 
     public FastsettUttaksgrunnlagOgVurderSøknadsfristSteg() {
         // For CDI
     }
 
     @Inject
-    public FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(BehandlingRepositoryProvider behandlingRepositoryProvider,
-            UttakInputTjeneste uttakInputTjeneste,
-            @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) SøktPeriodeTjeneste søktPeriodeTjeneste,
-            FørsteLovligeUttaksdatoTjeneste førsteLovligeUttaksdatoTjeneste) {
-        this.uttakInputTjeneste = uttakInputTjeneste;
-        this.søktPeriodeTjeneste = søktPeriodeTjeneste;
+    public FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(UttaksperiodegrenseRepository uttaksperiodegrenseRepository,
+                                                          FørsteLovligeUttaksdatoTjeneste førsteLovligeUttaksdatoTjeneste) {
         this.førsteLovligeUttaksdatoTjeneste = førsteLovligeUttaksdatoTjeneste;
-        this.uttaksperiodegrenseRepository = behandlingRepositoryProvider.getUttaksperiodegrenseRepository();
+        this.uttaksperiodegrenseRepository = uttaksperiodegrenseRepository;
     }
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        var input = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
-        var uttaksgrenserOptional = søktPeriodeTjeneste.finnSøktPeriode(input);
-        if (uttaksgrenserOptional.isPresent()) {
-            var søknadsfristResultat = førsteLovligeUttaksdatoTjeneste.utledFørsteLovligeUttaksdato(input, uttaksgrenserOptional.get());
-            // Opprett aksjonspunkt dersom regel ikke er oppfylt.
-            var årsakKodeIkkeVurdert = søknadsfristResultat.getÅrsakKodeIkkeVurdert();
-            if (!søknadsfristResultat.isRegelOppfylt() && årsakKodeIkkeVurdert.isPresent()) {
-                var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(årsakKodeIkkeVurdert.get());
-                return BehandleStegResultat.utførtMedAksjonspunkter(List.of(aksjonspunktDefinisjon));
-            }
-        }
-        return BehandleStegResultat.utførtUtenAksjonspunkter();
+        var trengerAvklaring = førsteLovligeUttaksdatoTjeneste.vurder(kontekst.getBehandlingId());
+
+        // Returner eventuelt aksjonspunkt ifm søknadsfrist
+        return trengerAvklaring
+            .map(ad -> BehandleStegResultat.utførtMedAksjonspunkter(singletonList(ad)))
+            .orElseGet(BehandleStegResultat::utførtUtenAksjonspunkter);
     }
 
     @Override

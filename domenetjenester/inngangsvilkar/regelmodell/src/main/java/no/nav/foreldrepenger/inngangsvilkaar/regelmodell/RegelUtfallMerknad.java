@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell;
 
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.SjekkTilstrekkeligOpptjeningInklAntatt;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.SjekkFristForSøknad;
 
 public enum RegelUtfallMerknad {
     RVM_1001("1001", "Søknad er sendt før 26. svangerskapsuke er passert og barnet er ikke født"),
@@ -27,7 +26,7 @@ public enum RegelUtfallMerknad {
     RVM_1051("1051", "Stebarnsadopsjon ikke flere dager igjen"),
 
     // Ikke vurdert av vilkåret, aksjonspunkt for manuell vilkårsvurdering
-    RVM_5007(SjekkFristForSøknad.SØKNADSFRIST_IKKE_VURDERT_KODE, "søknadsfristvilkåret"),
+    RVM_5007("5007", "søknadsfristvilkåret"),
 
     UDEFINERT("-", "Ikke definert"),
 

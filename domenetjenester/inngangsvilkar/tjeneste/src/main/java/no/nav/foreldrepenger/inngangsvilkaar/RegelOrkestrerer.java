@@ -25,14 +25,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.SjekkFristForSøknad;
+import no.nav.foreldrepenger.inngangsvilkaar.søknad.InngangsvilkårEngangsstønadSøknadsfrist;
 
 
 @ApplicationScoped
 public class RegelOrkestrerer {
 
     private static final Map<VilkårType, Set<String>> LAGRE_MERKNAD_PARAMETRE =
-        Map.of(VilkårType.SØKNADSFRISTVILKÅRET, Set.of(SjekkFristForSøknad.DAGER_FOR_SENT_PROPERTY));
+        Map.of(VilkårType.SØKNADSFRISTVILKÅRET, Set.of(InngangsvilkårEngangsstønadSøknadsfrist.DAGER_FOR_SENT_PROPERTY));
 
     private InngangsvilkårTjeneste inngangsvilkårTjeneste;
 

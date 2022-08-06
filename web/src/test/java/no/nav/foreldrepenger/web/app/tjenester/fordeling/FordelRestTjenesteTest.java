@@ -78,7 +78,7 @@ public class FordelRestTjenesteTest {
 
     @Test
     public void skalReturnereFagsystemManuell() {
-        var saksnummer = new Saksnummer("12345");
+        var saksnummer = new Saksnummer("TEST1");
         var journalpostId = new JournalpostId("1234");
         var innDto = new AbacVurderFagsystemDto(journalpostId.getVerdi(), false, AKTØR_ID_MOR.getId(), "ab0047");
         innDto.setDokumentTypeIdOffisiellKode(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL.getOffisiellKode());
@@ -95,9 +95,9 @@ public class FordelRestTjenesteTest {
     @Test
     public void skalReturnereFagsakinformasjonMedBehandlingTemaOgAktørId() {
         final var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
-        scenario.medSaksnummer(new Saksnummer("1")).medSøknadHendelse().medFødselsDato(LocalDate.now());
+        scenario.medSaksnummer(new Saksnummer("TEST2")).medSøknadHendelse().medFødselsDato(LocalDate.now());
         scenario.lagre(repositoryProvider);
-        var result = fordelRestTjeneste.fagsak(new AbacSaksnummerDto("1"));
+        var result = fordelRestTjeneste.fagsak(new AbacSaksnummerDto("TEST2"));
 
         assertThat(result).isNotNull();
         assertThat(new AktørId(result.getAktørId())).isEqualTo(AKTØR_ID_MOR);
@@ -106,12 +106,12 @@ public class FordelRestTjenesteTest {
 
     @Test
     public void skalReturnereNullNårFagsakErStengt() {
-        final var saknr = new Saksnummer("1");
+        final var saknr = new Saksnummer("TEST3");
         final var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
         scenario.medSaksnummer(saknr).medSøknadHendelse().medFødselsDato(LocalDate.now());
         var behandling = scenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRepository().fagsakSkalStengesForBruk(behandling.getFagsakId());
-        var result = fordelRestTjeneste.fagsak(new AbacSaksnummerDto("1"));
+        var result = fordelRestTjeneste.fagsak(new AbacSaksnummerDto("TEST3"));
 
         assertThat(result).isNull();
     }

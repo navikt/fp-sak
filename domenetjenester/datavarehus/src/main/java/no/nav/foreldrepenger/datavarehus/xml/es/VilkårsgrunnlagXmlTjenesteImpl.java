@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.datavarehus.xml.es;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -21,7 +22,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.Adopsjonsvilk�
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.MedlemskapsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.RegelPersonStatusType;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.SøknadsfristvilkårGrunnlag;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.Adopsjon;
@@ -49,7 +49,8 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
     }
 
     @Override
-    protected Vilkaarsgrunnlag getVilkaarsgrunnlag(Behandling behandling, Vilkår vilkårFraBehandling, Optional<SøknadEntitet> søknad) {
+    protected Vilkaarsgrunnlag getVilkaarsgrunnlag(Behandling behandling, Vilkår vilkårFraBehandling,
+                                                   Optional<SøknadEntitet> søknad, Optional<LocalDate> familieHendelseDato) {
         Vilkaarsgrunnlag vilkaarsgrunnlag = null;
         if (VilkårType.SØKERSOPPLYSNINGSPLIKT.equals(vilkårFraBehandling.getVilkårType())) {
             vilkaarsgrunnlag = lagVilkaarsgrunnlagForSøkersopplysningsplikt(behandling, søknad);
@@ -58,7 +59,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         } else if (VilkårType.FØDSELSVILKÅRET_MOR.equals(vilkårFraBehandling.getVilkårType()) || VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR.equals(vilkårFraBehandling.getVilkårType())) {
             vilkaarsgrunnlag = lagVilkaarsgrunnlagForFødselsvilkåret(vilkårFraBehandling);
         } else if (VilkårType.SØKNADSFRISTVILKÅRET.equals(vilkårFraBehandling.getVilkårType())) {
-            vilkaarsgrunnlag = lagVilkaarsgrunnlagForSøknadsfristvilkåret(vilkårFraBehandling);
+            vilkaarsgrunnlag = lagVilkaarsgrunnlagForSøknadsfristvilkåret(vilkårFraBehandling, søknad, familieHendelseDato);
         } else if ((VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD.equals(vilkårFraBehandling.getVilkårType())) || (VilkårType.ADOPSJONSVILKARET_FORELDREPENGER.equals(vilkårFraBehandling.getVilkårType()))) {
             vilkaarsgrunnlag = lagVilkaarsgrunnlagForAdopsjonsvilkåret(vilkårFraBehandling);
         }
@@ -85,19 +86,15 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         return vilkårgrunnlag;
     }
 
-    private Vilkaarsgrunnlag lagVilkaarsgrunnlagForSøknadsfristvilkåret(Vilkår vilkårFraBehandling) {
+    private Vilkaarsgrunnlag lagVilkaarsgrunnlagForSøknadsfristvilkåret(Vilkår vilkårFraBehandling,
+                                                                        Optional<SøknadEntitet> søknadEntitet,
+                                                                        Optional<LocalDate> familieHendelseDato) {
         var vilkårgrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagSoeknadsfrist();
-        if (vilkårFraBehandling.getRegelInput() == null) {
-            return vilkårgrunnlag;
-        }
-        var grunnlagForVilkår = StandardJsonConfig.fromJson(
-            vilkårFraBehandling.getRegelInput(), SøknadsfristvilkårGrunnlag.class);
+        søknadEntitet.map(SøknadEntitet::getElektroniskRegistrert).ifPresent(e -> vilkårgrunnlag.setElektroniskSoeknad(VedtakXmlUtil.lagBooleanOpplysning(e)));
 
-        vilkårgrunnlag.setElektroniskSoeknad(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.elektroniskSoeknad()));
+        søknadEntitet.map(SøknadEntitet::getMottattDato).flatMap(VedtakXmlUtil::lagDateOpplysning).ifPresent(vilkårgrunnlag::setSoeknadMottattDato);
 
-        VedtakXmlUtil.lagDateOpplysning(grunnlagForVilkår.skjaeringstidspunkt()).ifPresent(vilkårgrunnlag::setSkjaeringstidspunkt);
-
-        VedtakXmlUtil.lagDateOpplysning(grunnlagForVilkår.soeknadMottatDato()).ifPresent(vilkårgrunnlag::setSoeknadMottattDato);
+        familieHendelseDato.flatMap(VedtakXmlUtil::lagDateOpplysning).ifPresent(vilkårgrunnlag::setSkjaeringstidspunkt);
 
         return vilkårgrunnlag;
     }

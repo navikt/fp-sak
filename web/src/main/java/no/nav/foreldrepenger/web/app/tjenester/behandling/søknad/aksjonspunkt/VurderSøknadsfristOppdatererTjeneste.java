@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.regler.SøknadsfristUtil;
+import no.nav.foreldrepenger.skjæringstidspunkt.Søknadsfrister;
 
 public abstract class VurderSøknadsfristOppdatererTjeneste {
 
@@ -45,7 +45,7 @@ public abstract class VurderSøknadsfristOppdatererTjeneste {
 
     private void lagreResultat(Long behandlingId, VurderSøknadsfristDto dto, SøknadEntitet søknad) {
         var mottattDato = dto.harGyldigGrunn() ? dto.getAnsesMottattDato() : søknad.getMottattDato();
-        var førsteLovligeUttaksdag = SøknadsfristUtil.finnFørsteLoveligeUttaksdag(mottattDato);
+        var førsteLovligeUttaksdag = Søknadsfrister.tidligsteDatoDagytelse(mottattDato);
         var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
         var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
             .medMottattDato(mottattDato)

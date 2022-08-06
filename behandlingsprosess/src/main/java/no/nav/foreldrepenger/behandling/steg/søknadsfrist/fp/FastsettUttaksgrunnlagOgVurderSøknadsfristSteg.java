@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -41,7 +40,6 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
     private final VurderSøknadsfristTjeneste vurderSøknadsfristTjeneste;
     private final FastsettUttaksgrunnlagTjeneste fastsettUttaksgrunnlagTjeneste;
     private final UttakInputTjeneste uttakInputTjeneste;
-    private final BehandlingRepository behandlingRepository;
     private final SkalKopiereUttakTjeneste skalKopiereUttakTjeneste;
     private final KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste;
 
@@ -50,14 +48,12 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
                                                           YtelsesFordelingRepository ytelsesFordelingRepository,
                                                           @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) VurderSøknadsfristTjeneste vurderSøknadsfristTjeneste,
                                                           FastsettUttaksgrunnlagTjeneste fastsettUttaksgrunnlagTjeneste,
-                                                          BehandlingRepository behandlingRepository,
                                                           SkalKopiereUttakTjeneste skalKopiereUttakTjeneste,
                                                           KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
         this.vurderSøknadsfristTjeneste = vurderSøknadsfristTjeneste;
         this.fastsettUttaksgrunnlagTjeneste = fastsettUttaksgrunnlagTjeneste;
-        this.behandlingRepository = behandlingRepository;
         this.skalKopiereUttakTjeneste = skalKopiereUttakTjeneste;
         this.kopierForeldrepengerUttaktjeneste = kopierForeldrepengerUttaktjeneste;
     }
@@ -67,17 +63,16 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
         var behandlingId = kontekst.getBehandlingId();
 
         // Sjekk søknadsfrist for søknadsperioder
-        var søknadfristAksjonspunktDefinisjon = vurderSøknadsfristTjeneste.vurder(kontekst.getBehandlingId());
+        var søknadfristAksjonspunktDefinisjon = vurderSøknadsfristTjeneste.vurder(behandlingId);
 
-        // Fastsett uttaksgrunnlag
+        // Fastsett uttaksgrunnlag - vurder å lage input på nytt (potensiell sideeffekt fra frist)
         var input = uttakInputTjeneste.lagInput(behandlingId);
         fastsettUttaksgrunnlagTjeneste.fastsettUttaksgrunnlag(input);
 
         // Returner eventuelt aksjonspunkt ifm søknadsfrist
-        if (søknadfristAksjonspunktDefinisjon.isPresent()) {
-            return BehandleStegResultat.utførtMedAksjonspunkter(singletonList(søknadfristAksjonspunktDefinisjon.get()));
-        }
-        return BehandleStegResultat.utførtUtenAksjonspunkter();
+        return søknadfristAksjonspunktDefinisjon
+            .map(ad -> BehandleStegResultat.utførtMedAksjonspunkter(singletonList(ad)))
+            .orElseGet(BehandleStegResultat::utførtUtenAksjonspunkter);
     }
 
     @Override

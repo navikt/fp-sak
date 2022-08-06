@@ -111,8 +111,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
         var skalKopiereUttakTjeneste = new SkalKopiereUttakTjeneste(relevanteArbeidsforholdTjeneste,
             ytelseFordelingTjeneste);
         fastsettUttaksgrunnlagOgVurderSøknadsfristSteg = new FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(
-                uttakInputTjeneste, ytelsesFordelingRepository, vurderSøknadsfristTjeneste, fastsettUttaksgrunnlagTjeneste, behandlingRepository,
-            skalKopiereUttakTjeneste, new KopierForeldrepengerUttaktjeneste(fpUttakRepository, ytelsesFordelingRepository));
+                uttakInputTjeneste, ytelsesFordelingRepository, vurderSøknadsfristTjeneste, fastsettUttaksgrunnlagTjeneste, skalKopiereUttakTjeneste, new KopierForeldrepengerUttaktjeneste(fpUttakRepository, ytelsesFordelingRepository));
         familieHendelseRepository = new FamilieHendelseRepository(entityManager);
     }
 

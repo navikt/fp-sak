@@ -18,4 +18,10 @@ public record VilkårData(VilkårType vilkårType, VilkårUtfallType utfallType,
             null, null, null);
     }
 
+    /** Midlertidig Ctor som tar minimum av parametere, og ingen regel evaluering og input data.  Vil heller aldri være overstyrt. */
+    public VilkårData(VilkårData generisk, Map<String, Object> merknadParametere, VilkårUtfallMerknad vilkårUtfallMerknad) {
+        this(generisk.vilkårType, generisk.utfallType, merknadParametere, generisk.aksjonspunktDefinisjoner, vilkårUtfallMerknad,
+            null, null, null);
+    }
+
 }

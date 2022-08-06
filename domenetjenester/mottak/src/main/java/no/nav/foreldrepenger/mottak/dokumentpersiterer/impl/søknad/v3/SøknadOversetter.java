@@ -340,22 +340,27 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     private void byggYtelsesSpesifikkeFelter(SøknadWrapper skjemaWrapper,
                                              Behandling behandling,
                                              SøknadEntitet.Builder søknadBuilder) {
+        var søknadMottattDato = skjemaWrapper.getSkjema().getMottattDato();
         if (skjemaWrapper.getOmYtelse() instanceof Foreldrepenger omYtelse) {
             var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
                 .medOppgittDekningsgrad(oversettDekningsgrad(omYtelse))
                 .medOppgittFordeling(
-                    oversettFordeling(behandling, omYtelse, skjemaWrapper.getSkjema().getMottattDato()));
+                    oversettFordeling(behandling, omYtelse, søknadMottattDato));
             oversettRettighet(omYtelse).ifPresent(r -> yfBuilder.medOppgittRettighet(r));
             ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
         } else if (skjemaWrapper.getOmYtelse() instanceof Svangerskapspenger svangerskapspenger) {
-            oversettOgLagreTilrettelegging(svangerskapspenger, søknadBuilder, behandling);
+            oversettOgLagreTilrettelegging(svangerskapspenger, søknadBuilder, behandling, søknadMottattDato);
         }
     }
 
     private void oversettOgLagreTilrettelegging(Svangerskapspenger svangerskapspenger,
                                                 SøknadEntitet.Builder søknadBuilder,
-                                                Behandling behandling) {
+                                                Behandling behandling, LocalDate søknadMottattDato) {
 
+        var brukMottattTidspunkt = Optional.ofNullable(søknadMottattDato)
+            .filter(d -> !d.equals(behandling.getOpprettetTidspunkt().toLocalDate()))
+            .map(LocalDate::atStartOfDay)
+            .orElseGet(behandling::getOpprettetTidspunkt);
         var svpBuilder = new SvpGrunnlagEntitet.Builder().medBehandlingId(behandling.getId());
         List<SvpTilretteleggingEntitet> tilrettelegginger = new ArrayList<>();
 
@@ -366,7 +371,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             var builder = new SvpTilretteleggingEntitet.Builder();
             builder.medBehovForTilretteleggingFom(tilrettelegging.getBehovForTilretteleggingFom())
                 .medKopiertFraTidligereBehandling(false)
-                .medMottattTidspunkt(behandling.getOpprettetTidspunkt());
+                .medMottattTidspunkt(brukMottattTidspunkt);
 
             if (tilrettelegging.getHelTilrettelegging() != null) {
                 tilrettelegging.getHelTilrettelegging()
@@ -402,6 +407,8 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             List<SvpTilretteleggingEntitet> gamle =
                 eg.getOpprinneligeTilrettelegginger() != null ? eg.getOpprinneligeTilrettelegginger()
                     .getTilretteleggingListe() : Collections.emptyList();
+            // TODO - hva med gamle tilretteleggingFom for samme aktivitet? Bør de ikke merges med ny? Når gjør SBH manuell fletting
+            // TODO - Dessuten merging av behovFom. Tenk sekvens 19/10 + 60% arbeid, 19/11 + 40% arb. Så ny søknad 2/2 + 10% arbeid.
             gamle.stream()
                 .filter(tlg -> tilrettelegginger.stream().noneMatch(tlg2 -> gjelderSammeArbeidsforhold(tlg, tlg2)))
                 .forEach(tilrettelegging -> {

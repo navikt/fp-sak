@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.skjæringstidspunkt.svp;
 
-import static no.nav.foreldrepenger.skjæringstidspunkt.svp.BeregnTilrettleggingsdato.beregn;
-
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -26,8 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Svanger
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -106,13 +103,13 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
     private LocalDate førsteØnskedeUttaksdag(Behandling behandling) {
         var førsteUttakSøknad = svangerskapspengerRepository.hentGrunnlag(behandling.getId())
-            .map(this::utledBasertPåGrunnlag);
+            .map(SkjæringstidspunktTjenesteImpl::utledBasertPåGrunnlag);
 
         if (behandling.erRevurdering()) {
             final var førsteUttaksdagIForrigeVedtak = finnFørsteDatoMedUttak(behandling);
             if (førsteUttaksdagIForrigeVedtak.isEmpty() && førsteUttakSøknad.isEmpty()) {
                 return svangerskapspengerRepository.hentGrunnlag(originalBehandling(behandling))
-                    .map(this::utledBasertPåGrunnlag)
+                    .map(SkjæringstidspunktTjenesteImpl::utledBasertPåGrunnlag)
                     .orElseThrow(() -> finnerIkkeStpException(behandling.getId()));
             }
             final var skjæringstidspunkt = utledTidligste(førsteUttakSøknad.orElse(Tid.TIDENES_ENDE),
@@ -135,36 +132,12 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             "Finner ikke skjæringstidspunkt for svangerskapspenger som forventet for behandling=" + behandlingId);
     }
 
-    LocalDate utledBasertPåGrunnlag(SvpGrunnlagEntitet grunnlag) {
-        Optional<LocalDate> tidligsteTilretteleggingsDatoOpt = Optional.ofNullable(grunnlag.getOverstyrteTilrettelegginger())
-            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
-            .flatMap(this::tidligsteDatoFraTIlrettelegging)
-            .or(() -> Optional.ofNullable(grunnlag.getOpprinneligeTilrettelegginger())
-                .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
-                .flatMap(this::tidligsteDatoFraTIlrettelegging));
-        return tidligsteTilretteleggingsDatoOpt.orElseThrow(() -> new IllegalStateException("Klarte ikke finne skjæringstidspunkt for SVP"));
-    }
-
-    Optional<LocalDate> tidligsteDatoFraTIlrettelegging(List<SvpTilretteleggingEntitet> tilrettelegginger) {
-        if (tilrettelegginger == null || tilrettelegginger.isEmpty()) {
-            return Optional.empty();
-        }
-        return tilrettelegginger.stream()
+    static LocalDate utledBasertPåGrunnlag(SvpGrunnlagEntitet grunnlag) {
+        return new TilretteleggingFilter(grunnlag).getAktuelleTilretteleggingerFiltrert().stream()
             .filter(SvpTilretteleggingEntitet::getSkalBrukes)
-            .map(aktuelle -> beregn(aktuelle.getBehovForTilretteleggingFom(),
-            aktuelle.getTilretteleggingFOMListe().stream()
-                .filter(tl -> tl.getType().equals(TilretteleggingType.HEL_TILRETTELEGGING))
-                .map(TilretteleggingFOM::getFomDato)
-                .min(LocalDate::compareTo),
-            aktuelle.getTilretteleggingFOMListe().stream()
-                .filter(tl -> tl.getType().equals(TilretteleggingType.DELVIS_TILRETTELEGGING))
-                .map(TilretteleggingFOM::getFomDato)
-                .min(LocalDate::compareTo),
-            aktuelle.getTilretteleggingFOMListe().stream()
-                .filter(tl -> tl.getType().equals(TilretteleggingType.INGEN_TILRETTELEGGING))
-                .map(TilretteleggingFOM::getFomDato)
-                .min(LocalDate::compareTo)))
-            .min(Comparator.naturalOrder());
+            .map(BeregnTilrettleggingsdato::beregnFraTilrettelegging)
+            .min(Comparator.naturalOrder())
+            .orElseThrow(() -> new IllegalStateException("Klarte ikke finne skjæringstidspunkt for SVP"));
     }
 
     private Optional<LocalDate> finnFørsteDatoMedUttak(Behandling behandling) {

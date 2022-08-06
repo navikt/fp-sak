@@ -9,8 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
-import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -18,31 +16,20 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
-import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
+import no.nav.foreldrepenger.skjæringstidspunkt.es.SøknadsperiodeFristTjenesteImpl;
 
 public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private InngangsvilkårOversetter oversetter;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        var iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
-        var personopplysningTjeneste = new PersonopplysningTjeneste(
-            repositoryProvider.getPersonopplysningRepository());
-        oversetter = new InngangsvilkårOversetter(repositoryProvider,
-            personopplysningTjeneste, new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
-            iayTjeneste,
-            null);
     }
 
     @Test
@@ -57,17 +44,12 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        var data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
-
-        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.regelInput());
-        var elektroniskSoeknad = jsonNode.get("elektroniskSoeknad").asText();
+        var data = new InngangsvilkårEngangsstønadSøknadsfrist(new SøknadsperiodeFristTjenesteImpl(repositoryProvider)).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
         assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
         assertThat(data.merknadParametere()).isEmpty();
-        assertThat(data.regelInput()).isNotEmpty();
-        assertThat(elektroniskSoeknad).isEqualTo("true");
     }
 
     @Test
@@ -79,7 +61,7 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
             LocalDate.now());
 
         // Act
-        var data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadSøknadsfrist(new SøknadsperiodeFristTjenesteImpl(repositoryProvider)).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
@@ -98,7 +80,7 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         var behandling = mockBehandling(false, LocalDate.now().minusMonths(6), LocalDate.now());
 
         // Act
-        var data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadSøknadsfrist(new SøknadsperiodeFristTjenesteImpl(repositoryProvider)).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
@@ -218,7 +200,7 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     }
 
     private void assertOppfylt(Behandling behandling) {
-        var data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadSøknadsfrist(new SøknadsperiodeFristTjenesteImpl(repositoryProvider)).vurderVilkår(lagRef(behandling));
         assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
         assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
@@ -227,7 +209,7 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     }
 
     private void assertIkkeVurdertForSent(Behandling behandling, int dagerForSent) {
-        var data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadSøknadsfrist(new SøknadsperiodeFristTjenesteImpl(repositoryProvider)).vurderVilkår(lagRef(behandling));
         assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
         assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
 
