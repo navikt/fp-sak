@@ -11,18 +11,20 @@ import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 
 public final class BehandlingDtoUtil {
 
     static void settStandardfelterUtvidet(Behandling behandling,
+                                          BehandlingResultatType behandlingsresultat,
                                           UtvidetBehandlingDto dto,
                                           boolean erBehandlingMedGjeldendeVedtak,
                                           LocalDate vedtaksDato) {
-        setStandardfelterMedGjeldendeVedtak(behandling, dto, erBehandlingMedGjeldendeVedtak, vedtaksDato);
+        setStandardfelterMedGjeldendeVedtak(behandling, behandlingsresultat, dto, erBehandlingMedGjeldendeVedtak, vedtaksDato);
               dto.setAnsvarligBeslutter(behandling.getAnsvarligBeslutter());
-        dto.setBehandlingHenlagt(behandling.isBehandlingHenlagt());
+        dto.setBehandlingHenlagt(behandlingsresultat.erHenlagt());
     }
 
     private static Optional<String> getFristDatoBehandlingPåVent(Behandling behandling) {
@@ -49,6 +51,7 @@ public final class BehandlingDtoUtil {
     }
 
     static void setStandardfelter(Behandling behandling,
+                                  BehandlingResultatType behandlingsresultat,
                                   BehandlingDto dto,
                                   LocalDate vedtaksDato) {
         dto.setFagsakId(behandling.getFagsakId());
@@ -67,7 +70,7 @@ public final class BehandlingDtoUtil {
         dto.setBehandlingsfristTid(behandling.getBehandlingstidFrist());
         dto.setErAktivPapirsøknad(erAktivPapirsøknad(behandling));
         dto.setBehandlingPåVent(behandling.isBehandlingPåVent());
-        dto.setBehandlingHenlagt(behandling.isBehandlingHenlagt());
+        dto.setBehandlingHenlagt(behandlingsresultat.erHenlagt());
         getFristDatoBehandlingPåVent(behandling).ifPresent(dto::setFristBehandlingPåVent);
         getVenteÅrsak(behandling).ifPresent(dto::setVenteÅrsakKode);
         dto.setOriginalVedtaksDato(vedtaksDato);
@@ -78,10 +81,11 @@ public final class BehandlingDtoUtil {
     }
 
     static void setStandardfelterMedGjeldendeVedtak(Behandling behandling,
+                                                    BehandlingResultatType behandlingsresultat,
                                                     BehandlingDto dto,
                                                     boolean erBehandlingMedGjeldendeVedtak,
                                                     LocalDate vedtaksDato) {
-        setStandardfelter(behandling, dto, vedtaksDato);
+        setStandardfelter(behandling, behandlingsresultat, dto, vedtaksDato);
         dto.setGjeldendeVedtak(erBehandlingMedGjeldendeVedtak);
     }
 

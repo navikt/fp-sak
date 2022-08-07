@@ -44,7 +44,7 @@ public class DatoerGrunnlagByggerTest {
     @Test
     public void skal_ha_familiehendelsedato() {
         var familiehendelsedato = LocalDate.now().plusWeeks(3);
-        var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), null, førsteUttaksdato);
+        var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), null);
 
         var familieHendelse = FamilieHendelse.forFødsel(null, familiehendelsedato, List.of(), 0);
         var grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
@@ -54,8 +54,7 @@ public class DatoerGrunnlagByggerTest {
     @Test
     public void søker_har_ingen_dødsdato() {
         LocalDate søkersDødsdato = null;
-        var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato,
-            førsteUttaksdato);
+        var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato);
 
         var familieHendelse = FamilieHendelse.forFødsel(LocalDate.now(), null, List.of(), 0);
         var grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
@@ -66,8 +65,7 @@ public class DatoerGrunnlagByggerTest {
     public void søker_har_dødsdato() {
         var familiehendelsedato = LocalDate.now().minusWeeks(1);
         var søkersDødsdato = familiehendelsedato.plusDays(2);
-        var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato,
-            førsteUttaksdato);
+        var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato);
 
         var familieHendelse = FamilieHendelse.forFødsel(familiehendelsedato, null, List.of(), 0);
         var grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
@@ -79,8 +77,7 @@ public class DatoerGrunnlagByggerTest {
         var familiehendelsedato = LocalDate.now().plusWeeks(3);
         LocalDate søkersDødsdato = null;
         var barnsDødsdato = familiehendelsedato.plusWeeks(1);
-        var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato,
-            førsteUttaksdato);
+        var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato);
 
         var familieHendelse = FamilieHendelse.forFødsel(null, familiehendelsedato,
             List.of(new Barn(barnsDødsdato)), 1);
@@ -94,8 +91,7 @@ public class DatoerGrunnlagByggerTest {
         var familiehendelsedato = LocalDate.now().plusWeeks(3);
         LocalDate søkersDødsdato = null;
         var barnsDødsdato = familiehendelsedato.plusWeeks(1);
-        var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato,
-            førsteUttaksdato);
+        var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato);
         var familieHendelse = FamilieHendelse.forFødsel(null, familiehendelsedato,
             List.of(new Barn(barnsDødsdato), new Barn()), 1);
         var grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
@@ -112,13 +108,11 @@ public class DatoerGrunnlagByggerTest {
     }
 
     private Behandling scenarioMedDatoer(AbstractTestScenario<?> scenario,
-                                         LocalDate søkersDødsdato,
-                                         LocalDate førsteLovligeUttaksdag) {
+                                         LocalDate søkersDødsdato) {
         var behandling = scenario.lagre(repositoryProvider);
 
         leggTilSøkersDødsdato(behandling, søkersDødsdato);
-        lagreUttaksperiodegrense(repositoryProvider.getUttaksperiodegrenseRepository(), førsteLovligeUttaksdag,
-            behandling.getId());
+        lagreUttaksperiodegrense(repositoryProvider.getUttaksperiodegrenseRepository(), behandling.getId());
 
         return behandling;
     }
@@ -129,12 +123,8 @@ public class DatoerGrunnlagByggerTest {
     }
 
     private void lagreUttaksperiodegrense(UttaksperiodegrenseRepository repository,
-                                          LocalDate førsteLovligeUttaksdag,
                                           Long behandlingId) {
-        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
-        var grense = new Uttaksperiodegrense.Builder(br).medFørsteLovligeUttaksdag(førsteLovligeUttaksdag)
-            .medMottattDato(LocalDate.now().minusWeeks(2))
-            .build();
+        var grense = new Uttaksperiodegrense(LocalDate.now().minusWeeks(2));
         repository.lagre(behandlingId, grense);
     }
 

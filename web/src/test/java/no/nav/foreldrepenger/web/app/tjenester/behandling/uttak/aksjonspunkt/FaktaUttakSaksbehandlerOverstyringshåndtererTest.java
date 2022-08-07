@@ -148,11 +148,7 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
 
     private Behandling opprettRevurderingBehandlingMedAksjonspunktFaktaUttak() {
         var revurdering = opprettRevurderingBehandling(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
-        var behandlingsresultat = behandlingRepositoryProvider.getBehandlingsresultatRepository().hent(revurdering.getId());
-        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
-                .medMottattDato(LocalDate.of(2010, 1, 1))
-                .medFørsteLovligeUttaksdag(LocalDate.of(2010, 1, 1))
-                .build();
+        var uttaksperiodegrense = new Uttaksperiodegrense(LocalDate.of(2010, 1, 1));
         behandlingRepositoryProvider.getUttaksperiodegrenseRepository().lagre(revurdering.getId(), uttaksperiodegrense);
 
         var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(revurdering,
@@ -183,11 +179,7 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
         scenario.medFordeling(new OppgittFordelingEntitet(List.of(periode_1, periode_2), true));
         var førstegangsbehandling = scenario.lagre(behandlingRepositoryProvider);
 
-        var behandlingsresultat = behandlingRepositoryProvider.getBehandlingsresultatRepository().hent(førstegangsbehandling.getId());
-        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
-                .medMottattDato(LocalDate.of(2019, 1, 1))
-                .medFørsteLovligeUttaksdag(LocalDate.of(2010, 1, 1))
-                .build();
+        var uttaksperiodegrense = new Uttaksperiodegrense(LocalDate.of(2019, 1, 1));
         uttaksperiodegrenseRepository.lagre(førstegangsbehandling.getId(), uttaksperiodegrense);
 
         var revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()

@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
@@ -29,6 +30,7 @@ import no.nav.vedtak.exception.FunksjonellException;
 public class MedlemskapsvilkåretLøpendeOverstyringshåndterer extends AbstractOverstyringshåndterer<OverstyringMedlemskapsvilkåretLøpendeDto> {
 
     private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingRepository behandlingRepository;
 
     MedlemskapsvilkåretLøpendeOverstyringshåndterer() {
@@ -41,6 +43,7 @@ public class MedlemskapsvilkåretLøpendeOverstyringshåndterer extends Abstract
         super(historikkAdapter,
             AksjonspunktDefinisjon.OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET_LØPENDE);
         this.medlemskapVilkårPeriodeRepository = repositoryProvider.getMedlemskapVilkårPeriodeRepository();
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
     }
 
@@ -61,7 +64,7 @@ public class MedlemskapsvilkåretLøpendeOverstyringshåndterer extends Abstract
         var grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
         var periodeBuilder = grBuilder.getPeriodeBuilder();
 
-        var vilkårResultatBuilder = VilkårResultat.builderFraEksisterende(behandling.getBehandlingsresultat().getVilkårResultat());
+        var vilkårResultatBuilder = VilkårResultat.builderFraEksisterende(behandlingsresultatRepository.hent(behandling.getId()).getVilkårResultat());
         if (dto.getErVilkarOk()) {
             periodeBuilder.opprettOverstryingOppfylt(dto.getOverstryingsdato());
             vilkårResultatBuilder.overstyrVilkår(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT);

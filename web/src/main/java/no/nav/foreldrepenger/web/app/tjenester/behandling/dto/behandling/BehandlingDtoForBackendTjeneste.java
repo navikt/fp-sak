@@ -9,6 +9,9 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
@@ -37,12 +40,14 @@ public class BehandlingDtoForBackendTjeneste {
 
     private BehandlingVedtakRepository vedtakRepository;
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private SøknadRepository søknadRepository;
 
     @Inject
     public BehandlingDtoForBackendTjeneste(BehandlingRepositoryProvider repositoryProvider) {
         this.vedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.søknadRepository = repositoryProvider.getSøknadRepository();
     }
 
@@ -62,7 +67,9 @@ public class BehandlingDtoForBackendTjeneste {
                                                   Optional<OrganisasjonsEnhet> endretEnhet) {
         var dto = new UtvidetBehandlingDto();
         var vedtaksDato = behandlingVedtak.map(BehandlingVedtak::getVedtaksdato).orElse(null);
-        BehandlingDtoUtil.settStandardfelterUtvidet(behandling, dto, erBehandlingGjeldendeVedtak(behandling), vedtaksDato);
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
+            .map(Behandlingsresultat::getBehandlingResultatType).orElse(BehandlingResultatType.IKKE_FASTSATT);
+        BehandlingDtoUtil.settStandardfelterUtvidet(behandling, behandlingsresultat, dto, erBehandlingGjeldendeVedtak(behandling), vedtaksDato);
         if (asyncStatus != null && !asyncStatus.isPending()) {
             dto.setAsyncStatus(asyncStatus);
         }

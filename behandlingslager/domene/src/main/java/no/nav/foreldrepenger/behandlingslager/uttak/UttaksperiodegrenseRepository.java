@@ -40,6 +40,7 @@ public class UttaksperiodegrenseRepository {
             entityManager.persist(tidligere);
             entityManager.flush();
         });
+        uttaksperiodegrense.setBehandlingsresultat(behandlingsresultat);
         entityManager.persist(uttaksperiodegrense);
         verifiserBehandlingLås(lås);
         entityManager.flush();

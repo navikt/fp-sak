@@ -5,7 +5,6 @@ import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Properties;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -23,7 +22,6 @@ import javax.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
-import no.nav.vedtak.felles.jpa.converters.PropertiesToStringConverter;
 
 @Entity(name = "Vilkar")
 @Table(name = "VILKAR")
@@ -36,10 +34,6 @@ public class Vilkår extends BaseEntitet implements IndexKey {
     @ManyToOne(optional = false)
     @JoinColumn(name = "vilkar_resultat_id", nullable = false, updatable = false)
     private VilkårResultat vilkårResultat;
-
-    @Convert(converter = PropertiesToStringConverter.class)
-    @Column(name = "merknad_parametere")
-    private Properties merknadParametere = new Properties();
 
     @Version
     @Column(name = "versjon", nullable = false)
@@ -147,10 +141,6 @@ public class Vilkår extends BaseEntitet implements IndexKey {
         return id;
     }
 
-    public Properties getMerknadParametere() {
-        return merknadParametere;
-    }
-
     public VilkårType getVilkårType() {
         return vilkårType;
     }
@@ -242,15 +232,6 @@ public class Vilkår extends BaseEntitet implements IndexKey {
         this.vilkårUtfallOverstyrt = vilkårUtfallOverstyrt;
     }
 
-    void setMerknadParametere(Properties merknadParametere) {
-        if (merknadParametere != null && !merknadParametere.isEmpty()) {
-            this.merknadParametere.clear();
-            merknadParametere.entrySet().stream()
-                .filter(e -> e.getValue() instanceof String) // Tillat andre typer dersom de skal lagres
-                .forEach(e -> this.merknadParametere.setProperty((String) e.getKey(), (String) e.getValue()));
-        }
-    }
-
     void setVilkårUtfall(VilkårUtfallType vilkårUtfall) {
         this.vilkårUtfall = vilkårUtfall;
     }
@@ -267,7 +248,6 @@ public class Vilkår extends BaseEntitet implements IndexKey {
             this.getVilkårUtfallManuelt(),
             this.getVilkårUtfallOverstyrt(),
             this.getAvslagsårsak(),
-            this.getMerknadParametere(),
             this.getVilkårUtfallMerknad(),
             this.getRegelInput(),
             this.getRegelEvaluering());

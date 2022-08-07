@@ -694,10 +694,6 @@ public class Behandling extends BaseEntitet {
         this.ansvarligBeslutter = ansvarligBeslutter;
     }
 
-    public boolean isBehandlingHenlagt() {
-        return erHenlagt();
-    }
-
     public FagsakYtelseType getFagsakYtelseType() {
         return getFagsak().getYtelseType();
     }

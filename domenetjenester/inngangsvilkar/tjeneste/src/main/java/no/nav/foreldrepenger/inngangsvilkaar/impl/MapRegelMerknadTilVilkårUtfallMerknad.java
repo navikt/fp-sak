@@ -24,7 +24,6 @@ public class MapRegelMerknadTilVilkårUtfallMerknad {
         Map.entry(RegelUtfallMerknad.RVM_1028, VilkårUtfallMerknad.VM_1028),
         Map.entry(RegelUtfallMerknad.RVM_1035, VilkårUtfallMerknad.VM_1035),
         Map.entry(RegelUtfallMerknad.RVM_1051, VilkårUtfallMerknad.VM_1051),
-        Map.entry(RegelUtfallMerknad.RVM_5007, VilkårUtfallMerknad.VM_5007),
         Map.entry(RegelUtfallMerknad.UDEFINERT, VilkårUtfallMerknad.UDEFINERT));
 
     public static VilkårUtfallMerknad mapRegelMerknad(RegelUtfallMerknad merknad) {

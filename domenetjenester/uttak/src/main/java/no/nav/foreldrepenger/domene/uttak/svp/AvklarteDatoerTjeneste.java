@@ -10,8 +10,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Søknadsfrister;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
@@ -63,11 +65,8 @@ class AvklarteDatoerTjeneste {
         medlemskapOpphørsdatoOptional.ifPresent(avklarteDatoerBuilder::medOpphørsdatoForMedlemskap);
         startdatoNesteSak.ifPresent(avklarteDatoerBuilder::medStartdatoNesteSak);
 
-        if (uttaksgrense.isPresent()) {
-            avklarteDatoerBuilder.medFørsteLovligeUttaksdato(uttaksgrense.get().getFørsteLovligeUttaksdag());
-            var ferier = finnFerier(ref, uttaksgrense.get().getFørsteLovligeUttaksdag());
-            avklarteDatoerBuilder.medFerie(ferier);
-        }
+        uttaksgrense.map(Uttaksperiodegrense::getMottattDato).map(Søknadsfrister::tidligsteDatoDagytelse)
+            .ifPresent(uttakTidligst -> avklarteDatoerBuilder.medFørsteLovligeUttaksdato(uttakTidligst).medFerie(finnFerier(ref, uttakTidligst)));
 
         return avklarteDatoerBuilder.build();
     }

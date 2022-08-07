@@ -775,11 +775,7 @@ public class FastsettePerioderTjenesteTest {
     }
 
     private void opprettGrunnlag(Long behandlingId, LocalDate mottattDato) {
-        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
-        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(br)
-            .medMottattDato(mottattDato)
-            .medFørsteLovligeUttaksdag(mottattDato.withDayOfMonth(1).minusMonths(3))
-            .build();
+        var uttaksperiodegrense = new Uttaksperiodegrense(mottattDato);
 
         uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense);
 

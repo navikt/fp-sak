@@ -180,7 +180,6 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
         var gjeldendeUttaksperiodegrense = behandlingRepositoryProvider.getUttaksperiodegrenseRepository()
             .hentHvisEksisterer(behandlingId);
         assertThat(gjeldendeUttaksperiodegrense).isPresent();
-        assertThat(gjeldendeUttaksperiodegrense.get().getFørsteLovligeUttaksdag()).isEqualTo(førsteUttaksdato.plusDays(1));
         assertThat(gjeldendeUttaksperiodegrense.get().getMottattDato()).isEqualTo(mottattDato);
     }
 
@@ -224,7 +223,6 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
         var gjeldendeUttaksperiodegrense = behandlingRepositoryProvider.getUttaksperiodegrenseRepository()
             .hentHvisEksisterer(behandlingId);
         assertThat(gjeldendeUttaksperiodegrense).isPresent();
-        assertThat(gjeldendeUttaksperiodegrense.get().getFørsteLovligeUttaksdag()).isEqualTo(førsteUttaksdato);
         assertThat(gjeldendeUttaksperiodegrense.get().getMottattDato()).isEqualTo(mottattDato);
     }
 

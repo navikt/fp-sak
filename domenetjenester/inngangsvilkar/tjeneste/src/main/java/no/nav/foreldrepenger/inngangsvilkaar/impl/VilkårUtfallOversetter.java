@@ -1,22 +1,17 @@
 package no.nav.foreldrepenger.inngangsvilkaar.impl;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.MerknadRuleReasonRef;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelUtfallMerknad;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.evaluation.Resultat;
@@ -28,9 +23,6 @@ import no.nav.vedtak.exception.VLException;
 public class VilkårUtfallOversetter {
 
     private static final Logger LOG = LoggerFactory.getLogger(VilkårUtfallOversetter.class);
-
-    private static final Map<RegelUtfallMerknad, AksjonspunktDefinisjon> REGEL_TIL_AKSJONSPUNKT =
-        Map.of(RegelUtfallMerknad.RVM_5007, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET);
 
     public static VilkårData oversett(VilkårType vilkårType, Evaluation evaluation, VilkårGrunnlag grunnlag) {
         return oversett(vilkårType, evaluation, grunnlag, null);
@@ -53,11 +45,8 @@ public class VilkårUtfallOversetter {
         var vilkårReason = getVilkårUtfallMerknad(summary);
         var vilkårUtfallMerknad = vilkårReason.map(MerknadRuleReasonRef::regelUtfallMerknad)
             .map(MapRegelMerknadTilVilkårUtfallMerknad::mapRegelMerknad).orElse(null);
-        var merknadParametere = getMerknadParametere(summary);
-        var apDefinisjoner = vilkårReason.map(MerknadRuleReasonRef::regelUtfallMerknad)
-            .map(VilkårUtfallOversetter::utledAksjonspunkter).orElse(List.of());
 
-        return new VilkårData(vilkårType, vilkårUtfallType, merknadParametere, apDefinisjoner, vilkårUtfallMerknad,
+        return new VilkårData(vilkårType, vilkårUtfallType, vilkårUtfallMerknad, List.of(),
             regelEvalueringJson, jsonGrunnlag, ekstraData);
 
     }
@@ -76,22 +65,6 @@ public class VilkårUtfallOversetter {
         } else {
             return Optional.of(leafReasons.get(0));
         }
-    }
-
-    private static List<AksjonspunktDefinisjon> utledAksjonspunkter(RegelUtfallMerknad merknad) {
-        return Optional.ofNullable(merknad)
-            .map(REGEL_TIL_AKSJONSPUNKT::get)
-            .map(List::of)
-            .orElse(List.of());
-    }
-
-    private static Map<String, Object> getMerknadParametere(EvaluationSummary summary) {
-        Map<String, Object> params = new TreeMap<>();
-        summary.leafEvaluations().stream()
-            .map(Evaluation::getEvaluationProperties)
-            .filter(Objects::nonNull)
-            .forEach(params::putAll);
-        return params;
     }
 
     private static VilkårUtfallType getVilkårUtfallType(VilkårType vilkårType, EvaluationSummary summary) {

@@ -109,9 +109,9 @@ class DokumentmottakerInntektsmelding extends DokumentmottakerYtelsesesrelatertD
     public void opprettFraTidligereAvsluttetBehandling(Fagsak fagsak, Long behandlingId, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType, boolean opprettSomKøet) {
         var avsluttetBehandling = behandlingRepository.hentBehandling(behandlingId);
         var harÅpenBehandling = revurderingRepository.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsak.getId()).filter(b -> !b.erSaksbehandlingAvsluttet()).isPresent();
-        if (harÅpenBehandling || !(erAvslag(avsluttetBehandling) || avsluttetBehandling.isBehandlingHenlagt())) {
+        if (harÅpenBehandling || !(erAvslag(avsluttetBehandling) || dokumentmottakerFelles.erBehandlingHenlagt(avsluttetBehandling.getId()))) {
             LOG.warn("Ignorerer forsøk på å opprette ny førstegangsbehandling fra tidligere avsluttet id={} på fagsak={}, der harÅpenBehandling={}, avsluttetHarAvslag={}, avsluttetErHenlagt={}",
-                behandlingId, fagsak.getId(), harÅpenBehandling, erAvslag(avsluttetBehandling), avsluttetBehandling.isBehandlingHenlagt());
+                behandlingId, fagsak.getId(), harÅpenBehandling, erAvslag(avsluttetBehandling), dokumentmottakerFelles.erBehandlingHenlagt(avsluttetBehandling.getId()));
             return;
         }
         var nyBehandling = dokumentmottakerFelles.opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.of(avsluttetBehandling));

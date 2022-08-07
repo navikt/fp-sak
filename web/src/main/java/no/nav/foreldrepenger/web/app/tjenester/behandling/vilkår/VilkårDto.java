@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår;
 
-import java.util.Properties;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonRawValue;
@@ -13,7 +11,6 @@ public class VilkårDto {
 
     private VilkårType vilkarType;
     private VilkårUtfallType vilkarStatus;
-    private Properties merknadParametere;
     private String avslagKode;
     private String lovReferanse;
     private Boolean overstyrbar;
@@ -26,15 +23,12 @@ public class VilkårDto {
     @JsonInclude(Include.NON_NULL)
     private String input;
 
-    public VilkårDto(
-                     VilkårType vilkårType,
+    public VilkårDto(VilkårType vilkårType,
                      VilkårUtfallType vilkårUtfallType,
-                     Properties merknadParametere,
                      String avslagKode,
                      String lovReferanse) {
         this.vilkarType = vilkårType;
         this.vilkarStatus = vilkårUtfallType;
-        this.merknadParametere = merknadParametere;
         this.avslagKode = avslagKode;
         this.lovReferanse = lovReferanse;
     }
@@ -48,10 +42,6 @@ public class VilkårDto {
 
     public VilkårUtfallType getVilkarStatus() {
         return vilkarStatus;
-    }
-
-    public Properties getMerknadParametere() {
-        return merknadParametere;
     }
 
     public String getAvslagKode() {
@@ -76,10 +66,6 @@ public class VilkårDto {
 
     public void setVilkarStatus(VilkårUtfallType vilkarStatus) {
         this.vilkarStatus = vilkarStatus;
-    }
-
-    public void setMerknadParametere(Properties merknadParametere) {
-        this.merknadParametere = merknadParametere;
     }
 
     public void setAvslagKode(String avslagKode) {

@@ -49,10 +49,10 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
@@ -369,11 +369,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         var funnetUttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(origBehandling.getId());
         if (funnetUttaksperiodegrense.isPresent()) {
             var origGrense = funnetUttaksperiodegrense.get();
-            var behandlingsresultat = behandlingsresultatRepository.hent(revurdering.getId());
-            var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
-                    .medFørsteLovligeUttaksdag(origGrense.getFørsteLovligeUttaksdag())
-                    .medMottattDato(origGrense.getMottattDato())
-                    .build();
+            var uttaksperiodegrense = new Uttaksperiodegrense(origGrense.getMottattDato());
             uttaksperiodegrenseRepository.lagre(revurdering.getId(), uttaksperiodegrense);
             return behandlingRepository.hentBehandling(revurdering.getId());
         }

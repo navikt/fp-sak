@@ -410,10 +410,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
         // Legg til Uttaksperiodegrense -> dessverre ikke tilgjengelig i scenariobygger
         var lås = behandlingRepository.taSkriveLås(originalBehandling);
         behandlingRepository.lagre(originalBehandling, lås);
-        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(originalBehandling.getBehandlingsresultat())
-                .medFørsteLovligeUttaksdag(LocalDate.now())
-                .medMottattDato(LocalDate.now())
-                .build();
+        var uttaksperiodegrense = new Uttaksperiodegrense(LocalDate.now());
         repositoryProvider.getUttaksperiodegrenseRepository().lagre(originalBehandling.getId(), uttaksperiodegrense);
         // Legg til Opptjeningsperidoe -> dessverre ikke tilgjengelig i scenariobygger
         repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(originalBehandling, LocalDate.now().minusYears(1), LocalDate.now(),

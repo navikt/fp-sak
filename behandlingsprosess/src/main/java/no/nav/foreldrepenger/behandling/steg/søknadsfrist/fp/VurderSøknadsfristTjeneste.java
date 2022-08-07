@@ -8,8 +8,8 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.Søknadsfrister;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
-import no.nav.foreldrepenger.skjæringstidspunkt.Søknadsfrister;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SøknadsperiodeFristTjenesteImpl;
 
 @ApplicationScoped
@@ -28,14 +27,12 @@ import no.nav.foreldrepenger.skjæringstidspunkt.fp.SøknadsperiodeFristTjeneste
 public class VurderSøknadsfristTjeneste {
 
     private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
     private SøknadRepository søknadRepository;
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     @Inject
     public VurderSøknadsfristTjeneste(BehandlingRepositoryProvider repositoryProvider) {
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.uttaksperiodegrenseRepository = repositoryProvider.getUttaksperiodegrenseRepository();
     }
@@ -60,11 +57,7 @@ public class VurderSøknadsfristTjeneste {
         var søknadMottattDato = søknadRepository.hentSøknad(behandlingId).getMottattDato();
         var tidligsteLovligeUttakDato = Søknadsfrister.tidligsteDatoDagytelse(søknadMottattDato);
 
-        var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
-        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
-            .medFørsteLovligeUttaksdag(tidligsteLovligeUttakDato)
-            .medMottattDato(søknadMottattDato)
-            .build();
+        var uttaksperiodegrense = new Uttaksperiodegrense(søknadMottattDato);
         uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense);
 
         var førsteUttaksdato = finnFørsteUttaksdato(oppgittePerioder, søknadMottattDato).orElse(null);

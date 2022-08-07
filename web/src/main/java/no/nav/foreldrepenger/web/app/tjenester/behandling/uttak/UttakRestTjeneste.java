@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAk
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerFaktaPeriodeTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.SaldoerDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.SvangerskapspengerUttakResultatDtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.UttakPeriodegrenseDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.UttakPerioderDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
@@ -47,7 +46,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KreverSammen
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SvangerskapspengerUttakResultatDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UtenMinsterettDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakPeriodegrenseDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPerioderDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -65,8 +63,6 @@ public class UttakRestTjeneste {
     public static final String FAKTA_ARBEIDSFORHOLD_PATH = BASE_PATH + FAKTA_ARBEIDSFORHOLD_PART_PATH;
     private static final String RESULTAT_SVANGERSKAPSPENGER_PART_PATH = "/resultat-svangerskapspenger";
     public static final String RESULTAT_SVANGERSKAPSPENGER_PATH = BASE_PATH + RESULTAT_SVANGERSKAPSPENGER_PART_PATH;
-    private static final String PERIODE_GRENSE_PART_PATH = "/periode-grense";
-    public static final String PERIODE_GRENSE_PATH = BASE_PATH + PERIODE_GRENSE_PART_PATH;
     private static final String RESULTAT_PERIODER_PART_PATH = "/resultat-perioder";
     public static final String RESULTAT_PERIODER_PATH = BASE_PATH + RESULTAT_PERIODER_PART_PATH;
     private static final String KONTROLLER_FAKTA_PERIODER_PART_PATH = "/kontroller-fakta-perioder";
@@ -88,7 +84,6 @@ public class UttakRestTjeneste {
     private SaldoerDtoTjeneste saldoerDtoTjeneste;
     private KontrollerFaktaPeriodeTjeneste kontrollerFaktaPeriodeTjeneste;
     private UttakPerioderDtoTjeneste uttakResultatPerioderDtoTjeneste;
-    private UttakPeriodegrenseDtoTjeneste uttakPeriodegrenseDtoTjeneste;
     private SvangerskapspengerUttakResultatDtoTjeneste svpUttakResultatDtoTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
     private KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste;
@@ -99,12 +94,10 @@ public class UttakRestTjeneste {
                              SaldoerDtoTjeneste saldoerDtoTjeneste,
                              KontrollerFaktaPeriodeTjeneste kontrollerFaktaPeriodeTjeneste,
                              UttakPerioderDtoTjeneste uttakResultatPerioderDtoTjeneste,
-                             UttakPeriodegrenseDtoTjeneste uttakPeriodegrenseDtoTjeneste,
                              SvangerskapspengerUttakResultatDtoTjeneste svpUttakResultatDtoTjeneste,
                              UttakInputTjeneste uttakInputTjeneste,
                              KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste,
                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
-        this.uttakPeriodegrenseDtoTjeneste = uttakPeriodegrenseDtoTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.kontrollerFaktaPeriodeTjeneste = kontrollerFaktaPeriodeTjeneste;
@@ -180,17 +173,6 @@ public class UttakRestTjeneste {
         var behandling = hentBehandling(uuidDto);
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         return uttakResultatPerioderDtoTjeneste.mapFra(behandling, skjæringstidspunkt);
-    }
-
-    @GET
-    @Path(PERIODE_GRENSE_PART_PATH)
-    @Operation(description = "Henter uttakperiodegrense", summary = "Returnerer uttakperiodegrense", tags = "uttak")
-    @BeskyttetRessurs(action = READ, resource = FAGSAK)
-    public UttakPeriodegrenseDto hentUttakPeriodegrense(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var behandling = hentBehandling(uuidDto);
-        var input = uttakInputTjeneste.lagInput(behandling);
-        return uttakPeriodegrenseDtoTjeneste.mapFra(input).orElse(null);
     }
 
     @GET

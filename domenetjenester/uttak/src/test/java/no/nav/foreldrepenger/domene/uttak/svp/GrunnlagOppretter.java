@@ -45,11 +45,8 @@ class GrunnlagOppretter {
             .build();
     }
 
-    void lagreUttaksgrenser(Long behandlingId, LocalDate førsteLovligeUttaksdag, LocalDate mottaksdato) {
-        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId))
-            .medFørsteLovligeUttaksdag(førsteLovligeUttaksdag)
-            .medMottattDato(mottaksdato)
-            .build();
+    void lagreUttaksgrenser(Long behandlingId, LocalDate mottaksdato) {
+        var uttaksperiodegrense = new Uttaksperiodegrense(mottaksdato);
         repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandlingId, uttaksperiodegrense);
     }
 }

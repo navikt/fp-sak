@@ -166,10 +166,7 @@ public class UttakRevurderingTestUtil {
     }
 
     private void lagreUttaksperiodegrense(Long behandlingId) {
-        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
-        var grense = new Uttaksperiodegrense.Builder(br).medFørsteLovligeUttaksdag(LocalDate.of(2018, 1, 1))
-            .medMottattDato(FØDSELSDATO)
-            .build();
+        var grense = new Uttaksperiodegrense(FØDSELSDATO);
         repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandlingId, grense);
     }
 

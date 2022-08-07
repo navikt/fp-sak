@@ -505,10 +505,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
     }
 
     private void lagreUttaksperiodegrense(UttaksperiodegrenseRepository repository, Long behandlingId) {
-        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
-        var grense = new Uttaksperiodegrense.Builder(br).medFørsteLovligeUttaksdag(LocalDate.now().minusMonths(6))
-            .medMottattDato(LocalDate.now().minusWeeks(2))
-            .build();
+        var grense = new Uttaksperiodegrense(LocalDate.now().minusWeeks(2));
         repository.lagre(behandlingId, grense);
     }
 

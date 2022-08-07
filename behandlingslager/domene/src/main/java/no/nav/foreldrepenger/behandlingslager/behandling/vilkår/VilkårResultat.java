@@ -329,7 +329,6 @@ public class VilkårResultat extends BaseEntitet {
                 .medUtfallOverstyrt(vilkår.getVilkårUtfallOverstyrt(), vilkår.getAvslagsårsak())
                 .medUtfallManuell(skalKopiereManuellVurdering ? vilkår.getVilkårUtfallManuelt() : VilkårUtfallType.UDEFINERT,
                     skalKopiereManuellVurdering ? vilkår.getAvslagsårsak() : Avslagsårsak.UDEFINERT)
-                .medMerknadParametere(vilkår.getMerknadParametere())
                 .medRegelEvaluering(vilkår.getRegelEvaluering())
                 .medRegelInput(vilkår.getRegelInput());
             if (settTilIkkeVurdert) {

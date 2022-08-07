@@ -29,10 +29,7 @@ public class UttaksperiodegrenseRepositoryTest extends EntityManagerAwareTest {
     public void skal_lagre_og_sette_uttaksperiodegrense_inaktiv() {
         // Arrange
         var behandlingsresultat = lagBehandlingMedResultat();
-        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
-            .medMottattDato(LocalDate.now())
-            .medFørsteLovligeUttaksdag((LocalDate.now().minusDays(5)))
-            .build();
+        var uttaksperiodegrense = new Uttaksperiodegrense(LocalDate.now());
 
         // Act
         var behandlingId = behandlingsresultat.getBehandlingId();
@@ -52,14 +49,8 @@ public class UttaksperiodegrenseRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void ikke_lagre_duplikate_aktive_hvis_ingen_endring() {
         var behandlingsresultat = lagBehandlingMedResultat();
-        var uttaksperiodegrense1 = new Uttaksperiodegrense.Builder(behandlingsresultat)
-            .medMottattDato(LocalDate.now())
-            .medFørsteLovligeUttaksdag((LocalDate.now().minusDays(5)))
-            .build();
-        var uttaksperiodegrense2 = new Uttaksperiodegrense.Builder(behandlingsresultat)
-            .medMottattDato(uttaksperiodegrense1.getMottattDato())
-            .medFørsteLovligeUttaksdag(uttaksperiodegrense1.getFørsteLovligeUttaksdag())
-            .build();
+        var uttaksperiodegrense1 = new Uttaksperiodegrense(LocalDate.now());
+        var uttaksperiodegrense2 = new Uttaksperiodegrense(uttaksperiodegrense1.getMottattDato());
 
         var behandlingId = behandlingsresultat.getBehandlingId();
         uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense1);

@@ -12,6 +12,7 @@ import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.Søknadsfrister;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -71,7 +72,7 @@ public class VurderSøknadsfristOppdatererTjenesteFPTest {
         var uttaksperiodegrense = uttaksperiodegrenseRepository.hent(behandling.getId());
         assertThat(uttaksperiodegrense.getErAktivt()).isTrue();
         assertThat(uttaksperiodegrense.getMottattDato()).isEqualTo(nyMottattDato);
-        assertThat(uttaksperiodegrense.getFørsteLovligeUttaksdag()).isEqualTo(førsteLovligeUttaksdag);
+        assertThat(Søknadsfrister.tidligsteDatoDagytelse(uttaksperiodegrense.getMottattDato())).isEqualTo(førsteLovligeUttaksdag);
     }
 
     private AksjonspunktOppdaterParameter aksjonspunktParam(Behandling behandling, BekreftetAksjonspunktDto dto) {
@@ -83,14 +84,9 @@ public class VurderSøknadsfristOppdatererTjenesteFPTest {
     public void skal_oppdatere_behandlingsresultat_med_eksisterende_uttaksperiodegrense(EntityManager em) {
         // Arrange
         var gammelMottatDato = LocalDate.of(2018, 3, 15);
-        var gammelFørsteLovligeUttaksdag = LocalDate.of(2017, 3, 15);
 
         var behandling = byggBehandlingMedYf(em);
-        var br = behandlingsresultatRepository.hent(behandling.getId());
-        var gammelUttaksperiodegrense = new Uttaksperiodegrense.Builder(br)
-                .medFørsteLovligeUttaksdag(gammelFørsteLovligeUttaksdag)
-                .medMottattDato(gammelMottatDato)
-                .build();
+        var gammelUttaksperiodegrense = new Uttaksperiodegrense(gammelMottatDato);
         uttaksperiodegrenseRepository.lagre(behandling.getId(), gammelUttaksperiodegrense);
 
         var nyMottattDato = LocalDate.of(2018, 2, 28);
@@ -105,7 +101,7 @@ public class VurderSøknadsfristOppdatererTjenesteFPTest {
         var uttaksperiodegrense = uttaksperiodegrenseRepository.hent(behandling.getId());
         assertThat(uttaksperiodegrense.getErAktivt()).isTrue();
         assertThat(uttaksperiodegrense.getMottattDato()).isEqualTo(nyMottattDato);
-        assertThat(uttaksperiodegrense.getFørsteLovligeUttaksdag()).isEqualTo(førsteLovligeUttaksdag);
+        assertThat(Søknadsfrister.tidligsteDatoDagytelse(uttaksperiodegrense.getMottattDato())).isEqualTo(førsteLovligeUttaksdag);
     }
 
     @Test
@@ -170,10 +166,8 @@ public class VurderSøknadsfristOppdatererTjenesteFPTest {
                 .medMottattDato(mødrekvote.getFom())
                 .build();
         søknadRepository.lagreOgFlush(behandling, søknad);
-        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultatRepository.hent(behandling.getId()))
-                .medFørsteLovligeUttaksdag(mødrekvote.getFom().minusYears(1))
-                .medMottattDato(mødrekvote.getFom());
-        uttaksperiodegrenseRepository.lagre(behandling.getId(), uttaksperiodegrense.build());
+        var uttaksperiodegrense = new Uttaksperiodegrense(mødrekvote.getFom());
+        uttaksperiodegrenseRepository.lagre(behandling.getId(), uttaksperiodegrense);
         return behandling;
     }
 

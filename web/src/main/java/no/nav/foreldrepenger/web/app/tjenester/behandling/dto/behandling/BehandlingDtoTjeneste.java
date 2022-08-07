@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -154,7 +155,9 @@ public class BehandlingDtoTjeneste {
                                            BehandlingRepository behandlingRepository) {
         var dto = new BehandlingDto();
         var uuidDto = new UuidDto(behandling.getUuid());
-        BehandlingDtoUtil.setStandardfelterMedGjeldendeVedtak(behandling, dto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
+        var behandlingsresultat = Optional.ofNullable(getBehandlingsresultat(behandling.getId()))
+            .map(Behandlingsresultat::getBehandlingResultatType).orElse(BehandlingResultatType.IKKE_FASTSATT);
+        BehandlingDtoUtil.setStandardfelterMedGjeldendeVedtak(behandling, behandlingsresultat, dto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
         dto.setSpråkkode(getSpråkkode(behandling, søknadRepository, behandlingRepository));
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
 
@@ -219,8 +222,8 @@ public class BehandlingDtoTjeneste {
         return behandlinger.stream().map(behandling -> {
             var erBehandlingMedGjeldendeVedtak = erBehandlingMedGjeldendeVedtak(behandling, behandlingMedGjeldendeVedtak);
             var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
-            var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).map(BehandlingVedtak::getVedtaksdato)
-                .orElse(null);
+            var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
+                .map(BehandlingVedtak::getVedtaksdato).orElse(null);
             return lagBehandlingDto(behandling, behandlingsresultatDto, erBehandlingMedGjeldendeVedtak,
                 søknadRepository, vedtaksdato, behandlingRepository);
         }).collect(Collectors.toList());
@@ -246,7 +249,9 @@ public class BehandlingDtoTjeneste {
         var vedtaksDato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
             .map(BehandlingVedtak::getVedtaksdato)
             .orElse(null);
-        BehandlingDtoUtil.settStandardfelterUtvidet(behandling, dto, erBehandlingMedGjeldendeVedtak, vedtaksDato);
+        var behandlingsresultat = Optional.ofNullable(getBehandlingsresultat(behandling.getId()))
+            .map(Behandlingsresultat::getBehandlingResultatType).orElse(BehandlingResultatType.IKKE_FASTSATT);
+        BehandlingDtoUtil.settStandardfelterUtvidet(behandling, behandlingsresultat, dto, erBehandlingMedGjeldendeVedtak, vedtaksDato);
         dto.setSpråkkode(getSpråkkode(behandling, søknadRepository, behandlingRepository));
         var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
@@ -385,7 +390,6 @@ public class BehandlingDtoTjeneste {
                 dto.leggTil(get(UttakRestTjeneste.FAKTA_ARBEIDSFORHOLD_PATH, "fakta-arbeidsforhold", uuidDto));
             }
 
-            dto.leggTil(get(UttakRestTjeneste.PERIODE_GRENSE_PATH, "uttak-periode-grense", uuidDto));
             dto.leggTil(get(UttakRestTjeneste.KONTROLLER_FAKTA_PERIODER_PATH, "uttak-kontroller-fakta-perioder", uuidDto));
 
             if (ArbeidsforholdInntektsmeldingToggleTjeneste.erTogglePå()) {

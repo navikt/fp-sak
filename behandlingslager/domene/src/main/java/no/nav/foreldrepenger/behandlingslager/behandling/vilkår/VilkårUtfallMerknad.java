@@ -38,8 +38,8 @@ public enum VilkårUtfallMerknad implements Kodeverdi {
 
     VM_1051("1051", "Stebarnsadopsjon ikke flere dager igjen"),
 
+    @Deprecated
     VM_5007("5007", "søknadsfristvilkåret"),
-
     @Deprecated
     VM_1021("1021", "Bruker er ikke registrert i TPS som bosatt i Norge"), // UTGÅTT, finnes i DB
     @Deprecated

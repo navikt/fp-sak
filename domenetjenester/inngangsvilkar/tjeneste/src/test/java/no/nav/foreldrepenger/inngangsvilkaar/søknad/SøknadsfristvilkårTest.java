@@ -49,7 +49,6 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
         assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
-        assertThat(data.merknadParametere()).isEmpty();
     }
 
     @Test
@@ -68,10 +67,6 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
 
         assertThat(data.aksjonspunktDefinisjoner()).contains(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET);
-        assertThat(data.merknadParametere())
-            .containsOnlyKeys("antallDagerSoeknadLevertForSent")
-            .containsEntry("antallDagerSoeknadLevertForSent", String.valueOf(ANTALL_DAGER_SOKNAD_LEVERT_FOR_SENT));
-
     }
 
     @Test
@@ -85,7 +80,6 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
         assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
-        assertThat(data.merknadParametere()).isEmpty();
     }
 
     private Behandling mockBehandling(boolean elektronisk, LocalDate mottakDato, LocalDate omsorgsovertakelsesDato) {
@@ -205,7 +199,6 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
         assertThat(data.aksjonspunktDefinisjoner()).isEmpty();
-        assertThat(data.merknadParametere()).isEmpty();
     }
 
     private void assertIkkeVurdertForSent(Behandling behandling, int dagerForSent) {
@@ -214,9 +207,6 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
 
         assertThat(data.aksjonspunktDefinisjoner()).contains(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET);
-        assertThat(data.merknadParametere())
-            .containsOnlyKeys("antallDagerSoeknadLevertForSent")
-            .containsEntry("antallDagerSoeknadLevertForSent", String.valueOf(dagerForSent));
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
