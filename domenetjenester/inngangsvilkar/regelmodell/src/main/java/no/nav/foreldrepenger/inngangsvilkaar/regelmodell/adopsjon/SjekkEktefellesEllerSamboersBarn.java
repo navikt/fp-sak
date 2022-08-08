@@ -11,7 +11,7 @@ class SjekkEktefellesEllerSamboersBarn extends LeafSpecification<Adopsjonsvilkå
     static final String ID_ES = "FP_VK_4.3";
     static final String ID_FP = "FP_VK_16.2";
 
-    static final RuleReasonRef IKKE_OPPFYLT_ADOPSJON_AV_EKTEFELLE_ELLER_SAMBOERS_BARN =
+    static final MerknadRuleReasonRef IKKE_OPPFYLT_ADOPSJON_AV_EKTEFELLE_ELLER_SAMBOERS_BARN =
         new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1005, "Adopsjon av ektefelles eller samboers barn.");
 
     SjekkEktefellesEllerSamboersBarn(String id) {

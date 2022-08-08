@@ -10,7 +10,7 @@ class SjekkOmStønadsperiodeForAnnenForelderErBruktOpp extends LeafSpecification
 
     static final String ID = "FP_VK_16";
 
-    static final RuleReasonRef STEBARNSADOPSJON_IKKE_FLERE_DAGER_IGJEN =
+    static final MerknadRuleReasonRef STEBARNSADOPSJON_IKKE_FLERE_DAGER_IGJEN =
         new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1051, "Stebarnsadopsjon ikke flere dager igjen");
 
 

@@ -12,7 +12,7 @@ public class SjekkBrukerErAvklartSomIkkeMedlem extends LeafSpecification<Medlems
 
     static final String ID = "FP_VK_2.13";
 
-    static final RuleReasonRef IKKE_OPPFYLT_BRUKER_ER_OPPFØRT_SOM_IKKE_MEDLEM =
+    static final MerknadRuleReasonRef IKKE_OPPFYLT_BRUKER_ER_OPPFØRT_SOM_IKKE_MEDLEM =
         new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1020, "Bruker er registrert som ikke medlem.");
 
     SjekkBrukerErAvklartSomIkkeMedlem() {

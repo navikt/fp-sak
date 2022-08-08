@@ -9,8 +9,8 @@ public class IkkeOppfylt extends LeafSpecification {
 
     private RuleReasonRef ruleReasonRef;
 
-    public IkkeOppfylt(RuleReasonRef ruleReasonRef){
-        super(ruleReasonRef.getReasonCode());
+    public IkkeOppfylt(MerknadRuleReasonRef ruleReasonRef){
+        super(ruleReasonRef.regelUtfallMerknad().getKode());
         this.ruleReasonRef = ruleReasonRef;
     }
     @Override

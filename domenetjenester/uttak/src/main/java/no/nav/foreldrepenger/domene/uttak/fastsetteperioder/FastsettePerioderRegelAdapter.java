@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.regler.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FastsettePeriodeResultat;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FastsettePerioderRegelOrkestrering;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RegelGrunnlag;
-import no.nav.foreldrepenger.regler.uttak.konfig.FeatureToggles;
 
 @ApplicationScoped
 public class FastsettePerioderRegelAdapter {
@@ -45,7 +44,7 @@ public class FastsettePerioderRegelAdapter {
         var grunnlag = regelGrunnlagBygger.byggGrunnlag(input);
         List<FastsettePeriodeResultat> resultat;
         try {
-            resultat = REGEL.fastsettePerioder(grunnlag, new FeatureTogglesImpl());
+            resultat = REGEL.fastsettePerioder(grunnlag);
         } catch (Exception e) {
             log(grunnlag);
             throw new RuntimeException("Automatisk fastsetting av uttak feilet", e);
@@ -60,9 +59,6 @@ public class FastsettePerioderRegelAdapter {
         } catch (JsonProcessingException jsonProcessingException) {
             LOG.warn("Feil ved logging av regelgrunnlaget", jsonProcessingException);
         }
-    }
-
-    private static class FeatureTogglesImpl implements FeatureToggles {
     }
 }
 

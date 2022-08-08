@@ -12,7 +12,7 @@ public class SjekkBrukerErAvklartMedLovligOpphold extends LeafSpecification<Medl
 
     static final String ID = "FP_VK_2.12.1";
 
-    static final RuleReasonRef IKKE_OPPFYLT_BRUKER_HAR_IKKE_LOVLIG_OPPHOLD =
+    static final MerknadRuleReasonRef IKKE_OPPFYLT_BRUKER_HAR_IKKE_LOVLIG_OPPHOLD =
         new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1023, "Bruker har ikke lovlig opphold.");
 
     SjekkBrukerErAvklartMedLovligOpphold() {
