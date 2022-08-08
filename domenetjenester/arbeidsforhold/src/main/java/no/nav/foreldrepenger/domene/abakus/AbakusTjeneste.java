@@ -26,16 +26,14 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
-import no.nav.abakus.iaygrunnlag.IayGrunnlagJsonMapper;
+import no.nav.abakus.iaygrunnlag.JsonObjectMapper;
 import no.nav.abakus.iaygrunnlag.UuidDto;
 import no.nav.abakus.iaygrunnlag.arbeidsforhold.v1.ArbeidsforholdDto;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingerDto;
-import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.RefusjonskravDatoerDto;
 import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.abakus.iaygrunnlag.request.AktørDatoRequest;
 import no.nav.abakus.iaygrunnlag.request.InnhentRegisterdataRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektArbeidYtelseGrunnlagRequest;
-import no.nav.abakus.iaygrunnlag.request.InntektsmeldingDiffRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerMottattRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerRequest;
 import no.nav.abakus.iaygrunnlag.request.KopierGrunnlagRequest;
@@ -54,7 +52,7 @@ import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.Objec
 public class AbakusTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbakusTjeneste.class);
-    private final ObjectMapper iayMapper = IayGrunnlagJsonMapper.getMapper();
+    private final ObjectMapper iayMapper = JsonObjectMapper.getMapper();
     private final ObjectWriter iayJsonWriter = iayMapper.writerWithDefaultPrettyPrinter();
     private final ObjectReader iayGrunnlagReader = iayMapper.readerFor(InntektArbeidYtelseGrunnlagDto.class);
     private final ObjectReader arbeidsforholdReader = iayMapper.readerFor(ArbeidsforholdDto[].class);
