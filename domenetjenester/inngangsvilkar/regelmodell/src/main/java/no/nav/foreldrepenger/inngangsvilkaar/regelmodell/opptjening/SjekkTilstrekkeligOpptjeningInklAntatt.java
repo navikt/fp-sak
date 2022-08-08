@@ -29,7 +29,7 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
     private static final int INNTEKT_RAPPORTERING_SENEST = 5;
 
     public static final String IKKE_TILSTREKKELIG_OPPTJENING_ID = "1035";
-    public static final RuleReasonRef IKKE_TILSTREKKELIG_OPPTJENING =
+    public static final MerknadRuleReasonRef IKKE_TILSTREKKELIG_OPPTJENING =
         new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1035, "Ikke tilstrekkelig opptjening. Har opptjening: {0}");
 
     public SjekkTilstrekkeligOpptjeningInklAntatt() {

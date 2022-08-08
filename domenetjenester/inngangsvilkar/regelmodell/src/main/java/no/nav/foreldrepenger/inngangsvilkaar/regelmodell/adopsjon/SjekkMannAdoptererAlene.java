@@ -12,7 +12,7 @@ class SjekkMannAdoptererAlene extends LeafSpecification<AdopsjonsvilkårGrunnlag
 
     static final String ID = "FP_VK_4.2";
 
-    static final RuleReasonRef IKKE_OPPFYLT_MANN_ADOPTERER_IKKE_ALENE =
+    static final MerknadRuleReasonRef IKKE_OPPFYLT_MANN_ADOPTERER_IKKE_ALENE =
         new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1006, "Mann adopterer ikke alene.");
 
     SjekkMannAdoptererAlene() {

@@ -11,7 +11,7 @@ public class SjekkSøkerErKvinne extends LeafSpecification<FødselsvilkårGrunnl
 
     static final String ID = SjekkSøkerErKvinne.class.getSimpleName();
 
-    static final RuleReasonRef IKKE_OPPFYLT_SØKER_ER_KVINNE =
+    static final MerknadRuleReasonRef IKKE_OPPFYLT_SØKER_ER_KVINNE =
         new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1003, "Søker er ikke KVINNE({0}), er {1}");
 
     SjekkSøkerErKvinne() {

@@ -10,7 +10,7 @@ public class SjekkSøktOmTermin extends LeafSpecification<FødselsvilkårGrunnla
 
     private static final String ID = SjekkSøktOmTermin.class.getSimpleName();
 
-    static final RuleReasonRef IKKE_OPPFYLT_BARN_DOKUMENTERT_PÅ_FAR_MEDMOR =
+    static final MerknadRuleReasonRef IKKE_OPPFYLT_BARN_DOKUMENTERT_PÅ_FAR_MEDMOR =
         new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1027, "Søker er ikke dokumentert som barnets far/medmor");
 
     SjekkSøktOmTermin() {

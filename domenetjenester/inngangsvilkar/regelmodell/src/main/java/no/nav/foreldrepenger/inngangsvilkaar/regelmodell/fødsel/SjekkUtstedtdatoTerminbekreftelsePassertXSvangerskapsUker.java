@@ -10,7 +10,7 @@ public class SjekkUtstedtdatoTerminbekreftelsePassertXSvangerskapsUker extends L
 
     static final String ID = SjekkUtstedtdatoTerminbekreftelsePassertXSvangerskapsUker.class.getSimpleName();
 
-    static final RuleReasonRef IKKE_OPPFYLT_GYLDIG_TERMINBEKREFTELSE_DATO =
+    static final MerknadRuleReasonRef IKKE_OPPFYLT_GYLDIG_TERMINBEKREFTELSE_DATO =
         new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1019, "Terminbekreftelse utstedt før 22 svangerskapsuke (termindato ({0}))");
 
     SjekkUtstedtdatoTerminbekreftelsePassertXSvangerskapsUker() {

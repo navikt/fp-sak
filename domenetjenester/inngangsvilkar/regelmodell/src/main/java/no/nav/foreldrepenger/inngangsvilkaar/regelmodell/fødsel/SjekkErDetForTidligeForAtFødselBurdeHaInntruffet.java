@@ -10,7 +10,7 @@ public class SjekkErDetForTidligeForAtFødselBurdeHaInntruffet extends LeafSpeci
 
     static final String ID = SjekkErDetForTidligeForAtFødselBurdeHaInntruffet.class.getSimpleName();
 
-    static final RuleReasonRef FØDSEL_BURDE_HA_INNTRUFFET =
+    static final MerknadRuleReasonRef FØDSEL_BURDE_HA_INNTRUFFET =
         new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1026, "Fødsel ikke funnet i folkeregisteret");
 
     public SjekkErDetForTidligeForAtFødselBurdeHaInntruffet() {

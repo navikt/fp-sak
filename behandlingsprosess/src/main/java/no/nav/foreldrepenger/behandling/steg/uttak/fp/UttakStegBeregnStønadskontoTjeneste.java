@@ -81,7 +81,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
         var gjeldendeFamilieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
         var fødselsdato = gjeldendeFamilieHendelse.getFødselsdato().orElse(null);
         var termindato = gjeldendeFamilieHendelse.getTermindato().orElse(null);
-        return PrematurukerUtil.oppfyllerKravTilPrematuruker(fødselsdato, termindato, Konfigurasjon.STANDARD);
+        return PrematurukerUtil.oppfyllerKravTilPrematuruker(fødselsdato, termindato);
     }
 
     private boolean finnesLøpendeInnvilgetFP(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {

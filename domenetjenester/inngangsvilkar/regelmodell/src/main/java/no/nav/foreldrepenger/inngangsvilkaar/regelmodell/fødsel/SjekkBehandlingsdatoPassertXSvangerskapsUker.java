@@ -13,7 +13,7 @@ public class SjekkBehandlingsdatoPassertXSvangerskapsUker extends LeafSpecificat
 
     static final String ID = SjekkBehandlingsdatoPassertXSvangerskapsUker.class.getSimpleName();
 
-    static final RuleReasonRef IKKE_OPPFYLT_PASSERT_TIDLIGSTE_SVANGERSKAPSUKE_KAN_BEHANDLES =
+    static final MerknadRuleReasonRef IKKE_OPPFYLT_PASSERT_TIDLIGSTE_SVANGERSKAPSUKE_KAN_BEHANDLES =
         new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1001,
             "Behandlingsdato {0} før svangerskapsuke 22 (termindato ({1}))");
 
