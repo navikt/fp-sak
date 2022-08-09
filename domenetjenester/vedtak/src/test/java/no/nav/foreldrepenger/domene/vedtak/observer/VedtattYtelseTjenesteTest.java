@@ -120,7 +120,7 @@ public class VedtattYtelseTjenesteTest {
                     .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
                         .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
                         .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999")))
-                    .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)))
+                    .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER).build()).build())
             .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.builder()
                 .medBeregningsgrunnlagPeriode(knekk1, knekk2.minusDays(1))
                 .medRedusertPrÅr(new BigDecimal(240000))
@@ -131,7 +131,7 @@ public class VedtattYtelseTjenesteTest {
                     .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
                         .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
                         .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999")))
-                    .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)))
+                    .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER).build()).build())
             .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.builder()
                 .medBeregningsgrunnlagPeriode(knekk2, Tid.TIDENES_ENDE)
                 .medRedusertPrÅr(new BigDecimal(360000))
@@ -142,7 +142,7 @@ public class VedtattYtelseTjenesteTest {
                     .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
                         .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
                         .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999")))
-                    .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)))
+                    .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER).build()).build())
             .build();
     }
 

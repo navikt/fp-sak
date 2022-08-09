@@ -92,27 +92,24 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .build();
     }
 
-    public static Beregningsgrunnlag mapBeregningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlagDto) {
+    public static Beregningsgrunnlag mapBeregningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlag) {
         var builder = Beregningsgrunnlag.builder()
-            .medOverstyring(beregningsgrunnlagDto.isOverstyrt())
-            .medSkjæringstidspunkt(beregningsgrunnlagDto.getSkjæringstidspunkt())
-            .medGrunnbeløp(beregningsgrunnlagDto.getGrunnbeløp());
+            .medOverstyring(beregningsgrunnlag.isOverstyrt())
+            .medSkjæringstidspunkt(beregningsgrunnlag.getSkjæringstidspunkt())
+            .medGrunnbeløp(beregningsgrunnlag.getGrunnbeløp());
 
 
-        beregningsgrunnlagDto.getAktivitetStatuser()
+        beregningsgrunnlag.getAktivitetStatuser()
             .forEach(aktivitetStatus -> builder.leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder()
-                .medAktivitetStatus(aktivitetStatus.getAktivitetStatus()).medHjemmel(aktivitetStatus.getHjemmel())));
-        beregningsgrunnlagDto.getBesteberegninggrunnlag().ifPresent(bb -> builder.medBesteberegningsgrunnlag(mapBesteberegning(bb)));
-        if (beregningsgrunnlagDto.getFaktaOmBeregningTilfeller() != null) {
-            builder.leggTilFaktaOmBeregningTilfeller(beregningsgrunnlagDto.getFaktaOmBeregningTilfeller());
+                .medAktivitetStatus(aktivitetStatus.getAktivitetStatus()).medHjemmel(aktivitetStatus.getHjemmel()).build()));
+        beregningsgrunnlag.getBesteberegninggrunnlag().ifPresent(bb -> builder.medBesteberegningsgrunnlag(mapBesteberegning(bb)));
+        if (beregningsgrunnlag.getFaktaOmBeregningTilfeller() != null) {
+            builder.leggTilFaktaOmBeregningTilfeller(beregningsgrunnlag.getFaktaOmBeregningTilfeller());
         }
-        Beregningsgrunnlag bg = builder.build();
 
-        mapPerioder(beregningsgrunnlagDto.getBeregningsgrunnlagPerioder()).forEach(periodeBuilder -> periodeBuilder.build(bg));
-        if (beregningsgrunnlagDto.getSammenligningsgrunnlag().isPresent()) {
-            mapSammenligningsgrunnlag(beregningsgrunnlagDto.getSammenligningsgrunnlag().get()).build(bg);
-        }
-        return bg;
+        mapPerioder(beregningsgrunnlag.getBeregningsgrunnlagPerioder()).forEach(builder::leggTilBeregningsgrunnlagPeriode);
+        beregningsgrunnlag.getSammenligningsgrunnlag().ifPresent(sg -> builder.medSammenligningsgrunnlag(mapSammenligningsgrunnlag(sg)));
+        return builder.build();
     }
 
     private static BesteberegningGrunnlag mapBesteberegning(BesteberegninggrunnlagEntitet besteberegninggrunnlagEntitet) {
@@ -138,11 +135,11 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .build();
     }
 
-    private static List<BeregningsgrunnlagPeriode.Builder> mapPerioder(List<no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode> beregningsgrunnlagPerioder) {
+    private static List<BeregningsgrunnlagPeriode> mapPerioder(List<no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode> beregningsgrunnlagPerioder) {
         return beregningsgrunnlagPerioder.stream().map(FraEntitetTilBehandlingsmodellMapper::mapPeriode).collect(Collectors.toList());
     }
 
-    private static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode.Builder mapPeriode(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode beregningsgrunnlagPeriodeDto) {
+    private static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode mapPeriode(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode beregningsgrunnlagPeriodeDto) {
         no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode.Builder periodeBuilder = no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode.builder()
             .medBeregningsgrunnlagPeriode(beregningsgrunnlagPeriodeDto.getBeregningsgrunnlagPeriodeFom(),
                 beregningsgrunnlagPeriodeDto.getBeregningsgrunnlagPeriodeTom())
@@ -151,18 +148,21 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .medRedusertPrÅr(beregningsgrunnlagPeriodeDto.getRedusertPrÅr());
         mapAndeler(beregningsgrunnlagPeriodeDto.getBeregningsgrunnlagPrStatusOgAndelList()).forEach(
             periodeBuilder::leggTilBeregningsgrunnlagPrStatusOgAndel);
-        return periodeBuilder;
+        return periodeBuilder.build();
     }
 
-    private static List<no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel.Builder> mapAndeler(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList) {
+    private static List<no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel> mapAndeler(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList) {
         return beregningsgrunnlagPrStatusOgAndelList.stream().map(FraEntitetTilBehandlingsmodellMapper::mapAndel).collect(Collectors.toList());
     }
 
-    private static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel.Builder mapAndel(BeregningsgrunnlagPrStatusOgAndel beregningsgrunnlagPrStatusOgAndelDto) {
+    private static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel mapAndel(BeregningsgrunnlagPrStatusOgAndel beregningsgrunnlagPrStatusOgAndelDto) {
         no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel.Builder builder = no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel.builder()
             .medAktivitetStatus(beregningsgrunnlagPrStatusOgAndelDto.getAktivitetStatus())
             .medAndelsnr(beregningsgrunnlagPrStatusOgAndelDto.getAndelsnr())
             .medArbforholdType(beregningsgrunnlagPrStatusOgAndelDto.getArbeidsforholdType())
+            .medDagsatsBruker(beregningsgrunnlagPrStatusOgAndelDto.getDagsatsBruker())
+            .medBruttoPrÅr(beregningsgrunnlagPrStatusOgAndelDto.getBruttoPrÅr())
+            .medDagsatsArbeidsgiver(beregningsgrunnlagPrStatusOgAndelDto.getDagsatsArbeidsgiver())
             .medAvkortetBrukersAndelPrÅr(beregningsgrunnlagPrStatusOgAndelDto.getAvkortetBrukersAndelPrÅr())
             .medAvkortetPrÅr(beregningsgrunnlagPrStatusOgAndelDto.getAvkortetPrÅr())
             .medAvkortetRefusjonPrÅr(beregningsgrunnlagPrStatusOgAndelDto.getAvkortetRefusjonPrÅr())
@@ -170,10 +170,12 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .medBeregningsperiode(beregningsgrunnlagPrStatusOgAndelDto.getBeregningsperiodeFom(),
                 beregningsgrunnlagPrStatusOgAndelDto.getBeregningsperiodeTom())
             .medFastsattAvSaksbehandler(beregningsgrunnlagPrStatusOgAndelDto.getFastsattAvSaksbehandler())
+            .medBesteberegningPrÅr(beregningsgrunnlagPrStatusOgAndelDto.getBesteberegningPrÅr())
             .medFordeltPrÅr(beregningsgrunnlagPrStatusOgAndelDto.getFordeltPrÅr())
             .medInntektskategori(beregningsgrunnlagPrStatusOgAndelDto.getInntektskategori())
             .medLagtTilAvSaksbehandler(beregningsgrunnlagPrStatusOgAndelDto.erLagtTilAvSaksbehandler())
             .medMaksimalRefusjonPrÅr(beregningsgrunnlagPrStatusOgAndelDto.getMaksimalRefusjonPrÅr())
+            .medKilde(beregningsgrunnlagPrStatusOgAndelDto.getKilde())
             .medOrginalDagsatsFraTilstøtendeYtelse(beregningsgrunnlagPrStatusOgAndelDto.getOrginalDagsatsFraTilstøtendeYtelse())
             .medOverstyrtPrÅr(beregningsgrunnlagPrStatusOgAndelDto.getOverstyrtPrÅr())
             .medRedusertBrukersAndelPrÅr(beregningsgrunnlagPrStatusOgAndelDto.getRedusertBrukersAndelPrÅr())
@@ -182,18 +184,14 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .medÅrsbeløpFraTilstøtendeYtelse(beregningsgrunnlagPrStatusOgAndelDto.getÅrsbeløpFraTilstøtendeYtelse() == null
                 ? null
                 : beregningsgrunnlagPrStatusOgAndelDto.getÅrsbeløpFraTilstøtendeYtelse().getVerdi());
-
-        if (beregningsgrunnlagPrStatusOgAndelDto.getBgAndelArbeidsforhold().isPresent()) {
-            builder.medBGAndelArbeidsforhold(
-                FraEntitetTilBehandlingsmodellMapper.mapBgAndelArbeidsforhold(beregningsgrunnlagPrStatusOgAndelDto.getBgAndelArbeidsforhold().get()));
-        }
+        beregningsgrunnlagPrStatusOgAndelDto.getBgAndelArbeidsforhold().ifPresent(af -> builder.medBGAndelArbeidsforhold(mapBgAndelArbeidsforhold(af)));
 
         if (beregningsgrunnlagPrStatusOgAndelDto.getPgiSnitt() != null) {
             builder.medPgi(beregningsgrunnlagPrStatusOgAndelDto.getPgiSnitt(),
                 List.of(beregningsgrunnlagPrStatusOgAndelDto.getPgi1(), beregningsgrunnlagPrStatusOgAndelDto.getPgi2(),
                     beregningsgrunnlagPrStatusOgAndelDto.getPgi3()));
         }
-        return builder;
+        return builder.build();
     }
 
     private static no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold.Builder mapBgAndelArbeidsforhold(BGAndelArbeidsforhold bgAndelArbeidsforhold) {
@@ -207,11 +205,12 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .medNaturalytelseTilkommetPrÅr(bgAndelArbeidsforhold.getNaturalytelseTilkommetPrÅr().orElse(null));
     }
 
-    private static no.nav.foreldrepenger.domene.modell.Sammenligningsgrunnlag.Builder mapSammenligningsgrunnlag(Sammenligningsgrunnlag sammenligningsgrunnlag) {
+    private static no.nav.foreldrepenger.domene.modell.Sammenligningsgrunnlag mapSammenligningsgrunnlag(Sammenligningsgrunnlag sammenligningsgrunnlag) {
         return no.nav.foreldrepenger.domene.modell.Sammenligningsgrunnlag.builder()
             .medSammenligningsperiode(sammenligningsgrunnlag.getSammenligningsperiodeFom(), sammenligningsgrunnlag.getSammenligningsperiodeTom())
             .medRapportertPrÅr(sammenligningsgrunnlag.getRapportertPrÅr())
-            .medAvvikPromille(sammenligningsgrunnlag.getAvvikPromille().longValue());
+            .medAvvikPromille(sammenligningsgrunnlag.getAvvikPromille().longValue())
+            .build();
     }
 
 

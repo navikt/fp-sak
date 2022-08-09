@@ -8,9 +8,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
@@ -20,7 +22,6 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 
 public class BeregningsgrunnlagPeriode {
 
-    private Beregningsgrunnlag beregningsgrunnlag;
     private List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList = new ArrayList<>();
     private ÅpenDatoIntervallEntitet periode;
     private BigDecimal bruttoPrÅr;
@@ -30,7 +31,6 @@ public class BeregningsgrunnlagPeriode {
     private List<BeregningsgrunnlagPeriodeÅrsak> beregningsgrunnlagPeriodeÅrsaker = new ArrayList<>();
 
     public BeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode eksisterende) {
-        this.beregningsgrunnlag = eksisterende.getBeregningsgrunnlag();
         this.beregningsgrunnlagPrStatusOgAndelList = eksisterende.getBeregningsgrunnlagPrStatusOgAndelList();
         this.periode = eksisterende.getPeriode();
         this.bruttoPrÅr = eksisterende.getBruttoPrÅr();
@@ -41,10 +41,6 @@ public class BeregningsgrunnlagPeriode {
     }
 
     public BeregningsgrunnlagPeriode() {
-    }
-
-    public Beregningsgrunnlag getBeregningsgrunnlag() {
-        return beregningsgrunnlag;
     }
 
     public List<BeregningsgrunnlagPrStatusOgAndel> getBeregningsgrunnlagPrStatusOgAndelList() {
@@ -106,13 +102,6 @@ public class BeregningsgrunnlagPeriode {
         return beregningsgrunnlagPeriodeÅrsaker.stream()
             .map(BeregningsgrunnlagPeriodeÅrsak::getPeriodeÅrsak)
             .collect(Collectors.toList());
-    }
-
-    void addBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel bgPrStatusOgAndel) {
-        Objects.requireNonNull(bgPrStatusOgAndel, "beregningsgrunnlagPrStatusOgAndel");
-        if (!beregningsgrunnlagPrStatusOgAndelList.contains(bgPrStatusOgAndel)) { // NOSONAR Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
-            beregningsgrunnlagPrStatusOgAndelList.add(bgPrStatusOgAndel);
-        }
     }
 
     void addBeregningsgrunnlagPeriodeÅrsak(BeregningsgrunnlagPeriodeÅrsak bgPeriodeÅrsak) {
@@ -203,12 +192,6 @@ public class BeregningsgrunnlagPeriode {
             return this;
         }
 
-        public Builder leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.Builder prStatusOgAndelBuilder) {
-            verifiserKanModifisere();
-            prStatusOgAndelBuilder.build(kladd);
-            return this;
-        }
-
         public Builder medBeregningsgrunnlagPrStatusOgAndel(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndeler) {
             verifiserKanModifisere();
             kladd.beregningsgrunnlagPrStatusOgAndelList = beregningsgrunnlagPrStatusOgAndeler;
@@ -261,18 +244,13 @@ public class BeregningsgrunnlagPeriode {
             return this;
         }
 
-        public BeregningsgrunnlagPeriode build(Beregningsgrunnlag beregningsgrunnlag) {
-            kladd.beregningsgrunnlag = beregningsgrunnlag;
+        public BeregningsgrunnlagPeriode build() {
             verifyStateForBuild();
-
-            kladd.beregningsgrunnlag.leggTilBeregningsgrunnlagPeriode(kladd);
-
-            Long dagsatsSum = kladd.beregningsgrunnlagPrStatusOgAndelList.stream()
-                .filter(bgpsa -> bgpsa.getDagsats() != null)
+            kladd.dagsats = kladd.beregningsgrunnlagPrStatusOgAndelList.stream()
                 .map(BeregningsgrunnlagPrStatusOgAndel::getDagsats)
+                .filter(Objects::nonNull)
                 .reduce(Long::sum)
                 .orElse(null);
-            kladd.dagsats = dagsatsSum;
             built = true;
             return kladd;
         }
@@ -284,9 +262,22 @@ public class BeregningsgrunnlagPeriode {
         }
 
         private void verifyStateForBuild() {
-            Objects.requireNonNull(kladd.beregningsgrunnlag, "beregningsgrunnlag");
             Objects.requireNonNull(kladd.beregningsgrunnlagPrStatusOgAndelList, "beregningsgrunnlagPrStatusOgAndelList");
             Objects.requireNonNull(kladd.periode, "beregningsgrunnlagPeriodeFom");
+            verifiserAndelsnr();
         }
+
+        private void verifiserAndelsnr() {
+            Set<Long> andelsnrIBruk = new HashSet<>();
+            kladd.beregningsgrunnlagPrStatusOgAndelList.stream()
+                .map(BeregningsgrunnlagPrStatusOgAndel::getAndelsnr)
+                .forEach(andelsnr -> {
+                    if (andelsnrIBruk.contains(andelsnr)) {
+                        throw new IllegalStateException("Utviklerfeil: Kan ikke bygge andel. Andelsnr eksisterer allerede på en annen andel i samme bgPeriode.");
+                    }
+                    andelsnrIBruk.add(andelsnr);
+                });
+        }
+
     }
 }

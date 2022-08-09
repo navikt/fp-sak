@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
@@ -69,28 +70,27 @@ class BeregningsgrunnlagFormidlingV2DtoTjenesteTest {
         assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).erTilkommetAndel()).isFalse();
     }
 
-    private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode(Beregningsgrunnlag beregningsgrunnlag) {
-        return BeregningsgrunnlagPeriode.builder()
+    private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode(BeregningsgrunnlagPrStatusOgAndel... beregningsgrunnlagPrStatusOgAndel) {
+        var periodeBuilder = BeregningsgrunnlagPeriode.builder()
             .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(15))
             .medBruttoPrÅr(BigDecimal.valueOf(500000))
             .medAvkortetPrÅr(BigDecimal.valueOf(500000))
             .medRedusertPrÅr(BigDecimal.valueOf(500000))
-            .leggTilPeriodeÅrsak(PeriodeÅrsak.UDEFINERT)
-            .build(beregningsgrunnlag);
+            .leggTilPeriodeÅrsak(PeriodeÅrsak.UDEFINERT);
+        Arrays.asList(beregningsgrunnlagPrStatusOgAndel).forEach(periodeBuilder::leggTilBeregningsgrunnlagPrStatusOgAndel);
+        return periodeBuilder.build();
     }
 
     private Beregningsgrunnlag buildBeregningsgrunnlag() {
-        var beregningsgrunnlag = Beregningsgrunnlag.builder()
+        var beregningsgrunnlagBuilder = Beregningsgrunnlag.builder()
             .medSkjæringstidspunkt(LocalDate.now())
-            .medGrunnbeløp(BigDecimal.valueOf(100000))
-            .build();
-        buildBgAktivitetStatus(beregningsgrunnlag);
-        var bgPeriode = buildBeregningsgrunnlagPeriode(beregningsgrunnlag);
-        buildBgPrStatusOgAndel(bgPeriode);
-        return beregningsgrunnlag;
+            .medGrunnbeløp(BigDecimal.valueOf(100000));
+        beregningsgrunnlagBuilder.leggTilAktivitetStatus(buildBgAktivitetStatus());
+        var bgPeriode = buildBeregningsgrunnlagPeriode(buildBgPrStatusOgAndel());
+        return beregningsgrunnlagBuilder.leggTilBeregningsgrunnlagPeriode(bgPeriode).build();
     }
 
-    private BeregningsgrunnlagPrStatusOgAndel buildBgPrStatusOgAndel(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
+    private BeregningsgrunnlagPrStatusOgAndel buildBgPrStatusOgAndel() {
         var bga = BGAndelArbeidsforhold
             .builder()
             .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999"))
@@ -106,14 +106,14 @@ class BeregningsgrunnlagFormidlingV2DtoTjenesteTest {
             .medAvkortetPrÅr(BigDecimal.valueOf(423.23))
             .medRedusertPrÅr(BigDecimal.valueOf(52335))
             .medKilde(AndelKilde.PROSESS_START)
-            .build(beregningsgrunnlagPeriode);
+            .build();
     }
 
-    private BeregningsgrunnlagAktivitetStatus buildBgAktivitetStatus(Beregningsgrunnlag beregningsgrunnlag) {
+    private BeregningsgrunnlagAktivitetStatus buildBgAktivitetStatus() {
         return BeregningsgrunnlagAktivitetStatus.builder()
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medHjemmel(Hjemmel.F_14_7_8_28_8_30)
-            .build(beregningsgrunnlag);
+            .build();
     }
 
 }

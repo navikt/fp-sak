@@ -1,13 +1,10 @@
 package no.nav.foreldrepenger.domene.modell;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -21,7 +18,6 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 public class BeregningsgrunnlagPrStatusOgAndel {
 
     private Long andelsnr;
-    private BeregningsgrunnlagPeriode beregningsgrunnlagPeriode;
     private AktivitetStatus aktivitetStatus;
     private ÅpenDatoIntervallEntitet beregningsperiode;
     private OpptjeningAktivitetType arbeidsforholdType;
@@ -51,10 +47,6 @@ public class BeregningsgrunnlagPrStatusOgAndel {
     private Long orginalDagsatsFraTilstøtendeYtelse;
     private AndelKilde kilde;
 
-    public BeregningsgrunnlagPeriode getBeregningsgrunnlagPeriode() {
-        return beregningsgrunnlagPeriode;
-    }
-
     public AktivitetStatus getAktivitetStatus() {
         return aktivitetStatus;
     }
@@ -79,7 +71,7 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         return gjelderSammeArbeidsforhold(Optional.ofNullable(arbeidsgiver), arbeidsforholdRef);
     }
 
-    public boolean gjelderInntektsmeldingFor(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
+    public boolean gjelderInntektsmeldingFor(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef, LocalDate stpBeregning) {
         Optional<BGAndelArbeidsforhold> bgAndelArbeidsforholdOpt = getBgAndelArbeidsforhold();
         if (!Objects.equals(getAktivitetStatus(), AktivitetStatus.ARBEIDSTAKER) || bgAndelArbeidsforholdOpt.isEmpty()) {
             return false;
@@ -87,13 +79,12 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         if (!Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver), Optional.of(arbeidsgiver))) {
             return false;
         }
-        LocalDate stpBeregning = this.getBeregningsgrunnlagPeriode().getBeregningsgrunnlag().getSkjæringstidspunkt();
         boolean slutterFørStp = this.bgAndelArbeidsforhold.getArbeidsperiodeTom()
                 .map(d -> d.isBefore(stpBeregning)).orElse(false);
         if (slutterFørStp) {
             return false;
         }
-        return  bgAndelArbeidsforholdOpt.get().getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
+        return bgAndelArbeidsforholdOpt.get().getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
     }
 
     private boolean gjelderSammeArbeidsforhold(Optional<Arbeidsgiver> arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
@@ -192,7 +183,7 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         }
         return dagsatsBruker + dagsatsArbeidsgiver;
     }
-    
+
     public AndelKilde getKilde() {
         return kilde;
     }
@@ -284,7 +275,6 @@ public class BeregningsgrunnlagPrStatusOgAndel {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" //$NON-NLS-1$
-                + "beregningsgrunnlagPeriode=" + beregningsgrunnlagPeriode + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "aktivitetStatus=" + aktivitetStatus + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "beregningsperiode=" + beregningsperiode + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "arbeidsforholdType=" + arbeidsforholdType + ", " //$NON-NLS-1$ //$NON-NLS-2$
@@ -336,13 +326,6 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         public Builder medAktivitetStatus(AktivitetStatus aktivitetStatus) {
             verifiserKanModifisere();
             kladd.aktivitetStatus = Objects.requireNonNull(aktivitetStatus, "aktivitetStatus");
-            if (OpptjeningAktivitetType.UDEFINERT.equals(kladd.arbeidsforholdType)) {
-                if (AktivitetStatus.ARBEIDSTAKER.equals(aktivitetStatus)) {
-                    kladd.arbeidsforholdType = OpptjeningAktivitetType.ARBEID;
-                } else if (AktivitetStatus.FRILANSER.equals(aktivitetStatus)) {
-                    kladd.arbeidsforholdType = OpptjeningAktivitetType.FRILANS;
-                }
-            }
             return this;
         }
 
@@ -361,36 +344,18 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         public Builder medOverstyrtPrÅr(BigDecimal overstyrtPrÅr) {
             verifiserKanModifisere();
             kladd.overstyrtPrÅr = overstyrtPrÅr;
-            if (overstyrtPrÅr != null && kladd.fordeltPrÅr == null && kladd.besteberegnetPrÅr == null) {
-                kladd.bruttoPrÅr = overstyrtPrÅr;
-                if (kladd.getBeregningsgrunnlagPeriode() != null) {
-                    kladd.beregningsgrunnlagPeriode.updateBruttoPrÅr();
-                }
-            }
             return this;
         }
 
         public Builder medFordeltPrÅr(BigDecimal fordeltPrÅr) {
             verifiserKanModifisere();
             kladd.fordeltPrÅr = fordeltPrÅr;
-            if (fordeltPrÅr != null) {
-                kladd.bruttoPrÅr = fordeltPrÅr;
-                if (kladd.getBeregningsgrunnlagPeriode() != null) {
-                    kladd.beregningsgrunnlagPeriode.updateBruttoPrÅr();
-                }
-            }
             return this;
         }
 
         public Builder medBesteberegningPrÅr(BigDecimal besteberegningPrÅr) {
             verifiserKanModifisere();
             kladd.besteberegnetPrÅr = besteberegningPrÅr;
-            if (besteberegningPrÅr != null && kladd.fordeltPrÅr == null) {
-                kladd.bruttoPrÅr = besteberegningPrÅr;
-                if (kladd.getBeregningsgrunnlagPeriode() != null) {
-                    kladd.beregningsgrunnlagPeriode.updateBruttoPrÅr();
-                }
-            }
             return this;
         }
 
@@ -433,8 +398,6 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         public Builder medRedusertRefusjonPrÅr(BigDecimal redusertRefusjonPrÅr) {
             verifiserKanModifisere();
             kladd.redusertRefusjonPrÅr = redusertRefusjonPrÅr;
-            kladd.dagsatsArbeidsgiver = redusertRefusjonPrÅr == null ?
-                null : redusertRefusjonPrÅr.divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP).longValue();
             return this;
         }
 
@@ -444,23 +407,28 @@ public class BeregningsgrunnlagPrStatusOgAndel {
             return this;
         }
 
+        public Builder medDagsatsBruker(Long dagsatsBruker) {
+            verifiserKanModifisere();
+            kladd.dagsatsBruker = dagsatsBruker;
+            return this;
+        }
+
+        public Builder medDagsatsArbeidsgiver(Long dagsatsArbeidsgiver) {
+            verifiserKanModifisere();
+            kladd.dagsatsArbeidsgiver = dagsatsArbeidsgiver;
+            return this;
+        }
+
+
         public Builder medRedusertBrukersAndelPrÅr(BigDecimal redusertBrukersAndelPrÅr) {
             verifiserKanModifisere();
             kladd.redusertBrukersAndelPrÅr = redusertBrukersAndelPrÅr;
-            kladd.dagsatsBruker = redusertBrukersAndelPrÅr == null ?
-                null : redusertBrukersAndelPrÅr.divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP).longValue();
             return this;
         }
 
         public Builder medBeregnetPrÅr(BigDecimal beregnetPrÅr) {
             verifiserKanModifisere();
             kladd.beregnetPrÅr = beregnetPrÅr;
-            if (kladd.fordeltPrÅr == null && kladd.overstyrtPrÅr == null && kladd.besteberegnetPrÅr == null) {
-                kladd.bruttoPrÅr = beregnetPrÅr;
-                if (kladd.getBeregningsgrunnlagPeriode() != null) {
-                    kladd.beregningsgrunnlagPeriode.updateBruttoPrÅr();
-                }
-            }
             return this;
         }
 
@@ -497,12 +465,6 @@ public class BeregningsgrunnlagPrStatusOgAndel {
             return this;
         }
 
-        public Builder nyttAndelsnr(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
-            verifiserKanModifisere();
-            finnOgSettAndelsnr(beregningsgrunnlagPeriode);
-            return this;
-        }
-
         public Builder medLagtTilAvSaksbehandler(Boolean lagtTilAvSaksbehandler) {
             verifiserKanModifisere();
             kladd.lagtTilAvSaksbehandler = Boolean.TRUE.equals(lagtTilAvSaksbehandler);
@@ -521,43 +483,13 @@ public class BeregningsgrunnlagPrStatusOgAndel {
             return this;
         }
 
-        public BeregningsgrunnlagPrStatusOgAndel build(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
+        public BeregningsgrunnlagPrStatusOgAndel build() {
             if(built) {
                 return kladd;
             }
-            kladd.beregningsgrunnlagPeriode = beregningsgrunnlagPeriode;
             verifyStateForBuild();
-            if (kladd.andelsnr == null) {
-                // TODO (OleSandbu): Ikke mod input!
-                finnOgSettAndelsnr(beregningsgrunnlagPeriode);
-            }
-            // TODO (OleSandbu): Ikke mod input!
-            beregningsgrunnlagPeriode.addBeregningsgrunnlagPrStatusOgAndel(kladd);
-            beregningsgrunnlagPeriode.updateBruttoPrÅr();
-            verifiserAndelsnr();
             built = true;
             return kladd;
-        }
-
-        private void finnOgSettAndelsnr(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
-            verifiserKanModifisere();
-            Long forrigeAndelsnr = beregningsgrunnlagPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
-                    .mapToLong(BeregningsgrunnlagPrStatusOgAndel::getAndelsnr)
-                    .max()
-                    .orElse(0L);
-            kladd.andelsnr = forrigeAndelsnr + 1L;
-        }
-
-        private void verifiserAndelsnr() {
-            Set<Long> andelsnrIBruk = new HashSet<>();
-            kladd.beregningsgrunnlagPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
-            .map(BeregningsgrunnlagPrStatusOgAndel::getAndelsnr)
-            .forEach(andelsnr -> {
-                if (andelsnrIBruk.contains(andelsnr)) {
-                    throw new IllegalStateException("Utviklerfeil: Kan ikke bygge andel. Andelsnr eksisterer allerede på en annen andel i samme bgPeriode.");
-                }
-                andelsnrIBruk.add(andelsnr);
-            });
         }
 
         private void verifiserKanModifisere() {
@@ -567,7 +499,6 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         }
 
         public void verifyStateForBuild() {
-            Objects.requireNonNull(kladd.beregningsgrunnlagPeriode, "beregningsgrunnlagPeriode");
             Objects.requireNonNull(kladd.aktivitetStatus, "aktivitetStatus");
             if (kladd.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER)
                 && kladd.getArbeidsforholdType().equals(OpptjeningAktivitetType.ARBEID)) {

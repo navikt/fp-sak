@@ -12,7 +12,6 @@ public class Sammenligningsgrunnlag {
     private DatoIntervallEntitet sammenligningsperiode;
     private BigDecimal rapportertPrÅr;
     private Long avvikPromille = 0L;
-    private Beregningsgrunnlag beregningsgrunnlag;
 
     public LocalDate getSammenligningsperiodeFom() {
         return sammenligningsperiode.getFomDato();
@@ -30,10 +29,6 @@ public class Sammenligningsgrunnlag {
         return avvikPromille;
     }
 
-    public Beregningsgrunnlag getBeregningsgrunnlag() {
-        return beregningsgrunnlag;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
@@ -42,21 +37,19 @@ public class Sammenligningsgrunnlag {
             return false;
         }
         Sammenligningsgrunnlag other = (Sammenligningsgrunnlag) obj;
-        return Objects.equals(this.getBeregningsgrunnlag(), other.getBeregningsgrunnlag())
-                && Objects.equals(this.getSammenligningsperiodeFom(), other.getSammenligningsperiodeFom())
+        return Objects.equals(this.getSammenligningsperiodeFom(), other.getSammenligningsperiodeFom())
                 && Objects.equals(this.getSammenligningsperiodeTom(), other.getSammenligningsperiodeTom())
                 && Objects.equals(this.getRapportertPrÅr(), other.getRapportertPrÅr());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(beregningsgrunnlag, sammenligningsperiode, rapportertPrÅr, avvikPromille);
+        return Objects.hash(sammenligningsperiode, rapportertPrÅr, avvikPromille);
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<"  //$NON-NLS-1$
-                + "beregningsgrunnlag=" + beregningsgrunnlag + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "sammenligningsperiodeFom=" + sammenligningsperiode.getFomDato() + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "sammenligningsperiodeTom=" + sammenligningsperiode.getTomDato() + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "rapportertPrÅr=" + rapportertPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
@@ -92,15 +85,12 @@ public class Sammenligningsgrunnlag {
             return this;
         }
 
-        public Sammenligningsgrunnlag build(Beregningsgrunnlag beregningsgrunnlag) {
-            sammenligningsgrunnlagMal.beregningsgrunnlag = beregningsgrunnlag;
+        public Sammenligningsgrunnlag build() {
             verifyStateForBuild();
-            Beregningsgrunnlag.builder(beregningsgrunnlag).medSammenligningsgrunnlag(sammenligningsgrunnlagMal);
             return sammenligningsgrunnlagMal;
         }
 
-        public void verifyStateForBuild() {
-            Objects.requireNonNull(sammenligningsgrunnlagMal.beregningsgrunnlag, "beregningsgrunnlag");
+        private void verifyStateForBuild() {
             Objects.requireNonNull(sammenligningsgrunnlagMal.sammenligningsperiode, "sammenligningsperiodePeriode");
             Objects.requireNonNull(sammenligningsgrunnlagMal.sammenligningsperiode.getFomDato(), "sammenligningsperiodeFom");
             Objects.requireNonNull(sammenligningsgrunnlagMal.sammenligningsperiode.getTomDato(), "sammenligningsperiodeTom");
