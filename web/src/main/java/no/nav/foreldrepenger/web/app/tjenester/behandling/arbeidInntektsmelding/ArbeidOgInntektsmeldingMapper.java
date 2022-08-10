@@ -232,7 +232,7 @@ public class ArbeidOgInntektsmeldingMapper {
         }
         return ya.getAlleAktivitetsAvtaler().stream()
             .filter(AktivitetsAvtale::erAnsettelsesPeriode)
-            .filter(aa -> aa.getPeriode().inkluderer(stp) || aa.getPeriode().getFomDato().isAfter(stp))
+            .filter(aa -> aa.getPeriode().inkluderer(stp.minusDays(1)) || aa.getPeriode().getFomDato().isAfter(stp.minusDays(1)))
             .map(AktivitetsAvtale::getPeriode)
             .max(DatoIntervallEntitet::compareTo);
     }

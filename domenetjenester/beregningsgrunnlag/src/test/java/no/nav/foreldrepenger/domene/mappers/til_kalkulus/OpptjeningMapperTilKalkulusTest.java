@@ -9,11 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.ejb.Local;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.abakus.iaygrunnlag.Periode;
 import no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktiviteterDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
@@ -28,11 +31,13 @@ import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.vedtak.konfig.Tid;
 
 class OpptjeningMapperTilKalkulusTest {
+    private static final LocalDate STP = LocalDate.now().minusDays(7);
     private static final Periode PERIODE = new Periode(LocalDate.now().minusMonths(12), LocalDate.now());
-    private static final BehandlingReferanse REF = BehandlingReferanse.fra(ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked());
+    private static final BehandlingReferanse REF = BehandlingReferanse.fra(ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked(), Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(STP).build());
     private InntektArbeidYtelseAggregatBuilder data = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
     private InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder arbeidBuilder = data.getAktørArbeidBuilder(REF.aktørId());
     private List<Inntektsmelding> inntektsmeldinger = new ArrayList<>();
@@ -43,6 +48,25 @@ class OpptjeningMapperTilKalkulusTest {
         var orgnr = "999999999";
         lagArbeid(orgnr, ref1);
         var p1 = OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.ARBEID, PERIODE, orgnr, null, ref1);
+        var resultat = OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(new OpptjeningAktiviteter(p1), byggIAY(), REF);
+        assertThat(resultat.getOpptjeningPerioder()).hasSize(1);
+        assertFinnes(resultat, orgnr, ref1);
+    }
+
+    @Test
+    public void skal_ignorere_arbeidsforhold_som_starter_etter_eller_på_stp() {
+        var ref1 = InternArbeidsforholdRef.nyRef();
+        var ref2 = InternArbeidsforholdRef.nyRef();
+        var ref3 = InternArbeidsforholdRef.nyRef();
+        var orgnr = "999999999";
+
+        lagArbeid(orgnr, ref1, DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusMonths(12), STP.minusDays(1))); // Eneste relevante for opptjening
+        lagArbeid(orgnr, ref2, DatoIntervallEntitet.fraOgMed(STP));
+        lagArbeid(orgnr, ref3, DatoIntervallEntitet.fraOgMed(STP.plusDays(1)));
+        lagIM(orgnr, ref2); // Irrelevant IM
+        lagIM(orgnr, ref3); // Irrelevant IM
+
+        var p1 = OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.ARBEID, new Periode(STP.minusMonths(12), STP.minusDays(1)), orgnr, null, ref1);
         var resultat = OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(new OpptjeningAktiviteter(p1), byggIAY(), REF);
         assertThat(resultat.getOpptjeningPerioder()).hasSize(1);
         assertFinnes(resultat, orgnr, ref1);
@@ -151,9 +175,13 @@ class OpptjeningMapperTilKalkulusTest {
     }
 
     private void lagArbeid(String orgnr, InternArbeidsforholdRef internRef) {
+        lagArbeid(orgnr, internRef, DatoIntervallEntitet.fraOgMedTilOgMed(Tid.TIDENES_BEGYNNELSE, Tid.TIDENES_ENDE));
+    }
+
+    private void lagArbeid(String orgnr, InternArbeidsforholdRef internRef, DatoIntervallEntitet periode) {
         var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
         var aaBuilder = yaBuilder.getAktivitetsAvtaleBuilder();
-        var aa = aaBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(Tid.TIDENES_BEGYNNELSE, Tid.TIDENES_ENDE));
+        var aa = aaBuilder.medPeriode(periode);
         yaBuilder.leggTilAktivitetsAvtale(aa)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);

@@ -9,6 +9,7 @@ import java.util.Objects;
 
 import no.nav.abakus.iaygrunnlag.Periode;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 
@@ -49,6 +50,17 @@ public class OpptjeningAktiviteter {
             }
         }
 
+        @Override
+        public String toString() {
+            return "OpptjeningPeriode{" + "opptjeningAktivitetType=" + opptjeningAktivitetType + ", periode=" + periode + ", arbeidsgiverOrgNummer='"
+                + OrgNummer.tilMaskertNummer(arbeidsgiverOrgNummer) + '\'' + ", arbeidsgiverAktørId='" + arbeidsgiverAktørId + '\'' + ", arbeidsforholdId=" + arbeidsforholdId
+                + '}';
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "OpptjeningAktiviteter{" + "opptjeningPerioder=" + opptjeningPerioder + '}';
     }
 
     public static OpptjeningPeriode nyPeriode(OpptjeningAktivitetType type,
