@@ -15,10 +15,13 @@ import java.util.stream.Collectors;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -135,6 +138,192 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var oppdrag110Arbeidsgiver = OppdragskontrollTestVerktøy.getOppdrag110ForArbeidsgiver(oppdragRevurdering.getOppdrag110Liste(), virksomhet);
         assertThat(oppdrag110Arbeidsgiver.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         assertThat(oppdrag110Arbeidsgiver.getOmpostering116()).isNotPresent();
+    }
+
+    @Test
+    @DisplayName("Tester tilfeller hvor ompostering116 ble ikke sendt fordi bruker har fått opphør på feriepenger men ikke selve ytelsen.")
+    public void test_manglende_inntrekk_tfp_5130() {
+        // Arrange
+        // Arrange : Førstegangsbehandling
+        var beregningsresultatFP_1 = buildEmptyBeregningsresultatFP();
+
+        var feriepenger = BeregningsresultatFeriepenger.builder()
+            .medFeriepengerPeriodeFom(LocalDate.of(2022, 5, 1))
+            .medFeriepengerPeriodeTom(LocalDate.of(2022, 5, 31))
+            .medFeriepengerRegelInput("input")
+            .medFeriepengerRegelSporing("sporing")
+            .build(beregningsresultatFP_1);
+
+        var b1Periode_1 = buildBeregningsresultatPeriode(beregningsresultatFP_1, LocalDate.of(2021, 10, 11), LocalDate.of(2021, 10, 29));
+        //Andeler for bruker i periode#1
+        var b1Andel = buildBeregningsresultatAndel(b1Periode_1, true, 1876, BigDecimal.valueOf(100), virksomhet);
+        //Andeler for bruker i periode#2
+        var b1Periode_2 = buildBeregningsresultatPeriode(beregningsresultatFP_1, LocalDate.of(2021, 11, 1), LocalDate.of(2021, 12, 12));
+        buildBeregningsresultatAndel(b1Periode_2, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        var b1Periode_3 = buildBeregningsresultatPeriode(beregningsresultatFP_1, LocalDate.of(2021, 12, 13), LocalDate.of(2022, 2, 11));
+        buildBeregningsresultatAndel(b1Periode_3, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        var b1Periode_4 = buildBeregningsresultatPeriode(beregningsresultatFP_1, LocalDate.of(2022, 2, 14), LocalDate.of(2022, 4, 8));
+        buildBeregningsresultatAndel(b1Periode_4, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger, b1Andel, 11481L, LocalDate.of(2021, 5, 1));
+
+        var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultatFP_1);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
+
+        // Revurdering 1
+
+        var beregningsresultatFP_2 = buildEmptyBeregningsresultatFP();
+
+        var feriepenger2 = BeregningsresultatFeriepenger.builder()
+            .medFeriepengerPeriodeFom(LocalDate.of(2022, 5, 1))
+            .medFeriepengerPeriodeTom(LocalDate.of(2022, 5, 31))
+            .medFeriepengerRegelInput("input")
+            .medFeriepengerRegelSporing("sporing")
+            .build(beregningsresultatFP_2);
+
+        var b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatFP_2, LocalDate.of(2021, 10, 11), LocalDate.of(2021, 10, 29));
+        //Andeler for bruker i periode#1
+        var b2Andel = buildBeregningsresultatAndel(b2Periode_1, true, 1876, BigDecimal.valueOf(100), virksomhet);
+        //Andeler for bruker i periode#2
+        var b2Periode_2 = buildBeregningsresultatPeriode(beregningsresultatFP_2, LocalDate.of(2021, 11, 1), LocalDate.of(2021, 11, 29));
+        buildBeregningsresultatAndel(b2Periode_2, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        var b2Periode_3 = buildBeregningsresultatPeriode(beregningsresultatFP_2, LocalDate.of(2022, 1, 13), LocalDate.of(2022, 3, 29));
+        buildBeregningsresultatAndel(b2Periode_3, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        var b2Periode_4 = buildBeregningsresultatPeriode(beregningsresultatFP_2, LocalDate.of(2022, 3, 30), LocalDate.of(2022, 5, 24));
+        buildBeregningsresultatAndel(b2Periode_4, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger2, b2Andel, 6888L, LocalDate.of(2021, 5, 1));
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger2, b2Andel, 4592L, LocalDate.of(2022, 5, 1));
+
+
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatFP_2);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
+
+        // Act
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+
+        // Revurdering 2
+        var beregningsresultatFP_3 = buildEmptyBeregningsresultatFP();
+
+        var feriepenger3 = BeregningsresultatFeriepenger.builder()
+            .medFeriepengerPeriodeFom(LocalDate.of(2022, 5, 1))
+            .medFeriepengerPeriodeTom(LocalDate.of(2022, 5, 31))
+            .medFeriepengerRegelInput("input")
+            .medFeriepengerRegelSporing("sporing")
+            .build(beregningsresultatFP_3);
+
+        var b3Periode_1 = buildBeregningsresultatPeriode(beregningsresultatFP_3, LocalDate.of(2021, 10, 11), LocalDate.of(2021, 10, 29));
+        //Andeler for bruker i periode#1
+        var b3Andel = buildBeregningsresultatAndel(b3Periode_1, true, 1876, BigDecimal.valueOf(100), virksomhet);
+        //Andeler for bruker i periode#2
+        var b3Periode_2 = buildBeregningsresultatPeriode(beregningsresultatFP_3, LocalDate.of(2021, 11, 1), LocalDate.of(2021, 11, 29));
+        buildBeregningsresultatAndel(b3Periode_2, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        var b3Periode_3 = buildBeregningsresultatPeriode(beregningsresultatFP_3, LocalDate.of(2022, 2, 9), LocalDate.of(2022, 2, 11));
+        buildBeregningsresultatAndel(b3Periode_3, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        var b3Periode_4 = buildBeregningsresultatPeriode(beregningsresultatFP_3, LocalDate.of(2022, 3, 1), LocalDate.of(2022, 5, 10));
+        buildBeregningsresultatAndel(b3Periode_4, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        var b3Periode_5 = buildBeregningsresultatPeriode(beregningsresultatFP_3, LocalDate.of(2022, 5, 11), LocalDate.of(2022, 7, 5));
+        buildBeregningsresultatAndel(b3Periode_5, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger3, b3Andel, 6888L, LocalDate.of(2021, 5, 1));
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger3, b3Andel, 4592L, LocalDate.of(2022, 5, 1));
+
+
+        var gruppertYtelse3 = mapper.fordelPåNøkler(beregningsresultatFP_3);
+        var builder3 = getInputStandardBuilder(gruppertYtelse3).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag, oppdragRevurdering)));
+
+        // Act
+        var oppdragRevurdering2 = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder3.build());
+
+        // Revurdering 3
+        var beregningsresultatFP_4 = buildEmptyBeregningsresultatFP();
+
+        var feriepenger4 = BeregningsresultatFeriepenger.builder()
+            .medFeriepengerPeriodeFom(LocalDate.of(2022, 5, 1))
+            .medFeriepengerPeriodeTom(LocalDate.of(2022, 5, 31))
+            .medFeriepengerRegelInput("input")
+            .medFeriepengerRegelSporing("sporing")
+            .build(beregningsresultatFP_4);
+
+        var b4Periode_1 = buildBeregningsresultatPeriode(beregningsresultatFP_4, LocalDate.of(2021, 10, 11), LocalDate.of(2021, 10, 29));
+        //Andeler for bruker i periode#1
+        var b4Andel = buildBeregningsresultatAndel(b4Periode_1, true, 1876, BigDecimal.valueOf(100), virksomhet);
+        //Andeler for bruker i periode#2
+        var b4Periode_2 = buildBeregningsresultatPeriode(beregningsresultatFP_4, LocalDate.of(2021, 11, 1), LocalDate.of(2021, 11, 29));
+        buildBeregningsresultatAndel(b4Periode_2, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        var b4Periode_3 = buildBeregningsresultatPeriode(beregningsresultatFP_4, LocalDate.of(2022, 2, 9), LocalDate.of(2022, 2, 11));
+        buildBeregningsresultatAndel(b4Periode_3, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        var b4Periode_4 = buildBeregningsresultatPeriode(beregningsresultatFP_4, LocalDate.of(2022, 3, 1), LocalDate.of(2022, 5, 10));
+        buildBeregningsresultatAndel(b4Periode_4, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        var b4Periode_5 = buildBeregningsresultatPeriode(beregningsresultatFP_4, LocalDate.of(2022, 5, 11), LocalDate.of(2022, 7, 5));
+        buildBeregningsresultatAndel(b4Periode_5, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger4, b4Andel, 6888L, LocalDate.of(2021, 5, 1));
+
+
+        var gruppertYtelse4 = mapper.fordelPåNøkler(beregningsresultatFP_4);
+        var builder4 = getInputStandardBuilder(gruppertYtelse4).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag, oppdragRevurdering, oppdragRevurdering2)));
+
+        // Act
+        var oppdragRevurdering3 = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder4.build());
+
+        // Revurdering 4
+        var beregningsresultatFP_5 = buildEmptyBeregningsresultatFP();
+
+        var feriepenger5 = BeregningsresultatFeriepenger.builder()
+            .medFeriepengerPeriodeFom(LocalDate.of(2022, 5, 1))
+            .medFeriepengerPeriodeTom(LocalDate.of(2022, 5, 31))
+            .medFeriepengerRegelInput("input")
+            .medFeriepengerRegelSporing("sporing")
+            .build(beregningsresultatFP_5);
+
+        var b5Periode_1 = buildBeregningsresultatPeriode(beregningsresultatFP_5, LocalDate.of(2021, 10, 11), LocalDate.of(2021, 10, 29));
+        //Andeler for bruker i periode#1
+        var b5Andel = buildBeregningsresultatAndel(b5Periode_1, true, 1876, BigDecimal.valueOf(100), virksomhet);
+        //Andeler for bruker i periode#2
+        var b5Periode_2 = buildBeregningsresultatPeriode(beregningsresultatFP_5, LocalDate.of(2021, 11, 1), LocalDate.of(2021, 11, 29));
+        buildBeregningsresultatAndel(b5Periode_2, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        var b5Periode_3 = buildBeregningsresultatPeriode(beregningsresultatFP_5, LocalDate.of(2022, 2, 9), LocalDate.of(2022, 2, 11));
+        buildBeregningsresultatAndel(b5Periode_3, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        var b5Periode_4 = buildBeregningsresultatPeriode(beregningsresultatFP_5, LocalDate.of(2022, 2, 28), LocalDate.of(2022, 4, 28));
+        buildBeregningsresultatAndel(b5Periode_4, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        var b5Periode_5 = buildBeregningsresultatPeriode(beregningsresultatFP_5, LocalDate.of(2022, 5, 9), LocalDate.of(2022, 8, 26));
+        buildBeregningsresultatAndel(b5Periode_5, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        var b5Periode_6 = buildBeregningsresultatPeriode(beregningsresultatFP_5, LocalDate.of(2022, 8, 29), LocalDate.of(2022, 9, 6));
+        buildBeregningsresultatAndel(b5Periode_6, true, 1876, BigDecimal.valueOf(100), virksomhet);
+
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger5, b5Andel, 6888L, LocalDate.of(2021, 5, 1));
+
+        var gruppertYtelse5 = mapper.fordelPåNøkler(beregningsresultatFP_5);
+        var builder5 = getInputStandardBuilder(gruppertYtelse5).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag, oppdragRevurdering, oppdragRevurdering2, oppdragRevurdering3)));
+
+        // Act
+        var oppdragRevurdering4 = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder5.build());
+
+        // Assert
+        //Bruker
+        var oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdragRevurdering4.getOppdrag110Liste());
+        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
+        assertThat(oppdrag110Bruker.getOmpostering116()).isPresent();
+        var ompostering116 = oppdrag110Bruker.getOmpostering116().get();
+        assertThat(ompostering116.getOmPostering()).isTrue();
+        assertThat(ompostering116.getDatoOmposterFom()).isEqualTo(b5Periode_4.getBeregningsresultatPeriodeFom());
     }
 
     @Test
