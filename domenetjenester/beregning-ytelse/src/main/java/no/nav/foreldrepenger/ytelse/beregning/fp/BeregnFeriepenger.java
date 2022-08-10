@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
+import no.nav.foreldrepenger.ytelse.beregning.adapter.MapInputFraVLTilRegelGrunnlag;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
@@ -24,8 +25,9 @@ public class BeregnFeriepenger extends BeregnFeriepengerTjeneste {
      */
     @Inject
     public BeregnFeriepenger(BehandlingRepositoryProvider repositoryProvider,
-                                       @KonfigVerdi(value = "fp.antall.dager.feriepenger", defaultVerdi = "60") int antallDagerFeriepenger) {
-        super(repositoryProvider, antallDagerFeriepenger);
+                             MapInputFraVLTilRegelGrunnlag inputTjeneste,
+                             @KonfigVerdi(value = "fp.antall.dager.feriepenger", defaultVerdi = "60") int antallDagerFeriepenger) {
+        super(repositoryProvider, inputTjeneste, antallDagerFeriepenger);
     }
 
     @Override

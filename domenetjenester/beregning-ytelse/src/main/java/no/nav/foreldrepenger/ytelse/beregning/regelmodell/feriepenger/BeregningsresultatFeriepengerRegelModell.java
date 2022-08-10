@@ -12,6 +12,7 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @RuleDocumentationGrunnlag
 public class BeregningsresultatFeriepengerRegelModell {
+    private boolean arbeidstakerVedSkjæringstidspunkt;
     private Set<Inntektskategori> inntektskategorier;
     private List<BeregningsresultatPeriode> beregningsresultatPerioder;
     private Dekningsgrad dekningsgrad;
@@ -24,6 +25,10 @@ public class BeregningsresultatFeriepengerRegelModell {
 
     private BeregningsresultatFeriepengerRegelModell() {
         //tom konstruktør
+    }
+
+    public boolean erArbeidstakerVedSkjæringstidspunkt() {
+        return arbeidstakerVedSkjæringstidspunkt;
     }
 
     public Set<Inntektskategori> getInntektskategorier() {
@@ -75,6 +80,11 @@ public class BeregningsresultatFeriepengerRegelModell {
 
         public Builder() {
             this.kladd = new BeregningsresultatFeriepengerRegelModell();
+        }
+
+        public Builder medArbeidstakerVedSkjæringstidspunkt(boolean arbeidstakerVedSkjæringstidspunkt) {
+            kladd.arbeidstakerVedSkjæringstidspunkt = arbeidstakerVedSkjæringstidspunkt;
+            return this;
         }
 
         public Builder medInntektskategorier(Set<Inntektskategori> inntektskategorier) {

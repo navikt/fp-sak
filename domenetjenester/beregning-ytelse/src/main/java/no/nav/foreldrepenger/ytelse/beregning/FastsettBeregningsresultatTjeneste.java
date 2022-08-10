@@ -1,35 +1,21 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import no.nav.folketrygdloven.beregningsgrunnlag.RegelmodellOversetter;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFraRegelTilVL;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodell;
 import no.nav.foreldrepenger.ytelse.beregning.regler.RegelFastsettBeregningsresultat;
+import no.nav.fpsak.nare.evaluation.summary.EvaluationSerializer;
 
-@ApplicationScoped
-public class FastsettBeregningsresultatTjeneste {
+public final class FastsettBeregningsresultatTjeneste {
 
-    private MapBeregningsresultatFraRegelTilVL mapBeregningsresultatFraRegelTilVL;
-
-    FastsettBeregningsresultatTjeneste() {
-    }
-
-    @Inject
-    public FastsettBeregningsresultatTjeneste(MapBeregningsresultatFraRegelTilVL mapBeregningsresultatFraRegelTilVL) {
-        this.mapBeregningsresultatFraRegelTilVL = mapBeregningsresultatFraRegelTilVL;
-    }
-
-    public BeregningsresultatEntitet fastsettBeregningsresultat(BeregningsresultatRegelmodell regelmodell) {
+    public static BeregningsresultatEntitet fastsettBeregningsresultat(BeregningsresultatRegelmodell regelmodell) {
         // Kalle regel
         var regel = new RegelFastsettBeregningsresultat();
         var outputContainer = Beregningsresultat.builder().build();
         var evaluation = regel.evaluer(regelmodell, outputContainer);
-        var sporing = RegelmodellOversetter.getSporing(evaluation);
+        var sporing = EvaluationSerializer.asJson(evaluation);
 
         // Map tilbake til domenemodell fra regelmodell
         var beregningsresultat = BeregningsresultatEntitet.builder()
@@ -37,12 +23,12 @@ public class FastsettBeregningsresultatTjeneste {
             .medRegelSporing(sporing)
             .build();
 
-        mapBeregningsresultatFraRegelTilVL.mapFra(outputContainer, beregningsresultat);
+        MapBeregningsresultatFraRegelTilVL.mapFra(outputContainer, beregningsresultat);
 
         return beregningsresultat;
     }
 
-    private String toJson(BeregningsresultatRegelmodell grunnlag) {
+    private static String toJson(BeregningsresultatRegelmodell grunnlag) {
         return StandardJsonConfig.toJson(grunnlag);
     }
 }

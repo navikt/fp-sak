@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
@@ -23,16 +23,16 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inn
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerRegelModell;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class MapBeregningsresultatFeriepengerFraVLTilRegel {
+public final class MapBeregningsresultatFeriepengerFraVLTilRegel {
 
 
     MapBeregningsresultatFeriepengerFraVLTilRegel() {
         //Skal ikke instansieres
     }
 
-    public static BeregningsresultatFeriepengerRegelModell mapFra(Behandling behandling, BeregningsresultatEntitet beregningsresultat,
+    public static BeregningsresultatFeriepengerRegelModell mapFra(BehandlingReferanse ref, BeregningsresultatEntitet beregningsresultat,
                                                                   Optional<BeregningsresultatEntitet> annenPartsBeregningsresultatFP,
-                                                                  Dekningsgrad dekningsgrad,
+                                                                  Dekningsgrad dekningsgrad, boolean arbeidstakerVedSTP,
                                                                   int antallDagerFeriepenger) {
 
         var annenPartsBeregningsresultatPerioder = annenPartsBeregningsresultatFP.map(a -> a.getBeregningsresultatPerioder().stream()
@@ -43,11 +43,12 @@ public class MapBeregningsresultatFeriepengerFraVLTilRegel {
             .map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapBeregningsresultatPerioder).collect(Collectors.toList());
         var inntektskategorier = mapInntektskategorier(beregningsresultat);
         var annenPartsInntektskategorier = annenPartsBeregningsresultatFP.map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapInntektskategorier).orElse(Collections.emptySet());
-        var erForelder1 = RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType());
+        var erForelder1 = RelasjonsRolleType.erMor(ref.relasjonRolle());
 
         return BeregningsresultatFeriepengerRegelModell.builder()
             .medBeregningsresultatPerioder(beregningsresultatPerioder)
             .medInntektskategorier(inntektskategorier)
+            .medArbeidstakerVedSkjæringstidspunkt(arbeidstakerVedSTP)
             .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
             .medAnnenPartsInntektskategorier(annenPartsInntektskategorier)
             .medDekningsgrad(map(dekningsgrad))

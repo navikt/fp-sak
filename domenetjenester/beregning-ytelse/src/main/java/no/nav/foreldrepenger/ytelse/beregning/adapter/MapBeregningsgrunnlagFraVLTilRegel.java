@@ -1,13 +1,15 @@
 package no.nav.foreldrepenger.ytelse.beregning.adapter;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import javax.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
+import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Beregningsgrunnlag;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPeriode;
@@ -15,8 +17,9 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Ber
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPrStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Periode;
 
-@ApplicationScoped
-public class MapBeregningsgrunnlagFraVLTilRegel {
+public final class MapBeregningsgrunnlagFraVLTilRegel {
+
+    private static final Set<Inntektskategori> INNT_KATEGORI_FOR_AT = Set.of(Inntektskategori.ARBEIDSTAKER, Inntektskategori.SJØMANN);
 
     private MapBeregningsgrunnlagFraVLTilRegel() {
     }
@@ -33,6 +36,13 @@ public class MapBeregningsgrunnlagFraVLTilRegel {
             .medAktivitetStatuser(aktivitetStatuser)
             .medBeregningsgrunnlagPerioder(perioder)
             .build();
+    }
+
+    public static boolean arbeidstakerVedSkjæringstidspunkt(BeregningsgrunnlagEntitet vlBeregningsgrunnlag) {
+        return vlBeregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
+            .min(Comparator.comparing(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom))
+            .map(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList).orElse(List.of()).stream()
+            .anyMatch(a -> AndelKilde.PROSESS_START.equals(a.getKilde()) && INNT_KATEGORI_FOR_AT.contains(a.getInntektskategori()));
     }
 
     private static List<BeregningsgrunnlagPeriode> mapBeregningsgrunnlagPerioder(BeregningsgrunnlagEntitet vlBeregningsgrunnlag) {

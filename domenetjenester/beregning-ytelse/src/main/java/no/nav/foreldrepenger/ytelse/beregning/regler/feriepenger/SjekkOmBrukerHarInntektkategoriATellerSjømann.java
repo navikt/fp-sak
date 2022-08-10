@@ -7,7 +7,7 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
 
 class SjekkOmBrukerHarInntektkategoriATellerSjømann extends LeafSpecification<BeregningsresultatFeriepengerRegelModell> {
     public static final String ID = "FP_BR 8.1";
-    public static final String BESKRIVELSE = "Er brukers inntektskategori arbeidstaker eller sjømann?";
+    public static final String BESKRIVELSE = "Er bruker beregnet som arbeidstaker ved skjæringstidspunktet?";
 
 
     SjekkOmBrukerHarInntektkategoriATellerSjømann() {
@@ -16,8 +16,9 @@ class SjekkOmBrukerHarInntektkategoriATellerSjømann extends LeafSpecification<B
 
     @Override
     public Evaluation evaluate(BeregningsresultatFeriepengerRegelModell regelModell) {
-        var erArbeidstakerEllerSjømann = regelModell.getInntektskategorier().stream()
+        var arbeidstakerVedSTP = regelModell.erArbeidstakerVedSkjæringstidspunkt();
+        var utbetalingForArbeidstakerAndel = regelModell.getInntektskategorier().stream()
             .anyMatch(Inntektskategori::erArbeidstakerEllerSjømann);
-        return erArbeidstakerEllerSjømann ? ja() : nei();
+        return arbeidstakerVedSTP && utbetalingForArbeidstakerAndel ? ja() : nei();
     }
 }

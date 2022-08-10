@@ -44,9 +44,7 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnYtelseTjeneste;
-import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @CdiDbAwareTest
 public class BeregneYtelseStegImplTest {
@@ -70,8 +68,6 @@ public class BeregneYtelseStegImplTest {
 
     @Mock
     private BeregnYtelseTjeneste beregnYtelseTjeneste;
-    @Mock
-    private BeregnFeriepengerTjeneste beregnFeriepengerTjeneste;
 
     private BeregneYtelseStegImpl steg;
 
@@ -79,7 +75,6 @@ public class BeregneYtelseStegImplTest {
     void setup() {
         steg = new BeregneYtelseStegImpl(behandlingRepository,
                 beregningsresultatRepository,
-                new UnitTestLookupInstanceImpl<>(beregnFeriepengerTjeneste),
                 beregnYtelseTjeneste, inntektArbeidYtelseTjeneste);
     }
 

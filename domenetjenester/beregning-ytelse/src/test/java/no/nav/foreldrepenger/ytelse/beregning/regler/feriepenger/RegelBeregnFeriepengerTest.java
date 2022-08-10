@@ -48,6 +48,7 @@ public class RegelBeregnFeriepengerTest {
                 .medBeregningsresultatPerioder(List.of(periode1, periode2))
                 .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
                 .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+                .medArbeidstakerVedSkjæringstidspunkt(true)
                 .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
                 .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
                 .medErForelder1(true)
@@ -102,6 +103,7 @@ public class RegelBeregnFeriepengerTest {
                 .medBeregningsresultatPerioder(List.of(periode0, periode1, periode2))
                 .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
                 .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+                .medArbeidstakerVedSkjæringstidspunkt(true)
                 .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
                 .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
                 .medErForelder1(true)
@@ -160,6 +162,7 @@ public class RegelBeregnFeriepengerTest {
                 .medBeregningsresultatPerioder(List.of(periode1, periode2))
                 .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
                 .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+                .medArbeidstakerVedSkjæringstidspunkt(true)
                 .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
                 .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
                 .medErForelder1(false)
@@ -207,6 +210,7 @@ public class RegelBeregnFeriepengerTest {
                 .medBeregningsresultatPerioder(List.of(periode1, periode2, periode3))
                 .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
                 .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+                .medArbeidstakerVedSkjæringstidspunkt(true)
                 .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
                 .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
                 .medErForelder1(true)
@@ -262,6 +266,7 @@ public class RegelBeregnFeriepengerTest {
                 .medBeregningsresultatPerioder(List.of(periode1))
                 .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
                 .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+                .medArbeidstakerVedSkjæringstidspunkt(true)
                 .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
                 .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
                 .medErForelder1(false)
@@ -304,6 +309,7 @@ public class RegelBeregnFeriepengerTest {
                 .medBeregningsresultatPerioder(List.of(periode1, periode2, periode3))
                 .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
                 .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+                .medArbeidstakerVedSkjæringstidspunkt(true)
                 .medAnnenPartsInntektskategorier(Collections.singleton(Inntektskategori.SJØMANN))
                 .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
                 .medErForelder1(true)
@@ -344,6 +350,7 @@ public class RegelBeregnFeriepengerTest {
                 .medBeregningsresultatPerioder(List.of(periode1))
                 .medAnnenPartsBeregningsresultatPerioder(Collections.emptyList())
                 .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
+                .medArbeidstakerVedSkjæringstidspunkt(true)
                 .medAnnenPartsInntektskategorier(Collections.emptySet())
                 .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
                 .medErForelder1(true)
@@ -376,6 +383,7 @@ public class RegelBeregnFeriepengerTest {
                 .medBeregningsresultatPerioder(List.of(periode1, periode2))
                 .medAnnenPartsBeregningsresultatPerioder(List.of())
                 .medInntektskategorier(Set.of(Inntektskategori.ARBEIDSTAKER))
+                .medArbeidstakerVedSkjæringstidspunkt(true)
                 .medAnnenPartsInntektskategorier(Set.of())
                 .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
                 .medErForelder1(true)
@@ -407,6 +415,37 @@ public class RegelBeregnFeriepengerTest {
             .medBeregningsresultatPerioder(List.of(periode1, periode2))
             .medAnnenPartsBeregningsresultatPerioder(List.of())
             .medInntektskategorier(Set.of(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE))
+            .medArbeidstakerVedSkjæringstidspunkt(false)
+            .medAnnenPartsInntektskategorier(Set.of())
+            .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .medErForelder1(true)
+            .medAntallDagerFeriepenger(64) // SVP-spesifikt
+            .build();
+
+        var regel = new RegelBeregnFeriepenger();
+        var evaluation = regel.evaluer(regelModell);
+        var sporing = EvaluationSerializer.asJson(evaluation);
+
+        assertThat(sporing).isNotNull();
+        assertThat(regelModell.getFeriepengerPeriode()).isNull();
+
+        regelModell.getBeregningsresultatPerioder().get(0).getBeregningsresultatAndelList()
+            .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty());
+    }
+
+    @Test
+    public void skalIkkeBeregneFeriepengerPeriodeForSvangerskapspengerSNTilkommetAT() {
+        var periode1 = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
+        var periode2 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 7, 1));
+        byggSNAndelForPeriode(periode1, 700);
+        byggSNAndelForPeriode(periode2, 300);
+        byggAndelerForPeriode(periode2, 625, 250, arbeidsforhold1);
+
+        var regelModell = BeregningsresultatFeriepengerRegelModell.builder()
+            .medBeregningsresultatPerioder(List.of(periode1, periode2))
+            .medAnnenPartsBeregningsresultatPerioder(List.of())
+            .medInntektskategorier(Set.of(Inntektskategori.ARBEIDSTAKER, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE))
+            .medArbeidstakerVedSkjæringstidspunkt(false)
             .medAnnenPartsInntektskategorier(Set.of())
             .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .medErForelder1(true)
@@ -426,7 +465,7 @@ public class RegelBeregnFeriepengerTest {
 
     // Skal beregne feriepenger fom tilkommet AT-andel
     @Test
-    public void skalBeregneFeriepengerPeriodeForSvangerskapspengerTilkommetAT() {
+    public void skalBeregneFeriepengerPeriodeForSvangerskapspengerATSNmedSNførAT() {
         var periode1 = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
         var periode2 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 7, 1));
         byggSNAndelForPeriode(periode1, 700);
@@ -437,6 +476,7 @@ public class RegelBeregnFeriepengerTest {
             .medBeregningsresultatPerioder(List.of(periode1, periode2))
             .medAnnenPartsBeregningsresultatPerioder(List.of())
             .medInntektskategorier(Set.of(Inntektskategori.ARBEIDSTAKER, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE))
+            .medArbeidstakerVedSkjæringstidspunkt(true)
             .medAnnenPartsInntektskategorier(Set.of())
             .medDekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .medErForelder1(true)

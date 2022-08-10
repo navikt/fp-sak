@@ -1,51 +1,42 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.regler.jackson.JacksonJsonConfig;
-import no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFraVLTilRegel;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodell;
+import static no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenProvider.LOG;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
-import static no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenProvider.LOG;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.regler.jackson.JacksonJsonConfig;
+import no.nav.foreldrepenger.ytelse.beregning.adapter.MapInputFraVLTilRegelGrunnlag;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodell;
 
 @ApplicationScoped
 public class BeregnYtelseTjeneste {
     private final JacksonJsonConfig jackson = new JacksonJsonConfig();
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
-    private FastsettBeregningsresultatTjeneste fastsettBeregningsresultatTjeneste;
-    private UttakInputTjeneste uttakInputTjeneste;
-    private MapBeregningsresultatFraVLTilRegel mapBeregningsresultatFraVLTilRegel;
+    private Instance<BeregnFeriepengerTjeneste> beregnFeriepengerTjeneste;
+    private MapInputFraVLTilRegelGrunnlag mapBeregningsresultatFraVLTilRegel;
 
     public BeregnYtelseTjeneste() {
         // CDI
     }
 
     @Inject
-    public BeregnYtelseTjeneste(HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                                FastsettBeregningsresultatTjeneste fastsettBeregningsresultatTjeneste,
-                                UttakInputTjeneste uttakInputTjeneste,
-                                MapBeregningsresultatFraVLTilRegel mapBeregningsresultatFraVLTilRegel) {
-        this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
-        this.fastsettBeregningsresultatTjeneste = fastsettBeregningsresultatTjeneste;
-        this.uttakInputTjeneste = uttakInputTjeneste;
+    public BeregnYtelseTjeneste(@Any Instance<BeregnFeriepengerTjeneste> beregnFeriepengerTjeneste,
+                                MapInputFraVLTilRegelGrunnlag mapBeregningsresultatFraVLTilRegel) {
+        this.beregnFeriepengerTjeneste = beregnFeriepengerTjeneste;
         this.mapBeregningsresultatFraVLTilRegel = mapBeregningsresultatFraVLTilRegel;
     }
 
     public BeregningsresultatEntitet beregnYtelse(BehandlingReferanse referanse) {
-        var behandlingId = referanse.behandlingId();
-        var input = uttakInputTjeneste.lagInput(behandlingId);
-
-        var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandlingId);
-
         // Map til regelmodell
-        var regelmodell = mapBeregningsresultatFraVLTilRegel.mapFra(beregningsgrunnlag, input);
+        var regelmodell = mapBeregningsresultatFraVLTilRegel.mapFra(referanse);
 
         // Verifiser input til regel
         if (andelerIBeregningMåLiggeIUttak(referanse)) {
@@ -55,7 +46,11 @@ public class BeregnYtelseTjeneste {
         }
 
         // Kalle regeltjeneste
-        var beregningsresultat = fastsettBeregningsresultatTjeneste.fastsettBeregningsresultat(regelmodell);
+        var beregningsresultat = FastsettBeregningsresultatTjeneste.fastsettBeregningsresultat(regelmodell);
+
+        // Beregn feriepenger
+        var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, referanse.fagsakYtelseType()).orElseThrow();
+        feriepengerTjeneste.beregnFeriepenger(referanse, beregningsresultat);
 
         // Verifiser beregningsresultat
         try {
