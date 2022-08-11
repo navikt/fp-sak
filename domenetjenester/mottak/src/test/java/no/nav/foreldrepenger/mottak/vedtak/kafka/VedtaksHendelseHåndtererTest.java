@@ -405,6 +405,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     private Beregningsgrunnlag lagBeregningsgrunnlag(LocalDate stp, int utbetalingsgrad) {
         var brutto = new BigDecimal(DAGSATS).multiply(new BigDecimal(260));
         var redusert = brutto.multiply(new BigDecimal(utbetalingsgrad)).divide(BigDecimal.TEN.multiply(BigDecimal.TEN), RoundingMode.HALF_UP);
+        var dagsats = redusert.divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP);
         return Beregningsgrunnlag.builder()
             .medSkjæringstidspunkt(stp)
             .medGrunnbeløp(new BigDecimal(100000))
@@ -412,9 +413,10 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
                 .medBeregningsgrunnlagPeriode(stp, Tid.TIDENES_ENDE)
                 .medRedusertPrÅr(redusert)
                 .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
-                    .medBeregnetPrÅr(brutto)
+                    .medBruttoPrÅr(brutto)
                     .medRedusertPrÅr(redusert)
                     .medRedusertBrukersAndelPrÅr(redusert)
+                    .medDagsatsBruker(dagsats.longValue())
                     .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
                         .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
                         .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999")))

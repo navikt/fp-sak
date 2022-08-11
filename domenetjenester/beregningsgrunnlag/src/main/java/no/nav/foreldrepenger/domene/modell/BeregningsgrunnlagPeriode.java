@@ -246,6 +246,7 @@ public class BeregningsgrunnlagPeriode {
 
         public BeregningsgrunnlagPeriode build() {
             verifyStateForBuild();
+            kladd.updateBruttoPrÅr();
             kladd.dagsats = kladd.beregningsgrunnlagPrStatusOgAndelList.stream()
                 .map(BeregningsgrunnlagPrStatusOgAndel::getDagsats)
                 .filter(Objects::nonNull)
