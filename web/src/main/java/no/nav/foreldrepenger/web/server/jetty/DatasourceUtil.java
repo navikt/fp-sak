@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.web.server.jetty;
 
 import java.util.Properties;
 
-import javax.sql.DataSource;
-
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -13,7 +11,7 @@ import no.nav.foreldrepenger.konfig.Environment;
 public class DatasourceUtil {
     private static final Environment ENV = Environment.current();
 
-    public static DataSource createDatasource(String schemaName, int maxPoolSize) {
+    public static HikariDataSource createDatasource(String schemaName, int maxPoolSize) {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(ENV.getRequiredProperty(schemaName + ".url"));
         config.setUsername(ENV.getRequiredProperty(schemaName + ".username"));
