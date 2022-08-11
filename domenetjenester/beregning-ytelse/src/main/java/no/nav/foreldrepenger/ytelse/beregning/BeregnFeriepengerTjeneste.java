@@ -51,8 +51,10 @@ public abstract class BeregnFeriepengerTjeneste {
 
         var arbeidstakerVedSTP = inputTjeneste.arbeidstakerVedSkjæringstidspunkt(ref);
         var annenPartsBehandling = finnAnnenPartsBehandling(ref);
-        var annenPartsBeregningsresultat = annenPartsBehandling.map(Behandling::getId)
-            .flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat);
+        var annenPartArbeidstakerVedSTP = annenPartsBehandling.map(BehandlingReferanse::fra)
+            .map(inputTjeneste::arbeidstakerVedSkjæringstidspunkt).orElse(false);
+        Optional<BeregningsresultatEntitet> annenPartsBeregningsresultat = annenPartArbeidstakerVedSTP ?
+            annenPartsBehandling.map(Behandling::getId).flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat) : Optional.empty();
         var gjeldendeDekningsgrad = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(ref.fagsakId()).orElseThrow()
             .getGjeldendeDekningsgrad();
 
@@ -76,8 +78,10 @@ public abstract class BeregnFeriepengerTjeneste {
 
         var arbeidstakerVedSTP = inputTjeneste.arbeidstakerVedSkjæringstidspunkt(ref);
         var annenPartsBehandling = finnAnnenPartsBehandling(ref);
-        var annenPartsBeregningsresultat = annenPartsBehandling.map(Behandling::getId)
-            .flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat);
+        var annenPartArbeidstakerVedSTP = annenPartsBehandling.map(BehandlingReferanse::fra)
+            .map(inputTjeneste::arbeidstakerVedSkjæringstidspunkt).orElse(false);
+        Optional<BeregningsresultatEntitet> annenPartsBeregningsresultat = annenPartArbeidstakerVedSTP ?
+            annenPartsBehandling.map(Behandling::getId).flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat) : Optional.empty();
         var gjeldendeDekningsgrad = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(ref.fagsakId()).orElseThrow()
             .getGjeldendeDekningsgrad();
 

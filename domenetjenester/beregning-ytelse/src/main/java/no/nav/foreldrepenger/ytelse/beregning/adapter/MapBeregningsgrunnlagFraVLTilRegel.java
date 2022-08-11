@@ -42,7 +42,7 @@ public final class MapBeregningsgrunnlagFraVLTilRegel {
         return vlBeregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
             .min(Comparator.comparing(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom))
             .map(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList).orElse(List.of()).stream()
-            .anyMatch(a -> AndelKilde.PROSESS_START.equals(a.getKilde()) && INNT_KATEGORI_FOR_AT.contains(a.getInntektskategori()));
+            .anyMatch(a -> AndelKilde.PROSESS_START.equals(a.getKilde()) && INNT_KATEGORI_FOR_AT.contains(a.getGjeldendeInntektskategori()));
     }
 
     private static List<BeregningsgrunnlagPeriode> mapBeregningsgrunnlagPerioder(BeregningsgrunnlagEntitet vlBeregningsgrunnlag) {
