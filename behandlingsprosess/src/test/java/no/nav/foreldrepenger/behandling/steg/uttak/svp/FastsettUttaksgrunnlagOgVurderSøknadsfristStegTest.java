@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandling.steg.uttak.svp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 
@@ -64,9 +65,10 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
     public void ingen_aksjonspunkt_når_søkt_i_tide(EntityManager em) {
         var jordsmorsdato = LocalDate.of(2019, Month.MAY, 5);
         var mottatdato = jordsmorsdato;
-        svpHelper.lagreTerminbekreftelse(behandling, LocalDate.of(2019, Month.JULY, 1));
+        var termindato = LocalDate.of(2019, Month.JULY, 1);
+        svpHelper.lagreTerminbekreftelse(behandling, termindato);
         svpHelper.lagreIngenTilrettelegging(behandling, jordsmorsdato);
-        var søknad = opprettSøknad(jordsmorsdato, mottatdato);
+        var søknad = opprettSøknad(behandling, jordsmorsdato, mottatdato);
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
         em.flush();
         em.clear();
@@ -80,7 +82,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
         em.clear();
         // Assert
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
-        assertThat(behandleStegResultat.getAksjonspunktListe()).hasSize(0);
+        assertThat(behandleStegResultat.getAksjonspunktListe()).isEmpty();
 
         var gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository()
             .hentHvisEksisterer(behandling.getId());
@@ -95,9 +97,10 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
     public void aksjonspunkt_når_søkt_for_sent(EntityManager em) {
         var jordsmorsdato = LocalDate.of(2019, Month.MAY, 5);
         var mottatdato = LocalDate.of(2019, Month.SEPTEMBER, 3);
-        svpHelper.lagreTerminbekreftelse(behandling, LocalDate.of(2019, Month.JULY, 1));
+        var termindato = LocalDate.of(2019, Month.JULY, 1);
+        svpHelper.lagreTerminbekreftelse(behandling, termindato);
         svpHelper.lagreIngenTilrettelegging(behandling, jordsmorsdato);
-        var søknad = opprettSøknad(jordsmorsdato, mottatdato);
+        var søknad = opprettSøknad(behandling, jordsmorsdato, mottatdato);
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
         em.flush();
         em.clear();
@@ -124,10 +127,71 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
         });
     }
 
-    private SøknadEntitet opprettSøknad(LocalDate fødselsdato, LocalDate mottattDato) {
+    @Test
+    public void ingen_aksjonspunkt_revurdering_søkt_i_tide(EntityManager em) {
+        var jordsmorsdato = LocalDate.of(2019, Month.MAY, 5);
+        var mottatdato = jordsmorsdato;
+        var termindato = LocalDate.of(2019, Month.DECEMBER, 1);
+        svpHelper.lagreTerminbekreftelse(behandling, termindato);
+        svpHelper.lagreDelvisTilrettelegging(behandling, jordsmorsdato, jordsmorsdato, new BigDecimal(60));
+        var søknad = opprettSøknad(behandling, termindato, mottatdato);
+        repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
+        em.flush();
+        em.clear();
+        var fagsak = behandling.getFagsak();
+
+        // Act
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+            behandlingRepository.taSkriveLås(behandling));
+        var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
+        em.flush();
+        em.clear();
+        // Assert
+        assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(behandleStegResultat.getAksjonspunktListe()).isEmpty();
+
+        var gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository()
+            .hentHvisEksisterer(behandling.getId());
+        assertThat(gjeldendeUttaksperiodegrense).hasValueSatisfying(upg -> {
+            assertThat(upg).isNotNull();
+            assertThat(upg.getMottattDato()).isEqualTo(mottatdato);
+            assertThat(Søknadsfrister.tidligsteDatoDagytelse(upg.getMottattDato())).isEqualTo(LocalDate.of(2019, Month.FEBRUARY, 1));
+        });
+        behandling.avsluttBehandling();
+
+        var revurdering = svpHelper.lagreRevurdering(behandling);
+        svpHelper.lagreTerminbekreftelse(revurdering, LocalDate.of(2019, Month.DECEMBER, 1));
+        svpHelper.lagreDelvisTilrettelegging(revurdering, jordsmorsdato, jordsmorsdato.plusMonths(4), new BigDecimal(20));
+        var søknadRevurder = opprettSøknad(revurdering, termindato, mottatdato.plusMonths(4));
+        repositoryProvider.getSøknadRepository().lagreOgFlush(revurdering, søknadRevurder);
+        em.flush();
+        em.clear();
+        // Act
+        var rkontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+            behandlingRepository.taSkriveLås(revurdering));
+        var rbehandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(rkontekst);
+        em.flush();
+        em.clear();
+        // Assert
+        assertThat(rbehandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(rbehandleStegResultat.getAksjonspunktListe()).isEmpty();
+
+        gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository()
+            .hentHvisEksisterer(revurdering.getId());
+        assertThat(gjeldendeUttaksperiodegrense).hasValueSatisfying(upg -> {
+            assertThat(upg).isNotNull();
+            assertThat(upg.getMottattDato()).isEqualTo(mottatdato);
+            assertThat(Søknadsfrister.tidligsteDatoDagytelse(upg.getMottattDato())).isEqualTo(LocalDate.of(2019, Month.FEBRUARY, 1));
+        });
+
+    }
+
+
+
+    private SøknadEntitet opprettSøknad(Behandling behandling, LocalDate termindato, LocalDate mottattDato) {
         final var søknadHendelse = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
-                .medAntallBarn(1)
-                .medFødselsDato(fødselsdato);
+            .medAntallBarn(1)
+            .medFødselsDato(termindato);
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, søknadHendelse);
 
         return new SøknadEntitet.Builder()

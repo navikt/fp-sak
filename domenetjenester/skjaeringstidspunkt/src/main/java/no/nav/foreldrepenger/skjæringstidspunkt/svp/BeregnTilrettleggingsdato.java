@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.skjæringstidspunkt.svp;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
@@ -10,6 +12,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Tilrett
 class BeregnTilrettleggingsdato {
 
     static LocalDate beregnFraTilrettelegging(SvpTilretteleggingEntitet tilrettelegging) {
+        return beregnFraTilrettelegging(tilrettelegging, true);
+    }
+
+    static LocalDate tidligstTilretteleggingFraTilrettelegging(SvpTilretteleggingEntitet tilrettelegging) {
+        return beregnFraTilrettelegging(tilrettelegging, false);
+    }
+
+    private static LocalDate beregnFraTilrettelegging(SvpTilretteleggingEntitet tilrettelegging, boolean beregnForSTP) {
         var jordmorsdato = tilrettelegging.getBehovForTilretteleggingFom();
         var helTilrettelegging = tilrettelegging.getTilretteleggingFOMListe().stream()
             .filter(tl -> tl.getType().equals(TilretteleggingType.HEL_TILRETTELEGGING))
@@ -23,7 +33,8 @@ class BeregnTilrettleggingsdato {
             .filter(tl -> tl.getType().equals(TilretteleggingType.INGEN_TILRETTELEGGING))
             .map(TilretteleggingFOM::getFomDato)
             .min(LocalDate::compareTo);
-        return beregn(jordmorsdato, helTilrettelegging, delvisTilrettelegging, slutteArbeid);
+        return beregnForSTP ? beregn(jordmorsdato, helTilrettelegging, delvisTilrettelegging, slutteArbeid) :
+            tidligsteSøktTilrettelegging(jordmorsdato, helTilrettelegging, delvisTilrettelegging, slutteArbeid);
     }
 
     static LocalDate beregn(LocalDate jordmorsdato, Optional<LocalDate> helTilrettelegging, Optional<LocalDate> delvisTilrettelegging, Optional<LocalDate> slutteArbeid) {
@@ -67,6 +78,12 @@ class BeregnTilrettleggingsdato {
         }
 
         return jordmorsdato;
+    }
+
+    static LocalDate tidligsteSøktTilrettelegging(LocalDate jordmorsdato, Optional<LocalDate> helTilrettelegging, Optional<LocalDate> delvisTilrettelegging, Optional<LocalDate> slutteArbeid) {
+        return Stream.of(helTilrettelegging, delvisTilrettelegging, slutteArbeid)
+            .flatMap(Optional::stream)
+            .min(Comparator.naturalOrder()).orElse(jordmorsdato);
     }
 
     private static LocalDate tidligsteDato(LocalDate dato1, LocalDate dato2) {
