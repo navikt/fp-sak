@@ -83,12 +83,9 @@ public class JettyServer {
     protected void bootStrap() throws Exception {
         konfigurerSikkerhet();
 
-        var defaultDatasource = DatasourceUtil.createDatasource("defaultDS", 30);
-        settJdniOppslag(defaultDatasource);
-        migrerDatabase(defaultDatasource, "defaultDS");
-
-        var dvhDatasource = DatasourceUtil.createDatasource("dvhDS", 5);
-        migrerDatabase(dvhDatasource, "dvhDS");
+        settJdniOppslag(DatasourceUtil.createDatasource("defaultDS", 30));
+        migrerDatabase("defaultDS");
+        migrerDatabase("dvhDS");
 
         start();
     }
@@ -128,8 +125,8 @@ public class JettyServer {
         new EnvEntry("jdbc/defaultDS", dataSource);
     }
 
-    protected void migrerDatabase(DataSource dataSource, String schemaName) {
-        try {
+    protected void migrerDatabase(String schemaName) {
+        try (var dataSource = DatasourceUtil.createDatasource(schemaName, 3)) {
             Flyway.configure()
                 .dataSource(dataSource)
                 .locations("classpath:/db/migration/" + schemaName)
