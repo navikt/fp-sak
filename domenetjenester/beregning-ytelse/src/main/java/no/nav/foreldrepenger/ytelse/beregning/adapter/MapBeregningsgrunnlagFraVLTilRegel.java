@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.ytelse.beregning.adapter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
@@ -18,8 +17,6 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Ber
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Periode;
 
 public final class MapBeregningsgrunnlagFraVLTilRegel {
-
-    private static final Set<Inntektskategori> INNT_KATEGORI_FOR_AT = Set.of(Inntektskategori.ARBEIDSTAKER, Inntektskategori.SJØMANN);
 
     private MapBeregningsgrunnlagFraVLTilRegel() {
     }
@@ -42,7 +39,7 @@ public final class MapBeregningsgrunnlagFraVLTilRegel {
         return vlBeregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
             .min(Comparator.comparing(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom))
             .map(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList).orElse(List.of()).stream()
-            .anyMatch(a -> AndelKilde.PROSESS_START.equals(a.getKilde()) && INNT_KATEGORI_FOR_AT.contains(a.getGjeldendeInntektskategori()));
+            .anyMatch(a -> AndelKilde.PROSESS_START.equals(a.getKilde()) && Inntektskategori.girFeriepenger().contains(a.getGjeldendeInntektskategori()));
     }
 
     private static List<BeregningsgrunnlagPeriode> mapBeregningsgrunnlagPerioder(BeregningsgrunnlagEntitet vlBeregningsgrunnlag) {

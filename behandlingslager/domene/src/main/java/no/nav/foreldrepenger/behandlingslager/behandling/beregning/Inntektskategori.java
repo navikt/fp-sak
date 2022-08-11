@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -27,6 +28,7 @@ public enum Inntektskategori implements Kodeverdi {
     UDEFINERT("-", "Ingen inntektskategori (default)"),
     ;
     private static final Map<String, Inntektskategori> KODER = new LinkedHashMap<>();
+    private static final Set<Inntektskategori> GIR_FERIEPENGER = Set.of(ARBEIDSTAKER, SJØMANN);
 
     public static final String KODEVERK = "INNTEKTSKATEGORI";
 
@@ -51,6 +53,10 @@ public enum Inntektskategori implements Kodeverdi {
 
     public static Map<String, Inntektskategori> kodeMap() {
         return Collections.unmodifiableMap(KODER);
+    }
+
+    public static Set<Inntektskategori> girFeriepenger() {
+        return GIR_FERIEPENGER;
     }
 
     @Override
