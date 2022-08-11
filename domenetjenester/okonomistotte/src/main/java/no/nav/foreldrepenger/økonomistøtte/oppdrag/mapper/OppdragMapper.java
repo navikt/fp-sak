@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper;
 
+import static no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.OmposteringUtil.erOpphørForMottaker;
+import static no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.OmposteringUtil.harGjeldendeUtbetalingerFraTidligere;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -52,10 +55,16 @@ public class OppdragMapper {
             .medSaksbehId(ansvarligSaksbehandler)
             .medAvstemming(Avstemming.ny());
 
+        // Det skal prøves å ompostere om:
+        // - det er utbetaling til bruker
+        // - det er ikke en utbetaling til ny mottaker
+        // - mottaker har gjeldende utbetalinger fra tidligere
+        // - gjeldende oppdrag fører ikke til full opphør for mottaker
+        var tidligerOppdragForMottaker = tidligereOppdrag.filter(oppdrag.getBetalingsmottaker());
         if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER
             && !oppdragErTilNyMottaker(oppdrag.getBetalingsmottaker())
-            && harHattUtbetalingTidligere(oppdrag.getBetalingsmottaker())
-            && !erOpphørForMottaker(oppdrag)) {
+            && harGjeldendeUtbetalingerFraTidligere(tidligerOppdragForMottaker)
+            && !erOpphørForMottaker(tidligerOppdragForMottaker.utvidMed(oppdrag))) {
             builder.medOmpostering116(opprettOmpostering116(oppdrag, input.brukInntrekk()));
         }
 
@@ -88,7 +97,7 @@ public class OppdragMapper {
         return !tidligereOppdrag.getBetalingsmottakere().contains(mottaker);
     }
 
-    public KodeEndring utledKodeEndring(Oppdrag oppdrag) {
+    private KodeEndring utledKodeEndring(Oppdrag oppdrag) {
         if (oppdragErTilNyMottaker(oppdrag.getBetalingsmottaker())) {
             return KodeEndring.NY;
         }
@@ -147,6 +156,12 @@ public class OppdragMapper {
     private LocalDate finnDatoOmposterFom(Oppdrag oppdrag) {
         var endringsdato = oppdrag.getEndringsdato();
         var korrigeringsdato = hentFørsteUtbetalingsdatoFraForrige(oppdrag);
+        // Gjelder følgende scenario:
+        // Tidslinnjer:
+        // Behandling 1 ----------[xxxxxxxxxx]-- tidligere ytelses periode
+        // Behandling 2 -----[xxxxxxxxxxxx]----- ny forlenget ytelse
+        // Endringsdato blir satt til Beh. 2 fom dato - dette vil føre til at økonomi vil klage på dette siden de ikke har noen utbetalinger fra denne datoen ennå.
+        // Derfor må omposteringsdato settes til første uttaksdag fra forrige utbetaling - Beh. 1 fom.
         return korrigeringsdato != null && endringsdato.isBefore(korrigeringsdato) ? korrigeringsdato : endringsdato;
     }
 
@@ -203,27 +218,6 @@ public class OppdragMapper {
             }
         }
         return sisteUtbetalingsdato;
-    }
-
-    private boolean erOpphørForMottaker(Oppdrag nyttOppdrag) {
-        var tidligerOppdragForMottaker = tidligereOppdrag.filter(nyttOppdrag.getBetalingsmottaker());
-        var inklNyttOppdrag = tidligerOppdragForMottaker.utvidMed(nyttOppdrag);
-        for (var kjede : inklNyttOppdrag.getKjeder().values()) {
-            if (!kjede.tilYtelse().getPerioder().isEmpty()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean harHattUtbetalingTidligere(Betalingsmottaker mottaker) {
-        var tidligerOppdragForMottaker = tidligereOppdrag.filter(mottaker);
-        for (var kjede : tidligerOppdragForMottaker.getKjeder().values()) {
-            if (kjede.tilYtelse().getPerioder().isEmpty()) {
-                return false;
-            }
-        }
-        return true;
     }
 
 }
