@@ -82,13 +82,13 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
             .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
             .filter(SvpTilretteleggingEntitet::getSkalBrukes)
             .filter(t -> !Boolean.TRUE.equals(t.getKopiertFraTidligereBehandling()))
-            .map(BeregnTilrettleggingsdato::beregnFraTilrettelegging)
+            .map(BeregnTilrettleggingsdato::tidligstTilretteleggingFraTilrettelegging)
             .min(Comparator.naturalOrder());
     }
 
     public static Optional<LocalDate> utledBruttoSøknadsperiodeFomFraGrunnlag(SvpGrunnlagEntitet grunnlag) {
         return new TilretteleggingFilter(grunnlag).getAktuelleTilretteleggingerFiltrert().stream()
-            .map(BeregnTilrettleggingsdato::beregnFraTilrettelegging)
+            .map(BeregnTilrettleggingsdato::tidligstTilretteleggingFraTilrettelegging)
             .min(Comparator.naturalOrder());
     }
 
