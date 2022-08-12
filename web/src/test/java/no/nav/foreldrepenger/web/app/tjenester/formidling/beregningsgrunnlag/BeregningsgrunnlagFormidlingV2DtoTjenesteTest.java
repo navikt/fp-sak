@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
@@ -103,6 +104,8 @@ class BeregningsgrunnlagFormidlingV2DtoTjenesteTest {
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medBeregningsperiode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5))
             .medOverstyrtPrÅr(BRUTTO)
+            .medArbforholdType(OpptjeningAktivitetType.ARBEID)
+            .medBruttoPrÅr(BRUTTO)
             .medAvkortetPrÅr(BigDecimal.valueOf(423.23))
             .medRedusertPrÅr(BigDecimal.valueOf(52335))
             .medKilde(AndelKilde.PROSESS_START)
