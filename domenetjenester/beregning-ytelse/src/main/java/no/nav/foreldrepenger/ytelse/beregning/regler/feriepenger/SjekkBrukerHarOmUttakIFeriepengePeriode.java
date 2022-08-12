@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.ytelse.beregning.regler.feriepenger;
 
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
@@ -25,10 +24,7 @@ class SjekkBrukerHarOmUttakIFeriepengePeriode extends LeafSpecification<Beregnin
     }
 
     private LocalDate finnFørsteUttaksdag(List<BeregningsresultatPeriode> beregningsresultatPerioder) {
-        return beregningsresultatPerioder.stream()
-            .filter(periode -> periode.getBeregningsresultatAndelList().stream().anyMatch(andel -> andel.getDagsats() > 0))
-            .map(BeregningsresultatPeriode::getFom)
-            .min(Comparator.naturalOrder())
+        return FinnBrukersFeriepengePeriode.finnFørsteUttaksdagArbeidstaker(beregningsresultatPerioder)
             .orElseThrow(() -> new IllegalStateException("Fant ingen perioder med utbetaling for bruker"));
     }
 }

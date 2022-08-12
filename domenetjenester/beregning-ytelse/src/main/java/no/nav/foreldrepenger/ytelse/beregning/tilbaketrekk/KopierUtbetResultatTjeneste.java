@@ -1,5 +1,13 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
@@ -9,13 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
 
 @ApplicationScoped
 public class KopierUtbetResultatTjeneste {
@@ -84,11 +85,11 @@ public class KopierUtbetResultatTjeneste {
 
             // Beregn feriepenger
             var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, ref.fagsakYtelseType()).orElseThrow();
-            feriepengerTjeneste.beregnFeriepenger(behandling, nyttUtbetResultat);
+            feriepengerTjeneste.beregnFeriepenger(ref, nyttUtbetResultat);
 
             // Lagre utbet entitet
-            LOG.info("FP-587469: Lagrer kopiert utbetalt resultat på behandling med id " + ref.behandlingId() +
-                " kopiert fra behandling med id " + ref.getOriginalBehandlingId().get());
+            LOG.info("FP-587469: Lagrer kopiert utbetalt resultat på behandling med id {} kopiert fra behandling med id {}", ref.behandlingId(),
+                ref.getOriginalBehandlingId().orElse(0L));
             beregningsresultatRepository.lagreUtbetBeregningsresultat(behandling, nyttUtbetResultat);
         }
     }

@@ -8,8 +8,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -37,7 +35,6 @@ import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnYtelseTjeneste;
 
 /**
@@ -55,7 +52,6 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
 
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
-    private Instance<BeregnFeriepengerTjeneste> beregnFeriepengerTjeneste;
     private BeregnYtelseTjeneste beregnYtelseTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
@@ -66,12 +62,10 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
     @Inject
     public BeregneYtelseStegImpl(BehandlingRepository behandlingRepository,
                                  BeregningsresultatRepository beregningsresultatRepository,
-                                 @Any Instance<BeregnFeriepengerTjeneste> beregnFeriepengerTjeneste,
                                  BeregnYtelseTjeneste beregnYtelseTjeneste,
                                  InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
-        this.beregnFeriepengerTjeneste = beregnFeriepengerTjeneste;
         this.beregnYtelseTjeneste = beregnYtelseTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
@@ -85,13 +79,8 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
         // Beregn ytelse
         var beregningsresultat = beregnYtelseTjeneste.beregnYtelse(ref);
 
-        // Beregn feriepenger
-        var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, ref.fagsakYtelseType()).orElseThrow();
-        feriepengerTjeneste.beregnFeriepenger(behandling, beregningsresultat);
-
         // Lagre beregningsresultat
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-
 
         // Logging for å utrede hvor vanlig det er med tilkommet permisjon med og uten refusjon
         try {

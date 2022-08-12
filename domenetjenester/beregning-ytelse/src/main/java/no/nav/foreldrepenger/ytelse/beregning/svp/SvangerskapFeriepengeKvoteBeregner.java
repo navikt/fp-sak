@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.ytelse.beregning.svp;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -22,7 +21,6 @@ import no.nav.vedtak.konfig.Tid;
 @ApplicationScoped
 public class SvangerskapFeriepengeKvoteBeregner {
     private int svpFerieKvote;
-    private static final Set<Inntektskategori> KATEGORIER_MED_FERIEPENGER = Set.of(Inntektskategori.ARBEIDSTAKER, Inntektskategori.SJØMANN);
 
     public SvangerskapFeriepengeKvoteBeregner() {
         // CDI
@@ -93,7 +91,7 @@ public class SvangerskapFeriepengeKvoteBeregner {
     }
 
     private boolean finnesAndelMedKravPåFeriepengerOgUtbetaling(List<BeregningsresultatAndel> andeler) {
-        return andeler.stream().filter(andel -> KATEGORIER_MED_FERIEPENGER.contains(andel.getInntektskategori())).anyMatch(andel -> andel.getDagsats() > 0);
+        return andeler.stream().filter(andel -> Inntektskategori.girFeriepenger().contains(andel.getInntektskategori())).anyMatch(andel -> andel.getDagsats() > 0);
 
     }
 }

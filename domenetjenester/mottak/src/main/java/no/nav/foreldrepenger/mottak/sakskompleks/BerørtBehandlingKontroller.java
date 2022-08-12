@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.BerørtBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -17,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBegrunnelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -51,7 +51,6 @@ public class BerørtBehandlingKontroller {
     private BerørtBehandlingTjeneste berørtBehandlingTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private HistorikkRepository historikkRepository;
-    private BeregningsresultatRepository tilkjentRepository;
     private BeregnFeriepenger beregnFeriepenger;
     private FagsakLåsRepository fagsakLåsRepository;
     private Behandlingsoppretter behandlingsoppretter;
@@ -69,7 +68,6 @@ public class BerørtBehandlingKontroller {
         this.berørtBehandlingTjeneste = berørtBehandlingTjeneste;
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.behandlingsoppretter = behandlingsoppretter;
-        this.tilkjentRepository = behandlingRepositoryProvider.getBeregningsresultatRepository();
         this.historikkRepository = behandlingRepositoryProvider.getHistorikkRepository();
         this.beregnFeriepenger = beregnFeriepenger;
         this.køKontroller = køKontroller;
@@ -180,9 +178,9 @@ public class BerørtBehandlingKontroller {
     private boolean skalFeriepengerReberegnesForMedForelder(Fagsak fagsakMedforelder, Behandling sisteVedtatteMedForelder, Long behandlingIdBruker) {
         var avsluttetErReberegn = behandlingRepository.hentBehandling(behandlingIdBruker).harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER);
         if (!behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId()).isEmpty()) return false;
-        var gjeldendeTilkjent = tilkjentRepository.hentUtbetBeregningsresultat(sisteVedtatteMedForelder.getId()).orElse(null);
-        if (gjeldendeTilkjent == null) return false;
-        var harAvvikFeriepenger = beregnFeriepenger.avvikBeregnetFeriepengerBeregningsresultat(sisteVedtatteMedForelder, gjeldendeTilkjent);
+
+        var ref = BehandlingReferanse.fra(sisteVedtatteMedForelder);
+        var harAvvikFeriepenger = beregnFeriepenger.avvikBeregnetFeriepengerBeregningsresultat(ref);
         if (avsluttetErReberegn && harAvvikFeriepenger) {
             LOG.warn("REBEREGN FERIEPENGER potensiell cascade avsluttet behandlingId {} sak medforelder {}", behandlingIdBruker, fagsakMedforelder.getSaksnummer());
             return false;

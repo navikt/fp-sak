@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.ytelse.beregning.adapter;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -12,14 +9,9 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.ReferanseType;
 
-@ApplicationScoped
-public class MapBeregningsresultatFraRegelTilVL {
+public final class MapBeregningsresultatFraRegelTilVL {
 
-    @Inject
-    public MapBeregningsresultatFraRegelTilVL() {
-    }
-
-    public BeregningsresultatEntitet mapFra(Beregningsresultat resultat, BeregningsresultatEntitet eksisterendeResultat) {
+    public static BeregningsresultatEntitet mapFra(Beregningsresultat resultat, BeregningsresultatEntitet eksisterendeResultat) {
         if (eksisterendeResultat.getBeregningsresultatPerioder().isEmpty()) {
             resultat.getBeregningsresultatPerioder().forEach(p -> mapFraPeriode(p, eksisterendeResultat));
         } else {
@@ -28,7 +20,7 @@ public class MapBeregningsresultatFraRegelTilVL {
         return eksisterendeResultat;
     }
 
-    private no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode mapFraPeriode(BeregningsresultatPeriode resultatPeriode, BeregningsresultatEntitet eksisterendeResultat) {
+    private static no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode mapFraPeriode(BeregningsresultatPeriode resultatPeriode, BeregningsresultatEntitet eksisterendeResultat) {
         var nyPeriode = no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(resultatPeriode.getFom(), resultatPeriode.getTom())
             .build(eksisterendeResultat);
@@ -36,7 +28,7 @@ public class MapBeregningsresultatFraRegelTilVL {
         return nyPeriode;
     }
 
-    private BeregningsresultatAndel mapFraAndel(no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel bra, no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode brp) {
+    private static BeregningsresultatAndel mapFraAndel(no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel bra, no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode brp) {
         var dagsats = nullSafeLong(bra.getDagsats()).intValue();
         var dagsatsFraBg = nullSafeLong(bra.getDagsatsFraBg()).intValue();
         return BeregningsresultatAndel.builder()
@@ -53,7 +45,7 @@ public class MapBeregningsresultatFraRegelTilVL {
             .build(brp);
     }
 
-    private Arbeidsgiver finnArbeidsgiver(no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel bra) {
+    private static Arbeidsgiver finnArbeidsgiver(no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel bra) {
         if (bra.getArbeidsforhold() == null) {
             return null;
         }

@@ -86,8 +86,9 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
                     finnYrkesaktiviteter(behandlingReferanse), utledetSkjæringstidspunkt);
 
             // Reberegn feriepenger
+            var ref = BehandlingReferanse.fra(behandling);
             var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, behandlingReferanse.fagsakYtelseType()).orElseThrow();
-            feriepengerTjeneste.beregnFeriepenger(behandling, utbetBR);
+            feriepengerTjeneste.beregnFeriepenger(ref, utbetBR);
             beregningsresultatRepository.lagreUtbetBeregningsresultat(behandling, utbetBR);
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();

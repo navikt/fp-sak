@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,7 +12,11 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -32,10 +37,15 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
+import no.nav.foreldrepenger.ytelse.beregning.adapter.MapInputFraVLTilRegelGrunnlag;
 import no.nav.foreldrepenger.ytelse.beregning.fp.BeregnFeriepenger;
 
 @ExtendWith(JpaExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class BeregnFeriepengerTjenesteTest {
+
+    @Mock
+    private MapInputFraVLTilRegelGrunnlag inputTjeneste;
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT_MOR = LocalDate.of(2018, 12, 1);
     private static final LocalDate SKJÆRINGSTIDSPUNKT_FAR = SKJÆRINGSTIDSPUNKT_MOR.plusWeeks(6);
@@ -54,7 +64,8 @@ public class BeregnFeriepengerTjenesteTest {
         this.entityManager = entityManager;
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
-        tjeneste = new BeregnFeriepenger(repositoryProvider, 60);
+        Mockito.when(inputTjeneste.arbeidstakerVedSkjæringstidspunkt(any())).thenReturn(true);
+        tjeneste = new BeregnFeriepenger(repositoryProvider, inputTjeneste, 60);
         fagsakRelasjonRepository = new FagsakRelasjonRepository(entityManager, new YtelsesFordelingRepository(entityManager),
                 new FagsakLåsRepository(entityManager));
     }
@@ -71,7 +82,8 @@ public class BeregnFeriepengerTjenesteTest {
                 Inntektskategori.ARBEIDSTAKER);
 
         // Act
-        tjeneste.beregnFeriepenger(morsBehandling, morsBeregningsresultatFP);
+        var ref = BehandlingReferanse.fra(morsBehandling);
+        tjeneste.beregnFeriepenger(ref, morsBeregningsresultatFP);
 
         // Assert
         assertThat(morsBeregningsresultatFP.getBeregningsresultatFeriepenger()).hasValueSatisfying(this::assertBeregningsresultatFeriepenger);
@@ -89,7 +101,8 @@ public class BeregnFeriepengerTjenesteTest {
             Inntektskategori.ARBEIDSTAKER);
 
         // Act
-        var avvik = tjeneste.avvikBeregnetFeriepengerBeregningsresultat(morsBehandling, morsBeregningsresultatFP);
+        var ref = BehandlingReferanse.fra(morsBehandling);
+        var avvik = tjeneste.avvikBeregnetFeriepengerBeregningsresultat(ref, morsBeregningsresultatFP);
 
         // Assert
         assertThat(avvik).isTrue();
@@ -105,7 +118,8 @@ public class BeregnFeriepengerTjenesteTest {
             Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER);
 
         // Act
-        var avvik = tjeneste.avvikBeregnetFeriepengerBeregningsresultat(morsBehandling, morsBeregningsresultatFP);
+        var ref = BehandlingReferanse.fra(morsBehandling);
+        var avvik = tjeneste.avvikBeregnetFeriepengerBeregningsresultat(ref, morsBeregningsresultatFP);
 
         // Assert
         assertThat(avvik).isFalse();
@@ -121,7 +135,8 @@ public class BeregnFeriepengerTjenesteTest {
                 Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER);
 
         // Act
-        tjeneste.beregnFeriepenger(morsBehandling, morsBeregningsresultatFP);
+        var ref = BehandlingReferanse.fra(morsBehandling);
+        tjeneste.beregnFeriepenger(ref, morsBeregningsresultatFP);
 
         // Assert
         assertThat(morsBeregningsresultatFP.getBeregningsresultatFeriepenger()).hasValueSatisfying(resultat -> {

@@ -31,7 +31,7 @@ class FinnBrukersFeriepengePeriode extends LeafSpecification<BeregningsresultatF
         var beregningsresultatPerioder = regelModell.getBeregningsresultatPerioder();
         var annenPartsBeregningsresultatPerioder = regelModell.getAnnenPartsBeregningsresultatPerioder();
         var erForelder1 = regelModell.erForelder1();
-        var feriepengePeriodeFom = finnFørsteUttaksdag(beregningsresultatPerioder, annenPartsBeregningsresultatPerioder);
+        var feriepengePeriodeFom = finnFørsteUttaksdagArbeidstaker(beregningsresultatPerioder, annenPartsBeregningsresultatPerioder);
         var feriepengePeriodeTom = finnFeriepengerPeriodeTom(regelModell, feriepengePeriodeFom, erForelder1);
 
         BeregningsresultatFeriepengerRegelModell.builder(regelModell)
@@ -91,22 +91,22 @@ class FinnBrukersFeriepengePeriode extends LeafSpecification<BeregningsresultatF
         return dato.getDayOfWeek().getValue() > DayOfWeek.FRIDAY.getValue();
     }
 
-    private LocalDate finnFørsteUttaksdag(List<BeregningsresultatPeriode> beregningsresultatPerioder, List<BeregningsresultatPeriode> annenPartsBeregningsresultatPerioder) {
-        var førsteUttaksdagBruker = finnFørsteUttaksdag(beregningsresultatPerioder)
+    private LocalDate finnFørsteUttaksdagArbeidstaker(List<BeregningsresultatPeriode> beregningsresultatPerioder, List<BeregningsresultatPeriode> annenPartsBeregningsresultatPerioder) {
+        var førsteUttaksdagBruker = finnFørsteUttaksdagArbeidstaker(beregningsresultatPerioder)
             .orElseThrow(() -> new IllegalStateException("Fant ingen perioder med utbetaling for bruker"));
-        var førsteUttaksdagAnnenPart = finnFørsteUttaksdag(annenPartsBeregningsresultatPerioder)
+        var førsteUttaksdagAnnenPart = finnFørsteUttaksdagArbeidstaker(annenPartsBeregningsresultatPerioder)
             .orElse(Tid.TIDENES_ENDE);
         return førsteUttaksdagBruker.isBefore(førsteUttaksdagAnnenPart) ? førsteUttaksdagBruker : førsteUttaksdagAnnenPart;
     }
 
-    private Optional<LocalDate> finnFørsteUttaksdag(List<BeregningsresultatPeriode> beregningsresultatPerioder) {
+    static Optional<LocalDate> finnFørsteUttaksdagArbeidstaker(List<BeregningsresultatPeriode> beregningsresultatPerioder) {
         return beregningsresultatPerioder.stream()
             .filter(periode -> finnesAndelMedKravPåFeriepengerOgUtbetaling(periode.getBeregningsresultatAndelList()))
             .map(BeregningsresultatPeriode::getFom)
             .min(Comparator.naturalOrder());
     }
 
-    private boolean finnesAndelMedKravPåFeriepengerOgUtbetaling(List<BeregningsresultatAndel> andeler) {
+    static private boolean finnesAndelMedKravPåFeriepengerOgUtbetaling(List<BeregningsresultatAndel> andeler) {
         return andeler.stream()
             .filter(andel -> andel.getInntektskategori().erArbeidstakerEllerSjømann())
             .anyMatch(andel -> andel.getDagsats() > 0);

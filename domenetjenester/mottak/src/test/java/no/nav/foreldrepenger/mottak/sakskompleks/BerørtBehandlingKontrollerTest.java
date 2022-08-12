@@ -33,8 +33,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -66,8 +64,6 @@ public class BerørtBehandlingKontrollerTest {
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
     @Mock
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    @Mock
-    private BeregningsresultatRepository beregningsresultatRepository;
     @Mock
     private FpUttakRepository fpUttakRepository;
     @Mock
@@ -108,7 +104,6 @@ public class BerørtBehandlingKontrollerTest {
         when(repositoryProvider.getFagsakLåsRepository()).thenReturn(fagsakLåsRepository);
         when(repositoryProvider.getYtelsesFordelingRepository()).thenReturn(ytelsesFordelingRepository);
         when(repositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
-        when(repositoryProvider.getBeregningsresultatRepository()).thenReturn(beregningsresultatRepository);
         when(repositoryProvider.getHistorikkRepository()).thenReturn(historikkRepository);
 
 
@@ -366,8 +361,7 @@ public class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
         when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Behandling.class), any(Long.class))).thenReturn(false);
-        when(beregnFeriepenger.avvikBeregnetFeriepengerBeregningsresultat(any(), any())).thenReturn(true);
-        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any())).thenReturn(Optional.of(new BeregningsresultatEntitet()));
+        when(beregnFeriepenger.avvikBeregnetFeriepengerBeregningsresultat(any())).thenReturn(true);
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(List.of());
         when(behandlingsoppretter.opprettRevurdering(any(), eq(BehandlingÅrsakType.REBEREGN_FERIEPENGER))).thenReturn(berørtFeriepenger);
         // Act
