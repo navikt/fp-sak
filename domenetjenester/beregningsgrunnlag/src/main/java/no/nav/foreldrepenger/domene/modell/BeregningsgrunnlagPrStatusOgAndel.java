@@ -424,8 +424,6 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         public Builder medRedusertRefusjonPrÅr(BigDecimal redusertRefusjonPrÅr) {
             verifiserKanModifisere();
             kladd.redusertRefusjonPrÅr = redusertRefusjonPrÅr;
-            kladd.dagsatsArbeidsgiver = redusertRefusjonPrÅr == null ?
-                null : redusertRefusjonPrÅr.divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP).longValue();
             return this;
         }
 
@@ -438,8 +436,18 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         public Builder medRedusertBrukersAndelPrÅr(BigDecimal redusertBrukersAndelPrÅr) {
             verifiserKanModifisere();
             kladd.redusertBrukersAndelPrÅr = redusertBrukersAndelPrÅr;
-            kladd.dagsatsBruker = redusertBrukersAndelPrÅr == null ?
-                null : redusertBrukersAndelPrÅr.divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP).longValue();
+            return this;
+        }
+
+        public Builder medDagsatsBruker(Long dagsatsBruker) {
+            verifiserKanModifisere();
+            kladd.dagsatsBruker = dagsatsBruker;
+            return this;
+        }
+
+        public Builder medDagsatsArbeidsgiver(Long dagsatsArbeidsgiver) {
+            verifiserKanModifisere();
+            kladd.dagsatsArbeidsgiver = dagsatsArbeidsgiver;
             return this;
         }
 
