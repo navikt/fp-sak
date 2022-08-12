@@ -13,7 +13,7 @@ public enum HistorikkBegrunnelseType implements Kodeverdi {
     UDEFINIERT("-", "Ikke definert"),
     SAKSBEH_START_PA_NYTT("SAKSBEH_START_PA_NYTT", "Saksbehandling starter på nytt"),
     BEH_STARTET_PA_NYTT("BEH_STARTET_PA_NYTT", "Behandling startet på nytt"),
-    BERORT_BEH_ENDRING_DEKNINGSGRAD("BERORT_BEH_ENDRING_DEKNINGSGRAD", "Endring i den andre forelderens dekningsgrad"),
+    BERORT_BEH_ENDRING_DEKNINGSGRAD("BERORT_BEH_ENDRING_DEKNINGSGRAD", "Den andre forelderens behandling har endret antall disponible stønadsdager"),
     BERORT_BEH_OPPHOR("BERORT_BEH_OPPHOR", "Den andre forelderens vedtak er opphørt"),
     ;
 
