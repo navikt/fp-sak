@@ -164,15 +164,15 @@ public class Beregningsgrunnlag {
             return this;
         }
 
-        public Builder leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.Builder aktivitetStatusBuilder) {
+        public Builder leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus aktivitetStatus) {
             verifiserKanModifisere();
-            aktivitetStatusBuilder.build(kladd);
+            kladd.leggTilBeregningsgrunnlagAktivitetStatus(aktivitetStatus);
             return this;
         }
 
-        public Builder leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.Builder beregningsgrunnlagPeriodeBuilder) {
+        public Builder leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
             verifiserKanModifisere();
-            beregningsgrunnlagPeriodeBuilder.build(kladd);
+            kladd.leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriode);
             return this;
         }
 
