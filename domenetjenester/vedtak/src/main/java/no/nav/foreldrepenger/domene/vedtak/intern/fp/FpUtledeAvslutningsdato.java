@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
@@ -27,6 +28,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.intern.UtledeAvslutningsdatoFagsak;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Spesialkontotype;
 import no.nav.foreldrepenger.regler.uttak.konfig.Konfigurasjon;
 import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
 
@@ -43,6 +45,7 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
     private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
+    private KontoerGrunnlagBygger kontoerGrunnlagBygger;
 
 
     @Inject
@@ -50,13 +53,15 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
                                    StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
                                    UttakInputTjeneste uttakInputTjeneste,
                                    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) MaksDatoUttakTjeneste fpMaksDatoUttakTjeneste,
-                                   FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+                                   FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                   KontoerGrunnlagBygger kontoerGrunnlagBygger) {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.maksDatoUttakTjeneste = fpMaksDatoUttakTjeneste;
+        this.kontoerGrunnlagBygger = kontoerGrunnlagBygger;
     }
 
 
@@ -76,12 +81,22 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
                 var nesteSakGrunnlag = fpGrunnlag.getNesteSakGrunnlag().orElse(null);
 
                 if (familieHendelse.erAlleBarnDøde()) {
-                    return leggPåSøknadsfristMåneder(hentSisteDødsdatoOgEnDag(familieHendelse)
-                        .plusWeeks(Konfigurasjon.STANDARD.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now())));
+                    return leggPåSøknadsfristMåneder(hentSisteDødsdatoOgEnDag(familieHendelse).plusWeeks(
+                        Konfigurasjon.STANDARD.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now())));
                 }
-                //Opphør pga nytt barn
+                //Nytt barn (ny stønadsperiode)
                 if (nesteSakGrunnlag != null) {
-                    return leggPåSøknadsfristMåneder((nesteSakGrunnlag.getStartdato()));
+                    var kontoer = kontoerGrunnlagBygger.byggGrunnlag(uttakInput).build();
+                    //minsterett ved 2 tette fødsler når begge barna er født innenfor 48 uker,
+                    // avslutningsdato må ta høyde for om minsteretten er oppbrukt eller ikke
+                    if (kontoer.harSpesialkonto(Spesialkontotype.TETTE_FØDSLER) && kontoer.getSpesialkontoTrekkdager(Spesialkontotype.TETTE_FØDSLER) > 0) {
+                        var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
+                        if (!saldoUtregning.restSaldoEtterNesteStønadsperiode().merEnn0()) {
+                            return leggPåSøknadsfristMåneder(nesteSakGrunnlag.getStartdato());
+                        }
+                    } else {
+                        return leggPåSøknadsfristMåneder(nesteSakGrunnlag.getStartdato());
+                    }
                 }
 
                 var stønadRest = stønadskontoSaldoTjeneste.finnStønadRest(uttakInput);
@@ -134,7 +149,6 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
             return maksDatoFraStp.isBefore(sisteUttaksdatoMedsøknadsfrist)? maksDatoFraStp : sisteUttaksdatoMedsøknadsfrist;
         }
     }
-
 
     private boolean harKoblingTilAnnenPart(Fagsak fagsak) {
         return fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak).filter(fagsakRelasjon -> fagsakRelasjon.getFagsakNrTo().isPresent()).isPresent();
