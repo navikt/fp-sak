@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.nom;
 
 import java.net.URI;
-import java.util.concurrent.CompletableFuture;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -57,17 +56,16 @@ public class SkjermetPersonKlient {
     }
 
     private void sjekkGcp(SkjermetRequestDto request, String fssRespons) {
-        CompletableFuture.supplyAsync(() -> restClientGcp.post(uriGcp, request))
-            .thenAccept(gcpRespons -> {
-                if (!gcpRespons.equals(fssRespons)) {
-                    LOG.warn("SkjermetPersonKlient: avvik mellom fss og gcp");
-                } else {
-                    LOG.info("SkjermetPersonKlient: ikke avvik");
-                }
-            }).exceptionally(e -> {
-                LOG.info("SkjermetPersonKlient: exception i gcp-variant", e);
-                return null;
-            });
+        try {
+            var gcpRespons = restClientGcp.post(uriGcp, request);
+            if (!gcpRespons.equals(fssRespons)) {
+                LOG.warn("SkjermetPersonKlient: avvik mellom fss og gcp");
+            } else {
+                LOG.info("SkjermetPersonKlient: ikke avvik");
+            }
+        } catch (Exception e) {
+            LOG.info("SkjermetPersonKlient: exception i gcp-variant", e);
+        }
     }
 
     private record SkjermetRequestDto(String personident) {}
