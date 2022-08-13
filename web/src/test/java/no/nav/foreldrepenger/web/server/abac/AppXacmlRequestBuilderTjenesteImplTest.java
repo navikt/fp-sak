@@ -6,13 +6,11 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-
-import javax.json.Json;
-import javax.json.JsonObject;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter;
@@ -29,8 +28,10 @@ import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.pdp.PdpConsumer;
 import no.nav.vedtak.sikkerhet.pdp.PdpKlientImpl;
+import no.nav.vedtak.sikkerhet.pdp.xacml.Category;
+import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequest;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
-import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponseWrapper;
+import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlResponse;
 
 @ExtendWith(MockitoExtension.class)
 public class AppXacmlRequestBuilderTjenesteImplTest {
@@ -134,12 +135,17 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
         pdpKlient.forespørTilgang(pdpRequest);
 
         var xacmlRequest = captor.getValue().build();
-        var resourceArray = xacmlRequest.getJsonObject("Request").getJsonArray("Resource");
+        var resourceArray = xacmlRequest.request().get(Category.Resource);
+        var personArray = resourceArray.stream()
+            .map(XacmlRequest.Attributes::attribute)
+            .flatMap(Collection::stream)
+            .filter(a -> NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR.equals(a.attributeId()))
+            .toList();
 
-        var personer = pdpRequest.getListOfString(RESOURCE_FELLES_PERSON_FNR);
+        List<String> personer = pdpRequest.getListOfString(RESOURCE_FELLES_PERSON_FNR);
 
-        for (var i = 0; i < personer.size(); i++) {
-            assertThat(resourceArray.get(i).toString().contains(personer.get(i))).isTrue();
+        for (int i = 0; i < personer.size(); i++) {
+            assertThat(personArray.get(i).value().toString()).contains(personer.get(i));
         }
     }
 
@@ -151,10 +157,13 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
         return request;
     }
 
-    private XacmlResponseWrapper createResponse(String jsonFile) throws FileNotFoundException {
-        var file = new File(getClass().getClassLoader().getResource(jsonFile).getFile());
-        var reader = Json.createReader(new FileReader(file));
-        var jo = (JsonObject) reader.read();
-        return new XacmlResponseWrapper(jo);
+    private XacmlResponse createResponse(String jsonFile) {
+        File file = new File(getClass().getClassLoader().getResource(jsonFile).getFile());
+        try {
+            return DefaultJsonMapper.getObjectMapper().readValue(file, XacmlResponse.class);
+        } catch (Exception e) {
+            //
+        }
+        return null;
     }
 }
