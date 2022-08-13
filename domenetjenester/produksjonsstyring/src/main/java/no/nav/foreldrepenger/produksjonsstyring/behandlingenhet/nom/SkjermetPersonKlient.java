@@ -57,13 +57,16 @@ public class SkjermetPersonKlient {
     }
 
     private void sjekkGcp(SkjermetRequestDto request, String fssRespons) {
-        if (Environment.current().isProd()) return;
-
         CompletableFuture.supplyAsync(() -> restClientGcp.post(uriGcp, request))
             .thenAccept(gcpRespons -> {
                 if (!gcpRespons.equals(fssRespons)) {
-                    LOG.warn("SkjermetPersonKlient gir avvik mellom fss og gcp");
+                    LOG.warn("SkjermetPersonKlient: avvik mellom fss og gcp");
+                } else {
+                    LOG.info("SkjermetPersonKlient: ikke avvik");
                 }
+            }).exceptionally(e -> {
+                LOG.info("SkjermetPersonKlient: exception i gcp-variant", e);
+                return null;
             });
     }
 
