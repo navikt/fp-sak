@@ -36,6 +36,7 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
     ;
 
     private static final Set<BehandlingType> YTELSE_BEHANDLING_TYPER = Set.of(FØRSTEGANGSSØKNAD, REVURDERING);
+    private static final Set<BehandlingType> KLAGE_BEHANDLING_TYPER = Set.of(KLAGE, ANKE);
     private static final Set<BehandlingType> ANDRE_BEHANDLING_TYPER = Set.of(KLAGE, ANKE, INNSYN);
 
     public static final String KODEVERK = "BEHANDLING_TYPE";
@@ -120,6 +121,10 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
 
     public boolean erYtelseBehandlingType() {
         return YTELSE_BEHANDLING_TYPER.contains(this);
+    }
+
+    public boolean erKlageAnkeType() {
+        return KLAGE_BEHANDLING_TYPER.contains(this);
     }
 
     public int getBehandlingstidFristUker() {
