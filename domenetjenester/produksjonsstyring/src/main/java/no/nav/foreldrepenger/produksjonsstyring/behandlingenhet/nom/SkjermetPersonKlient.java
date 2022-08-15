@@ -59,7 +59,7 @@ public class SkjermetPersonKlient {
         try {
             var gcpRespons = restClientGcp.post(uriGcp, request);
             if (!gcpRespons.equals(fssRespons)) {
-                LOG.warn("SkjermetPersonKlient: avvik mellom fss og gcp");
+                LOG.info("SkjermetPersonKlient: avvik mellom fss og gcp");
             } else {
                 LOG.info("SkjermetPersonKlient: ikke avvik");
             }
