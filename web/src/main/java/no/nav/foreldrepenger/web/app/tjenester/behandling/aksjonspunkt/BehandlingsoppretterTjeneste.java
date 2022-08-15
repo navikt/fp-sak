@@ -56,6 +56,7 @@ public class BehandlingsoppretterTjeneste {
     public boolean kanOppretteNyBehandlingAvType(Long fagsakId, BehandlingType type) {
         var finnesÅpneBehandlingerAvType = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsakId)
             .stream()
+            .filter(b -> !(type.erKlageAnkeType() && BehandlendeEnhetTjeneste.getKlageInstans().enhetId().equals(b.getBehandlendeEnhet())))
             .map(Behandling::getType)
             .anyMatch(type::equals);
         if (finnesÅpneBehandlingerAvType) {
