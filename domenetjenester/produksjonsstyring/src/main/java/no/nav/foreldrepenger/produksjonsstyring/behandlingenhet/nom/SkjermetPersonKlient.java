@@ -7,38 +7,25 @@ import javax.inject.Inject;
 
 import no.nav.vedtak.felles.integrasjon.rest.AzureADRestClient;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 
 @ApplicationScoped
 public class SkjermetPersonKlient {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SkjermetPersonKlient.class);
-    private static final String DEFAULT_URI = "http://skjermede-personer-pip.nom/skjermet";
-    private static final String DEFAULT_URI_GCP = "https://skjermede-personer-pip.intern.nav.no/skjermet";
+    private static final String DEFAULT_URI = "https://skjermede-personer-pip.intern.nav.no/skjermet";
     private static final String DEFAULT_AZURE_SCOPE = "api://prod-gcp.nom.skjermede-personer-pip/.default";
 
 
     private static final boolean TESTENV = Environment.current().isLocal() || Environment.current().isVTP();
 
     private URI uri;
-    private OidcRestClient restClient;
-    private URI uriGcp;
-    private AzureADRestClient restClientGcp;
+    private AzureADRestClient client;
 
     @Inject
-    public SkjermetPersonKlient(OidcRestClient restClient,
-                                @KonfigVerdi(value = "skjermet.person.rs.url", defaultVerdi = DEFAULT_URI) URI uri,
-                                @KonfigVerdi(value = "skjermet.person.rs.url.gcp", defaultVerdi = DEFAULT_URI_GCP) URI uriGcp,
+    public SkjermetPersonKlient(@KonfigVerdi(value = "skjermet.person.rs.url", defaultVerdi = DEFAULT_URI) URI uri,
                                 @KonfigVerdi(value = "skjermet.person.rs.azure.scope", defaultVerdi = DEFAULT_AZURE_SCOPE) String scope) {
-        this.restClient = restClient;
-        this.restClientGcp = AzureADRestClient.builder().scope(scope).build();
+        this.client = AzureADRestClient.builder().scope(scope).build();
         this.uri = uri;
-        this.uriGcp = uriGcp;
     }
 
     public SkjermetPersonKlient() {
@@ -50,22 +37,8 @@ public class SkjermetPersonKlient {
         if (TESTENV || fnr == null) return false;
 
         var request = new SkjermetRequestDto(fnr);
-        var skjermet = restClient.post(uri, request);
-        sjekkGcp(request, skjermet);
+        var skjermet = client.post(uri, request);
         return "true".equalsIgnoreCase(skjermet);
-    }
-
-    private void sjekkGcp(SkjermetRequestDto request, String fssRespons) {
-        try {
-            var gcpRespons = restClientGcp.post(uriGcp, request);
-            if (!gcpRespons.equals(fssRespons)) {
-                LOG.info("SkjermetPersonKlient: avvik mellom fss og gcp");
-            } else {
-                LOG.info("SkjermetPersonKlient: ikke avvik");
-            }
-        } catch (Exception e) {
-            LOG.info("SkjermetPersonKlient: exception i gcp-variant", e);
-        }
     }
 
     private record SkjermetRequestDto(String personident) {}
