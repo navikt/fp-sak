@@ -74,17 +74,23 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
             if (familieHendelser != null ) {
                 FamilieHendelse familieHendelse = familieHendelser.getGjeldendeFamilieHendelse();
                 var nesteSakGrunnlag = fpGrunnlag.getNesteSakGrunnlag().orElse(null);
+                var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
 
                 if (familieHendelse.erAlleBarnDøde()) {
-                    return leggPåSøknadsfristMåneder(hentSisteDødsdatoOgEnDag(familieHendelse)
-                        .plusWeeks(Konfigurasjon.STANDARD.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now())));
-                }
-                //Opphør pga nytt barn
-                if (nesteSakGrunnlag != null) {
-                    return leggPåSøknadsfristMåneder((nesteSakGrunnlag.getStartdato()));
+                    return leggPåSøknadsfristMåneder(hentSisteDødsdatoOgEnDag(familieHendelse).plusWeeks(
+                        Konfigurasjon.STANDARD.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now())));
                 }
 
-                var stønadRest = stønadskontoSaldoTjeneste.finnStønadRest(uttakInput);
+                //Nytt barn (ny stønadsperiode)
+                if (nesteSakGrunnlag != null) {
+                    //minsterett ved 2 tette fødsler når begge barna er født innenfor 48 uker,
+                    // avslutningsdato må ta høyde for om minsteretten er oppbrukt eller ikke
+                    if (!saldoUtregning.restSaldoEtterNesteStønadsperiode().merEnn0()) {
+                        return leggPåSøknadsfristMåneder(nesteSakGrunnlag.getStartdato());
+                    }
+                }
+
+                var stønadRest = stønadskontoSaldoTjeneste.finnStønadRest(saldoUtregning);
                 var sisteUttaksdatoFraBeggeParterMedRestdager = maksDatoUttakTjeneste.beregnMaksDatoUttakSakskompleks(uttakInput, stønadRest);
                 var skjæringstidspunkt = familieHendelse.getFamilieHendelseDato();
                 var maksDatoFraStp = leggPåMaksSøknadsfrist(skjæringstidspunkt);
@@ -134,7 +140,6 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
             return maksDatoFraStp.isBefore(sisteUttaksdatoMedsøknadsfrist)? maksDatoFraStp : sisteUttaksdatoMedsøknadsfrist;
         }
     }
-
 
     private boolean harKoblingTilAnnenPart(Fagsak fagsak) {
         return fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak).filter(fagsakRelasjon -> fagsakRelasjon.getFagsakNrTo().isPresent()).isPresent();

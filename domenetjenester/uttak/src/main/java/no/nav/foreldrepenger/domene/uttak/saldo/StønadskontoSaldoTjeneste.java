@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
@@ -79,7 +80,7 @@ public class StønadskontoSaldoTjeneste {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var søknadOpprettetTidspunkt = uttakInput.getSøknadOpprettetTidspunkt();
         var sisteSøknadOpprettetTidspunktAnnenpart = fpGrunnlag.getAnnenpart()
-            .map(ap -> ap.søknadOpprettetTidspunkt())
+            .map(Annenpart::søknadOpprettetTidspunkt)
             .orElse(null);
         if (stønadskontoer.isPresent() && perioderSøker.size() > 0) {
             var perioderAnnenpart = perioderAnnenpart(fpGrunnlag);
@@ -139,8 +140,7 @@ public class StønadskontoSaldoTjeneste {
             .map(Stønadskontoberegning::getStønadskontoer);
     }
 
-    public int finnStønadRest(UttakInput uttakInput) {
-        var saldoUtregning = finnSaldoUtregning(uttakInput);
+    public int finnStønadRest(SaldoUtregning saldoUtregning) {
         return Stream.of(Stønadskontotype.MØDREKVOTE, Stønadskontotype.FEDREKVOTE, Stønadskontotype.FORELDREPENGER,
             Stønadskontotype.FELLESPERIODE).mapToInt(saldoUtregning::saldo).sum();
     }
@@ -155,7 +155,7 @@ public class StønadskontoSaldoTjeneste {
             .resultatÅrsak(UttakEnumMapper.mapTilFastsattPeriodeÅrsak(periode.getResultatÅrsak()))
             .utsettelse(periode.isUtsettelse())
             .periodeResultatType(UttakEnumMapper.map(periode.getResultatType()))
-            .mottattDato(periode.getPeriodeSøknad().map(ps -> ps.getMottattDato()).orElse(null))
+            .mottattDato(periode.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMottattDato).orElse(null))
             .build();
     }
 
