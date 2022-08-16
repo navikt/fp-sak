@@ -1,9 +1,11 @@
 package no.nav.foreldrepenger.mottak.vedtak.kafka;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -11,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +43,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -55,12 +59,15 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
@@ -79,7 +86,8 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    @Mock
+    private BeregningTjeneste beregningTjeneste;
     private BeregningsresultatRepository beregningsresultatRepository;
     private OverlappVedtakRepository overlappInfotrygdRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
@@ -90,13 +98,12 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     public void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         behandlingVedtakRepository = new BehandlingVedtakRepository(getEntityManager());
-        beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(getEntityManager());
         beregningsresultatRepository = new BeregningsresultatRepository(getEntityManager());
         overlappInfotrygdRepository = new OverlappVedtakRepository(getEntityManager());
         var behandlingRepository = new BehandlingRepository(getEntityManager());
         var fagsakTjeneste = new FagsakTjeneste(new FagsakRepository(getEntityManager()),
             new SøknadRepository(getEntityManager(), behandlingRepository), null);
-        var overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningsgrunnlagRepository, beregningsresultatRepository, null,
+        var overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningTjeneste, beregningsresultatRepository, null,
             null, null, null, null,
             overlappInfotrygdRepository, behandlingRepository);
         vedtaksHendelseHåndterer = new VedtaksHendelseHåndterer(fagsakTjeneste, beregningsresultatRepository, behandlingRepository, overlappTjeneste,
@@ -388,22 +395,27 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     private void lagBeregningsgrunnlag(Behandling b, LocalDate stp, int utbetalingsgrad) {
         var brutto = new BigDecimal(DAGSATS).multiply(new BigDecimal(260));
         var redusert = brutto.multiply(new BigDecimal(utbetalingsgrad)).divide(BigDecimal.TEN.multiply(BigDecimal.TEN), RoundingMode.HALF_UP);
-        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+        var beregningsgrunnlag = Beregningsgrunnlag.builder()
             .medSkjæringstidspunkt(stp)
             .medGrunnbeløp(new BigDecimal(100000))
-            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.ny()
+            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.builder()
                 .medBeregningsgrunnlagPeriode(stp, Tid.TIDENES_ENDE)
                 .medRedusertPrÅr(redusert)
                 .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
                     .medBeregnetPrÅr(brutto)
+                    .medBruttoPrÅr(brutto)
+                    .medKilde(AndelKilde.PROSESS_START)
+                    .medArbforholdType(OpptjeningAktivitetType.ARBEID)
                     .medRedusertPrÅr(redusert)
                     .medRedusertBrukersAndelPrÅr(redusert)
+                    .medDagsatsBruker(redusert.divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP).longValue())
                     .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
                         .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
                         .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999")))
-                    .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.ARBEIDSTAKER)))
+                    .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.ARBEIDSTAKER).build()).build())
             .build();
-        beregningsgrunnlagRepository.lagre(b.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
+        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(BeregningsgrunnlagTilstand.FASTSATT);
+        when(beregningTjeneste.hent(anyLong())).thenReturn(Optional.of(gr));
     }
 
     private BeregningsresultatEntitet lagBeregningsresultat(LocalDate periodeFom, LocalDate periodeTom, int utbetalingsgrad) {

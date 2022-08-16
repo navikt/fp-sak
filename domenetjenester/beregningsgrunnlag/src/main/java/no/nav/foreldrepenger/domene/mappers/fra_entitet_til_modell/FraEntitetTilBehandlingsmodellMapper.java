@@ -165,6 +165,8 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .medBeregnetPrÅr(andelEntitet.getBeregnetPrÅr())
             .medBesteberegnetPrÅr(andelEntitet.getBesteberegningPrÅr())
             .medBruttoPrÅr(andelEntitet.getBruttoPrÅr())
+            .medDagsatsBruker(andelEntitet.getDagsatsBruker())
+            .medDagsatsArbeidsgiver(andelEntitet.getDagsatsArbeidsgiver())
             .medKilde(andelEntitet.getKilde())
             .medBeregningsperiode(andelEntitet.getBeregningsperiodeFom(),
                 andelEntitet.getBeregningsperiodeTom())

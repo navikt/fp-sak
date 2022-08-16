@@ -20,7 +20,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -40,7 +40,7 @@ public class BeregningsgrunnlagFormidlingRestTjeneste {
     public static final String BEREGNINGSGRUNNLAG_PATH = BASE_PATH + BEREGNINGSGRUNNLAG_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    private BeregningTjeneste beregningTjeneste;
 
     public BeregningsgrunnlagFormidlingRestTjeneste() {
         // CDI
@@ -48,9 +48,9 @@ public class BeregningsgrunnlagFormidlingRestTjeneste {
 
     @Inject
     public BeregningsgrunnlagFormidlingRestTjeneste(BehandlingRepository behandlingRepository,
-                                                    BeregningsgrunnlagRepository beregningsgrunnlagRepository) {
+                                                    BeregningTjeneste beregningTjeneste) {
         this.behandlingRepository = behandlingRepository;
-        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
+        this.beregningTjeneste = beregningTjeneste;
     }
 
     @GET
@@ -61,7 +61,7 @@ public class BeregningsgrunnlagFormidlingRestTjeneste {
                                                      @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var uid = Optional.ofNullable(uuidDto.getBehandlingUuid());
         var dto = uid.flatMap(behandlingRepository::hentBehandlingHvisFinnes)
-            .flatMap(beh -> beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(beh.getId()))
+            .flatMap(beh -> beregningTjeneste.hent(beh.getId()))
             .flatMap(bggr -> new BeregningsgrunnlagFormidlingV2DtoTjeneste(bggr).map());
 
         if (dto.isEmpty()) {

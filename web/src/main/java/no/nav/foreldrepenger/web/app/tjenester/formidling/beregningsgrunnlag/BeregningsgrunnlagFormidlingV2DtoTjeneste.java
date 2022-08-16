@@ -8,16 +8,20 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.modell.FaktaAggregat;
+import no.nav.foreldrepenger.domene.modell.FaktaAktør;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
-import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
+import no.nav.foreldrepenger.domene.modell.typer.FaktaVurdering;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.kontrakter.fpsak.beregningsgrunnlag.v2.BeregningsgrunnlagAndelDto;
 import no.nav.foreldrepenger.kontrakter.fpsak.beregningsgrunnlag.v2.BeregningsgrunnlagDto;
@@ -30,15 +34,15 @@ import no.nav.foreldrepenger.kontrakter.fpsak.beregningsgrunnlag.v2.kodeverk.Per
 
 public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
 
-    private final BeregningsgrunnlagGrunnlagEntitet grunnlag;
+    private final BeregningsgrunnlagGrunnlag grunnlag;
 
-    public BeregningsgrunnlagFormidlingV2DtoTjeneste(BeregningsgrunnlagGrunnlagEntitet grunnlag) {
+    public BeregningsgrunnlagFormidlingV2DtoTjeneste(BeregningsgrunnlagGrunnlag grunnlag) {
         this.grunnlag = Objects.requireNonNull(grunnlag, "beregningsgrunnlaggrunnlag");
     }
 
     public Optional<BeregningsgrunnlagDto> map() {
         var bgPerioder = grunnlag.getBeregningsgrunnlag()
-            .map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
+            .map(Beregningsgrunnlag::getBeregningsgrunnlagPerioder)
             .orElse(Collections.emptyList())
             .stream()
             .map(this::mapPeriode)
@@ -69,11 +73,11 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
 
     private boolean utledBesteberegning() {
         // Automatisk besteberegnet
-        var besteBeregningGrunnlag = grunnlag.getBeregningsgrunnlag().flatMap(BeregningsgrunnlagEntitet::getBesteberegninggrunnlag);
+        var besteBeregningGrunnlag = grunnlag.getBeregningsgrunnlag().flatMap(Beregningsgrunnlag::getBesteberegningGrunnlag);
 
         // Manuelt besteberegnet
         var finnesBesteberegnetAndel = grunnlag.getBeregningsgrunnlag()
-            .map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
+            .map(Beregningsgrunnlag::getBeregningsgrunnlagPerioder)
             .orElse(Collections.emptyList())
             .stream()
             .anyMatch(bgp -> finnesBesteberegnetAndel(bgp.getBeregningsgrunnlagPrStatusOgAndelList()));
@@ -82,7 +86,7 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
     }
 
     private boolean finnesBesteberegnetAndel(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList) {
-        return beregningsgrunnlagPrStatusOgAndelList.stream().anyMatch(bga -> bga.getBesteberegningPrÅr() != null);
+        return beregningsgrunnlagPrStatusOgAndelList.stream().anyMatch(bga -> bga.getBesteberegnetPrÅr() != null);
     }
 
     private List<AktivitetStatusDto> mapAktivitetstatuser(List<BeregningsgrunnlagAktivitetStatus> aktivitetStatuser) {
@@ -161,17 +165,23 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
     }
 
     private BeregningsgrunnlagAndelDto mapAndel(BeregningsgrunnlagPrStatusOgAndel andel) {
+        Optional<FaktaVurdering> faktaVurdering = finnFaktaavklaringForGrunnlag().map(FaktaAktør::getErNyIArbeidslivetSN);
         var arbeidsforholdDto = andel.getBgAndelArbeidsforhold().map(this::mapArbeidsforhold);
         return new BeregningsgrunnlagAndelDto(andel.getDagsats(),
             mapAktivitetStatusTilDto(andel.getAktivitetStatus()),
             andel.getBruttoPrÅr(), andel.getAvkortetPrÅr(),
-            andel.getNyIArbeidslivet(),
+            faktaVurdering.map(FaktaVurdering::getVurdering).orElse(null),
             mapOpptjeningAktivitetsTypeTilDto(andel.getArbeidsforholdType()),
             andel.getBeregningsperiodeFom(),
             andel.getBeregningsperiodeTom(),
             arbeidsforholdDto.orElse(null),
             erTilkommetAndel(andel.getKilde()));
     }
+
+    private Optional<FaktaAktør> finnFaktaavklaringForGrunnlag() {
+        return grunnlag.getFaktaAggregat().flatMap(FaktaAggregat::getFaktaAktør);
+    }
+
 
     private OpptjeningAktivitetDto mapOpptjeningAktivitetsTypeTilDto(OpptjeningAktivitetType arbeidsforholdType) {
         return switch (arbeidsforholdType) {
