@@ -30,8 +30,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -62,7 +62,7 @@ import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.Ber
 @ApplicationScoped
 public class BehandlingFormidlingDtoTjeneste {
 
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
+    private BeregningTjeneste beregningTjeneste;
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -76,12 +76,12 @@ public class BehandlingFormidlingDtoTjeneste {
 
     @Inject
     public BehandlingFormidlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                                           HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
+                                           BeregningTjeneste beregningTjeneste,
                                            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                            BehandlingDokumentRepository behandlingDokumentRepository,
                                            RelatertBehandlingTjeneste relatertBehandlingTjeneste,
                                            ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
-        this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
+        this.beregningTjeneste = beregningTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.søknadRepository = repositoryProvider.getSøknadRepository();
@@ -194,8 +194,8 @@ public class BehandlingFormidlingDtoTjeneste {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             dto.leggTil(get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad", uuidDto));
         } else {
-            var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId())
-                    .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
+            var beregningsgrunnlag = beregningTjeneste.hent(behandling.getId())
+                    .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
             if (beregningsgrunnlag.isPresent()) {
                 dto.leggTilFormidlingRessurs(get(BeregningsgrunnlagFormidlingRestTjeneste.BEREGNINGSGRUNNLAG_PATH, "beregningsgrunnlag-formidling", uuidDto));
             }

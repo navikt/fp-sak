@@ -28,14 +28,15 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 public class VedtattYtelseTjeneste {
 
     private BehandlingVedtakRepository vedtakRepository;
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    private BeregningTjeneste beregningTjeneste;
     private BeregningsresultatRepository tilkjentYtelseRepository;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
@@ -45,12 +46,12 @@ public class VedtattYtelseTjeneste {
 
     @Inject
     public VedtattYtelseTjeneste(BehandlingVedtakRepository vedtakRepository,
-                                 BeregningsgrunnlagRepository beregningsgrunnlagRepository,
+                                 BeregningTjeneste beregningTjeneste,
                                  BeregningsresultatRepository tilkjentYtelseRepository,
                                  InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                  FamilieHendelseRepository familieHendelseRepository) {
         this.vedtakRepository = vedtakRepository;
-        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
+        this.beregningTjeneste = beregningTjeneste;
         this.tilkjentYtelseRepository = tilkjentYtelseRepository;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.familieHendelseRepository = familieHendelseRepository;
@@ -90,7 +91,7 @@ public class VedtattYtelseTjeneste {
                 VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapForeldrepenger(tilkjentYtelse);
         }
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
-            var beregningsgrunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandling.getId()).orElse(null);
+            var beregningsgrunnlag = beregningTjeneste.hent(behandling.getId()).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag).orElse(null);
             if (beregningsgrunnlag == null) {
                 return List.of();
             }
