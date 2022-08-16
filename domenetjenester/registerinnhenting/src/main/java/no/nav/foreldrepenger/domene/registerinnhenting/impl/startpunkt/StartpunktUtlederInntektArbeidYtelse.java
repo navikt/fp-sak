@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -110,8 +108,8 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
             } else {
                 ryddOppAksjonspunktForInntektsmeldingHvisEksisterer(ref);
             }
-            if (måVurderePermisjonUtenSluttdato){
-                loggAdvarselHvisAksjonspunktForPermisjonUtenSluttdatIkkeEksisterer(ref);
+            if (måVurderePermisjonUtenSluttdato && !erPåkrevdManuelleAvklaringer){
+                leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, StartpunktType.KONTROLLER_ARBEIDSFORHOLD, "manuell vurdering av arbeidsforhold pga permisjon");
             } else {
                 ryddOppAksjonspunktForPermisjonUtenSluttdatoHvisEksisterer(ref);
             }
@@ -147,12 +145,6 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         return !HåndterePermisjoner.finnArbForholdMedPermisjonUtenSluttdatoMangel(ref, inntektArbeidYtelseGrunnlag).isEmpty();
     }
 
-    private boolean skalTaStillingTilEndringerIArbeidsforhold(BehandlingReferanse behandlingReferanse) {
-        var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
-        return Objects.equals(behandlingReferanse.behandlingType(), BehandlingType.REVURDERING)
-            || behandling.harSattStartpunkt();
-    }
-
     /*
     Kontroller arbeidsforhold skal ikke lenger være aktiv hvis tilstanden i saken ikke tilsier det
     Setter dermed aksjonspunktet til utført hvis det står til opprettet.
@@ -180,20 +172,6 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     private void avbrytAksjonspunkter(Behandling behandling, List<Aksjonspunkt> aksjonspunkter) {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), aksjonspunkter);
-    }
-
-    //sjekker om dette scenarioet i det hele tatt oppstår før vi eventuelt legger inn håndtering av det
-    private void loggAdvarselHvisAksjonspunktForPermisjonUtenSluttdatIkkeEksisterer(BehandlingReferanse behandlingReferanse) {
-        var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
-
-        if (harIkkeAksjonspunktForPermisjon(behandling)) {
-            LOG.warn("BehandlingId {} har arbeidsforhold med permisjon uten sluttdato, men har ikke åpent aksjonspunkt av type VURDER_PERMISJON_UTEN_SLUTTDATO", behandling.getId());
-        }
-    }
-
-    private boolean harIkkeAksjonspunktForPermisjon(Behandling behandling) {
-        return behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON) &&
-            !behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO);
     }
 
     private void leggTilStartpunkt(List<StartpunktType> startpunkter, UUID grunnlagId1, UUID grunnlagId2, StartpunktType startpunkt, String endringLoggtekst) {
