@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
@@ -32,11 +33,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -53,7 +57,7 @@ public class ForeslåVedtakRevurderingStegImplTest {
     @Mock
     private BehandlingRepository behandlingRepository;
     @Mock
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
+    private BeregningTjeneste beregningTjeneste;
     @Mock
     private Behandlingsresultat behandlingsresultat;
     @Mock
@@ -88,7 +92,7 @@ public class ForeslåVedtakRevurderingStegImplTest {
         when(kontekstRevurdering.getSkriveLås()).thenReturn(behandlingLås);
         when(behandlingRepository.hentBehandling(kontekstRevurdering.getBehandlingId())).thenReturn(revurdering);
 
-        foreslåVedtakRevurderingStegForeldrepenger = new ForeslåVedtakRevurderingStegImpl(foreslåVedtakTjeneste, beregningsgrunnlagTjeneste,
+        foreslåVedtakRevurderingStegForeldrepenger = new ForeslåVedtakRevurderingStegImpl(foreslåVedtakTjeneste, beregningTjeneste,
                 repositoryProvider);
         when(foreslåVedtakTjeneste.foreslåVedtak(revurdering)).thenReturn(behandleStegResultat);
         when(behandleStegResultat.getAksjonspunktResultater()).thenReturn(Collections.emptyList());
@@ -99,9 +103,9 @@ public class ForeslåVedtakRevurderingStegImplTest {
         orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET)
                 .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(orginalBehandling.getId()))
+        when(beregningTjeneste.hent(orginalBehandling.getId()))
                 .thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId()))
+        when(beregningTjeneste.hent(revurdering.getId()))
                 .thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
 
@@ -113,9 +117,9 @@ public class ForeslåVedtakRevurderingStegImplTest {
         orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET)
                 .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(orginalBehandling.getId()))
+        when(beregningTjeneste.hent(orginalBehandling.getId()))
                 .thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId()))
+        when(beregningTjeneste.hent(revurdering.getId()))
                 .thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
 
@@ -128,7 +132,7 @@ public class ForeslåVedtakRevurderingStegImplTest {
         orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
                 .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId()))
+        when(beregningTjeneste.hent(revurdering.getId()))
                 .thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
         assertThat(foreslåVedtakRevurderingStegForeldrepenger.utførSteg(kontekstRevurdering).getAksjonspunktListe()).isEmpty();
@@ -139,7 +143,7 @@ public class ForeslåVedtakRevurderingStegImplTest {
         orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.OPPHØR)
                 .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId()))
+        when(beregningTjeneste.hent(revurdering.getId()))
                 .thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
         assertThat(foreslåVedtakRevurderingStegForeldrepenger.utførSteg(kontekstRevurdering).getAksjonspunktListe()).isEmpty();
@@ -152,19 +156,21 @@ public class ForeslåVedtakRevurderingStegImplTest {
         assertThat(behandlingsresultat.getKonsekvenserForYtelsen()).isEmpty();
     }
 
-    private BeregningsgrunnlagEntitet buildBeregningsgrunnlag(Long bruttoPerÅr) {
-        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+    private BeregningsgrunnlagGrunnlag buildBeregningsgrunnlag(Long bruttoPerÅr) {
+        var beregningsgrunnlag = Beregningsgrunnlag.builder()
                 .medSkjæringstidspunkt(LocalDate.now())
                 .medGrunnbeløp(BigDecimal.valueOf(91425))
                 .build();
-        BeregningsgrunnlagPeriode.ny()
+        BeregningsgrunnlagPeriode.builder()
                 .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1))
                 .medBruttoPrÅr(BigDecimal.valueOf(bruttoPerÅr))
                 .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
                         .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
-                        .medRedusertRefusjonPrÅr(BigDecimal.valueOf(bruttoPerÅr)))
-                .build(beregningsgrunnlag);
-        return beregningsgrunnlag;
+                        .medRedusertRefusjonPrÅr(BigDecimal.valueOf(bruttoPerÅr))
+                        .medDagsatsArbeidsgiver(BigDecimal.valueOf(bruttoPerÅr).divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP).longValue())
+                        .build())
+                .build();
+        return BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(BeregningsgrunnlagTilstand.FASTSATT);
     }
 
 }

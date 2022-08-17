@@ -5,19 +5,19 @@ import static no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.Revurdering
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 
 public class LagEnAndelTjeneste implements LagAndelTjeneste {
 
     @Override
-    public void lagAndeler(BeregningsgrunnlagPeriode periode,
-            boolean medOppjustertDagsat,
-            boolean skalDeleAndelMellomArbeidsgiverOgBruker) {
+    public List<BeregningsgrunnlagPrStatusOgAndel> lagAndeler(boolean medOppjustertDagsat,
+                                                              boolean skalDeleAndelMellomArbeidsgiverOgBruker) {
         var ds = new Dagsatser(medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker);
         var bga = BGAndelArbeidsforhold
                 .builder()
@@ -25,12 +25,15 @@ public class LagEnAndelTjeneste implements LagAndelTjeneste {
                 .medArbeidsforholdRef(ARBEIDSFORHOLDLISTE.get(0))
                 .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
                 .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
-        BeregningsgrunnlagPrStatusOgAndel.builder()
-                .medBGAndelArbeidsforhold(bga)
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .medBeregnetPrÅr(BigDecimal.valueOf(240000))
-                .medRedusertBrukersAndelPrÅr(ds.getDagsatsBruker())
-                .medRedusertRefusjonPrÅr(ds.getDagsatsArbeidstaker())
-                .build(periode);
+        var andel = BeregningsgrunnlagPrStatusOgAndel.builder()
+            .medBGAndelArbeidsforhold(bga)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medBeregnetPrÅr(BigDecimal.valueOf(240000))
+            .medRedusertBrukersAndelPrÅr(ds.getDagsatsBruker())
+            .medDagsatsBruker(ds.getDagsatsBruker().longValue())
+            .medRedusertRefusjonPrÅr(ds.getDagsatsArbeidstaker())
+            .medDagsatsArbeidsgiver(ds.getDagsatsArbeidstaker().longValue())
+            .build();
+        return Arrays.asList(andel);
     }
 }

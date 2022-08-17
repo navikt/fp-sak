@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -28,12 +28,12 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
     @Inject
     public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider,
             SvangerskapspengerUttakResultatRepository uttakResultatRepository,
-            HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
+            BeregningTjeneste beregningTjeneste,
             OpphørUttakTjeneste opphørUttakTjeneste,
             @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
             MedlemTjeneste medlemTjeneste) {
         super(repositoryProvider,
-                beregningsgrunnlagTjeneste,
+                beregningTjeneste,
                 medlemTjeneste,
                 opphørUttakTjeneste,
                 skjæringstidspunktTjeneste);

@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.behandling.revurdering.felles;
 
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
+import java.util.List;
+
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 
 public interface LagAndelTjeneste {
 
-    void lagAndeler(BeregningsgrunnlagPeriode periode,
-            boolean medOppjustertDagsat,
-            boolean skalDeleAndelMellomArbeidsgiverOgBruker);
+    List<BeregningsgrunnlagPrStatusOgAndel> lagAndeler(boolean medOppjustertDagsat,
+                                                       boolean skalDeleAndelMellomArbeidsgiverOgBruker);
 
 }

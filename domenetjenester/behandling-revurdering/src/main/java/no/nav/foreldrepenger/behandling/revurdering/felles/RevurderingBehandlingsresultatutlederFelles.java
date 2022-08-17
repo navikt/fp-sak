@@ -28,13 +28,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 public abstract class RevurderingBehandlingsresultatutlederFelles {
 
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
+    private BeregningTjeneste beregningTjeneste;
     private MedlemTjeneste medlemTjeneste;
 
     private BehandlingRepository behandlingRepository;
@@ -49,12 +50,12 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
     }
 
     public RevurderingBehandlingsresultatutlederFelles(BehandlingRepositoryProvider repositoryProvider,
-                                                       HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
+                                                       BeregningTjeneste beregningTjeneste,
                                                        MedlemTjeneste medlemTjeneste,
                                                        OpphørUttakTjeneste opphørUttakTjeneste,
                                                        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
 
-        this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
+        this.beregningTjeneste = beregningTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.medlemTjeneste = medlemTjeneste;
@@ -131,10 +132,8 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
             return SettOpphørOgIkkeRett.fastsett(revurdering, behandlingsresultatRevurdering.orElse(null),
                 Vedtaksbrev.AUTOMATISK);
         }
-        var revurderingsGrunnlagOpt = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(
-            revurdering.getId());
-        var originalGrunnlagOpt = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(
-            originalBehandling.getId());
+        var revurderingsGrunnlagOpt = beregningTjeneste.hent(revurdering.getId()).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
+        var originalGrunnlagOpt = beregningTjeneste.hent(originalBehandling.getId()).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
 
         var erEndringISkalHindreTilbaketrekk = erEndringISkalHindreTilbaketrekk(revurdering, originalBehandling);
         var erEndringIBeregning = ErEndringIBeregning.vurder(revurderingsGrunnlagOpt, originalGrunnlagOpt);

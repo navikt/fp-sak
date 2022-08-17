@@ -49,6 +49,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
@@ -82,11 +83,12 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
                 this.repositoryProvider.getYtelsesFordelingRepository());
         var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(
                 entityManager);
+        var beregningTjeneste = new BeregningTjeneste(null, null);
         var uttakInputTjeneste = new UttakInputTjeneste(this.repositoryProvider, beregningsgrunnlagTjeneste,
                 new AbakusInMemoryInntektArbeidYtelseTjeneste(),
                 skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste);
         revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(this.repositoryProvider,
-                beregningsgrunnlagTjeneste,
+                beregningTjeneste,
                 opphørUttakTjeneste,
                 skjæringstidspunktTjeneste,
                 medlemTjeneste,

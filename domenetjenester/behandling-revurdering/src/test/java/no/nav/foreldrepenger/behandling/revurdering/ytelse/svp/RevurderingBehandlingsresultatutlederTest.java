@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -64,10 +65,11 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.svp.EndringsdatoRevurderingUtlederImpl;
@@ -112,14 +114,14 @@ public class RevurderingBehandlingsresultatutlederTest {
     private BeregningsresultatRepository beregningsresultatRepository;
     @Inject
     private SvangerskapspengerUttakResultatRepository uttakRepository;
-    @Inject
-    private HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste;
+    @Mock
+    private BeregningTjeneste beregningTjeneste;
     private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
     private boolean erVarselOmRevurderingSendt = true;
 
     private Behandling behandlingSomSkalRevurderes;
     private Behandling revurdering;
-    private BeregningsgrunnlagEntitet beregningsgrunnlag;
+    private Beregningsgrunnlag beregningsgrunnlag;
     private LocalDate endringsdato = LocalDate.now().minusMonths(3);
     private EndringsdatoRevurderingUtlederImpl endringsdatoRevurderingUtlederImpl = mock(
             EndringsdatoRevurderingUtlederImpl.class);
@@ -143,7 +145,7 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutleder(repositoryProvider,
                 uttakResultatRepository,
-                hentBeregningsgrunnlagTjeneste,
+                beregningTjeneste,
                 opphørUttakTjeneste,
                 skjæringstidspunktTjeneste,
                 medlemTjeneste);
@@ -1024,23 +1026,23 @@ public class RevurderingBehandlingsresultatutlederTest {
         beregningsresultatRepository.lagre(behandlingSomSkalRevurderes, originaltresultat);
     }
 
-    private BeregningsgrunnlagEntitet byggBeregningsgrunnlagForBehandling(Behandling behandling,
+    private void byggBeregningsgrunnlagForBehandling(Behandling behandling,
             boolean medOppjustertDagsat,
             boolean skalDeleAndelMellomArbeidsgiverOgBruker,
             List<ÅpenDatoIntervallEntitet> perioder) {
-        return byggBeregningsgrunnlagForBehandling(behandling, medOppjustertDagsat,
+        byggBeregningsgrunnlagForBehandling(behandling, medOppjustertDagsat,
                 skalDeleAndelMellomArbeidsgiverOgBruker, perioder, new LagEnAndelTjeneste());
     }
 
-    private BeregningsgrunnlagEntitet byggBeregningsgrunnlagForBehandling(Behandling behandling,
+    private void byggBeregningsgrunnlagForBehandling(Behandling behandling,
             boolean medOppjustertDagsat,
             boolean skalDeleAndelMellomArbeidsgiverOgBruker,
             List<ÅpenDatoIntervallEntitet> perioder,
             LagAndelTjeneste lagAndelTjeneste) {
         beregningsgrunnlag = LagBeregningsgrunnlagTjeneste.lagBeregningsgrunnlag(SKJÆRINGSTIDSPUNKT_BEREGNING,
                 medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker, perioder, lagAndelTjeneste);
-        beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
-        return beregningsgrunnlag;
+        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(BeregningsgrunnlagTilstand.FASTSATT);
+        when(beregningTjeneste.hent(behandling.getId())).thenReturn(Optional.of(gr));
     }
 
     private void lagreEndringsdato(LocalDate endringsdato) {
