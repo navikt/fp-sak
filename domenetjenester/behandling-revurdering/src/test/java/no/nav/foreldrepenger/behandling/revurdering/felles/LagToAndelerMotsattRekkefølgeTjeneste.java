@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 
 public class LagToAndelerMotsattRekkefølgeTjeneste implements LagAndelTjeneste {
 
@@ -34,6 +35,8 @@ public class LagToAndelerMotsattRekkefølgeTjeneste implements LagAndelTjeneste 
             .medDagsatsBruker(dagsatser.get(1).getDagsatsBruker().longValue())
             .medRedusertRefusjonPrÅr(dagsatser.get(1).getDagsatsArbeidstaker())
             .medDagsatsArbeidsgiver(dagsatser.get(1).getDagsatsArbeidstaker().longValue())
+            .medBruttoPrÅr(BigDecimal.valueOf(240000))
+            .medKilde(AndelKilde.PROSESS_START)
             .build();
         var bga2 = BGAndelArbeidsforhold
                 .builder()
@@ -49,6 +52,8 @@ public class LagToAndelerMotsattRekkefølgeTjeneste implements LagAndelTjeneste 
             .medDagsatsBruker(dagsatser.get(0).getDagsatsBruker().longValue())
             .medRedusertRefusjonPrÅr(dagsatser.get(0).getDagsatsArbeidstaker())
             .medDagsatsArbeidsgiver(dagsatser.get(0).getDagsatsArbeidstaker().longValue())
+            .medBruttoPrÅr(BigDecimal.valueOf(240000))
+            .medKilde(AndelKilde.PROSESS_START)
             .build();
         return Arrays.asList(andel1, andel2);
     }

@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 
 public class LagEnAndelTjeneste implements LagAndelTjeneste {
 
@@ -29,10 +30,12 @@ public class LagEnAndelTjeneste implements LagAndelTjeneste {
             .medBGAndelArbeidsforhold(bga)
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medBeregnetPrÅr(BigDecimal.valueOf(240000))
+            .medBruttoPrÅr(BigDecimal.valueOf(240000))
             .medRedusertBrukersAndelPrÅr(ds.getDagsatsBruker())
             .medDagsatsBruker(ds.getDagsatsBruker().longValue())
             .medRedusertRefusjonPrÅr(ds.getDagsatsArbeidstaker())
             .medDagsatsArbeidsgiver(ds.getDagsatsArbeidstaker().longValue())
+            .medKilde(AndelKilde.PROSESS_START)
             .build();
         return Arrays.asList(andel);
     }
