@@ -151,14 +151,10 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
             ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         } else {
             ytelsesFordelingRepository.hentAggregatHvisEksisterer(originalBehandlingId).ifPresent(yfa -> {
-                var yfBuilder = YtelseFordelingAggregat.oppdatere(yfa)
+                var yfBuilder = YtelseFordelingAggregat.oppdatere(Optional.empty())
                     .medOppgittRettighet(yfa.getOppgittRettighet())
-                    .medOppgittDekningsgrad(yfa.getOppgittDekningsgrad());
-                if (yfa.getOppgittFordeling() != null) {
-                    var kopi = revurderingTjenesteFelles.kopierOppgittFordelingFraForrigeBehandling(
-                        yfa.getOppgittFordeling());
-                    yfBuilder.medOppgittFordeling(kopi);
-                }
+                    .medOppgittDekningsgrad(yfa.getOppgittDekningsgrad())
+                    .medOppgittFordeling(revurderingTjenesteFelles.kopierOppgittFordelingFraForrigeBehandling(yfa.getOppgittFordeling()));
                 ytelsesFordelingRepository.lagre(nyBehandlingId, yfBuilder.build());
             });
         }
