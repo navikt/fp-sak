@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Svanger
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -133,11 +132,20 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     }
 
     static LocalDate utledBasertPåGrunnlag(SvpGrunnlagEntitet grunnlag) {
-        return new TilretteleggingFilter(grunnlag).getAktuelleTilretteleggingerFiltrert().stream()
+        // Kan ikke bruke tilretteleggingfilter - kan hende at overstyrt gir tom dato, må da sjekke oppgitt
+        return Optional.ofNullable(grunnlag.getOverstyrteTilrettelegginger())
+            .flatMap(SkjæringstidspunktTjenesteImpl::tidligsteDatoFraTilrettelegginger)
+            .or(() -> Optional.ofNullable(grunnlag.getOpprinneligeTilrettelegginger())
+                .flatMap(SkjæringstidspunktTjenesteImpl::tidligsteDatoFraTilrettelegginger))
+            .orElseThrow(() -> new IllegalStateException("Klarte ikke finne skjæringstidspunkt for SVP"));
+    }
+
+    private static Optional<LocalDate> tidligsteDatoFraTilrettelegginger(SvpTilretteleggingerEntitet tilrettelegginger) {
+        return Optional.ofNullable(tilrettelegginger)
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
             .filter(SvpTilretteleggingEntitet::getSkalBrukes)
             .map(BeregnTilrettleggingsdato::beregnFraTilrettelegging)
-            .min(Comparator.naturalOrder())
-            .orElseThrow(() -> new IllegalStateException("Klarte ikke finne skjæringstidspunkt for SVP"));
+            .min(Comparator.naturalOrder());
     }
 
     private Optional<LocalDate> finnFørsteDatoMedUttak(Behandling behandling) {
