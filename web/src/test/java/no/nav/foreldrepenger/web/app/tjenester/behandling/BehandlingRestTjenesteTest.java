@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDokStatusTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
@@ -62,12 +62,13 @@ public class BehandlingRestTjenesteTest {
     private TilbakekrevingRepository tilbakekrevingRepository;
     @Mock
     private BehandlingDokumentRepository behandlingDokumentRepository;
+    @Mock
+    private BeregningTjeneste beregningTjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
     private EntityManager entityManager;
 
     @BeforeEach
     public void setUp(EntityManager entityManager) {
-        var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(entityManager);
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         this.entityManager = entityManager;
         var søknadRepository = repositoryProvider.getSøknadRepository();
@@ -79,7 +80,7 @@ public class BehandlingRestTjenesteTest {
             new RelatertBehandlingTjeneste(repositoryProvider));
         var skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
             stputil, mock(UtsettelseBehandling2021.class), mock(MinsterettBehandling2022.class));
-        var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste,
+        var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste,
             tilbakekrevingRepository, skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste,
             behandlingDokumentRepository, relatertBehandlingTjeneste,
             new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), null, null);

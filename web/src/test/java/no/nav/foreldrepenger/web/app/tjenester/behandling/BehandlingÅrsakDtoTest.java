@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDokStatusTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -48,7 +49,7 @@ public class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
             new RelatertBehandlingTjeneste(repositoryProvider));
         var skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
             stputil, mock(UtsettelseBehandling2021.class), mock(MinsterettBehandling2022.class));
-        var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(entityManager);
+        var beregningtjeneste = mock(BeregningTjeneste.class);
         var opptjeningIUtlandDokStatusTjeneste = new OpptjeningIUtlandDokStatusTjeneste(
             new OpptjeningIUtlandDokStatusRepository(entityManager));
         var tilbakekrevingRepository = new TilbakekrevingRepository(entityManager);
@@ -59,7 +60,7 @@ public class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
         var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, mock(HentOgLagreBeregningsgrunnlagTjeneste.class),
             new AbakusInMemoryInntektArbeidYtelseTjeneste(), skjæringstidspunktTjeneste, mock(MedlemTjeneste.class),
             new BeregningUttakTjeneste(foreldrepengerUttakTjeneste, repositoryProvider.getYtelsesFordelingRepository()));
-        behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste,
+        behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningtjeneste,
             tilbakekrevingRepository, skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste,
             behandlingDokumentRepository, relatertBehandlingTjeneste,
             foreldrepengerUttakTjeneste, null,
