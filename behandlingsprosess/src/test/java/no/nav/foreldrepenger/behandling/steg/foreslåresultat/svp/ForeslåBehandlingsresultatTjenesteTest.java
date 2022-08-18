@@ -50,7 +50,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.svp.EndringsdatoRevurderingUtlederImpl;
@@ -62,7 +62,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
 
     private BehandlingRepositoryProvider repositoryProvider;
 
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
+    private final BeregningTjeneste beregningTjeneste = mock(BeregningTjeneste.class);
     private final DokumentBehandlingTjeneste dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
     private final EndringsdatoRevurderingUtlederImpl endringsdatoRevurderingUtlederImpl = mock(EndringsdatoRevurderingUtlederImpl.class);
     private final OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
@@ -81,11 +81,10 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-        beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(entityManager);
         var svpUttakRepository = new SvangerskapspengerUttakResultatRepository(entityManager);
         revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
                 svpUttakRepository,
-                beregningsgrunnlagTjeneste,
+            beregningTjeneste,
                 opphørUttakTjeneste,
                 skjæringstidspunktTjeneste,
                 medlemTjeneste));

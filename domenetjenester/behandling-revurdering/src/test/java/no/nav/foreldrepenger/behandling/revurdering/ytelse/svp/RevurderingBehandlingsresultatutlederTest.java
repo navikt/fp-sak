@@ -65,8 +65,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
-import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
@@ -95,10 +93,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Inject
     private MedlemTjeneste medlemTjeneste;
     @Inject
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
-    @Inject
     private VergeRepository vergeRepository;
-
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
@@ -121,7 +116,6 @@ public class RevurderingBehandlingsresultatutlederTest {
 
     private Behandling behandlingSomSkalRevurderes;
     private Behandling revurdering;
-    private Beregningsgrunnlag beregningsgrunnlag;
     private LocalDate endringsdato = LocalDate.now().minusMonths(3);
     private EndringsdatoRevurderingUtlederImpl endringsdatoRevurderingUtlederImpl = mock(
             EndringsdatoRevurderingUtlederImpl.class);
@@ -1039,9 +1033,9 @@ public class RevurderingBehandlingsresultatutlederTest {
             boolean skalDeleAndelMellomArbeidsgiverOgBruker,
             List<ÅpenDatoIntervallEntitet> perioder,
             LagAndelTjeneste lagAndelTjeneste) {
-        beregningsgrunnlag = LagBeregningsgrunnlagTjeneste.lagBeregningsgrunnlag(SKJÆRINGSTIDSPUNKT_BEREGNING,
+        var bg = LagBeregningsgrunnlagTjeneste.lagBeregningsgrunnlag(SKJÆRINGSTIDSPUNKT_BEREGNING,
                 medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker, perioder, lagAndelTjeneste);
-        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(BeregningsgrunnlagTilstand.FASTSATT);
+        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(bg).build(BeregningsgrunnlagTilstand.FASTSATT);
         when(beregningTjeneste.hent(behandling.getId())).thenReturn(Optional.of(gr));
     }
 
