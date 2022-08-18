@@ -29,6 +29,7 @@ public class LagToAndelerTjeneste implements LagAndelTjeneste {
             .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
         var andel1 = BeregningsgrunnlagPrStatusOgAndel.builder()
             .medBGAndelArbeidsforhold(bga)
+            .medAndelsnr(1L)
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medBeregnetPrÅr(BigDecimal.valueOf(240000))
             .medDagsatsBruker(dagsatser.get(0).getDagsatsBruker().longValue())
@@ -46,6 +47,7 @@ public class LagToAndelerTjeneste implements LagAndelTjeneste {
             .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
         var andel2 = BeregningsgrunnlagPrStatusOgAndel.builder()
             .medBGAndelArbeidsforhold(bga2)
+            .medAndelsnr(2L)
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medBeregnetPrÅr(BigDecimal.valueOf(240000))
             .medRedusertBrukersAndelPrÅr(dagsatser.get(1).getDagsatsBruker())
