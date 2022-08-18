@@ -42,8 +42,9 @@ public class MapInputFraVLTilRegelGrunnlag {
     }
 
     public boolean arbeidstakerVedSkjæringstidspunkt(BehandlingReferanse ref) {
-        var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(ref.behandlingId());
-        return MapBeregningsgrunnlagFraVLTilRegel.arbeidstakerVedSkjæringstidspunkt(beregningsgrunnlag);
+        return beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(ref.behandlingId())
+            .map(MapBeregningsgrunnlagFraVLTilRegel::arbeidstakerVedSkjæringstidspunkt)
+            .orElse(false);
     }
 
 }
