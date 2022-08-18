@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
@@ -157,19 +158,20 @@ public class ForeslåVedtakRevurderingStegImplTest {
     }
 
     private BeregningsgrunnlagGrunnlag buildBeregningsgrunnlag(Long bruttoPerÅr) {
-        var beregningsgrunnlag = Beregningsgrunnlag.builder()
+        var bgBuilder = Beregningsgrunnlag.builder()
                 .medSkjæringstidspunkt(LocalDate.now())
-                .medGrunnbeløp(BigDecimal.valueOf(91425))
-                .build();
-        BeregningsgrunnlagPeriode.builder()
-                .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1))
-                .medBruttoPrÅr(BigDecimal.valueOf(bruttoPerÅr))
-                .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
-                        .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
-                        .medRedusertRefusjonPrÅr(BigDecimal.valueOf(bruttoPerÅr))
-                        .medDagsatsArbeidsgiver(BigDecimal.valueOf(bruttoPerÅr).divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP).longValue())
-                        .build())
-                .build();
+                .medGrunnbeløp(BigDecimal.valueOf(91425));
+        var periode = BeregningsgrunnlagPeriode.builder()
+            .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1))
+            .medBruttoPrÅr(BigDecimal.valueOf(bruttoPerÅr))
+            .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
+                .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
+                .medKilde(AndelKilde.PROSESS_START)
+                .medRedusertRefusjonPrÅr(BigDecimal.valueOf(bruttoPerÅr))
+                .medDagsatsArbeidsgiver(BigDecimal.valueOf(bruttoPerÅr).divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP).longValue())
+                .build())
+            .build();
+        var beregningsgrunnlag = bgBuilder.leggTilBeregningsgrunnlagPeriode(periode).build();
         return BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(BeregningsgrunnlagTilstand.FASTSATT);
     }
 
