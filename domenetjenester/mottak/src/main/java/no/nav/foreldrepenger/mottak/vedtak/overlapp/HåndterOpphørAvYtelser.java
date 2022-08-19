@@ -1,13 +1,5 @@
 package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -28,6 +20,14 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import java.util.Optional;
 
 /**
  *  Dersom det er identifisert overlapp av VurderOpphørAvYtelser, vil denne tjenesten opprette en
@@ -84,7 +84,6 @@ public class HåndterOpphørAvYtelser {
             behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId())
                 .ifPresent(b -> {
                     var enhet = opprettVurderKonsekvens(b, beskrivelse);
-
                     fagsakLåsRepository.taLås(fagsak.getId());
                     var skalKøes = køKontroller.skalEvtNyBehandlingKøes(fagsak);
                     var revurdering = opprettRevurdering(fagsak, årsakType, enhet, skalKøes);

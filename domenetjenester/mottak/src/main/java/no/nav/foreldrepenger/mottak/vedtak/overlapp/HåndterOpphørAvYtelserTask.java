@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -39,8 +37,9 @@ public class HåndterOpphørAvYtelserTask extends GenerellProsessTask {
     @Override
     public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
-        var beskrivelse = Optional.ofNullable(prosessTaskData.getPropertyValue(BESKRIVELSE_KEY))
-            .orElseGet(() -> String.format("Overlapp identifisert: Vurder saksnr %s", fagsak.getSaksnummer()));
+        var beskrivelse = prosessTaskData.getPropertyValue(BESKRIVELSE_KEY);
+
         tjeneste.oppdaterEllerOpprettRevurdering(fagsak, beskrivelse, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
+
     }
 }

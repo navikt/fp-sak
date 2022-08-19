@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -32,7 +34,7 @@ import no.nav.vedtak.konfig.Tid;
 /**
  * Tjenesten sjekker om det finnes løpende saker for den personen det innvilges foreldrepenger eller svangerskapsper på.
  * Om det finnes løpende saker sjekkes det om ny sak overlapper med løpende sak. Det sjekkes både for mor, far og en
- * eventuell medforelder på foreldrepenger.
+ * eventuell medforelder på foreldrepenger. Saker som overlapper annen parts sak på samme barn(saker som er koblet) håndteres ikke her.
  * Dersom det er overlapp opprettes en prosesstask for å håndtere overlappet videre.
  */
 @ApplicationScoped
@@ -48,16 +50,22 @@ public class VurderOpphørAvYtelser {
     private ProsessTaskTjeneste taskTjeneste;
     private StønadsperiodeTjeneste stønadsperiodeTjeneste;
 
+    private FamilieHendelseRepository familieHendelseRepository;
+
+    private static final Period TO_TETTE_GRENSE = Period.ofWeeks(48);
+
     @Inject
     public VurderOpphørAvYtelser(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                  StønadsperiodeTjeneste stønadsperiodeTjeneste,
-                                 ProsessTaskTjeneste taskTjeneste) {
+                                 ProsessTaskTjeneste taskTjeneste,
+                                 FamilieHendelseRepository familieHendelseRepository) {
         this.fagsakRelasjonRepository = behandlingRepositoryProvider.getFagsakRelasjonRepository();
         this.fagsakRepository = behandlingRepositoryProvider.getFagsakRepository();
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.personopplysningRepository = behandlingRepositoryProvider.getPersonopplysningRepository();
         this.taskTjeneste = taskTjeneste;
         this.stønadsperiodeTjeneste = stønadsperiodeTjeneste;
+        this.familieHendelseRepository = familieHendelseRepository;
     }
 
     VurderOpphørAvYtelser() {
@@ -65,7 +73,6 @@ public class VurderOpphørAvYtelser {
     }
 
     void vurderOpphørAvYtelser(Behandling behandling) {
-
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             vurderOppørAvYtelserForFP(behandling);
         } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
@@ -73,18 +80,23 @@ public class VurderOpphørAvYtelser {
         }
     }
 
-    private void vurderOppørAvYtelserForFP(Behandling behandling) {
-        stønadsperiodeTjeneste.stønadsperiodeStartdato(behandling).ifPresent(startdatoIVB ->  {
-            løpendeSakerSomOverlapperUttakPåNySak(behandling.getAktørId(), behandling.getFagsak(), startdatoIVB)
-                .forEach(s -> opprettTaskForÅHåndtereOpphør(s, behandling.getFagsak()));
+    private void vurderOppørAvYtelserForFP(Behandling iverksattBehandling) {
+        stønadsperiodeTjeneste.stønadsperiodeStartdato(iverksattBehandling).ifPresent(startdatoIVB -> {
+            løpendeSakerSomOverlapperUttakPåNyIkkeKobletSak(iverksattBehandling.getAktørId(), iverksattBehandling.getFagsak(), startdatoIVB)
+                .forEach( fagsakOpphør -> opprettTaskForÅHåndtereOpphørBrukersSaker(fagsakOpphør, iverksattBehandling));
 
-            if (RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType())) {
-                personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandling.getId())
+            // sjekker om ny sak på mor overlapper med fars tidligere saker
+            if (RelasjonsRolleType.erMor(iverksattBehandling.getRelasjonsRolleType())) {
+                personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(iverksattBehandling.getId())
                     .map(OppgittAnnenPartEntitet::getAktørId)
-                    .ifPresent(annenPart -> løpendeSakerSomOverlapperUttakPåNySak(annenPart, behandling.getFagsak(), startdatoIVB)
-                        .forEach(s -> opprettTaskForÅHåndtereOpphør(s, behandling.getFagsak())));
+                    .ifPresent(annenPart -> løpendeSakerSomOverlapperUttakPåNyIkkeKobletSak(annenPart, iverksattBehandling.getFagsak(), startdatoIVB)
+                        .forEach(fagsakOpphørFar -> opprettTaskForÅHåndtereOpphørBrukersSaker(fagsakOpphørFar, iverksattBehandling)));
             }
         });
+    }
+
+    private LocalDate finnGjeldendeFamiliehendelseDato(long behandlingId) {
+        return familieHendelseRepository.hentAggregat(behandlingId).getGjeldendeVersjon().getSkjæringstidspunkt();
     }
 
     private void vurderOpphørAvYtelserForSVP(Behandling behandling) {
@@ -94,15 +106,52 @@ public class VurderOpphørAvYtelser {
     }
 
     private void opprettTaskForÅHåndtereOpphør(Fagsak sakOpphør, Fagsak fersktVedtak) {
-        var beskrivelse = String.format("Overlapp identifisert: Vurder saksnr %s vedtak i saksnr %s", sakOpphør.getSaksnummer(), fersktVedtak.getSaksnummer());
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOpphørAvYtelserTask.class);
         prosessTaskData.setFagsakId(sakOpphør.getId());
-        prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, beskrivelse);
+        prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, String.format("Overlapp identifisert: Vurder saksnr %s vedtak i saksnr %s", sakOpphør.getSaksnummer(), fersktVedtak.getSaksnummer()));
         prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }
 
-    private List<Fagsak> løpendeSakerSomOverlapperUttakPåNySak(AktørId aktørId, Fagsak fagsakIVB, LocalDate startdatoIVB) {
+    private void opprettTaskForÅHåndtereOpphørBrukersSaker(Fagsak sakOpphør, Behandling iverksattBehandling) {
+        var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOpphørAvYtelserTask.class);
+
+        //dersom to tette fødsler skal vi opprette VKY for at SB må ta stilling til eventuelt gjenstående minsterett ellers ikke
+        if (toTetteFødsler(sakOpphør, iverksattBehandling )) {
+            prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, String.format("Overlapp på sak med minsterett(to tette) identifisert: Vurder om sak %s har brukt opp minsteretten, og skal opphøres pga ny sak %s", sakOpphør.getSaksnummer(), iverksattBehandling.getFagsak().getSaksnummer()));
+        } else {
+            prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, null);
+        }
+
+        prosessTaskData.setFagsakId(sakOpphør.getId());
+        prosessTaskData.setCallIdFraEksisterende();
+        taskTjeneste.lagre(prosessTaskData);
+    }
+
+    private LocalDate hentFamilieHenseleDatoFraSisteYtelseBehandling(Fagsak sakOpphør) {
+        return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(sakOpphør.getId())
+            .map(sisteBehandlingPåsakOpphør -> finnGjeldendeFamiliehendelseDato(sisteBehandlingPåsakOpphør.getId()))
+            .orElse(null);
+    }
+
+    private boolean toTetteFødsler(Fagsak sakOpphør, Behandling iverksattBehandling) {
+        var fhDatoFraBehOpphør = hentFamilieHenseleDatoFraSisteYtelseBehandling(sakOpphør);
+        var fhDatoNyBeh = finnGjeldendeFamiliehendelseDato(iverksattBehandling.getId());
+
+        if (fhDatoFraBehOpphør == null || fhDatoNyBeh == null) {
+            return false;
+        }
+        var tidligsteFH = fhDatoFraBehOpphør.isBefore(fhDatoNyBeh) ? fhDatoFraBehOpphør : fhDatoNyBeh;
+        var senesteFH = fhDatoNyBeh.isAfter(fhDatoFraBehOpphør) ? fhDatoNyBeh : fhDatoFraBehOpphør;
+
+        if (tidligsteFH.isBefore(LocalDate.of(2022, 8, 2))) {
+            return false;
+        }
+        var grenseToTette = tidligsteFH.plus(TO_TETTE_GRENSE).plusDays(1);
+        return grenseToTette.isAfter(senesteFH);
+    }
+
+    private List<Fagsak> løpendeSakerSomOverlapperUttakPåNyIkkeKobletSak(AktørId aktørId, Fagsak fagsakIVB, LocalDate startdatoIVB) {
         var saker = fagsakRepository.hentForBruker(aktørId)
             .stream()
             .filter(f -> VURDER_OVERLAPP.contains(f.getYtelseType()))
