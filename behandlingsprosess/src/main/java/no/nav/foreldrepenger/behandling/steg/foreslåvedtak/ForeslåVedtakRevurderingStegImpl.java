@@ -23,8 +23,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 
 @BehandlingStegRef(BehandlingStegType.FORESLÅ_VEDTAK)
 @BehandlingTypeRef(BehandlingType.REVURDERING) // Revurdering
@@ -33,7 +34,7 @@ import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjenest
 @ApplicationScoped
 public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
 
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
+    private BeregningTjeneste beregningTjeneste;
     private BehandlingRepository behandlingRepository;
     private ForeslåVedtakTjeneste foreslåVedtakTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -43,9 +44,9 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
 
     @Inject
     ForeslåVedtakRevurderingStegImpl(ForeslåVedtakTjeneste foreslåVedtakTjeneste,
-            HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
+            BeregningTjeneste beregningTjeneste,
             BehandlingRepositoryProvider repositoryProvider) {
-        this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
+        this.beregningTjeneste = beregningTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.foreslåVedtakTjeneste = foreslåVedtakTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
@@ -101,8 +102,8 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
         return behandlingsresultatRepository.hent(orginalBehandling.getId());
     }
 
-    private Optional<BeregningsgrunnlagEntitet> hentBeregningsgrunnlag(Long behandlingId) {
-        return beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(behandlingId);
+    private Optional<Beregningsgrunnlag> hentBeregningsgrunnlag(Long behandlingId) {
+        return beregningTjeneste.hent(behandlingId).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
     }
 
     @Override

@@ -8,14 +8,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 
 public class ErEndringIBeregning {
     private ErEndringIBeregning() {
     }
 
-    public static boolean vurder(Optional<BeregningsgrunnlagEntitet> revurderingsGrunnlag, Optional<BeregningsgrunnlagEntitet> originaltGrunnlag) {
+    public static boolean vurder(Optional<Beregningsgrunnlag> revurderingsGrunnlag, Optional<Beregningsgrunnlag> originaltGrunnlag) {
         if (!revurderingsGrunnlag.isPresent() && !originaltGrunnlag.isPresent()) {
             return false;
         }
@@ -38,15 +38,15 @@ public class ErEndringIBeregning {
         return false;
     }
 
-    public static boolean vurderUgunst(Optional<BeregningsgrunnlagEntitet> revurderingsGrunnlag,
-            Optional<BeregningsgrunnlagEntitet> originaltGrunnlag) {
+    public static boolean vurderUgunst(Optional<Beregningsgrunnlag> revurderingsGrunnlag,
+            Optional<Beregningsgrunnlag> originaltGrunnlag) {
         if (revurderingsGrunnlag.isEmpty()) {
             return originaltGrunnlag.isPresent();
         }
 
-        var originalePerioder = originaltGrunnlag.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
+        var originalePerioder = originaltGrunnlag.map(Beregningsgrunnlag::getBeregningsgrunnlagPerioder)
                 .orElse(Collections.emptyList());
-        var revurderingsPerioder = revurderingsGrunnlag.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
+        var revurderingsPerioder = revurderingsGrunnlag.map(Beregningsgrunnlag::getBeregningsgrunnlagPerioder)
                 .orElse(Collections.emptyList());
 
         var allePeriodeDatoer = finnAllePeriodersStartdatoer(revurderingsPerioder, originalePerioder);

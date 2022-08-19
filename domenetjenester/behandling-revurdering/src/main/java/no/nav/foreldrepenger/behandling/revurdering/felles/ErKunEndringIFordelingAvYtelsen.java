@@ -11,17 +11,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 
 class ErKunEndringIFordelingAvYtelsen {
     private ErKunEndringIFordelingAvYtelsen() {
     }
 
     public static boolean vurder(boolean erEndringIBeregning, boolean erEndringIUttakFraEndringsdato,
-            Optional<BeregningsgrunnlagEntitet> revurderingsGrunnlagOpt,
-            Optional<BeregningsgrunnlagEntitet> originalGrunnlagOpt, boolean erEndringISkalHindreTilbaketrekk) {
+            Optional<Beregningsgrunnlag> revurderingsGrunnlagOpt,
+            Optional<Beregningsgrunnlag> originalGrunnlagOpt, boolean erEndringISkalHindreTilbaketrekk) {
         return !erEndringIBeregning
                 && !erEndringIUttakFraEndringsdato
                 && (kontrollerEndringIFordelingAvYtelsen(revurderingsGrunnlagOpt, originalGrunnlagOpt)
@@ -35,8 +35,8 @@ class ErKunEndringIFordelingAvYtelsen {
             vedtaksbrev, List.of(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN));
     }
 
-    private static boolean kontrollerEndringIFordelingAvYtelsen(Optional<BeregningsgrunnlagEntitet> revurderingsGrunnlagOpt,
-            Optional<BeregningsgrunnlagEntitet> originalGrunnlagOpt) {
+    private static boolean kontrollerEndringIFordelingAvYtelsen(Optional<Beregningsgrunnlag> revurderingsGrunnlagOpt,
+            Optional<Beregningsgrunnlag> originalGrunnlagOpt) {
 
         if (!revurderingsGrunnlagOpt.isPresent() && !originalGrunnlagOpt.isPresent()) {
             return false;

@@ -4,43 +4,40 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 
 public class LagBeregningsgrunnlagTjeneste {
-    public static BeregningsgrunnlagEntitet lagBeregningsgrunnlag(LocalDate skjæringstidspunktBeregning,
-            boolean medOppjustertDagsat,
-            boolean skalDeleAndelMellomArbeidsgiverOgBruker,
-            List<ÅpenDatoIntervallEntitet> perioder,
-            LagAndelTjeneste lagAndelTjeneste) {
-        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+    public static Beregningsgrunnlag lagBeregningsgrunnlag(LocalDate skjæringstidspunktBeregning,
+                                                           boolean medOppjustertDagsat,
+                                                           boolean skalDeleAndelMellomArbeidsgiverOgBruker,
+                                                           List<ÅpenDatoIntervallEntitet> perioder,
+                                                           LagAndelTjeneste lagAndelTjeneste) {
+        var bgBuilder = Beregningsgrunnlag.builder()
                 .medSkjæringstidspunkt(skjæringstidspunktBeregning)
                 .medGrunnbeløp(BigDecimal.valueOf(91425L))
-                .build();
-        BeregningsgrunnlagAktivitetStatus.builder()
-                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-                .build(beregningsgrunnlag);
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder()
+                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER).build());
+
         for (var datoPeriode : perioder) {
-            var periode = byggBGPeriode(beregningsgrunnlag, datoPeriode, medOppjustertDagsat,
+            var periode = byggBGPeriode(datoPeriode, medOppjustertDagsat,
                     skalDeleAndelMellomArbeidsgiverOgBruker, lagAndelTjeneste);
-            BeregningsgrunnlagPeriode.oppdater(periode)
-                    .build(beregningsgrunnlag);
+            bgBuilder.leggTilBeregningsgrunnlagPeriode(periode);
         }
-        return beregningsgrunnlag;
+        return bgBuilder.build();
     }
 
-    private static BeregningsgrunnlagPeriode byggBGPeriode(BeregningsgrunnlagEntitet beregningsgrunnlag,
-            ÅpenDatoIntervallEntitet datoPeriode,
+    private static BeregningsgrunnlagPeriode byggBGPeriode(ÅpenDatoIntervallEntitet datoPeriode,
             boolean medOppjustertDagsat,
             boolean skalDeleAndelMellomArbeidsgiverOgBruker,
             LagAndelTjeneste lagAndelTjeneste) {
-        var periode = BeregningsgrunnlagPeriode.ny()
-                .medBeregningsgrunnlagPeriode(datoPeriode.getFomDato(), datoPeriode.getTomDato())
-                .build(beregningsgrunnlag);
-        lagAndelTjeneste.lagAndeler(periode, medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker);
-        return periode;
+        var andeler = lagAndelTjeneste.lagAndeler(medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker);
+        var periodeBuilder = BeregningsgrunnlagPeriode.builder()
+                .medBeregningsgrunnlagPeriode(datoPeriode.getFomDato(), datoPeriode.getTomDato());
+        andeler.forEach(periodeBuilder::leggTilBeregningsgrunnlagPrStatusOgAndel);
+        return periodeBuilder.build();
     }
 }

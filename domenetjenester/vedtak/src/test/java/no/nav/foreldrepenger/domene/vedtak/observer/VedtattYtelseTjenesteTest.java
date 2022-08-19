@@ -25,12 +25,16 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.konfig.Tid;
 
@@ -42,7 +46,7 @@ public class VedtattYtelseTjenesteTest {
     @Mock
     private BehandlingVedtak vedtak;
     @Mock
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    private BeregningTjeneste beregningTjeneste;
     @Mock
     private BeregningsresultatRepository beregningsresultatRepository;
     @Mock
@@ -61,11 +65,11 @@ public class VedtattYtelseTjenesteTest {
         var behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagMocked();
         var bg = lagBG();
         var br = lagBR();
-        when(beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandling.getId())).thenReturn(Optional.of(bg));
+        when(beregningTjeneste.hent(behandling.getId())).thenReturn(Optional.of(bg));
         when(beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())).thenReturn(Optional.of(br));
         when(behandlingVedtakRepository.hentForBehandling(behandling.getId())).thenReturn(vedtak);
         when(vedtak.getVedtakstidspunkt()).thenReturn(stp.atStartOfDay());
-        var tjeneste = new VedtattYtelseTjeneste(behandlingVedtakRepository, beregningsgrunnlagRepository, beregningsresultatRepository, inntektArbeidYtelseTjeneste, familieHendelseRepository);
+        var tjeneste = new VedtattYtelseTjeneste(behandlingVedtakRepository, beregningTjeneste, beregningsresultatRepository, inntektArbeidYtelseTjeneste, familieHendelseRepository);
 
         var ytelse= (YtelseV1)tjeneste.genererYtelse(behandling, false);
         // Assert
@@ -92,7 +96,7 @@ public class VedtattYtelseTjenesteTest {
         when(beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())).thenReturn(Optional.empty());
         when(behandlingVedtakRepository.hentForBehandling(behandling.getId())).thenReturn(vedtak);
         when(vedtak.getVedtakstidspunkt()).thenReturn(stp.atStartOfDay());
-        var tjeneste = new VedtattYtelseTjeneste(behandlingVedtakRepository, beregningsgrunnlagRepository, beregningsresultatRepository, inntektArbeidYtelseTjeneste, rp.getFamilieHendelseRepository());
+        var tjeneste = new VedtattYtelseTjeneste(behandlingVedtakRepository, beregningTjeneste, beregningsresultatRepository, inntektArbeidYtelseTjeneste, rp.getFamilieHendelseRepository());
 
         var ytelse= (YtelseV1)tjeneste.genererYtelse(behandling, false);
         // Assert
@@ -101,45 +105,61 @@ public class VedtattYtelseTjenesteTest {
         assertThat(ytelse.getPeriode().getTom()).isEqualTo(stp);
     }
 
-    private BeregningsgrunnlagEntitet lagBG() {
-        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+    private BeregningsgrunnlagGrunnlag lagBG() {
+        var beregningsgrunnlag = Beregningsgrunnlag.builder()
             .medSkjæringstidspunkt(LocalDate.now())
             .medGrunnbeløp(new BigDecimal(100000))
-            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.ny()
+            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.builder()
                 .medBeregningsgrunnlagPeriode(stp, knekk1.minusDays(1))
+                .medBruttoPrÅr(BigDecimal.valueOf(2100000))
                 .medRedusertPrÅr(new BigDecimal(120000))
                 .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
                     .medBeregnetPrÅr(new BigDecimal(700000))
+                    .medBruttoPrÅr(new BigDecimal(700000))
                     .medRedusertPrÅr(new BigDecimal(120000))
+                    .medKilde(AndelKilde.PROSESS_START)
                     .medRedusertBrukersAndelPrÅr(new BigDecimal(120000))
+                    .medDagsatsBruker(462L)
                     .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
                         .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
                         .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999")))
-                    .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)))
-            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.ny()
+                    .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+                    .build())
+                .build())
+            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.builder()
                 .medBeregningsgrunnlagPeriode(knekk1, knekk2.minusDays(1))
                 .medRedusertPrÅr(new BigDecimal(240000))
                 .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
                     .medBeregnetPrÅr(new BigDecimal(700000))
+                    .medBruttoPrÅr(new BigDecimal(700000))
                     .medRedusertPrÅr(new BigDecimal(240000))
+                    .medKilde(AndelKilde.PROSESS_START)
                     .medRedusertBrukersAndelPrÅr(new BigDecimal(240000))
+                    .medDagsatsBruker(923L)
                     .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
                         .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
                         .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999")))
-                    .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)))
-            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.ny()
+                    .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+                    .build())
+                .build())
+            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.builder()
                 .medBeregningsgrunnlagPeriode(knekk2, Tid.TIDENES_ENDE)
                 .medRedusertPrÅr(new BigDecimal(360000))
                 .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
                     .medBeregnetPrÅr(new BigDecimal(700000))
+                    .medBruttoPrÅr(new BigDecimal(700000))
                     .medRedusertPrÅr(new BigDecimal(360000))
+                    .medKilde(AndelKilde.PROSESS_START)
                     .medRedusertBrukersAndelPrÅr(new BigDecimal(360000))
+                    .medDagsatsBruker(1385L)
                     .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
                         .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
                         .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999")))
-                    .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)))
+                    .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+                    .build())
+                .build())
             .build();
-        return beregningsgrunnlag;
+        return BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(BeregningsgrunnlagTilstand.FASTSATT);
     }
 
 

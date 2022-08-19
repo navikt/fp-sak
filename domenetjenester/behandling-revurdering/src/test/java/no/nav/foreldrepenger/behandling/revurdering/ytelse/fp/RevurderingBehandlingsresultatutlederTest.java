@@ -2,16 +2,21 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FASTSATT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -55,10 +60,15 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @CdiDbAwareTest
@@ -79,6 +89,8 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Inject
     private BehandlingRepository behandlingRepository;
     @Inject
+    private MedlemTjeneste medlemTjeneste;
+    @Inject
     @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
     private RevurderingTjeneste revurderingTjeneste;
     @Inject
@@ -90,13 +102,30 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Inject
     private OpptjeningRepository opptjeningRepository;
     @Inject
-    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
-    private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
-    @Inject
     private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
+    @Mock
+    private BeregningTjeneste beregningTjeneste;
+    @Mock
+    private OpphørUttakTjeneste opphørUttakTjeneste;
+    @Mock
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
 
+    private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
     private final boolean erVarselOmRevurderingSendt = true;
     private final LocalDate endringsdato = LocalDate.now().minusMonths(3);
+
+    @BeforeEach
+    public void setup() {
+        revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutleder(repositoryProvider,
+            beregningTjeneste,
+            opphørUttakTjeneste,
+            skjæringstidspunktTjeneste,
+            medlemTjeneste,
+            foreldrepengerUttakTjeneste);
+
+    }
 
     private Behandling opprettRevurdering(Behandling førstegangsbehandling) {
         return revurderingTjeneste
@@ -1184,15 +1213,15 @@ public class RevurderingBehandlingsresultatutlederTest {
         beregningsresultatRepository.lagre(førstegangsbehandling, originaltresultat);
     }
 
-    private BeregningsgrunnlagEntitet byggBeregningsgrunnlagForBehandling(Behandling behandling,
+    private void byggBeregningsgrunnlagForBehandling(Behandling behandling,
             boolean medOppjustertDagsat,
             boolean skalDeleAndelMellomArbeidsgiverOgBruker,
             List<ÅpenDatoIntervallEntitet> perioder) {
-        return byggBeregningsgrunnlagForBehandling(behandling, medOppjustertDagsat,
+        byggBeregningsgrunnlagForBehandling(behandling, medOppjustertDagsat,
                 skalDeleAndelMellomArbeidsgiverOgBruker, perioder, new LagEnAndelTjeneste());
     }
 
-    private BeregningsgrunnlagEntitet byggBeregningsgrunnlagForBehandling(Behandling behandling,
+    private void byggBeregningsgrunnlagForBehandling(Behandling behandling,
             boolean medOppjustertDagsat,
             boolean skalDeleAndelMellomArbeidsgiverOgBruker,
             List<ÅpenDatoIntervallEntitet> perioder,
@@ -1200,8 +1229,8 @@ public class RevurderingBehandlingsresultatutlederTest {
         var beregningsgrunnlag = LagBeregningsgrunnlagTjeneste
                 .lagBeregningsgrunnlag(SKJÆRINGSTIDSPUNKT_BEREGNING, medOppjustertDagsat,
                         skalDeleAndelMellomArbeidsgiverOgBruker, perioder, lagAndelTjeneste);
-        beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, FASTSATT);
-        return beregningsgrunnlag;
+        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(FASTSATT);
+        when(beregningTjeneste.hent(behandling.getId())).thenReturn(Optional.of(gr));
     }
 
     private void lagreEndringsdato(LocalDate endringsdato, Long revurderingId) {
