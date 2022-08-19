@@ -42,6 +42,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
@@ -167,6 +168,23 @@ public class ForvaltningBeregningRestTjeneste {
     }
 
     @POST
+    @Path("/hentRefusjonskravperioderInput")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Henter input for beregning", tags = "FORVALTNING-beregning")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    public Response hentRefusjonskravperioderInput(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+        var behandling = getBehandling(dto);
+        var inputTjeneste = beregningsgrunnlagInputProvider.getTjeneste(behandling.getFagsakYtelseType());
+        var beregningsgrunnlagInput = inputTjeneste.lagInput(behandling.getId());
+        if (beregningsgrunnlagInput == null) {
+            return Response.noContent().build();
+        }
+        var json = StandardJsonConfig.toJson(beregningsgrunnlagInput.getKravPrArbeidsgiver());
+        return Response.ok(json).build();
+    }
+
+    @POST
     @Path("/hentBeregningsgrunnlagInput")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -179,8 +197,8 @@ public class ForvaltningBeregningRestTjeneste {
         var kalkulatorInputDto = MapTilKalkulatorInput.map(beregningsgrunnlagInput);
         if (kalkulatorInputDto == null) {
             return Response.noContent().build();
-
         }
         return Response.ok(kalkulatorInputDto).build();
     }
+
 }
