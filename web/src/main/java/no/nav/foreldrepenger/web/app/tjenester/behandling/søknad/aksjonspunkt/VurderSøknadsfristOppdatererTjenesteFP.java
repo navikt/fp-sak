@@ -59,7 +59,8 @@ public class VurderSøknadsfristOppdatererTjenesteFP extends VurderSøknadsfrist
                 return builder.build();
             })
             .collect(Collectors.toList());
-        var nyJustertFordeling = new OppgittFordelingEntitet(nyeJustertFordelingPerioder, eksisterendeJustertFordeling.getErAnnenForelderInformert());
+        var nyJustertFordeling = new OppgittFordelingEntitet(nyeJustertFordelingPerioder, eksisterendeJustertFordeling.getErAnnenForelderInformert(),
+            eksisterendeJustertFordeling.ønskerJustertVedFødsel());
         var yfBuilder = YtelseFordelingAggregat.oppdatere(Optional.of(ytelseFordelingAggregat))
             .medJustertFordeling(nyJustertFordeling);
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());

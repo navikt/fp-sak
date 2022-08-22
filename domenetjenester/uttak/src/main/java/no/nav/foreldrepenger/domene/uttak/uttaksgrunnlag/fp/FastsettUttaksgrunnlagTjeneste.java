@@ -83,8 +83,9 @@ public class FastsettUttaksgrunnlagTjeneste {
         }
 
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
-        if (fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel() && RelasjonsRolleType.erMor(ref.relasjonRolle())) {
-            justertePerioder = justerFordelingEtterFamilieHendelse(fpGrunnlag, justertePerioder);
+        if (fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel()) {
+            justertePerioder = justerFordelingEtterFamilieHendelse(fpGrunnlag, justertePerioder, ref.relasjonRolle(),
+                fordeling.ønskerJustertVedFødsel());
         }
         if (ref.getSkjæringstidspunkt().kreverSammenhengendeUttak()) {
             justertePerioder = fjernOppholdsperioderLiggendeTilSlutt(justertePerioder);
@@ -92,7 +93,7 @@ public class FastsettUttaksgrunnlagTjeneste {
             justertePerioder = fjernOppholdsperioder(justertePerioder);
         }
         justertePerioder = leggTilUtsettelserForPleiepenger(input, justertePerioder);
-        return new OppgittFordelingEntitet(kopier(justertePerioder), fordeling.getErAnnenForelderInformert());
+        return new OppgittFordelingEntitet(kopier(justertePerioder), fordeling.getErAnnenForelderInformert(), fordeling.ønskerJustertVedFødsel());
     }
 
     private List<OppgittPeriodeEntitet> fjernOppholdsperioder(List<OppgittPeriodeEntitet> perioder) {
@@ -125,10 +126,12 @@ public class FastsettUttaksgrunnlagTjeneste {
     }
 
     private List<OppgittPeriodeEntitet> justerFordelingEtterFamilieHendelse(ForeldrepengerGrunnlag fpGrunnlag,
-                                                                            List<OppgittPeriodeEntitet> oppgittePerioder) {
+                                                                            List<OppgittPeriodeEntitet> oppgittePerioder,
+                                                                            RelasjonsRolleType relasjonsRolleType,
+                                                                            boolean ønskerJustertVedFødsel) {
         var familiehendelser = finnFamiliehendelser(fpGrunnlag);
         return justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familiehendelser.søknad().orElse(null),
-                familiehendelser.gjeldende());
+                familiehendelser.gjeldende(), relasjonsRolleType, ønskerJustertVedFødsel);
     }
 
     private List<OppgittPeriodeEntitet> oppgittePerioderFraForrigeBehandling(Long forrigeBehandling) {

@@ -87,7 +87,8 @@ public class RevurderingTjenesteFelles {
         var kopiertFordeling = forrigeBehandlingFordeling.getOppgittePerioder().stream()
                 .map(periode -> OppgittPeriodeBuilder.fraEksisterende(periode).build())
                 .collect(Collectors.toList());
-        return new OppgittFordelingEntitet(kopiertFordeling, forrigeBehandlingFordeling.getErAnnenForelderInformert());
+        return new OppgittFordelingEntitet(kopiertFordeling, forrigeBehandlingFordeling.getErAnnenForelderInformert(),
+            forrigeBehandlingFordeling.ønskerJustertVedFødsel());
     }
 
     public Boolean kanRevurderingOpprettes(Fagsak fagsak) {

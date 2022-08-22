@@ -336,9 +336,10 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             // Se FastsettUttaksgrunnlagOgVurderSøknadsfristSteg
             if (harUttak(originalBehandling)) {
                 var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-                var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(revurdering.getId());
-                var erAnnenForelderInformert = hentAnnenForelderErInformert(ytelseFordelingAggregat);
-                var tilbakeStiltFordeling = new OppgittFordelingEntitet(Collections.emptyList(), erAnnenForelderInformert);
+                var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(revurdering.getId());
+                var erAnnenForelderInformert = ytelseFordelingAggregat.getOppgittFordeling().getErAnnenForelderInformert();
+                var ønskerJustertVedFødsel = ytelseFordelingAggregat.getOppgittFordeling().ønskerJustertVedFødsel();
+                var tilbakeStiltFordeling = new OppgittFordelingEntitet(Collections.emptyList(), erAnnenForelderInformert, ønskerJustertVedFødsel);
                 var yfBuilder = ytelsesFordelingRepository.opprettBuilder(revurdering.getId())
                     .medOppgittFordeling(tilbakeStiltFordeling);
                 ytelsesFordelingRepository.lagre(revurdering.getId(), yfBuilder.build());
@@ -348,14 +349,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     private boolean harUttak(Long behandlingId) {
         return uttakTjeneste.hentUttakHvisEksisterer(behandlingId).isPresent();
-    }
-
-    private boolean hentAnnenForelderErInformert(Optional<YtelseFordelingAggregat> ytelseFordelingAggregat) {
-        if (ytelseFordelingAggregat.isPresent() && (ytelseFordelingAggregat.get().getOppgittFordeling() != null)) {
-            return ytelseFordelingAggregat.get().getOppgittFordeling().getErAnnenForelderInformert();
-        }
-        // Default false
-        return false;
     }
 
     private boolean erEndringssøknad(Behandling revurdering) {

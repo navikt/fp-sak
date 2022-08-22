@@ -59,8 +59,10 @@ public class YtelseFordelingTjeneste {
                                         List<OppgittPeriodeEntitet> overstyrteSøknadsperioder,
                                         List<PeriodeUttakDokumentasjonEntitet> dokumentasjonsperioder) {
         validerOverlapp(overstyrteSøknadsperioder);
-        var erAnnenForelderInformert = ytelsesFordelingRepository.hentAggregat(behandlingId).getOppgittFordeling().getErAnnenForelderInformert();
-        var overstyrtFordeling = new OppgittFordelingEntitet(overstyrteSøknadsperioder, erAnnenForelderInformert);
+        var oppgittFordeling = ytelsesFordelingRepository.hentAggregat(behandlingId).getOppgittFordeling();
+        var erAnnenForelderInformert = oppgittFordeling.getErAnnenForelderInformert();
+        var ønskerJustertVedFødsel = oppgittFordeling.ønskerJustertVedFødsel();
+        var overstyrtFordeling = new OppgittFordelingEntitet(overstyrteSøknadsperioder, erAnnenForelderInformert, ønskerJustertVedFødsel);
 
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOverstyrtFordeling(overstyrtFordeling)

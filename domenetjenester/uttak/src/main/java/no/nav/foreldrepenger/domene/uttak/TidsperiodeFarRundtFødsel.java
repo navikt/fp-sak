@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.domene.uttak;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -18,8 +20,19 @@ public final class TidsperiodeFarRundtFødsel {
 
     public static Optional<LocalDateInterval> intervallFarRundtFødsel(FamilieHendelser familieHendelser, boolean utenMinsterett) {
         var familiehendelse = familieHendelser.getGjeldendeFamilieHendelse();
-        return FarUttakRundtFødsel.utledFarsPeriodeRundtFødsel(utenMinsterett, familieHendelser.gjelderTerminFødsel(),
-                familiehendelse.getFamilieHendelseDato(), familiehendelse.getTermindato().orElse(null))
+        return intervallFarRundtFødsel(familiehendelse, utenMinsterett);
+    }
+
+    public static Optional<LocalDateInterval> intervallFarRundtFødsel(FamilieHendelse familieHendelse, boolean utenMinsterett) {
+        return intervallFarRundtFødsel(utenMinsterett, familieHendelse.gjelderFødsel(),
+                familieHendelse.getFamilieHendelseDato(), familieHendelse.getTermindato().orElse(null));
+    }
+
+    public static Optional<LocalDateInterval> intervallFarRundtFødsel(boolean utenMinsterett,
+                                                                      boolean gjelderFødsel,
+                                                                      LocalDate familiehendelseDato,
+                                                                      LocalDate termindato) {
+        return FarUttakRundtFødsel.utledFarsPeriodeRundtFødsel(utenMinsterett, gjelderFødsel, familiehendelseDato, termindato)
             .map(p -> new LocalDateInterval(p.getFom(), p.getTom()));
     }
 }

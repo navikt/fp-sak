@@ -12,6 +12,7 @@ public class YtelseFordelingDto {
     private LocalDate endringsdato;
     private int gjeldendeDekningsgrad;
     private LocalDate førsteUttaksdato;
+    private boolean ønskerJustertVedFødsel;
 
     private YtelseFordelingDto() {
     }
@@ -38,6 +39,10 @@ public class YtelseFordelingDto {
 
     public LocalDate getFørsteUttaksdato() {
         return førsteUttaksdato;
+    }
+
+    public boolean isØnskerJustertVedFødsel() {
+        return ønskerJustertVedFødsel;
     }
 
     public static class Builder {
@@ -71,6 +76,11 @@ public class YtelseFordelingDto {
 
         public Builder medFørsteUttaksdato(LocalDate førsteUttaksdato) {
             kladd.førsteUttaksdato = førsteUttaksdato;
+            return this;
+        }
+
+        public Builder medØnskerJustertVedFødsel(boolean ønskerJustertVedFødsel) {
+            kladd.ønskerJustertVedFødsel = ønskerJustertVedFødsel;
             return this;
         }
 

@@ -122,8 +122,8 @@ class OppgittPeriodeUtil {
     }
 
     static OppgittPeriodeEntitet kopier(OppgittPeriodeEntitet oppgittPeriode, LocalDate nyFom, LocalDate nyTom) {
-        if (oppgittPeriode instanceof JusterFordelingTjeneste.JusterPeriodeHull) {
-            return new JusterFordelingTjeneste.JusterPeriodeHull(nyFom, nyTom);
+        if (oppgittPeriode instanceof MorsJustering.JusterPeriodeHull) {
+            return new MorsJustering.JusterPeriodeHull(nyFom, nyTom);
         }
         return OppgittPeriodeBuilder.fraEksisterende(oppgittPeriode).medPeriode(nyFom, nyTom).build();
     }
