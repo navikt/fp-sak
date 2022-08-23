@@ -156,7 +156,7 @@ public class InntektsmeldingTjeneste {
      * @param saksnummer som gjelder fagsaken
      * @return Liste med inntektsmeldinger {@link Inntektsmelding}
      */
-    private List<Inntektsmelding> hentAlleInntektsmeldingerForFagsak(Saksnummer saksnummer) {
+    public List<Inntektsmelding> hentAlleInntektsmeldingerForFagsak(Saksnummer saksnummer) {
         return List.copyOf(iayTjeneste.hentUnikeInntektsmeldingerForSak(saksnummer));
     }
 

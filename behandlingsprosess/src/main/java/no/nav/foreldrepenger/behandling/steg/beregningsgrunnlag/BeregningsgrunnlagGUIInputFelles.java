@@ -20,7 +20,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.KravperioderMapper;
@@ -35,16 +37,19 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     @Inject
     public BeregningsgrunnlagGUIInputFelles(BehandlingRepository behandlingRepository,
                                             InntektArbeidYtelseTjeneste iayTjeneste,
                                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                            OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste) {
+                                            OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste,
+                                            InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.behandlingRepository = Objects.requireNonNull(behandlingRepository, "behandlingRepository");
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
         this.opptjeningForBeregningTjeneste = opptjeningForBeregningTjeneste;
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
     protected BeregningsgrunnlagGUIInputFelles() {
@@ -124,8 +129,8 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
     }
 
     private List<KravperioderPrArbeidsforholdDto> mapKravperioder(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger().map(InntektsmeldingAggregat::getAlleInntektsmeldinger).orElse(Collections.emptyList());
-        return KravperioderMapper.map(ref, inntektsmeldinger, iayGrunnlag);
+        var alleInntektsmeldingerForFagsak = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsak(ref.saksnummer());
+        return KravperioderMapper.map(ref, alleInntektsmeldingerForFagsak, iayGrunnlag);
     }
 
     /**

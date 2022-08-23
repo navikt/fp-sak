@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -34,16 +35,19 @@ import static no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval.TIDENES
 public class KravperioderMapper {
 
     public static List<KravperioderPrArbeidsforholdDto> map(BehandlingReferanse referanse,
-                                                            Collection<Inntektsmelding> inntektsmeldinger,
+                                                            Collection<Inntektsmelding> alleInntektsmeldingerPåSak,
                                                             InntektArbeidYtelseGrunnlag grunnlagDto) {
+        var aktiveInntektsmeldinger = grunnlagDto.getInntektsmeldinger()
+            .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
+            .orElse(Collections.emptyList());
         YrkesaktivitetFilter filter = new YrkesaktivitetFilter(grunnlagDto.getArbeidsforholdInformasjon(),
             grunnlagDto.getAktørArbeidFraRegister(referanse.aktørId()));
         Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
         if (yrkesaktiviteter.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<Kravnøkkel, Inntektsmelding> sisteIMPrArbeidsforhold = finnSisteInntektsmeldingMedRefusjonPrArbeidsforhold(inntektsmeldinger);
-        Map<Kravnøkkel, List<Inntektsmelding>> gruppertPrArbeidsforhold = finnInntektsmeldingMedRefusjonPrArbeidsforhold(inntektsmeldinger);
+        Map<Kravnøkkel, Inntektsmelding> sisteIMPrArbeidsforhold = finnSisteInntektsmeldingMedRefusjonPrArbeidsforhold(aktiveInntektsmeldinger);
+        Map<Kravnøkkel, List<Inntektsmelding>> gruppertPrArbeidsforhold = finnInntektsmeldingMedRefusjonPrArbeidsforhold(alleInntektsmeldingerPåSak);
 
         return gruppertPrArbeidsforhold
             .entrySet()
