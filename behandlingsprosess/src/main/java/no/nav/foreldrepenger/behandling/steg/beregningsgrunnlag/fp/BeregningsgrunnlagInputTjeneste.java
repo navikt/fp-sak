@@ -40,10 +40,11 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
             BeregningUttakTjeneste beregningUttakTjeneste,
             OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste,
-            BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste, InntektsmeldingTjeneste inntektsmeldingTjeneste,
+            BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste,
+            InntektsmeldingTjeneste inntektsmeldingTjeneste,
             KalkulusKonfigInjecter kalkulusKonfigInjecter) {
         super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste,
-                opptjeningForBeregningTjeneste, kalkulusKonfigInjecter);
+                opptjeningForBeregningTjeneste, kalkulusKonfigInjecter, inntektsmeldingTjeneste);
         this.fagsakRelasjonRepository = Objects.requireNonNull(behandlingRepositoryProvider.getFagsakRelasjonRepository(),
                 "fagsakRelasjonRepository");
         this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;
