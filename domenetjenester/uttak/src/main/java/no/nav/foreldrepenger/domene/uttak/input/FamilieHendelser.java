@@ -35,8 +35,7 @@ public class FamilieHendelser {
     }
 
     public boolean gjelderTerminFødsel() {
-        var gjeldendeFamilieHendelse = getGjeldendeFamilieHendelse();
-        return gjeldendeFamilieHendelse.getOmsorgsovertakelse().isEmpty();
+        return getGjeldendeFamilieHendelse().gjelderFødsel();
     }
 
     public boolean erSøktTermin() {

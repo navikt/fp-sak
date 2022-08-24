@@ -332,8 +332,9 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         var fordeling = omYtelse.getFordeling();
         var perioder = fordeling.getPerioder();
         var annenForelderErInformert = fordeling.isAnnenForelderErInformert();
+        var ønskerJustertVedFødsel = fordeling.isOenskerJustertVedFoedsel();
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medOppgittFordeling(lagOppgittFordeling(behandling, perioder, annenForelderErInformert, mottattDato));
+            .medOppgittFordeling(lagOppgittFordeling(behandling, perioder, annenForelderErInformert, mottattDato, ønskerJustertVedFødsel));
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
     }
 
@@ -513,13 +514,15 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                                                       LocalDate mottattDato) {
         var perioder = new ArrayList<>(omYtelse.getFordeling().getPerioder());
         var annenForelderErInformert = omYtelse.getFordeling().isAnnenForelderErInformert();
-        return lagOppgittFordeling(behandling, perioder, annenForelderErInformert, mottattDato);
+        var ønskerJustertVedFødsel = omYtelse.getFordeling().isOenskerJustertVedFoedsel();
+        return lagOppgittFordeling(behandling, perioder, annenForelderErInformert, mottattDato, ønskerJustertVedFødsel);
     }
 
     private OppgittFordelingEntitet lagOppgittFordeling(Behandling behandling,
                                                         List<LukketPeriodeMedVedlegg> perioder,
                                                         boolean annenForelderErInformert,
-                                                        LocalDate mottattDatoFraSøknad) {
+                                                        LocalDate mottattDatoFraSøknad,
+                                                        Boolean ønskerJustertVedFødsel) {
         List<OppgittPeriodeEntitet> oppgittPerioder = new ArrayList<>();
 
         for (var lukketPeriode : perioder) {
@@ -530,7 +533,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         if (!inneholderVirkedager(oppgittPerioder)) {
             throw new IllegalArgumentException("Fordelingen må inneholde perioder med minst en virkedag");
         }
-        return new OppgittFordelingEntitet(oppgittPerioder, annenForelderErInformert);
+        return new OppgittFordelingEntitet(oppgittPerioder, annenForelderErInformert, Objects.equals(ønskerJustertVedFødsel, true));
     }
 
     private void oppdaterMedMottattDato(List<OppgittPeriodeEntitet> oppgittPerioder,

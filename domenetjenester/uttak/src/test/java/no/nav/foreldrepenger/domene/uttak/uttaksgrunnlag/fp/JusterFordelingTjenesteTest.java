@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -34,10 +35,15 @@ public class JusterFordelingTjenesteTest {
         var oppgittePerioder = List.of(fpff, mk, fp);
 
         //Føder på termin
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, fødselsdato, fødselsdato);
+        var justertePerioder = juster(oppgittePerioder, fødselsdato, fødselsdato);
 
         //Oppgitteperioder er uendret
         assertThat(likePerioder(oppgittePerioder, justertePerioder)).isTrue();
+    }
+
+    private List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate familehendelse1, LocalDate familiehendelse2) {
+        return justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familehendelse1, familiehendelse2, RelasjonsRolleType.MORA,
+            false);
     }
 
     @Test
@@ -47,7 +53,7 @@ public class JusterFordelingTjenesteTest {
         var oppgittePerioder = List.of(fpff);
 
         //Føder en dag før termin
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, fødselsdato, fødselsdato.minusDays(1));
+        var justertePerioder = juster(oppgittePerioder, fødselsdato, fødselsdato.minusDays(1));
 
         //Periode skal flyttes 1 dag tidligere, men ikke før første uttak
         assertThat(justertePerioder).hasSize(1);
@@ -67,8 +73,7 @@ public class JusterFordelingTjenesteTest {
         var oppgittePerioder = List.of(fpff1, fpff2);
 
         //En dag igjen til fpff
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, fødselsdato,
-            fødselsdato.minusWeeks(3).plusDays(1));
+        var justertePerioder = juster(oppgittePerioder, fødselsdato, fødselsdato.minusWeeks(3).plusDays(1));
 
         assertThat(justertePerioder).hasSize(1);
         var justertFpff = justertePerioder.get(0);
@@ -87,7 +92,7 @@ public class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(mødrekvote, fellesperiode, utsettelse);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, termin.plusDays(4));
+        var justertePerioder = juster(oppgittePerioder, termin, termin.plusDays(4));
 
         assertThat(justertePerioder).hasSize(5);
 
@@ -117,7 +122,7 @@ public class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(mødrekvote);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, termin.plusDays(10));
+        var justertePerioder = juster(oppgittePerioder, termin, termin.plusDays(10));
 
         assertThat(justertePerioder).hasSize(1);
 
@@ -133,8 +138,7 @@ public class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(mødrekvote, utsettelse);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, mødrekvote.getFom(),
-            mødrekvote.getFom().minusDays(5));
+        var justertePerioder = juster(oppgittePerioder, mødrekvote.getFom(), mødrekvote.getFom().minusDays(5));
 
         assertThat(justertePerioder).hasSize(2);
 
@@ -153,8 +157,7 @@ public class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(mødrekvote1, mødrekvote2, mødrekvote3, utsettelse, mødrekvote4);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, mødrekvote1.getFom(),
-            mødrekvote1.getFom());
+        var justertePerioder = juster(oppgittePerioder, mødrekvote1.getFom(), mødrekvote1.getFom());
 
         assertThat(justertePerioder).hasSize(3);
 
@@ -178,8 +181,7 @@ public class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(mødrekvote1, mødrekvote2);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, mødrekvote1.getFom(),
-            mødrekvote1.getFom());
+        var justertePerioder = juster(oppgittePerioder, mødrekvote1.getFom(), mødrekvote1.getFom());
 
         assertThat(justertePerioder).hasSize(2);
 
@@ -198,7 +200,7 @@ public class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(foreldrepenger2, foreldrepenger1);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, foreldrepenger1.getFom(), null);
+        var justertePerioder = juster(oppgittePerioder, foreldrepenger1.getFom(), null);
 
         assertThat(justertePerioder).hasSize(1);
 
@@ -214,8 +216,7 @@ public class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(gradering1, gradering2);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, gradering1.getFom(),
-            gradering2.getFom());
+        var justertePerioder = juster(oppgittePerioder, gradering1.getFom(), gradering2.getFom());
 
         assertThat(justertePerioder).hasSize(1);
         var justertGradering = justertePerioder.get(0);
@@ -230,8 +231,7 @@ public class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(gradering1, gradering2);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, gradering1.getFom(),
-            gradering2.getFom());
+        var justertePerioder = juster(oppgittePerioder, gradering1.getFom(), gradering2.getFom());
 
         assertThat(justertePerioder).hasSize(2);
     }
@@ -243,8 +243,7 @@ public class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(mødrekvote1, mødrekvote2);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, mødrekvote1.getFom(),
-            mødrekvote1.getFom());
+        var justertePerioder = juster(oppgittePerioder, mødrekvote1.getFom(), mødrekvote1.getFom());
 
         assertThat(justertePerioder).hasSize(1);
 
@@ -261,8 +260,7 @@ public class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(mødrekvote, utsettelse1, utsettelse2);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, mødrekvote.getFom(),
-            mødrekvote.getFom().minusDays(5));
+        var justertePerioder = juster(oppgittePerioder, mødrekvote.getFom(), mødrekvote.getFom().minusDays(5));
 
         assertThat(justertePerioder).hasSize(3);
 
@@ -280,8 +278,7 @@ public class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(mødrekvote, utsettelse1, fellesperiode, utsettelse2);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, mødrekvote.getFom(),
-            mødrekvote.getFom().minusDays(5));
+        var justertePerioder = juster(oppgittePerioder, mødrekvote.getFom(), mødrekvote.getFom().minusDays(5));
 
         assertThat(justertePerioder).hasSize(5);
     }
@@ -296,8 +293,7 @@ public class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(mødrekvote1, utsettelse1, mødrekvote2, fellesperiode, utsettelse2);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, mødrekvote1.getFom(),
-            mødrekvote1.getFom().minusDays(7));
+        var justertePerioder = juster(oppgittePerioder, mødrekvote1.getFom(), mødrekvote1.getFom().minusDays(7));
 
         assertThat(justertePerioder).hasSize(6);
         assertThat(justertePerioder.get(4).getFom()).isEqualTo(mødrekvote2.getFom());
@@ -313,8 +309,7 @@ public class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(mødrekvote, utsettelse, fellesperiode);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, mødrekvote.getFom(),
-            mødrekvote.getFom().minusDays(5));
+        var justertePerioder = juster(oppgittePerioder, mødrekvote.getFom(), mødrekvote.getFom().minusDays(5));
 
         assertThat(justertePerioder).hasSize(4);
         assertThat(justertePerioder.get(1).getTom()).isEqualTo(LocalDate.of(2019, 8, 16));
@@ -328,8 +323,7 @@ public class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(mødrekvote, utsettelse, fellesperiode);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, mødrekvote.getFom(),
-            mødrekvote.getFom().minusDays(5));
+        var justertePerioder = juster(oppgittePerioder, mødrekvote.getFom(), mødrekvote.getFom().minusDays(5));
 
         assertThat(justertePerioder).hasSize(4);
         assertThat(justertePerioder.get(3).getTom()).isEqualTo(fellesperiode.getTom());
@@ -345,7 +339,7 @@ public class JusterFordelingTjenesteTest {
 
         var oppgittePerioder = List.of(mødrekvote, utsettelse);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, termin.plusDays(5));
+        var justertePerioder = juster(oppgittePerioder, termin, termin.plusDays(5));
 
         assertThat(justertePerioder).hasSize(2);
 
@@ -371,7 +365,7 @@ public class JusterFordelingTjenesteTest {
         var oppgittePerioder = List.of(mødrekvote, fellesperiode);
 
         //Føder fredag
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, termin.minusDays(3));
+        var justertePerioder = juster(oppgittePerioder, termin, termin.minusDays(3));
 
         assertThat(justertePerioder).hasSize(2);
 
@@ -401,7 +395,7 @@ public class JusterFordelingTjenesteTest {
         var oppgittePerioder = List.of(fpff, mødrekvote, fellesperiode);
 
         //Fødsel fredag
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, termin.minusDays(1));
+        var justertePerioder = juster(oppgittePerioder, termin, termin.minusDays(1));
 
         assertThat(justertePerioder).hasSize(3);
 
@@ -436,7 +430,7 @@ public class JusterFordelingTjenesteTest {
         var oppgittePerioder = List.of(fpff, mødrekvote, fellesperiode);
 
         //Fødsel fredag
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, termin.plusDays(2));
+        var justertePerioder = juster(oppgittePerioder, termin, termin.plusDays(2));
 
         assertThat(justertePerioder).hasSize(4);
 
@@ -473,7 +467,7 @@ public class JusterFordelingTjenesteTest {
 
         //Fødsel lørdag
         var justertFamilehendelse = termin.minusDays(5);
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, justertFamilehendelse);
+        var justertePerioder = juster(oppgittePerioder, termin, justertFamilehendelse);
 
         assertThat(justertePerioder).hasSize(3);
 
@@ -505,7 +499,7 @@ public class JusterFordelingTjenesteTest {
 
         //Fødsel onsdag
         var justertFamilehendelse = termin.plusDays(2);
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, justertFamilehendelse);
+        var justertePerioder = juster(oppgittePerioder, termin, justertFamilehendelse);
 
         assertThat(justertePerioder).hasSize(4);
 
@@ -541,7 +535,7 @@ public class JusterFordelingTjenesteTest {
 
         //Fødsel torsdag
         var justertFamilehendelse = termin.minusDays(4);
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, justertFamilehendelse);
+        var justertePerioder = juster(oppgittePerioder, termin, justertFamilehendelse);
 
         assertThat(justertePerioder).hasSize(3);
 
@@ -579,7 +573,7 @@ public class JusterFordelingTjenesteTest {
 
         //Fødsel lørdag
         var justertFamilehendelse = termin.plusDays(2);
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, justertFamilehendelse);
+        var justertePerioder = juster(oppgittePerioder, termin, justertFamilehendelse);
 
         assertThat(justertePerioder).hasSize(4);
 
@@ -621,7 +615,7 @@ public class JusterFordelingTjenesteTest {
         var oppgittePerioder = List.of(mødrekvote, fellesperiode1, fellesperiode2);
 
         //Føder en dag før termin
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, termin.plusDays(1));
+        var justertePerioder = juster(oppgittePerioder, termin, termin.plusDays(1));
 
         assertThat(justertePerioder).hasSize(3);
 
@@ -645,7 +639,7 @@ public class JusterFordelingTjenesteTest {
 
         //Føder en dag før termin
         var nyFødselsdato = fødselsdato.minusDays(28);
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, fødselsdato, nyFødselsdato);
+        var justertePerioder = juster(oppgittePerioder, fødselsdato, nyFødselsdato);
 
         //Periode skal flyttes 1 dag tidligere, men ikke før første uttak
         assertThat(likePerioder(oppgittePerioder, justertePerioder)).isFalse();
@@ -667,7 +661,7 @@ public class JusterFordelingTjenesteTest {
         //Føder to dager etter termin. Familehendelsedato blir flyttet innad i hullet
         //Skal føre til at det ikke blir en endring i søknadsperiodene
         var faktiskFødselsdato = termin.plusDays(4);
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, faktiskFødselsdato);
+        var justertePerioder = juster(oppgittePerioder, termin, faktiskFødselsdato);
 
         assertThat(justertePerioder).hasSize(2);
 
@@ -692,7 +686,7 @@ public class JusterFordelingTjenesteTest {
 
         //Føder en uke etter termin. Hopper over mødrekvote og inn i et annet hull
         var faktiskFødselsdato = LocalDate.of(2019, 1, 21);
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, faktiskFødselsdato);
+        var justertePerioder = juster(oppgittePerioder, termin, faktiskFødselsdato);
 
         assertThat(justertePerioder).hasSize(5);
 
@@ -728,7 +722,7 @@ public class JusterFordelingTjenesteTest {
         //Føder 5 dager før termin. Familehendelsedato blir flyttet innad i hullet
         //Skal føre til at det ikke blir en endring i søknadsperiodene
         var faktiskFødselsdato = termin.minusDays(4);
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, faktiskFødselsdato);
+        var justertePerioder = juster(oppgittePerioder, termin, faktiskFødselsdato);
 
         assertThat(justertePerioder).hasSize(2);
 
@@ -751,7 +745,7 @@ public class JusterFordelingTjenesteTest {
 
         //Føder 5 dager før termin. Familehendelsedato blir flyttet inn i hullet. Siden det ikke er noen virkdager i mellom termin og hull så skal søknadsperiodene beholdes
         var faktiskFødselsdato = termin.minusDays(4);
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, faktiskFødselsdato);
+        var justertePerioder = juster(oppgittePerioder, termin, faktiskFødselsdato);
 
         assertThat(justertePerioder).hasSize(2);
 
@@ -775,7 +769,7 @@ public class JusterFordelingTjenesteTest {
 
         //Familehendelsedato blir flyttet inn i utsettelsen.
         var faktiskFødselsdato = LocalDate.of(2019, 1, 22);
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, faktiskFødselsdato);
+        var justertePerioder = juster(oppgittePerioder, termin, faktiskFødselsdato);
 
         assertThat(justertePerioder).hasSize(4);
 
@@ -804,7 +798,7 @@ public class JusterFordelingTjenesteTest {
         var oppgittePerioder = List.of(fpff, mk);
 
         //Føder en dag etter termin
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, fødselsdato, fødselsdato.plusDays(1));
+        var justertePerioder = juster(oppgittePerioder, fødselsdato, fødselsdato.plusDays(1));
 
         //Periode skal flyttes 1 dag fremover, og det skal fylles på med fellesperiode i starten
         assertThat(likePerioder(oppgittePerioder, justertePerioder)).isFalse();
@@ -837,7 +831,7 @@ public class JusterFordelingTjenesteTest {
         var oppgittePerioder = List.of(fpff, mk);
 
         //Føder en dag etter termin
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, fødselsdato, fødselsdato.plusDays(1));
+        var justertePerioder = juster(oppgittePerioder, fødselsdato, fødselsdato.plusDays(1));
 
         var ekstraFp = justertePerioder.get(0);
         assertThat(ekstraFp.getMottattDato()).isEqualTo(fpff.getMottattDato());
@@ -855,7 +849,7 @@ public class JusterFordelingTjenesteTest {
 
         //Føder en uke før termin
         var justertFødselsdato = fødselsdato.minusWeeks(1);
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, fødselsdato, justertFødselsdato);
+        var justertePerioder = juster(oppgittePerioder, fødselsdato, justertFødselsdato);
 
         //Periodene skal flyttes 1 uke, utsettelse skal være uendret og fpff skal avkortes.
         assertThat(likePerioder(oppgittePerioder, justertePerioder)).isFalse();
@@ -899,7 +893,7 @@ public class JusterFordelingTjenesteTest {
 
         //Føder en uke etter termin
         var justertFødselsdato = fødselsdato.plusWeeks(1);
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, fødselsdato, justertFødselsdato);
+        var justertePerioder = juster(oppgittePerioder, fødselsdato, justertFødselsdato);
 
         //Periodene skal flyttes 1 uke, utsettelse skal være uendret og fpff skal avkortes.
         assertThat(likePerioder(oppgittePerioder, justertePerioder)).isFalse();
@@ -951,7 +945,7 @@ public class JusterFordelingTjenesteTest {
 
         //Føder en uke før termin
         var justertFødselsdato = fødselsdato.minusWeeks(1);
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, fødselsdato, justertFødselsdato);
+        var justertePerioder = juster(oppgittePerioder, fødselsdato, justertFødselsdato);
 
         assertThat(likePerioder(oppgittePerioder, justertePerioder)).isFalse();
         assertThat(justertePerioder).hasSize(6);
@@ -996,7 +990,7 @@ public class JusterFordelingTjenesteTest {
         var mk2 = lagPeriode(MØDREKVOTE, termin.plusDays(2), termin.plusWeeks(6));
         var oppgittePerioder = List.of(fpff, mk1, mk2);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, termin, termin.plusWeeks(2));
+        var justertePerioder = juster(oppgittePerioder, termin, termin.plusWeeks(2));
 
         assertThat(justertePerioder).hasSize(3);
     }
@@ -1011,7 +1005,7 @@ public class JusterFordelingTjenesteTest {
             .build();
         var oppgittePerioder = List.of(mk);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, fødselsdato, fødselsdato.plusWeeks(1));
+        var justertePerioder = juster(oppgittePerioder, fødselsdato, fødselsdato.plusWeeks(1));
 
         assertThat(justertePerioder).hasSize(2);
         assertThat(justertePerioder.get(1).getFom()).isEqualTo(mk.getFom().plusWeeks(1));
@@ -1030,7 +1024,7 @@ public class JusterFordelingTjenesteTest {
             .build();
         var oppgittePerioder = List.of(fpff, mk, fpMedSamtidigUttak);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, fødselsdato, fødselsdato.plusWeeks(1));
+        var justertePerioder = juster(oppgittePerioder, fødselsdato, fødselsdato.plusWeeks(1));
 
         //3 perioder + Fellesperiode før fødsel
         assertThat(justertePerioder).hasSize(4);
@@ -1046,7 +1040,7 @@ public class JusterFordelingTjenesteTest {
         var fp = lagPeriode(FELLESPERIODE, fødselsdato.plusWeeks(15), fødselsdato.plusWeeks(31).minusDays(1));
         var oppgittePerioder = List.of(fpff, mk, fp);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, fødselsdato, fødselsdato);
+        var justertePerioder = juster(oppgittePerioder, fødselsdato, fødselsdato);
 
         assertThat(likePerioder(oppgittePerioder, justertePerioder)).isTrue();
     }
@@ -1059,7 +1053,7 @@ public class JusterFordelingTjenesteTest {
         var fp = lagPeriode(FELLESPERIODE, fødselsdato.plusWeeks(15), fødselsdato.plusWeeks(31).minusDays(1));
         var oppgittePerioder = List.of(fpff, mk, fp);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, fødselsdato, fødselsdato.plusWeeks(1));
+        var justertePerioder = juster(oppgittePerioder, fødselsdato, fødselsdato.plusWeeks(1));
 
         assertThat(likePerioder(oppgittePerioder, justertePerioder)).isTrue();
     }
@@ -1083,8 +1077,7 @@ public class JusterFordelingTjenesteTest {
             .build();
         var oppgittePerioder = List.of(fpff, mk1, mk2);
 
-        var justertePerioder = justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder,
-            termindato, fødselsdato);
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
 
         assertThat(justertePerioder).hasSize(3);
         assertThat(justertePerioder.get(1).getFom()).isEqualTo(fødselsdato);

@@ -34,7 +34,7 @@ public final class EndringsdatoBerørtUtleder {
     public static Optional<LocalDate> utledEndringsdatoForBerørtBehandling(ForeldrepengerUttak utløsendeBehandlingUttak,
                                                                            Optional<YtelseFordelingAggregat> utløsendeBehandlingYtelseFordeling,
                                                                            Behandlingsresultat utløsendeBehandlingsresultat,
-                                                                           boolean neagtivSaldoNoenKonto,
+                                                                           boolean negativSaldoNoenKonto,
                                                                            Optional<ForeldrepengerUttak> berørtBehandlingUttak,
                                                                            UttakInput uttakInput,
                                                                            String loggPrefix) {
@@ -51,7 +51,7 @@ public final class EndringsdatoBerørtUtleder {
             .orElseGet(() -> finnMinAktivDato(utløsendeBehandlingUttak, berørtBehandlingUttak.get()).orElseThrow());
 
         Set<LocalDate> berørtBehovDatoer = new HashSet<>();
-        if (utløsendeBehandlingsresultat.isEndretStønadskonto() || neagtivSaldoNoenKonto) {
+        if (utløsendeBehandlingsresultat.isEndretStønadskonto() || negativSaldoNoenKonto) {
             LOG.info("{}: EndretKonto/NegativKonto endringsdato {}", loggPrefix, endringsdato);
             berørtBehovDatoer.add(endringsdato);
         }

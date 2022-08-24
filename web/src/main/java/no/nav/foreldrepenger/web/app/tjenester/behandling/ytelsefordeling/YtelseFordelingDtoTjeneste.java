@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.konfig.Environment;
 @ApplicationScoped
 public class YtelseFordelingDtoTjeneste {
 
-    private static boolean ER_PROD = Environment.current().isProd();
+    private static final boolean ER_PROD = Environment.current().isProd();
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -48,17 +48,17 @@ public class YtelseFordelingDtoTjeneste {
                 .ifPresent(uenOmsorg -> dtoBuilder.medIkkeOmsorgPerioder(PeriodeKonverter.mapUtenOmsorgperioder(uenOmsorg.getPerioder())));
             yfa.getAvklarteDatoer().ifPresent(avklarteUttakDatoer -> dtoBuilder.medEndringsdato(avklarteUttakDatoer.getGjeldendeEndringsdato()));
             leggTilFørsteUttaksdato(behandling, dtoBuilder);
+            dtoBuilder.medØnskerJustertVedFødsel(yfa.getGjeldendeSøknadsperioder().ønskerJustertVedFødsel());
             dtoBuilder.medRettigheterAnnenforelder(lagAnnenforelderRettDto(behandling, yfa));
         });
-        fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak()).ifPresent(fagsakRelasjon1 -> dtoBuilder.medGjeldendeDekningsgrad(fagsakRelasjon1.getGjeldendeDekningsgrad().getVerdi()));
+        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak());
+        fagsakRelasjon.ifPresent(fagsakRelasjon1 -> dtoBuilder.medGjeldendeDekningsgrad(fagsakRelasjon1.getGjeldendeDekningsgrad().getVerdi()));
         return Optional.of(dtoBuilder.build());
     }
 
     private void leggTilFørsteUttaksdato(Behandling behandling, YtelseFordelingDto.Builder dtoBuilder) {
         var førsteUttaksdato = førsteUttaksdatoTjeneste.finnFørsteUttaksdato(behandling);
-        if (førsteUttaksdato.isPresent()) {
-            dtoBuilder.medFørsteUttaksdato(førsteUttaksdato.get());
-        }
+        førsteUttaksdato.ifPresent(dtoBuilder::medFørsteUttaksdato);
     }
 
     private RettigheterAnnenforelderDto lagAnnenforelderRettDto(Behandling behandling, YtelseFordelingAggregat yfa) {

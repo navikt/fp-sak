@@ -72,7 +72,7 @@ public class ScenarioMorSøkerForeldrepenger extends AbstractTestScenario<Scenar
     public ScenarioMorSøkerForeldrepenger medDefaultFordeling(LocalDate førsteuttaksdag) {
         var førFødsel = førFødsel(førsteuttaksdag);
         var mødreKvote = mødrekvote(førsteuttaksdag);
-        medFordeling(new OppgittFordelingEntitet(List.of(førFødsel, mødreKvote), true));
+        medFordeling(new OppgittFordelingEntitet(List.of(førFødsel, mødreKvote), true, false));
         return this;
     }
 

@@ -15,8 +15,6 @@ import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
@@ -51,7 +49,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
     private BehandlingRepositoryProvider repositoryProvider;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste;
-    private UføretrygdRepository uføretrygdRepository = mock(UføretrygdRepository.class);
+    private final UføretrygdRepository uføretrygdRepository = mock(UføretrygdRepository.class);
 
     @BeforeEach
     public void setUp() {
@@ -65,7 +63,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void teste_lag_ytelsefordeling_dto() {
-        var behandling = opprettBehandling(AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG);
+        var behandling = opprettBehandling();
         var dto = new AvklarAleneomsorgVurderingDto("begrunnelse");
         dto.setAleneomsorg(true);
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
@@ -80,7 +78,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void teste_lag_ytelsefordeling_dto_med_annenforelder_har_rett_perioder() {
-        var behandling = opprettBehandling(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT);
+        var behandling = opprettBehandling();
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         var uforeRepoMock = mock(UføretrygdRepository.class);
         when(uforeRepoMock.hentGrunnlag(anyLong())).thenReturn(Optional.empty());
@@ -102,7 +100,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void teste_lag_register_uføretrygd_ytelsefordeling_dto() {
-        var behandling = opprettBehandling(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT);
+        var behandling = opprettBehandling();
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         var uforeRepoMock = mock(UføretrygdRepository.class);
         when(uforeRepoMock.hentGrunnlag(anyLong())).thenReturn(Optional.empty());
@@ -124,7 +122,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void teste_lag_uavklart_register_uføretrygd_ytelsefordeling_dto() {
-        var behandling = opprettBehandling(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT);
+        var behandling = opprettBehandling();
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         var uforeRepoMock = mock(UføretrygdRepository.class);
         when(uforeRepoMock.hentGrunnlag(anyLong())).thenReturn(Optional.empty());
@@ -146,7 +144,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void teste_lag_uavklart_register_uføretrygd_ytelsefordeling_tidligere_avklart_dto() {
-        var behandling = opprettBehandling(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT);
+        var behandling = opprettBehandling();
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         var uforeRepoMock = mock(UføretrygdRepository.class);
         when(uforeRepoMock.hentGrunnlag(anyLong())).thenReturn(Optional.empty());
@@ -166,17 +164,26 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().skalAvklareAnnenforelderStønadEØS()).isFalse();
     }
 
+    @Test
+    void skal_hente_ønsker_justert_fordeling_fra_yf() {
+        var oppgittPeriode = OppgittPeriodeBuilder.ny()
+            .medPeriode(LocalDate.now().minusDays(10), LocalDate.now())
+            .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
+            .build();
+        var fordeling = new OppgittFordelingEntitet(List.of(oppgittPeriode), true, true);
+
+        var behandling = opprettBehandling(fordeling);
+
+        var dto = tjeneste().mapFra(behandling).orElseThrow();
+        assertThat(dto.isØnskerJustertVedFødsel()).isTrue();
+    }
+
     private YtelseFordelingDtoTjeneste tjeneste() {
         return new YtelseFordelingDtoTjeneste(ytelseFordelingTjeneste, repositoryProvider.getFagsakRelasjonRepository(),
             uføretrygdRepository, førsteUttaksdatoTjeneste);
     }
 
-    private Behandling opprettBehandling(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        // Arrange
-        var termindato = LocalDate.now().plusWeeks(16);
-        var rettighet = new OppgittRettighetEntitet(false, true, false, false);
-        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
-            LocalDate.now().minusDays(20)).medOpprinneligEndringsdato(LocalDate.now().minusDays(20)).build();
+    private Behandling opprettBehandling() {
         var periode_1 = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now().minusDays(10), LocalDate.now())
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
@@ -185,11 +192,21 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
             .medPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
+        var fordeling = new OppgittFordelingEntitet(List.of(periode_1, periode_2), true);
+        return opprettBehandling(fordeling);
+    }
+
+    private Behandling opprettBehandling(OppgittFordelingEntitet fordeling) {
+        // Arrange
+        var termindato = LocalDate.now().plusWeeks(16);
+        var rettighet = new OppgittRettighetEntitet(false, true, false, false);
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
+            LocalDate.now().minusDays(20)).medOpprinneligEndringsdato(LocalDate.now().minusDays(20)).build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(rettighet)
             .medAvklarteUttakDatoer(avklarteUttakDatoer)
             .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100())
-            .medFordeling(new OppgittFordelingEntitet(List.of(periode_1, periode_2), true));
+            .medFordeling(fordeling);
         scenario.medSøknadHendelse()
             .medTerminbekreftelse(scenario.medSøknadHendelse()
                 .getTerminbekreftelseBuilder()
@@ -197,7 +214,6 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
                 .medUtstedtDato(termindato)
                 .medTermindato(termindato));
 
-        scenario.leggTilAksjonspunkt(aksjonspunktDefinisjon, BehandlingStegType.VURDER_UTTAK);
         var behandling = scenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
         return behandling;

@@ -42,16 +42,25 @@ public class OppgittFordelingEntitet extends BaseEntitet {
     @ChangeTracked
     private boolean erAnnenForelderInformert;
 
+    @Convert(converter = BooleanToStringConverter.class)
+    @Column(name = "oensker_justert_ved_foedsel")
+    private Boolean ønskerJustertVedFødsel;
+
     protected OppgittFordelingEntitet() {
     }
 
-    public OppgittFordelingEntitet(List<OppgittPeriodeEntitet> søknadsPerioder, boolean erAnnenForelderInformert) {
+    public OppgittFordelingEntitet(List<OppgittPeriodeEntitet> søknadsPerioder, boolean erAnnenForelderInformert, boolean ønskerJustertVedFødsel) {
         this.søknadsPerioder = new ArrayList<>();
         for (var oppgittPeriode : søknadsPerioder) {
             oppgittPeriode.setOppgittFordeling(this);
             this.søknadsPerioder.add(oppgittPeriode);
         }
         this.erAnnenForelderInformert = erAnnenForelderInformert;
+        this.ønskerJustertVedFødsel = ønskerJustertVedFødsel;
+    }
+
+    public OppgittFordelingEntitet(List<OppgittPeriodeEntitet> søknadsPerioder, boolean erAnnenForelderInformert) {
+        this(søknadsPerioder, erAnnenForelderInformert, false);
     }
 
     public List<OppgittPeriodeEntitet> getOppgittePerioder() {
@@ -60,6 +69,10 @@ public class OppgittFordelingEntitet extends BaseEntitet {
 
     public boolean getErAnnenForelderInformert() {
         return erAnnenForelderInformert;
+    }
+
+    public boolean ønskerJustertVedFødsel() {
+        return ønskerJustertVedFødsel != null && ønskerJustertVedFødsel;
     }
 
     @Override
@@ -72,11 +85,13 @@ public class OppgittFordelingEntitet extends BaseEntitet {
         }
         var that = (OppgittFordelingEntitet) o;
         return Objects.equals(søknadsPerioder, that.søknadsPerioder) &&
-                Objects.equals(erAnnenForelderInformert, that.erAnnenForelderInformert);
+                Objects.equals(erAnnenForelderInformert, that.erAnnenForelderInformert) &&
+                Objects.equals(ønskerJustertVedFødsel, that.ønskerJustertVedFødsel)
+            ;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(søknadsPerioder, erAnnenForelderInformert);
+        return Objects.hash(søknadsPerioder, erAnnenForelderInformert, ønskerJustertVedFødsel);
     }
 }
