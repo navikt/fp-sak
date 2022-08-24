@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.datavarehus.xml.BeregningsgrunnlagXmlTjeneste;
 import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlUtil;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
@@ -89,7 +88,6 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
         var beregningsgrunnlag1 = new Beregningsgrunnlag();
         beregningsgrunnlag1.getAny().add(beregningsgrunnlagSvangerskapspenger);
 
-        var json = StandardJsonConfig.toJson(beregningsgrunnlag1);
        beregningsresultat.setBeregningsgrunnlag(beregningsgrunnlag1);
     }
 
