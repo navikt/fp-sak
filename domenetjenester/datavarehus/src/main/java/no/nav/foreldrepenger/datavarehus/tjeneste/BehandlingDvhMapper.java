@@ -10,9 +10,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingDvh;
@@ -35,7 +36,8 @@ public class BehandlingDvhMapper {
                                     LocalDateTime mottattTidspunkt,
                                     Optional<BehandlingVedtak> vedtak,
                                     Optional<FamilieHendelseGrunnlagEntitet> fh,
-                                    Optional<KlageVurderingResultat> klageVurderingResultat,
+                                    Optional<KlageResultatEntitet> klageResultat,
+                                    Optional<AnkeResultatEntitet> ankeResultat,
                                     Optional<ForeldrepengerUttak> uttak,
                                     Optional<LocalDate> skjæringstidspunkt) {
 
@@ -55,7 +57,7 @@ public class BehandlingDvhMapper {
             .utlandstilsnitt(mapUtlandstilsnitt(behandling))
             .toTrinnsBehandling(behandling.isToTrinnsBehandling())
             .vedtakId(vedtak.map(BehandlingVedtak::getId).orElse(null))
-            .relatertBehandling(getRelatertBehandling(behandling, klageVurderingResultat))
+            .relatertBehandling(getRelatertBehandling(behandling, klageResultat, ankeResultat))
             .ferdig(mapFerdig(behandling))
             .vedtatt(behandlingsresultat != null && mapVedtatt(behandlingsresultat, behandling.getFagsak().getStatus()))
             .avbrutt(behandlingsresultat != null && mapAvbrutt(behandlingsresultat, behandling.getFagsak().getStatus()))
@@ -70,9 +72,14 @@ public class BehandlingDvhMapper {
     /**
      * Er det klage, hentes relatert behandling fra klageresultat. Hvis ikke hentes relatert behandling fra orginalbehandling-referansen på behandlingen.
      */
-    private static Long getRelatertBehandling(Behandling behandling, Optional<KlageVurderingResultat> klageVurderingResultat) {
-        if (BehandlingType.KLAGE.equals(behandling.getType()) && klageVurderingResultat.isPresent()) {
-            return klageVurderingResultat.get().getKlageResultat().getPåKlagdBehandlingId().orElse(null);
+    private static Long getRelatertBehandling(Behandling behandling,
+                                              Optional<KlageResultatEntitet> klageResultat,
+                                              Optional<AnkeResultatEntitet> ankeResultat) {
+        if (BehandlingType.ANKE.equals(behandling.getType()) && ankeResultat.isPresent()) {
+            return ankeResultat.flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId).orElse(null);
+        }
+        if (BehandlingType.KLAGE.equals(behandling.getType()) && klageResultat.isPresent()) {
+            return klageResultat.flatMap(KlageResultatEntitet::getPåKlagdBehandlingId).orElse(null);
         }
         return behandling.getOriginalBehandlingId().orElse(null);
     }

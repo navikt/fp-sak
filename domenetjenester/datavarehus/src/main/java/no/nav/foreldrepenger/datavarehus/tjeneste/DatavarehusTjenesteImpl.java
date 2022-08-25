@@ -151,14 +151,15 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
     private void lagreNedBehandling(Behandling behandling, Optional<BehandlingVedtak> vedtak) {
         var fh = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId());
-        var gjeldendeKlagevurderingresultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
+        var gjeldendeKlagevurderingresultat = klageRepository.hentKlageResultatHvisEksisterer(behandling.getId());
+        var gjeldendeAnkevurderingresultat = ankeRepository.hentAnkeResultat(behandling.getId());
         var uttak = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
         Optional<LocalDate> skjæringstidspunkt = uttak.isPresent() && fh.isPresent() ?
             skjæringstidspunkt(behandling, fh.get()) : Optional.empty();
         var mottattTidspunkt = finnMottattTidspunkt(behandling);
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
         var behandlingDvh = BehandlingDvhMapper.map(behandling, behandlingsresultat.orElse(null),
-            mottattTidspunkt, vedtak, fh, gjeldendeKlagevurderingresultat, uttak, skjæringstidspunkt);
+            mottattTidspunkt, vedtak, fh, gjeldendeKlagevurderingresultat, gjeldendeAnkevurderingresultat, uttak, skjæringstidspunkt);
         datavarehusRepository.lagre(behandlingDvh);
     }
 
