@@ -4,6 +4,7 @@ import static java.util.Collections.singletonList;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,16 +21,19 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -38,6 +42,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStat
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
@@ -46,6 +51,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -68,22 +74,26 @@ import no.nav.foreldrepenger.datavarehus.xml.BehandlingsresultatXmlTjeneste;
 import no.nav.foreldrepenger.datavarehus.xml.FatteVedtakXmlTjeneste;
 import no.nav.foreldrepenger.datavarehus.xml.PersonopplysningXmlFelles;
 import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlTjeneste;
+import no.nav.foreldrepenger.datavarehus.xml.VilkårsgrunnlagXmlTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelseBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektPeriodeType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -115,9 +125,6 @@ public class VedtakXmlTest {
     @Inject
     private BeregningsresultatRepository beregningsresultatRepository;
 
-    @Inject
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
-
     @Mock
     private PersoninfoAdapter personinfoAdapter;
 
@@ -130,13 +137,36 @@ public class VedtakXmlTest {
     @Inject
     private InntektArbeidYtelseTjeneste iayTjeneste;
 
-    @Inject
     private BehandlingsresultatXmlTjeneste behandlingsresultatXmlTjeneste;
 
     private FatteVedtakXmlTjeneste fpSakVedtakXmlTjeneste;
 
+    @Inject
+    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
+    private VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste;
+
+    @Inject
+    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
+    private YtelseXmlTjenesteImpl ytelseXmlTjeneste;
+
+    @Inject
+    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
+    private UttakXmlTjeneste uttakXmlTjeneste;
+
+    @Mock
+    private BeregningTjeneste beregningTjeneste;
+
     @BeforeEach
-    public void oppsett() {
+    public void oppsett(EntityManager entityManager) {
+        var ankeRepo = new AnkeRepository(entityManager);
+        var klageRepo = new KlageRepository(entityManager);
+        var vilkResRepo = new VilkårResultatRepository(entityManager);
+        var bgXMLTjeneste = new BeregningsgrunnlagXmlTjenesteImpl(repositoryProvider.getFagsakRelasjonRepository(), beregningTjeneste);
+        var bgResXMLTjeneste = new BeregningsresultatXmlTjenesteImpl(bgXMLTjeneste, ytelseXmlTjeneste, uttakXmlTjeneste);
+        behandlingsresultatXmlTjeneste = new BehandlingsresultatXmlTjeneste(new UnitTestLookupInstanceImpl<>(bgResXMLTjeneste),
+            new UnitTestLookupInstanceImpl<>(vilkårsgrunnlagXmlTjeneste),
+            repositoryProvider.getBehandlingVedtakRepository(), klageRepo, ankeRepo, vilkResRepo);
+
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
         Mockito.lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(stp);
@@ -221,7 +251,7 @@ public class VedtakXmlTest {
         repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultatPerioder1);
 
         opprettStønadskontoer(behandling);
-        lagBeregningsgrunnlag(behandling);
+        when(beregningTjeneste.hent(behandling.getId())).thenReturn(Optional.of(lagBeregningsgrunnlag()));
 
         var beregningsresultat = lagBeregningsresultatFP();
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
@@ -247,24 +277,28 @@ public class VedtakXmlTest {
         return behandling;
     }
 
-    private void lagBeregningsgrunnlag(Behandling behandling) {
-        var bg = BeregningsgrunnlagEntitet.ny()
-                .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                .build();
-        var bgPeriode = BeregningsgrunnlagPeriode.ny()
-                .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
-                .build(bg);
-        BeregningsgrunnlagPrStatusOgAndel.builder()
-                .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.FRILANSER)
-                .medAvkortetPrÅr(BigDecimal.TEN)
-                .medAvkortetBrukersAndelPrÅr(BigDecimal.TEN)
-                .medAvkortetRefusjonPrÅr(BigDecimal.ZERO)
-                .medRedusertPrÅr(BigDecimal.TEN)
-                .medRedusertBrukersAndelPrÅr(BigDecimal.TEN)
-                .medRedusertRefusjonPrÅr(BigDecimal.ZERO)
-                .build(bgPeriode);
-
-        beregningsgrunnlagRepository.lagre(behandling.getId(), bg, BeregningsgrunnlagTilstand.FASTSATT);
+    private BeregningsgrunnlagGrunnlag lagBeregningsgrunnlag() {
+        var andel = BeregningsgrunnlagPrStatusOgAndel.builder()
+            .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.FRILANSER)
+            .medAvkortetPrÅr(BigDecimal.TEN)
+            .medAvkortetBrukersAndelPrÅr(BigDecimal.TEN)
+            .medAvkortetRefusjonPrÅr(BigDecimal.ZERO)
+            .medRedusertPrÅr(BigDecimal.TEN)
+            .medKilde(AndelKilde.PROSESS_START)
+            .medRedusertBrukersAndelPrÅr(BigDecimal.TEN)
+            .medDagsatsBruker(1L)
+            .medDagsatsArbeidsgiver(1L)
+            .medRedusertRefusjonPrÅr(BigDecimal.ZERO)
+            .build();
+        var bgPeriode = BeregningsgrunnlagPeriode.builder()
+            .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
+            .leggTilBeregningsgrunnlagPrStatusOgAndel(andel)
+            .build();
+        var bg = Beregningsgrunnlag.builder()
+            .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
+            .leggTilBeregningsgrunnlagPeriode(bgPeriode)
+            .build();
+        return BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(bg).build(BeregningsgrunnlagTilstand.FASTSATT);
     }
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
