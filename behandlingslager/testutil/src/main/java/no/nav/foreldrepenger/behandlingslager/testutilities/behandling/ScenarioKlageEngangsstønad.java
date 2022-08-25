@@ -307,6 +307,14 @@ public class ScenarioKlageEngangsstønad {
             }
 
             @Override
+            public Optional<KlageResultatEntitet> hentKlageResultatHvisEksisterer(Long klageBehandlingId) {
+                if (klageResultat == null) {
+                    this.klageResultat = KlageResultatEntitet.builder().medKlageBehandlingId(klageBehandlingId).build();
+                }
+                return Optional.of(klageResultat);
+            }
+
+            @Override
             public Long lagreVurderingsResultat(Behandling klageBehandling, KlageVurderingResultat.Builder klageVurderingResultatBuilder) {
                 var vurderingResultat = klageVurderingResultatBuilder.medKlageResultat(klageResultat).build();
                 if (vurderingResultat.getKlageVurdertAv() == KlageVurdertAv.NFP) {
