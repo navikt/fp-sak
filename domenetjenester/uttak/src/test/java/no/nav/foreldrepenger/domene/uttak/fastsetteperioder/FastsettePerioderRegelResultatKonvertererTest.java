@@ -89,7 +89,7 @@ public class FastsettePerioderRegelResultatKonvertererTest {
             InnvilgetÅrsak.UTSETTELSE_GYLDIG_PGA_100_PROSENT_ARBEID, null, Set.of(aktivitet), SamtidigUttaksprosent.ZERO, Stønadskontotype.MØDREKVOTE);
         var fastsetteResultat = List.of(new FastsettePeriodeResultat(uttakPeriode, null, null, null));
         var input = lagInput(behandling, periodeFom);
-        var konvertert = konverterer.konverter(input, fastsetteResultat);
+        var konvertert = konverterer.konverter(input, fastsetteResultat, null);
 
         assertThat(konvertert.getPerioder()).hasSize(1);
         var utsettelse = konvertert.getPerioder().get(0);

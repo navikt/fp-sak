@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -22,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
@@ -37,18 +41,26 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.UttakYrkesaktiviteter;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FastsettePeriodeResultat;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetType;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenPart;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenpartUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RegelGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UttakPeriodeAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.InnvilgetÅrsak;
+import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Periode;
 
 @ApplicationScoped
 public class FastsettePerioderRegelResultatKonverterer {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FastsettePerioderRegelResultatKonverterer.class);
+    private static final boolean ER_PROD = Environment.current().isProd();
 
     private FpUttakRepository fpUttakRepository;
     private YtelsesFordelingRepository ytelsesfordelingRepository;
@@ -64,7 +76,7 @@ public class FastsettePerioderRegelResultatKonverterer {
         this.ytelsesfordelingRepository = ytelsesfordelingRepository;
     }
 
-    UttakResultatPerioderEntitet konverter(UttakInput input, List<FastsettePeriodeResultat> resultat) {
+    UttakResultatPerioderEntitet konverter(UttakInput input, List<FastsettePeriodeResultat> resultat, RegelGrunnlag grunnlag) {
         var ref = input.getBehandlingReferanse();
         var behandlingId = ref.behandlingId();
         var oppgittFordeling = hentOppgittFordeling(behandlingId);
@@ -81,7 +93,7 @@ public class FastsettePerioderRegelResultatKonverterer {
         for (var fastsettePeriodeResultat : resultatSomSkalKonverteres) {
             var periode = lagUttakResultatPeriode(fastsettePeriodeResultat,
                 periodeSomHarUtledetResultat(fastsettePeriodeResultat, periodeSøknader), uttakAktiviteter,
-                new UttakYrkesaktiviteter(input));
+                new UttakYrkesaktiviteter(input), grunnlag);
             perioder.leggTilPeriode(periode);
         }
         if (ref.erRevurdering()) {
@@ -144,7 +156,8 @@ public class FastsettePerioderRegelResultatKonverterer {
     private UttakResultatPeriodeEntitet lagUttakResultatPeriode(FastsettePeriodeResultat resultat,
                                                                 UttakResultatPeriodeSøknadEntitet periodeSøknad,
                                                                 Set<UttakAktivitetEntitet> uttakAktiviteter,
-                                                                UttakYrkesaktiviteter uttakYrkesaktiviteter) {
+                                                                UttakYrkesaktiviteter uttakYrkesaktiviteter,
+                                                                RegelGrunnlag grunnlag) {
         var uttakPeriode = resultat.getUttakPeriode();
 
         var dokRegel = lagDokRegel(resultat);
@@ -160,7 +173,45 @@ public class FastsettePerioderRegelResultatKonverterer {
             }
         }
 
+        loggManueltSamtidigUttak(periode, grunnlag);
         return periode;
+    }
+
+    private void loggManueltSamtidigUttak(UttakResultatPeriodeEntitet resultat, RegelGrunnlag grunnlag) {
+        try {
+            if (!ER_PROD || !resultat.getDokRegel().isTilManuellBehandling() || !ManuellBehandlingÅrsak.VURDER_SAMTIDIG_UTTAK.equals(resultat.getManuellBehandlingÅrsak())) {
+                return;
+            }
+        
+            var annenpartOverlappOpt = Optional.ofNullable(grunnlag.getAnnenPart())
+                .map(AnnenPart::getUttaksperioder).orElse(List.of()).stream()
+                .filter(a -> a.overlapper(new Periode(resultat.getFom(), resultat.getTom())))
+                .findFirst();
+            if (annenpartOverlappOpt.isEmpty()) return;
+            var annenpartOverlapp = annenpartOverlappOpt.get();
+            var annenpartAntallAktiviteter = annenpartOverlapp.getAktiviteter().stream()
+                .filter(a -> a.getUtbetalingsgrad().harUtbetaling()).count();
+            var annenpartUtbetalingsgrad = annenpartOverlapp.getAktiviteter().stream()
+                .map(AnnenpartUttakPeriodeAktivitet::getUtbetalingsgrad)
+                .filter(utbetalingsgrad -> utbetalingsgrad.harUtbetaling()).min(Comparator.naturalOrder()).map(u -> u.decimalValue()).orElse(BigDecimal.ZERO);
+            var antallAktiviteter = resultat.getAktiviteter().stream()
+                .filter(a -> a.getUtbetalingsgrad().harUtbetaling()).count();
+            var utbetalingsgrad = resultat.getAktiviteter().stream()
+                .map(a -> a.getUtbetalingsgrad())
+                .filter(u -> u.harUtbetaling())
+                .min(Comparator.naturalOrder()).map(u -> u.decimalValue()).orElse(BigDecimal.ZERO);
+            var villeredusert = antallAktiviteter == 1 && new BigDecimal(100).subtract(annenpartUtbetalingsgrad).compareTo(new BigDecimal(20)) >= 0;
+            var samtidig = resultat.isSamtidigUttak();
+            var gradering = resultat.isGraderingInnvilget();
+            var annenpartSamtidig = annenpartOverlapp.isSamtidigUttak();
+            LOG.info("SAMTIDIG-PØLSE ville redusert {} fom {} samtidig {} gradering {} antAktivitet {} utbetgrad {} annenpartSamtidig {} annenpartAntAkt {} annenpartUtbetgrad {}",
+                villeredusert, resultat.getFom(), samtidig, gradering,
+                antallAktiviteter, utbetalingsgrad, annenpartSamtidig, annenpartAntallAktiviteter, annenpartUtbetalingsgrad);
+        } catch (Exception e) {
+            // NOSONAR
+        }
+
+
     }
 
     private void guardMinstEnAktivitet(UttakPeriode uttakPeriode) {

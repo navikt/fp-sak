@@ -49,7 +49,7 @@ public class FastsettePerioderRegelAdapter {
             log(grunnlag);
             throw new RuntimeException("Automatisk fastsetting av uttak feilet", e);
         }
-        return regelResultatKonverterer.konverter(input, resultat);
+        return regelResultatKonverterer.konverter(input, resultat, grunnlag);
     }
 
     private void log(RegelGrunnlag grunnlag) {
