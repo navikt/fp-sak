@@ -315,7 +315,19 @@ public class PersoninfoTjeneste {
                 .forEach(builder::leggTil);
 
         var adressePerioder = mapAdresserHistorikk(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse());
-        periodiserAdresse(adressePerioder).stream()
+        var adressePerioderPeriodisert = periodiserAdresse(adressePerioder);
+        try {
+            if (adressePerioderPeriodisert.stream().map(AdressePeriode::getAdresse).map(AdressePeriode.Adresse::getAdresseType).anyMatch(AdresseType.UKJENT_ADRESSE::equals)) {
+                var aplist = adressePerioder.stream().map(ap -> new AdressePeriode.AdresseTypePeriode(ap)).toList();
+                var applist = adressePerioderPeriodisert.stream().map(ap -> new AdressePeriode.AdresseTypePeriode(ap)).toList();
+                LOG.info("UKJENT ADRESSE odditet: OPfom {} OPtom {} bosted {} kontakt {} opphold {} mapped {} periodisert {}", fom, tom,
+                    person.getBostedsadresse().size(), person.getKontaktadresse().size(), person.getOppholdsadresse().size(),
+                    aplist, applist);
+            }
+        } catch (Exception e) {
+            // NOSONAR
+        }
+        adressePerioderPeriodisert.stream()
                 .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
                 .forEach(builder::leggTil);
 

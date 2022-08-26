@@ -47,6 +47,12 @@ public class AdressePeriode {
             '}';
     }
 
+    public static record AdresseTypePeriode(Gyldighetsperiode gyldighetsperiode, AdresseType adresseType, String land) {
+        public AdresseTypePeriode(AdressePeriode adressePeriode) {
+            this(adressePeriode.getGyldighetsperiode(), adressePeriode.getAdresse().getAdresseType(), adressePeriode.getAdresse().getLand());
+        }
+    }
+
     public static class Adresse {
         private AdresseType adresseType;
         private String matrikkelId;
