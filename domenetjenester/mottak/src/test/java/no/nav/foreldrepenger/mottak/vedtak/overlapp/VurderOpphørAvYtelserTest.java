@@ -22,6 +22,9 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPartType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -52,19 +55,22 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1 = VirkedagUtil.fomVirkedag(
         LocalDate.now().plusMonths(1));
-    private static final LocalDate SISTE_DAG_IKKE_OVERLAPP = SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1.plusWeeks(6);
 
     private static final AktørId AKTØR_ID_MOR = AktørId.dummy();
     private static final AktørId MEDF_AKTØR_ID = AktørId.dummy();
-
     private VurderOpphørAvYtelser vurderOpphørAvYtelser;
-
     private BehandlingRepositoryProvider repositoryProvider;
     private FagsakRepository fagsakRepository;
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
     @Mock
     private StønadsperiodeTjeneste stønadsperiodeTjeneste;
+    @Mock
+    private FamilieHendelseRepository familieHendelseRepository;
+    @Mock
+    private FamilieHendelseGrunnlagEntitet familieHendelseGrunnlagEntitet;
+    @Mock
+    private FamilieHendelseEntitet familieHendelseEntitet;
 
 
     @BeforeEach
@@ -72,7 +78,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         fagsakRepository = new FagsakRepository(entityManager);
-        vurderOpphørAvYtelser = new VurderOpphørAvYtelser(repositoryProvider, stønadsperiodeTjeneste, taskTjeneste);
+        vurderOpphørAvYtelser = new VurderOpphørAvYtelser(repositoryProvider, stønadsperiodeTjeneste, taskTjeneste, familieHendelseRepository);
     }
 
     @Test
@@ -83,9 +89,19 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         var nyAvsBehandlingMor = lagBehandlingMor(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, AKTØR_ID_MOR, null);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1));
 
+        when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
+        when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1.plusWeeks(60));
+
+        when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
+        when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1);
+
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyAvsBehandlingMor);
 
-        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetBehMor.getFagsak());
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetBehMor.getFagsak(), 1);
+        assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetBehMor.getFagsak().getId());
+        assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
     }
 
     @Test
@@ -96,12 +112,26 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         var nyAvsBehandlingMor = lagBehandlingMor(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, AKTØR_ID_MOR, MEDF_AKTØR_ID);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1));
 
+        when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
+        when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1.plusWeeks(60));
+
+        when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
+        when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1);
+
         var avslBehFarMedOverlappMor = lagBehandlingFar(FØDSELS_DATO_1, MEDF_AKTØR_ID, AKTØR_ID_MOR);
         when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avslBehFarMedOverlappMor.getFagsak())).thenReturn(Optional.of(SISTE_DAG_PER_OVERLAPP));
 
+        when(familieHendelseRepository.hentAggregat(avslBehFarMedOverlappMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
+        when(familieHendelseRepository.hentAggregat(avslBehFarMedOverlappMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1);
+
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyAvsBehandlingMor);
 
-        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetBehMor.getFagsak(), 2);
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetBehMor.getFagsak(), 2);
+        assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetBehMor.getFagsak().getId());
+        assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
     }
 
     @Test
@@ -130,9 +160,20 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         var morAdopsjonIVB = lagBehandlingFPAdopsjonMor(adopsjonFarLop.getAktørId(), omsorgsovertakelsedato2);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(morAdopsjonIVB)).thenReturn(Optional.of(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1));
 
+        when(familieHendelseRepository.hentAggregat(adopsjonFarLop.getId())).thenReturn(familieHendelseGrunnlagEntitet);
+        when(familieHendelseRepository.hentAggregat(adopsjonFarLop.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(omsorgsovertakelsedato);
+
+        when(familieHendelseRepository.hentAggregat(morAdopsjonIVB.getId())).thenReturn(familieHendelseGrunnlagEntitet);
+        when(familieHendelseRepository.hentAggregat(morAdopsjonIVB.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(omsorgsovertakelsedato2);
+
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(morAdopsjonIVB);
 
-        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(adopsjonFarLop.getFagsak());
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(adopsjonFarLop.getFagsak(), 1);
+        assertThat(håndterOpphør.getFagsakId()).isEqualTo(adopsjonFarLop.getFagsak().getId());
+        assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
+
     }
 
     @Test
@@ -158,8 +199,20 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         var avslBehFarMedOverlappMor = lagBehandlingFar(FØDSELS_DATO_1, MEDF_AKTØR_ID, AKTØR_ID_MOR);
         when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avslBehFarMedOverlappMor.getFagsak())).thenReturn(Optional.of(SISTE_DAG_PER_OVERLAPP.plusMonths(2)));
 
+        when(familieHendelseRepository.hentAggregat(nyBehMorSomIkkeOverlapper.getId())).thenReturn(familieHendelseGrunnlagEntitet);
+        when(familieHendelseRepository.hentAggregat(nyBehMorSomIkkeOverlapper.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1.plusWeeks(60));
+
+        when(familieHendelseRepository.hentAggregat(avslBehFarMedOverlappMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
+        when(familieHendelseRepository.hentAggregat(avslBehFarMedOverlappMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1);
+
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyBehMorSomIkkeOverlapper);
-        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avslBehFarMedOverlappMor.getFagsak());
+
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avslBehFarMedOverlappMor.getFagsak(), 1);
+        assertThat(håndterOpphør.getFagsakId()).isEqualTo(avslBehFarMedOverlappMor.getFagsak().getId());
+        assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
+
     }
 
     @Test
@@ -170,8 +223,20 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         var nyBehFar = lagBehandlingFar(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, MEDF_AKTØR_ID, AKTØR_ID_MOR);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyBehFar)).thenReturn(Optional.of(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1));
 
+        lenient().when(familieHendelseRepository.hentAggregat(avslBehFar.getId())).thenReturn(familieHendelseGrunnlagEntitet);
+        lenient().when(familieHendelseRepository.hentAggregat(avslBehFar.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
+        lenient().when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1.plusWeeks(60));
+
+        when(familieHendelseRepository.hentAggregat(nyBehFar.getId())).thenReturn(familieHendelseGrunnlagEntitet);
+        when(familieHendelseRepository.hentAggregat(nyBehFar.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1);
+
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyBehFar);
-        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avslBehFar.getFagsak());
+
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avslBehFar.getFagsak(), 1);
+        assertThat(håndterOpphør.getFagsakId()).isEqualTo(avslBehFar.getFagsak().getId());
+        assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
+
     }
 
     @Test
@@ -182,10 +247,66 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         var nyAvsBehandlingMor = lagBehandlingMor(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, AKTØR_ID_MOR, null);
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SISTE_DAG_MOR));
 
+
+        lenient().when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
+        lenient().when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
+        lenient().when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1);
+
+        when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
+        when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1);
+
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyAvsBehandlingMor);
-        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetBehMor.getFagsak());
+
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetBehMor.getFagsak(), 1);
+        assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetBehMor.getFagsak().getId());
+        assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
     }
 
+    @Test
+    public void opphørSakPåMorNårToTette() {
+        var avsluttetBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
+        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(SISTE_DAG_MOR));
+
+        var nyAvsBehandlingMor = lagBehandlingMor(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, AKTØR_ID_MOR, null);
+        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SISTE_DAG_MOR));
+
+        //første barn
+        when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
+        when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1);
+        //andre barn
+        when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
+        when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1.plusWeeks(20));
+
+        vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyAvsBehandlingMor);
+        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettetOgToTetteBeskrivelse(avsluttetBehMor.getFagsak());
+    }
+
+    @Test
+    public void opphørSelvOmSkjæringstidspunktErNull() {
+        var avsluttetBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
+        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(SISTE_DAG_MOR));
+
+        var nyAvsBehandlingMor = lagBehandlingMor(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, AKTØR_ID_MOR, null);
+        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SISTE_DAG_MOR));
+
+
+        lenient().when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
+        lenient().when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
+        lenient().when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(null);
+
+        when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
+        when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1);
+
+        vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyAvsBehandlingMor);
+
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetBehMor.getFagsak(), 1);
+        assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetBehMor.getFagsak().getId());
+        assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
+    }
 
     @Test
     public void opprettHåndteringNårOverlappMedFPNårInnvSVPPåSammeBarn() {
@@ -197,7 +318,9 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyBehSVPOverlapper);
 
-        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(nyBehSVPOverlapper.getFagsak());
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(nyBehSVPOverlapper.getFagsak(), 1);
+        assertThat(håndterOpphør.getFagsakId()).isEqualTo(nyBehSVPOverlapper.getFagsak().getId());
+        assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).contains("Overlapp identifisert:");
     }
 
     @Test
@@ -212,7 +335,9 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyBehSVPOverlapper);
 
-        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetFPBehMor.getFagsak());
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetFPBehMor.getFagsak(), 1);
+        assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetFPBehMor.getFagsak().getId());
+        assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).contains("Overlapp identifisert:");
     }
 
     @Test
@@ -241,7 +366,9 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyBehSVPOverlapper);
 
-        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetFPBehMor.getFagsak());
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetFPBehMor.getFagsak(), 1);
+        assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetFPBehMor.getFagsak().getId());
+        assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).contains("Overlapp identifisert:");
     }
 
     @Test
@@ -384,20 +511,26 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         fagsakRepository.oppdaterFagsakStatus(behandling.getFagsakId(), FagsakStatus.LØPENDE);
     }
 
-    private void verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(Fagsak fagsak) {
-        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(fagsak, 1);
-    }
-
-    private void verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(Fagsak fagsak, int times) {
+    private ProsessTaskData verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(Fagsak fagsak, int times) {
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste, times(times)).lagre(captor.capture());
+        return captor.getAllValues()
+            .stream()
+            .filter(t -> t.taskType().equals(TaskType.forProsessTask(HåndterOpphørAvYtelserTask.class)))
+            .findFirst()
+            .orElse(null);
+    }
+
+    private void verifiserAtProsesstaskForHåndteringAvOpphørErOpprettetOgToTetteBeskrivelse(Fagsak fagsak) {
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(taskTjeneste, times(1)).lagre(captor.capture());
         var håndterOpphør = captor.getAllValues()
             .stream()
             .filter(t -> t.taskType().equals(TaskType.forProsessTask(HåndterOpphørAvYtelserTask.class)))
             .findFirst()
             .orElse(null);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(fagsak.getId());
-        assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNotNull();
+        assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).contains("Overlapp på sak med minsterett(to tette) identifisert");
     }
 
     private void verifiserAtProsesstaskForHåndteringAvOpphørIkkeErOpprettet() {
