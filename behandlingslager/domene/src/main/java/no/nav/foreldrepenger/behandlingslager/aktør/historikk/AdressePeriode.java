@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.aktør.historikk;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
@@ -8,6 +9,9 @@ public class AdressePeriode {
 
     private Gyldighetsperiode gyldighetsperiode;
     private Adresse adresse;
+    private LocalDate flyttedato;
+    private LocalDate gyldigFomDato;
+    private boolean historisk;
 
     public AdressePeriode(Gyldighetsperiode gyldighetsperiode, Adresse adresse) {
         this.gyldighetsperiode = gyldighetsperiode;
@@ -20,6 +24,18 @@ public class AdressePeriode {
 
     public Adresse getAdresse() {
         return adresse;
+    }
+
+    public void setFlyttedato(LocalDate flyttedato) {
+        this.flyttedato = flyttedato;
+    }
+
+    public void setGyldigFomDato(LocalDate gyldigFomDato) {
+        this.gyldigFomDato = gyldigFomDato;
+    }
+
+    public void setHistorisk(boolean historisk) {
+        this.historisk = historisk;
     }
 
     public static Builder builder() {
@@ -47,9 +63,11 @@ public class AdressePeriode {
             '}';
     }
 
-    public static record AdresseTypePeriode(Gyldighetsperiode gyldighetsperiode, AdresseType adresseType, String land) {
+    public static record AdresseTypePeriode(Gyldighetsperiode gyldighetsperiode, AdresseType adresseType, String land,
+                                            LocalDate flyttedato, LocalDate gyldigFom, boolean historisk) {
         public AdresseTypePeriode(AdressePeriode adressePeriode) {
-            this(adressePeriode.getGyldighetsperiode(), adressePeriode.getAdresse().getAdresseType(), adressePeriode.getAdresse().getLand());
+            this(adressePeriode.getGyldighetsperiode(), adressePeriode.getAdresse().getAdresseType(), adressePeriode.getAdresse().getLand(),
+                adressePeriode.flyttedato, adressePeriode.gyldigFomDato, adressePeriode.historisk);
         }
     }
 
