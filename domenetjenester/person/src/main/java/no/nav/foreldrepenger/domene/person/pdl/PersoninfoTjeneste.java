@@ -61,6 +61,7 @@ import no.nav.pdl.Kontaktadresse;
 import no.nav.pdl.KontaktadresseResponseProjection;
 import no.nav.pdl.Matrikkeladresse;
 import no.nav.pdl.MatrikkeladresseResponseProjection;
+import no.nav.pdl.Metadata;
 import no.nav.pdl.Navn;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Opphold;
@@ -175,7 +176,7 @@ public class PersoninfoTjeneste {
 
         var person = pdlKlient.hentPerson(query, projection);
 
-        var adresser = mapAdresser(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse());
+        var adresser = mapAdresser(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse(), true);
 
         return adresser.stream().map(Adresseinfo::getGjeldendePostadresseType).allMatch(AdresseType.UKJENT_ADRESSE::equals);
     }
@@ -234,7 +235,7 @@ public class PersoninfoTjeneste {
                 .map(st -> SIVSTAND_FRA_FREG.getOrDefault(st, SivilstandType.UOPPGITT)).orElse(SivilstandType.UOPPGITT);
         var statsborgerskap = mapStatsborgerskap(person.getStatsborgerskap());
         var familierelasjoner = mapFamilierelasjoner(person.getForelderBarnRelasjon(), person.getSivilstand());
-        var adresser = mapAdresser(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse());
+        var adresser = mapAdresser(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse(), true);
 
         // Opphørte personer kan mangle fødselsdato mm. Håndtere dette + gi feil hvis fødselsdato mangler i andre tilfelle
         if (PersonstatusType.UTPE.equals(pdlStatus) && fødselsdato == null) {
@@ -317,12 +318,21 @@ public class PersoninfoTjeneste {
         var adressePerioder = mapAdresserHistorikk(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse());
         var adressePerioderPeriodisert = periodiserAdresse(adressePerioder);
         try {
-            if (adressePerioderPeriodisert.stream().map(AdressePeriode::getAdresse).map(AdressePeriode.Adresse::getAdresseType).anyMatch(AdresseType.UKJENT_ADRESSE::equals)) {
+            var sistePeriodiserteErUkjent = adressePerioderPeriodisert.stream()
+                .max(Comparator.comparing(a -> a.getGyldighetsperiode().getFom()))
+                .filter(a -> AdresseType.UKJENT_ADRESSE.equals(a.getAdresse().getAdresseType())).isPresent();
+            if (sistePeriodiserteErUkjent) {
                 var aplist = adressePerioder.stream().map(ap -> new AdressePeriode.AdresseTypePeriode(ap)).toList();
                 var applist = adressePerioderPeriodisert.stream().map(ap -> new AdressePeriode.AdresseTypePeriode(ap)).toList();
                 LOG.info("UKJENT ADRESSE odditet: OPfom {} OPtom {} bosted {} kontakt {} opphold {} mapped {} periodisert {}", fom, tom,
                     person.getBostedsadresse().size(), person.getKontaktadresse().size(), person.getOppholdsadresse().size(),
                     aplist, applist);
+                var kommune = person.getBostedsadresse().stream()
+                    .map(b -> b.getUkjentBosted()).filter(Objects::nonNull)
+                    .map(u -> u.getBostedskommune()).filter(Objects::nonNull)
+                    .toList();
+                if (!kommune.isEmpty())
+                    LOG.info("UKJENT ADRESSE kommune: {}", kommune);
             }
         } catch (Exception e) {
             // NOSONAR
@@ -449,15 +459,15 @@ public class PersoninfoTjeneste {
             var flyttedato = b.getAngittFlyttedato() != null ? LocalDate.parse(b.getAngittFlyttedato(), DateTimeFormatter.ISO_LOCAL_DATE)
                     : periode.getFom();
             var periode2 = flyttedato.isBefore(periode.getFom()) ? Gyldighetsperiode.innenfor(flyttedato, periode.getTom()) : periode;
-            mapAdresser(List.of(b), List.of(), List.of()).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(periode2, a)));
+            mapAdresser(List.of(b), List.of(), List.of(), true).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(periode2, a, flyttedato, periode.getFom(), b.getMetadata())));
         });
         kontaktadresser.forEach(k -> {
             var periode = periodeFraDates(k.getGyldigFraOgMed(), k.getGyldigTilOgMed());
-            mapAdresser(List.of(), List.of(k), List.of()).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(periode, a)));
+            mapAdresser(List.of(), List.of(k), List.of(), false).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(periode, a, periode.getFom(), periode.getFom(), k.getMetadata())));
         });
         oppholdsadresser.forEach(o -> {
             var periode = periodeFraDates(o.getGyldigFraOgMed(), o.getGyldigTilOgMed());
-            mapAdresser(List.of(), List.of(), List.of(o)).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(periode, a)));
+            mapAdresser(List.of(), List.of(), List.of(o), false).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(periode, a, periode.getFom(), periode.getFom(), o.getMetadata())));
         });
         return adresser;
     }
@@ -468,8 +478,8 @@ public class PersoninfoTjeneste {
         return Gyldighetsperiode.innenfor(gyldigFra, gyldigTil);
     }
 
-    private static AdressePeriode mapAdresseinfoTilAdressePeriode(Gyldighetsperiode periode, Adresseinfo adresseinfo) {
-        return AdressePeriode.builder().medGyldighetsperiode(periode)
+    private static AdressePeriode mapAdresseinfoTilAdressePeriode(Gyldighetsperiode periode, Adresseinfo adresseinfo, LocalDate flyttedato, LocalDate gyldigFom, Metadata metadata) {
+        var ap = AdressePeriode.builder().medGyldighetsperiode(periode)
                 .medMatrikkelId(adresseinfo.getMatrikkelId())
                 .medAdresselinje1(adresseinfo.getAdresselinje1())
                 .medAdresselinje2(adresseinfo.getAdresselinje2())
@@ -480,10 +490,16 @@ public class PersoninfoTjeneste {
                 .medPoststed(adresseinfo.getPoststed())
                 .medLand(adresseinfo.getLand())
                 .build();
+        ap.setFlyttedato(flyttedato);
+        ap.setGyldigFomDato(gyldigFom);
+        ap.setHistorisk(metadata != null && metadata.getHistorisk());
+        return ap;
     }
 
-    private List<Adresseinfo> mapAdresser(List<Bostedsadresse> bostedsadresser, List<Kontaktadresse> kontaktadresser,
-            List<Oppholdsadresse> oppholdsadresser) {
+    private List<Adresseinfo> mapAdresser(List<Bostedsadresse> bostedsadresser,
+                                          List<Kontaktadresse> kontaktadresser,
+                                          List<Oppholdsadresse> oppholdsadresser,
+                                          boolean leggTilUkjentHvisIngenAdresser) {
         List<Adresseinfo> resultat = new ArrayList<>();
         bostedsadresser.stream().map(Bostedsadresse::getVegadresse).map(a -> mapVegadresse(AdresseType.BOSTEDSADRESSE, a)).filter(Objects::nonNull)
                 .forEach(resultat::add);
@@ -511,7 +527,7 @@ public class PersoninfoTjeneste {
                 .filter(Objects::nonNull).forEach(resultat::add);
         kontaktadresser.stream().map(Kontaktadresse::getUtenlandskAdresseIFrittFormat)
                 .map(a -> mapFriAdresseUtland(AdresseType.POSTADRESSE_UTLAND, a)).filter(Objects::nonNull).forEach(resultat::add);
-        if (resultat.isEmpty()) {
+        if (resultat.isEmpty() && leggTilUkjentHvisIngenAdresser) {
             resultat.add(mapUkjentadresse(null));
         }
         return resultat;
