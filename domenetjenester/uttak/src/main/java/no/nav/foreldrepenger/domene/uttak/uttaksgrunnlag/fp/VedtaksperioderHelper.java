@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
@@ -113,11 +114,12 @@ public class VedtaksperioderHelper {
     }
 
     OppgittPeriodeEntitet konverter(UttakResultatPeriodeEntitet up) {
+        var samtidigUttaksprosent = finnSamtidigUttaksprosent(up).orElse(null);
         var builder = OppgittPeriodeBuilder.ny()
             .medPeriode(up.getTidsperiode().getFomDato(), up.getTidsperiode().getTomDato())
             .medPeriodeType(finnPeriodetype(up))
-            .medSamtidigUttak(up.isSamtidigUttak())
-            .medSamtidigUttaksprosent(up.getSamtidigUttaksprosent())
+            .medSamtidigUttak(samtidigUttaksprosent != null)
+            .medSamtidigUttaksprosent(samtidigUttaksprosent)
             .medFlerbarnsdager(up.isFlerbarnsdager())
             .medErArbeidstaker(erArbeidstaker(up))
             .medErSelvstendig(erSelvstendig(up))
@@ -130,7 +132,6 @@ public class VedtaksperioderHelper {
         finnGradertArbeidsgiver(up).ifPresent(builder::medArbeidsgiver);
         finnOppholdsÅrsak(up).ifPresent(builder::medÅrsak);
         finnOverføringÅrsak(up).ifPresent(builder::medÅrsak);
-        finnSamtidigUttaksprosent(up).ifPresent(builder::medSamtidigUttaksprosent);
         builder.medMottattDato(up.getPeriodeSøknad().orElseThrow().getMottattDato());
         builder.medTidligstMottattDato(up.getPeriodeSøknad().orElseThrow().getTidligstMottattDato().orElse(null));
 
@@ -145,17 +146,12 @@ public class VedtaksperioderHelper {
     }
 
     private Optional<SamtidigUttaksprosent> finnSamtidigUttaksprosent(UttakResultatPeriodeEntitet up) {
-        if (up.getPeriodeSøknad().isPresent()) {
-            return Optional.ofNullable(up.getPeriodeSøknad().get().getSamtidigUttaksprosent());
-        }
-        return Optional.empty();
+        return Optional.ofNullable(up.getSamtidigUttaksprosent())
+            .or(() -> up.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getSamtidigUttaksprosent));
     }
 
     private Optional<MorsAktivitet> finnMorsAktivitet(UttakResultatPeriodeEntitet up) {
-        if (up.getPeriodeSøknad().isPresent()) {
-            return Optional.of(up.getPeriodeSøknad().get().getMorsAktivitet());
-        }
-        return Optional.empty();
+        return up.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMorsAktivitet);
     }
 
     private Optional<Arbeidsgiver> finnGradertArbeidsgiver(UttakResultatPeriodeEntitet up) {

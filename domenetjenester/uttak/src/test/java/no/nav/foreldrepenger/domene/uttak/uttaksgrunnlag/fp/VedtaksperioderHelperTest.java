@@ -721,12 +721,14 @@ public class VedtaksperioderHelperTest {
         var fom = LocalDate.of(2018, Month.JULY, 3);
         var tom = fom.plusWeeks(1).minusDays(1);
 
-        var periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder().medSamtidigUttaksprosent(
-            SamtidigUttaksprosent.TEN).medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE).build();
+        var periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
+            .medSamtidigUttak(true).medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
+            .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE).build();
         var periodeEntitet = new UttakResultatPeriodeEntitet.Builder(fom, tom).medResultatType(
             PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .medPeriodeSoknad(periodeSøknad)
             .medSamtidigUttak(true)
+            .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .build();
         periodeEntitet.leggTilAktivitet(
             UttakResultatPeriodeAktivitetEntitet.builder(periodeEntitet, opprettSelvNærUttakAktivitetet())
