@@ -95,8 +95,9 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
             .collect(Collectors.toList());
 
         if (!arbeidsforholdUlovligOpprettet.isEmpty()) {
-            throw new IllegalStateException("Det finnes arbeidsforhold basert på inntektsmelding i IAY-aggregat " +
-                "som ikke har tilsvarende mangel i aggregatet. Ugyldig tilstand");
+            var msg = String.format("Det finnes arbeidsforhold basert på inntektsmelding i IAY-aggregat"
+                + " som ikke har tilsvarende mangel i aggregatet. Ugyldig tilstand. Alle mangler var %s og ulovlige arbeidsforhold var %s", eksisterendeMangler, arbeidsforholdUlovligOpprettet);
+            throw new IllegalStateException(msg);
         }
     }
 
