@@ -31,7 +31,8 @@ import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.ORDIN
 
 public class InntektsmeldingUtenArbeidsforholdTjeneste {
     private static final Integer MND_FØR_STP_INNTEKT_ER_RELEVANT = 6;
-    private static final Set<ArbeidType> ARBEIDSFORHOLD_TYPER = Stream.of(ORDINÆRT_ARBEIDSFORHOLD, FORENKLET_OPPGJØRSORDNING, MARITIMT_ARBEIDSFORHOLD)
+    private static final Set<ArbeidType> ARBEIDSFORHOLD_TYPER = Stream.of(ORDINÆRT_ARBEIDSFORHOLD,
+            FORENKLET_OPPGJØRSORDNING, MARITIMT_ARBEIDSFORHOLD)
         .collect(Collectors.toSet());
 
     private InntektsmeldingUtenArbeidsforholdTjeneste() {
@@ -87,8 +88,9 @@ public class InntektsmeldingUtenArbeidsforholdTjeneste {
                                                         LocalDate utledetStp,
                                                         Inntektsmelding inntektsmelding,
                                                         InntektArbeidYtelseGrunnlag grunnlag) {
-        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
-            grunnlag.getAktørArbeidFraRegister(aktørId));
+        var filter = new YrkesaktivitetFilter(grunnlag.getAktørArbeidFraRegister(aktørId)
+            .map(AktørArbeid::hentAlleYrkesaktiviteter)
+            .orElse(Collections.emptyList()));
         return filter.getYrkesaktiviteter().stream()
             .filter(ya -> gjelderInntektsmeldingFor(inntektsmelding.getArbeidsgiver(), ya))
             .noneMatch(ya -> ya.getAlleAktivitetsAvtaler().stream()

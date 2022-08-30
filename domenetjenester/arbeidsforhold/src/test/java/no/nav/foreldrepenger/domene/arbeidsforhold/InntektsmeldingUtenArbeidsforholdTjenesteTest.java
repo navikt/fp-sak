@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.domene.arbeidsforhold;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
@@ -13,11 +15,14 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
+
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -115,7 +120,33 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
         var inntektsmeldinger = Arrays.asList(inntektsmelding(orgnr));
 
         // Act
-        var resultat = utled(lagAggregat(ya, inntekter, inntektsmeldinger, lagFiske()));
+        var resultat = utled(lagAggregat(ya, inntekter, inntektsmeldinger, lagFiske(), null));
+
+        // Assert
+        assertThat(resultat).hasSize(1);
+        var arbeidsgivere = resultat.keySet();
+        assertThat(arbeidsgivere).contains(Arbeidsgiver.virksomhet(orgnr));
+    }
+
+    @Test
+    void skal_gi_utslag_ved_oppgitt_fiske_og_manuelt_opprettet_arbeidsforhold() {
+        // Arrange
+        String orgnr = "222222222";
+        List<YrkesaktivitetBuilder> ya = Collections.emptyList();
+        Map<YearMonth, Integer> inntektsposter = lagInntektsposter(dagerFørStp(360), dagerFørStp(200), 100);
+        var inntekter = Arrays.asList(inntekt(orgnr, inntektsposter));
+        var inntektsmeldinger = Arrays.asList(inntektsmelding(orgnr));
+        var ref = inntektsmeldinger.get(0).getArbeidsforholdRef();
+        var infoBuilder = ArbeidsforholdInformasjonBuilder.builder(empty());
+        var manueltOpprettetArbeidsforhold = infoBuilder.getOverstyringBuilderFor(Arbeidsgiver.virksomhet(orgnr), ref)
+            .medHandling(ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING)
+            .medBeskrivelse("BEskrivelse")
+            .medAngittStillingsprosent(Stillingsprosent.HUNDRED)
+            .leggTilOverstyrtPeriode(dagerFørStp(100), dagerEtterStp(100));
+        infoBuilder.leggTil(manueltOpprettetArbeidsforhold);
+
+        // Act
+        var resultat = utled(lagAggregat(ya, inntekter, inntektsmeldinger, lagFiske(), infoBuilder.build()));
 
         // Assert
         assertThat(resultat).hasSize(1);
@@ -156,13 +187,14 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
     private InntektArbeidYtelseGrunnlag lagAggregat(List<YrkesaktivitetBuilder> yrkesaktiviteter,
                                                     List<InntektBuilder> inntekter,
                                                     List<Inntektsmelding> inntektsmeldinger) {
-        return lagAggregat(yrkesaktiviteter, inntekter, inntektsmeldinger, null);
+        return lagAggregat(yrkesaktiviteter, inntekter, inntektsmeldinger, null, null);
     }
 
     private InntektArbeidYtelseGrunnlag lagAggregat(List<YrkesaktivitetBuilder> yrkesaktiviteter,
                                                     List<InntektBuilder> inntekter,
                                                     List<Inntektsmelding> inntektsmeldinger,
-                                                    OppgittOpptjeningBuilder oppgittOpptjeningBuilder) {
+                                                    OppgittOpptjeningBuilder oppgittOpptjeningBuilder,
+                                                    ArbeidsforholdInformasjon arbeidsforholdInformasjon) {
         var builder = InntektArbeidYtelseAggregatBuilder.oppdatere(empty(), VersjonType.REGISTER);
 
         var aktørArbeidBuilder = builder.getAktørArbeidBuilder(AKTØR_ID);
@@ -177,6 +209,9 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
         var iayGrunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.nytt().medData(builder).medInntektsmeldinger(inntektsmeldinger);
         if (oppgittOpptjeningBuilder != null) {
             iayGrunnlagBuilder.medOppgittOpptjening(oppgittOpptjeningBuilder);
+        }
+        if (arbeidsforholdInformasjon != null) {
+            iayGrunnlagBuilder.medInformasjon(arbeidsforholdInformasjon);
         }
         return iayGrunnlagBuilder.build();
     }
