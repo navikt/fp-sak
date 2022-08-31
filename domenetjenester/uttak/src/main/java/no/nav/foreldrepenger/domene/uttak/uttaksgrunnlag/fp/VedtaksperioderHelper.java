@@ -118,7 +118,7 @@ public class VedtaksperioderHelper {
         var builder = OppgittPeriodeBuilder.ny()
             .medPeriode(up.getTidsperiode().getFomDato(), up.getTidsperiode().getTomDato())
             .medPeriodeType(finnPeriodetype(up))
-            .medSamtidigUttak(samtidigUttaksprosent != null)
+            .medSamtidigUttak(SamtidigUttaksprosent.erSamtidigUttak(samtidigUttaksprosent))
             .medSamtidigUttaksprosent(samtidigUttaksprosent)
             .medFlerbarnsdager(up.isFlerbarnsdager())
             .medErArbeidstaker(erArbeidstaker(up))
