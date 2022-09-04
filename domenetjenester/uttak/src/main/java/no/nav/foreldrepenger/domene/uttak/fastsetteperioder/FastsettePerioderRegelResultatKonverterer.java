@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
@@ -54,7 +53,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅ
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UttakPeriodeAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.InnvilgetÅrsak;
-import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Periode;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.Manuellbehandlingårsak;
 
 @ApplicationScoped
 public class FastsettePerioderRegelResultatKonverterer {
@@ -173,19 +172,21 @@ public class FastsettePerioderRegelResultatKonverterer {
             }
         }
 
-        loggManueltSamtidigUttak(periode, grunnlag);
+        loggManueltSamtidigUttak(resultat, grunnlag);
         return periode;
     }
 
-    private void loggManueltSamtidigUttak(UttakResultatPeriodeEntitet resultat, RegelGrunnlag grunnlag) {
+    private void loggManueltSamtidigUttak(FastsettePeriodeResultat resultat, RegelGrunnlag grunnlag) {
         try {
-            if (!ER_PROD || !resultat.getDokRegel().isTilManuellBehandling() || !ManuellBehandlingÅrsak.VURDER_SAMTIDIG_UTTAK.equals(resultat.getManuellBehandlingÅrsak())) {
+            if (!ER_PROD || !resultat.isManuellBehandling() ||
+                !Manuellbehandlingårsak.VURDER_SAMTIDIG_UTTAK.equals(resultat.getUttakPeriode().getManuellbehandlingårsak())) {
                 return;
             }
-        
+            var periode = resultat.getUttakPeriode();
+
             var annenpartOverlappOpt = Optional.ofNullable(grunnlag.getAnnenPart())
                 .map(AnnenPart::getUttaksperioder).orElse(List.of()).stream()
-                .filter(a -> a.overlapper(new Periode(resultat.getFom(), resultat.getTom())))
+                .filter(a -> a.overlapper(periode))
                 .findFirst();
             if (annenpartOverlappOpt.isEmpty()) return;
             var annenpartOverlapp = annenpartOverlappOpt.get();
@@ -194,18 +195,18 @@ public class FastsettePerioderRegelResultatKonverterer {
             var annenpartUtbetalingsgrad = annenpartOverlapp.getAktiviteter().stream()
                 .map(AnnenpartUttakPeriodeAktivitet::getUtbetalingsgrad)
                 .filter(utbetalingsgrad -> utbetalingsgrad.harUtbetaling()).min(Comparator.naturalOrder()).map(u -> u.decimalValue()).orElse(BigDecimal.ZERO);
-            var antallAktiviteter = resultat.getAktiviteter().stream()
+            var antallAktiviteter = periode.getAktiviteter().stream()
                 .filter(a -> a.getUtbetalingsgrad().harUtbetaling()).count();
-            var utbetalingsgrad = resultat.getAktiviteter().stream()
+            var utbetalingsgrad = periode.getAktiviteter().stream()
                 .map(a -> a.getUtbetalingsgrad())
                 .filter(u -> u.harUtbetaling())
                 .min(Comparator.naturalOrder()).map(u -> u.decimalValue()).orElse(BigDecimal.ZERO);
-            var villeredusert = antallAktiviteter == 1 && new BigDecimal(100).subtract(annenpartUtbetalingsgrad).compareTo(new BigDecimal(20)) >= 0;
-            var samtidig = resultat.isSamtidigUttak();
-            var gradering = resultat.isGraderingInnvilget();
+            var samtidig = periode.erSamtidigUttak() ;
+            var gradering = periode.erGraderingInnvilget();
             var annenpartSamtidig = annenpartOverlapp.isSamtidigUttak();
-            LOG.info("SAMTIDIG-PØLSE ville redusert {} fom {} samtidig {} gradering {} antAktivitet {} utbetgrad {} annenpartSamtidig {} annenpartAntAkt {} annenpartUtbetgrad {}",
-                villeredusert, resultat.getFom(), samtidig, gradering,
+            var harRedusert = (antallAktiviteter == 1 || !gradering) && new BigDecimal(100).subtract(annenpartUtbetalingsgrad).compareTo(new BigDecimal(20)) >= 0;
+            LOG.info("SAMTIDIG-PØLSE redusert {} fom {} samtidig {} gradering {} antAktivitet {} utbetgrad {} annenpartSamtidig {} annenpartAntAkt {} annenpartUtbetgrad {}",
+                harRedusert, periode.getFom(), samtidig, gradering,
                 antallAktiviteter, utbetalingsgrad, annenpartSamtidig, annenpartAntallAktiviteter, annenpartUtbetalingsgrad);
         } catch (Exception e) {
             // NOSONAR
