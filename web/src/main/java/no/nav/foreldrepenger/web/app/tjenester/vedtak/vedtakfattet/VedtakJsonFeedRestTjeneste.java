@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet;
 
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -22,7 +20,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.jsonfeed.VedtakFattetTjeneste;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.FeedDto;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.AktørParam;
@@ -30,6 +27,8 @@ import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.HendelseT
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.MaxAntallParam;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.SekvensIdParam;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 @Path(VedtakJsonFeedRestTjeneste.BASE_PATH)
 @ApplicationScoped
@@ -60,7 +59,7 @@ public class VedtakJsonFeedRestTjeneste {
     @Operation(description = "Henter ut hendelser om foreldrepenger-vedtak", tags = "feed", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer hendelser om foreldrepenger-vedtak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeedDto.class)))
     })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public FeedDto fpVedtakHendelser(
             @QueryParam("sistLesteSekvensId") @Parameter(description = "Siste sekvensId lest") @Valid @NotNull SekvensIdParam sistLesteSekvensIdParam,
             @DefaultValue("100") @QueryParam("maxAntall") @Parameter(description = "max antall returnert") @Valid MaxAntallParam maxAntallParam,
@@ -80,7 +79,7 @@ public class VedtakJsonFeedRestTjeneste {
     @Operation(description = "Henter ut hendelser om svangerskapspenger-vedtak", tags = "feed", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer hendelser om svangerskapspenger-vedtak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeedDto.class)))
     })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public FeedDto svpVedtakHendelser(
             @QueryParam("sistLesteSekvensId") @Parameter(description = "Siste sekvensId lest") @Valid @NotNull SekvensIdParam sistLesteSekvensIdParam,
             @DefaultValue("100") @QueryParam("maxAntall") @Parameter(description = "max antall returnert") @Valid MaxAntallParam maxAntallParam,

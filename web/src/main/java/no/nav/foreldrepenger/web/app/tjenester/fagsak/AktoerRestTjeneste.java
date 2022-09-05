@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.fagsak;
 
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-
 import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -20,7 +18,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakTjeneste;
@@ -30,6 +27,8 @@ import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 @ApplicationScoped
 @Transactional
@@ -57,7 +56,7 @@ public class AktoerRestTjeneste {
     @Operation(description = "Henter informasjon om en aktør", tags = "aktoer", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer basisinformasjon om en aktør og hvilke fagsaker vedkommede har i fpsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AktoerInfoDto.class)))
     })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     // re-enable hvis endres til ikke-tom @Path(AKTOER_INFO_PART_PATH)
     public Response getAktoerInfo(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) @NotNull @QueryParam("aktoerId") @Valid AktoerIdDto aktoerIdDto) {
         var aktoerId = aktoerIdDto.get();

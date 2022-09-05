@@ -10,7 +10,6 @@ import javax.jws.WebService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -23,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.xmlutils.DateUtil;
-import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.binding.FinnSakListeSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.binding.ForeldrepengesakV1;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.informasjon.Behandlingstema;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.informasjon.Sak;
@@ -34,8 +32,10 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
 
 /**
  * Webservice for å finne relevante fagsaker i VL.
@@ -69,7 +69,7 @@ public class FinnSakService implements ForeldrepengesakV1 {
     }
 
     @Override
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.SAKLISTE)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.SAKLISTE, serviceType = ServiceType.WEBSERVICE)
     public FinnSakListeResponse finnSakListe(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FinnSakListeRequest request) {
 
         var sakspart = request.getSakspart();

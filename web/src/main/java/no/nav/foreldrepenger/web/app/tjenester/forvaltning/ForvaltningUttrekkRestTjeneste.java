@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -33,7 +31,6 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -55,6 +52,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 @Path("/forvaltningUttrekk")
 @ApplicationScoped
@@ -89,7 +88,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Setter saker med revurdering til under behandling", tags = "FORVALTNING-uttrekk")
     @Path("/openIkkeLopendeSaker")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response openIkkeLopendeSaker(@Parameter(description = "Aksjonspunktkoden") @BeanParam @Valid AksjonspunktKodeDto dto) {
         var apDef = dto.getAksjonspunktDefinisjon();
         if (apDef == null) {
@@ -117,7 +116,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Gir åpne aksjonspunkter med angitt kode", tags = "FORVALTNING-uttrekk")
     @Path("/openAutopunkt")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response openAutopunkt(@Parameter(description = "Aksjonspunktkoden") @BeanParam @Valid AksjonspunktKodeDto dto) {
         var apDef = dto.getAksjonspunktDefinisjon();
         if (apDef == null) {
@@ -144,7 +143,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Flytt tilbake til omsorgrett", tags = "FORVALTNING-uttrekk")
     @Path("/flyttTilStartUttak")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response flyttTilOmsorgRett() {
         var query = entityManager.createNativeQuery("""
             select saksnummer, bh.id
@@ -191,7 +190,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Operation(description = "Hent liste av saknumre for fagsak uten noen behandlinger", tags = "FORVALTNING-uttrekk", responses = {
             @ApiResponse(responseCode = "200", description = "Fagsaker uten behandling", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = SaksnummerDto.class)), mediaType = MediaType.APPLICATION_JSON))
     })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<SaksnummerDto> listFagsakUtenBehandling() {
         return fagsakRepository.hentÅpneFagsakerUtenBehandling().stream().map(SaksnummerDto::new).collect(Collectors.toList());
     }
@@ -201,7 +200,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
     public Response avstemPeriodeForOverlapp(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
         if (!dto.getKey().equals(VedtakOverlappAvstemTask.LOG_TEMA_FOR_KEY) && !dto.getKey().equals(VedtakOverlappAvstemTask.LOG_TEMA_OTH_KEY)) return Response.ok().build();
         var fom = LocalDate.of(2018,10,20);
@@ -231,7 +230,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
     public Response slettTidligereAvstemming(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
         if ("hendelseALLE".equals(dto.getKey())) {
             overlappRepository.slettAvstemtPeriode(dto.getFom());
@@ -246,7 +245,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
     public Response avstemSakForOverlapp(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
                                              @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
         var prosessTaskData = ProsessTaskData.forProsessTask(VedtakOverlappAvstemTask.class);
@@ -263,7 +262,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Path("/hentAvstemtSakOverlappTrex")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Prøver å finne overlapp og returnere resultat", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentAvstemtSakOverlappTrex(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
                                                    @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
         var resultat = overlappRepository.hentForSaksnummer(new Saksnummer(s.getVerdi())).stream()

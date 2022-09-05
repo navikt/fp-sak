@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
@@ -174,6 +175,13 @@ public class PipRepository {
         return aksjonspunktKoder.stream()
             .map(ak -> ak.getAksjonspunktType().getNavn()) // ja, getNavn er riktig her....
             .collect(Collectors.toSet());
+    }
+
+    public static boolean harAksjonspunktTypeOverstyring(Collection<AksjonspunktDefinisjon> aksjonspunktKoder) {
+        return aksjonspunktKoder.stream()
+            .map(AksjonspunktDefinisjon::getAksjonspunktType)
+            .filter(Objects::nonNull)
+            .anyMatch(AksjonspunktType.OVERSTYRING::equals);
     }
 
     @SuppressWarnings({ "unchecked", "cast" })

@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.vedtak;
 
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,7 +32,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.abakus.vedtak.ytelse.Ytelse;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
-import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -56,6 +52,8 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 @Path(VedtakRestTjeneste.BASE_PATH)
 @ApplicationScoped
@@ -112,7 +110,7 @@ public class VedtakRestTjeneste {
     @Operation(description = "Henter informasjon om Foreldrepenger for en aktør - POC for Sykepenger", tags = "vedtak", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer vedtak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeedDto.class)))
     })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<Ytelse> vedtakForeldrepengerForBruker(
             @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid @NotNull AktørParam aktørParam) {
         if (aktørParam.get().isEmpty()) {
@@ -129,7 +127,7 @@ public class VedtakRestTjeneste {
     @Operation(description = "Henter informasjon om Svangerskapspenger for en aktør - POC for Sykepenger", tags = "vedtak", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer vedtak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeedDto.class)))
     })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<Ytelse> vedtakSvangerskapspengerForBruker(
             @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid @NotNull AktørParam aktørParam) {
         if (aktørParam.get().isEmpty()) {
@@ -153,7 +151,7 @@ public class VedtakRestTjeneste {
     @GET
     @Path(HENT_VEDTAKSDOKUMENT_PART_PATH)
     @Operation(description = "Hent vedtaksdokument gitt behandlingId", summary = ("Returnerer vedtaksdokument som er tilknyttet behandlingId."), tags = "vedtak")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentVedtaksdokument(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
             @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId for vedtaksdokument") @Valid BehandlingIdDto behandlingIdDto) {
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
@@ -164,7 +162,7 @@ public class VedtakRestTjeneste {
     @POST
     @Operation(description = "Generer vedtaksxmler som ikke er gyldige på nytt", tags = "vedtak")
     @Path(REGENERER_PART_PATH)
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     @Transactional
     public Response regenererIkkeGyldigeVedtaksXml(
             @Parameter(description = "Datointervall i vedtak tabell for hvor det skal genereres ny vedtaksxml og maksAntall som behandles") @NotNull @Valid GenererVedtaksXmlDto genererVedtaksXmlDto) {
@@ -196,7 +194,7 @@ public class VedtakRestTjeneste {
     @POST
     @Operation(description = "Validerer vedtaksxml", tags = "vedtak")
     @Path(VALIDATE_PART_PATH)
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     @Transactional
     public Response validerVedtaksXml(
             @Parameter(description = "Datointervall i vedtak tabell for hvilke vedtakxml som skal valideres og maksAntall som behandles") @NotNull @Valid GenererVedtaksXmlDto genererVedtaksXmlDto) {

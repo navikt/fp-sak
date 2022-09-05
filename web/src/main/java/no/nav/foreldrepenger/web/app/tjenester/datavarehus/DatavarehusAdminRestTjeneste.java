@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.datavarehus;
 
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -20,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.task.RegenererVedtaksXmlDatavarehusTask;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
@@ -34,6 +31,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 @Path("/datavarehus")
 @Produces(MediaType.APPLICATION_JSON)
@@ -69,7 +68,7 @@ public class DatavarehusAdminRestTjeneste {
     @Path("/vedtaksxml/regenerer")
     @POST
     @Operation(description = "Generer opp vedtaks xml til datavarehus på nytt for behandling(er).", tags = "datavarehus")
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response genererVedtaksXmlTilDvh(
             @Parameter(description = "Datointervall i dvh vedtak tabell hvor det skal genereres ny vedtaks xml. FagsakYtelseType kan settes for å angi for hvilken ytelese det skal genereres ny vedtaks xml, dersom .") @NotNull @Valid GenererVedtaksXmlDvhDto genererVedtaksXmlDvhDto) {
 
@@ -98,7 +97,7 @@ public class DatavarehusAdminRestTjeneste {
     @Path("/vedtaksxml/generer")
     @POST
     @Operation(description = "Generer opp vedtaks xml til datavarehus for behandling(er) uten at det trenger å finnes DVH vedtaks-xml fra før. Finner behandlinger via LAGRET_VEDTAK.", tags = "datavarehus")
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response genererVedtaksXmlTilDvhSomKanMangleDvhVedtakXml(
             @Parameter(description = "Datointervall i dvh vedtak tabell hvor det skal genereres ny vedtaks xml. FagsakYtelseType settes for å angi for hvilken ytelese det skal genereres ny vedtaks xml.") @NotNull @Valid GenererVedtaksXmlDvhDto genererVedtaksXmlDvhDto) {
 
@@ -124,7 +123,7 @@ public class DatavarehusAdminRestTjeneste {
     @POST
     @Operation(description = "Generer vedtaksxml på nytt for gitt behandlingid.", tags = "datavarehus")
     @Path("/regenerer_vedtaksdokument")
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response regenererVedtaksXml(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @Parameter(description = "Behandlingid") @QueryParam("BehandlingId") @NotNull @Valid UuidDto uuidDto) {
 
@@ -150,7 +149,7 @@ public class DatavarehusAdminRestTjeneste {
     @Path("/regenerer_vedtaksdokument_dvh")
     @POST
     @Operation(description = "Generer opp vedtaks xml til datavarehus på nytt for gitt behandlingid", tags = "datavarehus")
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response regenererVedtaksXmlDvh(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @Parameter(description = "Behandlingid") @QueryParam("BehandlingId") @NotNull @Valid UuidDto uuidDto) {
 

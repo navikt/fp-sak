@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
-
 import java.util.Objects;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -18,9 +16,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
-import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 @Path("/forvaltningUttak")
 @ApplicationScoped
@@ -42,7 +41,7 @@ public class ForvaltningUttakRestTjeneste {
     @Path("/beregn-kontoer")
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Beregner kontoer basert på data fra behandlingen. Husk å revurdere begge foreldre", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response beregnKontoer(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
         forvaltningUttakTjeneste.beregnKontoer(dto.getBehandlingUuid());
@@ -53,7 +52,7 @@ public class ForvaltningUttakRestTjeneste {
     @Path("/endre-annen-forelder-rett")
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Endrer resultat av AP om annen forelder har rett", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response endreAnnenForelderRett(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
             @QueryParam(value = "harRett") @Valid Boolean harRett) {
         Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
@@ -66,7 +65,7 @@ public class ForvaltningUttakRestTjeneste {
     @Path("/endre-aleneomsorg")
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Endrer om bruker har aleneomsorg", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response endreAleneomsorg(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
                                            @NotNull @QueryParam(value = "aleneomsorg") @Valid Boolean aleneomsorg) {
         Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");

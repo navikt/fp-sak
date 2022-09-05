@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktUtil.fjernToTrinnsBehandlingKreves;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktUtil.setToTrinnsBehandlingKreves;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.util.List;
 import java.util.function.Function;
@@ -28,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -48,6 +45,8 @@ import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 @Path("/forvaltningTeknisk")
 @ApplicationScoped
@@ -92,7 +91,7 @@ public class ForvaltningTekniskRestTjeneste {
             @ApiResponse(responseCode = "400", description = "Fant ikke aktuell oppgave."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response ferdigstillOppgave(
             @TilpassetAbacAttributt(supplierClass = ForvaltningTekniskRestTjeneste.AbacDataSupplier.class) @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto,
             @BeanParam @Valid ForvaltningBehandlingIdDto behandlingIdDto) {
@@ -119,7 +118,7 @@ public class ForvaltningTekniskRestTjeneste {
             @ApiResponse(responseCode = "400", description = "Fant ikke aktuell oppgave."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response feilregistrerOppgave(
             @TilpassetAbacAttributt(supplierClass = ForvaltningTekniskRestTjeneste.AbacDataSupplier.class) @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto,
             @BeanParam @Valid ForvaltningBehandlingIdDto behandlingIdDto) {
@@ -141,7 +140,7 @@ public class ForvaltningTekniskRestTjeneste {
             @ApiResponse(responseCode = "400", description = "Fant ikke aktuelt aksjonspunkt."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response setAksjonspunktAvbrutt(@BeanParam @Valid BehandlingAksjonspunktDto dto) {
         var behandlingId = dto.getBehandlingUuid();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
@@ -163,7 +162,7 @@ public class ForvaltningTekniskRestTjeneste {
             @ApiResponse(responseCode = "400", description = "Fant ikke aktuelt aksjonspunkt."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response setAksjonspunktEntrinn(@BeanParam @Valid BehandlingAksjonspunktDto dto) {
         var behandlingId = dto.getBehandlingUuid();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
@@ -185,7 +184,7 @@ public class ForvaltningTekniskRestTjeneste {
             @ApiResponse(responseCode = "400", description = "Fant ikke aktuelt aksjonspunkt."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response setAksjonspunktTotrinn(@BeanParam @Valid BehandlingAksjonspunktDto dto) {
         var behandlingId = dto.getBehandlingUuid();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
@@ -206,7 +205,7 @@ public class ForvaltningTekniskRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Behandling er nå uten totrinn."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response setBehandlingEntrinn(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         var behandling = getBehandling(dto);
         LOG.info("Setter behandling={} til entrinn", behandling.getId());
@@ -229,7 +228,7 @@ public class ForvaltningTekniskRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Behandling er nå med totrinn."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response setBehandlingTotrinn(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         var behandling = getBehandling(dto);
         LOG.info("Setter behandling={} til totrinn", behandling.getId());
@@ -244,7 +243,7 @@ public class ForvaltningTekniskRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Bytt aksjonspunkt til reg papir endringssøknad", tags = "FORVALTNING-teknisk")
     @Path("/endring-papir")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response byttPapirSøknadTilEndring(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         // fjern alle overstyringer gjort av saksbehandler
         var behandling = getBehandling(dto);
@@ -277,7 +276,7 @@ public class ForvaltningTekniskRestTjeneste {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Operation(description = "Lagre vedtatt ytelse inklusive ", tags = "FORVALTNING-teknisk")
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response relagreVedtakTilAbakusViaRest(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         var b = getBehandling(dto);
@@ -293,7 +292,7 @@ public class ForvaltningTekniskRestTjeneste {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Operation(description = "Hente og lagre kodeverk Postnummer", tags = "FORVALTNING-teknisk")
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response synkPostnummer() {
         postnummerTjeneste.synkroniserPostnummer();
@@ -305,7 +304,7 @@ public class ForvaltningTekniskRestTjeneste {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Operation(description = "Fjern fagsakprosesstask for avsluttede behandlinger", tags = "FORVALTNING-teknisk")
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response fjernFagsakProsesstaskAvsluttetBehandling() {
         fagsakProsessTaskRepository.fjernForAvsluttedeBehandlinger();

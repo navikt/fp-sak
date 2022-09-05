@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.saksbehandler;
 
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -11,10 +9,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
-import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.tilganger.InnloggetNavAnsattDto;
 import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 @Path("/nav-ansatt")
 @ApplicationScoped
@@ -37,7 +36,7 @@ public class NavAnsattRestTjeneste {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Returnerer fullt navn for ident", tags = "nav-ansatt", summary = ("Ident hentes fra sikkerhetskonteksten som er tilgjengelig etter innlogging."))
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.APPLIKASJON, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.APPLIKASJON, sporingslogg = false)
     public InnloggetNavAnsattDto innloggetBruker() {
         return tilgangerTjeneste.innloggetBruker();
     }

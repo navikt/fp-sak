@@ -15,7 +15,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
-import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
@@ -26,7 +25,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 /**
  * Tester Behandlingskontroll synkront.
@@ -59,7 +59,7 @@ public class ForvaltningBehandlingskontrollRestTjeneste {
     @Path("/prosesserBehandling")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "KUN FOR TEST!!!: Kjører behandlingskontroll på en behandling.", summary = ("Kjører behandlingskontroll fra gjeldende steg frem til så langt behandlingen lar seg kjøre automatisk. Først og fremst for synkron/automatisering av behandlingsprosessen."), tags = "FORVALTNING-behandlingskontroll")
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public BehandlingskontrollDto kjørBehandling(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
 
         var behandling = getBehandling(dto);
@@ -81,7 +81,7 @@ public class ForvaltningBehandlingskontrollRestTjeneste {
     @Path("/taskFortsettBehandling")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "DRIFT: Opprett en manuell FortsettBehandlingTask for en behandling.", summary = ("Oppretter en FortsettBehandlingTask som vil prosessere behandlingen. For håndtering av tilfelle der behandlingen har endt i limbo uten automtisk gjenoppliving."), tags = "FORVALTNING-behandlingskontroll")
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response lagFortsettBehandling(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
 
         var behandling = getBehandling(dto);
