@@ -27,6 +27,8 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.ForeldrepengerDataKeys;
+import no.nav.vedtak.sikkerhet.abac.pipdata.PipBehandlingStatus;
+import no.nav.vedtak.sikkerhet.abac.pipdata.PipFagsakStatus;
 
 @ExtendWith(MockitoExtension.class)
 public class PdpRequestBuilderTest {
@@ -74,9 +76,9 @@ public class PdpRequestBuilderTest {
         assertThat(request.getAktørIdSet()).containsOnly(AKTØR_1.getId());
         assertThat(request.getResource(ForeldrepengerDataKeys.SAKSBEHANDLER).verdi()).isEqualTo(ansvarligSaksbehandler);
         assertThat(request.getResource(ForeldrepengerDataKeys.BEHANDLING_STATUS).verdi())
-                .isEqualTo(AbacBehandlingStatus.OPPRETTET.getEksternKode());
+                .isEqualTo(PipBehandlingStatus.OPPRETTET.getVerdi());
         assertThat(request.getResource(ForeldrepengerDataKeys.FAGSAK_STATUS).verdi())
-                .isEqualTo(AbacFagsakStatus.UNDER_BEHANDLING.getEksternKode());
+                .isEqualTo(PipFagsakStatus.UNDER_BEHANDLING.getVerdi());
     }
 
     @Test

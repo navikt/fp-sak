@@ -171,12 +171,6 @@ public class PipRepository {
         return result.stream().map(BigDecimal::longValue).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    public Set<String> hentAksjonspunktTypeForAksjonspunktKoder(Collection<AksjonspunktDefinisjon> aksjonspunktKoder) {
-        return aksjonspunktKoder.stream()
-            .map(ak -> ak.getAksjonspunktType().getNavn()) // ja, getNavn er riktig her....
-            .collect(Collectors.toSet());
-    }
-
     public static boolean harAksjonspunktTypeOverstyring(Collection<AksjonspunktDefinisjon> aksjonspunktKoder) {
         return aksjonspunktKoder.stream()
             .map(AksjonspunktDefinisjon::getAksjonspunktType)
