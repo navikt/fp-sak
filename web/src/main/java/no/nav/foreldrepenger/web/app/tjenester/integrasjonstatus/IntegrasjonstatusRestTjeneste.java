@@ -13,10 +13,10 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.BooleanUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
-import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 @Path("/integrasjon")
 @ApplicationScoped
@@ -41,7 +41,7 @@ public class IntegrasjonstatusRestTjeneste {
     @GET
     @Path("/status")
     @Operation(description = "Gir en oversikt over systemer som er nede", summary = ("Inneholder også detaljer og evt kjent tidspunkt for når systemet er oppe igjen."), tags = "integrasjon")
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.APPLIKASJON)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.APPLIKASJON)
     public List<SystemNedeDto> finnSystemerSomErNede() {
         return integrasjonstatusTjeneste.finnSystemerSomErNede();
     }
@@ -49,7 +49,7 @@ public class IntegrasjonstatusRestTjeneste {
     @GET
     @Path("/status/vises")
     @Operation(description = "Returnerer en boolean som angir om detaljerte feilmeldinger skal vises av GUI", tags = "integrasjon")
-    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.APPLIKASJON)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.APPLIKASJON)
     public boolean skalViseDetaljerteFeilmeldinger() {
         return skalViseDetaljerteFeilmeldinger;
     }

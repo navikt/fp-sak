@@ -89,7 +89,7 @@ Logging til sporingsloggen gjøres automatisk av løsningen for endepunkter som 
 .Normalt kommer sporingslogg ved å legge på tilgangskontroll slik
 [source,java]
 ----
-@BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+@BeskyttetRessurs(aactionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
 public List<FagsakDto> søkFagsaker(/*...*/)
 /*...*/
 ----
@@ -109,7 +109,7 @@ I tilfellene det er behov for å logge mer enn hva som kommer fra tilgangskontro
 .Unnta operasjon fra sporingslogg slik
 [source,java]
 ----
-@BeskyttetRessurs(action = READ, ressurs = APPLIKASJON, sporingslogg = false)
+@BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.APPLIKASJON, sporingslogg = false)
 public Map<String, Object> hentGruppertKodeliste()
 /*...*/
 ----

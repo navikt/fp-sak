@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.abakus;
 
 import static no.nav.abakus.callback.registerdata.Grunnlag.IAY;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -23,12 +22,13 @@ import org.slf4j.LoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.abakus.callback.registerdata.CallbackDto;
-import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.RegisterdataCallback;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 @Path("/registerdata")
 @ApplicationScoped
@@ -55,7 +55,7 @@ public class IAYRegisterdataCallbackRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Callback når registerinnhenting av IAY har blitt fullført i Abakus", tags = "registerdata")
-    @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.APPLIKASJON)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.APPLIKASJON)
     public Response callback(@Parameter(description = "callbackDto") @Valid @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) CallbackDto dto) {
         if (Objects.equals(IAY, dto.getGrunnlagType())) {
             // Ta lås

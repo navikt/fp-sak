@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.batch;
 
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -24,12 +21,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.batch.BatchSupportTjeneste;
 import no.nav.foreldrepenger.batch.feil.BatchFeil;
 import no.nav.foreldrepenger.web.app.tjenester.batch.args.BatchArgumentsDto;
 import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 @Path("/batch")
 @ApplicationScoped
@@ -65,7 +63,7 @@ public class BatchRestTjeneste {
     @GET
     @Path("/init")
     @Operation(description = "Init", tags = "batch")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response init() {
         return Response.ok().build();
     }
@@ -79,7 +77,7 @@ public class BatchRestTjeneste {
             @ApiResponse(responseCode = "400", description = "Ukjent batch forespurt"),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil")
     })
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.BATCH)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.BATCH)
     public Response startBatch(@NotNull @QueryParam("batchName") @Valid BatchNameDto batchName, @Valid BatchArgumentsDto args) {
         var name = batchName.getVerdi();
         final var batchTjeneste = batchSupportTjeneste.finnBatchTjenesteForNavn(name);
@@ -103,7 +101,7 @@ public class BatchRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Starter batch-scheduler"),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil")
     })
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.BATCH)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.BATCH)
     public Response autoRunBatch() {
         batchSupportTjeneste.startBatchSchedulerTask();
         return Response.ok().build();

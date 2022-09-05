@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.KONTROLLER_FAKTA;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -16,7 +15,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
-import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -35,6 +33,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.HoppTilbakeDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 @Path("/forvaltningSteg")
 @ApplicationScoped
@@ -71,7 +71,7 @@ public class ForvaltningStegRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Generelt tilbakehopp", tags = "FORVALTNING-steg-hopp")
     @Path("/generell")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response hoppTilbake(@BeanParam @Valid HoppTilbakeDto dto) {
         hoppTilbake(dto, dto.getBehandlingStegType());
         return Response.ok().build();
@@ -85,7 +85,7 @@ public class ForvaltningStegRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Hopp tilbake til 5085", tags = "FORVALTNING-steg-hopp")
     @Path("/5085")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response hoppTilbakeTil5085(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         hoppTilbake(dto, KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
 
@@ -96,7 +96,7 @@ public class ForvaltningStegRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Fjern aktiviteter lagt til i opptjening", tags = "FORVALTNING-steg-hopp")
     @Path("/fjern-opptjening-extra-aktivitet")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response fjerneAlleNyeAktiviteterFraOpptjening(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         var behandlingId = getBehandling(dto).getId();
         arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandlerOpptjening(behandlingId);
@@ -108,7 +108,7 @@ public class ForvaltningStegRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Fjerner overstyring av familiehendelse og hopper tilbake til KOFAK", tags = "FORVALTNING-steg-hopp")
     @Path("/fjernFHValgHoppTilbake")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response fjernOverstyrtFH(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(dto.getBehandlingUuid());
         var grunnlag = familieHendelseRepository.hentAggregat(kontekst.getBehandlingId());
@@ -124,7 +124,7 @@ public class ForvaltningStegRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Fjerner startpunkt i revurdering og går tilbake til KOFAK", tags = "FORVALTNING-steg-hopp")
     @Path("/fjernStartpunkt")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response fjernStartpunkt(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         hoppTilbake(dto, KONTROLLER_FAKTA);
         return Response.noContent().build();

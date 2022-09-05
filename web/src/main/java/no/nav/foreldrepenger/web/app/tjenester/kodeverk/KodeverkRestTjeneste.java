@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.kodeverk;
 
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -22,13 +20,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.v3.oas.annotations.Operation;
-import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.app.HentKodeverkTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 @Path("/kodeverk")
 @ApplicationScoped
@@ -58,7 +57,7 @@ public class KodeverkRestTjeneste {
 
     @GET
     @Operation(description = "Henter kodeliste", tags = "kodeverk")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.APPLIKASJON, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.APPLIKASJON, sporingslogg = false)
     public Response hentGruppertKodeliste() throws IOException {
         var kodelisteJson = getKodeverkRawJson();
         var cc = new CacheControl();
@@ -73,7 +72,7 @@ public class KodeverkRestTjeneste {
     @GET
     @Path("/behandlende-enheter")
     @Operation(description = "Henter liste over behandlende enheter", tags = "kodeverk")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<OrganisasjonsEnhet> hentBehandlendeEnheter() {
         return hentKodeverkTjeneste.hentBehandlendeEnheter();
     }

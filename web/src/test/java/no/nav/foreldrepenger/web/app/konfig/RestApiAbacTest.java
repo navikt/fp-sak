@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 /**
  * Sjekker at alle REST endepunkt har definert tilgangskontroll konfigurert for
@@ -90,7 +92,12 @@ public class RestApiAbacTest {
     private void assertAtIngenBrukerDummyVerdierPåBeskyttetRessurs(Method metode) {
         var klasse = metode.getDeclaringClass();
         var annotation = metode.getAnnotation(BeskyttetRessurs.class);
-        if (annotation != null && !annotation.property().isEmpty()) {
+        if ((annotation != null) && (annotation.actionType() == ActionType.DUMMY)) {
+            fail(klasse.getSimpleName() + "." + metode.getName() + " Ikke bruk DUMMY-verdi for "
+                + ActionType.class.getSimpleName());
+        } else if (annotation != null && annotation.resource().isEmpty() && annotation.resourceType() == ResourceType.DUMMY && annotation.property().isEmpty()) {
+            fail(klasse.getSimpleName() + "." + metode.getName() + " En verdi for resource må være satt!");
+        } else if (annotation != null && !annotation.property().isEmpty()) {
             if (annotation.property().equals("abac.attributt.drift")) {
                 return;
             }
