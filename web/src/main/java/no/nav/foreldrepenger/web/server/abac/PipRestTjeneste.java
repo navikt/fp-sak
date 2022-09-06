@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.server.abac;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -26,6 +27,10 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
+import no.nav.vedtak.sikkerhet.abac.pipdata.AbacPipDto;
+import no.nav.vedtak.sikkerhet.abac.pipdata.PipAktørId;
+import no.nav.vedtak.sikkerhet.abac.pipdata.PipBehandlingStatus;
+import no.nav.vedtak.sikkerhet.abac.pipdata.PipFagsakStatus;
 
 @Path(PipRestTjeneste.PIP_BASE_PATH)
 @ApplicationScoped
@@ -59,23 +64,25 @@ public class PipRestTjeneste {
         return aktører;
     }
 
+    /**
+     * Denne skal på sikt brukes kun brukes av abac attributefinders - de forventer spesielle String-verdier som ikke ligner enum / name
+     */
     @GET
     @Path(PIPDATA_FOR_BEHANDLING)
     @Operation(description = "Henter aktørIder, fagsak- og behandlingstatus tilknyttet til en behandling", tags = "pip")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP)
     public PipDto hentAktørIdListeTilknyttetBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
         @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
-        var pipData = pipRepository.hentDataForBehandlingUuid(uuidDto.getBehandlingUuid());
-        var pipDto = new PipDto();
-        pipData.ifPresent(pip -> {
-            pipDto.setAktørIder(hentAktørIder(pip));
-            pipDto.setBehandlingStatus(
-                    AbacUtil.oversettBehandlingStatus(pip.getBehandligStatus()).map(AbacBehandlingStatus::getEksternKode).orElse(null));
-            pipDto.setFagsakStatus(AbacUtil.oversettFagstatus(pip.getFagsakStatus()).map(AbacFagsakStatus::getEksternKode).orElse(null));
-        });
-        return pipDto;
+        return pipRepository.hentDataForBehandlingUuid(uuidDto.getBehandlingUuid())
+            .map(pip -> new PipDto(hentAktørIder(pip),
+                AbacUtil.oversettFagstatus(pip.getFagsakStatus()).map(PipFagsakStatus::getVerdi).orElse(null),
+                AbacUtil.oversettBehandlingStatus(pip.getBehandligStatus()).map(PipBehandlingStatus::getVerdi).orElse(null)))
+            .orElseGet(() -> new PipDto(Set.of(), null, null));
     }
 
+    /**
+     * Denne skal kun brukes av andre applikasjoner som kaller fpsak-pip! Ikke av abac!
+     */
     @GET
     @Path(PIPDATA_FOR_BEHANDLING_APPINTERN)
     @Operation(description = "Henter aktørIder, fagsak- og behandlingstatus tilknyttet til en behandling - kun mellom fp-apps", tags = "pip")
@@ -83,13 +90,19 @@ public class PipRestTjeneste {
     public AbacPipDto hentAktørIdListeTilknyttetBehandlingAppIntern(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                        @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
         return pipRepository.hentDataForBehandlingUuid(uuidDto.getBehandlingUuid())
-            .map(pip -> new AbacPipDto(hentAktørIder(pip), AbacUtil.oversettFagstatus(pip.getFagsakStatus()).orElse(null),
+            .map(pip -> new AbacPipDto(hentPipAktørIder(pip), AbacUtil.oversettFagstatus(pip.getFagsakStatus()).orElse(null),
                 AbacUtil.oversettBehandlingStatus(pip.getBehandligStatus()).orElse(null)))
             .orElseGet(() -> new AbacPipDto(Set.of(), null, null));
     }
 
     private Set<AktørId> hentAktørIder(PipBehandlingsData pipBehandlingsData) {
         return pipRepository.hentAktørIdKnyttetTilFagsaker(List.of(pipBehandlingsData.getFagsakId()));
+    }
+
+    private Set<PipAktørId> hentPipAktørIder(PipBehandlingsData pipBehandlingsData) {
+        return pipRepository.hentAktørIdKnyttetTilFagsaker(List.of(pipBehandlingsData.getFagsakId())).stream()
+            .map(a -> new PipAktørId(a.getId()))
+            .collect(Collectors.toSet());
     }
 
 }
