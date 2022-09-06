@@ -558,7 +558,7 @@ public class SøknadMapperTest {
         assertThat(rettigheter).isNotNull();
         assertThat(rettigheter.isHarAnnenForelderRett()).isFalse();
         assertThat(rettigheter.isHarMorUforetrygd()).isFalse();
-        assertThat(rettigheter.isHarMorForeldrepengerEOS()).isTrue();
+        assertThat(rettigheter.isHarAnnenForelderTilsvarendeRettEOS()).isTrue();
         assertThat(rettigheter.isHarOmsorgForBarnetIPeriodene()).isTrue();
     }
 
