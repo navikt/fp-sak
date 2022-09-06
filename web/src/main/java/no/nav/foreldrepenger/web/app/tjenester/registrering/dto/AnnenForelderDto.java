@@ -22,6 +22,7 @@ public class AnnenForelderDto {
 
     private Boolean morMottarUføretrygd;
     private Boolean morHarForeldrepengerEØS;
+    private Boolean annenForelderRettEØS;
 
     public String getFoedselsnummer() {
         return foedselsnummer;
@@ -77,6 +78,14 @@ public class AnnenForelderDto {
 
     public void setMorHarForeldrepengerEØS(Boolean morHarForeldrepengerEØS) {
         this.morHarForeldrepengerEØS = morHarForeldrepengerEØS;
+    }
+
+    public Boolean getAnnenForelderRettEØS() {
+        return annenForelderRettEØS;
+    }
+
+    public void setAnnenForelderRettEØS(Boolean annenForelderRettEØS) {
+        this.annenForelderRettEØS = annenForelderRettEØS;
     }
 
     public static class KanIkkeOppgiBegrunnelse {

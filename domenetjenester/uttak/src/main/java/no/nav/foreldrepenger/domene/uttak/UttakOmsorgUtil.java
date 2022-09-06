@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.uttak;
 
 import static java.lang.Boolean.TRUE;
 
-import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -12,7 +11,6 @@ import no.nav.foreldrepenger.konfig.Environment;
 
 public final class UttakOmsorgUtil {
 
-    private static final LocalDate IKRAFTTREDELSE = LocalDate.of(2022,8,2); // LA STÅ inntil gitt dato - fjern etter det
     private static final boolean ER_PROD = Environment.current().isProd();
 
     private UttakOmsorgUtil() {
@@ -28,12 +26,15 @@ public final class UttakOmsorgUtil {
         if (annenForelderHarUttakMedUtbetaling(annenpartsGjeldendeUttaksplan)) {
             return true;
         }
-        return Optional.ofNullable(ytelseFordelingAggregat.getAnnenForelderRettAvklaring())
-            .orElseGet(() -> {
-                var oppgittRettighet = ytelseFordelingAggregat.getOppgittRettighet();
-                Objects.requireNonNull(oppgittRettighet, "oppgittRettighet");
-                return oppgittRettighet.getHarAnnenForeldreRett() == null || oppgittRettighet.getHarAnnenForeldreRett();
-            });
+        if (ytelseFordelingAggregat.getAnnenForelderRettAvklaring() == null &&
+            (!oppgittAnnenForelderRettEØS(ytelseFordelingAggregat) || ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring() == null)) {
+            var oppgittRettighet = ytelseFordelingAggregat.getOppgittRettighet();
+            Objects.requireNonNull(oppgittRettighet, "oppgittRettighet");
+            return oppgittRettighet.getHarAnnenForeldreRett() == null || oppgittRettighet.getHarAnnenForeldreRett();
+        } else if (ytelseFordelingAggregat.getAnnenForelderRettAvklaring() == null && oppgittAnnenForelderRettEØS(ytelseFordelingAggregat)) {
+            return avklartAnnenForelderHarRettEØS(ytelseFordelingAggregat);
+        }
+        return ytelseFordelingAggregat.getAnnenForelderRettAvklaring() || avklartAnnenForelderHarRettEØS(ytelseFordelingAggregat);
     }
 
     public static boolean morMottarUføretrygd(UføretrygdGrunnlagEntitet uføretrygdGrunnlag) {
@@ -41,12 +42,12 @@ public final class UttakOmsorgUtil {
         return uføretrygdGrunnlag != null && uføretrygdGrunnlag.annenForelderMottarUføretrygd();
     }
 
-    public static boolean morMottarForeldrepengerEØS(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return godtasStønadFraEØS() && TRUE.equals(ytelseFordelingAggregat.getMorStønadEØSAvklaring());
+    public static Boolean avklartAnnenForelderHarRettEØS(YtelseFordelingAggregat ytelseFordelingAggregat) {
+        return godtasStønadFraEØS() && TRUE.equals(ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring());
     }
 
-    public static boolean morOppgittForeldrepengerEØS(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return godtasStønadFraEØS() && TRUE.equals(ytelseFordelingAggregat.getOppgittRettighet().getMorMottarStønadEØS());
+    public static boolean oppgittAnnenForelderRettEØS(YtelseFordelingAggregat ytelseFordelingAggregat) {
+        return godtasStønadFraEØS() && TRUE.equals(ytelseFordelingAggregat.getOppgittRettighet().getAnnenForelderRettEØS());
     }
 
     public static boolean annenForelderHarUttakMedUtbetaling(Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan) {
@@ -58,7 +59,7 @@ public final class UttakOmsorgUtil {
     }
 
     private static boolean godtasStønadFraEØS() {
-        return !(ER_PROD && LocalDate.now().isBefore(IKRAFTTREDELSE));
+        return !ER_PROD;
     }
 
 }

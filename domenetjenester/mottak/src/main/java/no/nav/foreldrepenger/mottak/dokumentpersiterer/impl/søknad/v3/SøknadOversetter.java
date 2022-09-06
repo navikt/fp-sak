@@ -495,7 +495,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     private Optional<OppgittRettighetEntitet> oversettRettighet(Foreldrepenger omYtelse) {
         return Optional.ofNullable(omYtelse.getRettigheter())
             .map(rettigheter -> new OppgittRettighetEntitet(rettigheter.isHarAnnenForelderRett(), rettigheter.isHarAleneomsorgForBarnet(),
-                    harOppgittUføreEllerPerioderMedAktivitetUføre(omYtelse, rettigheter.isHarMorUforetrygd()), rettigheter.isHarMorForeldrepengerEOS()));
+                    harOppgittUføreEllerPerioderMedAktivitetUføre(omYtelse, rettigheter.isHarMorUforetrygd()), rettigheter.isHarAnnenForelderTilsvarendeRettEOS()));
     }
 
     // TODO: Avklare med AP om dette er rett måte å serve rettighet??? Info må uansett sjekke oppgitt fordeling for eldre tilfelle (med mindre vi kjører DB-oppdatering)

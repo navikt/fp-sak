@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
+import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.fakta.OmsorgRettAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -55,7 +56,7 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements OmsorgRettAksjon
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
 
         if (!personopplysninger.harOppgittAnnenpartMedNorskID(ref)) {
-            return List.of();
+            return UttakOmsorgUtil.oppgittAnnenForelderRettEØS(ytelseFordelingAggregat) ? aksjonspunkt() : List.of();
         }
 
         var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(input.getYtelsespesifiktGrunnlag());
@@ -68,8 +69,8 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements OmsorgRettAksjon
             var måAvklareMorUfør = fpGrunnlag.getUføretrygdGrunnlag()
                 .filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd)
                 .isPresent();
-            var måAvklareMorStønadEØS = TRUE.equals(ytelseFordelingAggregat.getOppgittRettighet().getMorMottarStønadEØS());
-            return !harAnnenForelderInnvilgetES || måAvklareMorUfør || måAvklareMorStønadEØS ? aksjonspunkt() : List.of();
+            var måAvklareAnnenForelderRettEØS = UttakOmsorgUtil.oppgittAnnenForelderRettEØS(ytelseFordelingAggregat);
+            return !harAnnenForelderInnvilgetES || måAvklareMorUfør || måAvklareAnnenForelderRettEØS ? aksjonspunkt() : List.of();
         }
 
         if (oppgittHarAnnenForeldreRett(ytelseFordelingAggregat) &&

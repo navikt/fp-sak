@@ -13,6 +13,8 @@ public class AvklarAnnenforelderHarRettDto extends BekreftetAksjonspunktDto {
     @NotNull
     private Boolean annenforelderHarRett;
 
+    private Boolean annenForelderHarRettEØS;
+
     private Boolean annenforelderMottarUføretrygd;
 
     private Boolean annenforelderMottarStønadEØS;
@@ -48,5 +50,13 @@ public class AvklarAnnenforelderHarRettDto extends BekreftetAksjonspunktDto {
 
     public void setAnnenforelderMottarStønadEØS(Boolean annenforelderMottarStønadEØS) {
         this.annenforelderMottarStønadEØS = annenforelderMottarStønadEØS;
+    }
+
+    public Boolean getAnnenForelderHarRettEØS() {
+        return annenForelderHarRettEØS;
+    }
+
+    public void setAnnenForelderHarRettEØS(Boolean annenForelderHarRettEØS) {
+        this.annenForelderHarRettEØS = annenForelderHarRettEØS;
     }
 }

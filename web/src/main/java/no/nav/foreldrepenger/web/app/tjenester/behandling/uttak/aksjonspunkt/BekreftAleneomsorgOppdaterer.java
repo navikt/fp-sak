@@ -52,11 +52,11 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Avkl
                     "Registrer annenpart eller kontakt support.");
             }
             totrinn = totrinn || faktaOmsorgRettTjeneste.totrinnForAnnenforelderRett(param, dto.getAnnenforelderHarRett(),
-                dto.getAnnenforelderMottarUføretrygd(), opprettUføre, dto.getAnnenforelderMottarStønadEØS());
+                dto.getAnnenforelderMottarUføretrygd(), opprettUføre, dto.getAnnenForelderHarRettEØS());
             faktaOmsorgRettTjeneste.annenforelderRettHistorikkFelt(param, dto.getAnnenforelderHarRett(),
-                dto.getAnnenforelderMottarUføretrygd(), opprettUføre, dto.getAnnenforelderMottarStønadEØS());
+                dto.getAnnenforelderMottarUføretrygd(), opprettUføre, dto.getAnnenForelderHarRettEØS());
             faktaOmsorgRettTjeneste.oppdaterAnnenforelderRett(param, dto.getAnnenforelderHarRett(),
-                dto.getAnnenforelderMottarUføretrygd(), opprettUføre, annenpartAktørId, dto.getAnnenforelderMottarStønadEØS());
+                dto.getAnnenforelderMottarUføretrygd(), opprettUføre, annenpartAktørId, dto.getAnnenForelderHarRettEØS());
         }
         faktaOmsorgRettTjeneste.omsorgRettHistorikkInnslag(param, dto.getBegrunnelse());
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();

@@ -119,6 +119,7 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     RETT_TIL_FORELDREPENGER("RETT_TIL_FORELDREPENGER", "Rett til foreldrepenger"),
     MOR_MOTTAR_UFØRETRYGD("MOR_MOTTAR_UFØRETRYGD", "Mor mottar uføretrygd"),
     MOR_MOTTAR_STØNAD_EØS("MOR_MOTTAR_STØNAD_EØS", "Mor mottar foreldrepenger fra land i EØS"),
+    ANNEN_FORELDER_RETT_EØS("ANNEN_FORELDER_RETT_EØS", "Annen forelder har opptjent rett fra land i EØS"),
     VURDER_GRADERING_PÅ_ANDEL_UTEN_BG("VURDER_GRADERING_PÅ_ANDEL_UTEN_BG", "Vurder om søker har gradering på en andel uten beregningsgrunnlag"),
     DEKNINGSGRAD("DEKNINGSGRAD", "Dekningsgrad"),
     TILBAKETREKK("TILBAKETREKK", "Tilbaketrekk"),
