@@ -20,7 +20,6 @@ public class KalkulusKonfigInjecter {
     private int inntektRapporteringFristDagIMåneden;
 
     static {
-        TOGGLES.put("fpsak.splitteSammenligningATFL", false);
         TOGGLES.put("automatisk-besteberegning", true);
         // Kan fjernes når vi har fått gui for å vise lønnsendring
         TOGGLES.put("AUTOMATISK_BERGNE_LØNNENDRING", false);
