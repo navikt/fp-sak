@@ -154,6 +154,25 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
         assertThat(arbeidsgivere).contains(Arbeidsgiver.virksomhet(orgnr));
     }
 
+    @Test
+    void skal_ikke_gi_utslag_ved_motatt_inntektsmelding_på_frilansforhold() {
+        // Arrange
+        String frilansOrgnr = "222222222";
+        String arbeidOrgnr = "333333333";
+        var ya = Arrays.asList(yrkesaktivitet(frilansOrgnr, dagerFørStp(90), dagerEtterStp(60), ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER),
+            yrkesaktivitet(arbeidOrgnr, dagerFørStp(90), dagerEtterStp(60), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
+        Map<YearMonth, Integer> inntektsposter = lagInntektsposter(dagerFørStp(360), dagerFørStp(10), 100);
+        var inntekter = Arrays.asList(inntekt(frilansOrgnr, inntektsposter), inntekt(arbeidOrgnr, inntektsposter));
+        var inntektsmeldinger = Arrays.asList(inntektsmelding(frilansOrgnr), inntektsmelding(arbeidOrgnr));
+
+        // Act
+        var resultat = utled(lagAggregat(ya, inntekter, inntektsmeldinger));
+
+        // Assert
+        assertThat(resultat).isEmpty();
+    }
+
+
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utled(InntektArbeidYtelseGrunnlag iay) {
         return InntektsmeldingUtenArbeidsforholdTjeneste.utledManglendeArbeidsforhold(iay, AKTØR_ID, STP);
     }
