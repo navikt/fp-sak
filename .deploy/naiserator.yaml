@@ -43,6 +43,11 @@ spec:
       enabled: true
   kafka:
       pool: {{kafkaPool}}
+  accessPolicy:
+      inbound:
+          rules:
+              - application: fp-frontend-azure
+                cluster: dev-fss
   vault:
     enabled: true
     paths:
