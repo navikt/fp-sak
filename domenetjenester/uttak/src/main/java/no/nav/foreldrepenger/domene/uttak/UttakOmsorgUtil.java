@@ -23,18 +23,15 @@ public final class UttakOmsorgUtil {
 
     public static boolean harAnnenForelderRett(YtelseFordelingAggregat ytelseFordelingAggregat,
                                                Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan) {
-        if (annenForelderHarUttakMedUtbetaling(annenpartsGjeldendeUttaksplan)) {
+        if (annenForelderHarUttakMedUtbetaling(annenpartsGjeldendeUttaksplan) || avklartAnnenForelderHarRettEØS(ytelseFordelingAggregat)) {
             return true;
         }
-        if (ytelseFordelingAggregat.getAnnenForelderRettAvklaring() == null &&
-            (!oppgittAnnenForelderRettEØS(ytelseFordelingAggregat) || ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring() == null)) {
-            var oppgittRettighet = ytelseFordelingAggregat.getOppgittRettighet();
-            Objects.requireNonNull(oppgittRettighet, "oppgittRettighet");
-            return oppgittRettighet.getHarAnnenForeldreRett() == null || oppgittRettighet.getHarAnnenForeldreRett();
-        } else if (ytelseFordelingAggregat.getAnnenForelderRettAvklaring() == null && oppgittAnnenForelderRettEØS(ytelseFordelingAggregat)) {
-            return avklartAnnenForelderHarRettEØS(ytelseFordelingAggregat);
-        }
-        return ytelseFordelingAggregat.getAnnenForelderRettAvklaring() || avklartAnnenForelderHarRettEØS(ytelseFordelingAggregat);
+        return Optional.ofNullable(ytelseFordelingAggregat.getAnnenForelderRettAvklaring())
+            .orElseGet(() -> {
+                var oppgittRettighet = ytelseFordelingAggregat.getOppgittRettighet();
+                Objects.requireNonNull(oppgittRettighet, "oppgittRettighet");
+                return oppgittRettighet.getHarAnnenForeldreRett() == null || oppgittRettighet.getHarAnnenForeldreRett();
+            });
     }
 
     public static boolean morMottarUføretrygd(UføretrygdGrunnlagEntitet uføretrygdGrunnlag) {
