@@ -25,10 +25,10 @@ public class ArbeidsforholdValgRepository {
     }
 
     public List<ArbeidsforholdValg> hentArbeidsforholdValgForBehandling(Long behandlingId) {
-        final var query = entityManager.createQuery("FROM ArbeidsforholdValg arb " + // NOSONAR //$NON-NLS-1$
+        final var query = entityManager.createQuery("FROM ArbeidsforholdValg arb " +
                 "WHERE arb.behandlingId = :behandlingId AND arb.aktiv = :aktiv", ArbeidsforholdValg.class);
-        query.setParameter("behandlingId", behandlingId); // NOSONAR //$NON-NLS-1$
-        query.setParameter("aktiv", true); // NOSONAR //$NON-NLS-1$
+        query.setParameter("behandlingId", behandlingId);
+        query.setParameter("aktiv", true);
         return query.getResultList();
     }
 
@@ -62,8 +62,10 @@ public class ArbeidsforholdValgRepository {
     private List<ArbeidsforholdValg> hentAlleValgForArbeidsgiver(Long behandlingId, String arbeidsgiverIdent) {
         final var query = entityManager.createQuery("FROM ArbeidsforholdValg arb " + // NOSONAR //$NON-NLS-1$
             "WHERE arb.behandlingId = :behandlingId " +
+            "AND arb.aktiv = :aktiv " +
             "AND arb.arbeidsgiverIdent = :arbeidsgiverIdent", ArbeidsforholdValg.class);
         query.setParameter("behandlingId", behandlingId);
+        query.setParameter("aktiv", true);
         query.setParameter("arbeidsgiverIdent", arbeidsgiverIdent);
         return query.getResultList();
     }
