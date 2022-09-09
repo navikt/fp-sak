@@ -113,7 +113,7 @@ public class LeggTilOppgittNæringDto implements AbacDto {
     }
 
     public LocalDate getTom() {
-        return getLocalDate(fom);
+        return getLocalDate(tom);
     }
 
     public String getOrgnummer() {
