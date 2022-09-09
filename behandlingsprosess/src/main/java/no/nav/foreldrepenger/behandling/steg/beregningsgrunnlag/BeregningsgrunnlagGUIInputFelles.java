@@ -125,7 +125,7 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
             case AVBRUTT -> AvklaringsbehovStatus.AVBRUTT;
             case UTFØRT -> AvklaringsbehovStatus.UTFØRT;
         };
-        return Optional.of(new AvklaringsbehovDto(definisjon, status, ap.getBegrunnelse()));
+        return Optional.of(new AvklaringsbehovDto(definisjon, status, ap.getBegrunnelse(), false));
     }
 
     private List<KravperioderPrArbeidsforholdDto> mapKravperioder(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
