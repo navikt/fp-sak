@@ -16,6 +16,7 @@
         "https://fpsak.dev.adeo.no/"
     ],
     "env": {
-        "APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD"
+        "APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD",
+        "APPD_ENABLED": "false"
     }
 }
