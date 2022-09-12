@@ -39,12 +39,12 @@ spec:
       cpu: "128m"
       memory: "2688Mi"
   azure:
-    application:
-      enabled: true
-      claims:
-        extra:
-          - "NAVident"
-          - "azp_name"
+      application:
+          enabled: true
+          claims:
+              extra:
+                  - "NAVident"
+                  - "azp_name"
   kafka:
       pool: {{kafkaPool}}
   accessPolicy:
