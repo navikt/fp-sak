@@ -41,6 +41,10 @@ spec:
   azure:
     application:
       enabled: true
+    claims:
+        extra:
+            - "NAVident"
+            - "azp_name"
   kafka:
       pool: {{kafkaPool}}
   accessPolicy:
