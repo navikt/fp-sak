@@ -45,8 +45,8 @@ public class RettOgOmsorgGrunnlagBygger {
                 .aleneomsorg(aleneomsorg(ytelseFordelingAggregat))
                 .farHarRett(farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
                 .morHarRett(morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
-                .morUføretrygd(morUføretrygd(uttakInput) || morStønadEØS(ytelseFordelingAggregat))
-                .morOppgittUføretrygd(morOppgittUføretrygd(uttakInput) || morOppgittStønadEØS(ytelseFordelingAggregat))
+                .morUføretrygd(morUføretrygd(uttakInput))
+                .morOppgittUføretrygd(morOppgittUføretrygd(uttakInput))
                 .samtykke(samtykke);
     }
 
@@ -95,14 +95,6 @@ public class RettOgOmsorgGrunnlagBygger {
     private boolean morOppgittUføretrygd(UttakInput uttakInput) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         return fpGrunnlag.getUføretrygdGrunnlag().isPresent();
-    }
-
-    private boolean morStønadEØS(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return UttakOmsorgUtil.morMottarForeldrepengerEØS(ytelseFordelingAggregat);
-    }
-
-    private boolean morOppgittStønadEØS(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return UttakOmsorgUtil.morOppgittForeldrepengerEØS(ytelseFordelingAggregat);
     }
 
     private boolean samtykke(YtelseFordelingAggregat ytelseFordelingAggregat) {

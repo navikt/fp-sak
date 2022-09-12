@@ -552,13 +552,13 @@ public class SøknadMapperTest {
         manuellRegistreringForeldrepengerDto.setTidsromPermisjon(opprettTidsromPermisjonDto(null));
         var annenforelder = opprettAnnenForelderDto(false, false, false);
         annenforelder.setMorMottarUføretrygd(false);
-        annenforelder.setMorHarForeldrepengerEØS(true);
+        annenforelder.setAnnenForelderRettEØS(true);
         manuellRegistreringForeldrepengerDto.setAnnenForelder(annenforelder);
         var rettigheter = YtelseSøknadMapper.mapRettigheter(manuellRegistreringForeldrepengerDto);
         assertThat(rettigheter).isNotNull();
         assertThat(rettigheter.isHarAnnenForelderRett()).isFalse();
         assertThat(rettigheter.isHarMorUforetrygd()).isFalse();
-        assertThat(rettigheter.isHarMorForeldrepengerEOS()).isTrue();
+        assertThat(rettigheter.isHarAnnenForelderTilsvarendeRettEOS()).isTrue();
         assertThat(rettigheter.isHarOmsorgForBarnetIPeriodene()).isTrue();
     }
 

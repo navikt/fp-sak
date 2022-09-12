@@ -75,9 +75,9 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     private PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRettEntitet;
 
     @ManyToOne
-    @JoinColumn(name = "mor_stonad_eos_id", updatable = false, unique = true)
+    @JoinColumn(name = "annen_forelder_rett_eos_id", updatable = false, unique = true)
     @ChangeTracked
-    private PerioderMorStønadEØSEntitet perioderMorStønadEØSEntitet;
+    private PerioderAnnenForelderRettEØSEntitet perioderAnnenForelderRettEØSEntitet;
 
     @ManyToOne
     @JoinColumn(name = "opprinnelige_aktkrav_per_id", updatable = false, unique = true)
@@ -202,12 +202,12 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
         this.perioderAnnenforelderHarRettEntitet = perioderAnnenforelderHarRettEntitet;
     }
 
-    PerioderMorStønadEØSEntitet getPerioderMorStønadEØSEntitet() {
-        return perioderMorStønadEØSEntitet;
+    PerioderAnnenForelderRettEØSEntitet getPerioderAnnenForelderRettEØSEntitet() {
+        return perioderAnnenForelderRettEØSEntitet;
     }
 
-    void setPerioderMorStønadEØSEntitet(PerioderMorStønadEØSEntitet perioderMorStønadEØSEntitet) {
-        this.perioderMorStønadEØSEntitet = perioderMorStønadEØSEntitet;
+    void setPerioderAnnenForelderRettEØSEntitet(PerioderAnnenForelderRettEØSEntitet perioderAnnenForelderRettEØSEntitet) {
+        this.perioderAnnenForelderRettEØSEntitet = perioderAnnenForelderRettEØSEntitet;
     }
 
     AvklarteUttakDatoerEntitet getAvklarteUttakDatoer() {
@@ -236,12 +236,12 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
             Objects.equals(perioderUtenOmsorgEntitet, that.perioderUtenOmsorgEntitet) &&
             Objects.equals(perioderAleneOmsorgEntitet, that.perioderAleneOmsorgEntitet) &&
             Objects.equals(perioderAnnenforelderHarRettEntitet, that.perioderAnnenforelderHarRettEntitet) &&
-            Objects.equals(perioderMorStønadEØSEntitet, that.perioderMorStønadEØSEntitet);
+            Objects.equals(perioderAnnenForelderRettEØSEntitet, that.perioderAnnenForelderRettEØSEntitet);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(oppgittFordeling, oppgittRettighet, oppgittDekningsgrad, perioderUtenOmsorgEntitet,
-            perioderAleneOmsorgEntitet, perioderAnnenforelderHarRettEntitet, perioderMorStønadEØSEntitet, aktiv);
+            perioderAleneOmsorgEntitet, perioderAnnenforelderHarRettEntitet, perioderAnnenForelderRettEØSEntitet, aktiv);
     }
 }

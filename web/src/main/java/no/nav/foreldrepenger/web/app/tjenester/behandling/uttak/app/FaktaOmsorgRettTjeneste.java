@@ -39,13 +39,13 @@ public class FaktaOmsorgRettTjeneste {
                                                boolean annenforelderHarRett,
                                                Boolean annenforelderMottarUføretrygd,
                                                boolean opprettUføreGrunnlagHvisMangler,
-                                               Boolean annenforelderMottarStønadEØS) {
+                                               Boolean annenForelderHarRettEØS) {
         var tidligereVurderingAvMorsUføretrygd = tidligereVurderingAvMorsUføretrygd(param);
         var endretVurderingAvMorsUføretrygd = endretVurderingAvMorsUføretrygd(annenforelderMottarUføretrygd, param,
             tidligereVurderingAvMorsUføretrygd, opprettUføreGrunnlagHvisMangler);
 
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(param.getBehandlingId());
-        var endretVurderingAvMorsStønadEØS = endretVurderingAvMorsStønadEØS(annenforelderMottarStønadEØS, ytelseFordelingAggregat.getMorStønadEØSAvklaring());
+        var endretVurderingAvRettEØS = endretVurderingAvRettEØS(annenForelderHarRettEØS, ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring());
 
         var harAnnenForeldreRettSokVersjon = ytelseFordelingAggregat.getOppgittRettighet().getHarAnnenForeldreRett();
 
@@ -55,7 +55,7 @@ public class FaktaOmsorgRettTjeneste {
         var erEndretBekreftetVersjon = harAvklartUdefinertEllerEndretBekreftet(harAnnenForeldreRettBekreftetVersjon, annenforelderHarRett);
 
         // Totrinns er sett hvis saksbehandler avkreftet først gang eller endret etter han bekreftet
-        var totrinn = endretVurderingAvMorsUføretrygd || endretVurderingAvMorsStønadEØS || avkreftetBrukersOpplysinger ||
+        var totrinn = endretVurderingAvMorsUføretrygd || endretVurderingAvRettEØS || avkreftetBrukersOpplysinger ||
             (harAnnenForeldreRettBekreftetVersjon != null && erEndretBekreftetVersjon);
         return totrinn;
     }
@@ -77,12 +77,12 @@ public class FaktaOmsorgRettTjeneste {
                                                boolean annenforelderHarRett,
                                                Boolean annenforelderMottarUføretrygd,
                                                boolean opprettUføreGrunnlagHvisMangler,
-                                               Boolean annenforelderMottarStønadEØS) {
+                                               Boolean annenForelderHarRettEØS) {
         var ytelsefordelingAggregat = ytelseFordelingTjeneste.hentAggregat(param.getBehandlingId());
         var tidligereVurderingAvMorsUføretrygd = tidligereVurderingAvMorsUføretrygd(param);
         var endretVurderingAvMorsUføretrygd = endretVurderingAvMorsUføretrygd(annenforelderMottarUføretrygd, param,
             tidligereVurderingAvMorsUføretrygd, opprettUføreGrunnlagHvisMangler);
-        var endretVurderingAvMorsStønadEØS = endretVurderingAvMorsStønadEØS(annenforelderMottarStønadEØS, ytelsefordelingAggregat.getMorStønadEØSAvklaring());
+        var endretVurderingAvRettEØS = endretVurderingAvRettEØS(annenForelderHarRettEØS, ytelsefordelingAggregat.getAnnenForelderRettEØSAvklaring());
         var harAnnenForeldreRettBekreftetVersjon = ytelsefordelingAggregat.getAnnenForelderRettAvklaring();
 
         historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.RETT_TIL_FORELDREPENGER,
@@ -92,9 +92,9 @@ public class FaktaOmsorgRettTjeneste {
             historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.MOR_MOTTAR_UFØRETRYGD,
                 tidligereVurderingAvMorsUføretrygd, annenforelderMottarUføretrygd);
         }
-        if (endretVurderingAvMorsStønadEØS) {
-            historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.MOR_MOTTAR_STØNAD_EØS,
-                ytelsefordelingAggregat.getMorStønadEØSAvklaring(), annenforelderMottarStønadEØS);
+        if (endretVurderingAvRettEØS) {
+            historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.ANNEN_FORELDER_RETT_EØS,
+                ytelsefordelingAggregat.getAnnenForelderRettEØSAvklaring(), annenForelderHarRettEØS);
         }
     }
 
@@ -123,8 +123,8 @@ public class FaktaOmsorgRettTjeneste {
                                           Boolean annenforelderMottarUføretrygd,
                                           boolean opprettUføreGrunnlagHvisMangler,
                                           AktørId annenpartAktørId,
-                                          Boolean annenforelderMottarStønadEØS) {
-        ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(param.getBehandlingId(), annenforelderHarRett, annenforelderMottarStønadEØS);
+                                          Boolean annenForelderHarRettEØS) {
+        ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(param.getBehandlingId(), annenforelderHarRett, annenForelderHarRettEØS);
         oppdaterUføretrygdVedBehov(annenforelderMottarUføretrygd, param, opprettUføreGrunnlagHvisMangler, annenpartAktørId);
     }
 
@@ -175,7 +175,7 @@ public class FaktaOmsorgRettTjeneste {
             .map(UføretrygdGrunnlagEntitet::getUføretrygdOverstyrt).orElse(null);
     }
 
-    private boolean endretVurderingAvMorsStønadEØS(Boolean nyVerdi, Boolean tidligereVurdering) {
+    private boolean endretVurderingAvRettEØS(Boolean nyVerdi, Boolean tidligereVurdering) {
         return nyVerdi != null && !Objects.equals(tidligereVurdering, nyVerdi);
     }
 }

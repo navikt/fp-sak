@@ -79,7 +79,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
         List<AksjonspunktResultat> aksjonspunkter = new ArrayList<>();
 
         if (!behandling.harAksjonspunktMedType(MANUELL_MARKERING_AV_UTLAND_SAKSTYPE) && !behandling.erRevurdering()
-                && (harOppgittUtenlandskInntekt(kontekst.getBehandlingId()) || harOppgittAnnenForelderHarForeldrepengerFraEØS(kontekst.getBehandlingId()))) {
+                && (harOppgittUtenlandskInntekt(kontekst.getBehandlingId()) || harOppgittAnnenForelderHarOpptjentRettFraEØS(kontekst.getBehandlingId()))) {
             aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AUTOMATISK_MARKERING_AV_UTENLANDSSAK));
         }
 
@@ -98,10 +98,10 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
                 .anyMatch(OppgittArbeidsforhold::erUtenlandskInntekt)).orElse(false);
     }
 
-    private boolean harOppgittAnnenForelderHarForeldrepengerFraEØS(Long behandlingId) {
+    private boolean harOppgittAnnenForelderHarOpptjentRettFraEØS(Long behandlingId) {
         return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
             .map(YtelseFordelingAggregat::getOppgittRettighet)
-            .filter(OppgittRettighetEntitet::getMorMottarStønadEØS)
+            .filter(OppgittRettighetEntitet::getAnnenForelderRettEØS)
             .isPresent();
     }
 

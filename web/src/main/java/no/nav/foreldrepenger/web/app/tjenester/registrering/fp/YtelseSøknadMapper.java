@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
@@ -228,11 +227,8 @@ public class YtelseSøknadMapper implements SøknadMapper {
                 rettighet.setHarAleneomsorgForBarnet(TRUE.equals(annenForelder.getSokerHarAleneomsorg()));
                 rettighet.setHarAnnenForelderRett(TRUE.equals(annenForelder.getDenAndreForelderenHarRettPaForeldrepenger()));
                 Optional.ofNullable(annenForelder.getMorMottarUføretrygd()).ifPresent(rettighet::setHarMorUforetrygd);
-                // Velg uføre dersom både uføre = ja og EØS = ja
-                var oppgittUføre = Boolean.TRUE.equals(annenForelder.getMorMottarUføretrygd());
-                Optional.ofNullable(annenForelder.getMorHarForeldrepengerEØS())
-                    .filter(eøs -> !oppgittUføre || !eøs)
-                    .ifPresent(rettighet::setHarMorForeldrepengerEOS);
+                Optional.ofNullable(annenForelder.getAnnenForelderRettEØS())
+                    .ifPresent(rettighet::setHarAnnenForelderTilsvarendeRettEOS);
             }
             rettighet.setHarOmsorgForBarnetIPeriodene(true);
             return rettighet;

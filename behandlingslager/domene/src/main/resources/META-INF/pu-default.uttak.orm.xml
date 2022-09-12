@@ -62,8 +62,8 @@
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAleneOmsorgEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAnnenforelderHarRettEntitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderMorStønadEØSEntitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeMorStønadEØSEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenForelderRettEØSEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAnnenForelderRettEØSEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.DokumentasjonPeriodeEntitet"/>

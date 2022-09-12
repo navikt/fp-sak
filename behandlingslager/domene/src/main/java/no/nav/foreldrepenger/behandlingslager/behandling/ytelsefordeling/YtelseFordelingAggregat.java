@@ -18,7 +18,7 @@ public class YtelseFordelingAggregat {
     private PerioderUttakDokumentasjonEntitet perioderUttakDokumentasjon;
     private AvklarteUttakDatoerEntitet avklarteDatoer;
     private PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRett;
-    private PerioderMorStønadEØSEntitet perioderMorStønadEØS;
+    private PerioderAnnenForelderRettEØSEntitet perioderAnnenForelderRettEØS;
     private AktivitetskravPerioderEntitet opprinneligeAktivitetskravPerioder;
     private AktivitetskravPerioderEntitet saksbehandledeAktivitetskravPerioder;
 
@@ -54,8 +54,8 @@ public class YtelseFordelingAggregat {
         return Optional.ofNullable(perioderAnnenforelderHarRett);
     }
 
-    Optional<PerioderMorStønadEØSEntitet> getPerioderMorStønadEØS() {
-        return Optional.ofNullable(perioderMorStønadEØS);
+    Optional<PerioderAnnenForelderRettEØSEntitet> getPerioderAnnenForelderRettEØS() {
+        return Optional.ofNullable(perioderAnnenForelderRettEØS);
     }
 
     public Optional<AktivitetskravPerioderEntitet> getOpprinneligeAktivitetskravPerioder() {
@@ -79,8 +79,8 @@ public class YtelseFordelingAggregat {
         return getPerioderAnnenforelderHarRett().map(p -> !p.getPerioder().isEmpty()).orElse(null);
     }
 
-    public Boolean getMorStønadEØSAvklaring() {
-        return getPerioderMorStønadEØS().map(p -> !p.getPerioder().isEmpty()).orElse(null);
+    public Boolean getAnnenForelderRettEØSAvklaring() {
+        return getPerioderAnnenForelderRettEØS().map(p -> !p.getPerioder().isEmpty()).orElse(null);
     }
 
     public OppgittFordelingEntitet getGjeldendeSøknadsperioder() {
@@ -196,8 +196,8 @@ public class YtelseFordelingAggregat {
             return this;
         }
 
-        public Builder medPerioderMorStønadEØS(PerioderMorStønadEØSEntitet perioderMorStønadEØS) {
-            kladd.perioderMorStønadEØS = perioderMorStønadEØS;
+        public Builder medPerioderAnnenForelderRettEØS(PerioderAnnenForelderRettEØSEntitet perioderAnnenForelderRettEØS) {
+            kladd.perioderAnnenForelderRettEØS = perioderAnnenForelderRettEØS;
             return this;
         }
 

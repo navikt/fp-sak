@@ -12,30 +12,30 @@ import javax.persistence.OneToMany;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 
 @Entity
-@DiscriminatorValue("MOR_STONAD_EOS")
-public class PerioderMorStønadEØSEntitet extends DokumentasjonPerioderEntitet {
+@DiscriminatorValue("ANNEN_FORELDER_RETT_EOS")
+public class PerioderAnnenForelderRettEØSEntitet extends DokumentasjonPerioderEntitet {
 
     @OneToMany(mappedBy = "perioder")
     @ChangeTracked
-    private List<PeriodeMorStønadEØSEntitet> perioder = new ArrayList<>();
+    private List<PeriodeAnnenForelderRettEØSEntitet> perioder = new ArrayList<>();
 
-    public PerioderMorStønadEØSEntitet(boolean morStønadEØS) {
-        if (morStønadEØS) {
+    public PerioderAnnenForelderRettEØSEntitet(boolean annenForelderRettEØS) {
+        if (annenForelderRettEØS) {
             // Legger inn en dummy periode for å indikere saksbehandlers valg. Inntil vi faktisk har perioder her
-            leggTil(new PeriodeMorStønadEØSEntitet(LocalDate.now(), LocalDate.now()));
+            leggTil(new PeriodeAnnenForelderRettEØSEntitet(LocalDate.now(), LocalDate.now()));
         }
     }
 
-    PerioderMorStønadEØSEntitet() {
+    PerioderAnnenForelderRettEØSEntitet() {
         //Hibernate
     }
 
-    public List<PeriodeMorStønadEØSEntitet> getPerioder() {
+    public List<PeriodeAnnenForelderRettEØSEntitet> getPerioder() {
         return Collections.unmodifiableList(perioder);
     }
 
-    private void leggTil(PeriodeMorStønadEØSEntitet periode) {
-        final var entitet = new PeriodeMorStønadEØSEntitet(periode);
+    private void leggTil(PeriodeAnnenForelderRettEØSEntitet periode) {
+        final var entitet = new PeriodeAnnenForelderRettEØSEntitet(periode);
         entitet.setPerioder(this);
         this.perioder.add(entitet);
     }

@@ -9,8 +9,8 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenForelderRettEØSEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderMorStønadEØSEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingGrunnlagEntitet;
@@ -102,14 +102,14 @@ public class YtelseFordelingTjeneste {
         new BekreftStartdatoForPeriodenAksjonspunkt(ytelsesFordelingRepository).oppdater(behandlingId, adapter);
     }
 
-    public void bekreftAnnenforelderHarRett(Long behandlingId, Boolean annenforelderHarRett, Boolean annenforelderMottarStønadEØS) {
+    public void bekreftAnnenforelderHarRett(Long behandlingId, Boolean annenforelderHarRett, Boolean annenForelderHarRettEØS) {
         var perioderAnnenforelderHarRettEntitet = new PerioderAnnenforelderHarRettEntitet(annenforelderHarRett);
 
         var ytelseFordelingAggregatBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medPerioderAnnenforelderHarRett(perioderAnnenforelderHarRettEntitet);
-        if (annenforelderMottarStønadEØS != null) {
-            var perioderMorStønadEØSEntitet = new PerioderMorStønadEØSEntitet(annenforelderMottarStønadEØS);
-            ytelseFordelingAggregatBuilder.medPerioderMorStønadEØS(perioderMorStønadEØSEntitet);
+        if (annenForelderHarRettEØS != null) {
+            var perioderAnnenForelderRettEØSEntitet = new PerioderAnnenForelderRettEØSEntitet(annenForelderHarRettEØS);
+            ytelseFordelingAggregatBuilder.medPerioderAnnenForelderRettEØS(perioderAnnenForelderRettEØSEntitet);
         }
         ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregatBuilder.build());
     }

@@ -66,7 +66,7 @@ public class YtelsesFordelingRepository {
             .medPerioderUttakDokumentasjon(ytelseFordelingGrunnlagEntitet.getPerioderUttakDokumentasjon())
             .medAvklarteDatoer(ytelseFordelingGrunnlagEntitet.getAvklarteUttakDatoer())
             .medPerioderAnnenforelderHarRett(ytelseFordelingGrunnlagEntitet.getPerioderAnnenforelderHarRettEntitet())
-            .medPerioderMorStønadEØS(ytelseFordelingGrunnlagEntitet.getPerioderMorStønadEØSEntitet())
+            .medPerioderAnnenForelderRettEØS(ytelseFordelingGrunnlagEntitet.getPerioderAnnenForelderRettEØSEntitet())
             .medOpprinneligeAktivitetskravPerioder(
                 ytelseFordelingGrunnlagEntitet.getOpprinneligeAktivitetskravPerioder())
             .medSaksbehandledeAktivitetskravPerioder(
@@ -125,7 +125,7 @@ public class YtelsesFordelingRepository {
         lagrePerioderUtenOmsorg(grunnlag);
         lagrePerioderUttakDokumentasjon(grunnlag);
         lagrePerioderAnnenforelderHarRett(grunnlag);
-        lagrePerioderMorStønadEØS(grunnlag);
+        lagrePerioderAnnenforelderRettEØS(grunnlag);
         lagrePerioderAktivitetskrav(grunnlag.getOpprinneligeAktivitetskravPerioder());
         lagrePerioderAktivitetskrav(grunnlag.getSaksbehandledeAktivitetskravPerioder());
 
@@ -145,7 +145,7 @@ public class YtelsesFordelingRepository {
         aggregat.getJustertFordeling().ifPresent(grunnlag::setJustertFordeling);
         aggregat.getAvklarteDatoer().ifPresent(grunnlag::setAvklarteUttakDatoerEntitet);
         aggregat.getPerioderAnnenforelderHarRett().ifPresent(grunnlag::setPerioderAnnenforelderHarRettEntitet);
-        aggregat.getPerioderMorStønadEØS().ifPresent(grunnlag::setPerioderMorStønadEØSEntitet);
+        aggregat.getPerioderAnnenForelderRettEØS().ifPresent(grunnlag::setPerioderAnnenForelderRettEØSEntitet);
         aggregat.getOpprinneligeAktivitetskravPerioder().ifPresent(grunnlag::setOpprinneligeAktivitetskravPerioder);
         aggregat.getSaksbehandledeAktivitetskravPerioder().ifPresent(grunnlag::setSaksbehandledeAktivitetskravPerioder);
         return grunnlag;
@@ -187,10 +187,10 @@ public class YtelsesFordelingRepository {
         }
     }
 
-    private void lagrePerioderMorStønadEØS(YtelseFordelingGrunnlagEntitet grunnlag) {
-        if (grunnlag.getPerioderMorStønadEØSEntitet() != null) {
-            entityManager.persist(grunnlag.getPerioderMorStønadEØSEntitet());
-            for (var periode : grunnlag.getPerioderMorStønadEØSEntitet().getPerioder()) {
+    private void lagrePerioderAnnenforelderRettEØS(YtelseFordelingGrunnlagEntitet grunnlag) {
+        if (grunnlag.getPerioderAnnenForelderRettEØSEntitet() != null) {
+            entityManager.persist(grunnlag.getPerioderAnnenForelderRettEØSEntitet());
+            for (var periode : grunnlag.getPerioderAnnenForelderRettEØSEntitet().getPerioder()) {
                 entityManager.persist(periode);
             }
         }

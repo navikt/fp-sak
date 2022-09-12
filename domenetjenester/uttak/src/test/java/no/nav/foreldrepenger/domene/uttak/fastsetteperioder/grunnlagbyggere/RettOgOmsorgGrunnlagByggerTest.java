@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderMorStønadEØSEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenForelderRettEØSEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -178,30 +178,26 @@ public class RettOgOmsorgGrunnlagByggerTest {
     @Test
     public void skalLeggeTilOppgittOgBekreftetEØS() {
         var scenario = bareFarMedRett(false, true);
-        var perioderMorEØS = new PerioderMorStønadEØSEntitet(true);
-        scenario.medPeriodeMorStønadEØS(perioderMorEØS);
+        var periodeAnnenForelderRettEØS = new PerioderAnnenForelderRettEØSEntitet(true);
+        scenario.medPeriodeAnnenForelderRettEØS(periodeAnnenForelderRettEØS);
         var behandling = scenario.lagre(repositoryProvider);
         var grunnlag = byggGrunnlag(behandling);
 
-        assertThat(grunnlag.getMorHarRett()).isFalse();
+        assertThat(grunnlag.getMorHarRett()).isTrue();
         assertThat(grunnlag.getFarHarRett()).isTrue();
-        assertThat(grunnlag.getMorUføretrygd()).isTrue();
-        assertThat(grunnlag.getMorOppgittUføretrygd()).isTrue();
     }
 
     @Test
     public void skalLeggeTilOppgittOgAvkreftetEØS() {
         var scenario = bareFarMedRett(false, true);
-        var perioderMorEØS = new PerioderMorStønadEØSEntitet(false);
-        scenario.medPeriodeMorStønadEØS(perioderMorEØS);
+        var periodeAnnenForelderRettEØS = new PerioderAnnenForelderRettEØSEntitet(false);
+        scenario.medPeriodeAnnenForelderRettEØS(periodeAnnenForelderRettEØS);
         var behandling = scenario.lagre(repositoryProvider);
 
         var grunnlag = byggGrunnlag(behandling);
 
         assertThat(grunnlag.getMorHarRett()).isFalse();
         assertThat(grunnlag.getFarHarRett()).isTrue();
-        assertThat(grunnlag.getMorUføretrygd()).isFalse();
-        assertThat(grunnlag.getMorOppgittUføretrygd()).isTrue();
     }
 
     private AbstractTestScenario<?> medAleneomsorg() {

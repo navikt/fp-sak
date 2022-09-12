@@ -8,26 +8,26 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
-@DiscriminatorValue("MOR_STONAD_EOS")
-public class PeriodeMorStønadEØSEntitet extends DokumentasjonPeriodeEntitet<PeriodeMorStønadEØSEntitet>  {
+@DiscriminatorValue("ANNEN_FORELDER_RETT_EOS")
+public class PeriodeAnnenForelderRettEØSEntitet extends DokumentasjonPeriodeEntitet<PeriodeAnnenForelderRettEØSEntitet>  {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "perioder_id", nullable = false, updatable = false, unique = true)
-    private PerioderMorStønadEØSEntitet perioder;
+    private PerioderAnnenForelderRettEØSEntitet perioder;
 
-    public PeriodeMorStønadEØSEntitet() {
+    public PeriodeAnnenForelderRettEØSEntitet() {
         // For hibernate
     }
 
-    public PeriodeMorStønadEØSEntitet(LocalDate fom, LocalDate tom) {
+    public PeriodeAnnenForelderRettEØSEntitet(LocalDate fom, LocalDate tom) {
         super(fom, tom, UttakDokumentasjonType.MOR_STØNAD_EØS);
     }
 
-    PeriodeMorStønadEØSEntitet(PeriodeMorStønadEØSEntitet periode) {
+    PeriodeAnnenForelderRettEØSEntitet(PeriodeAnnenForelderRettEØSEntitet periode) {
         super(periode);
     }
 
-    void setPerioder(PerioderMorStønadEØSEntitet perioder) {
+    void setPerioder(PerioderAnnenForelderRettEØSEntitet perioder) {
         this.perioder = perioder;
     }
 
