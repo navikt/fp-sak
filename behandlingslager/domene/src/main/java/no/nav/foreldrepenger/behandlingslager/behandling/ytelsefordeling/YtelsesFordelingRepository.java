@@ -8,9 +8,13 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
+
+import static no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling.erBerørtBehandling;
 
 @ApplicationScoped
 public class YtelsesFordelingRepository {
@@ -215,17 +219,19 @@ public class YtelsesFordelingRepository {
      * Kopierer grunnlag fra en tidligere behandling. Nullstiller avklarte datoer.
      * Brukes ifm oppretting av revurdering
      */
-    public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Long nyBehandlingId) {
+    public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Behandling nyBehandling) {
         var origAggregat = hentAggregatHvisEksisterer(gammelBehandlingId);
         origAggregat.ifPresent(ytelseFordelingAggregat -> {
             var yfBuilder = YtelseFordelingAggregat.Builder.oppdatere(Optional.of(ytelseFordelingAggregat))
                 .medAvklarteDatoer(null)
                 .medJustertFordeling(null)
-                .medPerioderUttakDokumentasjon(null)
                 .medOverstyrtFordeling(null);
+            if (!erBerørtBehandling(nyBehandling)) {
+                yfBuilder.medPerioderUttakDokumentasjon(null);
+            }
             ytelseFordelingAggregat.getGjeldendeAktivitetskravPerioder()
                 .ifPresent(akp -> yfBuilder.medOpprinneligeAktivitetskravPerioder(akp).medSaksbehandledeAktivitetskravPerioder(null));
-            lagreOgFlush(nyBehandlingId, yfBuilder.build());
+            lagreOgFlush(nyBehandling.getId(), yfBuilder.build());
         });
     }
 

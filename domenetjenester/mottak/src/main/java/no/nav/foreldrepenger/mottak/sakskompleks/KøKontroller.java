@@ -154,7 +154,7 @@ public class KøKontroller {
 
             if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
                 // Må ha YF fra original ettersom berørt ikke har med evt endringssøknad da den snek i køen.
-                ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), oppdatertBehandling.getId());
+                ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), oppdatertBehandling);
                 søknadRepository.kopierGrunnlagFraEksisterendeBehandling(behandling, oppdatertBehandling);
             }
             behandlingProsesseringTjeneste.opprettTasksForStartBehandling(oppdatertBehandling);

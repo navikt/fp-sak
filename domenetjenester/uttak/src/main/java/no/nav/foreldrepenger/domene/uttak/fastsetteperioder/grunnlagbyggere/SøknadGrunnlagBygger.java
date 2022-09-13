@@ -13,6 +13,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUtenOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
@@ -130,7 +131,6 @@ public class SøknadGrunnlagBygger {
     private static OppgittPeriode byggGradertPeriode(OppgittPeriodeEntitet oppgittPeriode,
                                                      Stønadskontotype stønadskontotype,
                                                      Set<AktivitetIdentifikator> aktiviter) {
-        var periodeVurderingType = map(oppgittPeriode.getPeriodeVurderingType());
         var gradertAktivitet = finnGraderteAktiviteter(oppgittPeriode, aktiviter);
         if (gradertAktivitet.isEmpty()) {
             throw new IllegalStateException("Forventer minst en gradert aktivitet ved gradering i søknadsperioden");
@@ -138,7 +138,7 @@ public class SøknadGrunnlagBygger {
 
         return OppgittPeriode.forGradering(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(),
             oppgittPeriode.getArbeidsprosent(), samtidigUttaksprosent(oppgittPeriode), oppgittPeriode.isFlerbarnsdager(),
-            gradertAktivitet, periodeVurderingType, oppgittPeriode.getMottattDato(), tidligstMottattDato(oppgittPeriode),
+            gradertAktivitet, map(oppgittPeriode.getPeriodeVurderingType()), oppgittPeriode.getMottattDato(), tidligstMottattDato(oppgittPeriode),
             map(oppgittPeriode.getMorsAktivitet()));
     }
 
@@ -162,18 +162,16 @@ public class SøknadGrunnlagBygger {
     private static OppgittPeriode byggOverføringPeriode(OppgittPeriodeEntitet oppgittPeriode,
                                                         Stønadskontotype stønadskontotype) {
         var overføringÅrsak = map((OverføringÅrsak) oppgittPeriode.getÅrsak());
-        var periodeVurderingType = map(oppgittPeriode.getPeriodeVurderingType());
 
         return OppgittPeriode.forOverføring(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(),
-            periodeVurderingType, overføringÅrsak, oppgittPeriode.getMottattDato(), tidligstMottattDato(oppgittPeriode));
+            overføringÅrsak, oppgittPeriode.getMottattDato(), tidligstMottattDato(oppgittPeriode));
     }
 
     private static OppgittPeriode byggUtsettelseperiode(OppgittPeriodeEntitet oppgittPeriode) {
         var utsettelseÅrsak = map((UtsettelseÅrsak) oppgittPeriode.getÅrsak());
-        var periodeVurderingType = map(oppgittPeriode.getPeriodeVurderingType());
 
         return OppgittPeriode.forUtsettelse(oppgittPeriode.getFom(), oppgittPeriode.getTom(),
-            periodeVurderingType, utsettelseÅrsak, oppgittPeriode.getMottattDato(), tidligstMottattDato(oppgittPeriode),
+            utsettelseÅrsak, oppgittPeriode.getMottattDato(), tidligstMottattDato(oppgittPeriode),
             map(oppgittPeriode.getMorsAktivitet()));
     }
 
@@ -218,12 +216,8 @@ public class SøknadGrunnlagBygger {
     private Dokumentasjon.Builder dokumentasjon(YtelseFordelingAggregat ytelseFordelingAggregat) {
         var builder = new Dokumentasjon.Builder();
         var dokumentasjon = ytelseFordelingAggregat.getPerioderUttakDokumentasjon();
-        if (dokumentasjon.isPresent()) {
-            leggTilDokumentasjon(builder, dokumentasjon.get());
-        }
-        if (ytelseFordelingAggregat.getPerioderUtenOmsorg().isPresent()) {
-            leggTilDokumentasjon(ytelseFordelingAggregat, builder);
-        }
+        dokumentasjon.ifPresent(dok -> leggTilDokumentasjon(builder, dok));
+        ytelseFordelingAggregat.getPerioderUtenOmsorg().ifPresent(puo -> leggTilPerioderUtenOmsorg(builder, puo.getPerioder()));
         ytelseFordelingAggregat.getGjeldendeAktivitetskravPerioder()
             .map(AktivitetskravPerioderEntitet::getPerioder).orElse(List.of()).stream()
             .map(p -> new PeriodeMedAvklartMorsAktivitet(p.getTidsperiode().getFomDato(), p.getTidsperiode().getTomDato(),
@@ -233,9 +227,8 @@ public class SøknadGrunnlagBygger {
         return builder;
     }
 
-    private void leggTilDokumentasjon(YtelseFordelingAggregat ytelseFordelingAggregat, Dokumentasjon.Builder builder) {
-        var perioderUtenOmsorg = ytelseFordelingAggregat.getPerioderUtenOmsorg().orElseThrow().getPerioder();
-        for (var periodeUtenOmsorg : perioderUtenOmsorg) {
+    private void leggTilPerioderUtenOmsorg(Dokumentasjon.Builder builder, List<PeriodeUtenOmsorgEntitet> perioder) {
+        for (var periodeUtenOmsorg : perioder) {
             builder.periodeUtenOmsorg(new PeriodeUtenOmsorg(periodeUtenOmsorg.getPeriode().getFomDato(),
                 periodeUtenOmsorg.getPeriode().getTomDato()));
         }

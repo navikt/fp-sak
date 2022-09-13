@@ -148,7 +148,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         nesteSakRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
 
         if (BehandlingType.REVURDERING.equals(ny.getType())) {
-            ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
+            ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, ny);
         } else {
             ytelsesFordelingRepository.hentAggregatHvisEksisterer(originalBehandlingId).ifPresent(yfa -> {
                 var yfBuilder = YtelseFordelingAggregat.oppdatere(Optional.empty())

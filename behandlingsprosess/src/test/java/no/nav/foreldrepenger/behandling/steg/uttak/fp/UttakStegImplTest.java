@@ -329,7 +329,7 @@ public class UttakStegImplTest {
         var behandlingId = tidligereBehandling.getId();
         var revurderingId = revurdering.getId();
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
-        ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
+        ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurdering);
         familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
         beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(behandlingId, revurderingId);
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
