@@ -52,6 +52,8 @@ spec:
           rules:
               - application: fp-frontend-azure
                 cluster: dev-fss
+              - application: fp-frontend-azure
+                cluster: dev-gcp
   vault:
     enabled: true
     paths:
