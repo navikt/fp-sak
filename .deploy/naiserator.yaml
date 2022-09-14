@@ -36,7 +36,7 @@ spec:
       cpu: "4000m"
       memory: "3072Mi"
     requests:
-      cpu: "128m"
+      cpu: "200m"
       memory: "2688Mi"
   azure:
       application:
