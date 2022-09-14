@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandling.kabal;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -37,6 +39,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
     public static final String UTFALL_KEY = "utfall";
     public static final String JOURNALPOST_KEY = "journalpostId";
     public static final String KABALREF_KEY = "kabalReferanse";
+    public static final String OVERSENDTR_KEY = "oversendtTrygderett";
 
     private static Set<KabalUtfall> UTEN_VURDERING = Set.of(KabalUtfall.TRUKKET, KabalUtfall.RETUR);
 
@@ -82,6 +85,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         switch (hendelsetype) {
             case KLAGEBEHANDLING_AVSLUTTET -> klageAvsluttet(prosessTaskData, behandlingId, ref);
             case ANKEBEHANDLING_OPPRETTET -> ankeOpprettet(behandlingId, ref);
+            case ANKE_I_TRYGDERETTENBEHANDLING_OPPRETTET -> ankeTrygdrett(prosessTaskData, behandlingId, ref);
             case ANKEBEHANDLING_AVSLUTTET -> ankeAvsluttet(prosessTaskData, behandlingId, ref);
         }
     }
@@ -140,7 +144,18 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
     }
 
     // Konvensjon: Dersom hendelse har kilderef = ANKE så er det en overført anke, ellers er anken opprettet i/av Kabal
+    private void ankeTrygdrett(ProsessTaskData prosessTaskData, Long behandlingId, String ref) {
+        var sendtTrygderetten = Optional.ofNullable(prosessTaskData.getPropertyValue(OVERSENDTR_KEY))
+            .map(v -> LocalDate.parse(v, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+        håndterAnkeAvsluttetEllerTrygderett(prosessTaskData, behandlingId, ref, sendtTrygderetten);
+    }
+
+    // Konvensjon: Dersom hendelse har kilderef = ANKE så er det en overført anke, ellers er anken opprettet i/av Kabal
     private void ankeAvsluttet(ProsessTaskData prosessTaskData, Long behandlingId, String ref) {
+        håndterAnkeAvsluttetEllerTrygderett(prosessTaskData, behandlingId, ref, null);
+    }
+
+    private void håndterAnkeAvsluttetEllerTrygderett(ProsessTaskData prosessTaskData, Long behandlingId, String ref, LocalDate sendtTrygderetten) {
         var utfall = Optional.ofNullable(prosessTaskData.getPropertyValue(UTFALL_KEY))
             .map(KabalUtfall::valueOf).orElse(null);
         if (utfall == null) {
@@ -164,11 +179,14 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         } else if (KabalUtfall.RETUR.equals(utfall)) {
             throw new IllegalStateException("KABAL sender ankeutfall RETUR sak " + ankeBehandling.getFagsak().getSaksnummer().getVerdi());
         } else {
-            kabalTjeneste.lagreAnkeUtfallFraKabal(ankeBehandling, utfall);
-            if (ankeBehandling.isBehandlingPåVent()) { // Autopunkt
-                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(ankeBehandling, kontekst);
+            kabalTjeneste.lagreAnkeUtfallFraKabal(ankeBehandling, utfall, sendtTrygderetten);
+            // Skyldes et antall tilfelle som er prematurt avsluttet pga kabal anke-avsluttet men som ble overført Trygderetten
+            if (!ankeBehandling.erAvsluttet()) {
+                if (ankeBehandling.isBehandlingPåVent()) { // Autopunkt
+                    behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(ankeBehandling, kontekst);
+                }
+                behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(ankeBehandling);
             }
-            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(ankeBehandling);
         }
         journalpost.ifPresent(j -> kabalTjeneste.lagHistorikkinnslagForBrevSendt(ankeBehandling, j));
     }

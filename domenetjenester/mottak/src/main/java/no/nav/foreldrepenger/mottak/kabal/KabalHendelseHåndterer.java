@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.kabal;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -96,6 +97,10 @@ public class KabalHendelseHåndterer {
             task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().klagebehandlingAvsluttet().utfall().name());
             mottattHendelse.detaljer().klagebehandlingAvsluttet().journalpostReferanser().stream()
                 .findFirst().ifPresent(journalpost -> task.setProperty(MottaFraKabalTask.JOURNALPOST_KEY, journalpost));
+        } else if (KabalHendelse.BehandlingEventType.ANKE_I_TRYGDERETTENBEHANDLING_OPPRETTET.equals(mottattHendelse.type())) {
+            task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().ankeITrygderettenbehandlingOpprettet().utfall().name());
+            task.setProperty(MottaFraKabalTask.OVERSENDTR_KEY, mottattHendelse.detaljer().ankeITrygderettenbehandlingOpprettet().sendtTilTrygderetten()
+                .toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
         } else if (KabalHendelse.BehandlingEventType.ANKEBEHANDLING_AVSLUTTET.equals(mottattHendelse.type())) {
             task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().ankebehandlingAvsluttet().utfall().name());
             mottattHendelse.detaljer().ankebehandlingAvsluttet().journalpostReferanser().stream()

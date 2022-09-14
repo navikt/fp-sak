@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.anke;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -94,6 +95,9 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
     @Column(name="tr_vurdering_omgjoer", nullable = false)
     private AnkeVurderingOmgjør trygderettVurderingOmgjør = AnkeVurderingOmgjør.UDEFINERT;
 
+    @Column(name = "sendt_trygderett_dato")
+    private LocalDate sendtTrygderettDato;
+
     public AnkeVurderingResultatEntitet() {
         // Hibernate
     }
@@ -125,6 +129,7 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
         this.trygderettVurdering = entitet.trygderettVurdering;
         this.trygderettVurderingOmgjør = entitet.trygderettVurderingOmgjør;
         this.trygderettOmgjørÅrsak = entitet.trygderettOmgjørÅrsak;
+        this.sendtTrygderettDato = entitet.sendtTrygderettDato;
     }
 
     public Long getId() {
@@ -207,6 +212,10 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
         return trygderettVurderingOmgjør;
     }
 
+    public LocalDate getSendtTrygderettDato() {
+        return sendtTrygderettDato;
+    }
+
     public List<AnkeAvvistÅrsak> hentAvvistÅrsaker(){
         List<AnkeAvvistÅrsak> avvistÅrsaker = new ArrayList<>();
         if(erFristIkkeOverholdt()){
@@ -263,7 +272,7 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
     public int hashCode() {
         return Objects.hash(ankeResultat, ankeVurdering, ankeOmgjørÅrsak, ankeVurderingOmgjør, begrunnelse, fritekstTilBrev,
             merknaderFraBruker, erMerknaderMottatt, gjelderVedtak, erAnkerIkkePart, erFristIkkeOverholdt, erIkkeKonkret, erIkkeSignert, erSubsidiartRealitetsbehandles,
-            trygderettVurdering, trygderettVurderingOmgjør, trygderettOmgjørÅrsak);
+            trygderettVurdering, trygderettVurderingOmgjør, trygderettOmgjørÅrsak, sendtTrygderettDato);
     }
 
     @Override
@@ -361,6 +370,11 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
 
         public Builder medErSubsidiartRealitetsbehandles(boolean erSubsidiartRealitetsbehandles) {
             ankeVurderingResultatMal.erSubsidiartRealitetsbehandles = erSubsidiartRealitetsbehandles;
+            return this;
+        }
+
+        public Builder medSendtTrygderettDato(LocalDate sendtTrygderettDato) {
+            ankeVurderingResultatMal.sendtTrygderettDato = sendtTrygderettDato;
             return this;
         }
 
