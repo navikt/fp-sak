@@ -10,7 +10,8 @@
     "minReplicas": "4",
     "maxReplicas": "9",
     "ingresses": [
-        "https://fpsak.nais.adeo.no"
+        "https://fpsak.nais.adeo.no",
+        "https://fpsak-api.prod-fss-pub.nais.io"
     ],
     "env": {
         "APPDYNAMICS_AGENT_ACCOUNT_NAME": "PROD",
