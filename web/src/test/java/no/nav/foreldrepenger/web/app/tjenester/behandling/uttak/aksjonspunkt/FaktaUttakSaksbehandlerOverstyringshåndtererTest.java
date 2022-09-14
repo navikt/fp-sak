@@ -189,8 +189,7 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
         revurderingsscenario.medSøknad().medMottattDato(LocalDate.now());
         var revurdering = revurderingsscenario.lagre(behandlingRepositoryProvider);
         familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandling(førstegangsbehandling.getId(), revurdering.getId());
-        behandlingRepositoryProvider.getYtelsesFordelingRepository().kopierGrunnlagFraEksisterendeBehandling(førstegangsbehandling.getId(),
-                revurdering.getId());
+        behandlingRepositoryProvider.getYtelsesFordelingRepository().kopierGrunnlagFraEksisterendeBehandling(førstegangsbehandling.getId(), revurdering);
         return revurdering;
     }
 

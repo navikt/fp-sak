@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 
@@ -27,7 +28,7 @@ class YtelsesFordelingRepositoryStub extends YtelsesFordelingRepository {
     }
 
     @Override
-    public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Long nyBehandlingId) {
+    public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Behandling nyBehandling) {
         throw new IkkeImplementertForTestException();
     }
 

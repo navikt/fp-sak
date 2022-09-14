@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FastsettePeriodeResul
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeVurderingType;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Perioderesultattype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad;
@@ -83,7 +82,7 @@ public class FastsettePerioderRegelResultatKonvertererTest {
         var aktivitet = new UttakPeriodeAktivitet(
             AktivitetIdentifikator.forArbeid(new Orgnummer(arbeidsgiver.getIdentifikator()), null), Utbetalingsgrad.TEN,
             Trekkdager.ZERO, false);
-        var uttakOppgittPeriode = no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppgittPeriode.forUtsettelse(periodeFom, periodeTom, PeriodeVurderingType.IKKE_VURDERT,
+        var uttakOppgittPeriode = no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppgittPeriode.forUtsettelse(periodeFom, periodeTom,
             UtsettelseÅrsak.ARBEID, periodeFom, periodeFom, null);
         var uttakPeriode = new UttakPeriode(uttakOppgittPeriode, Perioderesultattype.INNVILGET, null,
             InnvilgetÅrsak.UTSETTELSE_GYLDIG_PGA_100_PROSENT_ARBEID, null, Set.of(aktivitet), SamtidigUttaksprosent.ZERO, Stønadskontotype.MØDREKVOTE);

@@ -427,7 +427,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
         revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(10));
         var behandling = revurderingScenario.lagre(repositoryProvider);
         // kopierer ytelsefordeling grunnlag
-        repositoryProvider.getYtelsesFordelingRepository().kopierGrunnlagFraEksisterendeBehandling(originalBehandling.getId(), behandling.getId());
+        repositoryProvider.getYtelsesFordelingRepository().kopierGrunnlagFraEksisterendeBehandling(originalBehandling.getId(), behandling);
 
         // Nødvendig å sette aktivt steg for KOFAK revurdering
         forceOppdaterBehandlingSteg(behandling, BehandlingStegType.KONTROLLER_FAKTA);

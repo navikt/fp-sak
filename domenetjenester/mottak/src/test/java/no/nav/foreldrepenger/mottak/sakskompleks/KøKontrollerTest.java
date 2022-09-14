@@ -109,7 +109,7 @@ public class KøKontrollerTest {
 
         // Assert
         Mockito.verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(morKøetBehandling);
-        Mockito.verify(ytelsesFordelingRepository).kopierGrunnlagFraEksisterendeBehandling(morKøetBehandling.getId(), morOppdatertBehandling.getId());
+        Mockito.verify(ytelsesFordelingRepository).kopierGrunnlagFraEksisterendeBehandling(morKøetBehandling.getId(), morOppdatertBehandling);
     }
 
     @Test
@@ -197,7 +197,7 @@ public class KøKontrollerTest {
 
         // Assert
         Mockito.verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(morKøetBehandling);
-        Mockito.verify(ytelsesFordelingRepository).kopierGrunnlagFraEksisterendeBehandling(morKøetBehandling.getId(), morOppdatertBehandling.getId());
+        Mockito.verify(ytelsesFordelingRepository).kopierGrunnlagFraEksisterendeBehandling(morKøetBehandling.getId(), morOppdatertBehandling);
     }
 
 }

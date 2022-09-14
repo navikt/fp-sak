@@ -71,6 +71,6 @@ public class SøknadsperioderMåKontrolleresAksjonspunktUtleder implements Fakta
     }
 
     private KontrollerFaktaData hentPerioder(UttakInput input) {
-        return kontrollerFaktaUttakTjeneste.hentKontrollerFaktaPerioder(input, true);
+        return kontrollerFaktaUttakTjeneste.hentKontrollerFaktaPerioder(input);
     }
 }

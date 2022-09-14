@@ -12,13 +12,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -40,7 +38,6 @@ final class SøknadsperiodeDokKontrollerer {
     private final UtsettelseDokKontrollerer utsettelseDokKontrollerer;
     private final List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser;
     private final Optional<LocalDateInterval> farUttakRundtFødsel;
-    private boolean logg = false;
 
     SøknadsperiodeDokKontrollerer(List<PeriodeUttakDokumentasjonEntitet> dokumentasjonPerioder,
                                   LocalDate fødselsDatoTilTidligOppstart,
@@ -62,13 +59,12 @@ final class SøknadsperiodeDokKontrollerer {
 
     static KontrollerFaktaData kontrollerPerioder(YtelseFordelingAggregat ytelseFordeling,
                                                   LocalDate fødselsDatoTilTidligOppstart,
-                                                  UttakInput uttakInput, boolean logg) {
+                                                  UttakInput uttakInput) {
         var dokumentasjonPerioder = hentDokumentasjonPerioder(ytelseFordeling);
         var farUttakRundtFødsel = TidsperiodeFarRundtFødsel.intervallFarRundtFødsel(uttakInput);
         var kontrollerer = new SøknadsperiodeDokKontrollerer(dokumentasjonPerioder,
             fødselsDatoTilTidligOppstart, utledUtsettelseKontrollerer(uttakInput),
             finnPerioderMedPleiepengerInnleggelse(uttakInput), farUttakRundtFødsel);
-        kontrollerer.logg = logg;
         return kontrollerer.kontrollerSøknadsperioder(
             ytelseFordeling.getGjeldendeSøknadsperioder().getOppgittePerioder());
     }
@@ -111,7 +107,7 @@ final class SøknadsperiodeDokKontrollerer {
     KontrollerFaktaPeriode kontrollerSøknadsperiode(OppgittPeriodeEntitet søknadsperiode) {
         var eksisterendeDokumentasjon = finnDokumentasjon(søknadsperiode.getFom(), søknadsperiode.getTom());
 
-        if (erPeriodenAvklartAvSaksbehandler(søknadsperiode)) {
+        if (erPeriodenAvklartAvSaksbehandler(søknadsperiode, eksisterendeDokumentasjon)) {
             return kontrollerAvklartPeriode(søknadsperiode, eksisterendeDokumentasjon);
         }
         if (erAvklartAvVedtakOmPleiepenger(søknadsperiode)) {
@@ -150,9 +146,6 @@ final class SøknadsperiodeDokKontrollerer {
             return KontrollerFaktaPeriode.automatiskBekreftet(søknadsperiode, PERIODE_OK);
         }
         if (erGyldigGrunnForTidligOppstart(søknadsperiode)) {
-            if (logg) {
-                LOG.info("FAKTA UTTAK kontroller - ubekreftet periode tidligstart");
-            }
             return KontrollerFaktaPeriode.ubekreftetTidligOppstart(søknadsperiode);
         }
         if (søknadsperiode.isGradert()) {
@@ -161,7 +154,11 @@ final class SøknadsperiodeDokKontrollerer {
         return KontrollerFaktaPeriode.automatiskBekreftet(søknadsperiode, PERIODE_OK);
     }
 
-    private boolean erPeriodenAvklartAvSaksbehandler(OppgittPeriodeEntitet søknadsperiode) {
+    private boolean erPeriodenAvklartAvSaksbehandler(OppgittPeriodeEntitet søknadsperiode,
+                                                     List<PeriodeUttakDokumentasjonEntitet> eksisterendeDokumentasjon) {
+        if (!eksisterendeDokumentasjon.isEmpty()) {
+            return true;
+        }
         return !PERIODE_IKKE_VURDERT.equals(søknadsperiode.getPeriodeVurderingType());
     }
 
@@ -186,12 +183,6 @@ final class SøknadsperiodeDokKontrollerer {
     }
 
     private KontrollerFaktaPeriode kontrollerOverføring(OppgittPeriodeEntitet søknadsperiode) {
-        try {
-            if (logg) LOG.info("FAKTA UTTAK kontroller - ubekreftet periode overføring {}", søknadsperiode.getÅrsak().getKode());
-        } catch (Exception e) {
-            //
-        }
-
         return KontrollerFaktaPeriode.ubekreftet(søknadsperiode);
     }
 
@@ -204,8 +195,7 @@ final class SøknadsperiodeDokKontrollerer {
                 farUttakRundtFødsel.filter(p -> p.encloses(søknadsperiode.getFom()) && p.encloses(søknadsperiode.getTom())).isPresent();
             var foreldrepengerUtenomSykdom = FORELDREPENGER.equals(søknadsperiode.getPeriodeType()) &&
                 farUttakRundtFødsel.filter(p -> p.encloses(søknadsperiode.getFom())).isPresent();
-            var periodeKanAvklaresAutomatisk = fedrekvoteMedSamtidigUttak || foreldrepengerUtenomSykdom;
-            return periodeKanAvklaresAutomatisk;
+            return fedrekvoteMedSamtidigUttak || foreldrepengerUtenomSykdom;
         }
         return false;
     }
@@ -226,14 +216,6 @@ final class SøknadsperiodeDokKontrollerer {
 
     private KontrollerFaktaPeriode kontrollerUtsettelse(OppgittPeriodeEntitet søknadsperiode) {
         var manuell = utsettelseDokKontrollerer.måSaksbehandlerManueltBekrefte(søknadsperiode);
-        if (manuell) {
-            try {
-                if (logg) LOG.info("FAKTA UTTAK kontroller - ubekreftet periode utsettelse {}", søknadsperiode.getÅrsak().getKode());
-            } catch (Exception e) {
-                //
-            }
-
-        }
         return manuell ? KontrollerFaktaPeriode.ubekreftet(søknadsperiode) : KontrollerFaktaPeriode.automatiskBekreftet(søknadsperiode, PERIODE_OK);
     }
 }
