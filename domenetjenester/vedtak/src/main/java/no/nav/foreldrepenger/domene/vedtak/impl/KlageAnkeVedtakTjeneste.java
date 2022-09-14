@@ -60,6 +60,19 @@ public class KlageAnkeVedtakTjeneste {
         return false;
     }
 
+    public boolean erOversendtTrygdretten(Behandling behandling) {
+        return BehandlingType.ANKE.equals(behandling.getType()) &&
+            ankeRepository.hentAnkeVurderingResultat(behandling.getId()).map(AnkeVurderingResultatEntitet::getSendtTrygderettDato).isPresent();
+    }
+
+    public boolean harKjennelseTrygdretten(Behandling behandling) {
+        return BehandlingType.ANKE.equals(behandling.getType()) &&
+            ankeRepository.hentAnkeVurderingResultat(behandling.getId())
+                .map(AnkeVurderingResultatEntitet::getTrygderettVurdering)
+                .filter(v -> !AnkeVurdering.UDEFINERT.equals(v))
+                .isPresent();
+    }
+
     public boolean erGodkjentHosMedunderskriver(Behandling behandling) {
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             return klageRepository.hentGjeldendeKlageVurderingResultat(behandling)

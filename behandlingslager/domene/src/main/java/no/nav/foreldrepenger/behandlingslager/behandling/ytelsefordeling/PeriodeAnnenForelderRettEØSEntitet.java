@@ -20,7 +20,7 @@ public class PeriodeAnnenForelderRettEØSEntitet extends DokumentasjonPeriodeEnt
     }
 
     public PeriodeAnnenForelderRettEØSEntitet(LocalDate fom, LocalDate tom) {
-        super(fom, tom, UttakDokumentasjonType.MOR_STØNAD_EØS);
+        super(fom, tom, UttakDokumentasjonType.ANNEN_FORELDER_RETT_EOS);
     }
 
     PeriodeAnnenForelderRettEØSEntitet(PeriodeAnnenForelderRettEØSEntitet periode) {

@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentBestiltEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
@@ -138,6 +139,29 @@ public class KabalTjeneste {
         kabalKlient.sendTilKabal(request);
     }
 
+    public void sendTrygderettTilKabal(Behandling ankeBehandling, KlageHjemmel hjemmel, LocalDateTime sendtTilTrygderetten) {
+        if (!BehandlingType.ANKE.equals(ankeBehandling.getType())) {
+            throw new IllegalArgumentException("Utviklerfeil: Prøver sende noe annet enn klage/anke til Kabal!");
+        }
+        var ankeResultat = ankeVurderingTjeneste.hentAnkeResultat(ankeBehandling);
+        var klageBehandling = ankeResultat.getPåAnketKlageBehandlingId().map(behandlingRepository::hentBehandling);
+        var klageResultat = klageBehandling.flatMap(kb -> klageVurderingTjeneste.hentKlageResultatHvisEksisterer(kb));
+        var brukHjemmel = Optional.ofNullable(hjemmel)
+            .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(ankeBehandling.getFagsakYtelseType()));
+        var klager = utledKlager(ankeBehandling, klageResultat);
+        var bleKlageBehandletKabal = klageResultat.filter(KlageResultatEntitet::erBehandletAvKabal).isPresent();
+        var kildereferanse = klageBehandling.filter(k -> bleKlageBehandletKabal).orElse(ankeBehandling).getUuid().toString();
+        var sakMottattKaDato = ankeBehandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE)
+            .map(Aksjonspunkt::getOpprettetTidspunkt)
+            .orElseGet(ankeBehandling::getOpprettetTidspunkt);
+        var ankeVurdering = ankeVurderingTjeneste.hentAnkeVurderingResultat(ankeBehandling).orElseThrow();
+        var utfall = utfallFraAnkeVurdering(ankeVurdering.getAnkeVurdering(), ankeVurdering.getAnkeVurderingOmgjør());
+        var request = TilKabalTRDto.anke(ankeBehandling, kildereferanse, klager,
+            finnDokumentReferanserForAnke(ankeBehandling.getId(), ankeResultat, bleKlageBehandletKabal),
+            sakMottattKaDato, sendtTilTrygderetten, utfall, List.of(brukHjemmel.getKabal()));
+        kabalKlient.sendTilKabalTR(request);
+    }
+
     public void lagreKlageUtfallFraKabal(Behandling behandling, KabalUtfall utfall) {
         var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, KlageVurdertAv.NK)
             .medGodkjentAvMedunderskriver(true)
@@ -147,11 +171,36 @@ public class KabalTjeneste {
         opprettHistorikkinnslagKlage(behandling, utfall);
     }
 
-    public void lagreAnkeUtfallFraKabal(Behandling behandling, KabalUtfall utfall) {
+    /**
+     * Det er en del mulige scenarier her:
+     * - TR-behandling (sendtTryderetten != null): Sette ankevurdering og sendtTrygderettenDato
+     * - Avsluttet (sendtTrygdretten == null)
+     *    o Dersom avr.ankevurdering og avr.sendt_trygderetten er satt - lagre tr-vurdering
+     *    o Dersom avr.sendt_trygderetten ikke satt - lagre ankevurdering avhengig
+     */
+    public void lagreAnkeUtfallFraKabal(Behandling behandling, KabalUtfall utfall, LocalDate sendtTrygderetten) {
+        var gjeldendeAnkeVurdering = ankeVurderingTjeneste.hentAnkeVurderingResultat(behandling)
+            .map(AnkeVurderingResultatEntitet::getAnkeVurdering)
+            .filter(av -> !AnkeVurdering.UDEFINERT.equals(av));
+        var gjeldendeSendtTrygderetten = ankeVurderingTjeneste.hentAnkeVurderingResultat(behandling)
+            .map(AnkeVurderingResultatEntitet::getSendtTrygderettDato);
+        // Sjekke på meldinger for tilfelle vi selv har sendt til Kabal i en overgangsfase. Kan fjernes i oktober 2022
+        if (sendtTrygderetten != null) {
+            if (gjeldendeAnkeVurdering.isPresent() && gjeldendeSendtTrygderetten.isPresent()) {
+                return;
+            } else if (gjeldendeSendtTrygderetten.isPresent()) {
+                throw new IllegalStateException("Hm, har satt sendtTrygderetten, men mangler KAs ankevurdering. Skal ikke skje");
+            }
+        }
         var builder = ankeVurderingTjeneste.hentAnkeVurderingResultatBuilder(behandling)
-            .medGodkjentAvMedunderskriver(true)
-            .medAnkeVurdering(ankeVurderingFraUtfall(utfall))
-            .medAnkeVurderingOmgjør(ankeVurderingOmgjørFraUtfall(utfall));
+            .medGodkjentAvMedunderskriver(true);
+        Optional.ofNullable(sendtTrygderetten).ifPresent(builder::medSendtTrygderettDato);
+        // Dette med avsluttet skyldes prematur avslutning da kabal har sendt anke avsluttet for anker som er sendt Trygderetten. Fjernes etter patch (TODO (jol))
+        if (gjeldendeAnkeVurdering.isPresent() && (gjeldendeSendtTrygderetten.isPresent() || behandling.erAvsluttet())) {
+            builder.medTrygderettVurdering(ankeVurderingFraUtfall(utfall)).medTrygderettVurderingOmgjør(ankeVurderingOmgjørFraUtfall(utfall));
+        } else {
+            builder.medAnkeVurdering(ankeVurderingFraUtfall(utfall)).medAnkeVurderingOmgjør(ankeVurderingOmgjørFraUtfall(utfall));
+        }
         ankeVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, builder);
         opprettHistorikkinnslagAnke(behandling, utfall);
     }
@@ -402,6 +451,20 @@ public class KabalTjeneste {
             case DELVIS_MEDHOLD -> AnkeVurderingOmgjør.ANKE_DELVIS_OMGJOERING_TIL_GUNST;
             case UGUNST -> AnkeVurderingOmgjør.ANKE_TIL_UGUNST;
             default -> AnkeVurderingOmgjør.UDEFINERT;
+        };
+    }
+
+    private KabalUtfall utfallFraAnkeVurdering(AnkeVurdering utfall, AnkeVurderingOmgjør omgjør) {
+        return switch (utfall) {
+            case ANKE_STADFESTE_YTELSESVEDTAK -> KabalUtfall.STADFESTELSE;
+            case ANKE_AVVIS -> KabalUtfall.AVVIST;
+            case ANKE_OMGJOER -> switch (omgjør) {
+                case ANKE_TIL_GUNST -> KabalUtfall.MEDHOLD;
+                case ANKE_DELVIS_OMGJOERING_TIL_GUNST -> KabalUtfall.DELVIS_MEDHOLD;
+                case ANKE_TIL_UGUNST -> KabalUtfall.UGUNST;
+                case UDEFINERT -> throw new IllegalStateException("Utviklerfeil forsøker lagre klage med utfall " + utfall + " " + omgjør);
+            };
+            default -> throw new IllegalStateException("Utviklerfeil forsøker lagre klage med utfall " + utfall);
         };
     }
 

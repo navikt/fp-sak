@@ -12,17 +12,19 @@ public record KabalHendelse(UUID eventId,
                             BehandlingDetaljer detaljer) {
 
     public enum BehandlingEventType {
-        KLAGEBEHANDLING_AVSLUTTET, ANKEBEHANDLING_OPPRETTET, ANKEBEHANDLING_AVSLUTTET
+        KLAGEBEHANDLING_AVSLUTTET, ANKEBEHANDLING_OPPRETTET, ANKE_I_TRYGDERETTENBEHANDLING_OPPRETTET, ANKEBEHANDLING_AVSLUTTET
     }
 
     public record BehandlingDetaljer(KlagebehandlingAvsluttetDetaljer klagebehandlingAvsluttet,
                                      AnkebehandlingOpprettetDetaljer ankebehandlingOpprettet,
+                                     AnkeITrygderettenbehandlingOpprettetDetaljer ankeITrygderettenbehandlingOpprettet,
                                      AnkebehandlingAvsluttetDetaljer ankebehandlingAvsluttet) {}
 
     public record KlagebehandlingAvsluttetDetaljer(LocalDateTime avsluttet, KabalUtfall utfall, List<String> journalpostReferanser) {}
 
-
     public record AnkebehandlingOpprettetDetaljer(LocalDateTime mottattKlageinstans) {}
+
+    public record AnkeITrygderettenbehandlingOpprettetDetaljer(LocalDateTime sendtTilTrygderetten, KabalUtfall utfall) {}
 
     public record AnkebehandlingAvsluttetDetaljer(LocalDateTime avsluttet, KabalUtfall utfall, List<String> journalpostReferanser) {}
 }
