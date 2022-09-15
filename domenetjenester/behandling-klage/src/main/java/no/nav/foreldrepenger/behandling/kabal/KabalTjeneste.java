@@ -139,7 +139,7 @@ public class KabalTjeneste {
         kabalKlient.sendTilKabal(request);
     }
 
-    public void sendTrygderettTilKabal(Behandling ankeBehandling, KlageHjemmel hjemmel, LocalDateTime sendtTilTrygderetten) {
+    public void sendTrygderettTilKabal(Behandling ankeBehandling, KlageHjemmel hjemmel) {
         if (!BehandlingType.ANKE.equals(ankeBehandling.getType())) {
             throw new IllegalArgumentException("Utviklerfeil: Prøver sende noe annet enn klage/anke til Kabal!");
         }
@@ -155,6 +155,8 @@ public class KabalTjeneste {
             .map(Aksjonspunkt::getOpprettetTidspunkt)
             .orElseGet(ankeBehandling::getOpprettetTidspunkt);
         var ankeVurdering = ankeVurderingTjeneste.hentAnkeVurderingResultat(ankeBehandling).orElseThrow();
+        var sendtTilTrygderetten = Optional.ofNullable(ankeVurdering.getSendtTrygderettDato()).map(d -> d.atStartOfDay().plusHours(12))
+            .orElseGet(LocalDateTime::now);
         var utfall = utfallFraAnkeVurdering(ankeVurdering.getAnkeVurdering(), ankeVurdering.getAnkeVurderingOmgjør());
         var request = TilKabalTRDto.anke(ankeBehandling, kildereferanse, klager,
             finnDokumentReferanserForAnke(ankeBehandling.getId(), ankeResultat, bleKlageBehandletKabal),

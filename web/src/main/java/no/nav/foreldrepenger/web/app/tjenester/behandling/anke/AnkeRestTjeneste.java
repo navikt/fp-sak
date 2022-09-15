@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.anke;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -111,8 +112,16 @@ public class AnkeRestTjeneste {
             .map(KlageVurderingResultat::getKlageHjemmel).orElse(KlageHjemmel.UDEFINERT);
         var ankeUnderBehandlingKabal = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE);
         var ankeBehandletAvKabal = vurderingResultat.map(AnkeVurderingResultatEntitet::getAnkeResultat).map(AnkeResultatEntitet::erBehandletAvKabal);
+        var sendtTilTrygderetten = vurderingResultat.map(AnkeVurderingResultatEntitet::getSendtTrygderettDato)
+            .or(() -> behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN)
+                .map(ap -> ap.getOpprettetTidspunkt().toLocalDate()))
+            .or(() -> behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE_MERKNADER)
+                .map(ap -> ap.getOpprettetTidspunkt().toLocalDate()))
+            .or(() -> behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER)
+                .map(ap -> ap.getOpprettetTidspunkt().toLocalDate()))
+            .orElseGet(LocalDate::now);
         var ankeDto = new AnkebehandlingDto(resultat.orElse(null),
-            klageHjemmel, KlageHjemmel.getHjemlerForYtelse(behandling.getFagsakYtelseType()),
+            klageHjemmel, KlageHjemmel.getHjemlerForYtelse(behandling.getFagsakYtelseType()), sendtTilTrygderetten,
             !ER_PROD || utvalgteSBH, ankeUnderBehandlingKabal, ankeBehandletAvKabal.orElse(false));
 
         return ankeDto;

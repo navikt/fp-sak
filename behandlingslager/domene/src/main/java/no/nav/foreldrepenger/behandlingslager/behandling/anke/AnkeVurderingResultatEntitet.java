@@ -216,6 +216,10 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
         return sendtTrygderettDato;
     }
 
+    public void setSendtTrygderettDato(LocalDate sendtTrygderettDato) {
+        this.sendtTrygderettDato = sendtTrygderettDato;
+    }
+
     public List<AnkeAvvistÅrsak> hentAvvistÅrsaker(){
         List<AnkeAvvistÅrsak> avvistÅrsaker = new ArrayList<>();
         if(erFristIkkeOverholdt()){

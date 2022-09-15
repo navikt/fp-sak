@@ -1,5 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.anke.aksjonspunkt;
 
+import java.time.LocalDate;
+import java.util.UUID;
+
+import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -12,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
@@ -42,6 +47,21 @@ public class AnkeMerknaderResultatAksjonspunktDto extends BekreftetAksjonspunktD
     @JsonProperty("trygderettVurderingOmgjoer")
     private AnkeVurderingOmgjør trygderettVurderingOmgjoer;
 
+    @JsonProperty("sendTilKabal")
+    private Boolean sendTilKabal;
+
+    @JsonProperty("påAnketKlageBehandlingUuid")
+    @Valid
+    private UUID påAnketKlageBehandlingUuid;
+
+    @ValidKodeverk
+    @JsonProperty("klageHjemmel")
+    private KlageHjemmel klageHjemmel;
+
+    @Valid
+    @JsonProperty("sendtTilTrygderetten")
+    private LocalDate sendtTilTrygderetten;
+
 
     AnkeMerknaderResultatAksjonspunktDto() {
         // For Jackson
@@ -69,5 +89,21 @@ public class AnkeMerknaderResultatAksjonspunktDto extends BekreftetAksjonspunktD
 
     public AnkeVurderingOmgjør getTrygderettVurderingOmgjoer() {
         return trygderettVurderingOmgjoer;
+    }
+
+    public Boolean getSendTilKabal() {
+        return sendTilKabal;
+    }
+
+    public UUID getPåAnketKlageBehandlingUuid() {
+        return påAnketKlageBehandlingUuid;
+    }
+
+    public KlageHjemmel getKlageHjemmel() {
+        return klageHjemmel;
+    }
+
+    public LocalDate getSendtTilTrygderetten() {
+        return sendtTilTrygderetten;
     }
 }
