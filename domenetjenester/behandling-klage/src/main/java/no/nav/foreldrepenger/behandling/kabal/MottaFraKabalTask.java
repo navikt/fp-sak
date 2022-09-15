@@ -146,7 +146,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
     // Konvensjon: Dersom hendelse har kilderef = ANKE så er det en overført anke, ellers er anken opprettet i/av Kabal
     private void ankeTrygdrett(ProsessTaskData prosessTaskData, Long behandlingId, String ref) {
         var sendtTrygderetten = Optional.ofNullable(prosessTaskData.getPropertyValue(OVERSENDTR_KEY))
-            .map(v -> LocalDate.parse(v, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+            .map(v -> LocalDate.parse(v, DateTimeFormatter.ISO_LOCAL_DATE)).orElseThrow();
         håndterAnkeAvsluttetEllerTrygderett(prosessTaskData, behandlingId, ref, sendtTrygderetten);
     }
 

@@ -39,13 +39,29 @@ public enum DokumentMalType implements Kodeverdi {
     KLAGE_STADFESTET("KGESTA"),
     ANKE_OMGJORT("ANKOMG"),
     ANKE_OPPHEVET("ANKOPP"),
-    ETTERLYS_INNTEKTSMELDING("ELYSIM")
+    ETTERLYS_INNTEKTSMELDING("ELYSIM"),
+
+    // Må gjeninnføre for å flytte anker
+    @Deprecated KLAGE_AVVIST_DOK("KLAGAV"),
+    @Deprecated KLAGE_AVVIST_FRITEKST("KAVVIS"),
+    @Deprecated KLAGE_HJEMSENDT_DOK("KLAGNY"),
+    @Deprecated KLAGE_HJEMSENDT_FRITEKST("KHJEMS"),
+    @Deprecated KLAGE_OMGJORT_DOK("VEDMED"),
+    @Deprecated KLAGE_OMGJORT_FRITEKST("KOMGJO"),
+    @Deprecated KLAGE_OVERSENDT_DOK("KLAGOV"),
+    @Deprecated KLAGE_OVERSENDT_FRITEKST("KOVKLA"),
+    @Deprecated KLAGE_STADFESTET_DOK("KLAGVE"),
+    @Deprecated KLAGE_STADFESTET_FRITEKST("KSTADF"),
+    @Deprecated ANKE_OMGJORT_FRITEKST("VEDOGA"),
+    @Deprecated ANKE_OPPHEVET_FRITEKST("ANKEBO"),
     ;
 
     public static final Set<DokumentMalType> VEDTAKSBREV = Set.of(ENGANGSSTØNAD_INNVILGELSE, ENGANGSSTØNAD_AVSLAG, FORELDREPENGER_INNVILGELSE,
         FORELDREPENGER_AVSLAG, FORELDREPENGER_OPPHØR, FORELDREPENGER_ANNULLERT, SVANGERSKAPSPENGER_INNVILGELSE, SVANGERSKAPSPENGER_AVSLAG, SVANGERSKAPSPENGER_OPPHØR);
 
-    public static final Set<DokumentMalType> KLAGE_VEDTAKSBREV = Set.of(KLAGE_STADFESTET, KLAGE_AVVIST, KLAGE_HJEMSENDT, KLAGE_OMGJORT);
+    public static final Set<DokumentMalType> KLAGE_VEDTAKSBREV = Set.of(KLAGE_STADFESTET, KLAGE_AVVIST, KLAGE_HJEMSENDT, KLAGE_OMGJORT,
+        KLAGE_AVVIST_DOK, KLAGE_AVVIST_FRITEKST, KLAGE_HJEMSENDT_DOK, KLAGE_HJEMSENDT_FRITEKST, KLAGE_OMGJORT_DOK,
+        KLAGE_OMGJORT_FRITEKST, KLAGE_STADFESTET_DOK, KLAGE_STADFESTET_FRITEKST);
 
     public static final Set<DokumentMalType> MANUELLE_BREV = Set.of(INNHENTE_OPPLYSNINGER,
         VARSEL_OM_REVURDERING, FORLENGET_SAKSBEHANDLINGSTID_MEDL,
@@ -104,6 +120,10 @@ public enum DokumentMalType implements Kodeverdi {
         return utledDokumentTittel(fraKode(malKode));
     }
 
+    public static boolean erOversendelsesBrev(DokumentMalType brev) {
+        return Set.of(DokumentMalType.KLAGE_OVERSENDT, KLAGE_OVERSENDT_DOK, KLAGE_OVERSENDT_FRITEKST).contains(brev);
+    }
+
     private static String utledDokumentTittel(DokumentMalType mal) {
         return switch (mal) {
             case FRITEKSTBREV -> "Fritekstbrev";
@@ -134,6 +154,18 @@ public enum DokumentMalType implements Kodeverdi {
             case ANKE_OMGJORT -> "Vedtak om omgjøring i ankesak";
             case ANKE_OPPHEVET -> "Ankebrev om beslutning om oppheving";
             case ETTERLYS_INNTEKTSMELDING -> "Etterlys inntektsmelding";
+            case KLAGE_AVVIST_DOK -> "Vedtak om avvist klage";
+            case KLAGE_AVVIST_FRITEKST -> "Vedtak om avvist klage";
+            case KLAGE_HJEMSENDT_DOK ->  "Vedtak opphevet, sendt til ny behandling";
+            case KLAGE_HJEMSENDT_FRITEKST ->  "Klage hjemsendt/opphevet";
+            case KLAGE_OMGJORT_DOK -> "Vedtak om medhold";
+            case KLAGE_OMGJORT_FRITEKST -> "Vedtak om omgjøring av klage";
+            case KLAGE_OVERSENDT_DOK -> "Overføring til NAV Klageinstans";
+            case KLAGE_OVERSENDT_FRITEKST -> "Klage oversendt til klageinstans";
+            case KLAGE_STADFESTET_DOK -> "Vedtak om stadfestelse";
+            case KLAGE_STADFESTET_FRITEKST -> "Vedtak om stadfestelse";
+            case ANKE_OMGJORT_FRITEKST ->  "Vedtak om omgjøring i ankesak";
+            case ANKE_OPPHEVET_FRITEKST -> "Ankebrev om beslutning om oppheving";
         };
     }
 }

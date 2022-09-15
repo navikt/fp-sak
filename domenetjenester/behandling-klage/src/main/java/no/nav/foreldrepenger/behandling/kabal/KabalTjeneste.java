@@ -196,6 +196,7 @@ public class KabalTjeneste {
         }
         var builder = ankeVurderingTjeneste.hentAnkeVurderingResultatBuilder(behandling)
             .medGodkjentAvMedunderskriver(true);
+        // Denne er essensiell for AnkeMerknaderSteg
         Optional.ofNullable(sendtTrygderetten).ifPresent(builder::medSendtTrygderettDato);
         // Dette med avsluttet skyldes prematur avslutning da kabal har sendt anke avsluttet for anker som er sendt Trygderetten. Fjernes etter patch (TODO (jol))
         if (gjeldendeAnkeVurdering.isPresent() && (gjeldendeSendtTrygderetten.isPresent() || behandling.erAvsluttet())) {
@@ -371,7 +372,7 @@ public class KabalTjeneste {
     }
 
     private Predicate<BehandlingDokumentBestiltEntitet> erKlageOversendtBrevSent() {
-        return d -> d.getDokumentMalType() != null && DokumentMalType.KLAGE_OVERSENDT.getKode().equals(d.getDokumentMalType());
+        return d -> d.getDokumentMalType() != null && DokumentMalType.erOversendelsesBrev(DokumentMalType.fraKode(d.getDokumentMalType()));
     }
 
     private Predicate<BehandlingDokumentBestiltEntitet> erVedtakDokument() {
