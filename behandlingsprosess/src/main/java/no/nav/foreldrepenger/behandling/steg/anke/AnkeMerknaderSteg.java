@@ -42,6 +42,11 @@ public class AnkeMerknaderSteg implements BehandlingSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
+        if (klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling) &&
+            !klageAnkeVedtakTjeneste.harSattOversendelseDato(behandling) &&
+            !klageAnkeVedtakTjeneste.erBehandletAvKabal(behandling)) {
+            return BehandleStegResultat.utførtMedAksjonspunkter(List.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE_MERKNADER));
+        }
         if (klageAnkeVedtakTjeneste.harKjennelseTrygdretten(behandling)) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
@@ -60,5 +65,7 @@ public class AnkeMerknaderSteg implements BehandlingSteg {
     private AksjonspunktResultat ventPåTrygderetten() {
         return AksjonspunktResultat.opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN, Venteårsak.VENT_KABAL, null);
     }
+
+
 
 }
