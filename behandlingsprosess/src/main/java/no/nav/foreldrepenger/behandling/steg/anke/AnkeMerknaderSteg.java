@@ -42,24 +42,35 @@ public class AnkeMerknaderSteg implements BehandlingSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
-        if (klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling) &&
-            !klageAnkeVedtakTjeneste.harSattOversendelseDato(behandling) &&
-            !klageAnkeVedtakTjeneste.erBehandletAvKabal(behandling)) {
-            return BehandleStegResultat.utførtMedAksjonspunkter(List.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE_MERKNADER));
-        }
-        if (klageAnkeVedtakTjeneste.harKjennelseTrygdretten(behandling)) {
-            return BehandleStegResultat.utførtUtenAksjonspunkter();
-        }
-        if (klageAnkeVedtakTjeneste.erOversendtTrygdretten(behandling)) {
-            return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(ventPåTrygderetten()));
-        }
-        if (klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling)) {
-            throw new IllegalStateException("Anke avvist/stadfestet har passert flere sperrer");
-        }
+        // Litt komplisert sett med logikk mens det pågår migrering
         if (klageAnkeVedtakTjeneste.erBehandletAvKabal(behandling)) {
+            if (klageAnkeVedtakTjeneste.harKjennelseTrygdretten(behandling)) {
+                if (klageAnkeVedtakTjeneste.erOversendtTrygdretten(behandling)) {
+                    return BehandleStegResultat.utførtUtenAksjonspunkter();
+                } else {
+                    throw new IllegalStateException("AnkeMerknaderSteg: KabalAnke Har lagret TR-kjennelse, mangler oversendelsesdato");
+                }
+            }
+            if (klageAnkeVedtakTjeneste.erOversendtTrygdretten(behandling)) {
+                return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(ventPåTrygderetten()));
+            }
             return BehandleStegResultat.utførtUtenAksjonspunkter();
+        } else {
+            if (klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling) &&
+                !klageAnkeVedtakTjeneste.harSattOversendelseDato(behandling)) {
+                return BehandleStegResultat.utførtMedAksjonspunkter(List.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE_MERKNADER));
+            }
+            if (!klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling) &&
+                (klageAnkeVedtakTjeneste.harSattOversendelseDato(behandling) || klageAnkeVedtakTjeneste.harKjennelseTrygdretten(behandling))) {
+                throw new IllegalStateException("AnkeMerknaderSteg: FpsakAnke skal ikke til TR men har oversendelsesdato eller kjennelse");
+            }
+            if (klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling) && klageAnkeVedtakTjeneste.harSattOversendelseDato(behandling)) {
+                return klageAnkeVedtakTjeneste.harKjennelseTrygdretten(behandling) ? BehandleStegResultat.utførtUtenAksjonspunkter() :
+                    BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(ventPåTrygderetten()));
+            }
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
+
         }
-        return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 
     private AksjonspunktResultat ventPåTrygderetten() {
