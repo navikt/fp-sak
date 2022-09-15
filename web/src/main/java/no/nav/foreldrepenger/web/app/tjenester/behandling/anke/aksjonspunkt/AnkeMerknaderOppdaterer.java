@@ -68,7 +68,7 @@ public class AnkeMerknaderOppdaterer implements AksjonspunktOppdaterer<AnkeMerkn
     public OppdateringResultat oppdater(AnkeMerknaderResultatAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var ankeBehandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         var utvalgteSBH = Optional.ofNullable(SubjectHandler.getSubjectHandler().getUid())
-            .filter(u -> Set.of("A100182", "E137084").contains(u))
+            .filter(u -> Set.of("A100182", "S163082").contains(u))
             .isPresent();
 
         if ((!ER_PROD || utvalgteSBH) && Optional.ofNullable(dto.getSendTilKabal()).orElse(false)) {

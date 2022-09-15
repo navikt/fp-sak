@@ -166,7 +166,7 @@ public class KlageRestTjeneste {
     private KlagebehandlingDto mapFra(Behandling behandling) {
 
         var utvalgteSBH = Optional.ofNullable(SubjectHandler.getSubjectHandler().getUid())
-            .filter(u -> Set.of("A100182", "E137084").contains(u))
+            .filter(u -> Set.of("A100182", "S163082").contains(u))
             .isPresent();
 
         var klageResultat = klageVurderingTjeneste.hentEvtOpprettKlageResultat(behandling);
