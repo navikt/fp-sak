@@ -95,7 +95,12 @@ public final class Redirect {
                 }
             }
         }
-        return newLocation != null ? newLocation : leggTilBaseUri(location);
+        return newLocation != null ? newLocation : (erKallFraGcp(request) ? location : leggTilBaseUri(location));
+    }
+
+    private static boolean erKallFraGcp(HttpServletRequest request) {
+        var xForwardedHost = request.getHeader("X-Forwarded-Host");
+        return xForwardedHost != null && xForwardedHost.contains("fss-pub.nais.io");
     }
 
     private static boolean relativLocationAndRequestAvailable(URI location) {
