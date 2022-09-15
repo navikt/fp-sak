@@ -79,6 +79,7 @@ public class AnkeRepository {
             .filter(avr -> !Objects.equals(dato, avr.getSendtTrygderettDato()))
             .ifPresent(avr -> {
                 avr.setSendtTrygderettDato(dato);
+                avr.setIngenTrygderettKjennelse();
                 entityManager.persist(avr);
                 entityManager.flush();
         });

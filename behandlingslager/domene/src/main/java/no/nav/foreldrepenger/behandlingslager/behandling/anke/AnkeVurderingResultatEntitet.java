@@ -220,6 +220,10 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
         this.sendtTrygderettDato = sendtTrygderettDato;
     }
 
+    public void setIngenTrygderettKjennelse() {
+        this.trygderettVurdering = AnkeVurdering.UDEFINERT;
+    }
+
     public List<AnkeAvvistÅrsak> hentAvvistÅrsaker(){
         List<AnkeAvvistÅrsak> avvistÅrsaker = new ArrayList<>();
         if(erFristIkkeOverholdt()){
