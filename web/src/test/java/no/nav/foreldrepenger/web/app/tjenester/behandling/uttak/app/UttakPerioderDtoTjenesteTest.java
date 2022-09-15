@@ -16,6 +16,8 @@ import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenForelderRettEØSEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
@@ -52,7 +54,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     private AbakusInMemoryInntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
@@ -60,7 +62,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalHenteUttaksPerioderFraRepository() {
+    void skalHenteUttaksPerioderFraRepository() {
         var perioder = new UttakResultatPerioderEntitet();
         var internArbeidsforholdId = InternArbeidsforholdRef.nyRef();
         var eksternArbeidsforholdId = EksternArbeidsforholdRef.ref("ID1");
@@ -141,7 +143,6 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         scenario.medBehandlingVedtak().medVedtakstidspunkt(vedtakstidspunkt);
         var behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
-        repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
         return behandling;
     }
 
@@ -157,7 +158,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalHenteUttaksPerioderMedFlereAktiviteter() {
+    void skalHenteUttaksPerioderMedFlereAktiviteter() {
         var perioder = new UttakResultatPerioderEntitet();
         var periode1Fom = LocalDate.now();
         var periode1Tom = LocalDate.now().plusDays(10);
@@ -203,7 +204,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalHenteUttaksPerioderForSøkerOgAnnenpart() {
+    void skalHenteUttaksPerioderForSøkerOgAnnenpart() {
         var perioderSøker = new UttakResultatPerioderEntitet();
         var periode1FomSøker = LocalDate.now();
         var periode1TomSøker = LocalDate.now().plusDays(10);
@@ -242,7 +243,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalHenteUttaksPerioderForSøkerOgAnnenpartKunstigArbeidsforholdPåAnnenpart() {
+    void skalHenteUttaksPerioderForSøkerOgAnnenpartKunstigArbeidsforholdPåAnnenpart() {
         var internArbeidsforholdIdSøker = InternArbeidsforholdRef.nyRef();
         var internArbeidsforholdIdAnnenPart = InternArbeidsforholdRef.nyRef();
         var perioderSøker = new UttakResultatPerioderEntitet();
@@ -296,9 +297,8 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void dtoSkalInneholdeSamtidigUttak() {
+    void dtoSkalInneholdeSamtidigUttak() {
         var perioder = new UttakResultatPerioderEntitet();
-
 
         var periode = periodeBuilder(LocalDate.now(), LocalDate.now().plusDays(2))
             .medSamtidigUttak(true)
@@ -334,34 +334,82 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medFordeling(null);
         var behandling = scenario.lagre(repositoryProvider);
-        repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
         var tjeneste = tjeneste();
 
         var result = tjeneste.mapFra(behandling);
         assertThat(result.annenForelderHarRett()).isFalse();
         assertThat(result.aleneomsorg()).isFalse();
+        assertThat(result.annenForelderRettEØS()).isFalse();
         assertThat(result.årsakFilter().søkerErMor()).isTrue();
         assertThat(result.årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
 
     @Test
-    public void skal_setteFilterFar() {
+    void setter_eøs_rett_oppgitt_men_ikke_avklart() {
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, true));
+        var behandling = scenario.lagre(repositoryProvider);
+
+        var tjeneste = tjeneste();
+
+        var dto = tjeneste.mapFra(behandling);
+        assertThat(dto.annenForelderHarRett()).isFalse();
+        assertThat(dto.annenForelderRettEØS()).isFalse();
+    }
+
+    @Test
+    void setter_eøs_rett_avklart_ikke_eøs_rett() {
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, true));
+        var behandling = scenario.lagre(repositoryProvider);
+
+        avklarEøsRett(behandling, false);
+        var tjeneste = tjeneste();
+
+        var dto = tjeneste.mapFra(behandling);
+        assertThat(dto.annenForelderHarRett()).isFalse();
+        assertThat(dto.annenForelderRettEØS()).isFalse();
+    }
+
+    @Test
+    void setter_eøs_rett_avklart_eøs_rett() {
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, true));
+        var behandling = scenario.lagre(repositoryProvider);
+
+        avklarEøsRett(behandling, true);
+        var tjeneste = tjeneste();
+
+        var dto = tjeneste.mapFra(behandling);
+        assertThat(dto.annenForelderHarRett()).isTrue();
+        assertThat(dto.annenForelderRettEØS()).isTrue();
+    }
+
+    private void avklarEøsRett(Behandling behandling, boolean harRettEøs) {
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var yfa = ytelsesFordelingRepository.hentAggregat(behandling.getId());
+        ytelsesFordelingRepository.lagre(behandling.getId(),
+            YtelseFordelingAggregat.oppdatere(yfa).medPerioderAnnenForelderRettEØS(new PerioderAnnenForelderRettEØSEntitet(harRettEøs)).build());
+    }
+
+    @Test
+    void skal_setteFilterFar() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenario.medFordeling(null);
         var behandling = scenario.lagre(repositoryProvider);
-        repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
         var tjeneste = tjeneste();
 
         var result = tjeneste.mapFra(behandling);
         assertThat(result.annenForelderHarRett()).isFalse();
+        assertThat(result.annenForelderRettEØS()).isFalse();
         assertThat(result.aleneomsorg()).isFalse();
         assertThat(result.årsakFilter().søkerErMor()).isFalse();
     }
 
     @Test
-    public void skal_setteAleneomsorgOgAnnenForelderHarRettTrue_nårYtelsefordelingForeliggerOgDetStemmer() {
+    void skal_setteAleneomsorgOgAnnenForelderHarRettTrue_nårYtelsefordelingForeliggerOgDetStemmer() {
         var perioder = new UttakResultatPerioderEntitet();
 
         var perioderAnnenpart = new UttakResultatPerioderEntitet();
