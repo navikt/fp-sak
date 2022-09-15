@@ -73,6 +73,13 @@ public class KlageAnkeVedtakTjeneste {
                 .isPresent();
     }
 
+    public boolean harSattOversendelseDato(Behandling behandling) {
+        return BehandlingType.ANKE.equals(behandling.getType()) &&
+            ankeRepository.hentAnkeVurderingResultat(behandling.getId())
+                .map(AnkeVurderingResultatEntitet::getSendtTrygderettDato)
+                .isPresent();
+    }
+
     public boolean erGodkjentHosMedunderskriver(Behandling behandling) {
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             return klageRepository.hentGjeldendeKlageVurderingResultat(behandling)
