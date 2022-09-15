@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.fp;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -191,10 +190,7 @@ public class BesteberegningFødendeKvinneTjeneste {
 
     private boolean brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(BehandlingReferanse behandlingReferanse,
                                                                          OpptjeningAktiviteter opptjeningAktiviteter) {
-        var stpBG = beregningTjeneste.hent(behandlingReferanse.behandlingId())
-            .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag)
-            .map(Beregningsgrunnlag::getSkjæringstidspunkt);
-        var skjæringstidspunkt = stpBG.orElse(behandlingReferanse.getUtledetSkjæringstidspunkt());
+        var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
         var ytelser = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId())
             .getAktørYtelseFraRegister(behandlingReferanse.aktørId())
             .map(AktørYtelse::getAlleYtelser)
