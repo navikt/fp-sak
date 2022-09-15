@@ -28,7 +28,7 @@ public final class Redirect {
             .path(BehandlingRestTjenestePathHack1.STATUS_PATH)
             .queryParam(UuidDto.NAME, behandlingUuid);
         gruppeOpt.ifPresent(s -> uriBuilder.queryParam("gruppe", s));
-        return Response.accepted().location(honorXForwardedProto(request, uriBuilder.build())).build();
+        return Response.accepted().contentLocation(honorXForwardedProto(request, uriBuilder.build())).build();
     }
 
     public static Response tilBehandlingPollStatus(HttpServletRequest request,UUID behandlingUuid) throws URISyntaxException {
@@ -47,7 +47,7 @@ public final class Redirect {
             .path(FagsakRestTjeneste.FAGSAK_PATH)
             .queryParam("saksnummer", saksnummer.getVerdi());
         gruppeOpt.ifPresent(s -> uriBuilder.queryParam("gruppe", s));
-        return Response.accepted().location(honorXForwardedProto(request, uriBuilder.build())).build();
+        return Response.accepted().contentLocation(honorXForwardedProto(request, uriBuilder.build())).build();
     }
 
     public static Response tilFagsakEllerPollStatus(HttpServletRequest request, Saksnummer saksnummer, AsyncPollingStatus status) throws URISyntaxException {
@@ -70,7 +70,7 @@ public final class Redirect {
             status.setLocation(uri);
             return Response.status(status.getStatus().getHttpStatus()).entity(status).build();
         } else {
-            return Response.seeOther(uri).build();
+            return Response.status(Response.Status.SEE_OTHER).contentLocation(uri).build();
         }
     }
 
@@ -127,7 +127,7 @@ public final class Redirect {
     @SuppressWarnings("resource")
     private static URI leggTilBaseUri(URI resultatUri) {
         // tvinger resultatUri til å være en absolutt URI (passer med Location Header og Location felt når kommer i payload)
-        var response = Response.noContent().location(resultatUri).build();
+        var response = Response.noContent().contentLocation(resultatUri).build();
         return response.getLocation();
     }
 }
