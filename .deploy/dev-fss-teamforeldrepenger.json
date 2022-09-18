@@ -19,5 +19,25 @@
     "env": {
         "APPDYNAMICS_AGENT_ACCOUNT_NAME": "NON-PROD",
         "APPD_ENABLED": "false"
-    }
+    },
+    "AZURE_IAC_RULES": [
+        {
+            "app": "fp-swagger",
+            "namespace": "teamforeldrepenger",
+            "cluster": "dev-fss",
+            "scopes": [
+                "swagger"
+            ]
+        },
+        {
+            "app": "fp-frontend-azure",
+            "namespace": "teamforeldrepenger",
+            "cluster": "dev-gcp"
+        },
+        {
+            "app": "fp-frontend-azure",
+            "namespace": "teamforeldrepenger",
+            "cluster": "dev-fss"
+        }
+    ]
 }
