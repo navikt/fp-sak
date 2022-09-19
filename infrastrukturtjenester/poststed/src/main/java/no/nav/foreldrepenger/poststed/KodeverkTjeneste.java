@@ -15,16 +15,19 @@ import javax.ws.rs.core.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
+@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, endpointProperty = "kodeverk.base.url", endpointDefault = "http://kodeverk.org/")
 public class KodeverkTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(KodeverkTjeneste.class);
-    private static final String KODEVERK_URL = "http://kodeverk.org/";
 
-    private OidcRestClient restClient;
+    private RestClient restClient;
     private URI kodeverkBaseEndpoint;
 
     private static final String SERVICE_PATH = "/api/v1/kodeverk";
@@ -37,29 +40,29 @@ public class KodeverkTjeneste {
     }
 
     @Inject
-    public KodeverkTjeneste(OidcRestClient restClient, @KonfigVerdi(value = "kodeverk.base.url", defaultVerdi = KODEVERK_URL) URI kodeverkUri) {
-        this.kodeverkBaseEndpoint = kodeverkUri;
+    public KodeverkTjeneste(RestClient restClient) {
         this.restClient = restClient;
+        this.kodeverkBaseEndpoint = RestConfig.endpointFromAnnotation(KodeverkTjeneste.class);
     }
 
     public Map<String, KodeverkBetydning> hentKodeverkBetydninger(String kodeverk) {
         Map<String, KodeverkBetydning> resultatMap = new LinkedHashMap<>();
-        var request = UriBuilder.fromUri(kodeverkBaseEndpoint)
+        var uri = UriBuilder.fromUri(kodeverkBaseEndpoint)
             .path(SERVICE_PATH).path(kodeverk).path(CONTENT_PATH)
             .queryParam(LANG_PARAM, NORSK_BOKMÅL)
             .build();
         try {
-            var response = restClient.get(request, KodeverkBetydninger.class);
+            var request = RestRequest.newGET(uri, KodeverkTjeneste.class);
+            var response = restClient.sendReturnOptional(request, KodeverkBetydninger.class);
 
-            if (response != null) {
-                response.betydninger().forEach((key, value) -> {
+            response.map(KodeverkBetydninger::betydninger).orElse(Map.of())
+                .forEach((key, value) -> {
                     var ferskest = value.size() == 1 ? Optional.of(value.get(0)) :
                         value.stream().max(Comparator.comparing(KodeInnslag::gyldigTil).thenComparing(KodeInnslag::gyldigFra));
                     ferskest
                         .filter(f -> Optional.ofNullable(f.beskrivelser()).map(b -> b.get(NORSK_BOKMÅL)).map(TermTekst::term).isPresent())
                         .ifPresent(f -> resultatMap.put(key, new KodeverkBetydning(f.gyldigFra(), f.gyldigTil(), f.beskrivelser().get(NORSK_BOKMÅL).term())));
                 });
-            }
         } catch (Exception e) {
             LOG.warn("Kunne ikke synkronisere kodeverk {}", kodeverk, e);
         }

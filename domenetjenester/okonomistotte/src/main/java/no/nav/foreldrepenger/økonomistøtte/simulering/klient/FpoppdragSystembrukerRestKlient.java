@@ -5,14 +5,18 @@ import java.net.URI;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.vedtak.felles.integrasjon.rest.SystemUserOidcRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
+@RestClientConfig(tokenConfig = TokenFlow.STS_CC)
 public class FpoppdragSystembrukerRestKlient {
 
     private static final String FPOPPDRAG_KANSELLER_SIMULERING = "/simulering/kanseller";
 
-    private SystemUserOidcRestClient restClient;
+    private RestClient restClient;
     private URI uriKansellerSimulering;
 
     public FpoppdragSystembrukerRestKlient() {
@@ -20,7 +24,7 @@ public class FpoppdragSystembrukerRestKlient {
     }
 
     @Inject
-    public FpoppdragSystembrukerRestKlient(SystemUserOidcRestClient restClient) {
+    public FpoppdragSystembrukerRestKlient(RestClient restClient) {
         this.restClient = restClient;
         var fpoppdragBaseUrl = FpoppdragFelles.getFpoppdragBaseUrl();
 
@@ -33,7 +37,8 @@ public class FpoppdragSystembrukerRestKlient {
      * @param behandlingId
      */
     public void kansellerSimulering(Long behandlingId) {
-        restClient.post(uriKansellerSimulering, new BehandlingIdDto(behandlingId));
+        var request = RestRequest.newPOSTJson(new BehandlingIdDto(behandlingId), uriKansellerSimulering, FpoppdragSystembrukerRestKlient.class);
+        restClient.sendReturnOptional(request, String.class);
     }
 
 }

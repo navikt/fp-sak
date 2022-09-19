@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.net.URI;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,12 +14,12 @@ import org.mockito.Mockito;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.person.krr.KrrSpråkKlient.KrrRespons;
 import no.nav.vedtak.exception.IntegrasjonException;
-import no.nav.vedtak.felles.integrasjon.rest.AzureADRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 
 class KrrSpråkKlientTest {
 
     private KrrSpråkKlient krrSpråkKlient;
-    private final AzureADRestClient azureKlientMock = Mockito.mock(AzureADRestClient.class);
+    private final RestClient restClient = Mockito.mock(RestClient.class);
 
     private static final KrrRespons KRR_NYNORSK = new KrrRespons("NN");
     private static final KrrRespons KRR_BOKMÅL = new KrrRespons("NB");
@@ -28,7 +28,7 @@ class KrrSpråkKlientTest {
 
 
     @BeforeEach
-    public void setup() { krrSpråkKlient = new KrrSpråkKlient(URI.create("endpoint"), azureKlientMock);
+    public void setup() { krrSpråkKlient = new KrrSpråkKlient(restClient);
     }
 
     @Test
@@ -43,19 +43,19 @@ class KrrSpråkKlientTest {
     @Test
     public void defaultBokmålVed404() {
         // biblioteket mapper 404 til IntegrasjonException
-        when(azureKlientMock.get(any(), any(), any())).thenThrow(new IntegrasjonException("A", "Fant ikke, så her har du en 404."));
+        when(restClient.sendReturnOptional(any(), any())).thenThrow(new IntegrasjonException("A", "Fant ikke, så her har du en 404."));
         var språk = krrSpråkKlient.finnSpråkkodeForBruker("123");
         assertThat(språk).isEqualTo(Språkkode.NB);
     }
 
     @Test
     public void propagerExceptionVedIntegrasjonExceptionUlik404() {
-        when(azureKlientMock.get(any(), any(), any())).thenThrow(new IntegrasjonException("B", "Noe annet feil."));
+        when(restClient.sendReturnOptional(any(), any())).thenThrow(new IntegrasjonException("B", "Noe annet feil."));
         assertThatThrownBy(()-> krrSpråkKlient.finnSpråkkodeForBruker("123")).isInstanceOf(IntegrasjonException.class);
     }
 
     private void forventMappingFraKrrResponsTilSpråkkode(KrrRespons responsFraKrr, Språkkode språkkode) {
-        when(azureKlientMock.get(any(), any(), any())).thenReturn(responsFraKrr);
+        when(restClient.sendReturnOptional(any(), any())).thenReturn(Optional.of(responsFraKrr));
         var språk = krrSpråkKlient.finnSpråkkodeForBruker("123");
         assertThat(språk).isEqualTo(språkkode);
     }

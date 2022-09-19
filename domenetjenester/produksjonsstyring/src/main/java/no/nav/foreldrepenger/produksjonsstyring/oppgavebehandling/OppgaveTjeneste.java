@@ -32,9 +32,10 @@ import no.nav.foreldrepenger.historikk.Oppgavetyper;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTask;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -70,7 +71,7 @@ public class OppgaveTjeneste {
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
     private ProsessTaskTjeneste taskTjeneste;
     private PersoninfoAdapter personinfoAdapter;
-    private OppgaveRestKlient restKlient;
+    private Oppgaver restKlient;
 
     OppgaveTjeneste() {
         // for CDI proxy
@@ -80,7 +81,7 @@ public class OppgaveTjeneste {
     public OppgaveTjeneste(FagsakRepository fagsakRepository,
                            BehandlingRepository behandlingRepository,
                            OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
-                           OppgaveRestKlient restKlient,
+                           @NativeClient Oppgaver restKlient,
                            ProsessTaskTjeneste taskTjeneste,
                            PersoninfoAdapter personinfoAdapter) {
         this.fagsakRepository = fagsakRepository;

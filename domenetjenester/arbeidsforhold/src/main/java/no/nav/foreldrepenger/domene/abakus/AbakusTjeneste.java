@@ -1,22 +1,20 @@
 package no.nav.foreldrepenger.domene.abakus;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,10 +43,15 @@ import no.nav.abakus.vedtak.ytelse.Ytelse;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
-import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.ObjectReaderResponseHandler;
+import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
+@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, application = FpApplication.FPABAKUS)
 public class AbakusTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbakusTjeneste.class);
@@ -60,7 +63,7 @@ public class AbakusTjeneste {
     private final ObjectReader iayGrunnlagSnapshotReader = iayMapper.readerFor(InntektArbeidYtelseGrunnlagSakSnapshotDto.class);
     private final ObjectReader inntektsmeldingerReader = iayMapper.readerFor(InntektsmeldingerDto.class);
     private URI innhentRegisterdata;
-    private OidcRestClient oidcRestClient;
+    private RestClient restClient;
     private URI abakusEndpoint;
     private URI callbackUrl;
     private URI endpointArbeidsforholdIPeriode;
@@ -79,11 +82,10 @@ public class AbakusTjeneste {
     }
 
     @Inject
-    public AbakusTjeneste(OidcRestClient oidcRestClient,
-                          @KonfigVerdi(value = "fpabakus.url") URI endpoint,
+    public AbakusTjeneste(RestClient restClient,
                           @KonfigVerdi(value = "abakus.callback.url") URI callbackUrl) {
-        this.oidcRestClient = oidcRestClient;
-        this.abakusEndpoint = endpoint;
+        this.restClient = restClient;
+        this.abakusEndpoint = RestConfig.endpointFromAnnotation(AbakusTjeneste.class);
         this.callbackUrl = callbackUrl;
         this.endpointArbeidsforholdIPeriode = toUri("/api/arbeidsforhold/v1/arbeidstaker");
         this.endpointGrunnlag = toUri("/api/iay/grunnlag/v1/");
@@ -110,7 +112,7 @@ public class AbakusTjeneste {
     public UuidDto innhentRegisterdata(InnhentRegisterdataRequest request) {
         var endpoint = innhentRegisterdata;
 
-        var responseHandler = new ObjectReaderResponseHandler<UuidDto>(endpoint, uuidReader);
+        var responseHandler = new AbakusResponseHandler<UuidDto>(uuidReader);
         try {
             var json = iayJsonWriter.writeValueAsString(request);
 
@@ -128,8 +130,7 @@ public class AbakusTjeneste {
 
     public InntektArbeidYtelseGrunnlagDto hentGrunnlag(InntektArbeidYtelseGrunnlagRequest request) throws IOException {
         var endpoint = endpointGrunnlag;
-        var responseHandler = new ObjectReaderResponseHandler<InntektArbeidYtelseGrunnlagDto>(endpoint,
-            iayGrunnlagReader);
+        var responseHandler = new AbakusResponseHandler<InntektArbeidYtelseGrunnlagDto>(iayGrunnlagReader);
         var json = iayJsonWriter.writeValueAsString(request);
 
         return hentFraAbakus(endpoint, responseHandler, json);
@@ -137,7 +138,7 @@ public class AbakusTjeneste {
 
     public List<ArbeidsforholdDto> hentArbeidsforholdIPerioden(AktørDatoRequest request) {
         var endpoint = endpointArbeidsforholdIPeriode;
-        var responseHandler = new ObjectReaderResponseHandler<ArbeidsforholdDto[]>(endpoint, arbeidsforholdReader);
+        var responseHandler = new AbakusResponseHandler<ArbeidsforholdDto[]>(arbeidsforholdReader);
         try {
             var json = iayJsonWriter.writeValueAsString(request);
             var arbeidsforhold = hentFraAbakus(endpoint, responseHandler, json);
@@ -154,7 +155,7 @@ public class AbakusTjeneste {
 
     public InntektsmeldingerDto hentUnikeUnntektsmeldinger(InntektsmeldingerRequest request) throws IOException {
         var endpoint = endpointInntektsmeldinger;
-        var responseHandler = new ObjectReaderResponseHandler<InntektsmeldingerDto>(endpoint, inntektsmeldingerReader);
+        var responseHandler = new AbakusResponseHandler<InntektsmeldingerDto>(inntektsmeldingerReader);
         var json = iayJsonWriter.writeValueAsString(request);
 
         return hentFraAbakus(endpoint, responseHandler, json);
@@ -162,8 +163,7 @@ public class AbakusTjeneste {
 
     public InntektArbeidYtelseGrunnlagSakSnapshotDto hentGrunnlagSnapshot(InntektArbeidYtelseGrunnlagRequest request) throws IOException {
         var endpoint = endpointGrunnlagSnapshot;
-        var responseHandler = new ObjectReaderResponseHandler<InntektArbeidYtelseGrunnlagSakSnapshotDto>(endpoint,
-            iayGrunnlagSnapshotReader);
+        var responseHandler = new AbakusResponseHandler<InntektArbeidYtelseGrunnlagSakSnapshotDto>(iayGrunnlagSnapshotReader);
         var json = iayJsonWriter.writeValueAsString(request);
 
         return hentFraAbakus(endpoint, responseHandler, json);
@@ -176,7 +176,7 @@ public class AbakusTjeneste {
     public List<Ytelse> hentVedtakForAktørId(AktørDatoRequest request) {
         var endpoint = endpointYtelser;
         var reader = iayMapper.readerFor(Ytelse[].class);
-        var responseHandler = new ObjectReaderResponseHandler<Ytelse[]>(endpoint, reader);
+        var responseHandler = new AbakusResponseHandler<Ytelse[]>(reader);
 
         try {
             var json = iayJsonWriter.writeValueAsString(request);
@@ -192,28 +192,23 @@ public class AbakusTjeneste {
         }
     }
 
-    private <T> T hentFraAbakus(URI endpoint, ObjectReaderResponseHandler<T> responseHandler, String json) throws IOException {
-        var httpPost = new HttpPost(endpoint); // NOSONAR håndterer i responseHandler
-        httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
+    private <T> T hentFraAbakus(URI endpoint, AbakusResponseHandler<T> responseHandler, String json) throws IOException {
+        var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
+        var request = RestRequest.newRequest(method, endpoint, AbakusTjeneste.class);
 
-        try (var httpResponse = oidcRestClient.execute(httpPost)) {
-            var responseCode = httpResponse.getStatusLine().getStatusCode();
-            if (responseCode == HttpStatus.SC_OK || responseCode == HttpStatus.SC_CREATED) {
-                return responseHandler.handleResponse(httpResponse);
+        try {
+            var rawResponse = restClient.sendReturnUnhandled(request);
+            var responseCode = rawResponse.statusCode();
+            if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
+                return responseHandler.handleResponse(rawResponse);
             }
-            if (responseCode == HttpStatus.SC_NOT_MODIFIED) {
+            if (Set.of(HttpURLConnection.HTTP_NOT_MODIFIED, HttpURLConnection.HTTP_NO_CONTENT, HttpURLConnection.HTTP_ACCEPTED).contains(responseCode)) {
                 return null;
             }
-            if (responseCode == HttpStatus.SC_NO_CONTENT) {
-                return null;
-            }
-            if (responseCode == HttpStatus.SC_ACCEPTED) {
-                return null;
-            }
-            var responseBody = EntityUtils.toString(httpResponse.getEntity());
-            var feilmelding = "Kunne ikke hente grunnlag fra abakus: " + httpPost.getURI()
-                    + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
-            if (responseCode == HttpStatus.SC_BAD_REQUEST) {
+            var responseBody = rawResponse.body();
+            var feilmelding = String.format("Kunne ikke hente grunnlag fra abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+                endpoint, rawResponse.statusCode(), responseBody);
+            if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
                 throw feilKallTilAbakus(feilmelding);
             }
             throw feilVedKallTilAbakus(feilmelding);
@@ -223,142 +218,145 @@ public class AbakusTjeneste {
         }
     }
 
+    private static final class AbakusResponseHandler<T>  {
+
+        private final ObjectReader reader;
+
+        public AbakusResponseHandler(ObjectReader reader) {
+            this.reader = reader;
+        }
+
+        public T handleResponse(final HttpResponse<String> response) throws IOException {
+            var body = response.body();
+            return body != null ? reader.readValue(body) : null;
+        }
+    }
+
     @Deprecated
     public void lagreGrunnlag(InntektArbeidYtelseGrunnlagDto dto) throws IOException {
 
         var json = iayJsonWriter.writeValueAsString(dto);
 
-        var httpPut = new HttpPut(endpointGrunnlag);
-        httpPut.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
+        var method = new RestRequest.Method(RestRequest.WebMethod.PUT, HttpRequest.BodyPublishers.ofString(json));
+        var request = RestRequest.newRequest(method, endpointGrunnlag, AbakusTjeneste.class);
 
         LOG.info("Lagre IAY grunnlag (behandlingUUID={}) i Abakus", dto.getKoblingReferanse());
-        try (var httpResponse = oidcRestClient.execute(httpPut)) {
-            var responseCode = httpResponse.getStatusLine().getStatusCode();
-            if (responseCode != HttpStatus.SC_OK) {
-                var responseBody = EntityUtils.toString(httpResponse.getEntity());
-                var feilmelding = "Kunne ikke lagre IAY grunnlag: " + dto.getGrunnlagReferanse() + " til abakus: " + httpPut.getURI()
-                        + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
 
-                if (responseCode == HttpStatus.SC_BAD_REQUEST) {
-                    throw feilKallTilAbakus(feilmelding);
-                }
-                throw feilVedKallTilAbakus(feilmelding);
+        var rawResponse = restClient.sendReturnUnhandled(request);
+        var responseCode = rawResponse.statusCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            var responseBody = rawResponse.body();
+            var feilmelding = String.format("Kunne ikke lagre IAY grunnlag: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+                dto.getGrunnlagReferanse(), endpointGrunnlag, responseCode, responseBody);
+
+            if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
+                throw feilKallTilAbakus(feilmelding);
             }
+            throw feilVedKallTilAbakus(feilmelding);
         }
     }
 
     public void lagreOverstyrtGrunnlag(OverstyrtInntektArbeidYtelseDto overstyrtDto) throws IOException {
         var json = iayJsonWriter.writeValueAsString(overstyrtDto);
 
-        var httpPut = new HttpPut(endpointOverstyring);
-        httpPut.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
+        var method = new RestRequest.Method(RestRequest.WebMethod.PUT, HttpRequest.BodyPublishers.ofString(json));
+        var request = RestRequest.newRequest(method, endpointOverstyring, AbakusTjeneste.class);
 
         LOG.info("Lagre IAY grunnlag (behandlingUUID={}) i Abakus", overstyrtDto.getKoblingReferanse());
-        try (var httpResponse = oidcRestClient.execute(httpPut)) {
-            var responseCode = httpResponse.getStatusLine().getStatusCode();
-            if (responseCode != HttpStatus.SC_OK) {
-                var responseBody = EntityUtils.toString(httpResponse.getEntity());
-                var feilmelding = "Kunne ikke lagre overstyrt IAY grunnlag: " + overstyrtDto.getGrunnlagReferanse() + " til abakus: " + httpPut.getURI()
-                    + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
+        var rawResponse = restClient.sendReturnUnhandled(request);
+        var responseCode = rawResponse.statusCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            var responseBody = rawResponse.body();
+            var feilmelding = String.format("Kunne ikke lagre overstyrt IAY grunnlag: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+                overstyrtDto.getGrunnlagReferanse(), endpointOverstyring, responseCode, responseBody);
 
-                if (responseCode == HttpStatus.SC_BAD_REQUEST) {
-                    throw feilKallTilAbakus(feilmelding);
-                }
-                throw feilVedKallTilAbakus(feilmelding);
+            if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
+                throw feilKallTilAbakus(feilmelding);
             }
+            throw feilVedKallTilAbakus(feilmelding);
         }
+
     }
 
     public void lagreInntektsmeldinger(InntektsmeldingerMottattRequest dto) throws IOException {
 
         var json = iayJsonWriter.writeValueAsString(dto);
 
-        var httpPost = new HttpPost(endpointMottaInntektsmeldinger);
-        httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
+        var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
+        var request = RestRequest.newRequest(method, endpointMottaInntektsmeldinger, AbakusTjeneste.class);
 
         LOG.info("Lagre mottatte inntektsmeldinger (behandlingUUID={}) i Abakus", dto.getKoblingReferanse());
-        try (var httpResponse = oidcRestClient.execute(httpPost)) {
-            var responseCode = httpResponse.getStatusLine().getStatusCode();
-            if (responseCode != HttpStatus.SC_OK) {
-                var responseBody = EntityUtils.toString(httpResponse.getEntity());
-                var feilmelding = "Kunne ikke lagre mottatte inntektsmeldinger for behandling: " + dto.getKoblingReferanse() + " til abakus: "
-                        + httpPost.getURI()
-                        + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
-
-                if (responseCode == HttpStatus.SC_BAD_REQUEST) {
-                    throw feilKallTilAbakus(feilmelding);
-                }
-                throw feilVedKallTilAbakus(feilmelding);
+        var rawResponse = restClient.sendReturnUnhandled(request);
+        var responseCode = rawResponse.statusCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            var responseBody = rawResponse.body();
+            var feilmelding = String.format("Kunne ikke lagre mottatte inntektsmeldinger for behandling: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+                dto.getKoblingReferanse(), endpointMottaInntektsmeldinger, responseCode, responseBody);
+            if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
+                throw feilKallTilAbakus(feilmelding);
             }
+            throw feilVedKallTilAbakus(feilmelding);
+        }
+
+    }
+
+    public void lagreOppgittOpptjening(OppgittOpptjeningMottattRequest dto) throws IOException {
+        var json = iayJsonWriter.writeValueAsString(dto);
+
+        var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
+        var request = RestRequest.newRequest(method, endpointMottaOppgittOpptjening, AbakusTjeneste.class);
+
+        LOG.info("Lagre oppgitt opptjening (behandlingUUID={}) i Abakus", dto.getKoblingReferanse());
+        var rawResponse = restClient.sendReturnUnhandled(request);
+        var responseCode = rawResponse.statusCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            var responseBody = rawResponse.body();
+            var feilmelding = String.format("Kunne ikke lagre oppgitt opptjening for behandling: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+                dto.getKoblingReferanse(), endpointMottaOppgittOpptjening, responseCode, responseBody);
+            if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
+                throw feilKallTilAbakus(feilmelding);
+            }
+            throw feilVedKallTilAbakus(feilmelding);
         }
     }
 
-    public void lagreOppgittOpptjening(OppgittOpptjeningMottattRequest request) throws IOException {
-        var json = iayJsonWriter.writeValueAsString(request);
+    public void kopierGrunnlag(KopierGrunnlagRequest dto) throws IOException {
+        var json = iayJsonWriter.writeValueAsString(dto);
 
-        var httpPost = new HttpPost(endpointMottaOppgittOpptjening);
-        httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
+        var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
+        var request = RestRequest.newRequest(method, endpointKopierGrunnlag, AbakusTjeneste.class);
 
-        LOG.info("Lagre oppgitt opptjening (behandlingUUID={}) i Abakus", request.getKoblingReferanse());
-        try (var httpResponse = oidcRestClient.execute(httpPost)) {
-            var responseCode = httpResponse.getStatusLine().getStatusCode();
-            if (responseCode != HttpStatus.SC_OK) {
-                var responseBody = EntityUtils.toString(httpResponse.getEntity());
-                var feilmelding = "Kunne ikke lagre oppgitt opptjening for behandling: " + request.getKoblingReferanse() + " til abakus: "
-                        + httpPost.getURI()
-                        + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
-
-                if (responseCode == HttpStatus.SC_BAD_REQUEST) {
-                    throw feilKallTilAbakus(feilmelding);
-                }
-                throw feilVedKallTilAbakus(feilmelding);
+        LOG.info("Kopierer grunnlag fra (behandlingUUID={}) til (behandlingUUID={}) i Abakus", dto.getGammelReferanse(), dto.getNyReferanse());
+        var rawResponse = restClient.sendReturnUnhandled(request);
+        var responseCode = rawResponse.statusCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            var responseBody = rawResponse.body();
+            var feilmelding = String.format("Feilet med å kopiere grunnlag fra (behandlingUUID=%s) til (behandlingUUID=%s) i Abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+                dto.getGammelReferanse(), dto.getNyReferanse(), endpointKopierGrunnlag, responseCode, responseBody);
+            if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
+                throw feilKallTilAbakus(feilmelding);
             }
+            throw feilVedKallTilAbakus(feilmelding);
         }
+
     }
 
-    public void kopierGrunnlag(KopierGrunnlagRequest request) throws IOException {
-        var json = iayJsonWriter.writeValueAsString(request);
+    public void lagreYtelse(Ytelse dto) throws IOException {
+        var json = iayJsonWriter.writeValueAsString(dto);
 
-        var httpPost = new HttpPost(endpointKopierGrunnlag);
-        httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
+        var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
+        var request = RestRequest.newRequest(method, endpointLagreYtelse, AbakusTjeneste.class);
 
-        LOG.info("Kopierer grunnlag fra (behandlingUUID={}) til (behandlingUUID={}) i Abakus", request.getGammelReferanse(),
-                request.getNyReferanse());
-        try (var httpResponse = oidcRestClient.execute(httpPost)) {
-            var responseCode = httpResponse.getStatusLine().getStatusCode();
-            if (responseCode != HttpStatus.SC_OK) {
-                var responseBody = EntityUtils.toString(httpResponse.getEntity());
-                var feilmelding = "Feilet med å kopiere grunnlag fra (behandlingUUID=" + request.getGammelReferanse() + ") til (behandlingUUID="
-                        + request.getNyReferanse() + ") i Abakus: " + httpPost.getURI()
-                        + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
-
-                if (responseCode == HttpStatus.SC_BAD_REQUEST) {
-                    throw feilKallTilAbakus(feilmelding);
-                }
-                throw feilVedKallTilAbakus(feilmelding);
+        var rawResponse = restClient.sendReturnUnhandled(request);
+        var responseCode = rawResponse.statusCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            var responseBody = rawResponse.body();
+            var feilmelding = String.format("Kunne ikke lagre vedtak for sak: %s til Abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+                dto.getSaksnummer(), endpointLagreYtelse, responseCode, responseBody);
+            if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
+                throw feilKallTilAbakus(feilmelding);
             }
-        }
-    }
-
-    public void lagreYtelse(Ytelse request) throws IOException {
-        var json = iayJsonWriter.writeValueAsString(request);
-
-        var httpPost = new HttpPost(endpointLagreYtelse);
-        httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
-
-        try (var httpResponse = oidcRestClient.execute(httpPost)) {
-            var responseCode = httpResponse.getStatusLine().getStatusCode();
-            if (responseCode != HttpStatus.SC_OK) {
-                var responseBody = EntityUtils.toString(httpResponse.getEntity());
-                var feilmelding = "Kunne ikke lagre vedtak for sak: " + request.getSaksnummer() + " til abakus: "
-                    + httpPost.getURI()
-                    + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
-
-                if (responseCode == HttpStatus.SC_BAD_REQUEST) {
-                    throw feilKallTilAbakus(feilmelding);
-                }
-                throw feilVedKallTilAbakus(feilmelding);
-            }
+            throw feilVedKallTilAbakus(feilmelding);
         }
     }
 

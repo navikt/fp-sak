@@ -12,8 +12,9 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonRestKlient;
+import no.nav.vedtak.felles.integrasjon.organisasjon.OrgInfo;
 import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonstypeEReg;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
@@ -31,14 +32,14 @@ public class VirksomhetTjeneste {
 
     private LRUCache<String, Virksomhet> cache = new LRUCache<>(2000, CACHE_ELEMENT_LIVE_TIME_MS);
 
-    private OrganisasjonRestKlient eregRestKlient;
+    private OrgInfo eregRestKlient;
 
     public VirksomhetTjeneste() {
         // CDI
     }
 
     @Inject
-    public VirksomhetTjeneste(OrganisasjonRestKlient eregRestKlient) {
+    public VirksomhetTjeneste(@NativeClient OrgInfo eregRestKlient) {
         this.eregRestKlient = eregRestKlient;
     }
 
@@ -80,14 +81,14 @@ public class VirksomhetTjeneste {
         var builder = Virksomhet.getBuilder()
                 .medNavn(org.getNavn())
                 .medRegistrert(org.getRegistreringsdato())
-                .medOrgnr(org.getOrganisasjonsnummer());
-        if (OrganisasjonstypeEReg.VIRKSOMHET.equals(org.getType())) {
+                .medOrgnr(org.organisasjonsnummer());
+        if (OrganisasjonstypeEReg.VIRKSOMHET.equals(org.type())) {
             builder.medOrganisasjonstype(Organisasjonstype.VIRKSOMHET)
                     .medOppstart(org.getOppstartsdato())
                     .medAvsluttet(org.getNedleggelsesdato());
-        } else if (OrganisasjonstypeEReg.JURIDISK_ENHET.equals(org.getType())) {
+        } else if (OrganisasjonstypeEReg.JURIDISK_ENHET.equals(org.type())) {
             builder.medOrganisasjonstype(Organisasjonstype.JURIDISK_ENHET);
-        } else if (OrganisasjonstypeEReg.ORGLEDD.equals(org.getType())) {
+        } else if (OrganisasjonstypeEReg.ORGLEDD.equals(org.type())) {
             builder.medOrganisasjonstype(Organisasjonstype.ORGLEDD);
         }
         return builder.build();

@@ -3,19 +3,19 @@ package no.nav.foreldrepenger.domene.registerinnhenting.ufo;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriBuilder;
 
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.vedtak.felles.integrasjon.rest.StsSystemRestKlient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 /*
  * Dokumentasjon Tjeneste for å hente informasjon om brukers uførehistorikk
@@ -23,26 +23,23 @@ import no.nav.vedtak.felles.integrasjon.rest.StsSystemRestKlient;
  */
 
 @ApplicationScoped
+@RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "ufore.rs.url", endpointDefault = "http://pensjon-pen.pensjondeployer/pen/springapi/sak/harUforegrad")
 public class PesysUføreKlient {
 
     private static final Logger LOG = LoggerFactory.getLogger(PesysUføreKlient.class);
 
-    private static final String ENDPOINT_KEY = "ufore.rs.url";
-    private static final String DEFAULT_URI = "http://pensjon-pen.pensjondeployer/pen/springapi/sak/harUforegrad";
-
     private static final String HEADER_FNR = "fnr";
 
-    private StsSystemRestKlient oidcRestClient;
+    private RestClient restClient;
     private URI endpoint;
 
     public PesysUføreKlient() {
     }
 
     @Inject
-    public PesysUføreKlient(StsSystemRestKlient oidcRestClient,
-                            @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint) {
-        this.oidcRestClient = oidcRestClient;
-        this.endpoint = endpoint;
+    public PesysUføreKlient(RestClient restClient) {
+        this.restClient = restClient;
+        this.endpoint = RestConfig.endpointFromAnnotation(PesysUføreKlient.class);
     }
 
     public Optional<Uføreperiode> hentUføreHistorikk(String fnr, LocalDate startDato) {
@@ -52,13 +49,12 @@ public class PesysUføreKlient {
             .queryParam("tom", startDato.plusYears(3))
             .queryParam("uforeTyper", uføretyperParam)
             .build();
-        var response = this.oidcRestClient.get(request, this.lagHeader(fnr), HarUføreGrad.class);
-        return Optional.ofNullable(response)
+        var rrequest = RestRequest.newGET(request, PesysUføreKlient.class)
+            .header(HEADER_FNR, fnr);
+        var response = restClient.sendReturnOptional(rrequest, HarUføreGrad.class);
+        return response
             .filter(r -> r.harUforegrad() != null && r.harUforegrad())
             .map(Uføreperiode::new);
     }
 
-    private Set<Header> lagHeader(String fnr) {
-        return Set.of(new BasicHeader(HEADER_FNR, fnr));
-    }
 }
