@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
+import no.nav.foreldrepenger.domene.prosess.SplittForeslåBgToggle;
 
 @FagsakYtelseTypeRef
 @BehandlingStegRef(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG_2)
@@ -30,15 +31,15 @@ public class ForeslåBeregningsgrunnlag2Steg implements BeregningsgrunnlagSteg {
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
 
     protected ForeslåBeregningsgrunnlag2Steg() {
-        // CDI
+        // for CDI proxy
     }
 
     @Inject
-    public ForeslåBeregningsgrunnlag2Steg(BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste) {
+    public ForeslåBeregningsgrunnlag2Steg(BehandlingRepository behandlingRepository, BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
+                                          BeregningsgrunnlagInputProvider inputTjenesteProvider) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
-
     }
 
     @Override
@@ -58,9 +59,13 @@ public class ForeslåBeregningsgrunnlag2Steg implements BeregningsgrunnlagSteg {
 
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
-                                   BehandlingStegType fraSteg) {
+            BehandlingStegType fraSteg) {
         if (tilSteg.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG_2)) {
-            beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddForeslåBeregningsgrunnlagVedTilbakeføring();
+            if (SplittForeslåBgToggle.erTogglePå()) {
+                beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddForeslåBeregningsgrunnlag2VedTilbakeføring();
+            } else {
+                beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddForeslåBeregningsgrunnlagVedTilbakeføring();
+            }
         }
     }
 

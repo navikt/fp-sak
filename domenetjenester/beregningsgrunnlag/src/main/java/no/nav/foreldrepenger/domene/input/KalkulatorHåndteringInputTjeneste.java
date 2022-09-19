@@ -40,10 +40,18 @@ public class KalkulatorHåndteringInputTjeneste {
                                                    AksjonspunktDefinisjon aksjonspunkt) {
         Objects.requireNonNull(behandlingId, "behandlingId");
         var grunnlagFraForrigeOppdatering = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
-            behandlingId, behandlingRepository.hentBehandling(behandlingId).getOriginalBehandlingId(),
-            MapHåndteringskodeTilTilstand.map(aksjonspunkt));
+            behandlingId, behandlingRepository.hentBehandling(behandlingId).getOriginalBehandlingId(), finnAksjonspunktTilstand(aksjonspunkt, input));
         return lagHåndteringBeregningsgrunnlagInput(input, aksjonspunkt, grunnlagFraForrigeOppdatering);
 
+    }
+
+    private no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand finnAksjonspunktTilstand(AksjonspunktDefinisjon aksjonspunkt,
+                                                                                                             BeregningsgrunnlagInput input) {
+        if (aksjonspunkt.equals(AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE)) {
+            return input.isEnabled("splitt-foreslå-toggle", false) ? no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FORESLÅTT_2_UT
+                : no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FORESLÅTT_UT;
+        }
+        return MapHåndteringskodeTilTilstand.map(aksjonspunkt);
     }
 
     private HåndterBeregningsgrunnlagInput lagHåndteringBeregningsgrunnlagInput(BeregningsgrunnlagInput input,
