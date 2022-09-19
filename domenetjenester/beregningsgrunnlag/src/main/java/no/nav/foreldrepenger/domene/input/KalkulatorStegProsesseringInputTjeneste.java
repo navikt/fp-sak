@@ -19,6 +19,7 @@ import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.FaktaOmBeregningInput;
 import no.nav.folketrygdloven.kalkulator.input.FastsettBeregningsaktiviteterInput;
 import no.nav.folketrygdloven.kalkulator.input.FordelBeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagDel2Input;
 import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.ForeslåBesteberegningInput;
 import no.nav.folketrygdloven.kalkulator.input.FullføreBeregningsgrunnlagInput;
@@ -106,6 +107,9 @@ public class KalkulatorStegProsesseringInputTjeneste {
         if (stegType.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG)) {
             return lagInputForeslå(stegProsesseringInput);
         }
+        if (stegType.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG_2)) {
+            return lagInputForeslå2(stegProsesseringInput);
+        }
         if (stegType.equals(BehandlingStegType.VURDER_VILKAR_BERGRUNN)) {
             Optional<BeregningsgrunnlagGrunnlagEntitet> førsteFastsatteGrunnlagEntitet = finnFørsteFastsatteGrunnlagEtterEndringAvGrunnbeløp(behandling.getId());
             return lagInputVurderVilkår(stegProsesseringInput, førsteFastsatteGrunnlagEntitet);
@@ -184,6 +188,11 @@ public class KalkulatorStegProsesseringInputTjeneste {
 
     private ForeslåBeregningsgrunnlagInput lagInputForeslå(StegProsesseringInput stegProsesseringInput) {
         var foreslåBeregningsgrunnlagInput = new ForeslåBeregningsgrunnlagInput(stegProsesseringInput);
+        return foreslåBeregningsgrunnlagInput.medGrunnbeløpsatser(finnSatser());
+    }
+
+    private ForeslåBeregningsgrunnlagDel2Input lagInputForeslå2(StegProsesseringInput stegProsesseringInput) {
+        var foreslåBeregningsgrunnlagInput = new ForeslåBeregningsgrunnlagDel2Input(stegProsesseringInput);
         return foreslåBeregningsgrunnlagInput.medGrunnbeløpsatser(finnSatser());
     }
 
