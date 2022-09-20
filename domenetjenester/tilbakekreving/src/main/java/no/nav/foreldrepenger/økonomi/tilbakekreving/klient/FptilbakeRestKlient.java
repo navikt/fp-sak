@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.økonomi.tilbakekreving.klient;
 
+import java.net.URI;
 import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -7,22 +8,25 @@ import javax.inject.Inject;
 import javax.ws.rs.core.UriBuilder;
 
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT)
+@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, application = FpApplication.FPTILBAKE, endpointProperty = "fptilbake.override.direkte.url")  // Testformål
 public class FptilbakeRestKlient {
 
-    public static final String FPTILBAKE_HENT_ÅPEN_TILBAKEKREVING = "/behandlinger/tilbakekreving/aapen";
+    public static final String FPTILBAKE_HENT_ÅPEN_TILBAKEKREVING = "/api/behandlinger/tilbakekreving/aapen";
 
-    public static final String FPTILBAKE_HENT_TILBAKEKREVING_VEDTAK_INFO = "/behandlinger/tilbakekreving/vedtak-info";
+    public static final String FPTILBAKE_HENT_TILBAKEKREVING_VEDTAK_INFO = "/api/behandlinger/tilbakekreving/vedtak-info";
 
-    public static final String FPTILBAKE_HENT_TILBAKEKREVING_BEHANDLING_INFO = "/behandlinger";
+    public static final String FPTILBAKE_HENT_TILBAKEKREVING_BEHANDLING_INFO = "/api/behandlinger";
 
     private RestClient restClient;
+    private URI uri;
 
     public FptilbakeRestKlient() {
         // for CDI proxy
@@ -31,6 +35,7 @@ public class FptilbakeRestKlient {
     @Inject
     public FptilbakeRestKlient(RestClient restClient) {
         this.restClient = restClient;
+        this.uri = RestConfig.endpointFromAnnotation(FptilbakeRestKlient.class);
     }
 
     public boolean harÅpenTilbakekrevingsbehandling(Saksnummer saksnummer) {
@@ -49,15 +54,14 @@ public class FptilbakeRestKlient {
     }
 
     private RestRequest lagRequestUri(Saksnummer saksnummer) {
-        var endpoint = FptilbakeFelles.getFptilbakeBaseUrl() + FPTILBAKE_HENT_ÅPEN_TILBAKEKREVING;
-        var uri =  UriBuilder.fromUri(endpoint).queryParam("saksnummer", saksnummer.getVerdi()).build();
-        return RestRequest.newGET(uri, FptilbakeRestKlient.class);
+        var target =  UriBuilder.fromUri(uri).path(FPTILBAKE_HENT_ÅPEN_TILBAKEKREVING)
+            .queryParam("saksnummer", saksnummer.getVerdi()).build();
+        return RestRequest.newGET(target, FptilbakeRestKlient.class);
     }
     private RestRequest lagRequestUri(UUID uuid, String endpoint) {
-        var endpointURI = FptilbakeFelles.getFptilbakeBaseUrl() + endpoint;
-
-        var uri = UriBuilder.fromUri(endpointURI).queryParam("uuid", uuid.toString()).build();
-        return RestRequest.newGET(uri, FptilbakeRestKlient.class);
+        var target = UriBuilder.fromUri(uri).path(endpoint)
+            .queryParam("uuid", uuid.toString()).build();
+        return RestRequest.newGET(target, FptilbakeRestKlient.class);
     }
 
 

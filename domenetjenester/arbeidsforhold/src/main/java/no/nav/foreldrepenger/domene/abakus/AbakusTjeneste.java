@@ -85,7 +85,7 @@ public class AbakusTjeneste {
     public AbakusTjeneste(RestClient restClient,
                           @KonfigVerdi(value = "abakus.callback.url") URI callbackUrl) {
         this.restClient = restClient;
-        this.abakusEndpoint = RestConfig.endpointFromAnnotation(AbakusTjeneste.class);
+        this.abakusEndpoint = RestConfig.contextPathFromAnnotation(AbakusTjeneste.class);
         this.callbackUrl = callbackUrl;
         this.endpointArbeidsforholdIPeriode = toUri("/api/arbeidsforhold/v1/arbeidstaker");
         this.endpointGrunnlag = toUri("/api/iay/grunnlag/v1/");
