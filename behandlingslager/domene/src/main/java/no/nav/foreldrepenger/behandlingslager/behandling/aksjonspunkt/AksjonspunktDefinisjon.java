@@ -146,7 +146,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             VurderingspunktType.UT, VilkårType.BEREGNINGSGRUNNLAGVILKÅR, SkjermlenkeType.BEREGNING_FORELDREPENGER, TOTRINN, EnumSet.of(FP, SVP)),
     VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE(
             AksjonspunktKodeDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE_KODE, AksjonspunktType.MANUELL,
-            "Vurder varig endret/nyoppstartet næring selvstendig næringsdrivende", BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG, VurderingspunktType.UT,
+            "Vurder varig endret/nyoppstartet næring selvstendig næringsdrivende", BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG_2, VurderingspunktType.UT,
             VilkårType.BEREGNINGSGRUNNLAGVILKÅR, SkjermlenkeType.BEREGNING_FORELDREPENGER, TOTRINN, EnumSet.of(FP, SVP)),
     REGISTRER_PAPIRSØKNAD_FORELDREPENGER(
             AksjonspunktKodeDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER_KODE, AksjonspunktType.MANUELL, "Registrer papirsøknad foreldrepenger",
