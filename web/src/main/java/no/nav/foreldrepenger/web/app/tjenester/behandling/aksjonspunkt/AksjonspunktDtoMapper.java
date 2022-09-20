@@ -79,6 +79,13 @@ class AksjonspunktDtoMapper {
             return false;
         }
         var aktivtBehandlingSteg = Optional.ofNullable(behandling.getAktivtBehandlingSteg());
+
+        // Midlertidig fiks til alle som har fått aksjonspunkt er over i nytt steg
+        if (def.equals(AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE)) {
+            return aktivtBehandlingSteg
+                .map(steg -> steg.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG) || steg.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG_2))
+                .orElse(false);
+        }
         return aktivtBehandlingSteg.map(steg ->
                 skalLøsesIStegKode(def, behandling.getBehandlingStegStatus().getKode(), steg))
                 .orElse(false);
