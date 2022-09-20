@@ -56,7 +56,7 @@ public enum BehandlingStegType implements Kodeverdi {
     KONTROLLER_FAKTA_BEREGNING("KOFAKBER", "Kontroller fakta for beregning", UTREDES),
     FORESLÅ_BESTEBEREGNING("FORS_BESTEBEREGNING", "Foreslå besteberegning", UTREDES),
     FORESLÅ_BEREGNINGSGRUNNLAG("FORS_BERGRUNN", "Foreslå beregningsgrunnlag", UTREDES),
-    FORESLÅ_BEREGNINGSGRUNNLAG_2("FORS_BERGRUNN_2", "Foreslå beregningsgrunnlag del 2", UTREDES),
+    FORESLÅ_BEREGNINGSGRUNNLAG_2("FORS_BERGRUNN_2", "Foreslå beregningsgrunnlag del 2, foreslår grunnlag for næring og militær og gjør avviksvurdering av næring", UTREDES),
     VURDER_VILKAR_BERGRUNN("VURDER_VILKAR_BERGRUNN", "Vurder beregingsgrunnlagsvilkåret", UTREDES),
     FASTSETT_BEREGNINGSGRUNNLAG("FAST_BERGRUNN", "Fastsett beregningsgrunnlag", UTREDES),
     SØKNADSFRIST_FORELDREPENGER("SØKNADSFRIST_FP", "Vurder søknadsfrist foreldrepenger", UTREDES),
