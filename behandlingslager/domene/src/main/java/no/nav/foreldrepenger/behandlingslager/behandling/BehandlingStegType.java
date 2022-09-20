@@ -55,7 +55,7 @@ public enum BehandlingStegType implements Kodeverdi {
     FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING("FASTSETT_STP_BER", "Fastsett skjæringstidspunkt beregning", UTREDES),
     KONTROLLER_FAKTA_BEREGNING("KOFAKBER", "Kontroller fakta for beregning", UTREDES),
     FORESLÅ_BESTEBEREGNING("FORS_BESTEBEREGNING", "Foreslå besteberegning", UTREDES),
-    FORESLÅ_BEREGNINGSGRUNNLAG("FORS_BERGRUNN", "Foreslå beregningsgrunnlag", UTREDES),
+    FORESLÅ_BEREGNINGSGRUNNLAG("FORS_BERGRUNN", "Foreslå beregningsgrunnlag del 1, foreslår grunnlag for arbeid, frilans, arbeidsavklaringspenger, dagpenger, ytelse. Gjør avviksvurdering av arbeid / frilans", UTREDES),
     FORESLÅ_BEREGNINGSGRUNNLAG_2("FORS_BERGRUNN_2", "Foreslå beregningsgrunnlag del 2, foreslår grunnlag for næring og militær og gjør avviksvurdering av næring", UTREDES),
     VURDER_VILKAR_BERGRUNN("VURDER_VILKAR_BERGRUNN", "Vurder beregingsgrunnlagsvilkåret", UTREDES),
     FASTSETT_BEREGNINGSGRUNNLAG("FAST_BERGRUNN", "Fastsett beregningsgrunnlag", UTREDES),
