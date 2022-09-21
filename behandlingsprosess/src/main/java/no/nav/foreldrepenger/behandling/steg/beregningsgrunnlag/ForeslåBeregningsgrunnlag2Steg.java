@@ -16,7 +16,9 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
+import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.prosess.SplittForeslåBgToggle;
 
 @FagsakYtelseTypeRef
@@ -29,17 +31,21 @@ public class ForeslåBeregningsgrunnlag2Steg implements BeregningsgrunnlagSteg {
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
+    private HentOgLagreBeregningsgrunnlagTjeneste hentOgLagreBeregningsgrunnlagTjeneste;
 
     protected ForeslåBeregningsgrunnlag2Steg() {
         // for CDI proxy
     }
 
     @Inject
-    public ForeslåBeregningsgrunnlag2Steg(BehandlingRepository behandlingRepository, BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-                                          BeregningsgrunnlagInputProvider inputTjenesteProvider) {
+    public ForeslåBeregningsgrunnlag2Steg(BehandlingRepository behandlingRepository,
+                                          BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
+                                          BeregningsgrunnlagInputProvider inputTjenesteProvider,
+                                          HentOgLagreBeregningsgrunnlagTjeneste hentOgLagreBeregningsgrunnlagTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
+        this.hentOgLagreBeregningsgrunnlagTjeneste = hentOgLagreBeregningsgrunnlagTjeneste;
     }
 
     @Override
@@ -61,7 +67,10 @@ public class ForeslåBeregningsgrunnlag2Steg implements BeregningsgrunnlagSteg {
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
             BehandlingStegType fraSteg) {
         if (tilSteg.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG_2)) {
-            if (SplittForeslåBgToggle.erTogglePå()) {
+            // Midlertidig fiks til alle saker med aksjonspunkt som starter i foreslå 2 faktisk har et foreslå 2 grunnlag
+            var finnesGrunnlagFraForeslå2 = hentOgLagreBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(),
+                BeregningsgrunnlagTilstand.FORESLÅTT_2).isPresent();
+            if (SplittForeslåBgToggle.erTogglePå() && finnesGrunnlagFraForeslå2) {
                 beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddForeslåBeregningsgrunnlag2VedTilbakeføring();
             } else {
                 beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddForeslåBeregningsgrunnlagVedTilbakeføring();
