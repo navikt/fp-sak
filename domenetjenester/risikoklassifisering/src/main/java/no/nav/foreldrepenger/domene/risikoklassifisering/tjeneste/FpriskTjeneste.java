@@ -39,7 +39,7 @@ public class FpriskTjeneste {
     @Inject
     public FpriskTjeneste(RestClient restClient) {
         this.restClient = restClient;
-        var fpriskEndpoint = RestConfig.contextPathFromAnnotation(FpriskTjeneste.class);
+        var fpriskEndpoint = RestConfig.endpointFromAnnotation(FpriskTjeneste.class);
         this.hentRisikoklassifiseringEndpoint = toUri(fpriskEndpoint, "/api/risikovurdering/hentResultat");
         this.lagreVurderingEndpoint = toUri(fpriskEndpoint, "/api/risikovurdering/lagreVurdering");
         this.sendOppdragEndpoint = toUri(fpriskEndpoint, "/api/risikovurdering/startRisikovurdering");
