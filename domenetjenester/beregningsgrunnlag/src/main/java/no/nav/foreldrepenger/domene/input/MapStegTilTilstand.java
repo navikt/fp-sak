@@ -16,6 +16,7 @@ public final class MapStegTilTilstand {
         STEG_TILSTAND.put(BehandlingStegType.KONTROLLER_FAKTA_BEREGNING,
             BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER);
         STEG_TILSTAND.put(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG, BeregningsgrunnlagTilstand.FORESLÅTT);
+        STEG_TILSTAND.put(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG_2, BeregningsgrunnlagTilstand.FORESLÅTT_2);
         STEG_TILSTAND.put(BehandlingStegType.FORESLÅ_BESTEBEREGNING, BeregningsgrunnlagTilstand.BESTEBEREGNET);
         STEG_TILSTAND.put(BehandlingStegType.VURDER_VILKAR_BERGRUNN, BeregningsgrunnlagTilstand.VURDERT_VILKÅR);
         STEG_TILSTAND.put(BehandlingStegType.VURDER_REF_BERGRUNN, BeregningsgrunnlagTilstand.VURDERT_REFUSJON);
@@ -25,6 +26,7 @@ public final class MapStegTilTilstand {
 
         STEG_UT_TILSTAND.put(BehandlingStegType.KONTROLLER_FAKTA_BEREGNING, BeregningsgrunnlagTilstand.KOFAKBER_UT);
         STEG_UT_TILSTAND.put(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG, BeregningsgrunnlagTilstand.FORESLÅTT_UT);
+        STEG_UT_TILSTAND.put(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG_2, BeregningsgrunnlagTilstand.FORESLÅTT_2_UT);
         STEG_UT_TILSTAND.put(BehandlingStegType.VURDER_REF_BERGRUNN, BeregningsgrunnlagTilstand.VURDERT_REFUSJON_UT);
         STEG_UT_TILSTAND.put(BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG, BeregningsgrunnlagTilstand.FASTSATT_INN);
     }

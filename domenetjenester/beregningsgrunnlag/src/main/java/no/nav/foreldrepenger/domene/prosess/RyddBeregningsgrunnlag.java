@@ -42,6 +42,11 @@ public class RyddBeregningsgrunnlag {
             BeregningsgrunnlagTilstand.FORESLÅTT);
     }
 
+    public void ryddForeslåBeregningsgrunnlag2VedTilbakeføring() {
+        beregningsgrunnlagRepository.reaktiverBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(),
+            BeregningsgrunnlagTilstand.FORESLÅTT_2);
+    }
+
     public void ryddVurderVilkårBeregningsgrunnlagVedTilbakeføring() {
         beregningsgrunnlagRepository.reaktiverBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(),
             BeregningsgrunnlagTilstand.VURDERT_VILKÅR);

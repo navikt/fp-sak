@@ -4,6 +4,8 @@ import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTil
 import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FASTSATT;
 import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FASTSATT_INN;
 import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FORESLÅTT;
+import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FORESLÅTT_2;
+import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FORESLÅTT_2_UT;
 import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FORESLÅTT_UT;
 import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.KOFAKBER_UT;
 import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER;
@@ -25,6 +27,7 @@ import javax.inject.Inject;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.FaktaOmBeregningInput;
 import no.nav.folketrygdloven.kalkulator.input.FordelBeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagDel2Input;
 import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.ForeslåBesteberegningInput;
 import no.nav.folketrygdloven.kalkulator.input.VurderRefusjonBeregningsgrunnlagInput;
@@ -213,6 +216,21 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(),
             beregningResultatAggregat.getRegelSporingAggregat());
         lagreOgKopier(input, beregningResultatAggregat, nyttBg, FORESLÅTT, FORESLÅTT_UT);
+        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
+            beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
+    }
+
+    public BeregningsgrunnlagVilkårOgAkjonspunktResultat foreslåBeregningsgrunnlag2(BeregningsgrunnlagInput input) {
+        var behandlingId = input.getKoblingReferanse().getKoblingId();
+        var foreslåBeregningsgrunnlag2Input = (ForeslåBeregningsgrunnlagDel2Input) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
+            behandlingId, input, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG_2);
+        var beregningResultatAggregat = beregningsgrunnlagTjeneste.foreslåBeregningsgrunnlagDel2(
+            foreslåBeregningsgrunnlag2Input);
+        var nyttBg = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(
+            beregningResultatAggregat.getBeregningsgrunnlag(),
+            beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(),
+            beregningResultatAggregat.getRegelSporingAggregat());
+        lagreOgKopier(input, beregningResultatAggregat, nyttBg, FORESLÅTT_2, FORESLÅTT_2_UT);
         return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
             beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
     }

@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum BeregningsgrunnlagPeriodeRegelType implements Kodeverdi {
     FORESLÅ("FORESLÅ", "Foreslå beregningsgrunnlag"),
+    FORESLÅ_2("FORESLÅ_2", "Foreslå beregningsgrunnlag del 2"),
     VILKÅR_VURDERING("VILKÅR_VURDERING", "Vurder beregningsvilkår"),
     FORDEL("FORDEL", "Fordel beregningsgrunnlag"),
     FASTSETT("FASTSETT", "Fastsett/fullføre beregningsgrunnlag"),
