@@ -141,6 +141,12 @@ public class VurderOpphørAvYtelser {
         if (fhDatoFraBehOpphør == null || fhDatoNyBeh == null) {
             return false;
         }
+
+        //samme barn ved overlapp svp og fp er ikke to tette fødsler
+        if (fhDatoFraBehOpphør.isEqual(fhDatoNyBeh)) {
+            return false;
+        }
+
         var tidligsteFH = fhDatoFraBehOpphør.isBefore(fhDatoNyBeh) ? fhDatoFraBehOpphør : fhDatoNyBeh;
         var senesteFH = fhDatoNyBeh.isAfter(fhDatoFraBehOpphør) ? fhDatoNyBeh : fhDatoFraBehOpphør;
 
