@@ -20,7 +20,7 @@ import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlException;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 
 @ApplicationScoped
 public class PdlKlientLogCause {
@@ -36,7 +36,7 @@ public class PdlKlientLogCause {
     }
 
     @Inject
-    public PdlKlientLogCause(@Jersey Pdl pdlKlient) {
+    public PdlKlientLogCause(@NativeClient Pdl pdlKlient) {
         this.pdlKlient = pdlKlient;
     }
 

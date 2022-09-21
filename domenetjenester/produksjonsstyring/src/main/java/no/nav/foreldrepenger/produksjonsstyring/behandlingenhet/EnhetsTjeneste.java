@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.nom.SkjermetPers
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 
 @ApplicationScoped
 public class EnhetsTjeneste {
@@ -61,7 +61,7 @@ public class EnhetsTjeneste {
 
     @Inject
     public EnhetsTjeneste(PersoninfoAdapter personinfoAdapter,
-                          @Jersey Arbeidsfordeling arbeidsfordelingRestKlient,
+                          @NativeClient Arbeidsfordeling arbeidsfordelingRestKlient,
                           SkjermetPersonKlient skjermetPersonKlient) {
         this.personinfoAdapter = personinfoAdapter;
         this.norgRest = arbeidsfordelingRestKlient;

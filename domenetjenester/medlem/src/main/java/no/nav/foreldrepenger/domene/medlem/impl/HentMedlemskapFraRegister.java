@@ -18,22 +18,23 @@ import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
 import no.nav.foreldrepenger.domene.medlem.api.MedlemskapsperiodeKoder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.felles.integrasjon.medl2.Medlemskap;
 import no.nav.vedtak.felles.integrasjon.medl2.Medlemskapsunntak;
-import no.nav.vedtak.felles.integrasjon.medl2.MedlemsunntakRestKlient;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 
 @ApplicationScoped
 public class HentMedlemskapFraRegister {
 
     private static final Logger LOG = LoggerFactory.getLogger(HentMedlemskapFraRegister.class);
 
-    private MedlemsunntakRestKlient restKlient;
+    private Medlemskap restKlient;
 
     HentMedlemskapFraRegister() {
         // CDI
     }
 
     @Inject
-    public HentMedlemskapFraRegister(MedlemsunntakRestKlient restKlient) {
+    public HentMedlemskapFraRegister(@NativeClient Medlemskap restKlient) {
         this.restKlient = restKlient;
     }
 

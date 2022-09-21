@@ -5,19 +5,25 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.core.UriBuilder;
 
 import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimulerOppdragDto;
 import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
-import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
+import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
+@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, application = FpApplication.FPOPPDRAG, endpointProperty = "fpoppdrag.override.direkte.url")  // Testformål
 public class FpOppdragRestKlient {
 
-    private static final String FPOPPDRAG_START_SIMULERING = "/simulering/start";
-    private static final String FPOPPDRAG_HENT_RESULTAT = "/simulering/resultat";
+    private static final String FPOPPDRAG_START_SIMULERING = "/api/simulering/start";
+    private static final String FPOPPDRAG_HENT_RESULTAT = "/api/simulering/resultat";
 
-
-    private OidcRestClient restClient;
+    private RestClient restClient;
     private URI uriStartSimulering;
     private URI uriHentResultat;
 
@@ -26,11 +32,11 @@ public class FpOppdragRestKlient {
     }
 
     @Inject
-    public FpOppdragRestKlient(OidcRestClient restClient) {
+    public FpOppdragRestKlient(RestClient restClient) {
         this.restClient = restClient;
-        var fpoppdragBaseUrl = FpoppdragFelles.getFpoppdragBaseUrl();
-        uriStartSimulering = URI.create(fpoppdragBaseUrl + FPOPPDRAG_START_SIMULERING);
-        uriHentResultat = URI.create(fpoppdragBaseUrl + FPOPPDRAG_HENT_RESULTAT);
+        var fpoppdragBaseUrl = RestConfig.endpointFromAnnotation(FpOppdragRestKlient.class);
+        this.uriStartSimulering = UriBuilder.fromUri(fpoppdragBaseUrl).path(FPOPPDRAG_START_SIMULERING).build();
+        this.uriHentResultat = UriBuilder.fromUri(fpoppdragBaseUrl).path(FPOPPDRAG_HENT_RESULTAT).build();
     }
 
     /**
@@ -38,7 +44,8 @@ public class FpOppdragRestKlient {
      * @param request med behandlingId og liste med oppdrag-XMLer
      */
     public void startSimulering(SimulerOppdragDto request) {
-        restClient.post(uriStartSimulering, request);
+        var rrequest = RestRequest.newPOSTJson(request, uriStartSimulering, FpOppdragRestKlient.class);
+        restClient.sendReturnOptional(rrequest, String.class);
     }
 
     /**
@@ -47,7 +54,8 @@ public class FpOppdragRestKlient {
      * @return Optional med SimuleringResultatDto kan være tom
      */
     public Optional<SimuleringResultatDto> hentResultat(Long behandlingId) {
-        return restClient.postReturnsOptional(uriHentResultat, new BehandlingIdDto(behandlingId), SimuleringResultatDto.class);
+        var rrequest = RestRequest.newPOSTJson(new BehandlingIdDto(behandlingId), uriHentResultat, FpOppdragRestKlient.class);
+        return restClient.sendReturnOptional(rrequest, SimuleringResultatDto.class);
     }
 
 }

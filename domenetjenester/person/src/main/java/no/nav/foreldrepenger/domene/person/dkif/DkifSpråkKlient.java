@@ -1,25 +1,23 @@
 package no.nav.foreldrepenger.domene.person.dkif;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Optional;
-import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import no.nav.foreldrepenger.domene.person.krr.KrrSpråkKlient;
-
-import org.apache.http.Header;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.message.BasicHeader;
-
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.vedtak.felles.integrasjon.rest.StsSystemRestKlient;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriBuilderException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
+import no.nav.foreldrepenger.domene.person.krr.KrrSpråkKlient;
+import no.nav.vedtak.felles.integrasjon.rest.NavHeaders;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 /*
  * Dokumentasjon Tjeneste for å hente digital kontaktinformasjon (mobil, epost, sdp og språkkode)
@@ -27,47 +25,41 @@ import org.slf4j.LoggerFactory;
  */
 
 @ApplicationScoped
+@RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "dkif.rs.url", endpointDefault = "http://dkif.default/api/v1/personer/kontaktinformasjon")
 public class DkifSpråkKlient {
 
     private static final Logger LOG = LoggerFactory.getLogger(DkifSpråkKlient.class);
 
-    private static final String ENDPOINT_KEY = "dkif.rs.url";
-    private static final String DEFAULT_URI = "http://dkif.default/api/v1/personer/kontaktinformasjon";
-
     public static final String HEADER_NAV_PERSONIDENT = "Nav-Personidenter";
     private KrrSpråkKlient krrSpråkKlient;
 
-    private StsSystemRestKlient oidcRestClient;
+    private RestClient restClient;
     private URI endpoint;
 
     public DkifSpråkKlient() {
     }
 
     @Inject
-    public DkifSpråkKlient(StsSystemRestKlient oidcRestClient,
-                           @KonfigVerdi(value = ENDPOINT_KEY, defaultVerdi = DEFAULT_URI) URI endpoint,
+    public DkifSpråkKlient(RestClient restClient,
                            KrrSpråkKlient krrSpråkKlient) {
-        this.oidcRestClient = oidcRestClient;
-        this.endpoint = endpoint;
+        this.restClient = restClient;
+        this.endpoint = UriBuilder.fromUri(RestConfig.endpointFromAnnotation(DkifSpråkKlient.class))
+            .queryParam("inkluderSikkerDigitalPost", "false")
+            .build();
         this.krrSpråkKlient = krrSpråkKlient;
     }
 
     public Språkkode finnSpråkkodeForBruker(String fnr) {
         try {
-            var request = new URIBuilder(endpoint)
-                    .addParameter("inkluderSikkerDigitalPost", "false")
-                    .build();
-            var match = this.oidcRestClient.get(request, this.lagHeader(fnr), DigitalKontaktinfo.class);
-            var språkkode = Optional.ofNullable(match).flatMap(m -> m.getSpraak(fnr)).map(String::toUpperCase).map(Språkkode::defaultNorsk).orElse(Språkkode.NB);
+            var request = RestRequest.newGET(endpoint, DkifSpråkKlient.class)
+                .header(NavHeaders.HEADER_NAV_PERSONIDENTER, fnr);
+            var match = restClient.sendReturnOptional(request, DigitalKontaktinfo.class);
+            var språkkode = match.flatMap(m -> m.getSpraak(fnr)).map(String::toUpperCase).map(Språkkode::defaultNorsk).orElse(Språkkode.NB);
             sammenlikneMedKrrKlient(språkkode, fnr);
             return språkkode;
-        } catch (URISyntaxException e) {
+        } catch (UriBuilderException|IllegalArgumentException e) {
             throw new IllegalArgumentException("Utviklerfeil syntax-exception for finnSpråkkodeForBruker");
         }
-    }
-
-    private Set<Header> lagHeader(String fnr) {
-        return Set.of(new BasicHeader(HEADER_NAV_PERSONIDENT, fnr));
     }
 
     private void sammenlikneMedKrrKlient(Språkkode språkkode, String fnr) {

@@ -31,8 +31,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
@@ -48,6 +48,7 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
+import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.integrasjon.spokelse.Spøkelse;
 import no.nav.vedtak.konfig.Tid;
 
@@ -84,7 +85,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
                                                InfotrygdPSGrunnlag infotrygdPSGrTjeneste,
                                                InfotrygdSPGrunnlag infotrygdSPGrTjeneste,
                                                AbakusTjeneste abakusTjeneste,
-                                               Spøkelse spøkelse,
+                                               @NativeClient Spøkelse spøkelse,
                                                OverlappVedtakRepository overlappRepository,
                                                BehandlingRepository behandlingRepository) {
         this.beregningTjeneste = beregningTjeneste;
