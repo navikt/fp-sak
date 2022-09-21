@@ -23,7 +23,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, application = FpApplication.FPRISK)
+@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, application = FpApplication.FPRISK, endpointProperty = "FPRISK_OVERRIDE_URL")
 public class FpriskTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(FpriskTjeneste.class);
 
