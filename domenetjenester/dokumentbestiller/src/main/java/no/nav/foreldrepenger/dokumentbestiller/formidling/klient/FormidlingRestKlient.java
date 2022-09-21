@@ -29,7 +29,7 @@ public class FormidlingRestKlient implements Brev {
     @Inject
     public FormidlingRestKlient(RestClient restClient) {
         this.restClient = restClient;
-        var contextPath = RestConfig.contextPathFromAnnotation(FormidlingRestKlient.class);
+        var contextPath = RestConfig.endpointFromAnnotation(FormidlingRestKlient.class);
         this.uri = UriBuilder.fromUri(contextPath).path("/api/brev/bestill").build();
     }
 
