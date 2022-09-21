@@ -16,7 +16,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, application = FpApplication.FPTILBAKE, endpointProperty = "fptilbake.override.direkte.url")  // Testformål
+@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, application = FpApplication.FPTILBAKE, endpointProperty = "FPTILBAKE_OVERRIDE_URL")  // Testformål
 public class FptilbakeRestKlient {
 
     public static final String FPTILBAKE_HENT_ÅPEN_TILBAKEKREVING = "/api/behandlinger/tilbakekreving/aapen";

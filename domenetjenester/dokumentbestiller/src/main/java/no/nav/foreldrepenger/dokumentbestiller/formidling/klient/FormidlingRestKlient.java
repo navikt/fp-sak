@@ -16,7 +16,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, application = FpApplication.FPFORMIDLING)
+@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, application = FpApplication.FPFORMIDLING, endpointProperty = "FPFORMIDLING_OVERRIDE_URL")
 public class FormidlingRestKlient implements Brev {
 
     private RestClient restClient;

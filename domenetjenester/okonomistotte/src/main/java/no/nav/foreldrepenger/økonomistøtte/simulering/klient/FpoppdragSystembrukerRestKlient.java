@@ -14,7 +14,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.STS_CC, application = FpApplication.FPOPPDRAG, endpointProperty = "fpoppdrag.override.direkte.url") // Testformål
+@RestClientConfig(tokenConfig = TokenFlow.STS_CC, application = FpApplication.FPOPPDRAG, endpointProperty = "FPOPPDRAG_OVERRIDE_URL") // Testformål
 public class FpoppdragSystembrukerRestKlient {
 
     private static final String FPOPPDRAG_KANSELLER_SIMULERING = "/api/simulering/kanseller";

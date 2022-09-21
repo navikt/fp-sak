@@ -51,7 +51,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, application = FpApplication.FPABAKUS)
+@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, application = FpApplication.FPABAKUS, endpointProperty = "FPABAKUS_OVERRIDE_URL")
 public class AbakusTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbakusTjeneste.class);
