@@ -55,6 +55,7 @@ import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.AktivitetsAvtaleDto;
 import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.ArbeidDto;
 import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.ArbeidsforholdInformasjonDto;
 import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.ArbeidsforholdOverstyringDto;
+import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.PermisjonDto;
 import no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.InntekterDto;
 import no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.InntektsmeldingDto;
 import no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.InntektsmeldingerDto;
@@ -73,6 +74,7 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.RelatertYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.TemaUnderkategori;
@@ -463,7 +465,28 @@ class MapTilKalkulatorInput {
                 mapArbeidsgiver(yrkesaktivitetDto.getArbeidsgiver()),
                 mapAbakusReferanse(yrkesaktivitetDto.getArbeidsforholdRef()),
                 yrkesaktivitetDto.getArbeidType() == null ? null : ArbeidType.fraKode(yrkesaktivitetDto.getArbeidType().getKode()),
-                mapAktivitetsAvtaler(yrkesaktivitetDto.getAlleAktivitetsAvtaler()));
+                mapAktivitetsAvtaler(yrkesaktivitetDto.getAlleAktivitetsAvtaler()),
+                mapPermisjoner(yrkesaktivitetDto.getPermisjoner()));
+    }
+
+    private static List<PermisjonDto> mapPermisjoner(Set<no.nav.folketrygdloven.kalkulator.modell.iay.permisjon.PermisjonDto> permisjoner) {
+        return permisjoner.stream().map(MapTilKalkulatorInput::mapPermisjon).collect(Collectors.toList());
+    }
+
+    private static PermisjonDto mapPermisjon(no.nav.folketrygdloven.kalkulator.modell.iay.permisjon.PermisjonDto perm) {
+        return new PermisjonDto(mapPeriode(perm.getPeriode()), perm.getProsentsats(), mapPermisjonstype(perm.getPermisjonsbeskrivelseType()));
+    }
+
+    private static PermisjonsbeskrivelseType mapPermisjonstype(PermisjonsbeskrivelseType permisjonsbeskrivelseType) {
+        return switch(permisjonsbeskrivelseType) {
+            case PERMISJON -> PermisjonsbeskrivelseType.PERMISJON;
+            case UTDANNINGSPERMISJON -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON;
+            case VELFERDSPERMISJON -> PermisjonsbeskrivelseType.VELFERDSPERMISJON;
+            case PERMISJON_MED_FORELDREPENGER -> PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER;
+            case PERMISJON_VED_MILITÆRTJENESTE -> PermisjonsbeskrivelseType.PERMISJON_VED_MILITÆRTJENESTE;
+            case PERMITTERING -> PermisjonsbeskrivelseType.PERMITTERING;
+            case UDEFINERT -> PermisjonsbeskrivelseType.UDEFINERT;
+        };
     }
 
     private static List<AktivitetsAvtaleDto> mapAktivitetsAvtaler(Collection<no.nav.folketrygdloven.kalkulator.modell.iay.AktivitetsAvtaleDto> alleAktivitetsAvtaler) {
