@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.klient;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -17,7 +18,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, application = FpApplication.FPOPPDRAG, endpointProperty = "FPOPPDRAG_OVERRIDE_URL")  // Testformål
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPOPPDRAG, endpointProperty = "FPOPPDRAG_OVERRIDE_URL")  // Testformål
 public class FpOppdragRestKlient {
 
     private static final String FPOPPDRAG_START_SIMULERING = "/api/simulering/start";
@@ -34,7 +35,7 @@ public class FpOppdragRestKlient {
     @Inject
     public FpOppdragRestKlient(RestClient restClient) {
         this.restClient = restClient;
-        var fpoppdragBaseUrl = RestConfig.endpointFromAnnotation(FpOppdragRestKlient.class);
+        var fpoppdragBaseUrl = RestConfig.contextPathFromAnnotation(FpOppdragRestKlient.class);
         this.uriStartSimulering = UriBuilder.fromUri(fpoppdragBaseUrl).path(FPOPPDRAG_START_SIMULERING).build();
         this.uriHentResultat = UriBuilder.fromUri(fpoppdragBaseUrl).path(FPOPPDRAG_HENT_RESULTAT).build();
     }
@@ -44,7 +45,7 @@ public class FpOppdragRestKlient {
      * @param request med behandlingId og liste med oppdrag-XMLer
      */
     public void startSimulering(SimulerOppdragDto request) {
-        var rrequest = RestRequest.newPOSTJson(request, uriStartSimulering, FpOppdragRestKlient.class);
+        var rrequest = RestRequest.newPOSTJson(request, uriStartSimulering, FpOppdragRestKlient.class).timeout(Duration.ofSeconds(30));
         restClient.sendReturnOptional(rrequest, String.class);
     }
 
