@@ -55,6 +55,11 @@
             "app": "fpabakus",
             "namespace": "teamforeldrepenger",
             "cluster": "prod-fss"
+        },
+        {
+            "app": "fpabonnent",
+            "namespace": "teamforeldrepenger",
+            "cluster": "prod-fss"
         }
     ]
 }
