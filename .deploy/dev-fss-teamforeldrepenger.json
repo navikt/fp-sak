@@ -38,6 +38,21 @@
             "app": "fp-frontend-azure",
             "namespace": "teamforeldrepenger",
             "cluster": "dev-fss"
+        },
+        {
+            "app": "fpformidling",
+            "namespace": "teamforeldrepenger",
+            "cluster": "dev-fss"
+        },
+        {
+            "app": "fplos",
+            "namespace": "teamforeldrepenger",
+            "cluster": "dev-fss"
+        },
+        {
+            "app": "fptilbake",
+            "namespace": "teamforeldrepenger",
+            "cluster": "dev-fss"
         }
     ]
 }
