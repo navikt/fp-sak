@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYScenarioBuilder;
-import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonRestKlient;
+import no.nav.vedtak.felles.integrasjon.organisasjon.OrgInfo;
 
 @ExtendWith(JpaExtension.class)
 public class VirksomhetTjenesteTest {
@@ -29,7 +29,7 @@ public class VirksomhetTjenesteTest {
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.ENGANGSTØNAD);
         scenario.lagre(new IAYRepositoryProvider(entityManager));
 
-        var organisasjonConsumer = mock(OrganisasjonRestKlient.class);
+        var organisasjonConsumer = mock(OrgInfo.class);
 
         var organisasjonTjeneste = new VirksomhetTjeneste(organisasjonConsumer);
 

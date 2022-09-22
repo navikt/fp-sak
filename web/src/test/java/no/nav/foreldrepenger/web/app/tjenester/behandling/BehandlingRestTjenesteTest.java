@@ -3,9 +3,10 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import java.net.HttpURLConnection;
+
 import javax.persistence.EntityManager;
 
-import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -114,6 +115,6 @@ public class BehandlingRestTjenesteTest {
             new SaksnummerDto(farsBehandling.getFagsak().getSaksnummer()));
 
         // Assert
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_OK);
+        assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_OK);
     }
 }

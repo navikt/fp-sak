@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveForBehandlingTask;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
@@ -55,7 +55,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
     private Fagsak fagsak;
 
     @Mock
-    private OppgaveRestKlient oppgaveRestKlient;
+    private Oppgaver oppgaveRestKlient;
     @Mock
     private PersoninfoAdapter personinfoAdapter;
     @Mock

@@ -18,14 +18,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapTy
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.vedtak.felles.integrasjon.medl2.Medlemskap;
 import no.nav.vedtak.felles.integrasjon.medl2.Medlemskapsunntak;
-import no.nav.vedtak.felles.integrasjon.medl2.MedlemsunntakRestKlient;
 
 public class HentMedlemskapFraRegisterTest {
 
     private static final AktørId AKTØR_ID = AktørId.dummy();
 
-    private MedlemsunntakRestKlient restKlient = mock(MedlemsunntakRestKlient.class);
+    private Medlemskap restKlient = mock(Medlemskap.class);
     private HentMedlemskapFraRegister medlemTjeneste;
 
     private static final long MEDL_ID_1 = 2663947L;
