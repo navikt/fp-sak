@@ -470,7 +470,10 @@ class MapTilKalkulatorInput {
     }
 
     private static List<PermisjonDto> mapPermisjoner(Set<no.nav.folketrygdloven.kalkulator.modell.iay.permisjon.PermisjonDto> permisjoner) {
-        return permisjoner.stream().map(MapTilKalkulatorInput::mapPermisjon).collect(Collectors.toList());
+        return permisjoner.stream()
+            .filter(perm -> !perm.getPermisjonsbeskrivelseType().equals(PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER)
+                && !perm.getPermisjonsbeskrivelseType().equals(PermisjonsbeskrivelseType.UTDANNINGSPERMISJON))
+            .map(MapTilKalkulatorInput::mapPermisjon).collect(Collectors.toList());
     }
 
     private static PermisjonDto mapPermisjon(no.nav.folketrygdloven.kalkulator.modell.iay.permisjon.PermisjonDto perm) {
