@@ -23,7 +23,7 @@ public enum BeregningsgrunnlagTilstand implements Kodeverdi {
     FORESLÅTT("FORESLÅTT", "Foreslått", true),
     FORESLÅTT_UT("FORESLÅTT_UT", "Foreslått ut", false),
     FORESLÅTT_2("FORESLÅTT_DEL_2", "Foreslått del 2 ut", true),
-    FORESLÅTT_2_UT("FORESLÅTT_DEL_2_UT", "Foreslått del 2 ut", true),
+    FORESLÅTT_2_UT("FORESLÅTT_DEL_2_UT", "Foreslått del 2 ut", false),
     VURDERT_VILKÅR("VURDERT_VILKÅR", "Vurder beregning beregningsgrunnlagvilkår", true),
     VURDERT_REFUSJON("VURDERT_REFUSJON", "Vurder refusjonskrav beregning", true),
     VURDERT_REFUSJON_UT("VURDERT_REFUSJON_UT", "Vurder refusjonskrav beregning - Ut", false),
