@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
@@ -51,7 +52,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, application = FpApplication.FPABAKUS, endpointProperty = "FPABAKUS_OVERRIDE_URL")
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPABAKUS, endpointProperty = "FPABAKUS_OVERRIDE_URL")
 public class AbakusTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbakusTjeneste.class);
@@ -85,7 +86,7 @@ public class AbakusTjeneste {
     public AbakusTjeneste(RestClient restClient,
                           @KonfigVerdi(value = "abakus.callback.url") URI callbackUrl) {
         this.restClient = restClient;
-        this.abakusEndpoint = RestConfig.endpointFromAnnotation(AbakusTjeneste.class);
+        this.abakusEndpoint = RestConfig.contextPathFromAnnotation(AbakusTjeneste.class);
         this.callbackUrl = callbackUrl;
         this.endpointArbeidsforholdIPeriode = toUri("/api/arbeidsforhold/v1/arbeidstaker");
         this.endpointGrunnlag = toUri("/api/iay/grunnlag/v1/");
@@ -283,7 +284,7 @@ public class AbakusTjeneste {
         var json = iayJsonWriter.writeValueAsString(dto);
 
         var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
-        var request = RestRequest.newRequest(method, endpointMottaInntektsmeldinger, AbakusTjeneste.class);
+        var request = RestRequest.newRequest(method, endpointMottaInntektsmeldinger, AbakusTjeneste.class).timeout(Duration.ofSeconds(30));
 
         LOG.info("Lagre mottatte inntektsmeldinger (behandlingUUID={}) i Abakus", dto.getKoblingReferanse());
         var rawResponse = restClient.sendReturnUnhandled(request);
@@ -304,7 +305,7 @@ public class AbakusTjeneste {
         var json = iayJsonWriter.writeValueAsString(dto);
 
         var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
-        var request = RestRequest.newRequest(method, endpointMottaOppgittOpptjening, AbakusTjeneste.class);
+        var request = RestRequest.newRequest(method, endpointMottaOppgittOpptjening, AbakusTjeneste.class).timeout(Duration.ofSeconds(30));
 
         LOG.info("Lagre oppgitt opptjening (behandlingUUID={}) i Abakus", dto.getKoblingReferanse());
         var rawResponse = restClient.sendReturnUnhandled(request);

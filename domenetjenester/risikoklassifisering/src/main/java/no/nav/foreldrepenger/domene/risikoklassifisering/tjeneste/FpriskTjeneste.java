@@ -23,7 +23,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, application = FpApplication.FPRISK, endpointProperty = "FPRISK_OVERRIDE_URL")
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPRISK, endpointProperty = "FPRISK_OVERRIDE_URL")
 public class FpriskTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(FpriskTjeneste.class);
 
@@ -39,7 +39,7 @@ public class FpriskTjeneste {
     @Inject
     public FpriskTjeneste(RestClient restClient) {
         this.restClient = restClient;
-        var fpriskEndpoint = RestConfig.endpointFromAnnotation(FpriskTjeneste.class);
+        var fpriskEndpoint = RestConfig.contextPathFromAnnotation(FpriskTjeneste.class);
         this.hentRisikoklassifiseringEndpoint = toUri(fpriskEndpoint, "/api/risikovurdering/hentResultat");
         this.lagreVurderingEndpoint = toUri(fpriskEndpoint, "/api/risikovurdering/lagreVurdering");
         this.sendOppdragEndpoint = toUri(fpriskEndpoint, "/api/risikovurdering/startRisikovurdering");

@@ -16,7 +16,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, application = FpApplication.FPFORMIDLING, endpointProperty = "FPFORMIDLING_OVERRIDE_URL")
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPFORMIDLING, endpointProperty = "FPFORMIDLING_OVERRIDE_URL")
 public class FormidlingRestKlient implements Brev {
 
     private RestClient restClient;
@@ -29,7 +29,7 @@ public class FormidlingRestKlient implements Brev {
     @Inject
     public FormidlingRestKlient(RestClient restClient) {
         this.restClient = restClient;
-        var contextPath = RestConfig.endpointFromAnnotation(FormidlingRestKlient.class);
+        var contextPath = RestConfig.contextPathFromAnnotation(FormidlingRestKlient.class);
         this.uri = UriBuilder.fromUri(contextPath).path("/api/brev/bestill").build();
     }
 
