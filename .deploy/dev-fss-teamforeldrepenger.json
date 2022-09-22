@@ -53,6 +53,16 @@
             "app": "fptilbake",
             "namespace": "teamforeldrepenger",
             "cluster": "dev-fss"
+        },
+        {
+            "app": "fpfordel",
+            "namespace": "teamforeldrepenger",
+            "cluster": "dev-fss"
+        },
+        {
+            "app": "fpabakus",
+            "namespace": "teamforeldrepenger",
+            "cluster": "dev-fss"
         }
     ]
 }
