@@ -30,6 +30,31 @@
             "app": "fp-frontend",
             "namespace": "teamforeldrepenger",
             "cluster": "prod-gcp"
+        },
+        {
+            "app": "fpformidling",
+            "namespace": "teamforeldrepenger",
+            "cluster": "prod-fss"
+        },
+        {
+            "app": "fplos",
+            "namespace": "teamforeldrepenger",
+            "cluster": "prod-fss"
+        },
+        {
+            "app": "fptilbake",
+            "namespace": "teamforeldrepenger",
+            "cluster": "prod-fss"
+        },
+        {
+            "app": "fpfordel",
+            "namespace": "teamforeldrepenger",
+            "cluster": "prod-fss"
+        },
+        {
+            "app": "fpabakus",
+            "namespace": "teamforeldrepenger",
+            "cluster": "prod-fss"
         }
     ]
 }
