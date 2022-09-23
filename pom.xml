@@ -103,11 +103,6 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>medl-klient</artifactId>
-                <version>${felles.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>ereg-klient</artifactId>
                 <version>${felles.version}</version>
             </dependency>
