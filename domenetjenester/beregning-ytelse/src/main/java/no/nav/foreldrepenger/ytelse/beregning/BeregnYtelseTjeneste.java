@@ -1,11 +1,13 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
-import static no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenProvider.LOG;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -19,6 +21,9 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRege
 
 @ApplicationScoped
 public class BeregnYtelseTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BeregnYtelseTjeneste.class);
+
     private final JacksonJsonConfig jackson = new JacksonJsonConfig();
     private Instance<BeregnFeriepengerTjeneste> beregnFeriepengerTjeneste;
     private MapInputFraVLTilRegelGrunnlag mapBeregningsresultatFraVLTilRegel;

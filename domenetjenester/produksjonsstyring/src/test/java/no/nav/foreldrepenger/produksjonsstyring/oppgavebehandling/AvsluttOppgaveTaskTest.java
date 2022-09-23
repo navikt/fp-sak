@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTask;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -32,7 +32,7 @@ public class AvsluttOppgaveTaskTest extends EntityManagerAwareTest {
     @Mock
     private PersoninfoAdapter personinfoAdapter;
     @Mock
-    private OppgaveRestKlient oppgaveRestKlient;
+    private Oppgaver oppgaveRestKlient;
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
 

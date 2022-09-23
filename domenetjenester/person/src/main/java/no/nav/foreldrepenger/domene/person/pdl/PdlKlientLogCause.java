@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.person.pdl;
 
-import static org.apache.http.HttpStatus.SC_NOT_FOUND;
+
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 import java.net.SocketTimeoutException;
 
@@ -44,7 +45,7 @@ public class PdlKlientLogCause {
         try {
             return pdlKlient.hentGT(q, p);
         } catch (PdlException e) {
-            if (e.getStatus() == SC_NOT_FOUND) {
+            if (e.getStatus() == HTTP_NOT_FOUND) {
                 LOG.info("PDL FPSAK hentGT person ikke funnet");
             } else {
                 LOG.warn("PDL FPSAK hentGT feil fra PDL pga {}", e.toString(), e);
@@ -59,7 +60,7 @@ public class PdlKlientLogCause {
         try {
             return pdlKlient.hentPerson(q, p);
         } catch (PdlException e) {
-            if (e.getStatus() == SC_NOT_FOUND) {
+            if (e.getStatus() == HTTP_NOT_FOUND) {
                 LOG.info("PDL FPSAK hentPerson ikke funnet");
             } else {
                 LOG.warn("PDL FPSAK hentPerson feil fra PDL pga {}", e.toString(), e);
@@ -74,9 +75,9 @@ public class PdlKlientLogCause {
         try {
             return pdlKlient.hentPerson(q, p, ignoreNotFound);
         } catch (PdlException e) {
-            if (e.getStatus() == SC_NOT_FOUND) {
+            if (e.getStatus() == HTTP_NOT_FOUND) {
                 LOG.info("PDL FPSAK hentPerson ikke funnet");
-            } else if (e.getStatus() != SC_NOT_FOUND) {
+            } else if (e.getStatus() != HTTP_NOT_FOUND) {
                 LOG.warn("PDL FPSAK hentPerson feil fra PDL pga {}", e.toString(), e);
             }
             throw e;

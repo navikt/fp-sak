@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTask;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveGodkjennVedtakTask;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
@@ -55,7 +55,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     private OppgaveTjeneste tjeneste;
     private PersoninfoAdapter personinfoAdapter;
     private ProsessTaskTjeneste taskTjeneste;
-    private OppgaveRestKlient oppgaveRestKlient;
+    private Oppgaver oppgaveRestKlient;
 
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
 
@@ -68,7 +68,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
 
         personinfoAdapter = mock(PersoninfoAdapter.class);
         taskTjeneste = mock(ProsessTaskTjeneste.class);
-        oppgaveRestKlient = Mockito.mock(OppgaveRestKlient.class);
+        oppgaveRestKlient = Mockito.mock(Oppgaver.class);
         oppgaveBehandlingKoblingRepository = spy(new OppgaveBehandlingKoblingRepository(entityManager));
         tjeneste = new OppgaveTjeneste(new FagsakRepository(entityManager), new BehandlingRepository(entityManager),
                 oppgaveBehandlingKoblingRepository, oppgaveRestKlient, taskTjeneste, personinfoAdapter);
