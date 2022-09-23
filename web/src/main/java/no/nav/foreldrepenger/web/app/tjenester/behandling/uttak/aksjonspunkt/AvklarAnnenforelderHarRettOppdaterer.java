@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt;
 
+import static java.lang.Boolean.TRUE;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -27,13 +29,15 @@ public class AvklarAnnenforelderHarRettOppdaterer implements AksjonspunktOppdate
 
     @Override
     public OppdateringResultat oppdater(AvklarAnnenforelderHarRettDto dto, AksjonspunktOppdaterParameter param) {
-        var totrinn = faktaOmsorgRettTjeneste.totrinnForAnnenforelderRett(param, dto.getAnnenforelderHarRett(),
-            dto.getAnnenforelderMottarUføretrygd(), false, dto.getAnnenForelderHarRettEØS());
-        faktaOmsorgRettTjeneste.annenforelderRettHistorikkFelt(param, dto.getAnnenforelderHarRett(),
-            dto.getAnnenforelderMottarUføretrygd(), false, dto.getAnnenForelderHarRettEØS());
+        var annenforelderHarRett = dto.getAnnenforelderHarRett();
+        var annenForelderHarRettEØS = TRUE.equals(annenforelderHarRett) && dto.getAnnenForelderHarRettEØS() != null ? Boolean.FALSE : dto.getAnnenForelderHarRettEØS();
+        var totrinn = faktaOmsorgRettTjeneste.totrinnForAnnenforelderRett(param, annenforelderHarRett,
+            dto.getAnnenforelderMottarUføretrygd(), false, annenForelderHarRettEØS);
+        faktaOmsorgRettTjeneste.annenforelderRettHistorikkFelt(param, annenforelderHarRett,
+            dto.getAnnenforelderMottarUføretrygd(), false, annenForelderHarRettEØS);
         faktaOmsorgRettTjeneste.omsorgRettHistorikkInnslag(param, dto.getBegrunnelse());
-        faktaOmsorgRettTjeneste.oppdaterAnnenforelderRett(param, dto.getAnnenforelderHarRett(),
-            dto.getAnnenforelderMottarUføretrygd(), false, null, dto.getAnnenForelderHarRettEØS());
+        faktaOmsorgRettTjeneste.oppdaterAnnenforelderRett(param, annenforelderHarRett,
+            dto.getAnnenforelderMottarUføretrygd(), false, null, annenForelderHarRettEØS);
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }
 
