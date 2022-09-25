@@ -30,12 +30,6 @@
             <artifactId>skjaeringstidspunkt</artifactId>
         </dependency>
 
-        <!-- Klient avhengigheter -->
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>medl-klient</artifactId>
-        </dependency>
-
         <!-- Prosjekt interne avhengigheter -->
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>

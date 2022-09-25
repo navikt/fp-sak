@@ -16,11 +16,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapTy
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
 import no.nav.foreldrepenger.domene.medlem.api.MedlemskapsperiodeKoder;
+import no.nav.foreldrepenger.domene.medlem.medl2.Medlemskap;
+import no.nav.foreldrepenger.domene.medlem.medl2.Medlemskapsunntak;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.exception.IntegrasjonException;
-import no.nav.vedtak.felles.integrasjon.medl2.Medlemskap;
-import no.nav.vedtak.felles.integrasjon.medl2.Medlemskapsunntak;
-import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 
 @ApplicationScoped
 public class HentMedlemskapFraRegister {
@@ -34,7 +33,7 @@ public class HentMedlemskapFraRegister {
     }
 
     @Inject
-    public HentMedlemskapFraRegister(@NativeClient Medlemskap restKlient) {
+    public HentMedlemskapFraRegister(Medlemskap restKlient) {
         this.restKlient = restKlient;
     }
 
@@ -52,16 +51,16 @@ public class HentMedlemskapFraRegister {
 
     private Medlemskapsperiode mapFraMedlemsunntak(Medlemskapsunntak medlemsperiode) {
         return new Medlemskapsperiode.Builder()
-            .medFom(medlemsperiode.getFraOgMed())
-            .medTom(medlemsperiode.getTilOgMed())
+            .medFom(medlemsperiode.fraOgMed())
+            .medTom(medlemsperiode.tilOgMed())
             .medDatoBesluttet(medlemsperiode.getBesluttet())
-            .medErMedlem(medlemsperiode.isMedlem())
+            .medErMedlem(medlemsperiode.medlem())
             .medKilde(mapTilKilde(medlemsperiode.getKilde()))
-            .medDekning(mapTilDekning(medlemsperiode.getDekning()))
-            .medLovvalg(mapTilLovvalg(medlemsperiode.getLovvalg()))
-            .medLovvalgsland(finnLand(medlemsperiode.getLovvalgsland()))
+            .medDekning(mapTilDekning(medlemsperiode.dekning()))
+            .medLovvalg(mapTilLovvalg(medlemsperiode.lovvalg()))
+            .medLovvalgsland(finnLand(medlemsperiode.lovvalgsland()))
             .medStudieland(finnLand(medlemsperiode.getStudieland()))
-            .medMedlId(medlemsperiode.getUnntakId())
+            .medMedlId(medlemsperiode.unntakId())
             .build();
     }
 

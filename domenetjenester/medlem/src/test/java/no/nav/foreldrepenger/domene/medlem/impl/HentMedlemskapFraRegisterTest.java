@@ -17,9 +17,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKi
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
+import no.nav.foreldrepenger.domene.medlem.medl2.Medlemskap;
+import no.nav.foreldrepenger.domene.medlem.medl2.Medlemskapsunntak;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.integrasjon.medl2.Medlemskap;
-import no.nav.vedtak.felles.integrasjon.medl2.Medlemskapsunntak;
 
 public class HentMedlemskapFraRegisterTest {
 
@@ -39,16 +39,16 @@ public class HentMedlemskapFraRegisterTest {
     public void skal_hente_medlemsperioder_og_logge_dem_til_saksopplysningslageret() throws Exception {
         // Arrange
         var unntak = mock(Medlemskapsunntak.class);
-        when(unntak.getUnntakId()).thenReturn(MEDL_ID_1);
-        when(unntak.getFraOgMed()).thenReturn(LocalDate.of(2019, 8, 1));
-        when(unntak.getTilOgMed()).thenReturn(LocalDate.of(2019, 12, 31));
-        when(unntak.getDekning()).thenReturn("Full");
-        when(unntak.getLovvalg()).thenReturn("ENDL");
-        when(unntak.getLovvalgsland()).thenReturn("UZB");
+        when(unntak.unntakId()).thenReturn(MEDL_ID_1);
+        when(unntak.fraOgMed()).thenReturn(LocalDate.of(2019, 8, 1));
+        when(unntak.tilOgMed()).thenReturn(LocalDate.of(2019, 12, 31));
+        when(unntak.dekning()).thenReturn("Full");
+        when(unntak.lovvalg()).thenReturn("ENDL");
+        when(unntak.lovvalgsland()).thenReturn("UZB");
         when(unntak.getKilde()).thenReturn("AVGSYS");
         when(unntak.getBesluttet()).thenReturn(LocalDate.of(2020, 5, 26));
         when(unntak.getStudieland()).thenReturn("VUT");
-        when(unntak.isMedlem()).thenReturn(true);
+        when(unntak.medlem()).thenReturn(true);
 
         when(restKlient.finnMedlemsunntak(eq(AKTØR_ID.getId()), any(), any())).thenReturn(List.of(unntak));
 
