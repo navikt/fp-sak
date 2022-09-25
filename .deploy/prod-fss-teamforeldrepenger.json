@@ -20,7 +20,7 @@
     },
     "AZURE_IAC_RULES": [
         {
-            "app": "fpswagger",
+            "app": "fp-swagger",
             "namespace": "teamforeldrepenger",
             "cluster": "prod-gcp",
             "scopes": [
@@ -28,7 +28,7 @@
             ]
         },
         {
-            "app": "fpfrontend",
+            "app": "fp-frontend",
             "namespace": "teamforeldrepenger",
             "cluster": "prod-gcp"
         },
