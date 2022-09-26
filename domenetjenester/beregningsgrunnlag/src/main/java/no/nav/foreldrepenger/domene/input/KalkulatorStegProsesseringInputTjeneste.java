@@ -107,7 +107,7 @@ public class KalkulatorStegProsesseringInputTjeneste {
         if (stegType.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG)) {
             return lagInputForeslå(stegProsesseringInput);
         }
-        if (stegType.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG_2)) {
+        if (stegType.equals(BehandlingStegType.FORTSETT_FORESLÅ_BEREGNINGSGRUNNLAG)) {
             return lagInputForeslå2(stegProsesseringInput);
         }
         if (stegType.equals(BehandlingStegType.VURDER_VILKAR_BERGRUNN)) {

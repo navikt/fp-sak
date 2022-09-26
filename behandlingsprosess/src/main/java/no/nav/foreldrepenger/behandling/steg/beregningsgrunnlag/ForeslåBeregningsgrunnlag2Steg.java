@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjenest
 import no.nav.foreldrepenger.domene.prosess.SplittForeslåBgToggle;
 
 @FagsakYtelseTypeRef
-@BehandlingStegRef(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG_2)
+@BehandlingStegRef(BehandlingStegType.FORTSETT_FORESLÅ_BEREGNINGSGRUNNLAG)
 @BehandlingTypeRef
 @ApplicationScoped
 public class ForeslåBeregningsgrunnlag2Steg implements BeregningsgrunnlagSteg {
@@ -66,7 +66,7 @@ public class ForeslåBeregningsgrunnlag2Steg implements BeregningsgrunnlagSteg {
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
             BehandlingStegType fraSteg) {
-        if (tilSteg.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG_2)) {
+        if (tilSteg.equals(BehandlingStegType.FORTSETT_FORESLÅ_BEREGNINGSGRUNNLAG)) {
             // Midlertidig fiks til alle saker med aksjonspunkt som starter i foreslå 2 faktisk har et foreslå 2 grunnlag
             var finnesGrunnlagFraForeslå2 = hentOgLagreBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(),
                 BeregningsgrunnlagTilstand.FORESLÅTT_2).isPresent();

@@ -223,7 +223,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat foreslåBeregningsgrunnlag2(BeregningsgrunnlagInput input) {
         var behandlingId = input.getKoblingReferanse().getKoblingId();
         var foreslåBeregningsgrunnlag2Input = (ForeslåBeregningsgrunnlagDel2Input) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
-            behandlingId, input, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG_2);
+            behandlingId, input, BehandlingStegType.FORTSETT_FORESLÅ_BEREGNINGSGRUNNLAG);
         var beregningResultatAggregat = beregningsgrunnlagTjeneste.foreslåBeregningsgrunnlagDel2(
             foreslåBeregningsgrunnlag2Input);
         var nyttBg = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(
