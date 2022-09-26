@@ -341,6 +341,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(result.annenForelderHarRett()).isFalse();
         assertThat(result.aleneomsorg()).isFalse();
         assertThat(result.annenForelderRettEØS()).isFalse();
+        assertThat(result.oppgittAnnenForelderRettEØS()).isFalse();
         assertThat(result.årsakFilter().søkerErMor()).isTrue();
         assertThat(result.årsakFilter().kreverSammenhengendeUttak()).isFalse();
     }
@@ -356,6 +357,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var dto = tjeneste.mapFra(behandling);
         assertThat(dto.annenForelderHarRett()).isFalse();
         assertThat(dto.annenForelderRettEØS()).isFalse();
+        assertThat(dto.oppgittAnnenForelderRettEØS()).isTrue();
     }
 
     @Test
@@ -370,6 +372,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var dto = tjeneste.mapFra(behandling);
         assertThat(dto.annenForelderHarRett()).isFalse();
         assertThat(dto.annenForelderRettEØS()).isFalse();
+        assertThat(dto.oppgittAnnenForelderRettEØS()).isTrue();
     }
 
     @Test
@@ -384,6 +387,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var dto = tjeneste.mapFra(behandling);
         assertThat(dto.annenForelderHarRett()).isTrue();
         assertThat(dto.annenForelderRettEØS()).isTrue();
+        assertThat(dto.oppgittAnnenForelderRettEØS()).isTrue();
     }
 
     private void avklarEøsRett(Behandling behandling, boolean harRettEøs) {

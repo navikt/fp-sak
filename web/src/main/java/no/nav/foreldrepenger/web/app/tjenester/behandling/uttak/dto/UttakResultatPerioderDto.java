@@ -8,6 +8,7 @@ public record UttakResultatPerioderDto(List<UttakResultatPeriodeDto> perioderSø
                                        boolean annenForelderHarRett,
                                        boolean aleneomsorg,
                                        boolean annenForelderRettEØS,
+                                       boolean oppgittAnnenForelderRettEØS,
                                        FilterDto årsakFilter) {
 
     public record FilterDto(boolean kreverSammenhengendeUttak, boolean utenMinsterett, boolean søkerErMor) {}
