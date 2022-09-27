@@ -7,11 +7,8 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
-import no.nav.foreldrepenger.konfig.Environment;
 
 public final class UttakOmsorgUtil {
-
-    private static final boolean ER_PROD = Environment.current().isProd();
 
     private UttakOmsorgUtil() {
     }
@@ -40,11 +37,11 @@ public final class UttakOmsorgUtil {
     }
 
     public static Boolean avklartAnnenForelderHarRettEØS(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return godtasStønadFraEØS() && TRUE.equals(ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring());
+        return TRUE.equals(ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring());
     }
 
     public static boolean oppgittAnnenForelderRettEØS(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return godtasStønadFraEØS() && TRUE.equals(ytelseFordelingAggregat.getOppgittRettighet().getAnnenForelderRettEØS());
+        return ytelseFordelingAggregat.getOppgittRettighet().getAnnenForelderRettEØS();
     }
 
     public static boolean annenForelderHarUttakMedUtbetaling(Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan) {
@@ -53,10 +50,6 @@ public final class UttakOmsorgUtil {
 
     private static boolean harUtbetaling(ForeldrepengerUttak resultat) {
         return resultat.getGjeldendePerioder().stream().anyMatch(p -> p.harUtbetaling());
-    }
-
-    private static boolean godtasStønadFraEØS() {
-        return !ER_PROD;
     }
 
 }
