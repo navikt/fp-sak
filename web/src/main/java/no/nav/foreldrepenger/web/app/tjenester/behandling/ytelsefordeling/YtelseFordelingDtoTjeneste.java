@@ -12,12 +12,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.rest.PeriodeKonverter;
-import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 public class YtelseFordelingDtoTjeneste {
-
-    private static final boolean ER_PROD = Environment.current().isProd();
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -64,7 +61,7 @@ public class YtelseFordelingDtoTjeneste {
     private RettigheterAnnenforelderDto lagAnnenforelderRettDto(Behandling behandling, YtelseFordelingAggregat yfa) {
         var uføregrunnlag = uføretrygdRepository.hentGrunnlag(behandling.getId());
         var avklareUføretrygd = uføregrunnlag.filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd).isPresent();
-        var avklareStønadEØS = Boolean.TRUE.equals(yfa.getOppgittRettighet().getAnnenForelderRettEØS()) && !ER_PROD;
+        var avklareStønadEØS = yfa.getOppgittRettighet().getAnnenForelderRettEØS();
         var avklartMottarUføretrygd = uføregrunnlag.map(UføretrygdGrunnlagEntitet::getUføretrygdOverstyrt).orElse(null);
         return new RettigheterAnnenforelderDto(yfa.getAnnenForelderRettAvklaring(),
             yfa.getAnnenForelderRettEØSAvklaring(), avklareStønadEØS,
