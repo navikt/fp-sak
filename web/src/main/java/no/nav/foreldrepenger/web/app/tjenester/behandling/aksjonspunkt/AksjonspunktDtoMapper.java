@@ -81,9 +81,10 @@ class AksjonspunktDtoMapper {
         var aktivtBehandlingSteg = Optional.ofNullable(behandling.getAktivtBehandlingSteg());
 
         // Midlertidig fiks til alle som har fått aksjonspunkt er over i nytt steg
-        if (def.equals(AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE)) {
+        if (def.equals(AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE)
+            || def.equals(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET)) {
             return aktivtBehandlingSteg
-                .map(steg -> steg.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG) || steg.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG_2))
+                .map(steg -> steg.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG) || steg.equals(BehandlingStegType.FORTSETT_FORESLÅ_BEREGNINGSGRUNNLAG))
                 .orElse(false);
         }
         return aktivtBehandlingSteg.map(steg ->
