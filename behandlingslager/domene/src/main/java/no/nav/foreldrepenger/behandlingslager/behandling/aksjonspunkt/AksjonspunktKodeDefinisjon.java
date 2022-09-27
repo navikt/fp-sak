@@ -15,7 +15,6 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST_KODE = "7014";
     public static final String AUTO_VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT_KODE = "7020";
     public static final String AUTO_VENT_ETTERLYST_INNTEKTSMELDING_KODE = "7030";
-    public static final String AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER_KODE = "7032";
     public static final String AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN_KODE = "7033";
     public static final String AUTO_VENT_PÅ_SYKEMELDING_KODE = "7037";
     public static final String AUTO_VENT_PÅ_KORRIGERT_BESTEBEREGNING_KODE = "7038";

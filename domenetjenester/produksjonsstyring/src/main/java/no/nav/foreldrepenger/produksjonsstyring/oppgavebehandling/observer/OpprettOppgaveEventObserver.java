@@ -82,9 +82,6 @@ public class OpprettOppgaveEventObserver {
                 oppgaveTjeneste.avsluttOppgaveOgStartTask(behandling, behandling.erRevurdering() ? OppgaveÅrsak.REVURDER : OppgaveÅrsak.BEHANDLE_SAK, TaskType.forProsessTask(OpprettOppgaveGodkjennVedtakTask.class));
             } else if (erSendtTilbakeFraBeslutter(totrinnsvurderings)) {
                 opprettOppgaveVedBehov(behandling);
-            } else if (harAksjonspunkt(åpneAksjonspunkt, AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA)) {
-                // Avslutt eksisterende oppgave og opprett ny (for ny behandlende enhet)
-                oppgaveTjeneste.avsluttOppgaveOgStartTask(behandling, behandling.erRevurdering() ? OppgaveÅrsak.REVURDER : OppgaveÅrsak.BEHANDLE_SAK, TaskType.forProsessTask(OpprettOppgaveForBehandlingTask.class));
             } else {
                 opprettOppgaveVedBehov(behandling);
             }

@@ -379,8 +379,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
     AUTO_VENT_ETTERLYST_INNTEKTSMELDING(AksjonspunktKodeDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING_KODE, AksjonspunktType.AUTOPUNKT, "Vent på etterlyst inntektsmelding",
             BehandlingStegType.INREG_AVSL, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, "P3W", EnumSet.of(FP, SVP)),
-    AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER(AksjonspunktKodeDefinisjon.AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER_KODE, AksjonspunktType.AUTOPUNKT, "Autopunkt anke venter på merknader fra bruker",
-            BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.INN, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, FORBLI, "P3W", EnumSet.of(ES, FP, SVP)),
     AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN(AksjonspunktKodeDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN_KODE, AksjonspunktType.AUTOPUNKT, "Autopunkt anke oversendt til Trygderetten",
             BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, "P2Y", EnumSet.of(ES, FP, SVP)),
     AUTO_VENT_PÅ_SYKEMELDING(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_SYKEMELDING_KODE, AksjonspunktType.AUTOPUNKT,
@@ -454,6 +452,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     _7028("7028", AksjonspunktType.AUTOPUNKT, "Sett på vent - Søker har søkt SVP og hatt AAP eller DP siste 10 mnd (UTGÅTT)"),
     @Deprecated
     _7029("7029", AksjonspunktType.AUTOPUNKT, "Sett på vent - Støtter ikke FL/SN i svangerskapspenger (UTGÅTT)"),
+    @Deprecated
+    _7032("7032", AksjonspunktType.AUTOPUNKT, "Autopunkt anke venter på merknader fra bruker (UTGÅTT)"),
     @Deprecated
     _7034("7034", AksjonspunktType.AUTOPUNKT, "Autopunkt flere arbeidsforhold i samme virksomhet SVP"),
     @Deprecated
