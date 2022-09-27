@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.anke;
 
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -46,7 +45,6 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @Path(AnkeRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
@@ -98,10 +96,6 @@ public class AnkeRestTjeneste {
     }
 
     private AnkebehandlingDto mapFra(Behandling behandling) {
-        var utvalgteSBH = Optional.ofNullable(SubjectHandler.getSubjectHandler().getUid())
-            .filter(u -> Set.of("A100182", "S163082").contains(u))
-            .isPresent();
-
         var vurderingResultat = ankeVurderingTjeneste.hentAnkeVurderingResultat(behandling);
         var påAnketKlageBehandling = vurderingResultat.map(AnkeVurderingResultatEntitet::getAnkeResultat)
             .flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId);
@@ -117,12 +111,12 @@ public class AnkeRestTjeneste {
                 .map(ap -> ap.getOpprettetTidspunkt().toLocalDate()))
             .or(() -> behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE_MERKNADER)
                 .map(ap -> ap.getOpprettetTidspunkt().toLocalDate()))
-            .or(() -> behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER)
+            .or(() -> behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon._7032)
                 .map(ap -> ap.getOpprettetTidspunkt().toLocalDate()))
             .orElseGet(LocalDate::now);
         var ankeDto = new AnkebehandlingDto(resultat.orElse(null),
             klageHjemmel, KlageHjemmel.getHjemlerForYtelse(behandling.getFagsakYtelseType()), sendtTilTrygderetten,
-            !ER_PROD || utvalgteSBH, ankeUnderBehandlingKabal, ankeBehandletAvKabal.orElse(false));
+            false, ankeUnderBehandlingKabal, ankeBehandletAvKabal.orElse(false));
 
         return ankeDto;
     }

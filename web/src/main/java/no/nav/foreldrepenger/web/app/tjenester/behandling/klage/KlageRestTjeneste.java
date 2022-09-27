@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.klage;
 
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -53,7 +52,6 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
@@ -165,10 +163,6 @@ public class KlageRestTjeneste {
 
     private KlagebehandlingDto mapFra(Behandling behandling) {
 
-        var utvalgteSBH = Optional.ofNullable(SubjectHandler.getSubjectHandler().getUid())
-            .filter(u -> Set.of("A100182", "S163082").contains(u))
-            .isPresent();
-
         var klageResultat = klageVurderingTjeneste.hentEvtOpprettKlageResultat(behandling);
         var påklagdBehandling = klageResultat.getPåKlagdBehandlingId().map(behandlingRepository::hentBehandling);
         var ytelseType = påklagdBehandling.map(Behandling::getFagsakYtelseType).orElse(FagsakYtelseType.UDEFINERT);
@@ -184,7 +178,7 @@ public class KlageRestTjeneste {
 
         return new KlagebehandlingDto(nfpFormkrav.orElse(null), nfpVurdering,
             kaFormkrav.orElse(null), nkVurdering.orElse(null), KlageHjemmel.getHjemlerForYtelse(ytelseType),
-            !ER_PROD || utvalgteSBH, behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE),
+            false, behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE),
             klageResultat.erBehandletAvKabal());
     }
 

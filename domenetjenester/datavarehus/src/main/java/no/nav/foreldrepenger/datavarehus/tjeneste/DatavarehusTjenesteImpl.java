@@ -283,8 +283,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
      }
 
     private boolean gjelderKlageFormkrav(Aksjonspunkt a) {
-        return AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP.equals(a.getAksjonspunktDefinisjon())
-            || AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA.equals(a.getAksjonspunktDefinisjon());
+        return AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP.equals(a.getAksjonspunktDefinisjon());
     }
 
     private boolean gjelderKlageVurderingResultat(Aksjonspunkt a) {
@@ -293,9 +292,8 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     }
 
     private boolean gjelderAnkeVurderingResultat(Aksjonspunkt a) {
-        return AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE.equals(a.getAksjonspunktDefinisjon())
-            || AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE_MERKNADER.equals(a.getAksjonspunktDefinisjon())
-            || AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE.equals(a.getAksjonspunktDefinisjon());
+        return AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE.equals(a.getAksjonspunktDefinisjon()) ||
+            AksjonspunktDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN.equals(a.getAksjonspunktDefinisjon());
     }
 
 }

@@ -2,18 +2,14 @@ package no.nav.foreldrepenger.behandling.steg.vedtak;
 
 import static java.lang.Boolean.TRUE;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -21,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtak;
 import no.nav.foreldrepenger.datavarehus.xml.FatteVedtakXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
@@ -39,8 +34,6 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 public class FatteVedtakTjeneste {
 
     public static final String UTVIKLER_FEIL_VEDTAK = "Utvikler-feil: Vedtak kan ikke fattes, behandlingsresultat er ";
-
-    private static final AksjonspunktDefinisjon VENT_MERKNADER = AksjonspunktDefinisjon.AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER;
 
     private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER_REVURDERING = Set.of(BehandlingResultatType.AVSLÅTT,
             BehandlingResultatType.INNVILGET, BehandlingResultatType.FORELDREPENGER_SENERE,
@@ -135,12 +128,6 @@ public class FatteVedtakTjeneste {
         behandlingVedtakTjeneste.opprettBehandlingVedtak(kontekst, behandling);
 
         opprettLagretVedtak(behandling);
-
-        if (klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling) && !behandling.harAksjonspunktMedType(VENT_MERKNADER)) {
-            var apVent = AksjonspunktResultat.opprettForAksjonspunktMedFrist(VENT_MERKNADER, Venteårsak.ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER,
-                    LocalDateTime.now().plus(Objects.requireNonNull(VENT_MERKNADER.getFristPeriod())));
-            return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(apVent));
-        }
 
         // Ingen nye aksjonspunkt herfra
         return BehandleStegResultat.utførtUtenAksjonspunkter();
