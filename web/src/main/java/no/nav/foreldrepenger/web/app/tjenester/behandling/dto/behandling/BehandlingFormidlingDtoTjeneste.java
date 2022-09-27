@@ -47,6 +47,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.Perso
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.SøknadRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
@@ -233,6 +234,7 @@ public class BehandlingFormidlingDtoTjeneste {
                 dto.leggTil(get(FormidlingRestTjeneste.UTSATT_START_PATH, "utsatt-oppstart", uuidDto));
                 dto.leggTil(get(UttakRestTjeneste.SAMMENHENGENDE_UTTAK_PATH, "krever-sammenhengende-uttak", uuidDto));
                 dto.leggTil(get(UttakRestTjeneste.UTEN_MINSTERETT_PATH, "uten-minsterett", uuidDto));
+                dto.leggTil(get(YtelsefordelingRestTjeneste.YTELSESFORDELING_PATH, "ytelsefordeling", uuidDto));
             }
         }
 
