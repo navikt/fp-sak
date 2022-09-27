@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder.
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -19,8 +18,6 @@ public class DokumentBestillerTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private KlageRepository klageRepository;
-    private AnkeRepository ankeRepository;
-
     private DokumentBestiller dokumentBestiller;
 
     public DokumentBestillerTjeneste() {
@@ -30,11 +27,9 @@ public class DokumentBestillerTjeneste {
     @Inject
     public DokumentBestillerTjeneste(BehandlingRepository behandlingRepository,
                                      KlageRepository klageRepository,
-                                     AnkeRepository ankeRepository,
                                      DokumentBestiller dokumentBestiller) {
         this.behandlingRepository = behandlingRepository;
         this.klageRepository = klageRepository;
-        this.ankeRepository = ankeRepository;
         this.dokumentBestiller = dokumentBestiller;
     }
 
@@ -46,7 +41,7 @@ public class DokumentBestillerTjeneste {
         }
 
         var behandling = behandlingRepository.hentBehandling(behandlingsresultat.getBehandlingId());
-        var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak, klageRepository, ankeRepository);
+        var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak, klageRepository);
 
         dokumentBestiller.bestillBrev(behandling, dokumentMal, null, null, HistorikkAktør.VEDTAKSLØSNINGEN);
     }

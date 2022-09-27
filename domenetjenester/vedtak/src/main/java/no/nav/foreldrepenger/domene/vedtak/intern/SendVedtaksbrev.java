@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.vedtak.intern;
 
-import java.util.Set;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -12,9 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -35,10 +30,8 @@ public class SendVedtaksbrev {
     private KlageRepository klageRepository;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
-    private AnkeRepository ankeRepository;
 
     private BehandlingVedtakRepository behandlingVedtakRepository;
-    private static final Set<AnkeVurdering> SENDE_VEDTAKSBREV_ANKE = Set.of(AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE, AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV, AnkeVurdering.ANKE_OMGJOER);
 
     SendVedtaksbrev() {
         // for CDI proxy
@@ -47,7 +40,6 @@ public class SendVedtaksbrev {
     @Inject
     public SendVedtaksbrev(BehandlingRepository behandlingRepository,
                            BehandlingVedtakRepository behandlingVedtakRepository,
-                           AnkeRepository ankeRepository,
                            DokumentBestillerTjeneste dokumentBestillerTjeneste,
                            DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
                            KlageRepository klageRepository) {
@@ -56,7 +48,6 @@ public class SendVedtaksbrev {
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.klageRepository = klageRepository;
-        this.ankeRepository = ankeRepository;
     }
 
     void sendVedtaksbrev(Long behandlingId) {
@@ -76,11 +67,6 @@ public class SendVedtaksbrev {
 
         if (BehandlingType.KLAGE.equals(behandling.getType()) && (!skalSendeVedtaksbrevIKlagebehandling(behandling) || harKlageBlittBehandletAvKabal(behandling))) {
             LOG.info("Sender ikke vedtaksbrev fra klagebehandlingen i behandlingen etter, eller når KlageVurderingResultat = null. For behandlingId {}", behandlingId); //$NON-NLS-1$
-            return;
-        }
-
-        if (BehandlingType.ANKE.equals(behandling.getType()) && (!skalSendeVedtaksbrevEtterAnke(behandling) || harAnkeBlittBehandletAvKabal(behandling))) {
-            LOG.info("Sender ikke vedtaksbrev for vedtak fra omgjøring fra klageinstansen på behandling {}, gjelder omgjør fra klageinstans", behandlingId); //$NON-NLS-1$
             return;
         }
 
@@ -121,20 +107,6 @@ public class SendVedtaksbrev {
         return vurderingOpt.isPresent();
     }
 
-    private boolean skalSendeVedtaksbrevEtterAnke(Behandling behandling) {
-        var anke = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.ANKE).orElse(null);
-        if (anke == null) {
-            return true;
-        }
-        var vurdering = ankeRepository.hentAnkeVurderingResultat(anke.getId()).orElse(null);
-        // henlagt eller ikke avsluttet
-        if (vurdering == null) {
-            return false;
-        }
-
-        return skalSendeVedtaksbrevAnke(vurdering.getAnkeVurdering());
-    }
-
     private boolean skalSendeVedtaksbrevEtterKlage(Behandling behandling) {
 
         var klage = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(behandling.getFagsakId(), BehandlingType.KLAGE).orElse(null);
@@ -152,20 +124,11 @@ public class SendVedtaksbrev {
             .map(KlageResultatEntitet::erBehandletAvKabal).orElse(false);
     }
 
-    private boolean harAnkeBlittBehandletAvKabal(Behandling behandling) {
-        return ankeRepository.hentAnkeResultat(behandling.getId())
-            .map(AnkeResultatEntitet::erBehandletAvKabal).orElse(false);
-    }
-
     private boolean erBehandlingEtterKlage(Behandling behandling) {
         return BehandlingÅrsakType.årsakerEtterKlageBehandling().stream().anyMatch(behandling::harBehandlingÅrsak);
     }
 
     private Boolean harSendtVarselOmRevurdering(Long behandlingId) {
         return dokumentBehandlingTjeneste.erDokumentBestilt(behandlingId, DokumentMalType.VARSEL_OM_REVURDERING);
-    }
-
-    private boolean skalSendeVedtaksbrevAnke(AnkeVurdering vurdering) {
-        return SENDE_VEDTAKSBREV_ANKE.contains(vurdering);
     }
 }
