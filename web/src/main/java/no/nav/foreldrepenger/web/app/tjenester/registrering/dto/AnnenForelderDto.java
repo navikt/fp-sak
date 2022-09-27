@@ -21,7 +21,6 @@ public class AnnenForelderDto {
     private boolean denAndreForelderenHarRettPaForeldrepenger;
 
     private Boolean morMottarUføretrygd;
-    private Boolean morHarForeldrepengerEØS;
     private Boolean annenForelderRettEØS;
 
     public String getFoedselsnummer() {
@@ -70,14 +69,6 @@ public class AnnenForelderDto {
 
     public void setMorMottarUføretrygd(Boolean morMottarUføretrygd) {
         this.morMottarUføretrygd = morMottarUføretrygd;
-    }
-
-    public Boolean getMorHarForeldrepengerEØS() {
-        return morHarForeldrepengerEØS;
-    }
-
-    public void setMorHarForeldrepengerEØS(Boolean morHarForeldrepengerEØS) {
-        this.morHarForeldrepengerEØS = morHarForeldrepengerEØS;
     }
 
     public Boolean getAnnenForelderRettEØS() {

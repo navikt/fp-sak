@@ -61,12 +61,11 @@ public class YtelseFordelingDtoTjeneste {
     private RettigheterAnnenforelderDto lagAnnenforelderRettDto(Behandling behandling, YtelseFordelingAggregat yfa) {
         var uføregrunnlag = uføretrygdRepository.hentGrunnlag(behandling.getId());
         var avklareUføretrygd = uføregrunnlag.filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd).isPresent();
-        var avklareStønadEØS = yfa.getOppgittRettighet().getAnnenForelderRettEØS();
+        var avklareRettEØS = yfa.getOppgittRettighet().getAnnenForelderRettEØS();
         var avklartMottarUføretrygd = uføregrunnlag.map(UføretrygdGrunnlagEntitet::getUføretrygdOverstyrt).orElse(null);
         return new RettigheterAnnenforelderDto(yfa.getAnnenForelderRettAvklaring(),
-            yfa.getAnnenForelderRettEØSAvklaring(), avklareStønadEØS,
-            avklartMottarUføretrygd, avklareUføretrygd,
-            yfa.getAnnenForelderRettEØSAvklaring(), avklareStønadEØS);
+            yfa.getAnnenForelderRettEØSAvklaring(), avklareRettEØS,
+            avklartMottarUføretrygd, avklareUføretrygd);
     }
 
 }
