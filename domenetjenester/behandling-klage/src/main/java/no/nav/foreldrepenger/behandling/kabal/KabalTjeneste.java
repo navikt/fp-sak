@@ -225,7 +225,7 @@ public class KabalTjeneste {
     public void opprettNyttAnkeResultat(Behandling ankeBehandling, String ref, Behandling klageBehandling) {
         ankeVurderingTjeneste.hentAnkeResultat(ankeBehandling); // Vil opprette dersom mangler
         ankeVurderingTjeneste.oppdaterAnkeMedKabalReferanse(ankeBehandling.getId(), ref);
-        ankeVurderingTjeneste.oppdaterAnkeMedPåanketKlage(ankeBehandling.getId(), klageBehandling.getId());
+        ankeVurderingTjeneste.oppdaterAnkeMedPåanketKlage(ankeBehandling, klageBehandling.getId());
     }
 
     public Optional<Behandling> finnAnkeBehandling(Long behandlingId, String kabalReferanse) {

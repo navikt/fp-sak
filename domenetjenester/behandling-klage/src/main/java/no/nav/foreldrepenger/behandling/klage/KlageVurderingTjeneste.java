@@ -7,6 +7,7 @@ import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.event.BehandlingRelasjonEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -41,6 +42,7 @@ public class KlageVurderingTjeneste {
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
+    private BehandlingRelasjonEventPubliserer relasjonEventPubliserer;
 
     @Inject
     public KlageVurderingTjeneste(DokumentBestillerTjeneste dokumentBestillerTjeneste,
@@ -49,7 +51,8 @@ public class KlageVurderingTjeneste {
                                   BehandlingRepository behandlingRepository,
                                   KlageRepository klageRepository,
                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                  BehandlingsresultatRepository behandlingsresultatRepository) {
+                                  BehandlingsresultatRepository behandlingsresultatRepository,
+                                  BehandlingRelasjonEventPubliserer relasjonEventPubliserer) {
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
@@ -57,6 +60,7 @@ public class KlageVurderingTjeneste {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
+        this.relasjonEventPubliserer = relasjonEventPubliserer;
     }
 
     KlageVurderingTjeneste() {
@@ -84,9 +88,10 @@ public class KlageVurderingTjeneste {
         return eksisterende.map(KlageFormkravEntitet::builder).orElse(KlageFormkravEntitet.builder()).medKlageVurdertAv(vurdertAv);
     }
 
-    public void oppdaterKlageMedPåklagetBehandling(Long klageBehandlingId, UUID påklagetBehandlingUuid) {
+    public void oppdaterKlageMedPåklagetBehandling(Behandling klageBehandling, UUID påklagetBehandlingUuid) {
         var påklagetBehandlingId = getPåklagetBehandlingId(påklagetBehandlingUuid);
-        klageRepository.settPåklagdBehandlingId(klageBehandlingId, påklagetBehandlingId.orElse(null));
+        klageRepository.settPåklagdBehandlingId(klageBehandling.getId(), påklagetBehandlingId.orElse(null));
+        relasjonEventPubliserer.fireEvent(klageBehandling);
     }
 
     public void oppdaterKlageMedKabalReferanse(Long klageBehandlingId, String ref) {
