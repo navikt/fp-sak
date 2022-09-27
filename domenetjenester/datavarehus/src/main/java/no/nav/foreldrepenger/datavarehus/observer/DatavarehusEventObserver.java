@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonEvent;
 import no.nav.foreldrepenger.behandling.FagsakStatusEvent;
 import no.nav.foreldrepenger.behandling.impl.BehandlingEnhetEvent;
+import no.nav.foreldrepenger.behandling.impl.BehandlingRelasjonEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegTilstandEndringEvent;
@@ -70,6 +71,11 @@ public class DatavarehusEventObserver {
     }
 
     public void observerBehandlingEnhetEvent(@Observes BehandlingEnhetEvent event) {
+        LOG.debug("Lagrer behandling {} i DVH datavarehus", event.getBehandlingId());//NOSONAR
+        tjeneste.lagreNedBehandling(event.getBehandlingId());
+    }
+
+    public void observerBehandlingRelasjonEvent(@Observes BehandlingRelasjonEvent event) {
         LOG.debug("Lagrer behandling {} i DVH datavarehus", event.getBehandlingId());//NOSONAR
         tjeneste.lagreNedBehandling(event.getBehandlingId());
     }

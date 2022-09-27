@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandling.steg.anke;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,12 +10,11 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioAnkeEngangsstønad;
@@ -30,13 +30,13 @@ public class AnkeStegTest {
         var scenario = ScenarioAnkeEngangsstønad.forAvvistAnke(ScenarioMorSøkerEngangsstønad.forAdopsjon());
         var ankeBehandling = scenario.lagMocked();
         var rProvider = scenario.mockBehandlingRepositoryProvider();
-        var ankeRepository = Mockito.mock(AnkeRepository.class);
-        var prosessTaskTjeneste = Mockito.mock(ProsessTaskTjeneste.class);
-        when(ankeRepository.hentAnkeResultat(any())).thenReturn(Optional.empty());
+        var ankeRepository = mock(AnkeVurderingTjeneste.class);
+        var prosessTaskTjeneste = mock(ProsessTaskTjeneste.class);
+        when(ankeRepository.hentAnkeResultatHvisEksisterer(any())).thenReturn(Optional.empty());
         var kontekst = new BehandlingskontrollKontekst(ankeBehandling.getFagsakId(),
                 ankeBehandling.getAktørId(), new BehandlingLås(ankeBehandling.getId()));
 
-        var steg = new AnkeSteg(ankeRepository, Mockito.mock(KlageRepository.class), prosessTaskTjeneste, rProvider);
+        var steg = new AnkeSteg(ankeRepository, mock(KlageRepository.class), prosessTaskTjeneste, rProvider);
 
         // Act
         var behandlingStegResultat = steg.utførSteg(kontekst);

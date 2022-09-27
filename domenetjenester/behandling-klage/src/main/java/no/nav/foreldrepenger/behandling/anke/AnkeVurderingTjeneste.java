@@ -5,6 +5,7 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.event.BehandlingRelasjonEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -29,6 +30,7 @@ public class AnkeVurderingTjeneste {
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
+    private BehandlingRelasjonEventPubliserer relasjonEventPubliserer;
 
     AnkeVurderingTjeneste() {
         // for CDI proxy
@@ -36,15 +38,21 @@ public class AnkeVurderingTjeneste {
 
     @Inject
     public AnkeVurderingTjeneste(ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
-            BehandlingRepository behandlingRepository,
-            BehandlingsresultatRepository behandlingsresultatRepository,
-            AnkeRepository ankeRepository,
-            BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+                                 BehandlingRepository behandlingRepository,
+                                 BehandlingsresultatRepository behandlingsresultatRepository,
+                                 AnkeRepository ankeRepository,
+                                 BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                 BehandlingRelasjonEventPubliserer relasjonEventPubliserer) {
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
         this.ankeRepository = ankeRepository;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
+        this.relasjonEventPubliserer = relasjonEventPubliserer;
+    }
+
+    public Optional<AnkeResultatEntitet> hentAnkeResultatHvisEksisterer(Behandling behandling) {
+        return ankeRepository.hentAnkeResultat(behandling.getId());
     }
 
     public AnkeResultatEntitet hentAnkeResultat(Behandling behandling) {
@@ -64,8 +72,9 @@ public class AnkeVurderingTjeneste {
         ankeRepository.settKabalReferanse(ankeBehandlingId, ref);
     }
 
-    public void oppdaterAnkeMedPåanketKlage(Long ankeBehandlingId, Long klageBehandlingId) {
-        ankeRepository.settPåAnketKlageBehandling(ankeBehandlingId, klageBehandlingId);
+    public void oppdaterAnkeMedPåanketKlage(Behandling ankeBehandling, Long klageBehandlingId) {
+        ankeRepository.settPåAnketKlageBehandling(ankeBehandling.getId(), klageBehandlingId);
+        relasjonEventPubliserer.fireEvent(ankeBehandling);
     }
 
     public void oppdaterBekreftetVurderingAksjonspunkt(Behandling behandling,

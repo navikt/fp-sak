@@ -11,11 +11,11 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
 import no.nav.foreldrepenger.behandling.kabal.SendTilKabalTask;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
@@ -49,24 +48,24 @@ public class AnkeSteg implements BehandlingSteg {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnkeSteg.class);
 
-    private AnkeRepository ankeRepository;
     private KlageRepository klageRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private ProsessTaskTjeneste prosessTaskTjeneste;
+    private AnkeVurderingTjeneste ankeVurderingTjeneste;
 
     public AnkeSteg() {
         // For CDI proxy
     }
 
     @Inject
-    public AnkeSteg(AnkeRepository ankeRepository, KlageRepository klageRepository, ProsessTaskTjeneste prosessTaskTjeneste,
-                    BehandlingRepositoryProvider behandlingRepositoryProvider) {
-        this.ankeRepository = ankeRepository;
+    public AnkeSteg(AnkeVurderingTjeneste ankeVurderingTjeneste, KlageRepository klageRepository, ProsessTaskTjeneste prosessTaskTjeneste,
+                    BehandlingRepositoryProvider behandlingRepositoryProvider ) {
         this.klageRepository = klageRepository;
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.prosessTaskTjeneste = prosessTaskTjeneste;
+        this.ankeVurderingTjeneste = ankeVurderingTjeneste;
     }
 
     @Override
@@ -81,17 +80,17 @@ public class AnkeSteg implements BehandlingSteg {
          * - Anke avsluttet / andre utfall -> fortsett/avslutt uten flere AP.
         */
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        var klageId = ankeRepository.hentAnkeResultat(kontekst.getBehandlingId())
+        var klageId = ankeVurderingTjeneste.hentAnkeResultatHvisEksisterer(behandling)
             .flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId)
             .or(() -> utledLagrePåanketKlageBehandling(behandling));
-        var kabalReferanse = ankeRepository.hentAnkeResultat(kontekst.getBehandlingId())
+        var kabalReferanse = ankeVurderingTjeneste.hentAnkeResultatHvisEksisterer(behandling)
             .map(AnkeResultatEntitet::erBehandletAvKabal).orElse(false);
         var harVentKabal = behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE);
 
         if (kabalReferanse) { // Skal ikke oversendes
             // Første gang med kabalRef -> vent på kabal
             // Tatt av vent med kabalref -> har mottatt resultat fra kabal. gå videre
-            if (!harVentKabal || manglerAnkeVurdering(behandling.getId())) {
+            if (!harVentKabal || manglerAnkeVurdering(behandling)) {
                 return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(ventPåKabal()));
             } else {
                 return BehandleStegResultat.utførtUtenAksjonspunkter();
@@ -116,8 +115,8 @@ public class AnkeSteg implements BehandlingSteg {
         return AksjonspunktResultat.opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE, Venteårsak.VENT_KABAL, null);
     }
 
-    private boolean manglerAnkeVurdering(Long behandlingId) {
-        var ankeVurdering = ankeRepository.hentAnkeVurderingResultat(behandlingId);
+    private boolean manglerAnkeVurdering(Behandling anke) {
+        var ankeVurdering = ankeVurderingTjeneste.hentAnkeVurderingResultat(anke);
         return ankeVurdering.isEmpty() || ankeVurdering.map(AnkeVurderingResultatEntitet::getAnkeVurdering)
             .filter(AnkeVurdering.UDEFINERT::equals)
             .isPresent();
@@ -146,13 +145,7 @@ public class AnkeSteg implements BehandlingSteg {
     }
 
     private Long lagrePåanketBehandling(Behandling anke, Behandling klage) {
-        ankeRepository.settPåAnketKlageBehandling(anke.getId(), klage.getId());
+        ankeVurderingTjeneste.oppdaterAnkeMedPåanketKlage(anke, klage.getId());
         return klage.getId();
-    }
-
-    @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
-            BehandlingStegType sisteSteg) {
-        ankeRepository.settAnkeGodkjentHosMedunderskriver(kontekst.getBehandlingId(), false);
     }
 }
