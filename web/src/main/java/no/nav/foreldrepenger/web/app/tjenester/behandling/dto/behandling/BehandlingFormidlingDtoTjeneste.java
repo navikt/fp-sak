@@ -1,12 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
-import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
-
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -37,7 +30,6 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjenestePathHack1;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.anke.AnkeRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold.InntektArbeidYtelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.BeregningsresultatRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -55,6 +47,13 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.FormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.BeregningsgrunnlagFormidlingRestTjeneste;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import java.util.Optional;
+
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
 
 /**
  * Bygger en BehandlingBrevDto som skal brukes til å populere brev for behandlinger behandlet i fpsak.
@@ -149,9 +148,6 @@ public class BehandlingFormidlingDtoTjeneste {
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             return utvideBehandlingDtoKlage(behandling, dto);
         }
-        if (BehandlingType.ANKE.equals(behandling.getType())) {
-            return utvideBehandlingDtoAnke(behandling, dto);
-        }
         return utvideBehandlingDto(behandling, dto);
     }
 
@@ -159,12 +155,6 @@ public class BehandlingFormidlingDtoTjeneste {
         var uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(KlageRestTjeneste.KLAGE_V2_PATH, "klage-vurdering", uuidDto));
         dto.leggTil(get(KlageRestTjeneste.MOTTATT_KLAGEDOKUMENT_V2_PATH, "mottatt-klagedokument", uuidDto));
-        return dto;
-    }
-
-    private BehandlingFormidlingDto utvideBehandlingDtoAnke(Behandling behandling, BehandlingFormidlingDto dto) {
-        var uuidDto = new UuidDto(behandling.getUuid());
-        dto.leggTil(get(AnkeRestTjeneste.ANKEVURDERING_V2_PATH, "anke-vurdering", uuidDto));
         return dto;
     }
 

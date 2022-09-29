@@ -37,8 +37,6 @@ public enum DokumentMalType implements Kodeverdi {
     KLAGE_OMGJORT("KGEOMG"),
     KLAGE_OVERSENDT("KGEOVE"),
     KLAGE_STADFESTET("KGESTA"),
-    ANKE_OMGJORT("ANKOMG"),
-    ANKE_OPPHEVET("ANKOPP"),
     ETTERLYS_INNTEKTSMELDING("ELYSIM"),
 
     // Må gjeninnføre for å flytte anker
@@ -54,6 +52,8 @@ public enum DokumentMalType implements Kodeverdi {
     @Deprecated KLAGE_STADFESTET_FRITEKST("KSTADF"),
     @Deprecated ANKE_OMGJORT_FRITEKST("VEDOGA"),
     @Deprecated ANKE_OPPHEVET_FRITEKST("ANKEBO"),
+    @Deprecated ANKE_OMGJORT("ANKOMG"),
+    @Deprecated ANKE_OPPHEVET("ANKOPP")
     ;
 
     public static final Set<DokumentMalType> VEDTAKSBREV = Set.of(ENGANGSSTØNAD_INNVILGELSE, ENGANGSSTØNAD_AVSLAG, FORELDREPENGER_INNVILGELSE,
@@ -151,8 +151,6 @@ public enum DokumentMalType implements Kodeverdi {
             case KLAGE_OMGJORT -> "Vedtak om omgjøring av klage";
             case KLAGE_OVERSENDT -> "Klage oversendt til klageinstans";
             case KLAGE_STADFESTET -> "Vedtak om stadfestelse";
-            case ANKE_OMGJORT -> "Vedtak om omgjøring i ankesak";
-            case ANKE_OPPHEVET -> "Ankebrev om beslutning om oppheving";
             case ETTERLYS_INNTEKTSMELDING -> "Etterlys inntektsmelding";
             case KLAGE_AVVIST_DOK -> "Vedtak om avvist klage";
             case KLAGE_AVVIST_FRITEKST -> "Vedtak om avvist klage";
@@ -166,6 +164,8 @@ public enum DokumentMalType implements Kodeverdi {
             case KLAGE_STADFESTET_FRITEKST -> "Vedtak om stadfestelse";
             case ANKE_OMGJORT_FRITEKST ->  "Vedtak om omgjøring i ankesak";
             case ANKE_OPPHEVET_FRITEKST -> "Ankebrev om beslutning om oppheving";
+            case ANKE_OMGJORT -> "Vedtak om omgjøring i ankesak";
+            case ANKE_OPPHEVET -> "Ankebrev om beslutning om oppheving";
         };
     }
 }

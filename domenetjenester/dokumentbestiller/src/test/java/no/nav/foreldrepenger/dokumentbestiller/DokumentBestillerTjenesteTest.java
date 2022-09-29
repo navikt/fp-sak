@@ -29,7 +29,7 @@ public class DokumentBestillerTjenesteTest {
         this.behandling = scenario.lagMocked();
         this.repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
-        tjeneste = new DokumentBestillerTjeneste(repositoryProvider.getBehandlingRepository(), null, null, dokumentBestiller);
+        tjeneste = new DokumentBestillerTjeneste(repositoryProvider.getBehandlingRepository(), null, dokumentBestiller);
     }
 
     @Test

@@ -1,10 +1,14 @@
 package no.nav.foreldrepenger.dokumentbestiller.vedtak;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.MEDHOLD_I_KLAGE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.OPPHEVE_YTELSESVEDTAK;
+
+import java.util.Arrays;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -13,12 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.vedtak.exception.TekniskException;
-
-import java.util.Arrays;
-
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.MEDHOLD_I_KLAGE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.OPPHEVE_YTELSESVEDTAK;
 
 public class VedtaksbrevUtleder {
 
@@ -34,10 +32,6 @@ public class VedtaksbrevUtleder {
         return VedtakResultatType.VEDTAK_I_KLAGEBEHANDLING.equals(behandlingVedtak.getVedtakResultatType());
     }
 
-    static boolean erAnkeBehandling(BehandlingVedtak behandlingVedtak) {
-        return VedtakResultatType.VEDTAK_I_ANKEBEHANDLING.equals(behandlingVedtak.getVedtakResultatType());
-    }
-
     static boolean erInnvilget(BehandlingVedtak behandlingVedtak) {
         return VedtakResultatType.INNVILGET.equals(behandlingVedtak.getVedtakResultatType());
     }
@@ -49,8 +43,7 @@ public class VedtaksbrevUtleder {
     public static DokumentMalType velgDokumentMalForVedtak(Behandling behandling,
                                                            Behandlingsresultat behandlingsresultat,
                                                            BehandlingVedtak behandlingVedtak,
-                                                           KlageRepository klageRepository,
-                                                           AnkeRepository ankeRepository) {
+                                                           KlageRepository klageRepository) {
         DokumentMalType dokumentMal = null;
 
         if (erLagetFritekstBrev(behandlingsresultat)) {
@@ -59,8 +52,6 @@ public class VedtaksbrevUtleder {
             dokumentMal = DokumentMalType.INGEN_ENDRING;
         } else if (erKlageBehandling(behandlingVedtak)) {
             dokumentMal = velgKlagemal(behandling, klageRepository);
-        } else if (erAnkeBehandling(behandlingVedtak)) {
-            dokumentMal = velgAnkemal(behandling, ankeRepository);
         } else if (erInnvilget(behandlingVedtak)) {
             dokumentMal = velgPositivtVedtaksmal(behandling, behandlingsresultat);
         } else if (erAvlåttEllerOpphørt(behandlingVedtak)) {
@@ -134,21 +125,4 @@ public class VedtaksbrevUtleder {
         return null;
     }
 
-    public static DokumentMalType velgAnkemal(Behandling behandling, AnkeRepository ankeRepository) {
-        var ankeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId()).orElse(null);
-        if (ankeVurderingResultat == null) {
-            return null;
-        }
-
-        var ankeVurdering = ankeVurderingResultat.getAnkeVurdering();
-
-        if (AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(ankeVurdering) || AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV.equals(ankeVurdering)) {
-            return DokumentMalType.ANKE_OPPHEVET;
-        }
-        if (AnkeVurdering.ANKE_OMGJOER.equals(ankeVurdering)){
-            return DokumentMalType.ANKE_OMGJORT;
-        }
-
-        return null;
-    }
 }
