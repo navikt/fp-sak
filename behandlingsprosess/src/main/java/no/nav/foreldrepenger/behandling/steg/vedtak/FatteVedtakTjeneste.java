@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtak;
 import no.nav.foreldrepenger.datavarehus.xml.FatteVedtakXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
@@ -108,18 +107,6 @@ public class FatteVedtakTjeneste {
 
                 return BehandleStegResultat.tilbakeførtMedAksjonspunkter(aksjonspunktDefinisjoner);
             }
-            // Dette er spesialbehandling av Klage og Anke hos KA.
-            // Hvis KAs medunderskriver(belsutter) godkjenner behandlingen må den fremdeles
-            // tilbake til saksbehandler
-            // så han/hun kan ferdigstille behandlingen derfor tilbakeføres behandlingen med
-            // entrinn så vi ikke kommer hit igjen.
-            if (klageAnkeVedtakTjeneste.erVurdertVedKlageinstans(behandling)
-                    && skalTilbakeTilForeslåVedtakForKlageinstans(behandling)) {
-                behandling.nullstillToTrinnsBehandling();
-                // Spesialbehandling for KA også i FORVEDSTEG - hvis medunderskriver har sagt OK
-                // gir den V_U_2trinn
-                return BehandleStegResultat.tilbakeførtForeslåVedtak();
-            }
             oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling);
         } else {
             vedtakTjeneste.lagHistorikkinnslagFattVedtak(behandling);
@@ -131,18 +118,6 @@ public class FatteVedtakTjeneste {
 
         // Ingen nye aksjonspunkt herfra
         return BehandleStegResultat.utførtUtenAksjonspunkter();
-    }
-
-    private boolean skalTilbakeTilForeslåVedtakForKlageinstans(Behandling behandling) {
-        var apForeslåMedTT = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.FORESLÅ_VEDTAK).orElse(null);
-        var apForeslåUtenTT = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL).orElse(null);
-        if ((apForeslåMedTT == null) || (apForeslåMedTT.getEndretTidspunkt() == null)) {
-            return false;
-        }
-        if ((apForeslåUtenTT == null) || (apForeslåUtenTT.getEndretTidspunkt() == null)) {
-            return true;
-        }
-        return apForeslåMedTT.getEndretTidspunkt().isAfter(apForeslåUtenTT.getEndretTidspunkt());
     }
 
     private boolean sendesTilbakeTilSaksbehandler(Collection<Totrinnsvurdering> medTotrinnskontroll) {

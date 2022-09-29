@@ -158,12 +158,4 @@ public class KlageRepository {
             .findFirst();
     }
 
-    public void settKlageGodkjentHosMedunderskriver(Long klageBehandlingId, KlageVurdertAv vurdertAv, boolean vurdering) {
-        hentKlageVurderingResultat(klageBehandlingId, vurdertAv).ifPresent(kvr -> {
-            kvr.setGodkjentAvMedunderskriver(vurdering);
-            entityManager.persist(kvr);
-            entityManager.flush();
-        });
-    }
-
 }

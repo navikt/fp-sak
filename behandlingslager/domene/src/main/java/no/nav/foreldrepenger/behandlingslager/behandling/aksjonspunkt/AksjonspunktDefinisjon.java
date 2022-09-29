@@ -134,10 +134,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     MANUELL_VURDERING_AV_KLAGE_NFP(
             AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av klage (NFP)",
             BehandlingStegType.KLAGE_NFP, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.KLAGE_BEH_NFP, ENTRINN, EnumSet.of(ES, FP, SVP)),
-    MANUELL_VURDERING_AV_KLAGE_NK(
-            AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av klage (NK)",
-            BehandlingStegType.KLAGE_NK,
-            VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.KLAGE_BEH_NK, TOTRINN, EnumSet.of(ES, FP, SVP)),
     VURDER_INNSYN(AksjonspunktKodeDefinisjon.VURDER_INNSYN_KODE,
             AksjonspunktType.MANUELL, "Vurder innsyn", BehandlingStegType.VURDER_INNSYN, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
     FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS(
@@ -247,9 +243,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     VURDERING_AV_FORMKRAV_KLAGE_NFP(
             AksjonspunktKodeDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP_KODE, AksjonspunktType.MANUELL, "Vurder formkrav (NFP).",
             BehandlingStegType.KLAGE_VURDER_FORMKRAV_NFP, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FORMKRAV_KLAGE_NFP, ENTRINN, EnumSet.of(ES, FP, SVP)),
-    VURDERING_AV_FORMKRAV_KLAGE_KA(
-            AksjonspunktKodeDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA_KODE, AksjonspunktType.MANUELL, "Vurder formkrav (NK).",
-            BehandlingStegType.KLAGE_VURDER_FORMKRAV_NK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FORMKRAV_KLAGE_KA, ENTRINN, EnumSet.of(ES, FP, SVP)),
     VURDER_FEILUTBETALING(AksjonspunktKodeDefinisjon.VURDER_FEILUTBETALING_KODE,
             AksjonspunktType.MANUELL, "Vurder feilutbetaling", BehandlingStegType.SIMULER_OPPDRAG, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
     AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT(
@@ -277,12 +270,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET_KODE, AksjonspunktType.MANUELL, "Avklar svangerskapspengervilkåret",
             BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR, VurderingspunktType.UT, VilkårType.SVANGERSKAPSPENGERVILKÅR,
             SkjermlenkeType.PUNKT_FOR_SVANGERSKAPSPENGER, ENTRINN, EnumSet.of(SVP)),
-    MANUELL_VURDERING_AV_ANKE(AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_ANKE_KODE,
-            AksjonspunktType.MANUELL, "Manuell vurdering av anke", BehandlingStegType.ANKE, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.ANKE_VURDERING,
-            TOTRINN, EnumSet.of(ES, FP, SVP)),
-    MANUELL_VURDERING_AV_ANKE_MERKNADER(
-            AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_ANKE_MERKNADER_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av anke merknader",
-            BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.ANKE_MERKNADER, TOTRINN, EnumSet.of(ES, FP, SVP)),
     VURDER_FARESIGNALER(AksjonspunktKodeDefinisjon.VURDER_FARESIGNALER_KODE,
             AksjonspunktType.MANUELL, "Vurder Faresignaler", BehandlingStegType.VURDER_FARESIGNALER, VurderingspunktType.UT, UTEN_VILKÅR,
             SkjermlenkeType.VURDER_FARESIGNALER, TOTRINN, EnumSet.of(ES, FP, SVP)),
@@ -400,6 +387,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     _5022("5022", AksjonspunktType.MANUELL, "Avklar fakta for status på person."),
     @Deprecated
     _5024("5024", AksjonspunktType.MANUELL, "Saksbehandler må avklare hvilke verdier som er gjeldene, det er mismatch mellom register- og lokaldata (UTGÅTT)"),
+    @Deprecated
+    _5036("5036", AksjonspunktType.MANUELL, "Manuell vurdering av klage (NK)"),
     @Deprecated // Håndteres nå sammen med 5039
     _5042("5042", AksjonspunktType.MANUELL, "Fastsett beregningsgrunnlag for selvstendig næringsdrivende"),
     @Deprecated
@@ -417,9 +406,15 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     @Deprecated // Erstattet av 5085
     _5080("5080", AksjonspunktType.MANUELL, "Avklar arbeidsforhold"),
     @Deprecated
+    _5083("5083", AksjonspunktType.MANUELL, "Vurder formkrav (NK)."),
+    @Deprecated
     _5088("5088", AksjonspunktType.MANUELL, "Oppgitt at annen forelder ikke rett, men har løpende utbetaling"),
     @Deprecated
     _5090("5090", AksjonspunktType.MANUELL, "Vurder tilbaketrekk"),
+    @Deprecated
+    _5093("5093", AksjonspunktType.MANUELL, "Manuell vurdering av anke"),
+    @Deprecated
+    _5094("5094", AksjonspunktType.MANUELL, "Manuell vurdering av anke merknader"),
     @Deprecated
     _7006("7006", AksjonspunktType.AUTOPUNKT, "Venter på opptjeningsopplysninger"),
     @Deprecated

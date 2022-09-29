@@ -65,8 +65,6 @@ public class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
     private BehandlingRepositoryProvider repositoryProvider;
     private OpprettToTrinnsgrunnlag opprettTotrinnsgrunnlag;
     private LagretVedtakRepository lagretVedtakRepository;
-    private KlageRepository klageRepository;
-    private AnkeRepository ankeRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private FatterVedtakAksjonspunkt fatterVedtakAksjonspunkt;
     private TotrinnRepository totrinnRepository;
@@ -82,15 +80,12 @@ public class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
                 mock(BehandlingskontrollEventPubliserer.class)));
         behandlingDokumentRepository = new BehandlingDokumentRepository(em);
         lagretVedtakRepository = new LagretVedtakRepository(em);
-        ankeRepository = new AnkeRepository(em);
-        klageRepository = new KlageRepository(em);
         behandlingRepository = new BehandlingRepository(em);
         behandlingsresultatRepository = new BehandlingsresultatRepository(em);
         totrinnRepository = new TotrinnRepository(em);
         var totrinnTjeneste = new TotrinnTjeneste(totrinnRepository);
-        var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
         vedtakTjeneste = new VedtakTjeneste(behandlingRepository, behandlingsresultatRepository, new HistorikkRepository(em), lagretVedtakRepository,
-                totrinnTjeneste, klageAnkeVedtakTjeneste);
+                totrinnTjeneste);
 
         opprettTotrinnsgrunnlag = new OpprettToTrinnsgrunnlag(
                 new HentOgLagreBeregningsgrunnlagTjeneste(em),
@@ -98,7 +93,7 @@ public class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
                 new FpUttakRepository(em),
                 totrinnTjeneste,
                 new AbakusInMemoryInntektArbeidYtelseTjeneste());
-        fatterVedtakAksjonspunkt = new FatterVedtakAksjonspunkt(behandlingskontrollTjeneste, klageAnkeVedtakTjeneste, vedtakTjeneste,
+        fatterVedtakAksjonspunkt = new FatterVedtakAksjonspunkt(behandlingskontrollTjeneste, vedtakTjeneste,
                 totrinnTjeneste, mock(InntektArbeidYtelseTjeneste.class));
     }
 

@@ -52,11 +52,6 @@ public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
     public OppdateringResultat oppdater(ForeslaVedtakAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var begrunnelse = dto.getBegrunnelse();
         var behandling = param.getBehandling();
-        // Unntak for Klageinstans ettersom Frontend sender samme Dto uansett hvilket
-        // knapp man velger (5018 -> Ferdigstill -> entrinn, men kommer hit)
-        if (KlageAnkeVedtakTjeneste.behandlingErKlageEllerAnke(behandling) && klageAnkeVedtakTjeneste.erGodkjentHosMedunderskriver(behandling)) {
-            return standardHåndteringUtenTotrinn(dto, param);
-        }
 
         oppdaterBegrunnelse(behandling, begrunnelse);
         var builder = OppdateringResultat.utenTransisjon();

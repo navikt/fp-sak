@@ -22,7 +22,8 @@ import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
-public abstract class KlageVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktDto {
+@JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP_KODE)
+public final class KlageVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktDto {
 
     @NotNull
     @ValidKodeverk
@@ -113,39 +114,5 @@ public abstract class KlageVurderingResultatAksjonspunktDto extends BekreftetAks
         return erGodkjentAvMedunderskriver;
     }
 
-    @JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP_KODE)
-    public static class KlageVurderingResultatNfpAksjonspunktDto extends KlageVurderingResultatAksjonspunktDto {
-
-
-        KlageVurderingResultatNfpAksjonspunktDto() {
-            super();
-        }
-
-        public KlageVurderingResultatNfpAksjonspunktDto(String begrunnelse, KlageVurdering klageVurdering,
-                                                        KlageMedholdÅrsak klageMedholdÅrsak, KlageAvvistÅrsak klageAvvistÅrsak,
-                                                        LocalDate vedtaksdatoPaklagdBehandling, String fritekstTilBrev,
-                                                        KlageVurderingOmgjør klageVurderingOmgjoer,
-                                                        KlageHjemmel klageHjemmel) {
-            super(begrunnelse, klageVurdering, klageMedholdÅrsak, klageAvvistÅrsak, vedtaksdatoPaklagdBehandling, fritekstTilBrev, klageVurderingOmgjoer, klageHjemmel, false);
-        }
-
-    }
-
-    @JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK_KODE)
-    public static class KlageVurderingResultatNkAksjonspunktDto extends KlageVurderingResultatAksjonspunktDto {
-
-
-        KlageVurderingResultatNkAksjonspunktDto() {
-            super();
-        }
-
-        public KlageVurderingResultatNkAksjonspunktDto(String begrunnelse, KlageVurdering klageVurdering,
-                                                       KlageMedholdÅrsak klageMedholdÅrsak, KlageAvvistÅrsak klageAvvistÅrsak,
-                                                       LocalDate vedtaksdatoPaklagdBehandling, String fritekstTilBrev, KlageVurderingOmgjør klageVurderingOmgjoer,
-                                                       KlageHjemmel klageHjemmel, boolean erGodkjentAvMedunderskriver) {
-            super(begrunnelse, klageVurdering, klageMedholdÅrsak, klageAvvistÅrsak, vedtaksdatoPaklagdBehandling, fritekstTilBrev, klageVurderingOmgjoer, klageHjemmel, erGodkjentAvMedunderskriver);
-        }
-
-    }
 
 }

@@ -37,7 +37,7 @@ public class SkjermetPersonKlient {
         if (TESTENV || fnr == null) return false;
 
         var request = RestRequest.newPOSTJson(new SkjermetRequestDto(fnr), SkjermetPersonKlient.class)
-                    .timeout(Duration.ofSeconds(30));
+                    .timeout(Duration.ofSeconds(60));
         try {
             return kallMedSjekk(request);
         } catch (Exception e) {

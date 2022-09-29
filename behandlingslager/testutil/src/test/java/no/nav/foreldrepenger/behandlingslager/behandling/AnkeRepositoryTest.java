@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
@@ -46,9 +45,7 @@ public class AnkeRepositoryTest extends EntityManagerAwareTest {
 
         var ankeResultat = ankeRepository.hentEllerOpprettAnkeResultat(ankeBehandling.getId());
         var ankeVurderingResultatBuilder = opprettVurderingResultat(ankeResultat)
-            .medAnkeResultat(ankeResultat)
-            .medBegrunnelse("Begrunnelse1")
-            .medFritekstTilBrev("Fritekstbrev1");
+            .medAnkeResultat(ankeResultat);
 
         // Act
         var ankeVurderingResultatId = ankeRepository.lagreVurderingsResultat(ankeBehandling.getId(), ankeVurderingResultatBuilder.build());
@@ -73,8 +70,7 @@ public class AnkeRepositoryTest extends EntityManagerAwareTest {
     private AnkeVurderingResultatEntitet.Builder opprettVurderingResultat(AnkeResultatEntitet ankeResultat) {
         return AnkeVurderingResultatEntitet.builder()
             .medAnkeResultat(ankeResultat)
-            .medAnkeVurdering(AnkeVurdering.ANKE_OMGJOER)
-            .medAnkeOmgjørÅrsak(AnkeOmgjørÅrsak.ULIK_VURDERING);
+            .medAnkeVurdering(AnkeVurdering.ANKE_OMGJOER);
     }
 
     private Behandling opprettBehandling() {

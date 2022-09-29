@@ -67,7 +67,6 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
             .medKlageVurderingOmgjør(dto.getKlageVurderingOmgjoer())
             .medKlageMedholdÅrsak(dto.getKlageMedholdArsak())
             .medKlageHjemmel(dto.getKlageHjemmel())
-            .medGodkjentAvMedunderskriver(dto.isErGodkjentAvMedunderskriver())
             .medBegrunnelse(dto.getBegrunnelse())
             .medFritekstTilBrev(dto.getFritekstTilBrev());
 
@@ -107,8 +106,6 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
         var historiebygger = new HistorikkInnslagTekstBuilder();
         if (erNfpAksjonspunkt) {
             historiebygger.medEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_NFP, null, resultat.getNavn());
-        } else {
-            historiebygger.medEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_KA, null, resultat.getNavn());
         }
         if (årsak != null) {
             historiebygger.medEndretFelt(HistorikkEndretFeltType.KLAGE_OMGJØR_ÅRSAK, null, årsak.getNavn());

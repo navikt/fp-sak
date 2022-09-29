@@ -152,8 +152,7 @@ public class FatteVedtakStegTest {
         var fpSakVedtakXmlTjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
                 new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
                 behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
-        var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
-        var vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, klageAnkeVedtakTjeneste, mock(TotrinnTjeneste.class));
+        var vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, mock(TotrinnTjeneste.class));
 
         var behandlingVedtakEventPubliserer = mock(BehandlingVedtakEventPubliserer.class);
 
@@ -373,8 +372,7 @@ public class FatteVedtakStegTest {
         var fpSakVedtakXmlTjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
                 new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
                 behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
-        var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
-        var vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, klageAnkeVedtakTjeneste, mock(TotrinnTjeneste.class));
+        var vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, mock(TotrinnTjeneste.class));
 
         var antallBarn = 2;
         var kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.FATTE_VEDTAK,
@@ -439,7 +437,7 @@ public class FatteVedtakStegTest {
                 new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
                 behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
         var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
-        var vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, klageAnkeVedtakTjeneste, mock(TotrinnTjeneste.class));
+        var vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, mock(TotrinnTjeneste.class));
 
         var antallBarn = 2;
         var kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.FATTE_VEDTAK,

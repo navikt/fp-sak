@@ -211,7 +211,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
 
         when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(new TilbakekrevingVedtakDto(1L,
                 klageTilbakekrevingDto.tilbakekrevingVedtakDato(), klageTilbakekrevingDto.tilbakekrevingBehandlingType()));
-        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto.KlageFormkravNfpAksjonspunktDto(true, true, true, true,
+        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true, true,
             null, "test", false, null);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
@@ -254,7 +254,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
 
         when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(new TilbakekrevingVedtakDto(1L,
                 klageTilbakekrevingDto.tilbakekrevingVedtakDato(), klageTilbakekrevingDto.tilbakekrevingBehandlingType()));
-        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto.KlageFormkravNfpAksjonspunktDto(true, true, true,
+        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true,
             true, behandling.getUuid(), "test", false, null);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
@@ -300,7 +300,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     }
 
     private KlageFormkravAksjonspunktDto lagKlageAksjonspunktDto(boolean erTilbakekreving, KlageTilbakekrevingDto klageTilbakekrevingDto) {
-        return new KlageFormkravAksjonspunktDto.KlageFormkravNfpAksjonspunktDto(true, true, true, true,
+        return new KlageFormkravAksjonspunktDto(true, true, true, true,
             behandling.getUuid(), "test", erTilbakekreving, klageTilbakekrevingDto);
     }
 

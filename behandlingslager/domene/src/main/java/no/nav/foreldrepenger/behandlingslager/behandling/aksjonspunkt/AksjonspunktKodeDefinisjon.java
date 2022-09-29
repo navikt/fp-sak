@@ -86,12 +86,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final String VURDER_OM_VILKÅR_FOR_SYKDOM_OPPFYLT_KODE = "5044";
 
     public static final String MANUELL_VURDERING_AV_KLAGE_NFP_KODE = "5035";
-    public static final String MANUELL_VURDERING_AV_KLAGE_NK_KODE = "5036";
     public static final String VURDERING_AV_FORMKRAV_KLAGE_NFP_KODE = "5082";
-    public static final String VURDERING_AV_FORMKRAV_KLAGE_KA_KODE = "5083";
-
-    public static final String MANUELL_VURDERING_AV_ANKE_KODE = "5093";
-    public static final String MANUELL_VURDERING_AV_ANKE_MERKNADER_KODE = "5094";
 
     public static final String VURDER_INNSYN_KODE = "5037";
     public static final String FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS_KODE = "5038";
@@ -157,5 +152,20 @@ public class AksjonspunktKodeDefinisjon {
     public static final boolean ENTRINN = false;
     public static final boolean TILBAKE = true;
     public static final boolean FORBLI = false;
+
+    // Utgåtte aksjonspunktkode. Helst ikke gjenbruk 5nnnn til andre formål enn det opprinnelige før det har gått noe tid
+    //  "5009",
+    //  "5022"  "5024"
+    //  "5036"
+    //  "5042"  "5045"  "5048"
+    //  "5050"
+    //  "5072"  "5078"  "5079"
+    //  "5080"  "5083"  "5088"
+    //  "5090"  "5093"  "5094"
+    //
+    //  "7006"  "7009"
+    //  "7015"  "7016"  "7017"  "7018"  "7019"
+    //  "7021"  "7022"  "7023"  "7024"  "7025"  "7026"  "7027"  "7028"  "7029"
+    //  "7032"  "7034"  "7035"  "7036"
 
 }

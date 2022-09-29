@@ -34,7 +34,7 @@ public class KlageNfpStegTest {
         var behandlingRepositoryMock = mock(BehandlingRepository.class);
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
 
-        steg = new KlageNfpSteg(behandlingRepositoryMock, null, behandlendeEnhetTjeneste);
+        steg = new KlageNfpSteg(behandlingRepositoryMock, behandlendeEnhetTjeneste);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class KlageNfpStegTest {
         var kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(),
                 new BehandlingLås(klageBehandling.getId()));
         var repositoryProviderMock = scenario.mockBehandlingRepositoryProvider();
-        steg = new KlageNfpSteg(repositoryProviderMock.getBehandlingRepository(), scenario.getKlageRepository(), behandlendeEnhetTjeneste);
+        steg = new KlageNfpSteg(repositoryProviderMock.getBehandlingRepository(), behandlendeEnhetTjeneste);
 
         // Act
         steg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, null, null);

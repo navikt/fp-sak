@@ -15,8 +15,6 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
@@ -27,7 +25,6 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 public class KlageNfpSteg implements BehandlingSteg {
 
     private BehandlingRepository behandlingRepository;
-    private KlageRepository klageRepository;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
     public KlageNfpSteg() {
@@ -35,11 +32,8 @@ public class KlageNfpSteg implements BehandlingSteg {
     }
 
     @Inject
-    public KlageNfpSteg(BehandlingRepository behandlingRepository,
-            KlageRepository klageRepository,
-            BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
+    public KlageNfpSteg(BehandlingRepository behandlingRepository, BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
         this.behandlingRepository = behandlingRepository;
-        this.klageRepository = klageRepository;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
     }
 
@@ -53,7 +47,6 @@ public class KlageNfpSteg implements BehandlingSteg {
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
             BehandlingStegType sisteSteg) {
-        klageRepository.settKlageGodkjentHosMedunderskriver(kontekst.getBehandlingId(), KlageVurdertAv.NFP, false);
         endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(kontekst);
     }
 

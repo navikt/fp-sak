@@ -114,18 +114,6 @@ public class KlageVurderingResultat extends BaseEntitet {
         return godkjentAvMedunderskriver;
     }
 
-    public void setGodkjentAvMedunderskriver() {
-        godkjentAvMedunderskriver = true;
-    }
-
-    public void setGodkjentAvMedunderskriver(boolean godkjent) {
-        godkjentAvMedunderskriver = godkjent;
-    }
-
-    public void setKlageHjemmel(KlageHjemmel klageHjemmel) {
-        this.klageHjemmel = klageHjemmel;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -209,11 +197,6 @@ public class KlageVurderingResultat extends BaseEntitet {
 
         public Builder medKlageResultat(KlageResultatEntitet klageResultat) {
             klageVurderingResultatMal.klageResultat = klageResultat;
-            return this;
-        }
-
-        public Builder medGodkjentAvMedunderskriver(boolean godkjent) {
-            klageVurderingResultatMal.godkjentAvMedunderskriver = godkjent;
             return this;
         }
 

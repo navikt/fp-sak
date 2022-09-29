@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.anke;
 
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
-import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -64,25 +63,6 @@ public class AnkeRepository {
         ankeResultat.settPåAnketKlageBehandling(påAnketKlageBehandlingId);
         entityManager.persist(ankeResultat);
         entityManager.flush();
-    }
-
-    public void settAnkeGodkjentHosMedunderskriver(Long ankeBehandlingId, boolean godkjent) {
-        hentAnkeVurderingResultat(ankeBehandlingId).ifPresent(avr -> {
-            avr.setGodkjentAvMedunderskriver(godkjent);
-            entityManager.persist(avr);
-            entityManager.flush();
-        });
-    }
-
-    public void settAnkeSendtTrygderettenDato(Long ankeBehandlingId, LocalDate dato) {
-        hentAnkeVurderingResultat(ankeBehandlingId)
-            .filter(avr -> !Objects.equals(dato, avr.getSendtTrygderettDato()))
-            .ifPresent(avr -> {
-                avr.setSendtTrygderettDato(dato);
-                avr.setIngenTrygderettKjennelse();
-                entityManager.persist(avr);
-                entityManager.flush();
-        });
     }
 
     public void settKabalReferanse(Long ankeBehandlingId, String kabalReferanse) {
