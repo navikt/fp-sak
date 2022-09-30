@@ -8,5 +8,7 @@ public enum KabalUtfall {
     DELVIS_MEDHOLD,
     STADFESTELSE,
     UGUNST,
-    AVVIST
+    AVVIST,
+    INNSTILLING_STADFESTELSE,
+    INNSTILLING_AVVIST
 }
