@@ -388,11 +388,11 @@ public class KabalTjeneste {
 
     private KlageVurdering klageVurderingFraUtfall(KabalUtfall utfall) {
         return switch (utfall) {
-            case STADFESTELSE -> KlageVurdering.STADFESTE_YTELSESVEDTAK;
-            case AVVIST -> KlageVurdering.AVVIS_KLAGE;
+            case STADFESTELSE, INNSTILLING_STADFESTELSE -> KlageVurdering.STADFESTE_YTELSESVEDTAK;
+            case AVVIST, INNSTILLING_AVVIST -> KlageVurdering.AVVIS_KLAGE;
             case OPPHEVET -> KlageVurdering.OPPHEVE_YTELSESVEDTAK;
             case MEDHOLD, DELVIS_MEDHOLD, UGUNST -> KlageVurdering.MEDHOLD_I_KLAGE;
-            default -> throw new IllegalStateException("Utviklerfeil forsøker lagre klage med utfall " + utfall);
+            case RETUR, TRUKKET -> throw new IllegalStateException("Utviklerfeil forsøker lagre klage med utfall " + utfall);
         };
     }
 
@@ -407,11 +407,11 @@ public class KabalTjeneste {
 
     private AnkeVurdering ankeVurderingFraUtfall(KabalUtfall utfall) {
         return switch (utfall) {
-            case STADFESTELSE -> AnkeVurdering.ANKE_STADFESTE_YTELSESVEDTAK;
-            case AVVIST -> AnkeVurdering.ANKE_AVVIS;
+            case STADFESTELSE, INNSTILLING_STADFESTELSE -> AnkeVurdering.ANKE_STADFESTE_YTELSESVEDTAK;
+            case AVVIST, INNSTILLING_AVVIST -> AnkeVurdering.ANKE_AVVIS;
             case OPPHEVET -> AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE;
             case MEDHOLD, DELVIS_MEDHOLD, UGUNST -> AnkeVurdering.ANKE_OMGJOER;
-            default -> throw new IllegalStateException("Utviklerfeil forsøker lagre klage med utfall " + utfall);
+            case RETUR, TRUKKET -> throw new IllegalStateException("Utviklerfeil forsøker lagre klage med utfall " + utfall);
         };
     }
 
@@ -421,20 +421,6 @@ public class KabalTjeneste {
             case DELVIS_MEDHOLD -> AnkeVurderingOmgjør.ANKE_DELVIS_OMGJOERING_TIL_GUNST;
             case UGUNST -> AnkeVurderingOmgjør.ANKE_TIL_UGUNST;
             default -> AnkeVurderingOmgjør.UDEFINERT;
-        };
-    }
-
-    private KabalUtfall utfallFraAnkeVurdering(AnkeVurdering utfall, AnkeVurderingOmgjør omgjør) {
-        return switch (utfall) {
-            case ANKE_STADFESTE_YTELSESVEDTAK -> KabalUtfall.STADFESTELSE;
-            case ANKE_AVVIS -> KabalUtfall.AVVIST;
-            case ANKE_OMGJOER -> switch (omgjør) {
-                case ANKE_TIL_GUNST -> KabalUtfall.MEDHOLD;
-                case ANKE_DELVIS_OMGJOERING_TIL_GUNST -> KabalUtfall.DELVIS_MEDHOLD;
-                case ANKE_TIL_UGUNST -> KabalUtfall.UGUNST;
-                case UDEFINERT -> throw new IllegalStateException("Utviklerfeil forsøker lagre klage med utfall " + utfall + " " + omgjør);
-            };
-            default -> throw new IllegalStateException("Utviklerfeil forsøker lagre klage med utfall " + utfall);
         };
     }
 
