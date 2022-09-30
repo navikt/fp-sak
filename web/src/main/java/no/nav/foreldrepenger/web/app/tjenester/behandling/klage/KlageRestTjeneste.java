@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktMellomlagringDto;
@@ -66,8 +65,6 @@ public class KlageRestTjeneste {
     public static final String MELLOMLAGRE_PATH = BASE_PATH + MELLOMLAGRE_PART_PATH;
     private static final String MOTTATT_KLAGEDOKUMENT_V2_PART_PATH = "/klage/mottatt-klagedokument-v2";
     public static final String MOTTATT_KLAGEDOKUMENT_V2_PATH = BASE_PATH + MOTTATT_KLAGEDOKUMENT_V2_PART_PATH;
-
-    private static final boolean ER_PROD = Environment.current().isProd();
 
     private BehandlingRepository behandlingRepository;
     private KlageVurderingTjeneste klageVurderingTjeneste;
@@ -120,9 +117,11 @@ public class KlageRestTjeneste {
         var behandling = behandlingRepository.hentBehandling(apDto.getBehandlingUuid());
         var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, vurdertAv);
 
-        if ((KlageVurdertAv.NK.equals(vurdertAv) && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK)) ||
-                (KlageVurdertAv.NFP.equals(vurdertAv)
-                        && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP))) {
+        if (KlageVurdertAv.NK.equals(vurdertAv)) {
+            throw new IllegalArgumentException("Klageinstans skal ikke lenger lagre klagevurderinger i fpsak");
+        }
+
+        if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP)) {
             mapMellomlagreKlage(apDto, builder);
         }
         builder.medFritekstTilBrev(apDto.getFritekstTilBrev());

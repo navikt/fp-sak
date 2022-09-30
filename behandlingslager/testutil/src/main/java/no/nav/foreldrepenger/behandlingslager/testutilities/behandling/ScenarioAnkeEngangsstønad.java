@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import java.util.HashMap;
 import java.util.Map;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -19,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 
 /**
  * Default test scenario builder for Anke Engangssøknad. Kan opprettes for gitt
@@ -37,7 +35,6 @@ public class ScenarioAnkeEngangsstønad {
     private Map<AksjonspunktDefinisjon, BehandlingStegType> utførteAksjonspunktDefinisjoner = new HashMap<>();
     private AbstractTestScenario<?> abstractTestScenario;
     private AnkeVurdering ankeVurdering;
-    private String behandlendeEnhet;
     private Behandling ankeBehandling;
     private BehandlingStegType startSteg;
     private AnkeVurderingResultatEntitet.Builder vurderingResultat = AnkeVurderingResultatEntitet.builder();
@@ -76,9 +73,6 @@ public class ScenarioAnkeEngangsstønad {
         // oppprett og lagre behandling
         var builder = Behandling.forAnke(fagsak);
 
-        if (behandlendeEnhet != null) {
-            builder.medBehandlendeEnhet(new OrganisasjonsEnhet(behandlendeEnhet, null));
-        }
         ankeBehandling = builder.build();
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
         var lås = behandlingRepository.taSkriveLås(ankeBehandling);
@@ -105,16 +99,6 @@ public class ScenarioAnkeEngangsstønad {
         return ankeBehandling;
     }
 
-    public ScenarioAnkeEngangsstønad medBegrunnelse(String begrunnelse) {
-        vurderingResultat.medBegrunnelse(begrunnelse);
-        return this;
-    }
-
-    public ScenarioAnkeEngangsstønad medBehandlendeEnhet(String behandlendeEnhet) {
-        this.behandlendeEnhet = behandlendeEnhet;
-        return this;
-    }
-
     public BehandlingRepository mockBehandlingRepository() {
         var behandlingRepository = abstractTestScenario.mockBehandlingRepository();
         when(behandlingRepository.hentBehandling(ankeBehandling.getId())).thenReturn(ankeBehandling);
@@ -135,12 +119,4 @@ public class ScenarioAnkeEngangsstønad {
         return ankeBehandling;
     }
 
-    public Fagsak getFagsak() {
-        return abstractTestScenario.getFagsak();
-    }
-
-    public ScenarioAnkeEngangsstønad medBehandlingStegStart(BehandlingStegType startSteg) {
-        this.startSteg = startSteg;
-        return this;
-    }
 }

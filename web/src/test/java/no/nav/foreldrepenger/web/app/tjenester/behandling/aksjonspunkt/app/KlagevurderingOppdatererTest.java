@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
@@ -37,7 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
@@ -47,8 +45,7 @@ import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktDto.KlageVurderingResultatNfpAksjonspunktDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktDto.KlageVurderingResultatNkAksjonspunktDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlagevurderingOppdaterer;
 
 @CdiDbAwareTest
@@ -79,8 +76,8 @@ public class KlagevurderingOppdatererTest {
         var behandling = klageScenario.lagre(repositoryProvider, klageRepository);
 
         var klageVurdering = KlageVurdering.STADFESTE_YTELSESVEDTAK;
-        var dto = new KlageVurderingResultatNfpAksjonspunktDto("begrunnelse bla. bla.",
-                klageVurdering, null, null, LocalDate.now(), "Fritekst til brev", null, null);
+        var dto = new KlageVurderingResultatAksjonspunktDto("begrunnelse bla. bla.",
+                klageVurdering, null, null, LocalDate.now(), "Fritekst til brev", null, null, false);
 
         // Act
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
@@ -133,8 +130,8 @@ public class KlagevurderingOppdatererTest {
         behandling.setMigrertKilde(Fagsystem.INFOTRYGD);
 
         var klageVurdering = KlageVurdering.STADFESTE_YTELSESVEDTAK;
-        var dto = new KlageVurderingResultatNfpAksjonspunktDto("begrunnelse bla. bla.",
-                klageVurdering, null, null, LocalDate.now(), "Fritekst til brev", null, null);
+        var dto = new KlageVurderingResultatAksjonspunktDto("begrunnelse bla. bla.",
+                klageVurdering, null, null, LocalDate.now(), "Fritekst til brev", null, null, false);
 
         // Act
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
@@ -152,40 +149,5 @@ public class KlagevurderingOppdatererTest {
         return new KlagevurderingOppdaterer(historikkApplikasjonTjeneste, behandlingsutredningTjeneste, klageVurderingTjeneste);
     }
 
-    @Test
-    public void skal_sette_BehandlingResultatType_AvvisKlage_for_Nk_når_klaget_er_for_sent() {
-        // Arrange
-        var klageVurdering = KlageVurdering.AVVIS_KLAGE;
-        var klageAvvistÅrsak = KlageAvvistÅrsak.KLAGET_FOR_SENT;
-        var dto = new KlageVurderingResultatNkAksjonspunktDto("begrunnelse for avvist klage NK...",
-                klageVurdering, null, klageAvvistÅrsak, LocalDate.now(), "Fritekst til Brev", null, null,false);
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        var klageScenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(scenario);
-        var klageBehandling = klageScenario.lagre(repositoryProvider, klageRepository);
-
-        // Act
-        var aksjonspunkt = klageBehandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
-        getKlageVurderer(repositoryProvider, klageRepository).oppdater(dto, new AksjonspunktOppdaterParameter(klageBehandling, aksjonspunkt, dto));
-
-        // Assert
-        assertThat(klageBehandling.getBehandlingsresultat().getBehandlingResultatType()).isEqualTo(BehandlingResultatType.KLAGE_AVVIST);
-
-        // verifiserer KlageVurderingResultat
-        var klageVurderingResultat = klageRepository.hentKlageVurderingResultat(klageBehandling.getId(), KlageVurdertAv.NK).get();
-        assertThat(klageVurderingResultat.getKlageVurdering()).isEqualTo(KlageVurdering.AVVIS_KLAGE);
-        assertThat(klageVurderingResultat.getKlageVurdertAv()).isEqualTo(KlageVurdertAv.NK);
-
-        // Verifiserer HistorikkinnslagDto
-        var historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
-        verify(historikkApplikasjonTjeneste).lagInnslag(historikkCapture.capture());
-        var historikkinnslag = historikkCapture.getValue();
-        assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.KLAGE_BEH_NK);
-        assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        assertThat(del.getSkjermlenke()).as("skjermlenke")
-                .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.KLAGE_BEH_NK.getKode()));
-        assertThat(del.getEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_KA)).isNotNull();
-        assertThat(del.getEndretFelt(HistorikkEndretFeltType.KLAGE_OMGJØR_ÅRSAK)).isNotNull();
-    }
 
 }

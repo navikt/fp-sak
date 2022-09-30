@@ -6,7 +6,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -47,12 +46,6 @@ public class KlageNkSteg implements BehandlingSteg {
             throw new IllegalStateException("Utviklerfeil: Skal ikke lenger gjennomføre BehandlingSteg KlageKA. Mangler Kabal-utfall");
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
-    }
-
-    @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
-            BehandlingStegType sisteSteg) {
-        klageRepository.settKlageGodkjentHosMedunderskriver(kontekst.getBehandlingId(), KlageVurdertAv.NK, false);
     }
 
 }

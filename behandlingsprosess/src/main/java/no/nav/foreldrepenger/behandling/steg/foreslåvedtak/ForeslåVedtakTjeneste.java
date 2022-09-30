@@ -56,9 +56,6 @@ class ForeslåVedtakTjeneste {
             if (klageAnkeVedtakTjeneste.erKlageResultatHjemsendt(behandling) || klageAnkeVedtakTjeneste.erBehandletAvKabal(behandling)) {
                 behandling.nullstillToTrinnsBehandling();
                 return BehandleStegResultat.utførtUtenAksjonspunkter();
-            } else if (klageAnkeVedtakTjeneste.erGodkjentHosMedunderskriver(behandling)) {
-                behandling.nullstillToTrinnsBehandling();
-                return BehandleStegResultat.utførtMedAksjonspunkter(List.of(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL));
             }
         } else {
             aksjonspunktDefinisjoner

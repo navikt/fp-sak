@@ -23,7 +23,6 @@ import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 @ApplicationScoped
 public class FatterVedtakAksjonspunkt {
 
-    private KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste;
     private VedtakTjeneste vedtakTjeneste;
     private TotrinnTjeneste totrinnTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -34,11 +33,9 @@ public class FatterVedtakAksjonspunkt {
 
     @Inject
     public FatterVedtakAksjonspunkt(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                    KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
                                     VedtakTjeneste vedtakTjeneste,
                                     TotrinnTjeneste totrinnTjeneste,
                                     InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
-        this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
         this.vedtakTjeneste = vedtakTjeneste;
         this.totrinnTjeneste = totrinnTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -57,10 +54,6 @@ public class FatterVedtakAksjonspunkt {
             var aksjonspunkt = behandling.getAksjonspunktFor(aks.getAksjonspunktDefinisjon());
             if (!aks.isGodkjent()) {
                 skalReåpnes.add(aksjonspunkt);
-            }
-
-            if (KlageAnkeVedtakTjeneste.behandlingErKlageEllerAnke(behandling) && aks.isGodkjent()) {
-                klageAnkeVedtakTjeneste.settGodkjentHosMedunderskriver(behandling);
             }
 
             var koder = aks.getVurderÅrsakskoder();

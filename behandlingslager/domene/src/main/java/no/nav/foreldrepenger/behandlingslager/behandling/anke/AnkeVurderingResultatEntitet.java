@@ -176,10 +176,6 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
         return godkjentAvMedunderskriver;
     }
 
-    public void setGodkjentAvMedunderskriver(boolean verdi) {
-        godkjentAvMedunderskriver = verdi;
-    }
-
     public boolean erAnkerIkkePart() {
         return erAnkerIkkePart;
     }
@@ -214,14 +210,6 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
 
     public LocalDate getSendtTrygderettDato() {
         return sendtTrygderettDato;
-    }
-
-    public void setSendtTrygderettDato(LocalDate sendtTrygderettDato) {
-        this.sendtTrygderettDato = sendtTrygderettDato;
-    }
-
-    public void setIngenTrygderettKjennelse() {
-        this.trygderettVurdering = AnkeVurdering.UDEFINERT;
     }
 
     public List<AnkeAvvistÅrsak> hentAvvistÅrsaker(){
@@ -311,73 +299,13 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
             return this;
         }
 
-        public Builder medAnkeOmgjørÅrsak(AnkeOmgjørÅrsak ankeOmgjørÅrsak) {
-            ankeVurderingResultatMal.ankeOmgjørÅrsak = ankeOmgjørÅrsak == null ? AnkeOmgjørÅrsak.UDEFINERT : ankeOmgjørÅrsak;
-            return this;
-        }
-
         public Builder medAnkeVurderingOmgjør(AnkeVurderingOmgjør ankeVurderingOmgjør) {
             ankeVurderingResultatMal.ankeVurderingOmgjør = ankeVurderingOmgjør == null ? AnkeVurderingOmgjør.UDEFINERT : ankeVurderingOmgjør;
             return this;
         }
 
-        public Builder medBegrunnelse(String begrunnelse) {
-            ankeVurderingResultatMal.begrunnelse = begrunnelse;
-            return this;
-        }
-
-        public Builder medFritekstTilBrev(String fritekstTilBrev) {
-            ankeVurderingResultatMal.fritekstTilBrev = fritekstTilBrev;
-            return this;
-        }
-
-        public Builder medMerknaderFraBruker(String merknaderFraBruker) {
-            ankeVurderingResultatMal.merknaderFraBruker = merknaderFraBruker;
-            return this;
-        }
-
-        public Builder medErMerknaderMottatt(boolean erMerknaderMottatt) {
-            ankeVurderingResultatMal.erMerknaderMottatt = erMerknaderMottatt;
-            return this;
-        }
-
         public Builder medAnkeResultat(AnkeResultatEntitet ankeResultat) {
             ankeVurderingResultatMal.ankeResultat = ankeResultat;
-            return this;
-        }
-
-        public Builder medGodkjentAvMedunderskriver(boolean godkjent) {
-            ankeVurderingResultatMal.godkjentAvMedunderskriver = godkjent;
-            return this;
-        }
-
-        public Builder medGjelderVedtak(boolean gjelderVedtak) {
-            ankeVurderingResultatMal.gjelderVedtak = gjelderVedtak;
-            return this;
-        }
-
-        public Builder medErAnkerIkkePart(boolean erAnkerIkkePart) {
-            ankeVurderingResultatMal.erAnkerIkkePart = erAnkerIkkePart;
-            return this;
-        }
-
-        public Builder medErFristIkkeOverholdt(boolean erFristIkkeOverholdt) {
-            ankeVurderingResultatMal.erFristIkkeOverholdt = erFristIkkeOverholdt;
-            return this;
-        }
-
-        public Builder medErIkkeKonkret(boolean erIkkeKonkret) {
-            ankeVurderingResultatMal.erIkkeKonkret = erIkkeKonkret;
-            return this;
-        }
-
-        public Builder medErIkkeSignert(boolean erIkkeSignert) {
-            ankeVurderingResultatMal.erIkkeSignert = erIkkeSignert;
-            return this;
-        }
-
-        public Builder medErSubsidiartRealitetsbehandles(boolean erSubsidiartRealitetsbehandles) {
-            ankeVurderingResultatMal.erSubsidiartRealitetsbehandles = erSubsidiartRealitetsbehandles;
             return this;
         }
 
@@ -388,11 +316,6 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
 
         public Builder medTrygderettVurdering(AnkeVurdering trVurdering) {
             ankeVurderingResultatMal.trygderettVurdering = trVurdering == null ? AnkeVurdering.UDEFINERT : trVurdering;
-            return this;
-        }
-
-        public Builder medTrygderettOmgjørÅrsak(AnkeOmgjørÅrsak trOmgjørÅrsak) {
-            ankeVurderingResultatMal.trygderettOmgjørÅrsak = trOmgjørÅrsak == null ? AnkeOmgjørÅrsak.UDEFINERT : trOmgjørÅrsak;
             return this;
         }
 
@@ -409,7 +332,6 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
         public void verifyStateForBuild() {
             Objects.requireNonNull(ankeVurderingResultatMal.ankeResultat, "AnkeResultat");
             if (ankeVurderingResultatMal.ankeVurdering.equals(AnkeVurdering.ANKE_OMGJOER)) {
-                Objects.requireNonNull(ankeVurderingResultatMal.ankeOmgjørÅrsak, "ankeOmgjørÅrsak");
                 Objects.requireNonNull(ankeVurderingResultatMal.ankeVurderingOmgjør, "ankeVurderingOmgjør");
             }
         }

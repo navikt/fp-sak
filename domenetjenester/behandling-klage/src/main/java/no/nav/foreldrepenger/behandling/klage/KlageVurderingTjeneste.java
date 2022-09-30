@@ -133,8 +133,7 @@ public class KlageVurderingTjeneste {
 
     private void lagreKlageVurderingResultat(Behandling behandling, KlageVurderingResultat.Builder builder, KlageVurdertAv vurdertAv,
             boolean erVurderingOppdaterer) {
-        var aksjonspunkt = KlageVurdertAv.NK.equals(vurdertAv) ? AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK
-                : AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP;
+        var aksjonspunkt = KlageVurdertAv.NK.equals(vurdertAv) ? null : AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP;
         var vurderingsteg = KlageVurdertAv.NK.equals(vurdertAv) ? BehandlingStegType.KLAGE_NK : BehandlingStegType.KLAGE_NFP;
 
         var klageResultat = hentEvtOpprettKlageResultat(behandling);
@@ -142,17 +141,9 @@ public class KlageVurderingTjeneste {
         var eksisterende = hentKlageVurderingResultat(behandling, vurdertAv).orElse(null);
 
         var uendret = (eksisterende != null) && eksisterende.harLikVurdering(nyttresultat);
-        var endretBeslutterStatus = (eksisterende != null) && eksisterende.isGodkjentAvMedunderskriver() && !uendret;
+        var endretBeslutterStatus = (eksisterende != null) && !uendret;
         var kabal = klageResultat.erBehandletAvKabal();
 
-        if (eksisterende == null) {
-            nyttresultat.setGodkjentAvMedunderskriver(false);
-        } else {
-            nyttresultat.setGodkjentAvMedunderskriver(eksisterende.isGodkjentAvMedunderskriver() && uendret);
-            if (endretBeslutterStatus && KlageVurdertAv.NFP.equals(vurdertAv)) {
-                klageRepository.settKlageGodkjentHosMedunderskriver(behandling.getId(), KlageVurdertAv.NK, false);
-            }
-        }
         var tilbakeføres = !kabal && endretBeslutterStatus &&
                 !behandling.harÅpentAksjonspunktMedType(aksjonspunkt) &&
                 behandlingskontrollTjeneste.erStegPassert(behandling, vurderingsteg);

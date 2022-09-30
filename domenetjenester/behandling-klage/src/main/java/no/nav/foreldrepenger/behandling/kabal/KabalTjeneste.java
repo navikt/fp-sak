@@ -22,8 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
@@ -108,9 +106,7 @@ public class KabalTjeneste {
         var enhet = utledEnhet(klageBehandling.getFagsak());
         var klageMottattDato  = utledDokumentMottattDato(klageBehandling);
         var klager = utledKlager(klageBehandling, Optional.of(resultat.getKlageResultat()));
-        var sakMottattKaDato = klageBehandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA)
-            .map(Aksjonspunkt::getOpprettetTidspunkt)
-            .orElse(LocalDateTime.now());
+        var sakMottattKaDato = LocalDateTime.now();
         var request = TilKabalDto.klage(klageBehandling, klager, enhet, finnDokumentReferanserForKlage(klageBehandling.getId(), resultat.getKlageResultat()),
             klageMottattDato, klageMottattDato, sakMottattKaDato, List.of(brukHjemmel.getKabal()), resultat.getBegrunnelse());
         kabalKlient.sendTilKabal(request);
@@ -130,43 +126,15 @@ public class KabalTjeneste {
         var klager = utledKlager(ankeBehandling, klageResultat);
         var bleKlageBehandletKabal = klageResultat.filter(KlageResultatEntitet::erBehandletAvKabal).isPresent();
         var kildereferanse = klageBehandling.filter(k -> bleKlageBehandletKabal).orElse(ankeBehandling).getUuid().toString();
-        var sakMottattKaDato = ankeBehandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE)
-            .map(Aksjonspunkt::getOpprettetTidspunkt)
-            .orElseGet(ankeBehandling::getOpprettetTidspunkt);
+        var sakMottattKaDato = ankeBehandling.getOpprettetTidspunkt();
         var request = TilKabalDto.anke(ankeBehandling, kildereferanse, klager, enhet,
             finnDokumentReferanserForAnke(ankeBehandling.getId(), ankeResultat, bleKlageBehandletKabal),
             ankeMottattDato, ankeMottattDato, sakMottattKaDato, List.of(brukHjemmel.getKabal()));
         kabalKlient.sendTilKabal(request);
     }
 
-    public void sendTrygderettTilKabal(Behandling ankeBehandling, KlageHjemmel hjemmel) {
-        if (!BehandlingType.ANKE.equals(ankeBehandling.getType())) {
-            throw new IllegalArgumentException("Utviklerfeil: Prøver sende noe annet enn klage/anke til Kabal!");
-        }
-        var ankeResultat = ankeVurderingTjeneste.hentAnkeResultat(ankeBehandling);
-        var klageBehandling = ankeResultat.getPåAnketKlageBehandlingId().map(behandlingRepository::hentBehandling);
-        var klageResultat = klageBehandling.flatMap(kb -> klageVurderingTjeneste.hentKlageResultatHvisEksisterer(kb));
-        var brukHjemmel = Optional.ofNullable(hjemmel)
-            .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(ankeBehandling.getFagsakYtelseType()));
-        var klager = utledKlager(ankeBehandling, klageResultat);
-        var bleKlageBehandletKabal = klageResultat.filter(KlageResultatEntitet::erBehandletAvKabal).isPresent();
-        var kildereferanse = klageBehandling.filter(k -> bleKlageBehandletKabal).orElse(ankeBehandling).getUuid().toString();
-        var sakMottattKaDato = ankeBehandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE)
-            .map(Aksjonspunkt::getOpprettetTidspunkt)
-            .orElseGet(ankeBehandling::getOpprettetTidspunkt);
-        var ankeVurdering = ankeVurderingTjeneste.hentAnkeVurderingResultat(ankeBehandling).orElseThrow();
-        var sendtTilTrygderetten = Optional.ofNullable(ankeVurdering.getSendtTrygderettDato()).map(d -> d.atStartOfDay().plusHours(12))
-            .orElseGet(LocalDateTime::now);
-        var utfall = utfallFraAnkeVurdering(ankeVurdering.getAnkeVurdering(), ankeVurdering.getAnkeVurderingOmgjør());
-        var request = TilKabalTRDto.anke(ankeBehandling, kildereferanse, klager,
-            finnDokumentReferanserForAnke(ankeBehandling.getId(), ankeResultat, bleKlageBehandletKabal),
-            sakMottattKaDato, sendtTilTrygderetten, utfall, List.of(brukHjemmel.getKabal()));
-        kabalKlient.sendTilKabalTR(request);
-    }
-
     public void lagreKlageUtfallFraKabal(Behandling behandling, KabalUtfall utfall) {
         var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, KlageVurdertAv.NK)
-            .medGodkjentAvMedunderskriver(true)
             .medKlageVurdering(klageVurderingFraUtfall(utfall))
             .medKlageVurderingOmgjør(klageVurderingOmgjørFraUtfall(utfall));
         klageVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, builder, KlageVurdertAv.NK);
@@ -194,8 +162,7 @@ public class KabalTjeneste {
                 throw new IllegalStateException("Hm, har satt sendtTrygderetten, men mangler KAs ankevurdering. Skal ikke skje");
             }
         }
-        var builder = ankeVurderingTjeneste.hentAnkeVurderingResultatBuilder(behandling)
-            .medGodkjentAvMedunderskriver(true);
+        var builder = ankeVurderingTjeneste.hentAnkeVurderingResultatBuilder(behandling);
         // Denne er essensiell for AnkeMerknaderSteg
         Optional.ofNullable(sendtTrygderetten).ifPresent(builder::medSendtTrygderettDato);
         // Dette med avsluttet skyldes prematur avslutning da kabal har sendt anke avsluttet for anker som er sendt Trygderetten. Fjernes etter patch (TODO (jol))

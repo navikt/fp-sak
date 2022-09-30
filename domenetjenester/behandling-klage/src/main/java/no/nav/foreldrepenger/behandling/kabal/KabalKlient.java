@@ -24,7 +24,6 @@ public class KabalKlient {
     private static boolean erDeployment = Environment.current().isProd() || Environment.current().isDev();
 
     private URI uri;
-    private URI uriTR;
     private String scopes;
     private String uriString;
     private RestClient restClient;
@@ -32,11 +31,9 @@ public class KabalKlient {
     @Inject
     public KabalKlient(RestClient restClient,
                        @KonfigVerdi(value = "kabal.api.url", defaultVerdi = "https://kabal-api.intern.nav.no/api/oversendelse/v3/sak") URI uri,
-                       @KonfigVerdi(value = "kabal.tr.api.url", defaultVerdi = "https://kabal-api.intern.nav.no/api/ankeritrygderetten") URI uriTR,
                        @KonfigVerdi(value = "kabal.api.scopes", defaultVerdi = "api://prod-gcp.klage.kabal-api/.default") String scope) {
         this.restClient = restClient;
         this.uri = uri;
-        this.uriTR = uriTR;
         this.scopes = scope;
         this.uriString = uri.toString();
     }
@@ -55,16 +52,4 @@ public class KabalKlient {
             throw new TekniskException( "FP-180127", String.format("KABAL %s gir feil, ta opp med team klage.", uriString), e);
         }
     }
-
-    public void sendTilKabalTR(TilKabalTRDto request) {
-        if (!erDeployment) return;
-        try {
-            var rrequest = RestRequest.newPOSTJson(request, uriTR, TokenFlow.AZUREAD_CC, scopes);
-            restClient.sendExpectConflict(rrequest, String.class);
-        } catch (Exception e) {
-            LOG.warn("KABAL oversend: feil ved sending til KABAL {}", uriString, e);
-            throw new TekniskException( "FP-180127", String.format("KABAL %s gir feil, ta opp med team klage.", uriString), e);
-        }
-    }
-
 }

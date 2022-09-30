@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.anke;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -22,8 +23,6 @@ public class AnkeVurderingResultatDto {
     private AnkeOmgjørÅrsak ankeOmgjoerArsak;
     @JsonProperty("ankeVurderingOmgjoer")
     private AnkeVurderingOmgjør ankeVurderingOmgjoer;
-    @JsonProperty("godkjentAvMedunderskriver")
-    private boolean godkjentAvMedunderskriver;
     @JsonProperty("erAnkerIkkePart")
     private boolean erAnkerIkkePart;
     @JsonProperty("erFristIkkeOverholdt")
@@ -46,6 +45,8 @@ public class AnkeVurderingResultatDto {
     private AnkeOmgjørÅrsak trygderettOmgjoerArsak;
     @JsonProperty("trygderettVurderingOmgjoer")
     private AnkeVurderingOmgjør trygderettVurderingOmgjoer;
+    @JsonProperty("sendtTilTrygderettenDato")
+    private LocalDate sendtTilTrygderettenDato;
 
     public AnkeVurderingResultatDto() {
     }
@@ -68,10 +69,6 @@ public class AnkeVurderingResultatDto {
 
     public AnkeVurderingOmgjør getAnkeVurderingOmgjoer() {
         return ankeVurderingOmgjoer;
-    }
-
-    public boolean isGodkjentAvMedunderskriver() {
-        return godkjentAvMedunderskriver;
     }
 
     public boolean isErAnkerIkkePart() {
@@ -116,10 +113,6 @@ public class AnkeVurderingResultatDto {
 
     void setAnkeOmgjoerArsak(AnkeOmgjørÅrsak ankeOmgjoerArsak) {
         this.ankeOmgjoerArsak = ankeOmgjoerArsak;
-    }
-
-    public void setGodkjentAvMedunderskriver(boolean godkjentAvMedunderskriver) {
-        this.godkjentAvMedunderskriver = godkjentAvMedunderskriver;
     }
 
     public void setErAnkerIkkePart(boolean erAnkerIkkePart) {
@@ -184,5 +177,13 @@ public class AnkeVurderingResultatDto {
 
     public void setTrygderettVurderingOmgjoer(AnkeVurderingOmgjør trygderettVurderingOmgjoer) {
         this.trygderettVurderingOmgjoer = trygderettVurderingOmgjoer;
+    }
+
+    public LocalDate getSendtTilTrygderettenDato() {
+        return sendtTilTrygderettenDato;
+    }
+
+    public void setSendtTilTrygderettenDato(LocalDate sendtTilTrygderettenDato) {
+        this.sendtTilTrygderettenDato = sendtTilTrygderettenDato;
     }
 }

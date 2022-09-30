@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -30,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtak;
-import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
@@ -44,7 +42,6 @@ public class VedtakTjeneste {
     private HistorikkRepository historikkRepository;
     private LagretVedtakRepository lagretVedtakRepository;
     private TotrinnTjeneste totrinnTjeneste;
-    private KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste;
 
     VedtakTjeneste() {
         // CDI
@@ -52,11 +49,9 @@ public class VedtakTjeneste {
 
     @Inject
     public VedtakTjeneste(LagretVedtakRepository lagretVedtakRepository,
-                          BehandlingRepositoryProvider repositoryProvider,
-                          KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
-                          TotrinnTjeneste totrinnTjeneste) {
+                          BehandlingRepositoryProvider repositoryProvider, TotrinnTjeneste totrinnTjeneste) {
         this(repositoryProvider.getBehandlingRepository(), repositoryProvider.getBehandlingsresultatRepository(),
-            repositoryProvider.getHistorikkRepository(), lagretVedtakRepository, totrinnTjeneste, klageAnkeVedtakTjeneste);
+            repositoryProvider.getHistorikkRepository(), lagretVedtakRepository, totrinnTjeneste);
 
     }
 
@@ -64,14 +59,12 @@ public class VedtakTjeneste {
                           BehandlingsresultatRepository behandlingsresultatRepository,
                           HistorikkRepository historikkRepository,
                           LagretVedtakRepository lagretVedtakRepository,
-                          TotrinnTjeneste totrinnTjeneste,
-                          KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste) {
+                          TotrinnTjeneste totrinnTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.historikkRepository = historikkRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.lagretVedtakRepository = lagretVedtakRepository;
         this.totrinnTjeneste = totrinnTjeneste;
-        this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
     }
 
     public List<LagretVedtak> hentLagreteVedtakPåFagsak(Long fagsakId) {
@@ -93,16 +86,8 @@ public class VedtakTjeneste {
                 lagHistorikkInnslagVurderPåNytt(behandling, totrinnsvurderings);
                 return;
             }
-            if (behandlingErKlageEllerAnke(behandling) && klageAnkeVedtakTjeneste.erGodkjentHosMedunderskriver(behandling)) {
-                lagHistorikkInnslagGodkjentAvMedunderskriver(behandling, totrinnsvurderings);
-                return;
-            }
         }
         lagHistorikkInnslagVedtakFattet(behandling);
-    }
-
-    private boolean behandlingErKlageEllerAnke(Behandling behandling) {
-        return BehandlingType.ANKE.equals(behandling.getType()) || BehandlingType.KLAGE.equals(behandling.getType());
     }
 
     private boolean sendesTilbakeTilSaksbehandler(Collection<Totrinnsvurdering> medTotrinnskontroll) {
@@ -131,10 +116,6 @@ public class VedtakTjeneste {
 
     private void lagHistorikkInnslagVurderPåNytt(Behandling behandling, Collection<Totrinnsvurdering> medTotrinnskontroll) {
         lagHistorikkInnslagVedtakReturEllerNK(HistorikkinnslagType.SAK_RETUR, behandling, medTotrinnskontroll);
-    }
-
-    private void lagHistorikkInnslagGodkjentAvMedunderskriver(Behandling behandling, Collection<Totrinnsvurdering> medTotrinnskontroll) {
-        lagHistorikkInnslagVedtakReturEllerNK(HistorikkinnslagType.SAK_GODKJENT, behandling, medTotrinnskontroll);
     }
 
     private void lagHistorikkInnslagVedtakReturEllerNK(HistorikkinnslagType hendelse,

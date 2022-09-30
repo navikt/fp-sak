@@ -360,10 +360,6 @@ public class ScenarioKlageEngangsstønad {
                 var klageResultat = hentEvtOpprettKlageResultat(klageBehandlingId);
                 klageResultat.settPåKlagdBehandlingId(påKlagdBehandlingId);
             }
-
-            @Override
-            public void settKlageGodkjentHosMedunderskriver(Long klageBehandlingId, KlageVurdertAv vurdertAv, boolean vurdering) {
-            }
         };
     }
 }
