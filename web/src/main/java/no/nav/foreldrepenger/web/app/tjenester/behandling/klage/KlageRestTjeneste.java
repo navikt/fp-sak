@@ -177,7 +177,7 @@ public class KlageRestTjeneste {
 
         return new KlagebehandlingDto(nfpFormkrav.orElse(null), nfpVurdering,
             kaFormkrav.orElse(null), nkVurdering.orElse(null), KlageHjemmel.getHjemlerForYtelse(ytelseType),
-            false, behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE),
+            behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE),
             klageResultat.erBehandletAvKabal());
     }
 

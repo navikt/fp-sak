@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsa
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingBehandlingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
@@ -190,7 +191,7 @@ public class ScenarioKlageEngangsstønad {
         }
         if (vurderingNFP != null) {
             Behandlingsresultat.builder().medBehandlingResultatType(
-                    BehandlingResultatType.tolkBehandlingResultatType(vurderingNK != null ? vurderingNK : vurderingNFP, false))
+                    KlageVurderingBehandlingResultat.tolkBehandlingResultatType(vurderingNK != null ? vurderingNK : vurderingNFP, KlageVurderingOmgjør.GUNST_MEDHOLD_I_KLAGE, false))
                     .buildFor(klageBehandling);
         } else {
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT)

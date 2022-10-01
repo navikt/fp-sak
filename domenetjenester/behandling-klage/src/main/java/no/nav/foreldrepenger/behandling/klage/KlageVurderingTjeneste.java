@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.event.BehandlingRelasjonEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -21,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEnti
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingBehandlingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
@@ -149,7 +149,7 @@ public class KlageVurderingTjeneste {
                 behandlingskontrollTjeneste.erStegPassert(behandling, vurderingsteg);
         klageRepository.lagreVurderingsResultat(behandling.getId(), nyttresultat);
         if (erVurderingOppdaterer || tilbakeføres || kabal) {
-            settBehandlingResultatTypeBasertPaaUtfall(behandling, nyttresultat.getKlageVurdering(), vurdertAv);
+            settBehandlingResultatTypeBasertPaaUtfall(behandling, nyttresultat.getKlageVurdering(), nyttresultat.getKlageVurderingOmgjør(), vurdertAv);
         }
         if (tilbakeføres) {
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
@@ -163,7 +163,7 @@ public class KlageVurderingTjeneste {
         prosesseringAsynkTjeneste.asynkProsesserBehandling(behandling);
     }
 
-    private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, KlageVurdering klageVurdering, KlageVurdertAv vurdertAv) {
+    private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, KlageVurdering klageVurdering, KlageVurderingOmgjør omgjør, KlageVurdertAv vurdertAv) {
         if (skalBehandlesAvKlageInstans(vurdertAv, klageVurdering) && !Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde())
             && !dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT)) {
 
@@ -174,7 +174,7 @@ public class KlageVurderingTjeneste {
         var klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
         var erPåklagdEksternBehandling = klageResultatEntitet.getPåKlagdBehandlingId().isEmpty()
                 && klageResultatEntitet.getPåKlagdEksternBehandlingUuid().isPresent();
-        var behandlingResultatType = BehandlingResultatType.tolkBehandlingResultatType(klageVurdering, erPåklagdEksternBehandling);
+        var behandlingResultatType = KlageVurderingBehandlingResultat.tolkBehandlingResultatType(klageVurdering, omgjør, erPåklagdEksternBehandling);
 
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
         if (behandlingsresultat.isPresent()) {
