@@ -257,16 +257,12 @@ public class BehandlingsresultatXmlTjeneste {
             var behandlingResultatType = behandlingVedtak.get().getBehandlingsresultat().getBehandlingResultatType();
             if (BehandlingResultatType.INNVILGET.equals(behandlingResultatType)) {
                 behandlingsresultat.setBehandlingsresultat(VedtakXmlUtil.lagKodeverksOpplysning(BehandlingResultatType.INNVILGET));
-            } else if (erBehandlingResultatTypeKlageEllerAnke(behandlingResultatType)) {
+            } else if (BehandlingType.ANKE.equals(behandling.getType()) || BehandlingType.KLAGE.equals(behandling.getType())) {
                 behandlingsresultat.setBehandlingsresultat(VedtakXmlUtil.lagKodeverksOpplysning(behandlingResultatType));
             } else {
                 behandlingsresultat.setBehandlingsresultat(VedtakXmlUtil.lagKodeverksOpplysning(BehandlingResultatType.AVSLÅTT));
             }
         }
-    }
-
-    private boolean erBehandlingResultatTypeKlageEllerAnke(BehandlingResultatType behandlingResultatType) {
-        return BehandlingResultatType.getKlageKoder().contains(behandlingResultatType) || BehandlingResultatType.getAnkeKoder().contains(behandlingResultatType);
     }
 
     private void setManuelleVurderinger(Behandlingsresultat behandlingsresultat, Behandling behandling) {

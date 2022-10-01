@@ -7,12 +7,12 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.event.BehandlingRelasjonEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingBehandlingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 
 @ApplicationScoped
 public class AnkeVurderingTjeneste {
+
     private AnkeRepository ankeRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -75,13 +76,13 @@ public class AnkeVurderingTjeneste {
         var ankeResultat = hentAnkeResultat(behandling);
         var nyttresultat = builder.medAnkeResultat(ankeResultat).build();
         ankeRepository.lagreVurderingsResultat(behandling.getId(), nyttresultat);
-        settBehandlingResultatTypeBasertPaaUtfall(behandling, nyttresultat.getAnkeVurdering());
+        settBehandlingResultatTypeBasertPaaUtfall(behandling, nyttresultat.getAnkeVurdering(), nyttresultat.getAnkeVurderingOmgjør());
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
     }
 
-    private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, AnkeVurdering ankeVurdering) {
+    private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, AnkeVurdering ankeVurdering, AnkeVurderingOmgjør omgjør) {
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
-        var behandlingResultatType = BehandlingResultatType.tolkBehandlingResultatType(ankeVurdering);
+        var behandlingResultatType = AnkeVurderingBehandlingResultat.tolkBehandlingResultatType(ankeVurdering, omgjør);
         if (behandlingsresultat != null) {
             Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
                     .medBehandlingResultatType(behandlingResultatType);

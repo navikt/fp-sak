@@ -22,7 +22,7 @@ public class UtledVedtakResultatTypeTest {
     @Test
     public void vedtakResultatTypeSettesTilVEDTAK_I_ANKEBEHANDLING() {
         // Act
-        var vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.ANKE, BehandlingResultatType.ANKE_OMGJOER);
+        var vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.ANKE, BehandlingResultatType.ANKE_MEDHOLD);
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.VEDTAK_I_ANKEBEHANDLING);

@@ -15,6 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehand
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingBehandlingResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -79,7 +81,7 @@ public class ScenarioAnkeEngangsstønad {
         behandlingRepository.lagre(ankeBehandling, lås);
         if (ankeVurdering != null) {
             Behandlingsresultat.builder().medBehandlingResultatType(
-                    BehandlingResultatType.tolkBehandlingResultatType(ankeVurdering))
+                    AnkeVurderingBehandlingResultat.tolkBehandlingResultatType(ankeVurdering, AnkeVurderingOmgjør.ANKE_TIL_GUNST))
                     .buildFor(ankeBehandling);
         } else {
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT)

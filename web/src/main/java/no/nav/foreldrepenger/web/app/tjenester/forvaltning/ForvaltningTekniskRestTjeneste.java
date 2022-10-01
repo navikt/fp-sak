@@ -9,7 +9,6 @@ import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -35,7 +34,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsessTaskRepository;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask;
 import no.nav.foreldrepenger.domene.vedtak.observer.RestRePubliserVedtattYtelseHendelseTask;
 import no.nav.foreldrepenger.poststed.PostnummerSynkroniseringTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
@@ -64,15 +62,13 @@ public class ForvaltningTekniskRestTjeneste {
     private PostnummerSynkroniseringTjeneste postnummerTjeneste;
     private ProsessTaskTjeneste taskTjeneste;
     private FagsakProsessTaskRepository fagsakProsessTaskRepository;
-    private EntityManager entityManager;
 
     public ForvaltningTekniskRestTjeneste() {
         // For CDI
     }
 
     @Inject
-    public ForvaltningTekniskRestTjeneste(EntityManager entityManager,
-                                          BehandlingRepositoryProvider repositoryProvider,
+    public ForvaltningTekniskRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                           FagsakProsessTaskRepository fagsakProsessTaskRepository,
             OppgaveTjeneste oppgaveTjeneste,
             PostnummerSynkroniseringTjeneste postnummerTjeneste,
@@ -84,7 +80,6 @@ public class ForvaltningTekniskRestTjeneste {
         this.postnummerTjeneste = postnummerTjeneste;
         this.taskTjeneste = taskTjeneste;
         this.fagsakProsessTaskRepository = fagsakProsessTaskRepository;
-        this.entityManager = entityManager;
     }
 
     @POST
@@ -313,40 +308,6 @@ public class ForvaltningTekniskRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response fjernFagsakProsesstaskAvsluttetBehandling() {
         fagsakProsessTaskRepository.fjernForAvsluttedeBehandlinger();
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/anke-gjenoppliv")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Gjenopplive prematurt avsluttet anke", tags = "FORVALTNING-teknisk", responses = {
-        @ApiResponse(responseCode = "200", description = "Behandling er gjenoppliver."),
-        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response gjenopplivAnke(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandling = behandlingRepository.hentBehandlingReadOnly(dto.getBehandlingUuid());
-        if (!behandling.erAvsluttet()) {
-            return  Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        var id = behandling.getId();
-        LOG.info("Gjenoppliver anke={}", id);
-        entityManager.createNativeQuery("UPDATE BEHANDLING SET behandling_status = 'UTRED' WHERE ID = :bid")
-            .setParameter("bid", id)
-            .executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM BEHANDLING_STEG_TILSTAND WHERE BEHANDLING_ID = :bid and BEHANDLING_STEG = 'IVEDSTEG'")
-            .setParameter("bid", id)
-            .executeUpdate();
-        entityManager.createNativeQuery("UPDATE BEHANDLING_STEG_TILSTAND SET behandling_steg_status = 'INNGANG' WHERE BEHANDLING_ID = :bid and BEHANDLING_STEG = 'ANKE_MERKNADER'")
-            .setParameter("bid", id)
-            .executeUpdate();
-        var taskdata = ProsessTaskData.forProsessTask(FortsettBehandlingTask.class);
-        taskdata.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        taskdata.setCallIdFraEksisterende();
-        taskdata.setPrioritet(50);
-        taskdata.setProperty(FortsettBehandlingTask.MANUELL_FORTSETTELSE, String.valueOf(true));
-        taskTjeneste.lagre(taskdata);
         return Response.ok().build();
     }
 
