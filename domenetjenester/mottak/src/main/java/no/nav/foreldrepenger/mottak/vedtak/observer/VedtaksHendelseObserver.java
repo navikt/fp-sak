@@ -11,9 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelserTask;
@@ -30,16 +30,12 @@ public class VedtaksHendelseObserver {
     private static final boolean isProd = Environment.current().isProd();
 
     private ProsessTaskTjeneste taskTjeneste;
-    private HendelsemottakRepository mottakRepository;
-
     public VedtaksHendelseObserver() {
     }
 
     @Inject
-    public VedtaksHendelseObserver(ProsessTaskTjeneste taskTjeneste,
-                                   HendelsemottakRepository mottakRepository) {
+    public VedtaksHendelseObserver(ProsessTaskTjeneste taskTjeneste) {
         this.taskTjeneste = taskTjeneste;
-        this.mottakRepository = mottakRepository;
     }
 
     public void observerBehandlingVedtakEvent(@Observes BehandlingVedtakEvent event) {
@@ -48,21 +44,12 @@ public class VedtaksHendelseObserver {
             return;
         }
 
-        var hendelseId = "FPVEDTAK" + behandling.getUuid().toString();
-        if (!mottakRepository.hendelseErNy(hendelseId)) {
-            LOG.info("OBSERVER Mottatt vedtakshendelse på nytt hendelse={}", hendelseId);
-            return;
-        }
-        mottakRepository.registrerMottattHendelse(hendelseId);
-
-        opprettTasksForFpsakVedtak(behandling);
-    }
-
-    private void opprettTasksForFpsakVedtak(Behandling behandling) {
         var fagsakYtelseType = behandling.getFagsakYtelseType();
 
         if (!behandling.erYtelseBehandling()) {
-            // TFP-4952: legg til behandlingsoppretting + evt flytt VKYtasks for klage + anke fra OpprettProsessTaskIverksett til her
+            if (BehandlingType.KLAGE.equals(behandling.getType()) || BehandlingType.ANKE.equals(behandling.getType())) {
+                lagreProsesstaskFor(behandling, TaskType.forProsessTask(MottaKlageAnkeVedtakTask.class), 1);
+            }
             return;
         }
 
@@ -70,7 +57,7 @@ public class VedtaksHendelseObserver {
             return;
         }
 
-        // Unngå gå i beina på på iverksettingstasker med sen respons
+        // Unngå gå i beina på på iverksettingstasker med sen respons fra OS
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             if (isProd) {
                 lagreProsesstaskFor(behandling, TaskType.forProsessTask(StartBerørtBehandlingTask.class), 2);

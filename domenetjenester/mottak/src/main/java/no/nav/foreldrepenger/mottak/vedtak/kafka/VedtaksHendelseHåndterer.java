@@ -36,17 +36,14 @@ import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOverlappPleiepengerTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
-import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelserTask;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.log.util.LoggerUtils;
 
@@ -96,7 +93,9 @@ public class VedtaksHendelseHåndterer {
         // enhver exception ut fra denne metoden medfører at tråden som leser fra kafka gir opp og dør på seg.
         try {
             var mottattVedtak = StandardJsonConfig.fromJson(payload, Ytelse.class);
-            handleMessageIntern(mottattVedtak);
+            if (mottattVedtak != null) {
+                handleMessageIntern((YtelseV1) mottattVedtak);
+            }
         } catch (VLException e) {
             LOG.warn("FP-328773 Vedtatt-Ytelse Feil under parsing av vedtak. key={} payload={}", key, payload, e);
         } catch (Exception e) {
@@ -104,30 +103,26 @@ public class VedtaksHendelseHåndterer {
         }
     }
 
-    void handleMessageIntern(Ytelse mottattVedtak) {
-        if (mottattVedtak == null)
+    void handleMessageIntern(YtelseV1 ytelse) {
+        if (Kildesystem.FPSAK.equals(ytelse.getKildesystem())) {
             return;
-        var ytelse = (YtelseV1) mottattVedtak;
-        var hendelseId = Kildesystem.FPSAK.equals(ytelse.getKildesystem()) ? "FPVEDTAK" + ytelse.getVedtakReferanse() :
-            ytelse.getKildesystem().name() + ytelse.getVedtakReferanse() + Optional.ofNullable(ytelse.getSaksnummer()).orElse("") + ytelse.getYtelse().name();
+        }
+        var hendelseId = ytelse.getKildesystem().name() + ytelse.getVedtakReferanse() + Optional.ofNullable(ytelse.getSaksnummer()).orElse("") + ytelse.getYtelse().name();
         if (hendelseId.length() > 95) hendelseId = hendelseId.substring(0, 92);
         if (!mottakRepository.hendelseErNy(hendelseId)) {
-            LOG.info("KAFKA Mottatt vedtakshendelse på nytt hendelse={}", hendelseId);
+            LOG.warn("KAFKA Mottatt vedtakshendelse på nytt hendelse={}", hendelseId);
             return;
         }
         mottakRepository.registrerMottattHendelse(hendelseId);
-        if (!Kildesystem.FPSAK.equals(ytelse.getKildesystem())) {
-            var mottattVedtakBuilder = MottattVedtak.builder()
-                .medFagsystem(ytelse.getKildesystem().name())
-                .medReferanse(ytelse.getVedtakReferanse())
-                .medYtelse(ytelse.getYtelse().name())
-                .medSaksnummer(ytelse.getSaksnummer());
-            mottakRepository.registrerMottattVedtak(mottattVedtakBuilder.build());
-        }
+        var mottattVedtakBuilder = MottattVedtak.builder()
+            .medFagsystem(ytelse.getKildesystem().name())
+            .medReferanse(ytelse.getVedtakReferanse())
+            .medYtelse(ytelse.getYtelse().name())
+            .medSaksnummer(ytelse.getSaksnummer());
+        mottakRepository.registrerMottattVedtak(mottattVedtakBuilder.build());
 
-        if (Kildesystem.FPSAK.equals(ytelse.getKildesystem())) {
-            oprettTasksForFpsakVedtak(ytelse);
-        } else if (skalLoggeOverlappDB(ytelse)) {
+
+        if (skalLoggeOverlappDB(ytelse)) {
             var fagsaker = getFagsakerFor(ytelse);
             loggVedtakOverlapp(ytelse, fagsaker);
         } else if (Ytelser.PLEIEPENGER_SYKT_BARN.equals(ytelse.getYtelse())) {
@@ -156,37 +151,6 @@ public class VedtaksHendelseHåndterer {
 
     private boolean skalLoggeOverlappDB(YtelseV1 ytelse) {
         return Set.of(Ytelser.FRISINN, Ytelser.OMSORGSPENGER).contains(ytelse.getYtelse());
-    }
-
-    private void oprettTasksForFpsakVedtak(YtelseV1 ytelse) {
-        var fagsakYtelseType = YTELSER_MAP.getOrDefault(ytelse.getYtelse(), FagsakYtelseType.UDEFINERT);
-
-        if (!VURDER_OVERLAPP.contains(fagsakYtelseType)) {
-            if (FagsakYtelseType.UDEFINERT.equals(fagsakYtelseType)) {
-                LOG.error("Vedtatt-Ytelse Utviklerfeil: ukjent ytelsestype for innkommende vedtak {}", ytelse.getYtelse());
-            }
-            return;
-        }
-
-        try {
-            var behandlingUuid = UUID.fromString(ytelse.getVedtakReferanse());
-            var behandling = behandlingRepository.hentBehandling(behandlingUuid);
-
-            // Unngå gå i beina på på iverksettingstasker med sen respons
-            if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
-                if (isProd) {
-                    lagreProsesstaskFor(behandling, TaskType.forProsessTask(StartBerørtBehandlingTask.class), 2);
-                    lagreProsesstaskFor(behandling, TaskType.forProsessTask(VurderOpphørAvYtelserTask.class), 5);
-                } else {
-                    lagreProsesstaskFor(behandling, TaskType.forProsessTask(StartBerørtBehandlingTask.class), 0);
-                    lagreProsesstaskFor(behandling, TaskType.forProsessTask(VurderOpphørAvYtelserTask.class), 2);
-                }
-            } else { // SVP
-                lagreProsesstaskFor(behandling, TaskType.forProsessTask(VurderOpphørAvYtelserTask.class), 0);
-            }
-        } catch (Exception e) {
-            LOG.error("Vedtatt-Ytelse mottok vedtak med ugyldig behandling-UUID som ikke finnes i database");
-        }
     }
 
     private void opprettHåndterOverlappTaskPleiepenger(Fagsak f, UUID callID) {
@@ -249,11 +213,4 @@ public class VedtaksHendelseHåndterer {
         return !fpTidslinje.intersection(ytelseTidslinje).getLocalDateIntervals().isEmpty();
     }
 
-    void lagreProsesstaskFor(Behandling behandling, TaskType taskType, int delaysecs) {
-        var data = ProsessTaskData.forTaskType(taskType);
-        data.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        data.setCallId(behandling.getUuid().toString());
-        data.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(delaysecs));
-        taskTjeneste.lagre(data);
-    }
 }

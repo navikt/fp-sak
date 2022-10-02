@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -49,15 +48,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -72,10 +67,8 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOverlappPleiepengerTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
-import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelserTask;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -94,14 +87,12 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     private HendelsemottakRepository mottakRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private OverlappVedtakRepository overlappInfotrygdRepository;
-    private BehandlingVedtakRepository behandlingVedtakRepository;
     private BehandlingRepositoryProvider repositoryProvider;
     private static final int DAGSATS = 442;
 
     @BeforeEach
     public void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        behandlingVedtakRepository = new BehandlingVedtakRepository(getEntityManager());
         beregningsresultatRepository = new BeregningsresultatRepository(getEntityManager());
         overlappInfotrygdRepository = new OverlappVedtakRepository(getEntityManager());
         var behandlingRepository = new BehandlingRepository(getEntityManager());
@@ -113,49 +104,6 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         lenient().when(mottakRepository.hendelseErNy(any())).thenReturn(true);
         vedtaksHendelseHåndterer = new VedtaksHendelseHåndterer(fagsakTjeneste, beregningsresultatRepository, behandlingRepository, overlappTjeneste,
             taskTjeneste, mottakRepository);
-    }
-
-    @Test
-    public void opprettRiktigeTasksForFpsakVedtakForeldrepenger() {
-        var fpBehandling = lagBehandlingFP();
-        var fpYtelse = genererYtelseFpsak(fpBehandling);
-
-        vedtaksHendelseHåndterer.handleMessageIntern(fpYtelse);
-
-        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(taskTjeneste, times(2)).lagre(captor.capture());
-        var prosessTaskDataList = captor.getAllValues();
-
-        var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).collect(Collectors.toList());
-        assertThat(tasktyper).contains(TaskType.forProsessTask(VurderOpphørAvYtelserTask.class), TaskType.forProsessTask(StartBerørtBehandlingTask.class));
-
-    }
-
-    @Test
-    public void opprettRiktigeTasksForFpsakVedtakSvangerskapspenger() {
-        var svpBehandling = lagBehandlingSVP();
-        var svpYtelse = genererYtelseFpsak(svpBehandling);
-
-        vedtaksHendelseHåndterer.handleMessageIntern(svpYtelse);
-
-        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(taskTjeneste).lagre(captor.capture());
-        var prosessTaskDataList = captor.getAllValues();
-
-        var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).collect(Collectors.toList());
-
-        assertThat(tasktyper).contains(TaskType.forProsessTask(VurderOpphørAvYtelserTask.class));
-    }
-
-    @Test
-    public void opprettIngenTasksForFpsakVedtakEngangsstønad() {
-        var esBehandling = lagBehandlingES();
-        var esYtelse = genererYtelseFpsak(esBehandling);
-
-        vedtaksHendelseHåndterer.handleMessageIntern(esYtelse);
-
-        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verifyNoInteractions(taskTjeneste);
     }
 
     @Test
@@ -383,20 +331,6 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         return behandling;
     }
 
-    private Behandling lagBehandlingES() {
-        ScenarioMorSøkerEngangsstønad scenarioES;
-        scenarioES = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenarioES.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
-        scenarioES.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenarioES.medVilkårResultatType(VilkårResultatType.INNVILGET);
-        scenarioES.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now())
-                .medVedtakResultatType(VedtakResultatType.INNVILGET);
-
-        var behandling = scenarioES.lagre(repositoryProvider);
-        behandling.avsluttBehandling();
-        return behandling;
-    }
-
     private void lagBeregningsgrunnlag(Behandling b, LocalDate stp, int utbetalingsgrad) {
         var brutto = new BigDecimal(DAGSATS).multiply(new BigDecimal(260));
         var redusert = brutto.multiply(new BigDecimal(utbetalingsgrad)).divide(BigDecimal.TEN.multiply(BigDecimal.TEN), RoundingMode.HALF_UP);
@@ -459,26 +393,6 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         beregningsresultatEntitet.addBeregningsresultatPeriode(beregningsresultatPeriode);
     }
 
-    private YtelseV1 genererYtelseFpsak(Behandling behandling) {
-        final var vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
-                .orElseThrow();
-
-        final var aktør = new Aktør();
-        aktør.setVerdi(behandling.getAktørId().getId());
-
-        var ytelse = new YtelseV1();
-        ytelse.setKildesystem(Kildesystem.FPSAK);
-        ytelse.setSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi());
-        ytelse.setVedtattTidspunkt(vedtak.getVedtakstidspunkt());
-        ytelse.setVedtakReferanse(behandling.getUuid().toString());
-        ytelse.setAktør(aktør);
-        ytelse.setYtelse(mapYtelser(behandling.getFagsakYtelseType()));
-        ytelse.setYtelseStatus(mapStatus(behandling.getFagsak().getStatus()));
-        ytelse.setPeriode(null);
-        ytelse.setAnvist(null);
-        return ytelse;
-    }
-
     private YtelseV1 genererYtelseAbakus(YtelseType type, Aktør aktør, Periode periode, List<Anvisning> anvist) {
         var ytelse = new YtelseV1();
         ytelse.setKildesystem(Kildesystem.K9SAK);
@@ -508,15 +422,6 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         return anvist;
     }
 
-    private Ytelser mapYtelser(FagsakYtelseType type) {
-        return switch (type) {
-            case ENGANGSTØNAD -> Ytelser.ENGANGSTØNAD;
-            case FORELDREPENGER -> Ytelser.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> Ytelser.SVANGERSKAPSPENGER;
-            default -> throw new IllegalStateException("Ukjent ytelsestype " + type);
-        };
-    }
-
     private Ytelser mapYtelseType(YtelseType type) {
         return switch (type) {
             case ENGANGSTØNAD -> Ytelser.ENGANGSTØNAD;
@@ -528,14 +433,6 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
             case OPPLÆRINGSPENGER -> Ytelser.OPPLÆRINGSPENGER;
             case FRISINN -> Ytelser.FRISINN;
             default -> throw new IllegalStateException("Ukjent ytelsestype " + type);
-        };
-    }
-
-    private Status mapStatus(FagsakStatus kode) {
-        return switch (kode) {
-            case OPPRETTET, UNDER_BEHANDLING -> Status.UNDER_BEHANDLING;
-            case LØPENDE -> Status.LØPENDE;
-            case AVSLUTTET -> Status.AVSLUTTET;
         };
     }
 

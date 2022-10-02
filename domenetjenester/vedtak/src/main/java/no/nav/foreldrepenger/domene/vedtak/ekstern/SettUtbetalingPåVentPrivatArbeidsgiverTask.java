@@ -3,9 +3,6 @@ package no.nav.foreldrepenger.domene.vedtak.ekstern;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -17,7 +14,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @ProsessTask(value = "iverksetteVedtak.oppgaveUtbetalingPåVent", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class SettUtbetalingPåVentPrivatArbeidsgiverTask extends GenerellProsessTask {
-    private static final Logger LOG = LoggerFactory.getLogger(SettUtbetalingPåVentPrivatArbeidsgiverTask.class);
+
 
     private BehandlingRepository behandlingRepository;
     private VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver vurderOmSetteUtbetalingPåVentPrivatArbeidsgiver;
@@ -39,11 +36,7 @@ public class SettUtbetalingPåVentPrivatArbeidsgiverTask extends GenerellProsess
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             vurderOmSetteUtbetalingPåVentPrivatArbeidsgiver.opprettOppgave(behandling);
-            LOG.info("SettUtbetalingPåVentPrivatArbeidsgiverTask: Vurderer for behandling: {}", behandlingId); //$NON-NLS-1$
-        } else {
-            LOG.info("SettUtbetalingPåVentPrivatArbeidsgiverTask: Ikke aktuelt for behandling: {}", behandlingId); //$NON-NLS-1$
         }
-
     }
 
 }
