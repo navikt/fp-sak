@@ -19,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.datavarehus.task.VedtakTilDatavarehusTask;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.SettUtbetalingPåVentPrivatArbeidsgiverTask;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.VurderOppgaveArenaTask;
@@ -36,7 +35,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
-public class OpprettProsessTaskIverksettTest extends EntityManagerAwareTest {
+public class OpprettProsessTaskIverksettTest {
 
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
@@ -51,7 +50,7 @@ public class OpprettProsessTaskIverksettTest extends EntityManagerAwareTest {
     public void setup() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagMocked();
-        opprettProsessTaskIverksettFP = new OpprettProsessTaskIverksett(taskTjeneste, null, null, null,oppgaveTjeneste);
+        opprettProsessTaskIverksettFP = new OpprettProsessTaskIverksett(taskTjeneste, oppgaveTjeneste);
     }
 
     @Test

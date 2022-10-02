@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.mottak.vedtak.observer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -27,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
-import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
@@ -44,8 +41,6 @@ public class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
 
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
-    @Mock
-    private HendelsemottakRepository mottakRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -53,8 +48,7 @@ public class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
     public void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         behandlingVedtakRepository = new BehandlingVedtakRepository(getEntityManager());
-        lenient().when(mottakRepository.hendelseErNy(any())).thenReturn(true);
-        vedtaksHendelseObserver = new VedtaksHendelseObserver(taskTjeneste, mottakRepository);
+        vedtaksHendelseObserver = new VedtaksHendelseObserver(taskTjeneste);
     }
 
     @Test

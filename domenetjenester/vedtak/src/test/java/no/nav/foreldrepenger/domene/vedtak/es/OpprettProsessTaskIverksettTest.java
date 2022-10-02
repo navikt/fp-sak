@@ -18,12 +18,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.datavarehus.task.VedtakTilDatavarehusTask;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.intern.AvsluttBehandlingTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SendVedtaksbrevTask;
@@ -37,7 +33,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
-public class OpprettProsessTaskIverksettTest extends EntityManagerAwareTest {
+public class OpprettProsessTaskIverksettTest {
 
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
@@ -48,11 +44,8 @@ public class OpprettProsessTaskIverksettTest extends EntityManagerAwareTest {
 
     @BeforeEach
     void setUp() {
-        var entityManager = getEntityManager();
-        var behandlingRepository = new BehandlingRepository(entityManager);
         oppgaveTjeneste = mock(OppgaveTjeneste.class);
-        opprettProsessTaskIverksett = new OpprettProsessTaskIverksett(taskTjeneste, behandlingRepository,
-            new AnkeRepository(entityManager), new KlageRepository(entityManager), oppgaveTjeneste);
+        opprettProsessTaskIverksett = new OpprettProsessTaskIverksett(taskTjeneste, oppgaveTjeneste);
     }
 
     @Test

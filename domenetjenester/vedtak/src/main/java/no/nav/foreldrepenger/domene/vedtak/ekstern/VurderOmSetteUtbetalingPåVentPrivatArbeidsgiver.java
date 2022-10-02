@@ -11,6 +11,9 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -27,6 +30,8 @@ import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjenest
 
 @ApplicationScoped
 class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver {
+
+    private static final Logger LOG = LoggerFactory.getLogger(VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver.class);
 
     private BeregningsresultatRepository beregningsresultatRepository;
     private ØkonomioppdragRepository økonomioppdragRepository;
@@ -51,6 +56,7 @@ class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver {
     void opprettOppgave(Behandling behandling) {
         var refusjoner = vurder(behandling);
         if (!refusjoner.isEmpty()) {
+            LOG.info("VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver: oppretter oppgave for behandling: {}", behandling.getId()); //$NON-NLS-1$
             // send en oppdrag til NØS hver privat arbeidsgiver, det kan være flere
             var beregningsperioder = hentBeregningsperioder(behandling.getId());
             for (var arbeidsgiverAktørId : refusjoner) {
