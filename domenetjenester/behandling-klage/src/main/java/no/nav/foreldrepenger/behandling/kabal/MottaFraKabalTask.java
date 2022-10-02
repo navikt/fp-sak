@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølg
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -50,7 +49,6 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
     private KabalTjeneste kabalTjeneste;
-    private DokumentArkivTjeneste dokumentArkivTjeneste;
 
     MottaFraKabalTask() {
         // for CDI proxy
@@ -62,7 +60,6 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
                              BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                              BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                              BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
-                             DokumentArkivTjeneste dokumentArkivTjeneste,
                              KabalTjeneste kabalTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -72,7 +69,6 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
-        this.dokumentArkivTjeneste = dokumentArkivTjeneste;
     }
 
     @Override
@@ -94,42 +90,41 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         var utfall = Optional.ofNullable(prosessTaskData.getPropertyValue(UTFALL_KEY))
             .map(KabalUtfall::valueOf).orElseThrow(() -> new IllegalStateException("Utviklerfeil: Kabal-klage avsluttet men mangler utfall"));
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        kabalTjeneste.settKabalReferanse(behandling, ref);
+        var klageBehandling = behandlingRepository.hentBehandling(behandlingId);
+        kabalTjeneste.settKabalReferanse(klageBehandling, ref);
         if (!UTEN_VURDERING.contains(utfall)) {
-            kabalTjeneste.lagreKlageUtfallFraKabal(behandling, utfall);
+            kabalTjeneste.lagreKlageUtfallFraKabal(klageBehandling, utfall);
         }
-        var journalpost = Optional.ofNullable(prosessTaskData.getPropertyValue(JOURNALPOST_KEY))
-            .map(JournalpostId::new)
-            .flatMap(j -> dokumentArkivTjeneste.hentUtgåendeJournalpostForSak(j));
         if (KabalUtfall.TRUKKET.equals(utfall)) {
-            if (behandling.isBehandlingPåVent()) {
-                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(behandling, kontekst);
+            if (klageBehandling.isBehandlingPåVent()) {
+                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(klageBehandling, kontekst);
             }
-            if (!erHenlagt(behandling)) {
+            if (!erHenlagt(klageBehandling)) {
                 behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
                 kabalTjeneste.lagHistorikkinnslagForHenleggelse(behandlingId, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
             }
         } else if (KabalUtfall.RETUR.equals(utfall)) {
             // Knoteri siden behandling tilbakeføres og deretter kanskje skal til Kabal på nytt. Gjennomgå retur-semantikk på nytt.
-            if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE)) {
-                behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(),
-                    behandling.getÅpneAksjonspunkter(List.of(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE)));
+            if (klageBehandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE)) {
+                behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, klageBehandling.getAktivtBehandlingSteg(),
+                    klageBehandling.getÅpneAksjonspunkter(List.of(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE)));
             }
-            if (behandling.isBehandlingPåVent()) { // Autopunkt
-                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
+            if (klageBehandling.isBehandlingPåVent()) { // Autopunkt
+                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(klageBehandling, kontekst);
             }
-            kabalTjeneste.fjerneKabalFlagg(behandling);
+            kabalTjeneste.fjerneKabalFlagg(klageBehandling);
             behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.KLAGE_NFP);
-            endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(behandling);
-            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
+            endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(klageBehandling);
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(klageBehandling);
         } else {
-            if (behandling.isBehandlingPåVent()) { // Autopunkt
-                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
+            if (klageBehandling.isBehandlingPåVent()) { // Autopunkt
+                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(klageBehandling, kontekst);
             }
-            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(klageBehandling);
         }
-        journalpost.ifPresent(j -> kabalTjeneste.lagHistorikkinnslagForBrevSendt(behandling, j));
+        Optional.ofNullable(prosessTaskData.getPropertyValue(JOURNALPOST_KEY))
+            .map(JournalpostId::new)
+            .ifPresent(j -> kabalTjeneste.lagHistorikkinnslagForBrevSendt(klageBehandling, j));
     }
 
     private void ankeOpprettet(Long behandlingId, String ref) {
@@ -166,9 +161,6 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             .orElseThrow(() -> new IllegalStateException("Mangler ankebehandling for behandling " + behandlingId));
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(ankeBehandling.getId());
         kabalTjeneste.settKabalReferanse(ankeBehandling, ref);
-        var journalpost = Optional.ofNullable(prosessTaskData.getPropertyValue(JOURNALPOST_KEY))
-            .map(JournalpostId::new)
-            .flatMap(j -> dokumentArkivTjeneste.hentUtgåendeJournalpostForSak(j));
         if (KabalUtfall.TRUKKET.equals(utfall)) {
             if (ankeBehandling.isBehandlingPåVent()) {
                 behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(ankeBehandling, kontekst);
@@ -186,7 +178,9 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             }
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(ankeBehandling);
         }
-        journalpost.ifPresent(j -> kabalTjeneste.lagHistorikkinnslagForBrevSendt(ankeBehandling, j));
+        Optional.ofNullable(prosessTaskData.getPropertyValue(JOURNALPOST_KEY))
+            .map(JournalpostId::new)
+            .ifPresent(j -> kabalTjeneste.lagHistorikkinnslagForBrevSendt(ankeBehandling, j));
     }
 
     private void endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(Behandling behandling) {

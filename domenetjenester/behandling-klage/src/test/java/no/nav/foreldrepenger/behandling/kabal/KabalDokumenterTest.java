@@ -13,56 +13,40 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
-import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentBestiltEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
+import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ExtendWith(MockitoExtension.class)
-class KabalTjenesteTest {
+class KabalDokumenterTest {
 
-    @Mock
-    private AnkeVurderingTjeneste ankeVurderingTjeneste;
-    @Mock
-    private KlageVurderingTjeneste klageVurderingTjeneste;
-    @Mock
-    private BehandlingRepository behandlingRepository;
+    private static final Saksnummer SAKSNR = new Saksnummer("999");
+
     @Mock
     private MottatteDokumentRepository mottatteDokumentRepository;
     @Mock
     private BehandlingDokumentRepository behandlingDokumentRepository;
     @Mock
-    private VergeRepository vergeRepository;
-    @Mock
-    private PersoninfoAdapter personinfoAdapter;
+    private DokumentArkivTjeneste dokumentArkivTjeneste;
     @Mock
     private HistorikkRepository historikkRepository;
-    @Mock
-    private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
-    @Mock
-    private KabalKlient kabalKlient;
 
-    private KabalTjeneste kabalTjeneste;
+    private KabalDokumenter kabalTjeneste;
 
     @BeforeEach
     void setUp() {
-        kabalTjeneste = new KabalTjeneste(personinfoAdapter, kabalKlient, behandlingRepository, mottatteDokumentRepository,
-            behandlingDokumentRepository, vergeRepository, ankeVurderingTjeneste, klageVurderingTjeneste, behandlendeEnhetTjeneste, historikkRepository);
+        kabalTjeneste = new KabalDokumenter(dokumentArkivTjeneste, mottatteDokumentRepository,
+            behandlingDokumentRepository, historikkRepository);
     }
 
     @Test
@@ -74,8 +58,8 @@ class KabalTjenesteTest {
 
         when(behandlingDokumentRepository.hentHvisEksisterer(behandlingId)).thenReturn(Optional.of(behandlingDokument));
 
-        var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId,
-            KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).build());
+        var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId, SAKSNR,
+            KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).build(), KlageHjemmel.ENGANGS);
 
         sjekkResultat(dokumentReferanses, journalpost, TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV);
     }
@@ -92,8 +76,8 @@ class KabalTjenesteTest {
         when(behandlingDokumentRepository.hentHvisEksisterer(behandlingId)).thenReturn(Optional.empty());
         when(behandlingDokumentRepository.hentHvisEksisterer(påKlagdBehandlingId)).thenReturn(Optional.of(behandlingDokument));
 
-        var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId,
-            KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandlingId).build());
+        var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId, SAKSNR,
+            KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandlingId).build(), KlageHjemmel.ENGANGS);
 
         sjekkResultat(dokumentReferanses, journalpost, TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK);
     }
@@ -107,8 +91,8 @@ class KabalTjenesteTest {
 
         when(mottatteDokumentRepository.hentMottatteDokument(behandlingId)).thenReturn(List.of(dokumentMottatt));
 
-        var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId,
-            KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).build());
+        var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId, SAKSNR,
+            KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).build(), KlageHjemmel.ENGANGS);
 
         sjekkResultat(dokumentReferanses, journalpost, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE);
     }
@@ -124,8 +108,8 @@ class KabalTjenesteTest {
         when(mottatteDokumentRepository.hentMottatteDokument(påKlagdBehandling)).thenReturn(List.of(dokumentMottatt));
         when(mottatteDokumentRepository.hentMottatteDokument(behandlingId)).thenReturn(List.of());
 
-        var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId,
-            KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandling).build());
+        var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId, SAKSNR,
+            KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandling).build(), KlageHjemmel.ENGANGS);
 
         sjekkResultat(dokumentReferanses, journalpost, TilKabalDto.DokumentReferanseType.BRUKERS_SOEKNAD);
     }
@@ -162,15 +146,4 @@ class KabalTjenesteTest {
         return behandlingDokument;
     }
 
-    private Historikkinnslag opprettHistorikkinnslag(long behandlingId, JournalpostId journalpost, DokumentMalType dokumentMalType) {
-        var dokumentLink = new HistorikkinnslagDokumentLink();
-        dokumentLink.setJournalpostId(journalpost);
-        dokumentLink.setLinkTekst(dokumentMalType.getNavn());
-
-        var historikkInnslag = new Historikkinnslag();
-        historikkInnslag.setType(HistorikkinnslagType.BREV_SENT);
-        historikkInnslag.setBehandlingId(behandlingId);
-        historikkInnslag.setDokumentLinker(List.of(dokumentLink));
-        return historikkInnslag;
-    }
 }
