@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamiliehendelseEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
@@ -64,8 +63,8 @@ public class EtterkontrollEventObserver {
     }
 
     public void observerBehandlingVedtakEvent(@Observes BehandlingVedtakEvent event) {
-        var behandling = event.getBehandling();
-        if (!IverksettingStatus.IVERKSATT.equals(event.getVedtak().getIverksettingStatus()) || !behandling.erYtelseBehandling()) {
+        var behandling = event.behandling();
+        if (!event.iverksattYtelsesVedtak()) {
             return;
         }
 
@@ -79,7 +78,7 @@ public class EtterkontrollEventObserver {
                 markerForEtterkontroll(behandling, grunnlag.get());
             }
         }
-        if (Set.of(VedtakResultatType.AVSLAG, VedtakResultatType.OPPHØR).contains(event.getVedtak().getVedtakResultatType())) {
+        if (Set.of(VedtakResultatType.AVSLAG, VedtakResultatType.OPPHØR).contains(event.vedtak().getVedtakResultatType())) {
             etterkontrollRepository.avflaggDersomEksisterer(behandling.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
         }
         LOG.info("Etterkontroll Behandlingvedtakevent utgang behandling {}", event.getBehandlingId());

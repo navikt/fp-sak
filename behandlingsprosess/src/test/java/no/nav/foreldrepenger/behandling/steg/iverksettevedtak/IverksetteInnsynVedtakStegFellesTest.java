@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
+import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 
 public class IverksetteInnsynVedtakStegFellesTest {
 
@@ -26,7 +27,7 @@ public class IverksetteInnsynVedtakStegFellesTest {
         var scenario = innsynsScenario();
         var dokumentBestillerTjeneste = mock(DokumentBestillerTjeneste.class);
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        var steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider);
+        var steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider, mock(BehandlingVedtakEventPubliserer.class));
         var behandling = scenario.getBehandling();
         var fagsak = behandling.getFagsak();
         var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
@@ -43,7 +44,7 @@ public class IverksetteInnsynVedtakStegFellesTest {
         var scenario = innsynsScenario();
         var dokumentBestillerTjeneste = mock(DokumentBestillerTjeneste.class);
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        var steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider);
+        var steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider, mock(BehandlingVedtakEventPubliserer.class));
         var behandling = scenario.getBehandling();
         var fagsak = behandling.getFagsak();
         var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
@@ -63,7 +64,7 @@ public class IverksetteInnsynVedtakStegFellesTest {
         var scenario = innsynsScenario(begrunnelse);
         var dokumentBestillerTjeneste = mock(DokumentBestillerTjeneste.class);
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        var steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider);
+        var steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider, mock(BehandlingVedtakEventPubliserer.class));
         var behandling = scenario.getBehandling();
         var fagsak = behandling.getFagsak();
         var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),

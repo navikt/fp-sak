@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.mottak.vedtak.kafka;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -54,17 +56,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
@@ -88,6 +90,8 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     private ProsessTaskTjeneste taskTjeneste;
     @Mock
     private BeregningTjeneste beregningTjeneste;
+    @Mock
+    private HendelsemottakRepository mottakRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private OverlappVedtakRepository overlappInfotrygdRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
@@ -106,8 +110,9 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         var overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningTjeneste, beregningsresultatRepository, null,
             null, null, null, null,
             overlappInfotrygdRepository, behandlingRepository);
+        lenient().when(mottakRepository.hendelseErNy(any())).thenReturn(true);
         vedtaksHendelseHåndterer = new VedtaksHendelseHåndterer(fagsakTjeneste, beregningsresultatRepository, behandlingRepository, overlappTjeneste,
-            taskTjeneste);
+            taskTjeneste, mottakRepository);
     }
 
     @Test

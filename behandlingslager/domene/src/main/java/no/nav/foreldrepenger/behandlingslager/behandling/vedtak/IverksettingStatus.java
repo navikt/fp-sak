@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum IverksettingStatus implements Kodeverdi {
 
     IKKE_IVERKSATT("IKKE_IVERKSATT", "Ikke iverksatt"),
-    UNDER_IVERKSETTING("UNDER_IVERKSETTING", "Under iverksetting"),
     IVERKSATT("IVERKSATT", "Iverksatt"),
 
     UDEFINERT("-", "Ikke definert"),

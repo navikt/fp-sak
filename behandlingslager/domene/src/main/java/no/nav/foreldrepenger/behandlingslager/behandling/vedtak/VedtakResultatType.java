@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum VedtakResultatType implements Kodeverdi {
 
     INNVILGET("INNVILGET", "Innvilget"),
-    DELVIS_INNVILGET("DELVIS_INNVILGET", "delvis innvilget"), // TODO: vurder deprekering - finnes ikke i DB
     AVSLAG("AVSLAG", "Avslag"),
     OPPHØR("OPPHØR", "Opphør"),
     VEDTAK_I_KLAGEBEHANDLING("VEDTAK_I_KLAGEBEHANDLING", "vedtak i klagebehandling"),
