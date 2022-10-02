@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.dokumentarkiv;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +34,7 @@ import no.nav.saf.FagsakInput;
 import no.nav.saf.Journalpost;
 import no.nav.saf.JournalpostQueryRequest;
 import no.nav.saf.JournalpostResponseProjection;
+import no.nav.saf.Journalposttype;
 import no.nav.saf.Journalstatus;
 import no.nav.saf.LogiskVedleggResponseProjection;
 import no.nav.saf.TilleggsopplysningResponseProjection;
@@ -139,29 +141,54 @@ public class DokumentArkivTjeneste {
         return Optional.ofNullable(resultat).map(this::mapTilArkivJournalPost);
     }
 
+    public List<ArkivDokumentUtgående> hentAlleUtgåendeJournalposterForSak(Saksnummer saksnummer) {
+        var query = new DokumentoversiktFagsakQueryRequest();
+        query.setFagsak(new FagsakInput(saksnummer.getVerdi(), Fagsystem.FPSAK.getOffisiellKode()));
+        query.setFoerste(1000);
+
+        var projection = new DokumentoversiktResponseProjection()
+            .journalposter(utgåendeProjection());
+
+        var resultat = safKlient.dokumentoversiktFagsak(query, projection);
+
+        var journalposter = resultat.getJournalposter().stream()
+            .filter(j -> j.getJournalstatus() == null || !EKSKLUDER_STATUS.contains(j.getJournalstatus()))
+            .filter(j -> Journalposttype.U.equals(j.getJournalposttype()))
+            .map(DokumentArkivTjeneste::mapTilArkivDokumentUtgående)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+
+        return journalposter;
+    }
+
     public Optional<ArkivDokumentUtgående> hentUtgåendeJournalpostForSak(JournalpostId journalpostId) {
         var query = new JournalpostQueryRequest();
         query.setJournalpostId(journalpostId.getVerdi());
 
-        var projection = new JournalpostResponseProjection()
+        var resultat = safKlient.hentJournalpostInfo(query, utgåendeProjection());
+
+        return Optional.ofNullable(resultat)
+            .map(DokumentArkivTjeneste::mapTilArkivDokumentUtgående).orElse(List.of()).stream().findFirst();
+    }
+
+    private static JournalpostResponseProjection utgåendeProjection() {
+        return new JournalpostResponseProjection()
             .journalpostId()
             .tittel()
             .dokumenter(new DokumentInfoResponseProjection()
                 .dokumentInfoId()
                 .dokumentvarianter(new DokumentvariantResponseProjection().variantformat()));
-
-        var resultat = safKlient.hentJournalpostInfo(query, projection);
-
-        return Optional.ofNullable(resultat)
-            .map(Journalpost::getDokumenter).orElse(List.of()).stream()
-            .filter(d -> d.getDokumentvarianter().stream().filter(Objects::nonNull).anyMatch(v -> Variantformat.ARKIV.equals(v.getVariantformat())))
-            .map(d -> mapTilArkivDokumentUtgående(resultat, d))
-            .findFirst();
     }
 
-    private ArkivDokumentUtgående mapTilArkivDokumentUtgående(Journalpost journalpost, DokumentInfo dokumentInfo) {
-        return new ArkivDokumentUtgående(journalpost.getTittel(), new JournalpostId(journalpost.getJournalpostId()),
-            dokumentInfo.getDokumentInfoId());
+    private static List<ArkivDokumentUtgående> mapTilArkivDokumentUtgående(Journalpost journalpost) {
+        return Optional.ofNullable(journalpost.getDokumenter()).orElse(List.of()).stream()
+            .filter(d -> d.getDokumentvarianter().stream().filter(Objects::nonNull).anyMatch(v -> Variantformat.ARKIV.equals(v.getVariantformat())))
+            .map(d -> mapTilArkivDokumentUtgående(journalpost, d))
+            .toList();
+    }
+
+    private static ArkivDokumentUtgående mapTilArkivDokumentUtgående(Journalpost journalpost, DokumentInfo dokumentInfo) {
+        return new ArkivDokumentUtgående(journalpost.getTittel(), new JournalpostId(journalpost.getJournalpostId()), dokumentInfo.getDokumentInfoId());
     }
 
     public Set<DokumentTypeId> hentDokumentTypeIdForSak(Saksnummer saksnummer, LocalDate mottattEtterDato) {
