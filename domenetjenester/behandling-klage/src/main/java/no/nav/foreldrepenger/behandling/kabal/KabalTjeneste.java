@@ -154,19 +154,10 @@ public class KabalTjeneste {
             .filter(av -> !AnkeVurdering.UDEFINERT.equals(av));
         var gjeldendeSendtTrygderetten = ankeVurderingTjeneste.hentAnkeVurderingResultat(behandling)
             .map(AnkeVurderingResultatEntitet::getSendtTrygderettDato);
-        // Sjekke på meldinger for tilfelle vi selv har sendt til Kabal i en overgangsfase. Kan fjernes i oktober 2022
-        if (sendtTrygderetten != null) {
-            if (gjeldendeAnkeVurdering.isPresent() && gjeldendeSendtTrygderetten.isPresent()) {
-                return;
-            } else if (gjeldendeSendtTrygderetten.isPresent()) {
-                throw new IllegalStateException("Hm, har satt sendtTrygderetten, men mangler KAs ankevurdering. Skal ikke skje");
-            }
-        }
         var builder = ankeVurderingTjeneste.hentAnkeVurderingResultatBuilder(behandling);
         // Denne er essensiell for AnkeMerknaderSteg
         Optional.ofNullable(sendtTrygderetten).ifPresent(builder::medSendtTrygderettDato);
-        // Dette med avsluttet skyldes prematur avslutning da kabal har sendt anke avsluttet for anker som er sendt Trygderetten. Fjernes etter patch (TODO (jol))
-        if (gjeldendeAnkeVurdering.isPresent() && (gjeldendeSendtTrygderetten.isPresent() || behandling.erAvsluttet())) {
+        if (gjeldendeAnkeVurdering.isPresent() && gjeldendeSendtTrygderetten.isPresent()) {
             builder.medTrygderettVurdering(ankeVurderingFraUtfall(utfall)).medTrygderettVurderingOmgjør(ankeVurderingOmgjørFraUtfall(utfall));
         } else {
             builder.medAnkeVurdering(ankeVurderingFraUtfall(utfall)).medAnkeVurderingOmgjør(ankeVurderingOmgjørFraUtfall(utfall));

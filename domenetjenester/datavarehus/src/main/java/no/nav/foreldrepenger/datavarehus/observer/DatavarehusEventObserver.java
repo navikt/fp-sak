@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegTilstandEndringEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokumentPersistertEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 
 @ApplicationScoped
@@ -93,9 +92,9 @@ public class DatavarehusEventObserver {
     }
 
     public void observerBehandlingVedtakEvent(@Observes BehandlingVedtakEvent event) {
-        if (IverksettingStatus.IVERKSATT.equals(event.getVedtak().getIverksettingStatus())) {
+        if (event.iverksattVedtak()) {
             LOG.info("DVH Behandlingvedtakevent inngang behandling {}", event.getBehandlingId());
-            tjeneste.lagreNedVedtak(event.getVedtak(), event.getBehandling());
+            tjeneste.lagreNedVedtak(event.vedtak(), event.behandling());
             LOG.info("DVH Behandlingvedtakevent utgang behandling {}", event.getBehandlingId());
         }
     }

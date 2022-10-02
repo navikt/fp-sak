@@ -18,7 +18,6 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
 import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.abakus.vedtak.ytelse.Kildesystem;
 import no.nav.abakus.vedtak.ytelse.Ytelse;
@@ -31,6 +30,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
+import no.nav.foreldrepenger.behandlingslager.hendelser.MottattVedtak;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -72,25 +73,27 @@ public class VedtaksHendelseHåndterer {
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository tilkjentYtelseRepository;
     private ProsessTaskTjeneste taskTjeneste;
+    private HendelsemottakRepository mottakRepository;
 
     public VedtaksHendelseHåndterer() {
     }
 
     @Inject
     public VedtaksHendelseHåndterer(FagsakTjeneste fagsakTjeneste, BeregningsresultatRepository tilkjentYtelseRepository,
-            BehandlingRepository behandlingRepository,
-            LoggOverlappEksterneYtelserTjeneste eksternOverlappLogger,
-                                    ProsessTaskTjeneste taskTjeneste) {
+                                    BehandlingRepository behandlingRepository,
+                                    LoggOverlappEksterneYtelserTjeneste eksternOverlappLogger,
+                                    ProsessTaskTjeneste taskTjeneste,
+                                    HendelsemottakRepository mottakRepository) {
         this.fagsakTjeneste = fagsakTjeneste;
         this.eksternOverlappLogger = eksternOverlappLogger;
         this.behandlingRepository = behandlingRepository;
         this.tilkjentYtelseRepository = tilkjentYtelseRepository;
         this.taskTjeneste = taskTjeneste;
+        this.mottakRepository = mottakRepository;
     }
 
     void handleMessage(String key, String payload) {
-        // enhver exception ut fra denne metoden medfører at tråden som leser fra kafka
-        // gir opp og dør på seg.
+        // enhver exception ut fra denne metoden medfører at tråden som leser fra kafka gir opp og dør på seg.
         try {
             var mottattVedtak = StandardJsonConfig.fromJson(payload, Ytelse.class);
             handleMessageIntern(mottattVedtak);
@@ -105,6 +108,22 @@ public class VedtaksHendelseHåndterer {
         if (mottattVedtak == null)
             return;
         var ytelse = (YtelseV1) mottattVedtak;
+        var hendelseId = Kildesystem.FPSAK.equals(ytelse.getKildesystem()) ? "FPVEDTAK" + ytelse.getVedtakReferanse() :
+            ytelse.getKildesystem().name() + ytelse.getVedtakReferanse() + Optional.ofNullable(ytelse.getSaksnummer()).orElse("") + ytelse.getYtelse().name();
+        if (hendelseId.length() > 95) hendelseId = hendelseId.substring(0, 92);
+        if (!mottakRepository.hendelseErNy(hendelseId)) {
+            LOG.info("KAFKA Mottatt vedtakshendelse på nytt hendelse={}", hendelseId);
+            return;
+        }
+        mottakRepository.registrerMottattHendelse(hendelseId);
+        if (!Kildesystem.FPSAK.equals(ytelse.getKildesystem())) {
+            var mottattVedtakBuilder = MottattVedtak.builder()
+                .medFagsystem(ytelse.getKildesystem().name())
+                .medReferanse(ytelse.getVedtakReferanse())
+                .medYtelse(ytelse.getYtelse().name())
+                .medSaksnummer(ytelse.getSaksnummer());
+            mottakRepository.registrerMottattVedtak(mottattVedtakBuilder.build());
+        }
 
         if (Kildesystem.FPSAK.equals(ytelse.getKildesystem())) {
             oprettTasksForFpsakVedtak(ytelse);

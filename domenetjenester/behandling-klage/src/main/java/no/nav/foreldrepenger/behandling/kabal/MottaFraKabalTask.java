@@ -181,13 +181,10 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             throw new IllegalStateException("KABAL sender ankeutfall RETUR sak " + ankeBehandling.getFagsak().getSaksnummer().getVerdi());
         } else {
             kabalTjeneste.lagreAnkeUtfallFraKabal(ankeBehandling, utfall, sendtTrygderetten);
-            // Skyldes et antall tilfelle som er prematurt avsluttet pga kabal anke-avsluttet men som ble overført Trygderetten
-            if (!ankeBehandling.erAvsluttet()) {
-                if (ankeBehandling.isBehandlingPåVent()) { // Autopunkt
-                    behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(ankeBehandling, kontekst);
-                }
-                behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(ankeBehandling);
+            if (ankeBehandling.isBehandlingPåVent()) { // Autopunkt
+                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(ankeBehandling, kontekst);
             }
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(ankeBehandling);
         }
         journalpost.ifPresent(j -> kabalTjeneste.lagHistorikkinnslagForBrevSendt(ankeBehandling, j));
     }

@@ -21,16 +21,21 @@ public class HendelsemottakRepository {
     }
 
     public boolean hendelseErNy(String hendelseUid) {
-        var query = entityManager.createQuery("from MottattHendelse where hendelse_uid=:hendelse_uid", MottattHendelse.class);
-        query.setParameter("hendelse_uid", hendelseUid);
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        var query = entityManager.createQuery("from MottattHendelse where hendelse_uid=:hendelse_uid", MottattHendelse.class)
+            .setParameter("hendelse_uid", hendelseUid)
+            .setHint(QueryHints.HINT_READONLY, "true");
         return query.getResultList().isEmpty();
     }
 
     public void registrerMottattHendelse(String hendelseUid) {
-        var query = entityManager.createNativeQuery("INSERT INTO MOTTATT_HENDELSE (hendelse_uid) VALUES (:hendelse_uid)");
-        query.setParameter("hendelse_uid", hendelseUid);
-        query.executeUpdate();
+        entityManager.createNativeQuery("INSERT INTO MOTTATT_HENDELSE (hendelse_uid) VALUES (:hendelse_uid)")
+            .setParameter("hendelse_uid", hendelseUid)
+            .executeUpdate();
+        entityManager.flush();
+    }
+
+    public void registrerMottattVedtak(MottattVedtak mottattVedtak) {
+        entityManager.persist(mottattVedtak);
     }
 
 }

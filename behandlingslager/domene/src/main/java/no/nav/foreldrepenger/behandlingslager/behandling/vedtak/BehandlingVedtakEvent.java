@@ -4,14 +4,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class BehandlingVedtakEvent implements BehandlingEvent {
-    private BehandlingVedtak vedtak;
-    private Behandling behandling;
-
-    public BehandlingVedtakEvent(BehandlingVedtak vedtak, Behandling behandling) {
-        this.vedtak = vedtak;
-        this.behandling = behandling;
-    }
+public record BehandlingVedtakEvent(BehandlingVedtak vedtak, Behandling behandling) implements BehandlingEvent {
 
     @Override
     public Long getFagsakId() {
@@ -28,11 +21,11 @@ public class BehandlingVedtakEvent implements BehandlingEvent {
         return behandling.getId();
     }
 
-    public BehandlingVedtak getVedtak() {
-        return vedtak;
+    public boolean iverksattVedtak() {
+        return IverksettingStatus.IVERKSATT.equals(vedtak().getIverksettingStatus());
     }
 
-    public Behandling getBehandling() {
-        return behandling;
+    public boolean iverksattYtelsesVedtak() {
+        return iverksattVedtak() && behandling.erYtelseBehandling();
     }
 }

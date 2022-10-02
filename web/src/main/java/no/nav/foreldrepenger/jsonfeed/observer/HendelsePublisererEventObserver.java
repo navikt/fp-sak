@@ -22,6 +22,6 @@ public class HendelsePublisererEventObserver {
     }
 
     public void observerBehandlingVedtak(@Observes BehandlingVedtakEvent event) {
-        hendelsePubliserere.lagreVedtak(event.getVedtak());
+        hendelsePubliserere.lagreVedtak(event.vedtak());
     }
 }
