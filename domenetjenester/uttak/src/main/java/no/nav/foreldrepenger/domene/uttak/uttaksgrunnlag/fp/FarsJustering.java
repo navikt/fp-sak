@@ -14,12 +14,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.domene.uttak.TidsperiodeFarRundtFødsel;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 class FarsJustering implements ForelderFødselJustering {
-
-    private static final boolean ER_PROD = Environment.current().isProd();
 
     private final LocalDate termindato; //termindato kan være første fødselsdato ved endring av fødselsdato
     private final LocalDate fødselsdato;
@@ -65,7 +62,7 @@ class FarsJustering implements ForelderFødselJustering {
     }
 
     private boolean skalJustere(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        return !ER_PROD && ønskerJustertVedFødsel && !oppgittePerioder.isEmpty() && harBareEnPeriodeFedrekvoteRundtFødselFraTermindato(
+        return ønskerJustertVedFødsel && !oppgittePerioder.isEmpty() && harBareEnPeriodeFedrekvoteRundtFødselFraTermindato(
             oppgittePerioder) && intervallRundt(termindato).isPresent();
     }
 
