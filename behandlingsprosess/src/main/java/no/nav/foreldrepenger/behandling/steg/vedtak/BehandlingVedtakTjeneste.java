@@ -47,10 +47,6 @@ public class BehandlingVedtakTjeneste {
     }
 
     public void opprettBehandlingVedtak(BehandlingskontrollKontekst kontekst, Behandling behandling) {
-        // TODO: fjerne etter passering av vrang ankebehandling
-        if (BehandlingType.ANKE.equals(behandling.getType()) && behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).isPresent()) {
-            return;
-        }
         var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsak().getYtelseType())
                 .orElseThrow();
         var vedtakResultatType = utledVedtakResultatType(behandling);

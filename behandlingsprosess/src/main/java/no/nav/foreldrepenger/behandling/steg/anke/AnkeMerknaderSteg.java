@@ -57,7 +57,7 @@ public class AnkeMerknaderSteg implements BehandlingSteg {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         } else {
             if (klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling) &&
-                !klageAnkeVedtakTjeneste.harSattOversendelseDato(behandling)) {
+                !klageAnkeVedtakTjeneste.harSattOversendelseDato(behandling) && !klageAnkeVedtakTjeneste.harKjennelseTrygdretten(behandling)) {
                 throw new IllegalStateException("AnkeMerknaderSteg: FpsakAnke skal til TR men mangler oversendelsesdato");
             }
             if (!klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling) &&
