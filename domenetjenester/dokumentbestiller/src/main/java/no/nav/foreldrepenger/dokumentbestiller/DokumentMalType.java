@@ -33,10 +33,8 @@ public enum DokumentMalType implements Kodeverdi {
     FORLENGET_SAKSBEHANDLINGSTID_MEDL("FORMED"),
     FORLENGET_SAKSBEHANDLINGSTID_TIDLIG("FORTID"),
     KLAGE_AVVIST("KGEAVV"),
-    KLAGE_HJEMSENDT("KGEHJE"),
     KLAGE_OMGJORT("KGEOMG"),
     KLAGE_OVERSENDT("KGEOVE"),
-    KLAGE_STADFESTET("KGESTA"),
     ETTERLYS_INNTEKTSMELDING("ELYSIM"),
 
     // Må gjeninnføre for å flytte anker
@@ -53,7 +51,9 @@ public enum DokumentMalType implements Kodeverdi {
     @Deprecated ANKE_OMGJORT_FRITEKST("VEDOGA"),
     @Deprecated ANKE_OPPHEVET_FRITEKST("ANKEBO"),
     @Deprecated ANKE_OMGJORT("ANKOMG"),
-    @Deprecated ANKE_OPPHEVET("ANKOPP")
+    @Deprecated ANKE_OPPHEVET("ANKOPP"),
+    @Deprecated KLAGE_STADFESTET("KGESTA"),
+    @Deprecated KLAGE_HJEMSENDT("KGEHJE")
     ;
 
     public static final Set<DokumentMalType> VEDTAKSBREV = Set.of(ENGANGSSTØNAD_INNVILGELSE, ENGANGSSTØNAD_AVSLAG, FORELDREPENGER_INNVILGELSE,
