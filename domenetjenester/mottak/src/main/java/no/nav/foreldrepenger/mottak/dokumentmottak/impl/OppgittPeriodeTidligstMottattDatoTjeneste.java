@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -26,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.VedtaksperioderHelper;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
@@ -105,8 +107,8 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
             .map(YtelseFordelingAggregat::getGjeldendeSøknadsperioder)
             .map(OppgittFordelingEntitet::getOppgittePerioder).orElse(List.of());
 
-        var tidslinjeSammenlignNy =  new LocalDateTimeline<>(nysøknad.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), new SammenligningPeriode(p))).toList());
-        var tidslinjeSammenlignGammel =  new LocalDateTimeline<>(forrigesøknad.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), new SammenligningPeriode(p))).toList());
+        var tidslinjeSammenlignNy =  new LocalDateTimeline<>(nysøknad.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), new SammenligningPeriodeForMottat(p))).toList());
+        var tidslinjeSammenlignGammel =  new LocalDateTimeline<>(forrigesøknad.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), new SammenligningPeriodeForMottat(p))).toList());
         var tidslinjeSammenfall = tidslinjeSammenlignNy.intersection(tidslinjeSammenlignGammel);
 
         var tidslinjeTidligstMottattNy = new LocalDateTimeline<>(nysøknad.stream()
@@ -121,17 +123,15 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
         var tidligstedato = nysøknad.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder()).orElse(null);
 
         List<OppgittPeriodeEntitet> perioderURBekreft = forrigeUttak != null && tidligstedato != null ? VedtaksperioderHelper.opprettOppgittePerioder(forrigeUttak, List.of(), tidligstedato) : List.of();
-        List<OppgittPeriodeEntitet> perioderURSøknad = forrigeUttak != null && tidligstedato != null ?  VedtaksperioderHelper.opprettOppgittePerioderSøknadverdier(forrigeUttak, List.of(), tidligstedato) : List.of();
-
-        var tidslinjeSammenlignURB =  new LocalDateTimeline<>(perioderURBekreft.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), new SammenligningPeriode(p))).toList());
+        var tidslinjeSammenlignURB =  new LocalDateTimeline<>(perioderURBekreft.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), new SammenligningPeriodeForMottat(p))).toList());
         var tidslinjeSammenfallURB = tidslinjeSammenlignNy.intersection(tidslinjeSammenlignURB);
-
-        var tidslinjeSammenlignURS =  new LocalDateTimeline<>(perioderURSøknad.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), new SammenligningPeriode(p))).toList());
-        var tidslinjeSammenfallURS = tidslinjeSammenlignNy.intersection(tidslinjeSammenlignURS);
-
         var tidslinjeTidligstMottattURB = new LocalDateTimeline<>(perioderURBekreft.stream()
             .map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), p.getTidligstMottattDato().orElseGet(p::getMottattDato))).toList());
         var gammelMottattDatoForSammenfallendeURB = tidslinjeTidligstMottattURB.intersection(tidslinjeSammenfallURB);
+
+        List<OppgittPeriodeEntitet> perioderURSøknad = forrigeUttak != null && tidligstedato != null ?  VedtaksperioderHelper.opprettOppgittePerioderSøknadverdier(forrigeUttak, List.of(), tidligstedato) : List.of();
+        var tidslinjeSammenlignURS =  new LocalDateTimeline<>(perioderURSøknad.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), new SammenligningPeriodeForMottat(p))).toList());
+        var tidslinjeSammenfallURS = tidslinjeSammenlignNy.intersection(tidslinjeSammenlignURS);
         var tidslinjeTidligstMottattURS = new LocalDateTimeline<>(perioderURSøknad.stream()
             .map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), p.getTidligstMottattDato().orElseGet(p::getMottattDato))).toList());
         var gammelMottattDatoForSammenfallendeURS = tidslinjeTidligstMottattURS.intersection(tidslinjeSammenfallURS);
@@ -155,15 +155,53 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
         });
     }
 
-    private record SammenligningPeriode(Årsak årsak, UttakPeriodeType periodeType, SamtidigUttaksprosent samtidigUttaksprosent, SammenligningGradering gradering) {
-        SammenligningPeriode(OppgittPeriodeEntitet periode) {
-            this(periode.getÅrsak(), periode.getPeriodeType(), periode.getSamtidigUttaksprosent(), periode.isGradert() ? new SammenligningGradering(periode) : null);
+    private record SammenligningPeriodeForMottat(Årsak årsak, UttakPeriodeType periodeType, SamtidigUttaksprosent samtidigUttaksprosent, SammenligningGraderingForMottatt gradering) {
+        SammenligningPeriodeForMottat(OppgittPeriodeEntitet periode) {
+            this(periode.getÅrsak(), periode.getPeriodeType(), periode.getSamtidigUttaksprosent(), periode.isGradert() ? new SammenligningGraderingForMottatt(periode) : null);
         }
 
     }
 
-    private record SammenligningGradering(boolean erArbeidstaker, BigDecimal arbeidsprosent, Arbeidsgiver arbeidsgiver) {
-        SammenligningGradering(OppgittPeriodeEntitet periode) {
+    private record SammenligningGraderingForMottatt(boolean erArbeidstaker, BigDecimal arbeidsprosent, Arbeidsgiver arbeidsgiver) {
+        SammenligningGraderingForMottatt(OppgittPeriodeEntitet periode) {
+            this(periode.isArbeidstaker(), periode.getArbeidsprosent(), periode.getArbeidsgiver());
+        }
+    }
+
+    public void sjekkOmPerioderKanForkastesSomLike(Behandling behandling, List<OppgittPeriodeEntitet> nysøknad) {
+        var tidslinjeSammenlignNy =  new LocalDateTimeline<>(nysøknad.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), new SammenligningPeriodeForOppgitt(p))).toList());
+
+        var forrigeUttak = behandling.getOriginalBehandlingId()
+            .flatMap(uttakRepository::hentUttakResultatHvisEksisterer).orElse(null);
+        var tidligstedato = nysøknad.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder()).orElse(null);
+
+        List<OppgittPeriodeEntitet> perioderURBekreft = forrigeUttak != null && tidligstedato != null ? VedtaksperioderHelper.opprettOppgittePerioder(forrigeUttak, List.of(), tidligstedato) : List.of();
+        var tidslinjeSammenlignURB =  new LocalDateTimeline<>(perioderURBekreft.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), new SammenligningPeriodeForOppgitt(p))).toList());
+
+        var sammenfall = tidslinjeSammenlignNy.combine(tidslinjeSammenlignURB, this::leftIfEqualsRight, LocalDateTimeline.JoinStyle.INNER_JOIN);
+        var nyheter = tidslinjeSammenlignNy.disjoint(sammenfall);
+        var førsteNyhet = nyheter.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder());
+        if (førsteNyhet.isPresent() &&!førsteNyhet.get().equals(tidligstedato)) {
+            LOG.info("SØKNAD KAST PERIODER: behandling {} kan kaste perioder mellom {} og {}", behandling.getId(), tidligstedato, førsteNyhet.get());
+        }
+
+    }
+
+    private LocalDateSegment<SammenligningPeriodeForOppgitt> leftIfEqualsRight(LocalDateInterval dateInterval,
+                                                                               LocalDateSegment<SammenligningPeriodeForOppgitt> lhs,
+                                                                               LocalDateSegment<SammenligningPeriodeForOppgitt> rhs) {
+        return lhs != null && rhs != null && Objects.equals(lhs.getValue(), rhs.getValue()) ?
+            new LocalDateSegment<>(dateInterval, lhs.getValue()) : null;
+    }
+
+    private record SammenligningPeriodeForOppgitt(Årsak årsak, UttakPeriodeType periodeType, SamtidigUttaksprosent samtidigUttaksprosent, SammenligningGraderingForOppgitt gradering, boolean flerbarnsdager, MorsAktivitet morsAktivitet) {
+        SammenligningPeriodeForOppgitt(OppgittPeriodeEntitet periode) {
+            this(periode.getÅrsak(), periode.getPeriodeType(), periode.getSamtidigUttaksprosent(), periode.isGradert() ? new SammenligningGraderingForOppgitt(periode) : null, periode.isFlerbarnsdager(), periode.getMorsAktivitet());
+        }
+    }
+
+    private record SammenligningGraderingForOppgitt(boolean erArbeidstaker, BigDecimal arbeidsprosent, Arbeidsgiver arbeidsgiver) {
+        SammenligningGraderingForOppgitt(OppgittPeriodeEntitet periode) {
             this(periode.isArbeidstaker(), periode.getArbeidsprosent(), periode.getArbeidsgiver());
         }
     }
