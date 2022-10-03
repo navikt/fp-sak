@@ -65,7 +65,7 @@ public class EndringssøknadSøknadMapperTest {
         var soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringEndringsøknadDto, navBruker);
 
         var oppgittPeriodeMottattDatoTjeneste = new OppgittPeriodeTidligstMottattDatoTjeneste(
-            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
+            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), null);
         var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider,
             virksomhetTjeneste, iayTjeneste, personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDatoTjeneste,
             new AnnenPartOversetter(personinfoAdapter));

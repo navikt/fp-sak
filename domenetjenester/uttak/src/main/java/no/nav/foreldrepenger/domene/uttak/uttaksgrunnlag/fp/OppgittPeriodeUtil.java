@@ -46,27 +46,14 @@ class OppgittPeriodeUtil {
      * @return første dato fra søknad som ikke er en utsettelse.
      */
     static Optional<LocalDate> finnFørsteSøkteUttaksdato(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        var sortertePerioder = sorterEtterFom(oppgittePerioder);
-        var perioderMedUttak = sortertePerioder
-            .stream()
+        return oppgittePerioder.stream()
             .filter(p -> Årsak.UKJENT.equals(p.getÅrsak()) || !p.isOpphold())
-            .collect(Collectors.toList());
-
-        if(perioderMedUttak.size() > 0) {
-            return Optional.of(perioderMedUttak.get(0).getFom());
-        }
-
-        return Optional.empty();
+            .map(OppgittPeriodeEntitet::getFom)
+            .min(Comparator.naturalOrder());
     }
 
     static Optional<LocalDate> finnFørsteSøknadsdato(List<OppgittPeriodeEntitet> perioder) {
-        var sortertePerioder = sorterEtterFom(perioder);
-
-        if(sortertePerioder.size() > 0) {
-            return Optional.of(sortertePerioder.get(0).getFom());
-        }
-
-        return Optional.empty();
+        return perioder.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder());
     }
 
     static List<OppgittPeriodeEntitet> slåSammenLikePerioder(List<OppgittPeriodeEntitet> perioder) {

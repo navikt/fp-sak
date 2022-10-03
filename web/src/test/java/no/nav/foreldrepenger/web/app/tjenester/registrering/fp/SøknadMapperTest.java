@@ -100,7 +100,7 @@ public class SøknadMapperTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         oppgittPeriodeMottattDato = new OppgittPeriodeTidligstMottattDatoTjeneste(
-            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
+            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), null);
 
         kvinne = new PersoninfoKjønn.Builder().medAktørId(STD_KVINNE_AKTØR_ID)
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
