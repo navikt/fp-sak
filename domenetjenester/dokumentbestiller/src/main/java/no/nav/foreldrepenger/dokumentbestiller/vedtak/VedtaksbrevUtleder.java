@@ -1,16 +1,10 @@
 package no.nav.foreldrepenger.dokumentbestiller.vedtak;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.MEDHOLD_I_KLAGE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.OPPHEVE_YTELSESVEDTAK;
-
-import java.util.Arrays;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
@@ -103,26 +97,15 @@ public class VedtaksbrevUtleder {
     }
 
     public static DokumentMalType velgKlagemal(Behandling behandling, KlageRepository klageRepository) {
-        var klagevurderingResultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling).orElse(null);
-        if (klagevurderingResultat == null) {
+        var klageVurdering = klageRepository.hentGjeldendeKlageVurderingResultat(behandling).map(KlageVurderingResultat::getKlageVurdering).orElse(null);
+        if (klageVurdering == null) {
             return null;
         }
-        var klagevurdering = klagevurderingResultat.getKlageVurdering();
 
-        if (KlageVurdering.AVVIS_KLAGE.equals(klagevurdering)) {
-            return DokumentMalType.KLAGE_AVVIST;
-        }
-        if (Arrays.asList(OPPHEVE_YTELSESVEDTAK, HJEMSENDE_UTEN_Å_OPPHEVE).contains(klagevurdering)) {
-            return DokumentMalType.KLAGE_HJEMSENDT;
-        }
-        if (MEDHOLD_I_KLAGE.equals(klagevurdering)) {
-            return DokumentMalType.KLAGE_OMGJORT;
-        }
-        if (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(klagevurdering)) {
-            return DokumentMalType.KLAGE_STADFESTET;
-        }
-
-        return null;
+        return switch (klageVurdering) {
+            case MEDHOLD_I_KLAGE -> DokumentMalType.KLAGE_OMGJORT;
+            case AVVIS_KLAGE -> DokumentMalType.KLAGE_AVVIST;
+            case UDEFINERT, HJEMSENDE_UTEN_Å_OPPHEVE, OPPHEVE_YTELSESVEDTAK, STADFESTE_YTELSESVEDTAK -> null;
+        };
     }
-
 }

@@ -108,14 +108,8 @@ public class VedtaksbrevUtlederTest {
     public void skal_velge_riktig_klagemal() {
         doReturn(Optional.of(klageVurderingResultat)).when(klageRepository).hentGjeldendeKlageVurderingResultat(behandling);
 
-        doReturn(KlageVurdering.STADFESTE_YTELSESVEDTAK).when(klageVurderingResultat).getKlageVurdering();
-        assertThat(VedtaksbrevUtleder.velgKlagemal(behandling, klageRepository)).isEqualTo(DokumentMalType.KLAGE_STADFESTET);
-
         doReturn(KlageVurdering.AVVIS_KLAGE).when(klageVurderingResultat).getKlageVurdering();
         assertThat(VedtaksbrevUtleder.velgKlagemal(behandling, klageRepository)).isEqualTo(DokumentMalType.KLAGE_AVVIST);
-
-        doReturn(KlageVurdering.OPPHEVE_YTELSESVEDTAK).when(klageVurderingResultat).getKlageVurdering();
-        assertThat(VedtaksbrevUtleder.velgKlagemal(behandling, klageRepository)).isEqualTo(DokumentMalType.KLAGE_HJEMSENDT);
 
         doReturn(KlageVurdering.MEDHOLD_I_KLAGE).when(klageVurderingResultat).getKlageVurdering();
         assertThat(VedtaksbrevUtleder.velgKlagemal(behandling, klageRepository)).isEqualTo(DokumentMalType.KLAGE_OMGJORT);
