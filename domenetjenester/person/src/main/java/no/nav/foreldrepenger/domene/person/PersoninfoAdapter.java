@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoVisning;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.domene.person.dkif.DkifSpråkKlient;
+import no.nav.foreldrepenger.domene.person.krr.KrrSpråkKlient;
 import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.PersonBasisTjeneste;
@@ -41,7 +41,7 @@ public class PersoninfoAdapter {
     private TilknytningTjeneste tilknytningTjeneste;
     private PersonBasisTjeneste basisTjeneste;
     private PersoninfoTjeneste personinfoTjeneste;
-    private DkifSpråkKlient dkifSpråkKlient;
+    private KrrSpråkKlient krrSpråkKlient;
 
     public PersoninfoAdapter() {
         // for CDI proxy
@@ -53,13 +53,13 @@ public class PersoninfoAdapter {
                              TilknytningTjeneste tilknytningTjeneste,
                              PersonBasisTjeneste basisTjeneste,
                              PersoninfoTjeneste personinfoTjeneste,
-                             DkifSpråkKlient dkifSpråkKlient) {
+                             KrrSpråkKlient krrSpråkKlient) {
         this.aktørConsumer = aktørConsumer;
         this.fødselTjeneste = fødselTjeneste;
         this.tilknytningTjeneste = tilknytningTjeneste;
         this.basisTjeneste = basisTjeneste;
         this.personinfoTjeneste = personinfoTjeneste;
-        this.dkifSpråkKlient = dkifSpråkKlient;
+        this.krrSpråkKlient = krrSpråkKlient;
     }
 
     public Optional<Personinfo> innhentPersonopplysningerFor(AktørId aktørId) {
@@ -136,9 +136,9 @@ public class PersoninfoAdapter {
             return new PersoninfoSpråk(aktørId, Språkkode.NB);
         }
         try {
-            return new PersoninfoSpråk(aktørId, dkifSpråkKlient.finnSpråkkodeForBruker(personIdent.getIdent()));
+            return new PersoninfoSpråk(aktørId, krrSpråkKlient.finnSpråkkodeForBruker(personIdent.getIdent()));
         } catch (Exception e) {
-            LOG.warn("DKIF feiler, defaulter til NB", e);
+            LOG.warn("KRR feiler, defaulter til NB", e);
         }
         return new PersoninfoSpråk(aktørId, Språkkode.NB);
     }
