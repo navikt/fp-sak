@@ -141,16 +141,16 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
         var oppdatertTidsligstMottattUR = oppdatertTidsligstMottattURB.combine(oppdatertTidsligstMottattURS, StandardCombinators::min, LocalDateTimeline.JoinStyle.CROSS_JOIN);
         var oppdatertTidsligstMottatt = oppdatertTidsligstMottattUR.combine(oppdatertTidsligstMottattGammel, StandardCombinators::min, LocalDateTimeline.JoinStyle.CROSS_JOIN);
         var nysøknadFom = nysøknad.stream().collect(Collectors.toMap(OppgittPeriodeEntitet::getFom, Function.identity()));
-        oppdatertTidsligstMottatt.toSegments().forEach(s -> {
+        var omEtParTreDager = LocalDate.now().plusDays(3);
+        oppdatertTidsligstMottatt.toSegments().stream().filter(s -> s.getFom().isBefore(omEtParTreDager)).forEach(s -> {
             if (nysøknadFom.containsKey(s.getFom())) {
                 var tidligst = nysøknadFom.get(s.getFom()).getTidligstMottattDato().orElseGet(() -> nysøknadFom.get(s.getFom()).getMottattDato());
+                var gradert = nysøknadFom.get(s.getFom()).isGradert() ? "gradert" : "ugradert";
                 if (!tidligst.equals(s.getValue())) {
-                    LOG.info("SØKNAD MOTTATT DATO funnet avvik mottatt dato behandling {} fom {} søknad {} forrige {}", behandling.getId(), s.getFom(), tidligst, s.getValue());
+                    LOG.info("SØKNAD MOTTATT DATO funnet avvik mottatt dato behandling {} {} fom {} søknad {} forrige {}", behandling.getId(), gradert, s.getFom(), tidligst, s.getValue());
                 } else if (!s.getTom().equals(nysøknadFom.get(s.getFom()).getTom())) {
-                    LOG.info("SØKNAD MOTTATT DATO splitte mine perioder {} fom {} tom {} søknad {} forrige {}", behandling.getId(), s.getFom(), s.getTom(), tidligst, s.getValue());
+                    LOG.info("SØKNAD MOTTATT DATO splitte mine perioder {} {} fom {} tom {} søknad {} forrige {}", behandling.getId(), gradert, s.getFom(), s.getTom(), tidligst, s.getValue());
                 }
-            } else {
-                LOG.info("SØKNAD MOTTATT DATO splittet mine perioder {} fom {} tom {}", behandling.getId(), s.getFom(), s.getTom());
             }
         });
     }

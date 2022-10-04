@@ -42,8 +42,6 @@ public enum BehandlingResultatType implements Kodeverdi {
 
     // Anke
     ANKE_AVVIST("ANKE_AVVIST", "Anke er avvist"),
-    @Deprecated // TODO: Fjerne etter patch til medhold/ugunst
-    ANKE_OMGJOER("ANKE_OMGJOER", "Bruker har fått omgjøring i anke"),
     ANKE_MEDHOLD("ANKE_MEDHOLD", "Medhold"),
     ANKE_DELVIS_MEDHOLD("ANKE_DELVIS_MEDHOLD", "Delvis medhold"),
     ANKE_OMGJORT_UGUNST("ANKE_OMGJORT_UGUNST", "Omgjort til ugunst"),
