@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity
@@ -87,6 +88,10 @@ public class UttakResultatPeriodeAktivitetEntitet extends BaseEntitet {
 
     public BigDecimal getArbeidsprosent() {
         return arbeidsprosent;
+    }
+
+    public Stillingsprosent getArbeidsprosentSomStillingsprosent() {
+        return new Stillingsprosent(arbeidsprosent);
     }
 
     public Utbetalingsgrad getUtbetalingsgrad() {
