@@ -61,7 +61,7 @@ public class Stillingsprosent implements Serializable, IndexKey, TraverseValue {
     }
 
     private BigDecimal skalertVerdi() {
-        return verdi.setScale(2, RoundingMode.HALF_EVEN);
+        return verdi != null ? verdi.setScale(2, RoundingMode.HALF_EVEN) : null;
     }
 
     @Override
@@ -73,7 +73,10 @@ public class Stillingsprosent implements Serializable, IndexKey, TraverseValue {
             return false;
         }
         var other = (Stillingsprosent) obj;
-        return Objects.equals(skalertVerdi(), other.skalertVerdi());
+        var thisSkalert = this.skalertVerdi();
+        var otherSkalert = other.skalertVerdi();
+        return Objects.equals(thisSkalert, otherSkalert) ||
+            (thisSkalert != null && otherSkalert != null &&  thisSkalert.compareTo(otherSkalert) == 0);
     }
 
     @Override

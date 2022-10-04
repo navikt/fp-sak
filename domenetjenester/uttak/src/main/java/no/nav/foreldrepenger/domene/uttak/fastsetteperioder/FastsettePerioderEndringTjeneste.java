@@ -140,11 +140,12 @@ public class FastsettePerioderEndringTjeneste {
 
     private boolean erLik(UttakResultatPeriodeAktivitetEntitet aktivitet1,
                           UttakResultatPeriodeAktivitetEntitet aktivitet2) {
-        return Objects.equals(aktivitet1.getFom(), aktivitet2.getFom()) && Objects.equals(aktivitet1.getTom(),
-            aktivitet2.getTom()) && Objects.equals(aktivitet1.getTrekkonto(), aktivitet2.getTrekkonto())
-            && Objects.equals(aktivitet1.getTrekkdager(), aktivitet2.getTrekkdager()) && Objects.equals(
-            aktivitet1.getArbeidsprosent(), aktivitet2.getArbeidsprosent()) && Objects.equals(
-            aktivitet1.getUtbetalingsgrad(), aktivitet2.getUtbetalingsgrad());
+        return Objects.equals(aktivitet1.getFom(), aktivitet2.getFom())
+            && Objects.equals(aktivitet1.getTom(), aktivitet2.getTom())
+            && Objects.equals(aktivitet1.getTrekkonto(), aktivitet2.getTrekkonto())
+            && Objects.equals(aktivitet1.getTrekkdager(), aktivitet2.getTrekkdager())
+            && Objects.equals(aktivitet1.getArbeidsprosentSomStillingsprosent(), aktivitet2.getArbeidsprosentSomStillingsprosent())
+            && Objects.equals(aktivitet1.getUtbetalingsgrad(), aktivitet2.getUtbetalingsgrad());
     }
 
 

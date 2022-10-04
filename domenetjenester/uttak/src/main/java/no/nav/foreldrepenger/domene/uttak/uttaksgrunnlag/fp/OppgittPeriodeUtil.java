@@ -97,7 +97,7 @@ class OppgittPeriodeUtil {
             Objects.equals(periode1.getMottattDato(), periode2.getMottattDato()) &&
             Objects.equals(periode1.getTidligstMottattDato(), periode2.getTidligstMottattDato()) &&
             Objects.equals(periode1.getÅrsak(), periode2.getÅrsak()) &&
-            Objects.equals(periode1.getArbeidsprosent(), periode2.getArbeidsprosent());
+            Objects.equals(periode1.getArbeidsprosentSomStillingsprosent(), periode2.getArbeidsprosentSomStillingsprosent());
     }
 
     private static OppgittPeriodeEntitet slåSammen(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {

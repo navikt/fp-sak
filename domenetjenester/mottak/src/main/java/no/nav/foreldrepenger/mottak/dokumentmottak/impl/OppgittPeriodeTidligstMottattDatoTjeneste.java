@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -25,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.VedtaksperioderHelper;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -91,7 +91,7 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
         if (like && periode1.isGradert()) {
             return periode2.isGradert() &&
                 periode1.isArbeidstaker() == periode2.isArbeidstaker() &&
-                Objects.equals(periode1.getArbeidsprosent(), periode2.getArbeidsprosent()) &&
+                Objects.equals(periode1.getArbeidsprosentSomStillingsprosent(), periode2.getArbeidsprosentSomStillingsprosent()) &&
                 Objects.equals(periode1.getArbeidsgiver(), periode2.getArbeidsgiver());
         }
         return like;
@@ -162,9 +162,9 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
 
     }
 
-    private record SammenligningGraderingForMottatt(boolean erArbeidstaker, BigDecimal arbeidsprosent, Arbeidsgiver arbeidsgiver) {
+    private record SammenligningGraderingForMottatt(boolean erArbeidstaker, Stillingsprosent arbeidsprosent, Arbeidsgiver arbeidsgiver) {
         SammenligningGraderingForMottatt(OppgittPeriodeEntitet periode) {
-            this(periode.isArbeidstaker(), periode.getArbeidsprosent(), periode.getArbeidsgiver());
+            this(periode.isArbeidstaker(), periode.getArbeidsprosentSomStillingsprosent(), periode.getArbeidsgiver());
         }
     }
 
@@ -200,9 +200,9 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
         }
     }
 
-    private record SammenligningGraderingForOppgitt(boolean erArbeidstaker, BigDecimal arbeidsprosent, Arbeidsgiver arbeidsgiver) {
+    private record SammenligningGraderingForOppgitt(boolean erArbeidstaker, Stillingsprosent arbeidsprosent, Arbeidsgiver arbeidsgiver) {
         SammenligningGraderingForOppgitt(OppgittPeriodeEntitet periode) {
-            this(periode.isArbeidstaker(), periode.getArbeidsprosent(), periode.getArbeidsgiver());
+            this(periode.isArbeidstaker(), periode.getArbeidsprosentSomStillingsprosent(), periode.getArbeidsgiver());
         }
     }
 

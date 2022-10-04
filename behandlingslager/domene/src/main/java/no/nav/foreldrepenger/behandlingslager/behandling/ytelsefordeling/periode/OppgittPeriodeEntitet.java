@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "SoeknadPeriode")
@@ -168,6 +169,10 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
 
     public BigDecimal getArbeidsprosent() {
         return arbeidsprosent;
+    }
+
+    public Stillingsprosent getArbeidsprosentSomStillingsprosent() {
+        return new Stillingsprosent(arbeidsprosent);
     }
 
     void setArbeidsprosent(BigDecimal arbeidsprosent) {
@@ -334,7 +339,7 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
                 Objects.equals(årsakType, that.årsakType) &&
                 Objects.equals(årsak, that.årsak) &&
                 Objects.equals(periode, that.periode) &&
-                Objects.equals(arbeidsprosent, that.arbeidsprosent) &&
+                Objects.equals(getArbeidsprosentSomStillingsprosent(), that.getArbeidsprosentSomStillingsprosent()) &&
                 Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
                 Objects.equals(erArbeidstaker, that.erArbeidstaker) &&
                 Objects.equals(morsAktivitet, that.morsAktivitet) &&
