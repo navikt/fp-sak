@@ -44,7 +44,7 @@ public class FatteVedtakTjeneste {
             BehandlingResultatType.KLAGE_TILBAKEKREVING_VEDTAK_STADFESTET,
             BehandlingResultatType.HJEMSENDE_UTEN_OPPHEVE);
     private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER_ANKE = Set.of(BehandlingResultatType.ANKE_AVVIST,
-            BehandlingResultatType.ANKE_OMGJOER, BehandlingResultatType.ANKE_MEDHOLD, BehandlingResultatType.ANKE_DELVIS_MEDHOLD, BehandlingResultatType.ANKE_OMGJORT_UGUNST,
+            BehandlingResultatType.ANKE_MEDHOLD, BehandlingResultatType.ANKE_DELVIS_MEDHOLD, BehandlingResultatType.ANKE_OMGJORT_UGUNST,
             BehandlingResultatType.ANKE_YTELSESVEDTAK_STADFESTET, BehandlingResultatType.ANKE_OPPHEVE_OG_HJEMSENDE,
             BehandlingResultatType.ANKE_HJEMSENDE_UTEN_OPPHEV);
     private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER_INNSYN = Set.of(BehandlingResultatType.INNSYN_AVVIST,

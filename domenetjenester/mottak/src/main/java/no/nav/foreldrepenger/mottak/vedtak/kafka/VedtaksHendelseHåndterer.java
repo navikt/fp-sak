@@ -4,8 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -18,7 +16,6 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.abakus.vedtak.ytelse.Kildesystem;
 import no.nav.abakus.vedtak.ytelse.Ytelse;
 import no.nav.abakus.vedtak.ytelse.Ytelser;
@@ -35,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.MottattVedtak;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOverlappPleiepengerTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -54,16 +50,7 @@ public class VedtaksHendelseHåndterer {
 
     private static final Logger LOG = LoggerFactory.getLogger(VedtaksHendelseHåndterer.class);
 
-    private static final Map<YtelseType, FagsakYtelseType> YTELSE_TYPE_MAP = Map.of(
-            YtelseType.ENGANGSTØNAD, FagsakYtelseType.ENGANGSTØNAD,
-            YtelseType.FORELDREPENGER, FagsakYtelseType.FORELDREPENGER,
-            YtelseType.SVANGERSKAPSPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
-    private static final Map<Ytelser, FagsakYtelseType> YTELSER_MAP = Map.of(
-        Ytelser.ENGANGSTØNAD, FagsakYtelseType.ENGANGSTØNAD,
-        Ytelser.FORELDREPENGER, FagsakYtelseType.FORELDREPENGER,
-        Ytelser.SVANGERSKAPSPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
     private static final Set<FagsakYtelseType> VURDER_OVERLAPP = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
-    private static final boolean isProd = Environment.current().isProd();
 
     private FagsakTjeneste fagsakTjeneste;
     private LoggOverlappEksterneYtelserTjeneste eksternOverlappLogger;
@@ -107,33 +94,30 @@ public class VedtaksHendelseHåndterer {
         if (Kildesystem.FPSAK.equals(ytelse.getKildesystem())) {
             return;
         }
-        var hendelseId = ytelse.getKildesystem().name() + ytelse.getVedtakReferanse() + Optional.ofNullable(ytelse.getSaksnummer()).orElse("") + ytelse.getYtelse().name();
-        if (hendelseId.length() > 95) hendelseId = hendelseId.substring(0, 92);
-        if (!mottakRepository.hendelseErNy(hendelseId)) {
-            LOG.warn("KAFKA Mottatt vedtakshendelse på nytt hendelse={}", hendelseId);
-            return;
+
+        /* Re-Enable ved flytting av Kafka til Aiven eller mottak fra nye system/ytelser
+            var hendelseId = ytelse.getKildesystem().name() + ytelse.getVedtakReferanse() + Optional.ofNullable(ytelse.getSaksnummer()).orElse("") + ytelse.getYtelse().name();
+            if (hendelseId.length() > 95) hendelseId = hendelseId.substring(0, 92);
+            if (!mottakRepository.hendelseErNy(hendelseId)) {
+                LOG.warn("KAFKA Mottatt vedtakshendelse på nytt hendelse={}", hendelseId);
+                return;
+            }
+            mottakRepository.registrerMottattHendelse(hendelseId);
+         */
+
+        var fagsaker = getFagsakerFor(ytelse);
+        if (!fagsaker.isEmpty()) {
+            lagreMottattVedtak(ytelse);
         }
-        mottakRepository.registrerMottattHendelse(hendelseId);
-        var mottattVedtakBuilder = MottattVedtak.builder()
-            .medFagsystem(ytelse.getKildesystem().name())
-            .medReferanse(ytelse.getVedtakReferanse())
-            .medYtelse(ytelse.getYtelse().name())
-            .medSaksnummer(ytelse.getSaksnummer());
-        mottakRepository.registrerMottattVedtak(mottattVedtakBuilder.build());
-
-
         if (skalLoggeOverlappDB(ytelse)) {
-            var fagsaker = getFagsakerFor(ytelse);
             loggVedtakOverlapp(ytelse, fagsaker);
         } else if (Ytelser.PLEIEPENGER_SYKT_BARN.equals(ytelse.getYtelse())) {
-            var fagsaker = getFagsakerFor(ytelse);
             var callID = UUID.randomUUID();
-            fagsakerMedVedtakOverlapp(ytelse, fagsaker)
-                .forEach(f -> opprettHåndterOverlappTaskPleiepenger(f, callID));
+            var overlapp = fagsakerMedVedtakOverlapp(ytelse, fagsaker);
+            overlapp.forEach(f -> opprettHåndterOverlappTaskPleiepenger(f, callID));
         } else {
             LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getKildesystem(),
                 ytelse.getSaksnummer(), ytelse.getYtelse());
-            var fagsaker = getFagsakerFor(ytelse);
             LOG.info("Vedtatt-Ytelse VL har disse sakene for bruker med vedtak {} - saker {}",
                 ytelse.getYtelse(), fagsaker.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList()));
 
@@ -151,6 +135,15 @@ public class VedtaksHendelseHåndterer {
 
     private boolean skalLoggeOverlappDB(YtelseV1 ytelse) {
         return Set.of(Ytelser.FRISINN, Ytelser.OMSORGSPENGER).contains(ytelse.getYtelse());
+    }
+
+    private void lagreMottattVedtak(YtelseV1 ytelse) {
+        var mottattVedtakBuilder = MottattVedtak.builder()
+            .medFagsystem(ytelse.getKildesystem().name())
+            .medReferanse(ytelse.getVedtakReferanse())
+            .medYtelse(ytelse.getYtelse().name())
+            .medSaksnummer(ytelse.getSaksnummer());
+        mottakRepository.registrerMottattVedtak(mottattVedtakBuilder.build());
     }
 
     private void opprettHåndterOverlappTaskPleiepenger(Fagsak f, UUID callID) {
