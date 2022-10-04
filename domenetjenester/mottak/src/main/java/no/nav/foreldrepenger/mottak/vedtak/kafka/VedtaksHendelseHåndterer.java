@@ -113,8 +113,7 @@ public class VedtaksHendelseHåndterer {
             loggVedtakOverlapp(ytelse, fagsaker);
         } else if (Ytelser.PLEIEPENGER_SYKT_BARN.equals(ytelse.getYtelse())) {
             var callID = UUID.randomUUID();
-            var overlapp = fagsakerMedVedtakOverlapp(ytelse, fagsaker);
-            overlapp.forEach(f -> opprettHåndterOverlappTaskPleiepenger(f, callID));
+            fagsakerMedVedtakOverlapp(ytelse, fagsaker).forEach(f -> opprettHåndterOverlappTaskPleiepenger(f, callID));
         } else {
             LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getKildesystem(),
                 ytelse.getSaksnummer(), ytelse.getYtelse());
