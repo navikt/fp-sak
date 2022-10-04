@@ -31,7 +31,6 @@ public class FastsettUttaksgrunnlagTjeneste {
     private final EndringsdatoFørstegangsbehandlingUtleder endringsdatoFørstegangsbehandlingUtleder;
     private final EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder;
 
-    private final VedtaksperioderHelper vedtaksperioderHelper = new VedtaksperioderHelper();
     private final JusterFordelingTjeneste justerFordelingTjeneste = new JusterFordelingTjeneste();
 
     @Inject
@@ -154,7 +153,7 @@ public class FastsettUttaksgrunnlagTjeneste {
                                                                              Long forrigeBehandling) {
         //Kopier vedtaksperioder fom endringsdato.
         var uttakResultatEntitet = fpUttakRepository.hentUttakResultat(forrigeBehandling);
-        return vedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, oppgittePerioder, endringsdato);
+        return VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, oppgittePerioder, endringsdato);
     }
 
     private static record FHSøknadGjeldende(Optional<LocalDate> søknad, LocalDate gjeldende) {

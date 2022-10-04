@@ -560,6 +560,17 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                 oppgittPeriode.setTidligstMottattDato(mottattDatoFraSøknad);
             }
         }
+        try {
+            oppgittPeriodeTidligstMottattDatoTjeneste.sammenlignLoggMottattDato(behandling, oppgittPerioder);
+        } catch (Exception e) {
+            LOG.info("SØKNAD Datosammenligning ga feil", e);
+        }
+        try {
+            oppgittPeriodeTidligstMottattDatoTjeneste.sjekkOmPerioderKanForkastesSomLike(behandling, oppgittPerioder);
+        } catch (Exception e) {
+            LOG.info("SØKNAD forkasting ga feil", e);
+        }
+
     }
 
     private boolean inneholderVirkedager(List<OppgittPeriodeEntitet> perioder) {

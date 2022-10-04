@@ -30,7 +30,7 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteTest extends EntityManager
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(getEntityManager()));
         tjeneste = new OppgittPeriodeTidligstMottattDatoTjeneste(
-            ytelseFordelingTjeneste);
+            ytelseFordelingTjeneste, null);
     }
 
     @Test
