@@ -22,6 +22,7 @@ import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
 import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AvklaringsbehovDefinisjon;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.EndreDekningsgradVedDødTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.fp.BeregningsgrunnlagInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -61,6 +62,8 @@ public class ForeslåBeregningsgrunnlagStegTest {
     private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     @Mock
     BeregningsgrunnlagInputProvider inputProvider;
+    @Mock
+    EndreDekningsgradVedDødTjeneste endreDekningsgradVedDødTjeneste;
 
     @BeforeEach
     void setUp() {
@@ -90,7 +93,7 @@ public class ForeslåBeregningsgrunnlagStegTest {
 
         when(inputProvider.getTjeneste(FagsakYtelseType.FORELDREPENGER)).thenReturn(inputTjeneste);
         steg = new ForeslåBeregningsgrunnlagSteg(behandlingRepository, familieHendelseRepository, beregningsgrunnlagKopierOgLagreTjeneste,
-                inputProvider);
+                inputProvider, endreDekningsgradVedDødTjeneste);
 
         iayTjeneste.lagreInntektsmeldinger(behandling.getFagsak().getSaksnummer(), behandling.getId(), List.of());
     }

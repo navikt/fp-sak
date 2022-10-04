@@ -8,7 +8,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.fp.VurderDekningsgradVedDødsfallAksjonspunktUtleder;
+import no.nav.foreldrepenger.behandling.EndreDekningsgradVedDødTjeneste;
+import no.nav.foreldrepenger.behandling.VurderDekningsgradVedDødsfallAksjonspunktUtleder;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
@@ -24,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Uidenti
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @FagsakYtelseTypeRef
 @BehandlingStegRef(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG)
@@ -35,6 +37,7 @@ public class ForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     private FamilieHendelseRepository familieHendelseRepository;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
+    private EndreDekningsgradVedDødTjeneste endreDekningsgradVedDødTjeneste;
 
     protected ForeslåBeregningsgrunnlagSteg() {
         // for CDI proxy
@@ -42,13 +45,15 @@ public class ForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
 
     @Inject
     public ForeslåBeregningsgrunnlagSteg(BehandlingRepository behandlingRepository,
-            FamilieHendelseRepository familieHendelseRepository,
-            BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-            BeregningsgrunnlagInputProvider inputTjenesteProvider) {
+                                         FamilieHendelseRepository familieHendelseRepository,
+                                         BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
+                                         BeregningsgrunnlagInputProvider inputTjenesteProvider,
+                                         EndreDekningsgradVedDødTjeneste endreDekningsgradVedDødTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.familieHendelseRepository = familieHendelseRepository;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
+        this.endreDekningsgradVedDødTjeneste = endreDekningsgradVedDødTjeneste;
     }
 
     @Override
@@ -61,13 +66,24 @@ public class ForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
         var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map)
                 .collect(Collectors.toList());
 
-        if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER)) {
+        var kanEndreDekningsgradAutomatisk = !Environment.current().isProd();
+
+        if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER) && !kanEndreDekningsgradAutomatisk) {
             boolean skalHaAksjonspunktForVurderDekningsgrad = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(input.getYtelsespesifiktGrunnlag().getDekningsgrad(),
                 getBarn(ref.behandlingId()));
             if (skalHaAksjonspunktForVurderDekningsgrad) {
                 aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.VURDER_DEKNINGSGRAD));
             }
         }
+
+        if (kanEndreDekningsgradAutomatisk) {
+            var måDekningsgradJusteres = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(input.getYtelsespesifiktGrunnlag().getDekningsgrad(),
+                getBarn(ref.behandlingId()));
+            if (måDekningsgradJusteres) {
+                endreDekningsgradVedDødTjeneste.endreDekningsgradTil100(ref);
+            }
+        }
+
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
     }
 

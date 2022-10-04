@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.fp;
+package no.nav.foreldrepenger.behandling;
 
 import java.util.List;
 

@@ -39,6 +39,7 @@ public enum HistorikkinnslagType implements Kodeverdi {
     KLAGEBEH_STARTET("KLAGEBEH_STARTET", "Klage mottatt", HistorikkinnslagMal.MAL_TYPE_1),
     INNSYN_OPPR("INNSYN_OPPR", "Innsynsbehandling opprettet", HistorikkinnslagMal.MAL_TYPE_1),
     KØET_BEH_GJEN("KØET_BEH_GJEN", "Køet behandling er gjenopptatt", HistorikkinnslagMal.MAL_TYPE_1),
+    ENDRET_DEKNINGSGRAD("ENDRET_DEKNINGSGRAD", "Dekningsgrad er endret", HistorikkinnslagMal.MAL_TYPE_1),
 
     // Mal Type 2
     VEDTAK_FATTET("VEDTAK_FATTET", "Vedtak fattet", HistorikkinnslagMal.MAL_TYPE_2),
