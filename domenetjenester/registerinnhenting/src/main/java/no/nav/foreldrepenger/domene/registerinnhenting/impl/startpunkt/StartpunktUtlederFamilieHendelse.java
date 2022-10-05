@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
 
+import java.time.LocalDate;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -8,6 +10,7 @@ import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
@@ -68,10 +71,25 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
             .flatMap(origId -> familieHendelseTjeneste.hentAggregat(origId).getGjeldendeBekreftetVersjon())
             .flatMap(FamilieHendelseEntitet::getFødselsdato).orElse(null);
 
+        /*
+         * Logikk hovedsaklig knyttet til mor som har STP 3 uker før termin og tilfelle av fødsel før STP.
+         * Deretter far/medmor som tar ut rundt fødsel (fom aug 2022) og har søkt om flyttbare perioder
+         */
         if (nyBekreftetFødselsdato != null) {
             if (origBekreftetFødselsdato == null || nyBekreftetFødselsdato.isBefore(origBekreftetFødselsdato)) {
                 // Familiehendelse har blitt bekreftet etter original behandling, eller flyttet til tidligere dato
                 if (nyBekreftetFødselsdato.isBefore(nySkjæringstidspunkt)) {
+                    return true;
+                }
+            }
+            if (!RelasjonsRolleType.MORA.equals(ref.relasjonRolle()) && !ref.getSkjæringstidspunkt().utenMinsterett() && !nyBekreftetFødselsdato.equals(origBekreftetFødselsdato)) {
+                LocalDate nyFørsteUttaksdato = null;
+                try {
+                    nyFørsteUttaksdato = ref.getSkjæringstidspunkt().getFørsteUttaksdato();
+                } catch (Exception e) {
+                    // Ignore
+                }
+                if (nyFørsteUttaksdato == null || !nyFørsteUttaksdato.equals(nySkjæringstidspunkt) || origSkjæringstidspunkt.filter(nyFørsteUttaksdato::equals).isEmpty()) {
                     return true;
                 }
             }
