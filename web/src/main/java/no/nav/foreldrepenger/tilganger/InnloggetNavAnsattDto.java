@@ -15,7 +15,9 @@ public record InnloggetNavAnsattDto(String brukernavn,
                                     boolean skalViseDetaljerteFeilmeldinger,
                                     LocalDateTime funksjonellTid) {
     private InnloggetNavAnsattDto(Builder builder) {
-        this(builder.brukernavn, builder.navn, builder.kanSaksbehandle, builder.kanVeilede, builder.kanBeslutte, builder.kanOverstyre, builder.kanOppgavestyre, builder.kanBehandleKodeEgenAnsatt, builder.kanBehandleKode6, builder.kanBehandleKode7, builder.skalViseDetaljerteFeilmeldinger, LocalDateTime.now());
+        this(builder.brukernavn, builder.navn, builder.kanSaksbehandle, builder.kanVeilede, builder.kanBeslutte, builder.kanOverstyre,
+            builder.kanOppgavestyre, builder.kanBehandleKodeEgenAnsatt, builder.kanBehandleKode6, builder.kanBehandleKode7,
+            builder.skalViseDetaljerteFeilmeldinger, LocalDateTime.now());
     }
 
     @Override
