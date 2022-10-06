@@ -7,7 +7,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, endpointProperty = "fpsak.it.fp.grunnlag.url", endpointDefault = "http://infotrygd-foreldrepenger.default/grunnlag")
+@RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "fpsak.it.fp.grunnlag.url", endpointDefault = "http://infotrygd-foreldrepenger.default/grunnlag")
 public class InfotrygdFPGrunnlag extends AbstractInfotrygdGrunnlag {
 
     public InfotrygdFPGrunnlag() {
