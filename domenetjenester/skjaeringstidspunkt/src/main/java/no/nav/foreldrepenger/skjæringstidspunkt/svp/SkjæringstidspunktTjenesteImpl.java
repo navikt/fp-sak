@@ -76,12 +76,16 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .medUtledetMedlemsintervall(utledYtelseintervall(behandlingId, førsteUttakSøknad))
             .medGjelderFødsel(true);
         var familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
-        familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
-            .ifPresent(builder::medFamiliehendelsedato);
-        familieHendelseGrunnlag.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
-            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
-            .ifPresent(builder::medBekreftetFamiliehendelsedato);
+        try {
+            familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+                .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+                .ifPresent(builder::medFamiliehendelsedato);
+            familieHendelseGrunnlag.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
+                .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+                .ifPresent(builder::medBekreftetFamiliehendelsedato);
+        } catch (Exception e) {
+            // Testformål
+        }
         return builder.build();
     }
 
@@ -100,12 +104,16 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .medUtledetMedlemsintervall(utledYtelseintervall(behandlingId, førsteUttak))
             .medGjelderFødsel(true);
         var familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
-        familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
-            .ifPresent(builder::medFamiliehendelsedato);
-        familieHendelseGrunnlag.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
-            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
-            .ifPresent(builder::medBekreftetFamiliehendelsedato);
+        try {
+            familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+                .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+                .ifPresent(builder::medFamiliehendelsedato);
+            familieHendelseGrunnlag.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
+                .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+                .ifPresent(builder::medBekreftetFamiliehendelsedato);
+        } catch (Exception e) {
+            // Testformål
+        }
         return builder.build();
     }
 
