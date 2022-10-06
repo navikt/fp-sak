@@ -69,7 +69,6 @@ public class KrrSpråkKlient {
         }
     }
 
-
     record KrrRespons(@JsonProperty("spraak") String språk) { }
 
 }
