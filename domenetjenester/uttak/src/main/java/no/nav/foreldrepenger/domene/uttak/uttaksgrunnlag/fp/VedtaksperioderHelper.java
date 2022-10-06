@@ -7,7 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
@@ -42,7 +42,7 @@ public class VedtaksperioderHelper {
                                                         List<OppgittPeriodeEntitet> søknadsperioder,
                                                         LocalDate endringsdato) {
         var førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
-        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling, endringsdato, førsteSøknadsdato);
+        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling, endringsdato, førsteSøknadsdato, p -> true);
 
         List<OppgittPeriodeEntitet> søknadOgVedtaksperioder = new ArrayList<>();
         søknadsperioder.forEach(op -> søknadOgVedtaksperioder.add(OppgittPeriodeBuilder.fraEksisterende(op).build()));
@@ -50,29 +50,26 @@ public class VedtaksperioderHelper {
         return OppgittPeriodeUtil.sorterEtterFom(søknadOgVedtaksperioder);
     }
 
-    public static List<OppgittPeriodeEntitet> opprettOppgittePerioderSøknadverdier(UttakResultatEntitet uttakResultatFraForrigeBehandling,
-                                                                            List<OppgittPeriodeEntitet> søknadsperioder,
-                                                                            LocalDate endringsdato) {
-        var førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
-        var vedtaksperioder = lagVedtaksperioderSøknadverdier(uttakResultatFraForrigeBehandling, endringsdato, førsteSøknadsdato);
+    public static List<OppgittPeriodeEntitet> opprettOppgittePerioderKunInnvilget(UttakResultatEntitet uttakResultatFraForrigeBehandling, LocalDate endringsdato) {
+        return lagVedtaksperioder(uttakResultatFraForrigeBehandling, endringsdato, Optional.empty(), UttakResultatPeriodeEntitet::isInnvilget);
+    }
 
-        List<OppgittPeriodeEntitet> søknadOgVedtaksperioder = new ArrayList<>();
-        søknadsperioder.forEach(op -> søknadOgVedtaksperioder.add(OppgittPeriodeBuilder.fraEksisterende(op).build()));
-        søknadOgVedtaksperioder.addAll(vedtaksperioder);
-        return OppgittPeriodeUtil.sorterEtterFom(søknadOgVedtaksperioder);
+    public static List<OppgittPeriodeEntitet> opprettOppgittePerioderSøknadverdier(UttakResultatEntitet uttakResultatFraForrigeBehandling, LocalDate endringsdato) {
+        return lagVedtaksperioderSøknadverdier(uttakResultatFraForrigeBehandling, endringsdato, Optional.empty());
     }
 
     private static List<OppgittPeriodeEntitet> lagVedtaksperioder(UttakResultatEntitet uttakResultat,
-                                                           LocalDate endringsdato,
-                                                           Optional<LocalDate> førsteSøknadsdato) {
+                                                                  LocalDate endringsdato,
+                                                                  Optional<LocalDate> førsteSøknadsdato, Predicate<UttakResultatPeriodeEntitet> filter) {
         return uttakResultat.getGjeldendePerioder()
             .getPerioder()
             .stream()
+            .filter(filter)
             .filter(p -> filtrerUttaksperioder(p, endringsdato, førsteSøknadsdato))
             .filter(VedtaksperioderHelper::erPeriodeFraSøknad)
             .map(VedtaksperioderHelper::konverter)
             .flatMap(p -> klipp(p, endringsdato, førsteSøknadsdato))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static boolean filtrerUttaksperioder(UttakResultatPeriodeEntitet periode,
@@ -107,7 +104,7 @@ public class VedtaksperioderHelper {
             .filter(VedtaksperioderHelper::erPeriodeFraSøknad)
             .map(VedtaksperioderHelper::konverterSøknadverdier)
             .flatMap(p -> klipp(p, endringsdato, førsteSøknadsdato))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static boolean filtrerUttaksperioderSøknadverdier(UttakResultatPeriodeEntitet periode,
