@@ -158,7 +158,7 @@ public class OppgaveTjeneste {
         }
         restKlient.ferdigstillOppgave(aktivOppgave.getOppgaveId());
         var oppgv = restKlient.hentOppgave(aktivOppgave.getOppgaveId());
-        LOG.info("FPSAK GOSYS ferdigstilte oppgave {} svar {}", aktivOppgave.getOppgaveId(), oppgv);
+        LOG.info("FPSAK GOSYS ferdigstilte oppgave {} svar {}", aktivOppgave.getOppgaveId(), oppgv.id());
     }
 
     private void ferdigstillOppgaveBehandlingKobling(OppgaveBehandlingKobling aktivOppgave) {
