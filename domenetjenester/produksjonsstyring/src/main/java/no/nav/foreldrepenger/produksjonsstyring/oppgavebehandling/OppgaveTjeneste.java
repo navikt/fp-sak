@@ -121,7 +121,7 @@ public class OppgaveTjeneste {
             fristDager)
             .medBehandlingstema(BehandlingTema.fraFagsak(fagsak, null).getOffisiellKode());
         var oppgave = restKlient.opprettetOppgave(orequest.build());
-        LOG.info("FPSAK GOSYS opprettet LOS oppgave {}", oppgave);
+        LOG.info("FPSAK GOSYS opprettet LOS oppgave {}", oppgave.id());
         return behandleRespons(behandling.getId(), oppgaveÅrsak, oppgave.id().toString(), fagsak.getSaksnummer());
     }
 
@@ -258,7 +258,7 @@ public class OppgaveTjeneste {
             høyPrioritet ? Prioritet.HOY : Prioritet.NORM, DEFAULT_OPPGAVEFRIST_DAGER)
             .medBehandlingstema(BehandlingTema.fraFagsak(fagsak, null).getOffisiellKode());
         var oppgave = restKlient.opprettetOppgave(orequest.build());
-        LOG.info("FPSAK GOSYS opprettet VURDER VL oppgave {}", oppgave);
+        LOG.info("FPSAK GOSYS opprettet VURDER VL oppgave {}", oppgave.id());
         return oppgave.id().toString();
     }
 
@@ -273,7 +273,7 @@ public class OppgaveTjeneste {
             DEFAULT_OPPGAVEFRIST_DAGER)
             .medBehandlingstema(BehandlingTema.fraFagsak(fagsak, null).getOffisiellKode());
         var oppgave = restKlient.opprettetOppgave(orequest.build());
-        LOG.info("FPSAK GOSYS opprettet VURDER IT oppgave {}", oppgave);
+        LOG.info("FPSAK GOSYS opprettet VURDER IT oppgave {}", oppgave.id());
         return oppgave.id().toString();
     }
 
@@ -303,7 +303,7 @@ public class OppgaveTjeneste {
             .medTema(NØS_TEMA)
             .medBehandlingstema(NØS_BEH_TEMA);
         var oppgave = restKlient.opprettetOppgave(orequest.build());
-        LOG.info("FPSAK GOSYS opprettet NØS oppgave {}", oppgave);
+        LOG.info("FPSAK GOSYS opprettet NØS oppgave {}", oppgave.id());
         return oppgave.id().toString();
     }
 
