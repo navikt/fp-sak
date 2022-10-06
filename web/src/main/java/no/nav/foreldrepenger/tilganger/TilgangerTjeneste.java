@@ -18,6 +18,7 @@ public class TilgangerTjeneste {
     private String gruppenavnVeileder;
     private String gruppenavnBeslutter;
     private String gruppenavnOverstyrer;
+    private String gruppenavnOppgavestyrer;
     private String gruppenavnEgenAnsatt;
     private String gruppenavnKode6;
     private String gruppenavnKode7;
@@ -33,6 +34,7 @@ public class TilgangerTjeneste {
         @KonfigVerdi(value = "bruker.gruppenavn.veileder") String gruppenavnVeileder,
         @KonfigVerdi(value = "bruker.gruppenavn.beslutter") String gruppenavnBeslutter,
         @KonfigVerdi(value = "bruker.gruppenavn.overstyrer") String gruppenavnOverstyrer,
+        @KonfigVerdi(value = "bruker.gruppenavn.oppgavestyrer") String gruppenavnOppgavestyrer,
         @KonfigVerdi(value = "bruker.gruppenavn.egenansatt") String gruppenavnEgenAnsatt,
         @KonfigVerdi(value = "bruker.gruppenavn.kode6") String gruppenavnKode6,
         @KonfigVerdi(value = "bruker.gruppenavn.kode7") String gruppenavnKode7,
@@ -42,6 +44,7 @@ public class TilgangerTjeneste {
         this.gruppenavnVeileder = gruppenavnVeileder;
         this.gruppenavnBeslutter = gruppenavnBeslutter;
         this.gruppenavnOverstyrer = gruppenavnOverstyrer;
+        this.gruppenavnOppgavestyrer = gruppenavnOppgavestyrer;
         this.gruppenavnEgenAnsatt = gruppenavnEgenAnsatt;
         this.gruppenavnKode6 = gruppenavnKode6;
         this.gruppenavnKode7 = gruppenavnKode7;
@@ -57,18 +60,17 @@ public class TilgangerTjeneste {
     InnloggetNavAnsattDto getInnloggetBruker(String ident, LdapBruker ldapBruker) {
         var navn = ldapBruker.displayName();
         var grupper = LdapUtil.filtrerGrupper(ldapBruker.groups());
-        return InnloggetNavAnsattDto.builder()
-            .setBrukernavn(ident)
-            .setNavn(navn)
-            .setKanSaksbehandle(grupper.contains(gruppenavnSaksbehandler))
-            .setKanVeilede(grupper.contains(gruppenavnVeileder))
-            .setKanBeslutte(grupper.contains(gruppenavnBeslutter))
-            .setKanOverstyre(grupper.contains(gruppenavnOverstyrer))
-            .setKanBehandleKodeEgenAnsatt(grupper.contains(gruppenavnEgenAnsatt))
-            .setKanBehandleKode6(grupper.contains(gruppenavnKode6))
-            .setKanBehandleKode7(grupper.contains(gruppenavnKode7))
+        return new InnloggetNavAnsattDto.Builder(ident, navn)
+            .kanSaksbehandle(grupper.contains(gruppenavnSaksbehandler))
+            .kanVeilede(grupper.contains(gruppenavnVeileder))
+            .kanBeslutte(grupper.contains(gruppenavnBeslutter))
+            .kanOverstyre(grupper.contains(gruppenavnOverstyrer))
+            .kanOppgavestyre(grupper.contains(gruppenavnOppgavestyrer))
+            .kanBehandleKodeEgenAnsatt(grupper.contains(gruppenavnEgenAnsatt))
+            .kanBehandleKode6(grupper.contains(gruppenavnKode6))
+            .kanBehandleKode7(grupper.contains(gruppenavnKode7))
             .skalViseDetaljerteFeilmeldinger(this.skalViseDetaljerteFeilmeldinger)
-            .create();
+            .build();
     }
 
 }
