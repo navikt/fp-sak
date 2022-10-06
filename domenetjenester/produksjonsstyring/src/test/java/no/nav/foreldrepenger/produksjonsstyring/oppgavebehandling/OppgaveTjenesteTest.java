@@ -31,13 +31,13 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.historikk.Oppgavetyper;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTask;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveGodkjennVedtakTask;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -93,7 +93,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
         var oppgaveBehandlingKobling = OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(OppgaveÅrsak.BEHANDLE_SAK, oppgaveBehandlingKoblinger)
                 .orElseThrow(() -> new IllegalStateException("Mangler AktivOppgaveMedÅrsak"));
         assertThat(oppgaveBehandlingKobling.getOppgaveÅrsak()).isEqualTo(OppgaveÅrsak.BEHANDLE_SAK);
-        assertThat(oppgaveBehandlingKobling.getOppgaveId()).isEqualTo(OPPGAVE.getId().toString());
+        assertThat(oppgaveBehandlingKobling.getOppgaveId()).isEqualTo(OPPGAVE.id().toString());
 
     }
 
@@ -171,9 +171,9 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
                 "bla bla", false);
 
         var request = captor.getValue();
-        assertThat(request.getSaksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
-        assertThat(request.getOppgavetype()).isEqualTo(Oppgavetyper.VURDER_DOKUMENT_VL.getKode());
-        assertThat(oppgaveId).isEqualTo(OPPGAVE.getId().toString());
+        assertThat(request.saksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(request.oppgavetype()).isEqualTo(Oppgavetype.VURDER_DOKUMENT);
+        assertThat(oppgaveId).isEqualTo(OPPGAVE.id().toString());
     }
 
     @Test
@@ -203,13 +203,13 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     @Test
     public void skal_hente_oppgave_liste() throws Exception {
         var behandling = lagBehandling();
-        when(oppgaveRestKlient.finnÅpneOppgaver(any(), eq(Tema.FOR.getOffisiellKode()), eq(List.of(Oppgavetyper.VURDER_DOKUMENT_VL.getKode()))))
+        when(oppgaveRestKlient.finnÅpneOppgaver(any(), eq(Tema.FOR.getOffisiellKode()), eq(List.of(Oppgavetype.VURDER_DOKUMENT.getKode()))))
                 .thenReturn(List.of(OPPGAVE));
-        when(oppgaveRestKlient.finnÅpneOppgaver(any(), eq(Tema.FOR.getOffisiellKode()), eq(List.of(Oppgavetyper.VURDER_KONSEKVENS_YTELSE.getKode()))))
+        when(oppgaveRestKlient.finnÅpneOppgaver(any(), eq(Tema.FOR.getOffisiellKode()), eq(List.of(Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode()))))
                 .thenReturn(Collections.emptyList());
 
-        var harVurderDok = tjeneste.harÅpneOppgaverAvType(behandling.getAktørId(), Oppgavetyper.VURDER_DOKUMENT_VL);
-        var harVurderKY = tjeneste.harÅpneOppgaverAvType(behandling.getAktørId(), Oppgavetyper.VURDER_KONSEKVENS_YTELSE);
+        var harVurderDok = tjeneste.harÅpneOppgaverAvType(behandling.getAktørId(), Oppgavetype.VURDER_DOKUMENT);
+        var harVurderKY = tjeneste.harÅpneOppgaverAvType(behandling.getAktørId(), Oppgavetype.VURDER_KONSEKVENS_YTELSE);
 
         assertThat(harVurderDok).isTrue();
         assertThat(harVurderKY).isFalse();
@@ -225,9 +225,9 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
                 "2010", "bla bla", false);
 
         var request = captor.getValue();
-        assertThat(request.getSaksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
-        assertThat(request.getOppgavetype()).isEqualTo(Oppgavetyper.VURDER_KONSEKVENS_YTELSE.getKode());
-        assertThat(oppgaveId).isEqualTo(OPPGAVE.getId().toString());
+        assertThat(request.saksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(request.oppgavetype()).isEqualTo(Oppgavetype.VURDER_KONSEKVENS_YTELSE);
+        assertThat(oppgaveId).isEqualTo(OPPGAVE.id().toString());
     }
 
     @Test
@@ -241,12 +241,12 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
                 "4321", "noe tekst", true);
 
         var request = captor.getValue();
-        assertThat(request.getSaksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
-        assertThat(request.getOppgavetype()).isEqualTo(Oppgavetyper.GODKJENN_VEDTAK_VL.getKode());
-        assertThat(request.getFristFerdigstillelse()).isEqualTo(forventetFrist);
+        assertThat(request.saksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(request.oppgavetype()).isEqualTo(Oppgavetype.GODKJENNE_VEDTAK);
+        assertThat(request.fristFerdigstillelse()).isEqualTo(forventetFrist);
 
-        assertThat(request.getPrioritet()).isEqualTo(Prioritet.HOY);
-        assertThat(oppgaveId).isEqualTo(OPPGAVE.getId().toString());
+        assertThat(request.prioritet()).isEqualTo(Prioritet.HOY);
+        assertThat(oppgaveId).isEqualTo(OPPGAVE.id().toString());
     }
 
     @Test
@@ -261,14 +261,14 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
         var oppgaveId = tjeneste.opprettOppgaveStopUtbetalingAvARENAYtelse(behandling.getId(), førsteAugust);
 
         var request = captor.getValue();
-        assertThat(request.getSaksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
-        assertThat(request.getOppgavetype()).isEqualTo(Oppgavetyper.SETTVENT.getKode());
+        assertThat(request.saksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(request.oppgavetype()).isEqualTo(Oppgavetype.SETT_UTBETALING_VENT);
 
-        assertThat(request.getTema()).isEqualTo("STO");
-        assertThat(request.getFristFerdigstillelse()).isEqualTo(forventetFrist);
-        assertThat(request.getBeskrivelse())
+        assertThat(request.tema()).isEqualTo("STO");
+        assertThat(request.fristFerdigstillelse()).isEqualTo(forventetFrist);
+        assertThat(request.beskrivelse())
                 .isEqualTo("Samordning arenaytelse. Vedtak foreldrepenger fra " + førsteAugust);
-        assertThat(oppgaveId).isEqualTo(OPPGAVE.getId().toString());
+        assertThat(oppgaveId).isEqualTo(OPPGAVE.id().toString());
     }
 
     @Test
@@ -293,12 +293,12 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
                 førsteUttaksdato, vedtaksdato, behandling.getAktørId());
 
         var request = captor.getValue();
-        assertThat(request.getSaksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
-        assertThat(request.getOppgavetype()).isEqualTo(Oppgavetyper.SETTVENT.getKode());
-        assertThat(request.getTema()).isEqualTo("STO");
-        assertThat(request.getFristFerdigstillelse()).isEqualTo(forventetFrist);
-        assertThat(request.getBeskrivelse()).isEqualTo(beskrivelse);
-        assertThat(request.getPrioritet()).isEqualTo(Prioritet.HOY);
-        assertThat(oppgaveId).isEqualTo(OPPGAVE.getId().toString());
+        assertThat(request.saksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(request.oppgavetype().getKode()).isEqualTo(Oppgavetype.SETT_UTBETALING_VENT.getKode());
+        assertThat(request.tema()).isEqualTo("STO");
+        assertThat(request.fristFerdigstillelse()).isEqualTo(forventetFrist);
+        assertThat(request.beskrivelse()).isEqualTo(beskrivelse);
+        assertThat(request.prioritet()).isEqualTo(Prioritet.HOY);
+        assertThat(oppgaveId).isEqualTo(OPPGAVE.id().toString());
     }
 }

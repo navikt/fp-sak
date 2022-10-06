@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.poststed;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -9,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
@@ -27,32 +25,27 @@ public class KodeverkTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(KodeverkTjeneste.class);
 
-    private RestClient restClient;
-    private URI kodeverkBaseEndpoint;
+    private final RestClient restClient;
+    private final RestConfig restConfig;
 
     private static final String SERVICE_PATH = "/api/v1/kodeverk";
     private static final String CONTENT_PATH = "/koder/betydninger";
     private static final String LANG_PARAM = "spraak";
     private static final String NORSK_BOKMÅL = "nb";
 
-    KodeverkTjeneste() {
-        // for CDI proxy
-    }
-
-    @Inject
-    public KodeverkTjeneste(RestClient restClient) {
-        this.restClient = restClient;
-        this.kodeverkBaseEndpoint = RestConfig.endpointFromAnnotation(KodeverkTjeneste.class);
+    public KodeverkTjeneste() {
+        this.restClient = RestClient.client();
+        this.restConfig = RestConfig.forClient(KodeverkTjeneste.class);
     }
 
     public Map<String, KodeverkBetydning> hentKodeverkBetydninger(String kodeverk) {
         Map<String, KodeverkBetydning> resultatMap = new LinkedHashMap<>();
-        var uri = UriBuilder.fromUri(kodeverkBaseEndpoint)
+        var uri = UriBuilder.fromUri(restConfig.endpoint())
             .path(SERVICE_PATH).path(kodeverk).path(CONTENT_PATH)
             .queryParam(LANG_PARAM, NORSK_BOKMÅL)
             .build();
         try {
-            var request = RestRequest.newGET(uri, KodeverkTjeneste.class);
+            var request = RestRequest.newGET(uri, restConfig);
             var response = restClient.sendReturnOptional(request, KodeverkBetydninger.class);
 
             response.map(KodeverkBetydninger::betydninger).orElse(Map.of())
@@ -69,9 +62,9 @@ public class KodeverkTjeneste {
         return resultatMap;
     }
 
-    private static record TermTekst(String term) {}
-    private static record KodeInnslag(LocalDate gyldigFra, LocalDate gyldigTil, Map<String, TermTekst> beskrivelser) {}
-    private static record KodeverkBetydninger(Map<String, List<KodeInnslag>> betydninger) {}
+    private record TermTekst(String term) {}
+    private record KodeInnslag(LocalDate gyldigFra, LocalDate gyldigTil, Map<String, TermTekst> beskrivelser) {}
+    private record KodeverkBetydninger(Map<String, List<KodeInnslag>> betydninger) {}
 
-    public static record KodeverkBetydning(LocalDate gyldigFra, LocalDate gyldigTil, String term) {}
+    public record KodeverkBetydning(LocalDate gyldigFra, LocalDate gyldigTil, String term) {}
 }

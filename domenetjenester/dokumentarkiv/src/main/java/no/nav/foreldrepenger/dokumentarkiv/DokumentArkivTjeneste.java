@@ -39,7 +39,6 @@ import no.nav.saf.Journalstatus;
 import no.nav.saf.LogiskVedleggResponseProjection;
 import no.nav.saf.TilleggsopplysningResponseProjection;
 import no.nav.saf.Variantformat;
-import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.integrasjon.saf.HentDokumentQuery;
 import no.nav.vedtak.felles.integrasjon.saf.Saf;
 import no.nav.vedtak.util.LRUCache;
@@ -63,7 +62,7 @@ public class DokumentArkivTjeneste {
     }
 
     @Inject
-    public DokumentArkivTjeneste(@NativeClient Saf safTjeneste) {
+    public DokumentArkivTjeneste(Saf safTjeneste) {
         this.safKlient = safTjeneste;
     }
 

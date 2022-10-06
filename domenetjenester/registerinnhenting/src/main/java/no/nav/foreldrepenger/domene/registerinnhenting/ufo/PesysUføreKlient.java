@@ -1,11 +1,9 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.ufo;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
@@ -30,26 +28,22 @@ public class PesysUføreKlient {
 
     private static final String HEADER_FNR = "fnr";
 
-    private RestClient restClient;
-    private URI endpoint;
+    private final RestClient restClient;
+    private final RestConfig restConfig;
 
     public PesysUføreKlient() {
-    }
-
-    @Inject
-    public PesysUføreKlient(RestClient restClient) {
-        this.restClient = restClient;
-        this.endpoint = RestConfig.endpointFromAnnotation(PesysUføreKlient.class);
+        this.restClient = RestClient.client();
+        this.restConfig = RestConfig.forClient(PesysUføreKlient.class);
     }
 
     public Optional<Uføreperiode> hentUføreHistorikk(String fnr, LocalDate startDato) {
         var uføretyperParam = UforeTypeCode.UFORE.name() + "," + UforeTypeCode.UF_M_YRKE.name();
-        var request = UriBuilder.fromUri(endpoint)
+        var request = UriBuilder.fromUri(restConfig.endpoint())
             .queryParam("fom", startDato)
             .queryParam("tom", startDato.plusYears(3))
             .queryParam("uforeTyper", uføretyperParam)
             .build();
-        var rrequest = RestRequest.newGET(request, PesysUføreKlient.class)
+        var rrequest = RestRequest.newGET(request, restConfig)
             .header(HEADER_FNR, fnr);
         var response = restClient.sendReturnOptional(rrequest, HarUføreGrad.class);
         return response

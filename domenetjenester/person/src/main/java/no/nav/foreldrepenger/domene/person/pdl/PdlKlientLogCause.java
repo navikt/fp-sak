@@ -19,9 +19,8 @@ import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.exception.IntegrasjonException;
-import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
-import no.nav.vedtak.felles.integrasjon.pdl.PdlException;
-import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
+import no.nav.vedtak.felles.integrasjon.person.PdlException;
+import no.nav.vedtak.felles.integrasjon.person.Persondata;
 
 @ApplicationScoped
 public class PdlKlientLogCause {
@@ -30,14 +29,14 @@ public class PdlKlientLogCause {
     private static final String PDL_TIMEOUT_MSG = "PDL timeout";
     private static final Logger LOG = LoggerFactory.getLogger(PdlKlientLogCause.class);
 
-    private Pdl pdlKlient;
+    private Persondata pdlKlient;
 
     PdlKlientLogCause() {
         // CDI
     }
 
     @Inject
-    public PdlKlientLogCause(@NativeClient Pdl pdlKlient) {
+    public PdlKlientLogCause(Persondata pdlKlient) {
         this.pdlKlient = pdlKlient;
     }
 

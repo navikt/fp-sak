@@ -52,7 +52,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPABAKUS, endpointProperty = "FPABAKUS_OVERRIDE_URL")
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPABAKUS)
 public class AbakusTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbakusTjeneste.class);
@@ -65,7 +65,7 @@ public class AbakusTjeneste {
     private final ObjectReader inntektsmeldingerReader = iayMapper.readerFor(InntektsmeldingerDto.class);
     private URI innhentRegisterdata;
     private RestClient restClient;
-    private URI abakusEndpoint;
+    private RestConfig restConfig;
     private URI callbackUrl;
     private URI endpointArbeidsforholdIPeriode;
     private URI endpointGrunnlag;
@@ -83,10 +83,9 @@ public class AbakusTjeneste {
     }
 
     @Inject
-    public AbakusTjeneste(RestClient restClient,
-                          @KonfigVerdi(value = "abakus.callback.url") URI callbackUrl) {
-        this.restClient = restClient;
-        this.abakusEndpoint = RestConfig.contextPathFromAnnotation(AbakusTjeneste.class);
+    public AbakusTjeneste(@KonfigVerdi(value = "abakus.callback.url") URI callbackUrl) {
+        this.restClient = RestClient.client();
+        this.restConfig = RestConfig.forClient(AbakusTjeneste.class);
         this.callbackUrl = callbackUrl;
         this.endpointArbeidsforholdIPeriode = toUri("/api/arbeidsforhold/v1/arbeidstaker");
         this.endpointGrunnlag = toUri("/api/iay/grunnlag/v1/");
@@ -102,7 +101,7 @@ public class AbakusTjeneste {
     }
 
     private URI toUri(String relativeUri) {
-        var uri = abakusEndpoint.toString() + relativeUri;
+        var uri = restConfig.fpContextPath().toString() + relativeUri;
         try {
             return new URI(uri);
         } catch (URISyntaxException e) {
@@ -195,7 +194,7 @@ public class AbakusTjeneste {
 
     private <T> T hentFraAbakus(URI endpoint, AbakusResponseHandler<T> responseHandler, String json) throws IOException {
         var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
-        var request = RestRequest.newRequest(method, endpoint, AbakusTjeneste.class);
+        var request = RestRequest.newRequest(method, endpoint, restConfig);
 
         try {
             var rawResponse = restClient.sendReturnUnhandled(request);
@@ -239,7 +238,7 @@ public class AbakusTjeneste {
         var json = iayJsonWriter.writeValueAsString(dto);
 
         var method = new RestRequest.Method(RestRequest.WebMethod.PUT, HttpRequest.BodyPublishers.ofString(json));
-        var request = RestRequest.newRequest(method, endpointGrunnlag, AbakusTjeneste.class);
+        var request = RestRequest.newRequest(method, endpointGrunnlag, restConfig);
 
         LOG.info("Lagre IAY grunnlag (behandlingUUID={}) i Abakus", dto.getKoblingReferanse());
 
@@ -261,7 +260,7 @@ public class AbakusTjeneste {
         var json = iayJsonWriter.writeValueAsString(overstyrtDto);
 
         var method = new RestRequest.Method(RestRequest.WebMethod.PUT, HttpRequest.BodyPublishers.ofString(json));
-        var request = RestRequest.newRequest(method, endpointOverstyring, AbakusTjeneste.class);
+        var request = RestRequest.newRequest(method, endpointOverstyring, restConfig);
 
         LOG.info("Lagre IAY grunnlag (behandlingUUID={}) i Abakus", overstyrtDto.getKoblingReferanse());
         var rawResponse = restClient.sendReturnUnhandled(request);
@@ -284,7 +283,7 @@ public class AbakusTjeneste {
         var json = iayJsonWriter.writeValueAsString(dto);
 
         var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
-        var request = RestRequest.newRequest(method, endpointMottaInntektsmeldinger, AbakusTjeneste.class).timeout(Duration.ofSeconds(30));
+        var request = RestRequest.newRequest(method, endpointMottaInntektsmeldinger, restConfig).timeout(Duration.ofSeconds(30));
 
         LOG.info("Lagre mottatte inntektsmeldinger (behandlingUUID={}) i Abakus", dto.getKoblingReferanse());
         var rawResponse = restClient.sendReturnUnhandled(request);
@@ -305,7 +304,7 @@ public class AbakusTjeneste {
         var json = iayJsonWriter.writeValueAsString(dto);
 
         var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
-        var request = RestRequest.newRequest(method, endpointMottaOppgittOpptjening, AbakusTjeneste.class).timeout(Duration.ofSeconds(30));
+        var request = RestRequest.newRequest(method, endpointMottaOppgittOpptjening, restConfig).timeout(Duration.ofSeconds(30));
 
         LOG.info("Lagre oppgitt opptjening (behandlingUUID={}) i Abakus", dto.getKoblingReferanse());
         var rawResponse = restClient.sendReturnUnhandled(request);
@@ -325,7 +324,7 @@ public class AbakusTjeneste {
         var json = iayJsonWriter.writeValueAsString(dto);
 
         var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
-        var request = RestRequest.newRequest(method, endpointKopierGrunnlag, AbakusTjeneste.class);
+        var request = RestRequest.newRequest(method, endpointKopierGrunnlag, restConfig);
 
         LOG.info("Kopierer grunnlag fra (behandlingUUID={}) til (behandlingUUID={}) i Abakus", dto.getGammelReferanse(), dto.getNyReferanse());
         var rawResponse = restClient.sendReturnUnhandled(request);
@@ -346,7 +345,7 @@ public class AbakusTjeneste {
         var json = iayJsonWriter.writeValueAsString(dto);
 
         var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
-        var request = RestRequest.newRequest(method, endpointLagreYtelse, AbakusTjeneste.class);
+        var request = RestRequest.newRequest(method, endpointLagreYtelse, restConfig);
 
         var rawResponse = restClient.sendReturnUnhandled(request);
         var responseCode = rawResponse.statusCode();

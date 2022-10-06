@@ -19,9 +19,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.Oppgavetyper;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 
 @ApplicationScoped
 public class SjekkMotEksisterendeOppgaverTjeneste {
@@ -50,7 +50,7 @@ public class SjekkMotEksisterendeOppgaverTjeneste {
         var historikkInnslagFraRepo = historikkRepository.hentHistorikk(behandling.getId());
         List<AksjonspunktDefinisjon> aksjonspunktliste = new ArrayList<>();
 
-        if (oppgaveTjeneste.harÅpneOppgaverAvType(aktørid, Oppgavetyper.VURDER_KONSEKVENS_YTELSE)) {
+        if (oppgaveTjeneste.harÅpneOppgaverAvType(aktørid, Oppgavetype.VURDER_KONSEKVENS_YTELSE)) {
             if (!SpesialBehandling.skalUttakVurderes(behandling)) {
                 LOG.info("REBEREGN OPPGAVE fant Vurder Konsekvens for sak {}", behandling.getFagsak().getSaksnummer());
             } else {
@@ -58,7 +58,7 @@ public class SjekkMotEksisterendeOppgaverTjeneste {
                 opprettHistorikkinnslagOmVurderingFørVedtak(behandling, OppgaveÅrsak.VURDER_KONS_FOR_YTELSE, historikkInnslagFraRepo);
             }
         }
-        if (oppgaveTjeneste.harÅpneOppgaverAvType(aktørid, Oppgavetyper.VURDER_DOKUMENT_VL)) {
+        if (oppgaveTjeneste.harÅpneOppgaverAvType(aktørid, Oppgavetype.VURDER_DOKUMENT)) {
             if (!SpesialBehandling.skalUttakVurderes(behandling)) {
                 LOG.info("REBEREGN OPPGAVE fant Vurder Dokument for sak {}", behandling.getFagsak().getSaksnummer());
             } else {

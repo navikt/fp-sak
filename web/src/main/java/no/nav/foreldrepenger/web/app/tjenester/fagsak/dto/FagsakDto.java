@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 
-public class FagsakDto {
+public class FagsakDto {  // SøkDto saksnummer + fagsakYtelseType + status + NavRestTjeneste
     private String saksnummer;
     private String saksnummerString;
     private FagsakYtelseType sakstype;

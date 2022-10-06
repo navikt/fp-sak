@@ -15,13 +15,13 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.pdl.IdentGruppe;
 import no.nav.pdl.IdentInformasjon;
 import no.nav.pdl.Identliste;
-import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
+import no.nav.vedtak.felles.integrasjon.person.Persondata;
 
 public class AktørTjenesteTest {
 
     private AktørTjeneste aktørTjeneste;
 
-    private Pdl pdlMock = Mockito.mock(Pdl.class);
+    private Persondata pdlMock = Mockito.mock(Persondata.class);
 
     private final AktørId aktørId = AktørId.dummy();
     private final PersonIdent fnr = new PersonIdent(new FiktiveFnr().nesteKvinneFnr());

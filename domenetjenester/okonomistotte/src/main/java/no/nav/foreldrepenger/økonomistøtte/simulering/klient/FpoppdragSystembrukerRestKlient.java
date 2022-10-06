@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.økonomistøtte.simulering.klient;
 import java.net.URI;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.ws.rs.core.UriBuilder;
 
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
@@ -14,23 +13,19 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.STS_CC, application = FpApplication.FPOPPDRAG, endpointProperty = "FPOPPDRAG_OVERRIDE_URL") // Testformål
+@RestClientConfig(tokenConfig = TokenFlow.STS_CC, application = FpApplication.FPOPPDRAG)
 public class FpoppdragSystembrukerRestKlient {
 
     private static final String FPOPPDRAG_KANSELLER_SIMULERING = "/api/simulering/kanseller";
 
-    private RestClient restClient;
-    private URI uriKansellerSimulering;
+    private final RestClient restClient;
+    private final RestConfig restConfig;
+    private final URI uriKansellerSimulering;
 
     public FpoppdragSystembrukerRestKlient() {
-        //for cdi proxy
-    }
-
-    @Inject
-    public FpoppdragSystembrukerRestKlient(RestClient restClient) {
-        this.restClient = restClient;
-        var fpoppdragBaseUrl = RestConfig.endpointFromAnnotation(FpoppdragSystembrukerRestKlient.class);
-        uriKansellerSimulering = UriBuilder.fromUri(fpoppdragBaseUrl).path(FPOPPDRAG_KANSELLER_SIMULERING).build();
+        this.restClient = RestClient.client();
+        this.restConfig = RestConfig.forClient(this.getClass());
+        uriKansellerSimulering = UriBuilder.fromUri(restConfig.fpContextPath()).path(FPOPPDRAG_KANSELLER_SIMULERING).build();
     }
 
     /**
@@ -39,7 +34,7 @@ public class FpoppdragSystembrukerRestKlient {
      * @param behandlingId
      */
     public void kansellerSimulering(Long behandlingId) {
-        var request = RestRequest.newPOSTJson(new BehandlingIdDto(behandlingId), uriKansellerSimulering, FpoppdragSystembrukerRestKlient.class);
+        var request = RestRequest.newPOSTJson(new BehandlingIdDto(behandlingId), uriKansellerSimulering, restConfig);
         restClient.sendReturnOptional(request, String.class);
     }
 
