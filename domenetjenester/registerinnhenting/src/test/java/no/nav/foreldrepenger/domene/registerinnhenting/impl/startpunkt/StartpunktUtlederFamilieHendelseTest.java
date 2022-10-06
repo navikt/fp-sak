@@ -19,7 +19,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -37,7 +39,10 @@ public class StartpunktUtlederFamilieHendelseTest {
         var originalBehandling = førstegangScenario.lagre(repositoryProvider);
 
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(origSkjæringsdato).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medBekreftetFamiliehendelsedato(nyBekreftetfødselsdato)
+            .medUtledetSkjæringstidspunkt(origSkjæringsdato)
+            .build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -67,7 +72,9 @@ public class StartpunktUtlederFamilieHendelseTest {
         var originalBehandling = førstegangScenario.lagre(repositoryProvider);
 
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(origSkjæringsdato).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medBekreftetFamiliehendelsedato(nyBekreftetfødselsdato)
+            .medUtledetSkjæringstidspunkt(origSkjæringsdato).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -96,7 +103,9 @@ public class StartpunktUtlederFamilieHendelseTest {
         var originalBehandling = førstegangScenario.lagre(repositoryProvider);
 
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringsdato).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medBekreftetFamiliehendelsedato(skjæringsdato)
+            .medUtledetSkjæringstidspunkt(skjæringsdato).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -132,7 +141,9 @@ public class StartpunktUtlederFamilieHendelseTest {
         var originalBehandling = førstegangScenario.lagre(repositoryProvider);
 
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringsdato).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medBekreftetFamiliehendelsedato(fødselsdato)
+            .medUtledetSkjæringstidspunkt(skjæringsdato).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -173,7 +184,7 @@ public class StartpunktUtlederFamilieHendelseTest {
         var originalBehandling = førstegangScenario.lagre(repositoryProvider);
 
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringsdato).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medBekreftetFamiliehendelsedato(fødselsdato).medUtledetSkjæringstidspunkt(skjæringsdato).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -221,7 +232,42 @@ public class StartpunktUtlederFamilieHendelseTest {
             .medBehandlingType(BehandlingType.REVURDERING);
         revurderingScenario.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
         var revurdering = revurderingScenario.lagre(repositoryProvider);
-        var nySkjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(nySkjæringsdato).build();
+        var nySkjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medBekreftetFamiliehendelsedato(nySkjæringsdato).medUtledetSkjæringstidspunkt(nySkjæringsdato).build();
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(revurdering.getId())).thenReturn(nySkjæringstidspunkt);
+
+        // Act/Assert
+        var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
+        var relasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null, null);
+
+        var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, relasjonTjeneste);
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, nySkjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
+    }
+
+    @Test
+    public void skal_returnere_startpunkt_opplysningsplikt_dersom_far_justeres_ved_fødsel() {
+        // Arrange
+        var origSkjæringsdato = VirkedagUtil.fomVirkedag(LocalDate.now()).plusDays(2);
+        var nySkjæringsdato = origSkjæringsdato.plusDays(1);
+
+        var førstegangScenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var repositoryProvider = førstegangScenario.mockBehandlingRepositoryProvider();
+        var originalBehandling = førstegangScenario.lagre(repositoryProvider);
+
+        var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(origSkjæringsdato).build();
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
+
+        var revurderingScenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.REVURDERING);
+        revurderingScenario.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
+        var revurdering = revurderingScenario.lagre(repositoryProvider);
+        var nySkjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(nySkjæringsdato)
+            .medUttakSkalJusteresTilFødselsdato(true)
+            .medBekreftetFamiliehendelsedato(nySkjæringsdato)
+            .build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(revurdering.getId())).thenReturn(nySkjæringstidspunkt);
 
         // Act/Assert

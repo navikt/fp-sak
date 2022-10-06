@@ -8,10 +8,12 @@ import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -40,8 +42,7 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
         var grunnlag1 = (long) id1;
         var grunnlag2 = (long) id2;
 
-        var grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
-        if (erSkjæringstidspunktEndret(ref, grunnlagForBehandling)) {
+        if (erSkjæringstidspunktEndret(ref)) {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT, "skjæringstidspunkt", grunnlag1, grunnlag2);
             return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
         }
@@ -57,21 +58,30 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
         return StartpunktType.UTTAKSVILKÅR;
     }
 
-    private boolean erSkjæringstidspunktEndret(BehandlingReferanse ref, FamilieHendelseGrunnlagEntitet grunnlagForBehandling) {
+    private boolean erSkjæringstidspunktEndret(BehandlingReferanse ref) {
         var nySkjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
         var origSkjæringstidspunkt = ref.getOriginalBehandlingId()
             .map(origId -> skjæringstidspunktTjeneste.getSkjæringstidspunkter(origId).getUtledetSkjæringstidspunkt());
 
-        var nyBekreftetFødselsdato = grunnlagForBehandling.getGjeldendeBekreftetVersjon()
-            .flatMap(FamilieHendelseEntitet::getFødselsdato).orElse(null);
+        var nyBekreftetFødselsdato = ref.getSkjæringstidspunkt().getBekreftetFamiliehendelsedato().orElse(null);
         var origBekreftetFødselsdato = ref.getOriginalBehandlingId()
             .flatMap(origId -> familieHendelseTjeneste.hentAggregat(origId).getGjeldendeBekreftetVersjon())
             .flatMap(FamilieHendelseEntitet::getFødselsdato).orElse(null);
 
+        /*
+         * Logikk hovedsaklig knyttet til mor som har STP 3 uker før termin og tilfelle av fødsel før STP.
+         * Deretter far/medmor som tar ut rundt fødsel (fom aug 2022) og har søkt om flyttbare perioder som skal justeres til fom fødsel
+         */
         if (nyBekreftetFødselsdato != null) {
             if (origBekreftetFødselsdato == null || nyBekreftetFødselsdato.isBefore(origBekreftetFødselsdato)) {
                 // Familiehendelse har blitt bekreftet etter original behandling, eller flyttet til tidligere dato
                 if (nyBekreftetFødselsdato.isBefore(nySkjæringstidspunkt)) {
+                    return true;
+                }
+            }
+            if (!RelasjonsRolleType.MORA.equals(ref.relasjonRolle()) && ref.getSkjæringstidspunkt().uttakSkalJusteresTilFødselsdato() && !nyBekreftetFødselsdato.equals(origBekreftetFødselsdato)) {
+                var nyFørsteUttaksdato = VirkedagUtil.fomVirkedag(nyBekreftetFødselsdato);
+                if (!nyFørsteUttaksdato.equals(nySkjæringstidspunkt) || origSkjæringstidspunkt.filter(nyFørsteUttaksdato::equals).isEmpty()) {
                     return true;
                 }
             }
