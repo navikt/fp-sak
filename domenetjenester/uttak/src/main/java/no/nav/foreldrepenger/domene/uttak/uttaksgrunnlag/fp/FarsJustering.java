@@ -62,8 +62,15 @@ class FarsJustering implements ForelderFødselJustering {
     }
 
     private boolean skalJustere(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        return ønskerJustertVedFødsel && !oppgittePerioder.isEmpty() && harBareEnPeriodeFedrekvoteRundtFødselFraTermindato(
-            oppgittePerioder) && intervallRundt(termindato).isPresent();
+        if (ønskerJustertVedFødsel && !oppgittePerioder.isEmpty()) {
+            var bareEnPeriodeFraTermin = harBareEnPeriodeFedrekvoteRundtFødselFraTermindato(
+                oppgittePerioder) && intervallRundt(termindato).isPresent();
+            if (bareEnPeriodeFraTermin) {
+                return true;
+            }
+            throw new IllegalStateException("Bruker ønsker justert uttak ved fødsel, men det finnes mer enn bare en periode fedrekvote fra termin");
+        }
+        return false;
     }
 
     private OppgittPeriodeEntitet justerFødselFørTermin(OppgittPeriodeEntitet periode) {

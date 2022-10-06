@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -50,11 +51,7 @@ class FarsJusteringTest {
         var farsJustering = new FarsJustering(termindato, fødselsdato, true);
 
         var søktPeriode = periodeForFarRundtFødsel(termindato.minusDays(2), termindato.plusWeeks(2).minusDays(3));
-        var justert = farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode));
-
-        assertThat(justert).hasSize(1);
-        assertThat(justert.get(0).getFom()).isEqualTo(søktPeriode.getFom());
-        assertThat(justert.get(0).getTom()).isEqualTo(søktPeriode.getTom());
+        assertThatThrownBy(() -> farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode))).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
@@ -69,11 +66,10 @@ class FarsJusteringTest {
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .build();
-        var justert = farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode1, søktPeriode2, fedrekvoteEtterUke6));
 
-        assertThat(justert).hasSize(3);
-        assertThat(justert.get(0).getFom()).isEqualTo(søktPeriode1.getFom());
-        assertThat(justert.get(0).getTom()).isEqualTo(søktPeriode1.getTom());
+        assertThatThrownBy(() -> farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode1, søktPeriode2, fedrekvoteEtterUke6)))
+            .isInstanceOf(IllegalStateException.class);
+
     }
 
     @Test
@@ -84,11 +80,8 @@ class FarsJusteringTest {
 
         var søktPeriode1 = periodeForFarRundtFødsel(termindato, termindato.plusWeeks(2).minusDays(1));
         var søktPeriode2 = periodeForFarRundtFødsel(termindato.plusWeeks(4), termindato.plusWeeks(6).minusDays(1));
-        var justert = farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode1, søktPeriode2));
 
-        assertThat(justert).hasSize(2);
-        assertThat(justert.get(0).getFom()).isEqualTo(søktPeriode1.getFom());
-        assertThat(justert.get(0).getTom()).isEqualTo(søktPeriode1.getTom());
+        assertThatThrownBy(() -> farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode1, søktPeriode2))).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
@@ -100,11 +93,8 @@ class FarsJusteringTest {
         var søktPeriode = periodeForFarRundtFødselBuilder(termindato, termindato.plusWeeks(2).minusDays(1))
             .medFlerbarnsdager(true)
             .build();
-        var justert = farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode));
 
-        assertThat(justert).hasSize(1);
-        assertThat(justert.get(0).getFom()).isEqualTo(søktPeriode.getFom());
-        assertThat(justert.get(0).getTom()).isEqualTo(søktPeriode.getTom());
+        assertThatThrownBy(() -> farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode))).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
@@ -237,12 +227,8 @@ class FarsJusteringTest {
 
         var søktPeriode1 = periodeForFarRundtFødsel(termindato, termindato.plusWeeks(1).minusDays(1));
         var søktPeriode2 = periodeForFarRundtFødsel(termindato.plusWeeks(4), termindato.plusWeeks(5).minusDays(1));
-        var justert = farsJustering.justerVedFødselFørTermin(List.of(søktPeriode1, søktPeriode2));
 
-        assertThat(justert).hasSize(2);
-        assertThat(justert.get(0).getFom()).isEqualTo(søktPeriode1.getFom());
-        assertThat(justert.get(0).getTom()).isEqualTo(søktPeriode1.getTom());
-        assertThat(justert.get(0).getPeriodeType()).isEqualTo(UttakPeriodeType.FEDREKVOTE);
+        assertThatThrownBy(() -> farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode1, søktPeriode2))).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
