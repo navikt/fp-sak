@@ -33,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
@@ -111,6 +112,16 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .medFørsteUttaksdatoGrunnbeløp(førsteUttaksdatoFødselsjustert)
             .medFørsteUttaksdatoSøknad(førsteUttaksdatoOpt.orElse(null))
             .medGjelderFødsel(gjelderFødsel);
+        familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+            .ifPresent(builder::medFamiliehendelsedato);
+        familieHendelseGrunnlag.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+            .ifPresent(builder::medBekreftetFamiliehendelsedato);
+        hentYtelseFordelingAggregatFor(behandling.getId()).map(YtelseFordelingAggregat::getGjeldendeSøknadsperioder)
+            .map(OppgittFordelingEntitet::ønskerJustertVedFødsel)
+            .map(valg -> valg && !utenMinsterett)
+            .ifPresent(builder::medUttakSkalJusteresTilFødselsdato);
 
         var opptjening = opptjeningRepository.finnOpptjening(behandlingId);
         if (opptjening.filter(Opptjening::erOpptjeningPeriodeVilkårOppfylt).isPresent()) {
@@ -151,6 +162,16 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .medFørsteUttaksdatoGrunnbeløp(førsteUttaksdatoFødselsjustert)
             .medFørsteUttaksdatoSøknad(førsteUttaksdato)
             .medGjelderFødsel(gjelderFødsel);
+        familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+            .ifPresent(builder::medFamiliehendelsedato);
+        familieHendelseGrunnlag.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+            .ifPresent(builder::medBekreftetFamiliehendelsedato);
+        hentYtelseFordelingAggregatFor(behandling.getId()).map(YtelseFordelingAggregat::getGjeldendeSøknadsperioder)
+            .map(OppgittFordelingEntitet::ønskerJustertVedFødsel)
+            .map(valg -> valg && !utenMinsterett)
+            .ifPresent(builder::medUttakSkalJusteresTilFødselsdato);
 
         opptjeningRepository.finnOpptjening(behandlingId).filter(Opptjening::erOpptjeningPeriodeVilkårOppfylt)
             .ifPresent(o -> builder.medSkjæringstidspunktOpptjening(o.getTom().plusDays(1)));
@@ -181,7 +202,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             !aggregat.get().getGjeldendeSøknadsperioder().ønskerJustertVedFødsel() || fhGrunnlag.isEmpty()) {
             return Optional.empty();
         }
-        return fhGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).flatMap(FamilieHendelseEntitet::getFødselsdato);
+        return fhGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).flatMap(FamilieHendelseEntitet::getFødselsdato).map(VirkedagUtil::fomVirkedag);
     }
 
     private Optional<YtelseFordelingAggregat> hentYtelseFordelingAggregatFor(Long behandlingId) {

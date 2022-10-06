@@ -84,6 +84,8 @@ public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest 
         assertThat(stp.getFørsteUttaksdato()).isEqualTo(skjæringstidspunkt);
         assertThat(stp.getFørsteUttaksdatoGrunnbeløp()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunkt));
         assertThat(stp.getUtledetSkjæringstidspunkt()).isEqualTo(skjæringstidspunkt);
+        assertThat(stp.getFamiliehendelsedato()).isEqualTo(skjæringstidspunkt.plusWeeks(3));
+        assertThat(stp.getBekreftetFamiliehendelsedato()).hasValueSatisfying(d -> assertThat(d).isEqualTo(skjæringstidspunkt.plusWeeks(3)));
     }
 
     @Test
@@ -220,6 +222,31 @@ public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest 
         assertThat(stp.getFørsteUttaksdato()).isEqualTo(skjæringstidspunkt.minusWeeks(1));
         assertThat(stp.getFørsteUttaksdatoGrunnbeløp()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusWeeks(1)));
         assertThat(stp.getUtledetSkjæringstidspunkt()).isEqualTo(skjæringstidspunkt.minusWeeks(1));
+        assertThat(stp.getFamiliehendelsedato()).isEqualTo(skjæringstidspunkt);
+        assertThat(stp.uttakSkalJusteresTilFødselsdato()).isFalse();
+    }
+
+    @Test
+    public void skal_finne_fud_søkt_uttak_periode_far_før_termin_juster_fødsel() {
+        var termindato = LocalDate.now().plusWeeks(1L).minusDays(1L);
+        var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
+            .medPeriode(termindato, termindato.plusWeeks(2).minusDays(1))
+            .medPeriodeType(UttakPeriodeType.FEDREKVOTE);
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder.build()), true, true));
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(termindato));
+        scenario.medBekreftetHendelse().medFødselsDato(termindato.plusDays(1), 1)
+            .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder().medTermindato(termindato));
+        var behandling = scenario.lagre(repositoryProvider);
+
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        var forventetStp = VirkedagUtil.fomVirkedag(termindato.plusDays(1));
+        assertThat(stp.getFørsteUttaksdato()).isEqualTo(forventetStp);
+        assertThat(stp.getFørsteUttaksdatoGrunnbeløp()).isEqualTo(forventetStp);
+        assertThat(stp.getUtledetSkjæringstidspunkt()).isEqualTo(forventetStp);
+        assertThat(stp.getFamiliehendelsedato()).isEqualTo(termindato.plusDays(1));
+        assertThat(stp.uttakSkalJusteresTilFødselsdato()).isTrue();
     }
 
     @Test

@@ -67,15 +67,22 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var førsteUttakSøknad = førsteUttakSøknadOpt.orElseGet(LocalDate::now); // Mangler grunnlag for å angi dato, bruker midlertidig dagens dato pga Dtos etc.
         var skjæringstidspunkt = opptjeningRepository.finnOpptjening(behandlingId).map(o -> o.getTom().plusDays(1)).orElse(førsteUttakSøknad);
 
-        return Skjæringstidspunkt.builder()
+        var builder = Skjæringstidspunkt.builder()
             .medFørsteUttaksdato(førsteUttakSøknad)
             .medFørsteUttaksdatoGrunnbeløp(førsteUttakSøknad)
             .medFørsteUttaksdatoSøknad(førsteUttakSøknadOpt.orElse(null))
             .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
             .medSkjæringstidspunktOpptjening(skjæringstidspunkt)
             .medUtledetMedlemsintervall(utledYtelseintervall(behandlingId, førsteUttakSøknad))
-            .medGjelderFødsel(true)
-            .build();
+            .medGjelderFødsel(true);
+        var familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
+        familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+            .ifPresent(builder::medFamiliehendelsedato);
+        familieHendelseGrunnlag.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+            .ifPresent(builder::medBekreftetFamiliehendelsedato);
+        return builder.build();
     }
 
     @Override
@@ -84,15 +91,22 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var førsteUttak = finnFørsteDatoMedUttak(behandling).orElseThrow();
         var skjæringstidspunkt = opptjeningRepository.finnOpptjening(behandlingId).map(o -> o.getTom().plusDays(1)).orElse(førsteUttak);
 
-        return Skjæringstidspunkt.builder()
+        var builder = Skjæringstidspunkt.builder()
             .medFørsteUttaksdato(førsteUttak)
             .medFørsteUttaksdatoGrunnbeløp(førsteUttak)
             .medFørsteUttaksdatoSøknad(førsteUttak)
             .medUtledetSkjæringstidspunkt(førsteUttak)
             .medSkjæringstidspunktOpptjening(skjæringstidspunkt)
             .medUtledetMedlemsintervall(utledYtelseintervall(behandlingId, førsteUttak))
-            .medGjelderFødsel(true)
-            .build();
+            .medGjelderFødsel(true);
+        var familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
+        familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+            .ifPresent(builder::medFamiliehendelsedato);
+        familieHendelseGrunnlag.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+            .ifPresent(builder::medBekreftetFamiliehendelsedato);
+        return builder.build();
     }
 
     @Override

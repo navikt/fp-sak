@@ -18,8 +18,11 @@ public class Skjæringstidspunkt {
     private LocalDate førsteUttaksdatoSøknad;
     private LocalDateInterval utledetMedlemsintervall;
     private boolean gjelderFødsel = true;
+    private LocalDate familiehendelsedato;
+    private LocalDate bekreftetFamiliehendelsedato;
     private boolean kreverSammenhengendeUttak;
     private boolean utenMinsterett;
+    private boolean uttakSkalJusteresTilFødselsdato;
 
     private Skjæringstidspunkt() {
         // hide constructor
@@ -32,8 +35,13 @@ public class Skjæringstidspunkt {
         this.førsteUttaksdato = other.førsteUttaksdato;
         this.førsteUttaksdatoGrunnbeløp = other.førsteUttaksdatoGrunnbeløp;
         this.førsteUttaksdatoSøknad = other.førsteUttaksdatoSøknad;
+        this.utledetMedlemsintervall = other.utledetMedlemsintervall;
         this.gjelderFødsel = other.gjelderFødsel;
+        this.familiehendelsedato = other.familiehendelsedato;
         this.kreverSammenhengendeUttak = other.kreverSammenhengendeUttak;
+        this.bekreftetFamiliehendelsedato = other.bekreftetFamiliehendelsedato;
+        this.utenMinsterett = other.utenMinsterett;
+        this.uttakSkalJusteresTilFødselsdato = other.uttakSkalJusteresTilFødselsdato;
     }
 
     public Optional<LocalDate> getSkjæringstidspunktHvisUtledet() {
@@ -90,6 +98,16 @@ public class Skjæringstidspunkt {
         return this.gjelderFødsel;
     }
 
+    /** Gjeldende dato for fødsel, termin, eller omsorgsovertagelse. Kan være null dersom behandling før søknad */
+    public LocalDate getFamiliehendelsedato() {
+        return familiehendelsedato;
+    }
+
+    /** Bekreftet dato for fødsel, termin, eller omsorgsovertagelse. */
+    public Optional<LocalDate> getBekreftetFamiliehendelsedato() {
+        return Optional.ofNullable(bekreftetFamiliehendelsedato);
+    }
+
     /** Skal behandles etter nytt regelverk for uttak anno 2021. True = gamle regler */
     public boolean kreverSammenhengendeUttak() {
         return this.kreverSammenhengendeUttak;
@@ -98,6 +116,11 @@ public class Skjæringstidspunkt {
     /** Skal behandles etter nytt regelverk for balansert arbeids/familieliv 2022. True = gamle regler */
     public boolean utenMinsterett() {
         return utenMinsterett;
+    }
+
+    /** Søkt om justering av første uttaksdato fra termin til fødsel når fødsel blir registrert. Kan påvirke STP */
+    public boolean uttakSkalJusteresTilFødselsdato() {
+        return uttakSkalJusteresTilFødselsdato;
     }
 
     @Override
@@ -184,6 +207,16 @@ public class Skjæringstidspunkt {
             return this;
         }
 
+        public Builder medFamiliehendelsedato(LocalDate dato) {
+            kladd.familiehendelsedato = dato;
+            return this;
+        }
+
+        public Builder medBekreftetFamiliehendelsedato(LocalDate dato) {
+            kladd.bekreftetFamiliehendelsedato = dato;
+            return this;
+        }
+
         public Builder medKreverSammenhengendeUttak(boolean sammenhengendeUttak) {
             kladd.kreverSammenhengendeUttak = sammenhengendeUttak;
             return this;
@@ -191,6 +224,11 @@ public class Skjæringstidspunkt {
 
         public Builder medUtenMinsterett(boolean utenMinsterett) {
             kladd.utenMinsterett = utenMinsterett;
+            return this;
+        }
+
+        public Builder medUttakSkalJusteresTilFødselsdato(boolean uttakSkalJusteresTilFødselsdato) {
+            kladd.uttakSkalJusteresTilFødselsdato = uttakSkalJusteresTilFødselsdato;
             return this;
         }
 
