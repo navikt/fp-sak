@@ -1,13 +1,11 @@
 package no.nav.foreldrepenger.domene.medlem.medl2;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.ws.rs.core.UriBuilder;
 
 import no.nav.vedtak.felles.integrasjon.rest.NavHeaders;
@@ -34,28 +32,23 @@ public class MedlemsunntakRestKlient implements Medlemskap {
     public static final String KODE_PERIODESTATUS_GYLD = "GYLD";
     public static final String KODE_PERIODESTATUS_UAVK = "UAVK";
 
-    private RestClient restKlient;
-    private URI endpoint;
+    private final RestClient restKlient;
+    private final RestConfig restConfig;
 
-    MedlemsunntakRestKlient() {
-        // CDI proxyable
-    }
-
-    @Inject
-    public MedlemsunntakRestKlient(RestClient restKlient) {
-        this.restKlient = restKlient;
-        this.endpoint = RestConfig.endpointFromAnnotation(MedlemsunntakRestKlient.class);
+    public MedlemsunntakRestKlient() {
+        this.restKlient = RestClient.client();
+        this.restConfig = RestConfig.forClient(MedlemsunntakRestKlient.class);
     }
 
     @Override
     public List<Medlemskapsunntak> finnMedlemsunntak(String aktørId, LocalDate fom, LocalDate tom) throws Exception {
-        var uri = UriBuilder.fromUri(endpoint)
+        var uri = UriBuilder.fromUri(restConfig.endpoint())
             .queryParam(PARAM_INKLUDER_SPORINGSINFO, String.valueOf(true))
             .queryParam(PARAM_FRA_OG_MED, d2s(fom))
             .queryParam(PARAM_TIL_OG_MED, d2s(tom))
             .queryParam(PARAM_STATUSER, KODE_PERIODESTATUS_GYLD)
             .queryParam(PARAM_STATUSER, KODE_PERIODESTATUS_UAVK);
-        var request = RestRequest.newGET(uri.build(), MedlemsunntakRestKlient.class)
+        var request = RestRequest.newGET(uri.build(), restConfig)
             .otherCallId(NavHeaders.HEADER_NAV_CALL_ID)
             .header(NavHeaders.HEADER_NAV_PERSONIDENT, aktørId);
         var match = restKlient.send(request, Medlemskapsunntak[].class);

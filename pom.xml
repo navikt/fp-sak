@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>0.3.5</version>
+        <version>0.3.6</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -35,8 +35,8 @@
 
         <fp-uttak.version>13.0.2</fp-uttak.version>
         <svp-uttak.version>2.3.4</svp-uttak.version>
-        <felles.version>4.1.51</felles.version>
-        <prosesstask.version>3.1.10</prosesstask.version>
+        <felles.version>4.2.2</felles.version>
+        <prosesstask.version>3.1.11</prosesstask.version>
         <fp-jms.version>2.2.0</fp-jms.version>
 
         <fp-kontrakter.version>6.1.27</fp-kontrakter.version>
@@ -83,7 +83,7 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>pdl-klient</artifactId>
+                <artifactId>person-klient</artifactId>
                 <version>${felles.version}</version>
             </dependency>
             <dependency>

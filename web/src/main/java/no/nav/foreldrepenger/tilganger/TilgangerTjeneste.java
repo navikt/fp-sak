@@ -5,10 +5,10 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang3.BooleanUtils;
 
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.web.app.util.LdapUtil;
 import no.nav.vedtak.felles.integrasjon.ldap.LdapBruker;
 import no.nav.vedtak.felles.integrasjon.ldap.LdapBrukeroppslag;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ApplicationScoped
@@ -55,8 +55,8 @@ public class TilgangerTjeneste {
     }
 
     InnloggetNavAnsattDto getInnloggetBruker(String ident, LdapBruker ldapBruker) {
-        var navn = ldapBruker.getDisplayName();
-        var grupper = LdapUtil.filtrerGrupper(ldapBruker.getGroups());
+        var navn = ldapBruker.displayName();
+        var grupper = LdapUtil.filtrerGrupper(ldapBruker.groups());
         return InnloggetNavAnsattDto.builder()
             .setBrukernavn(ident)
             .setNavn(navn)

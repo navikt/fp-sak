@@ -153,7 +153,7 @@ public class BehandlingsprosessTjeneste {
     private boolean harRolleSaksbehandler() {
         var ident = SubjectHandler.getSubjectHandler().getUid();
         var ldapBruker = new LdapBrukeroppslag().hentBrukerinformasjon(ident);
-        var grupper = LdapUtil.filtrerGrupper(ldapBruker.getGroups());
+        var grupper = LdapUtil.filtrerGrupper(ldapBruker.groups());
         return grupper.contains(gruppenavnSaksbehandler);
     }
 

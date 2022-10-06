@@ -8,8 +8,6 @@ import java.util.Optional;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import org.apache.commons.lang3.StringUtils;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -212,10 +210,10 @@ public class OppdragInputTjeneste {
     }
 
     private static String finnSaksbehandlerFra(Behandling behandling) {
-        if (StringUtils.isNotBlank(behandling.getAnsvarligBeslutter())) {
+        if ( behandling.getAnsvarligBeslutter() != null && ! behandling.getAnsvarligBeslutter().isBlank()) {
             return behandling.getAnsvarligBeslutter();
         }
-        if (StringUtils.isNotBlank(behandling.getAnsvarligSaksbehandler())) {
+        if (behandling.getAnsvarligSaksbehandler() != null && !behandling.getAnsvarligSaksbehandler().isBlank()) {
             return behandling.getAnsvarligSaksbehandler();
         }
         return DEFAULT_ANSVARLIG_SAKSBEHANDLER;

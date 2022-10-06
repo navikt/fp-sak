@@ -124,11 +124,11 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
 
     private LocalDateTimeline<Boolean> finnTidslinjeFraGrunnlagene(List<Grunnlag> grunnlag, LocalDate førsteUttaksdatoFp) {
         var segmenter = grunnlag.stream()
-            .map(Grunnlag::getVedtak)
+            .map(Grunnlag::vedtak)
             .flatMap(Collection::stream)
-            .filter(v -> !v.getPeriode().getTom().isBefore(førsteUttaksdatoFp))
-            .filter(v -> v.getUtbetalingsgrad() > 0)
-            .map(p-> new LocalDateSegment<>(p.getPeriode().getFom(), VirkedagUtil.fredagLørdagTilSøndag(p.getPeriode().getTom()), Boolean.TRUE))
+            .filter(v -> !v.periode().tom().isBefore(førsteUttaksdatoFp))
+            .filter(v -> v.utbetalingsgrad() > 0)
+            .map(p-> new LocalDateSegment<>(p.periode().fom(), VirkedagUtil.fredagLørdagTilSøndag(p.periode().tom()), Boolean.TRUE))
             .collect(Collectors.toList());
 
         return helgeJusterTidslinje(new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch).compress());

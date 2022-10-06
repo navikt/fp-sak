@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.person.krr;
 import java.net.URI;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
@@ -29,23 +28,25 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 public class KrrSpråkKlient {
 
     private static final Logger LOG = LoggerFactory.getLogger(KrrSpråkKlient.class);
-    private URI endpoint;
-    private RestClient restClient;
+    private final URI endpoint;
+    private final RestClient restClient;
+    private final RestConfig restConfig;
 
     public KrrSpråkKlient() {
+        this(RestClient.client());
     }
 
-    @Inject
     public KrrSpråkKlient(RestClient restClient) {
         this.restClient = restClient;
-        this.endpoint = UriBuilder.fromUri(RestConfig.endpointFromAnnotation(KrrSpråkKlient.class))
+        this.restConfig = RestConfig.forClient(KrrSpråkKlient.class);
+        this.endpoint = UriBuilder.fromUri(restConfig.endpoint())
             .queryParam("inkluderSikkerDigitalPost", "false")
             .build();
     }
 
     public Språkkode finnSpråkkodeForBruker(String fnr) {
         try {
-            var request = RestRequest.newGET(endpoint, KrrSpråkKlient.class)
+            var request = RestRequest.newGET(endpoint, restConfig)
                 .header(NavHeaders.HEADER_NAV_PERSONIDENT, fnr)
                 .otherCallId(NavHeaders.HEADER_NAV_CALL_ID);
             var respons = restClient.sendReturnOptional(request, KrrRespons.class);

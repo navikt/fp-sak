@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.dokumentbestiller.formidling.klient;
 import java.net.URI;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.ws.rs.core.UriBuilder;
 
 import no.nav.foreldrepenger.dokumentbestiller.formidling.Brev;
@@ -16,26 +15,22 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPFORMIDLING, endpointProperty = "FPFORMIDLING_OVERRIDE_URL")
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPFORMIDLING)
 public class FormidlingRestKlient implements Brev {
 
-    private RestClient restClient;
-    private URI uri;
+    private final RestClient restClient;
+    private final RestConfig restConfig;
+    private final URI uri;
 
-    FormidlingRestKlient() {
-        //for cdi proxy
-    }
-
-    @Inject
-    public FormidlingRestKlient(RestClient restClient) {
-        this.restClient = restClient;
-        var contextPath = RestConfig.contextPathFromAnnotation(FormidlingRestKlient.class);
-        this.uri = UriBuilder.fromUri(contextPath).path("/api/brev/bestill").build();
+    public FormidlingRestKlient() {
+        this.restClient = RestClient.client();
+        this.restConfig = RestConfig.forClient(this.getClass());
+        this.uri = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/brev/bestill").build();
     }
 
     @Override
     public void bestill(DokumentbestillingV2Dto dokumentbestillingV2Dto) {
-        var request = RestRequest.newPOSTJson(dokumentbestillingV2Dto, uri, FormidlingRestKlient.class);
+        var request = RestRequest.newPOSTJson(dokumentbestillingV2Dto, uri, restConfig);
         restClient.sendReturnOptional(request, String.class);
     }
 

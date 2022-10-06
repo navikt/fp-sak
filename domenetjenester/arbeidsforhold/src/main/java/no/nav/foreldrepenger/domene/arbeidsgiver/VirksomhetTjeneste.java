@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.vedtak.felles.integrasjon.organisasjon.OrgInfo;
 import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonstypeEReg;
-import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
@@ -39,7 +38,7 @@ public class VirksomhetTjeneste {
     }
 
     @Inject
-    public VirksomhetTjeneste(@NativeClient OrgInfo eregRestKlient) {
+    public VirksomhetTjeneste(OrgInfo eregRestKlient) {
         this.eregRestKlient = eregRestKlient;
     }
 

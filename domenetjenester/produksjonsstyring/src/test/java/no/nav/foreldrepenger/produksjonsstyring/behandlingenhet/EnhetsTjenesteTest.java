@@ -24,9 +24,9 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.nom.SkjermetPersonKlient;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.Arbeidsfordeling;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRequest;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingRequest;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
 
 @ExtendWith(MockitoExtension.class)
 public class EnhetsTjenesteTest {
@@ -215,7 +215,7 @@ public class EnhetsTjenesteTest {
 
         lenient().doAnswer((Answer<List<ArbeidsfordelingResponse>>) invocation -> {
             var data = (ArbeidsfordelingRequest) invocation.getArguments()[0];
-            return Objects.equals("SPSF", data.getDiskresjonskode()) ? List.of(respKode6) : List.of(respNormal);
+            return Objects.equals("SPSF", data.diskresjonskode()) ? List.of(respKode6) : List.of(respNormal);
         }).when(arbeidsfordelingTjeneste).finnEnhet(any(ArbeidsfordelingRequest.class));
 
     }

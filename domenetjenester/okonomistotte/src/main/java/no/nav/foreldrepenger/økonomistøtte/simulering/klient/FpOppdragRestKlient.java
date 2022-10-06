@@ -5,7 +5,6 @@ import java.time.Duration;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.ws.rs.core.UriBuilder;
 
 import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimulerOppdragDto;
@@ -18,26 +17,22 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPOPPDRAG, endpointProperty = "FPOPPDRAG_OVERRIDE_URL")  // Testformål
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPOPPDRAG)
 public class FpOppdragRestKlient {
 
     private static final String FPOPPDRAG_START_SIMULERING = "/api/simulering/start";
     private static final String FPOPPDRAG_HENT_RESULTAT = "/api/simulering/resultat";
 
-    private RestClient restClient;
-    private URI uriStartSimulering;
-    private URI uriHentResultat;
+    private final RestClient restClient;
+    private final RestConfig restConfig;
+    private final URI uriStartSimulering;
+    private final URI uriHentResultat;
 
     public FpOppdragRestKlient() {
-        //for cdi proxy
-    }
-
-    @Inject
-    public FpOppdragRestKlient(RestClient restClient) {
-        this.restClient = restClient;
-        var fpoppdragBaseUrl = RestConfig.contextPathFromAnnotation(FpOppdragRestKlient.class);
-        this.uriStartSimulering = UriBuilder.fromUri(fpoppdragBaseUrl).path(FPOPPDRAG_START_SIMULERING).build();
-        this.uriHentResultat = UriBuilder.fromUri(fpoppdragBaseUrl).path(FPOPPDRAG_HENT_RESULTAT).build();
+        this.restClient = RestClient.client();
+        this.restConfig = RestConfig.forClient(this.getClass());
+        this.uriStartSimulering = UriBuilder.fromUri(restConfig.fpContextPath()).path(FPOPPDRAG_START_SIMULERING).build();
+        this.uriHentResultat = UriBuilder.fromUri(restConfig.fpContextPath()).path(FPOPPDRAG_HENT_RESULTAT).build();
     }
 
     /**
@@ -45,7 +40,7 @@ public class FpOppdragRestKlient {
      * @param request med behandlingId og liste med oppdrag-XMLer
      */
     public void startSimulering(SimulerOppdragDto request) {
-        var rrequest = RestRequest.newPOSTJson(request, uriStartSimulering, FpOppdragRestKlient.class).timeout(Duration.ofSeconds(30));
+        var rrequest = RestRequest.newPOSTJson(request, uriStartSimulering, restConfig).timeout(Duration.ofSeconds(30));
         restClient.sendReturnOptional(rrequest, String.class);
     }
 
@@ -55,7 +50,7 @@ public class FpOppdragRestKlient {
      * @return Optional med SimuleringResultatDto kan være tom
      */
     public Optional<SimuleringResultatDto> hentResultat(Long behandlingId) {
-        var rrequest = RestRequest.newPOSTJson(new BehandlingIdDto(behandlingId), uriHentResultat, FpOppdragRestKlient.class);
+        var rrequest = RestRequest.newPOSTJson(new BehandlingIdDto(behandlingId), uriHentResultat, restConfig);
         return restClient.sendReturnOptional(rrequest, SimuleringResultatDto.class);
     }
 

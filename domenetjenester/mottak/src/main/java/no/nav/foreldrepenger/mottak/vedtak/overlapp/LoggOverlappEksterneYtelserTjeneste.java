@@ -48,7 +48,6 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
-import no.nav.vedtak.felles.integrasjon.rest.NativeClient;
 import no.nav.vedtak.felles.integrasjon.spokelse.Spøkelse;
 import no.nav.vedtak.konfig.Tid;
 
@@ -85,7 +84,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
                                                InfotrygdPSGrunnlag infotrygdPSGrTjeneste,
                                                InfotrygdSPGrunnlag infotrygdSPGrTjeneste,
                                                AbakusTjeneste abakusTjeneste,
-                                               @NativeClient Spøkelse spøkelse,
+                                               Spøkelse spøkelse,
                                                OverlappVedtakRepository overlappRepository,
                                                BehandlingRepository behandlingRepository) {
         this.beregningTjeneste = beregningTjeneste;
@@ -342,7 +341,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
     private LocalDateTimeline<BigDecimal> finnTidslinjeFraGrunnlagene(List<Grunnlag> grunnlag) {
         var segmenter = grunnlag.stream()
-            .map(Grunnlag::getVedtak)
+            .map(Grunnlag::vedtak)
             .flatMap(Collection::stream)
             .filter(v -> v.utbetalingsgrad() > 0)
             .map(p -> new LocalDateSegment<>(p.periode().fom(), p.periode().tom(),

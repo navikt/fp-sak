@@ -20,7 +20,7 @@
 
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>pdl-klient</artifactId>
+            <artifactId>person-klient</artifactId>
         </dependency>
 
         <!-- Prosjektinterne avhengigheter -->
@@ -33,6 +33,11 @@
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingslager-testutilities</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-common</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
