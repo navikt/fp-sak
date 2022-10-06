@@ -157,7 +157,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
 
     private boolean erOverstyringLovlig() {
         var innloggetBruker = tilgangerTjeneste.innloggetBruker();
-        return innloggetBruker.getKanOverstyre();
+        return innloggetBruker.kanOverstyre();
     }
 
     private boolean endringGjelderHelmanueltArbeidsforhold(ManueltArbeidsforholdDto manueltArbeidsforholdDto) {

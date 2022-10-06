@@ -15,6 +15,7 @@ public class TilgangerTjenesteTest {
     private static final String gruppenavnVeileder = "Veileder";
     private static final String gruppenavnBeslutter = "Beslutter";
     private static final String gruppenavnOverstyrer = "Overstyrer";
+    private static final String gruppenavnOppgavestyrer = "Oppgavestyrer";
     private static final String gruppenavnEgenAnsatt = "EgenAnsatt";
     private static final String gruppenavnKode6 = "Kode6";
     private static final String gruppenavnKode7 = "Kode7";
@@ -24,7 +25,7 @@ public class TilgangerTjenesteTest {
     @BeforeEach
     public void setUp() {
         tilgangerTjeneste = new TilgangerTjeneste(gruppenavnSaksbehandler, gruppenavnVeileder, gruppenavnBeslutter, gruppenavnOverstyrer,
-                gruppenavnEgenAnsatt, gruppenavnKode6, gruppenavnKode7, skalViseDetaljerteFeilmeldinger);
+            gruppenavnOppgavestyrer, gruppenavnEgenAnsatt, gruppenavnKode6, gruppenavnKode7, skalViseDetaljerteFeilmeldinger);
     }
 
     @Test
@@ -36,8 +37,8 @@ public class TilgangerTjenesteTest {
                 brukerUtenforSaksbehandlerGruppe);
         var innloggetBrukerMedSaksbehandlerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerISaksbehandlerGruppe);
 
-        assertThat(innloggetBrukerUtenSaksbehandlerRettighet.getKanSaksbehandle()).isFalse();
-        assertThat(innloggetBrukerMedSaksbehandlerRettighet.getKanSaksbehandle()).isTrue();
+        assertThat(innloggetBrukerUtenSaksbehandlerRettighet.kanSaksbehandle()).isFalse();
+        assertThat(innloggetBrukerMedSaksbehandlerRettighet.kanSaksbehandle()).isTrue();
     }
 
     @Test
@@ -48,8 +49,8 @@ public class TilgangerTjenesteTest {
         var innloggetBrukerUtenVeilederRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforVeilederGruppe);
         var innloggetBrukerMedVeilederRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIVeilederGruppe);
 
-        assertThat(innloggetBrukerUtenVeilederRettighet.getKanVeilede()).isFalse();
-        assertThat(innloggetBrukerMedVeilederRettighet.getKanVeilede()).isTrue();
+        assertThat(innloggetBrukerUtenVeilederRettighet.kanVeilede()).isFalse();
+        assertThat(innloggetBrukerMedVeilederRettighet.kanVeilede()).isTrue();
     }
 
     @Test
@@ -60,8 +61,8 @@ public class TilgangerTjenesteTest {
         var innloggetBrukerUtenBeslutterRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforBeslutterGruppe);
         var innloggetBrukerMedBeslutterRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIBeslutterGruppe);
 
-        assertThat(innloggetBrukerUtenBeslutterRettighet.getKanBeslutte()).isFalse();
-        assertThat(innloggetBrukerMedBeslutterRettighet.getKanBeslutte()).isTrue();
+        assertThat(innloggetBrukerUtenBeslutterRettighet.kanBeslutte()).isFalse();
+        assertThat(innloggetBrukerMedBeslutterRettighet.kanBeslutte()).isTrue();
     }
 
     @Test
@@ -72,8 +73,8 @@ public class TilgangerTjenesteTest {
         var innloggetBrukerUtenOverstyrerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforOverstyrerGruppe);
         var innloggetBrukerMedOverstyrerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIOverstyrerGruppe);
 
-        assertThat(innloggetBrukerUtenOverstyrerRettighet.getKanOverstyre()).isFalse();
-        assertThat(innloggetBrukerMedOverstyrerRettighet.getKanOverstyre()).isTrue();
+        assertThat(innloggetBrukerUtenOverstyrerRettighet.kanOverstyre()).isFalse();
+        assertThat(innloggetBrukerMedOverstyrerRettighet.kanOverstyre()).isTrue();
     }
 
     @Test
@@ -84,8 +85,8 @@ public class TilgangerTjenesteTest {
         var innloggetBrukerUtenEgenAnsattRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforEgenAnsattGruppe);
         var innloggetBrukerMedEgenAnsattRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIEgenAnsattGruppe);
 
-        assertThat(innloggetBrukerUtenEgenAnsattRettighet.getKanBehandleKodeEgenAnsatt()).isFalse();
-        assertThat(innloggetBrukerMedEgenAnsattRettighet.getKanBehandleKodeEgenAnsatt()).isTrue();
+        assertThat(innloggetBrukerUtenEgenAnsattRettighet.kanBehandleKodeEgenAnsatt()).isFalse();
+        assertThat(innloggetBrukerMedEgenAnsattRettighet.kanBehandleKodeEgenAnsatt()).isTrue();
     }
 
     @Test
@@ -96,8 +97,8 @@ public class TilgangerTjenesteTest {
         var innloggetBrukerUtenKode6Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforKode6Gruppe);
         var innloggetBrukerMedKode6Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIKode6Gruppe);
 
-        assertThat(innloggetBrukerUtenKode6Rettighet.getKanBehandleKode6()).isFalse();
-        assertThat(innloggetBrukerMedKode6Rettighet.getKanBehandleKode6()).isTrue();
+        assertThat(innloggetBrukerUtenKode6Rettighet.kanBehandleKode6()).isFalse();
+        assertThat(innloggetBrukerMedKode6Rettighet.kanBehandleKode6()).isTrue();
     }
 
     @Test
@@ -108,8 +109,8 @@ public class TilgangerTjenesteTest {
         var innloggetBrukerUtenKode7Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforKode7Gruppe);
         var innloggetBrukerMedKode7Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIKode7Gruppe);
 
-        assertThat(innloggetBrukerUtenKode7Rettighet.getKanBehandleKode7()).isFalse();
-        assertThat(innloggetBrukerMedKode7Rettighet.getKanBehandleKode7()).isTrue();
+        assertThat(innloggetBrukerUtenKode7Rettighet.kanBehandleKode7()).isFalse();
+        assertThat(innloggetBrukerMedKode7Rettighet.kanBehandleKode7()).isTrue();
     }
 
     private static LdapBruker getTestBruker(String... grupper) {

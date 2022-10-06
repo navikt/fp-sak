@@ -252,7 +252,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
     private boolean sjekkOmOverstyringErLovlig() {
         var innloggetBruker = tilgangerTjeneste.innloggetBruker();
-        return innloggetBruker.getKanOverstyre();
+        return innloggetBruker.kanOverstyre();
     }
 
 
@@ -261,10 +261,10 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
         var fjernet = eksisterendeTilrettelegging.getTilretteleggingFOMListe().stream()
             .filter(fom -> !overstyrtTilrettelegging.getTilretteleggingFOMListe().contains(fom))
-            .collect(Collectors.toList());
+            .toList();
         var lagtTil = overstyrtTilrettelegging.getTilretteleggingFOMListe().stream()
             .filter(fom -> !eksisterendeTilrettelegging.getTilretteleggingFOMListe().contains(fom))
-            .collect(Collectors.toList());
+            .toList();
 
         if (fjernet.isEmpty() && lagtTil.isEmpty()) {
             return false;

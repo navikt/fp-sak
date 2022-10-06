@@ -280,17 +280,16 @@ public class BekreftSvangerskapspengerOppdatererTest {
     }
 
     private void settOppTilgangTilOverstyring(boolean kanOverstyre) {
-        var dto = new InnloggetNavAnsattDto.Builder().setBrukernavn("mrOverstyrer")
-            .setNavn("Mr Overstyrer")
-            .setKanBehandleKode6(false)
-            .setKanBehandleKode7(false)
-            .setKanBehandleKodeEgenAnsatt(false)
-            .setKanOverstyre(kanOverstyre)
-            .setKanBeslutte(true)
-            .setKanVeilede(true)
-            .setKanSaksbehandle(true)
+        var dto = new InnloggetNavAnsattDto.Builder("mrOverstyrer", "Mr Overstyrer")
+            .kanBehandleKode6(false)
+            .kanBehandleKode7(false)
+            .kanBehandleKodeEgenAnsatt(false)
+            .kanOverstyre(kanOverstyre)
+            .kanBeslutte(true)
+            .kanVeilede(true)
+            .kanSaksbehandle(true)
             .skalViseDetaljerteFeilmeldinger(true)
-            .create();
+            .build();
         when(tilgangerTjenesteMock.innloggetBruker()).thenReturn(dto);
     }
 
