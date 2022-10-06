@@ -15,7 +15,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, endpointProperty = "fpsak.it.ps.grunnlag.url",
+@RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "fpsak.it.ps.grunnlag.url",
     endpointDefault = "http://k9-infotrygd-grunnlag-paaroerende-sykdom.k9saksbehandling/paaroerendeSykdom/grunnlag")
 public class InfotrygdPSGrunnlag extends AbstractInfotrygdGrunnlag {
 
