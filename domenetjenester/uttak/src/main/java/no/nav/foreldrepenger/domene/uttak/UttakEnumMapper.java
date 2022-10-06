@@ -374,6 +374,9 @@ public final class UttakEnumMapper {
         if (PeriodeResultatÅrsak.SØKNADSFRIST.equals(periodeResultatÅrsak)) {
             return FastsattUttakPeriode.ResultatÅrsak.IKKE_OPPFYLT_SØKNADSFRIST;
         }
+        if (PeriodeResultatÅrsak.UTSETTELSE_GYLDIG.equals(periodeResultatÅrsak)) {
+            return FastsattUttakPeriode.ResultatÅrsak.UTSETTELSE_GYLDIG;
+        }
         return FastsattUttakPeriode.ResultatÅrsak.ANNET;
     }
 }
