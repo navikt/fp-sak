@@ -72,6 +72,11 @@ public class SendVedtaksbrev {
             return;
         }
 
+        if (BehandlingType.ANKE.equals(behandling.getType())) {
+            LOG.info("Ankebrev sendes av kabal for behandling med id {} ", behandling.getId());
+            return;
+        }
+
         if (BehandlingType.KLAGE.equals(behandling.getType()) && (!skalSendeVedtaksbrevIKlagebehandling(behandling) || harKlageBlittBehandletAvKabal(behandling))) {
             LOG.info("Sender ikke vedtaksbrev fra klagebehandlingen i behandlingen etter, eller når KlageVurderingResultat = null. For behandlingId {}", behandlingId); //$NON-NLS-1$
             return;
