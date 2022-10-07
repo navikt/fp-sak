@@ -93,7 +93,7 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
             && Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent());
         if (like && periode1.isGradert()) {
             return periode2.isGradert() &&
-                periode1.isArbeidstaker() == periode2.isArbeidstaker() &&
+                periode1.getGraderingAktivitetType() == periode2.getGraderingAktivitetType() &&
                 Objects.equals(periode1.getArbeidsprosentSomStillingsprosent(), periode2.getArbeidsprosentSomStillingsprosent()) &&
                 Objects.equals(periode1.getArbeidsgiver(), periode2.getArbeidsgiver());
         }
@@ -183,9 +183,9 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
 
     }
 
-    private record SammenligningGraderingForMottatt(boolean erArbeidstaker, Stillingsprosent arbeidsprosent, Arbeidsgiver arbeidsgiver) {
+    private record SammenligningGraderingForMottatt(GraderingAktivitetType graderingAktivitetType, Stillingsprosent arbeidsprosent, Arbeidsgiver arbeidsgiver) {
         SammenligningGraderingForMottatt(OppgittPeriodeEntitet periode) {
-            this(periode.isArbeidstaker(), periode.getArbeidsprosentSomStillingsprosent(), periode.getArbeidsgiver());
+            this(periode.getGraderingAktivitetType(), periode.getArbeidsprosentSomStillingsprosent(), periode.getArbeidsgiver());
         }
     }
 
@@ -231,7 +231,7 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
 
     private record SammenligningGraderingForOppgitt(GraderingAktivitetType gradertAktivitet, Stillingsprosent arbeidsprosent, Arbeidsgiver arbeidsgiver) {
         SammenligningGraderingForOppgitt(OppgittPeriodeEntitet periode) {
-            this(periode.utledGraderingAktivitetType(), periode.getArbeidsprosentSomStillingsprosent(), periode.getArbeidsgiver());
+            this(periode.getGraderingAktivitetType(), periode.getArbeidsprosentSomStillingsprosent(), periode.getArbeidsgiver());
         }
     }
 

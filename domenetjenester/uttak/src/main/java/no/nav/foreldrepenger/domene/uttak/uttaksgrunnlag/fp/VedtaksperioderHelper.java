@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -166,9 +167,7 @@ public class VedtaksperioderHelper {
             .medSamtidigUttak(SamtidigUttaksprosent.erSamtidigUttak(samtidigUttaksprosent))
             .medSamtidigUttaksprosent(samtidigUttaksprosent)
             .medFlerbarnsdager(up.isFlerbarnsdager())
-            .medErArbeidstaker(erArbeidstaker(up))
-            .medErSelvstendig(erSelvstendig(up))
-            .medErFrilanser(erFrilans(up))
+            .medGraderingAktivitetType(finnGradertAktivitetType(up))
             .medPeriodeKilde(FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
 
         finnMorsAktivitet(up).ifPresent(builder::medMorsAktivitet);
@@ -192,9 +191,7 @@ public class VedtaksperioderHelper {
                 .or(() -> Optional.ofNullable(samtidigUttaksprosent).map(SamtidigUttaksprosent::erSamtidigUttak)).orElse(false))
             .medSamtidigUttaksprosent(samtidigUttaksprosent)
             .medFlerbarnsdager(up.isFlerbarnsdager())
-            .medErArbeidstaker(erArbeidstaker(up))
-            .medErSelvstendig(erSelvstendig(up))
-            .medErFrilanser(erFrilans(up))
+            .medGraderingAktivitetType(finnGradertAktivitetType(up))
             .medPeriodeKilde(FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
 
         finnMorsAktivitet(up).ifPresent(builder::medMorsAktivitet);
@@ -231,6 +228,10 @@ public class VedtaksperioderHelper {
             .findFirst()
             .map(UttakResultatPeriodeAktivitetEntitet::getUttakAktivitet)
             .flatMap(UttakAktivitetEntitet::getArbeidsgiver);
+    }
+
+    private static GraderingAktivitetType finnGradertAktivitetType(UttakResultatPeriodeEntitet up) {
+        return GraderingAktivitetType.from(erArbeidstaker(up), erFrilans(up), erSelvstendig(up));
     }
 
     private static boolean erArbeidstaker(UttakResultatPeriodeEntitet up) {
@@ -303,17 +304,6 @@ public class VedtaksperioderHelper {
             }
         }
         return Optional.empty();
-    }
-
-    private static Optional<BigDecimal> finnGraderingArbeidsprosentAktivitet(UttakResultatPeriodeEntitet up) {
-        if (up.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getGraderingArbeidsprosent).isEmpty()) {
-            return Optional.empty();
-        }
-        return up.getAktiviteter().stream()
-            .filter(UttakResultatPeriodeAktivitetEntitet::isSøktGradering)
-            .findFirst()
-            .flatMap(akt -> Optional.ofNullable(akt.getArbeidsprosent())
-                .or(() -> up.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getGraderingArbeidsprosent)));
     }
 
     private static Optional<BigDecimal> finnGraderingArbeidsprosentSøknad(UttakResultatPeriodeEntitet up) {

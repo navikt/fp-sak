@@ -137,9 +137,7 @@ public class KontrollerOppgittFordelingTjeneste {
             periodeBuilder.medPeriodeType(faktaPeriodeDto.getUttakPeriodeType());
         }
         if (faktaPeriodeDto.getArbeidstidsprosent() != null) {
-            periodeBuilder.medErArbeidstaker(faktaPeriodeDto.getErArbeidstaker());
-            periodeBuilder.medErFrilanser(faktaPeriodeDto.getErFrilanser());
-            periodeBuilder.medErSelvstendig(faktaPeriodeDto.getErSelvstendig());
+            periodeBuilder.medGraderingAktivitetType(faktaPeriodeDto.getGraderingAktivitetType());
             periodeBuilder.medArbeidsprosent(faktaPeriodeDto.getArbeidstidsprosent());
         }
         if (erUtsettelse(faktaPeriodeDto)) {

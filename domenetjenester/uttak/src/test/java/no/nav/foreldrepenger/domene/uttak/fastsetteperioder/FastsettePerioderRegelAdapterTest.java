@@ -13,6 +13,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -158,7 +160,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(fødselsdato, fødselsdato.plusWeeks(10))
             .medArbeidsgiver(virksomhet)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .medArbeidsprosent(arbeidsprosent)
             .build();
         var behandling = setupMor(List.of(fpff, mødrekvote), virksomhet, fpff.getFom(),
@@ -861,7 +863,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medArbeidsgiver(virksomhet)
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .medPeriode(start, slutt)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .medArbeidsprosent(arbeidsprosent)
             .build();
 
@@ -926,7 +928,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             //11 dager
             .medPeriode(oppgittMødrekvote.getTom().plusDays(1), oppgittMødrekvote.getTom().plusDays(1).plusWeeks(2))
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .medArbeidsprosent(arbeidsprosent)
             .build();
         var aktørId = AktørId.dummy();
@@ -1084,7 +1086,7 @@ public class FastsettePerioderRegelAdapterTest {
         var fødselsdato = LocalDate.of(2018, 6, 22);
         var oppgittGradertFPFF = OppgittPeriodeBuilder.ny()
             .medArbeidsprosent(arbeidsprosent)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             .medPeriode(fødselsdato.minusWeeks(3), fødselsdato.minusDays(1))
             .medArbeidsgiver(virksomhet)
@@ -1134,7 +1136,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .medPeriode(start, slutt)
             .medArbeidsgiver(virksomhet)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .medArbeidsprosent(arbeidsprosent)
             .build();
 
@@ -1169,7 +1171,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .medPeriode(start, slutt)
             .medArbeidsgiver(virksomhet)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .medArbeidsprosent(arbeidsprosent)
             .build();
 
@@ -1235,7 +1237,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(fødselsdato, fødselsdato.plusWeeks(6).minusDays(1))
             .medArbeidsgiver(virksomhet)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .medArbeidsprosent(BigDecimal.valueOf(50))
             .build();
 
@@ -1522,14 +1524,14 @@ public class FastsettePerioderRegelAdapterTest {
             .build();
         var gradering1 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .medArbeidsgiver(arbeidsgiver1)
             .medArbeidsprosent(BigDecimal.valueOf(50))
             .medPeriode(fødselsdato.plusWeeks(6), fødselsdato.plusWeeks(10).minusDays(1))
             .build();
         var gradering2 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .medArbeidsgiver(arbeidsgiver2)
             .medArbeidsprosent(BigDecimal.valueOf(50))
             .medPeriode(fødselsdato.plusWeeks(10), fødselsdato.plusWeeks(14).minusDays(1))

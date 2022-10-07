@@ -11,6 +11,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -29,7 +30,7 @@ public class GraderingAktivitetUtenBGAksjonspunktUtlederTest {
         var søknadsperiode = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now(), LocalDate.now())
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .medArbeidsgiver(arbeidsgiver)
             .medArbeidsprosent(BigDecimal.TEN)
             .build();

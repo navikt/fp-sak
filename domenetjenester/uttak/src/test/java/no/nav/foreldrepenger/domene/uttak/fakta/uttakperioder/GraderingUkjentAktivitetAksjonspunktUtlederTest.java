@@ -11,6 +11,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -41,7 +42,7 @@ public class GraderingUkjentAktivitetAksjonspunktUtlederTest {
             .medPeriode(FOM, TOM)
             .medArbeidsprosent(BigDecimal.valueOf(60))
             .medArbeidsgiver(arbeidsgiver)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
 
         var søknadsperioder = List.of(graderingPeriode);
@@ -63,7 +64,7 @@ public class GraderingUkjentAktivitetAksjonspunktUtlederTest {
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medPeriode(FOM, TOM)
             .medArbeidsprosent(BigDecimal.valueOf(60))
-            .medErFrilanser(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.FRILANS)
             .build();
 
         var søknadsperioder = List.of(graderingPeriode);
@@ -85,7 +86,7 @@ public class GraderingUkjentAktivitetAksjonspunktUtlederTest {
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medPeriode(FOM, TOM)
             .medArbeidsprosent(BigDecimal.valueOf(60))
-            .medErSelvstendig(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE)
             .build();
 
         var søknadsperioder = List.of(graderingPeriode);

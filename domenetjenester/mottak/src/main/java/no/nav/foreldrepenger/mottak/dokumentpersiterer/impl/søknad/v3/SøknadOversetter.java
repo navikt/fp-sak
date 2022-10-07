@@ -48,6 +48,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAkt
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -658,9 +659,8 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             throw new IllegalArgumentException("Graderingsperioder må enten ha valgt at/fl/sn");
         }
 
-        oppgittPeriodeBuilder.medErArbeidstaker(gradering.isErArbeidstaker());
-        oppgittPeriodeBuilder.medErFrilanser(gradering.isErFrilanser());
-        oppgittPeriodeBuilder.medErSelvstendig(gradering.isErSelvstNæringsdrivende());
+        oppgittPeriodeBuilder.medGraderingAktivitetType(GraderingAktivitetType.from(gradering.isErArbeidstaker(), gradering.isErFrilanser(),
+            gradering.isErSelvstNæringsdrivende()));
         oppgittPeriodeBuilder.medArbeidsprosent(BigDecimal.valueOf(gradering.getArbeidtidProsent()));
     }
 

@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -231,7 +232,7 @@ public class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest
         var periode = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now(), LocalDate.now().plusDays(7))
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(arbeidsgiver))
             .medArbeidsprosent(arbeidsProsent)
             .build();

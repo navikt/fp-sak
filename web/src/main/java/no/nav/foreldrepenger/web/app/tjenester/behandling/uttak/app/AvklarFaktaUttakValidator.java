@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.validering.Valideringsfeil;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BekreftetOppgittPeriodeDto;
@@ -16,7 +17,7 @@ class AvklarFaktaUttakValidator {
 
     static final String KREV_MINST_EN_SØKNADSPERIODE = "Påkrevd minst en søknadsperiode";
     static final String OVERLAPPENDE_PERIODER = "Periodene må ikke overlappe";
-    static final String ARBEIDSGIVER_GRADERING = "Gradert periode må ha arbeidsgiver";
+    static final String GRADERING = "Gradert periode må ha arbeidsgiver";
     static final String PERIODE_FØR_FØRSTE_UTTAKSDATO = "Kan ikke ha perioder før første uttaksdato";
 
     private AvklarFaktaUttakValidator() {
@@ -45,8 +46,8 @@ class AvklarFaktaUttakValidator {
         if (førsteUttaksdato.isPresent() && periodeFørFørsteUttaksdato(getBekreftetPerioder(bekreftedePerioder), førsteUttaksdato.get())) {
             return Optional.of(new FeltFeilDto(feltnavn, PERIODE_FØR_FØRSTE_UTTAKSDATO));
         }
-        if (validerArbeidsgiverVedGradering(bekreftedePerioder)) {
-            return Optional.of(new FeltFeilDto(feltnavn, ARBEIDSGIVER_GRADERING));
+        if (validerGradering(bekreftedePerioder)) {
+            return Optional.of(new FeltFeilDto(feltnavn, GRADERING));
         }
         return Optional.empty();
 
@@ -62,11 +63,16 @@ class AvklarFaktaUttakValidator {
         return bekreftetPerioder.stream().sorted(Comparator.comparing(KontrollerFaktaPeriodeLagreDto::getFom)).collect(Collectors.toList());
     }
 
-    private static boolean validerArbeidsgiverVedGradering(List<BekreftetOppgittPeriodeDto> perioder) {
+    private static boolean validerGradering(List<BekreftetOppgittPeriodeDto> perioder) {
         for (var periodeDto : perioder) {
             var bekreftetPeriode = periodeDto.getBekreftetPeriode();
-            if (erGradering(bekreftetPeriode) && bekreftetPeriode.getErArbeidstaker() && bekreftetPeriode.getArbeidsgiver() == null) {
-                return true;
+            if (erGradering(bekreftetPeriode)) {
+                if (bekreftetPeriode.getGraderingAktivitetType() == GraderingAktivitetType.ARBEID && bekreftetPeriode.getArbeidsgiver() == null) {
+                    return true;
+                }
+                if (bekreftetPeriode.getGraderingAktivitetType() == null) {
+                    return true;
+                }
             }
         }
         return false;

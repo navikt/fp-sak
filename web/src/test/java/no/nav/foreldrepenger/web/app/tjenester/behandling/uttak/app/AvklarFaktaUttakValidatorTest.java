@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.AvklarFaktaUttakValidator.ARBEIDSGIVER_GRADERING;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.AvklarFaktaUttakValidator.GRADERING;
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.AvklarFaktaUttakValidator.KREV_MINST_EN_SØKNADSPERIODE;
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.AvklarFaktaUttakValidator.OVERLAPPENDE_PERIODER;
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.AvklarFaktaUttakValidator.PERIODE_FØR_FØRSTE_UTTAKSDATO;
@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.KontrollerFaktaPeriode;
@@ -52,7 +53,7 @@ public class AvklarFaktaUttakValidatorTest {
         var bekreftet = OppgittPeriodeBuilder.ny().medPeriode(DATO.minusDays(20), DATO)
                 .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
                 .medArbeidsgiver(null)
-                .medErArbeidstaker(true)
+                .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
                 .medArbeidsprosent(BigDecimal.TEN)
                 .build();
         var bekreftetOppgittPeriodeDto = new BekreftetOppgittPeriodeDto();
@@ -63,7 +64,7 @@ public class AvklarFaktaUttakValidatorTest {
 
         var feltFeil = AvklarFaktaUttakValidator.validerSøknadsperioder(dto.getBekreftedePerioder(),
                 Optional.of(bekreftet.getFom()));
-        assertThat(feltFeil.get().getMelding()).isEqualTo(ARBEIDSGIVER_GRADERING);
+        assertThat(feltFeil.get().getMelding()).isEqualTo(GRADERING);
     }
 
     @Test

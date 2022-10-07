@@ -206,19 +206,18 @@ public class BeregningUttakTjeneste {
     }
 
     private static AktivitetStatus mapAktivitetStatus(OppgittPeriodeEntitet oppgittPeriode) {
-        if (oppgittPeriode.isArbeidstaker()) {
-            return AktivitetStatus.ARBEIDSTAKER;
+        if (oppgittPeriode.getGraderingAktivitetType() == null ) {
+            throw new IllegalStateException("Mangelfull søknad: Mangler informasjon om det er FL eller SN som graderes");
         }
-        if (oppgittPeriode.isFrilanser()) {
-            return AktivitetStatus.FRILANSER;
-        }
-        if (oppgittPeriode.isSelvstendig()) {
-            return AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE;
-        }
-        throw new IllegalStateException("Mangelfull søknad: Mangler informasjon om det er FL eller SN som graderes");
+
+        return switch (oppgittPeriode.getGraderingAktivitetType()) {
+            case ARBEID -> AktivitetStatus.ARBEIDSTAKER;
+            case SELVSTENDIG_NÆRINGSDRIVENDE -> AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE;
+            case FRILANS -> AktivitetStatus.FRILANSER;
+        };
     }
 
-    public static record PeriodeMedGradering(LocalDate fom, LocalDate tom, BigDecimal arbeidsprosent,
-                AktivitetStatus aktivitetStatus, Arbeidsgiver arbeidsgiver) {
+    public record PeriodeMedGradering(LocalDate fom, LocalDate tom, BigDecimal arbeidsprosent,
+                                      AktivitetStatus aktivitetStatus, Arbeidsgiver arbeidsgiver) {
     }
 }

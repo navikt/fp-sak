@@ -11,6 +11,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
@@ -496,7 +497,7 @@ public class VedtaksperioderHelperTest {
         assertThat(konvertetPeriode.getPeriodeType()).isEqualTo(UttakPeriodeType.FEDREKVOTE);
         assertThat(konvertetPeriode.getÅrsak()).isEqualTo(Årsak.UKJENT);
         assertThat(konvertetPeriode.getArbeidsprosent()).isEqualTo(arbeidstidsprosent);
-        assertThat(konvertetPeriode.isArbeidstaker()).isTrue();
+        assertThat(konvertetPeriode.getGraderingAktivitetType()).isEqualTo(GraderingAktivitetType.ARBEID);
         assertThat(konvertetPeriode.getArbeidsgiver().getIdentifikator()).isEqualTo("orgnr1");
     }
 
@@ -536,7 +537,7 @@ public class VedtaksperioderHelperTest {
         assertThat(konvertetPeriode.getPeriodeType()).isEqualTo(UttakPeriodeType.FEDREKVOTE);
         assertThat(konvertetPeriode.getÅrsak()).isEqualTo(Årsak.UKJENT);
         assertThat(konvertetPeriode.getArbeidsprosent()).isEqualTo(arbeidstidsprosent);
-        assertThat(konvertetPeriode.isArbeidstaker()).isTrue();
+        assertThat(konvertetPeriode.getGraderingAktivitetType()).isEqualTo(GraderingAktivitetType.ARBEID);
         assertThat(konvertetPeriode.getArbeidsgiver().getIdentifikator()).isEqualTo("orgnr1");
     }
 
@@ -576,7 +577,7 @@ public class VedtaksperioderHelperTest {
         assertThat(konvertetPeriode.getPeriodeType()).isEqualTo(UttakPeriodeType.FEDREKVOTE);
         assertThat(konvertetPeriode.getÅrsak()).isEqualTo(Årsak.UKJENT);
         assertThat(konvertetPeriode.getArbeidsprosent()).isEqualTo(arbeidstidsprosent);
-        assertThat(konvertetPeriode.isArbeidstaker()).isTrue();
+        assertThat(konvertetPeriode.getGraderingAktivitetType()).isEqualTo(GraderingAktivitetType.ARBEID);
         assertThat(konvertetPeriode.getArbeidsgiver().getIdentifikator()).isEqualTo("orgnr1");
     }
 
@@ -649,7 +650,7 @@ public class VedtaksperioderHelperTest {
         assertThat(konvertetPeriode.getPeriodeType()).isEqualTo(UttakPeriodeType.FORELDREPENGER);
         assertThat(konvertetPeriode.getÅrsak()).isEqualTo(Årsak.UKJENT);
         assertThat(konvertetPeriode.getArbeidsprosent()).isEqualTo(BigDecimal.valueOf(50));
-        assertThat(konvertetPeriode.isArbeidstaker()).isFalse();
+        assertThat(konvertetPeriode.getGraderingAktivitetType()).isEqualTo(GraderingAktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE);
         assertThat(konvertetPeriode.getArbeidsgiver()).isNull();
     }
 

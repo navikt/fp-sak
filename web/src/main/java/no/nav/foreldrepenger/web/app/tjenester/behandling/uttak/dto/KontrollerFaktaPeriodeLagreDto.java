@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
@@ -196,6 +197,11 @@ public class KontrollerFaktaPeriodeLagreDto {
         return mottattDato;
     }
 
+    @JsonIgnore
+    public GraderingAktivitetType getGraderingAktivitetType() {
+        return GraderingAktivitetType.from(getErArbeidstaker(), getErFrilanser(), getErSelvstendig());
+    }
+
     public LocalDate getTidligstMottattDato() {
         return tidligstMottattDato;
     }
@@ -225,9 +231,7 @@ public class KontrollerFaktaPeriodeLagreDto {
             medBegrunnelse(periode.getOppgittPeriode().getBegrunnelse().orElse(null));
             medUttakPeriodeVurderingType(periode.getVurdering());
             medArbeidsgiver(arbeidsgiver);
-            medArbeidstaker(periode.getOppgittPeriode().isArbeidstaker());
-            medFrilans(periode.getOppgittPeriode().isFrilanser());
-            medSelvstendig(periode.getOppgittPeriode().isSelvstendig());
+            medGraderingAktivitetType(periode.getOppgittPeriode().getGraderingAktivitetType());
             medSamtidigUttak(periode.getOppgittPeriode().isSamtidigUttak());
             medSamtidigUttaksprosent(periode.getOppgittPeriode().getSamtidigUttaksprosent());
             medMorsaktivitet(periode.getOppgittPeriode().getMorsAktivitet());
@@ -303,18 +307,10 @@ public class KontrollerFaktaPeriodeLagreDto {
             return this;
         }
 
-        public Builder medArbeidstaker(boolean arbeidstaker) {
-            kladd.erArbeidstaker = arbeidstaker;
-            return this;
-        }
-
-        public Builder medFrilans(boolean frilans) {
-            kladd.erFrilanser = frilans;
-            return this;
-        }
-
-        public Builder medSelvstendig(boolean selvstendig) {
-            kladd.erSelvstendig = selvstendig;
+        public Builder medGraderingAktivitetType(GraderingAktivitetType graderingAktivitetType) {
+            kladd.erArbeidstaker = GraderingAktivitetType.ARBEID == graderingAktivitetType;
+            kladd.erFrilanser = GraderingAktivitetType.FRILANS == graderingAktivitetType;
+            kladd.erSelvstendig = GraderingAktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE == graderingAktivitetType;
             return this;
         }
 

@@ -176,7 +176,7 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
         // Arrange
         var scenario = testUtil.opprettRevurderingsscenarioForMor();
         var behandling = scenario.lagre(repositoryProvider);
-        testUtil.byggOppgittFordeling(behandling, UtsettelseÅrsak.INSTITUSJON_SØKER, null, true, false, false);
+        testUtil.byggOppgittFordelingMedUtsettelse(behandling, UtsettelseÅrsak.INSTITUSJON_SØKER);
         testUtil.byggOgLagreSøknadMedEksisterendeOppgittFordeling(behandling, false);
 
         // Matcher ikke med utsettelse:
@@ -196,7 +196,7 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
         // Arrange
         var scenario = testUtil.opprettRevurderingsscenarioForMor();
         var behandling = scenario.lagre(repositoryProvider);
-        testUtil.byggOppgittFordeling(behandling, UtsettelseÅrsak.INSTITUSJON_SØKER, null, true, false, false);
+        testUtil.byggOppgittFordelingMedUtsettelse(behandling, UtsettelseÅrsak.INSTITUSJON_SØKER);
         testUtil.byggOgLagreSøknadMedEksisterendeOppgittFordeling(behandling, false);
 
         // Matcher med utsettelse:
@@ -216,7 +216,7 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
         var søknadsDato = LocalDate.now().minusWeeks(2);
         var scenario = testUtil.opprettRevurderingsscenarioForMor();
         var behandling = scenario.lagre(repositoryProvider);
-        testUtil.byggOppgittFordeling(behandling, UtsettelseÅrsak.INSTITUSJON_SØKER, null, true, false, false);
+        testUtil.byggOppgittFordelingMedUtsettelse(behandling, UtsettelseÅrsak.INSTITUSJON_SØKER);
         testUtil.byggOgLagreSøknadMedEksisterendeOppgittFordeling(behandling, false, søknadsDato);
 
         // Matcher med utsettelse:

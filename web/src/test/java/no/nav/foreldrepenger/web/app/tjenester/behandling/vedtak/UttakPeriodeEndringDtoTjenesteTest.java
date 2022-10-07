@@ -74,17 +74,14 @@ public class UttakPeriodeEndringDtoTjenesteTest {
         var gammelPeriode1 = OppgittPeriodeBuilder.ny()
             .medPeriode(dato.minusMonths(3), dato.minusMonths(2))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medErArbeidstaker(false)
             .build();
         var gammelPeriode2 = OppgittPeriodeBuilder.ny()
             .medPeriode(dato.minusMonths(2).plusDays(1), dato.minusMonths(1).plusDays(1))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medErArbeidstaker(false)
             .build();
         var gammelPeriode3 = OppgittPeriodeBuilder.ny()
             .medPeriode(dato.minusMonths(1).plusDays(2), dato.plusDays(2))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medErArbeidstaker(false)
             .build();
         var gamlePerioder = new ArrayList<OppgittPeriodeEntitet>();
         gamlePerioder.add(gammelPeriode1);
@@ -99,12 +96,10 @@ public class UttakPeriodeEndringDtoTjenesteTest {
         var nyPeriode1 = OppgittPeriodeBuilder.ny()
             .medPeriode(dato.minusMonths(2).plusWeeks(1), dato.minusMonths(1).plusWeeks(1))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medErArbeidstaker(false)
             .build();
         var nyPeriode2 = OppgittPeriodeBuilder.ny()
             .medPeriode(dato.minusMonths(1).plusWeeks(1).plusDays(1), dato.plusWeeks(1).plusDays(1))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medErArbeidstaker(false)
             .medBegrunnelse("Dette er en kort begrunnelse for hvorfor denne ble avklart.")
             .build();
         var nyePerioder = new ArrayList<OppgittPeriodeEntitet>();
@@ -150,7 +145,6 @@ public class UttakPeriodeEndringDtoTjenesteTest {
         var gammelPeriode = OppgittPeriodeBuilder.ny()
             .medPeriode(dato.minusMonths(2), dato.minusMonths(1))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medErArbeidstaker(false)
             .build();
         var gammelFordeling = new OppgittFordelingEntitet(List.of(gammelPeriode), true);
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
@@ -161,18 +155,15 @@ public class UttakPeriodeEndringDtoTjenesteTest {
         var nyPeriode1 = OppgittPeriodeBuilder.ny()
             .medPeriode(dato.minusMonths(3).plusDays(3), dato.minusMonths(2).plusDays(3))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medErArbeidstaker(false)
             .build();
         var nyPeriode2 = OppgittPeriodeBuilder.ny()
             .medPeriode(dato.minusMonths(2).plusDays(4), dato.minusMonths(1).plusDays(4))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medErArbeidstaker(false)
             .medBegrunnelse("Dette er en kort begrunnelse for hvorfor denne ble avklart.")
             .build();
         var nyPeriode3 = OppgittPeriodeBuilder.ny()
             .medPeriode(dato.minusMonths(1).plusDays(5), dato.plusDays(5))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medErArbeidstaker(false)
             .medPeriodeKilde(FordelingPeriodeKilde.TIDLIGERE_VEDTAK) // Denne burde bli ignorert pga. kilde
             .build();
         var nyePerioder = new ArrayList<OppgittPeriodeEntitet>();

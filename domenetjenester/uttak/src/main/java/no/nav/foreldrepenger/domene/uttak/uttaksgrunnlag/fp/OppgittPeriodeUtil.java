@@ -83,9 +83,7 @@ class OppgittPeriodeUtil {
 
     private static boolean erLikBortsettFraTidsperiode(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
         //begrunnelse ikke viktig å se på
-        return Objects.equals(periode1.isArbeidstaker(), periode2.isArbeidstaker()) &&
-            Objects.equals(periode1.isFrilanser(), periode2.isFrilanser()) &&
-            Objects.equals(periode1.isSelvstendig(), periode2.isSelvstendig()) &&
+        return Objects.equals(periode1.getGraderingAktivitetType(), periode2.getGraderingAktivitetType()) &&
             Objects.equals(periode1.isFlerbarnsdager(), periode2.isFlerbarnsdager()) &&
             Objects.equals(periode1.isSamtidigUttak(), periode2.isSamtidigUttak()) &&
             Objects.equals(periode1.getArbeidsgiver(), periode2.getArbeidsgiver()) &&

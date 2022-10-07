@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -32,8 +33,7 @@ public class SøknadsperiodeDokKontrollererSammenhengendeUttakTest {
 
     @Test
     public void skal_si_at_utsettelse_pga_sykdom_trenger_bekreftelse() {
-        assertThat(kontroller(arbeidstakerPeriodeMedUtsettelseSykdom()).erBekreftet()).isFalse();
-        assertThat(kontroller(frilansNæringsdrivendePeriodeMedUtsettelseSykdom()).erBekreftet()).isFalse();
+        assertThat(kontroller(periodeMedUtsettelse(UtsettelseÅrsak.SYKDOM)).erBekreftet()).isFalse();
     }
 
     @Test
@@ -57,7 +57,7 @@ public class SøknadsperiodeDokKontrollererSammenhengendeUttakTest {
             .medBegrunnelse("erstatter")
             .medVurdering(UttakPeriodeVurderingType.PERIODE_OK)
             .medArbeidsgiver(virksomhet)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
 
         var dokumentasjonPerioder = List.of(
@@ -94,7 +94,7 @@ public class SøknadsperiodeDokKontrollererSammenhengendeUttakTest {
             .medÅrsak(UtsettelseÅrsak.FERIE)
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsgiver(arbeidsgiver)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .medPeriode(LocalDate.of(2018, 1, 13), LocalDate.of(2018, 1, 20))
             .build();
 
@@ -179,7 +179,7 @@ public class SøknadsperiodeDokKontrollererSammenhengendeUttakTest {
             .medPeriode(FOM, TOM)
             .medArbeidsprosent(BigDecimal.valueOf(60))
             .medArbeidsgiver(arbeidsgiver)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
 
         var kontrollerFaktaPeriode = kontroller(graderingPeriode);
@@ -194,7 +194,7 @@ public class SøknadsperiodeDokKontrollererSammenhengendeUttakTest {
             .medPeriode(FOM, TOM)
             .medArbeidsgiver(null)
             .medArbeidsprosent(arbeidsprosent)
-            .medErFrilanser(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.FRILANS)
             .build();
 
         var kontrollerFaktaPeriode = kontroller(graderingPeriode);
@@ -210,7 +210,7 @@ public class SøknadsperiodeDokKontrollererSammenhengendeUttakTest {
             .medPeriode(FOM, TOM)
             .medArbeidsgiver(arbeidsgiver1)
             .medArbeidsprosent(arbeidsprosent)
-            .medErFrilanser(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.FRILANS)
             .build();
 
         var kontrollerFaktaPeriode = kontroller(graderingPeriode);
@@ -223,7 +223,7 @@ public class SøknadsperiodeDokKontrollererSammenhengendeUttakTest {
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medPeriode(FOM, TOM)
             .medArbeidsprosent(BigDecimal.valueOf(60))
-            .medErSelvstendig(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE)
             .build();
 
         var kontrollerFaktaPeriode = kontroller(graderingPeriode);
@@ -238,7 +238,7 @@ public class SøknadsperiodeDokKontrollererSammenhengendeUttakTest {
             .medPeriode(FOM, TOM)
             .medArbeidsprosent(BigDecimal.TEN)
             .medArbeidsgiver(arbeidsgiver)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
 
         var kontrollerFaktaPeriode = kontroller(graderingsperiode);
@@ -253,7 +253,7 @@ public class SøknadsperiodeDokKontrollererSammenhengendeUttakTest {
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medPeriode(FOM, TOM)
             .medArbeidsgiver(arbeidsgiver)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
 
         var kontrollerFaktaPeriode = kontroller(utsettelseArbeidPeriode);
@@ -268,7 +268,7 @@ public class SøknadsperiodeDokKontrollererSammenhengendeUttakTest {
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medPeriode(FOM, TOM)
             .medArbeidsgiver(arbeidsgiver)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
 
         var kontrollerFaktaPeriode = kontroller(utsettelseFeriePeriode);
@@ -282,7 +282,7 @@ public class SøknadsperiodeDokKontrollererSammenhengendeUttakTest {
             .medPeriode(FOM, TOM)
             .medArbeidsprosent(BigDecimal.TEN)
             .medArbeidsgiver(null)
-            .medErFrilanser(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.FRILANS)
             .build();
 
         var kontrollerFaktaPeriode = kontroller(graderingsperiode);
@@ -308,27 +308,10 @@ public class SøknadsperiodeDokKontrollererSammenhengendeUttakTest {
         return kontrollerer.kontrollerSøknadsperiode(oppgittPeriode);
     }
 
-    private OppgittPeriodeEntitet arbeidstakerPeriodeMedUtsettelseSykdom() {
-        return arbeidstakerPeriodeMedUtsettelse(UtsettelseÅrsak.SYKDOM);
-    }
-
-    private OppgittPeriodeEntitet frilansNæringsdrivendePeriodeMedUtsettelseSykdom() {
-        return frilansNæringsdrivendePeriodeMedUtsettelse(UtsettelseÅrsak.SYKDOM);
-    }
-
-    private OppgittPeriodeEntitet arbeidstakerPeriodeMedUtsettelse(UtsettelseÅrsak årsak) {
-        return periodeMedUtsettelse(true, arbeidsgiver(), årsak);
-    }
-
-    private OppgittPeriodeEntitet frilansNæringsdrivendePeriodeMedUtsettelse(UtsettelseÅrsak utsettelseÅrsak) {
-        return periodeMedUtsettelse(false, null, utsettelseÅrsak);
-    }
-
-    private OppgittPeriodeEntitet periodeMedUtsettelse(Boolean arbeidstaker, Arbeidsgiver arbeidsgiver, UtsettelseÅrsak utsettelseÅrsak) {
+    private OppgittPeriodeEntitet periodeMedUtsettelse(UtsettelseÅrsak utsettelseÅrsak) {
         return OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-            .medErArbeidstaker(arbeidstaker)
-            .medArbeidsgiver(arbeidsgiver)
-            .medÅrsak(utsettelseÅrsak).medPeriode(enDag, enDag).build();
+            .medÅrsak(utsettelseÅrsak)
+            .medPeriode(enDag, enDag).build();
     }
 }

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
@@ -170,9 +171,9 @@ public class KontrollerFaktaPeriodeDto {
             medBekreftet(periode.erBekreftet());
             medUttakPeriodeVurderingType(periode.getVurdering());
             medArbeidsgiver(arbeidsgiverReferanse);
-            medArbeidstaker(periode.getOppgittPeriode().isArbeidstaker());
-            medFrilans(periode.getOppgittPeriode().isFrilanser());
-            medSelvstendig(periode.getOppgittPeriode().isSelvstendig());
+            medArbeidstaker(periode.getOppgittPeriode().getGraderingAktivitetType() == GraderingAktivitetType.ARBEID);
+            medFrilans(periode.getOppgittPeriode().getGraderingAktivitetType() == GraderingAktivitetType.FRILANS);
+            medSelvstendig(periode.getOppgittPeriode().getGraderingAktivitetType() == GraderingAktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE);
             medSamtidigUttak(periode.getOppgittPeriode().isSamtidigUttak());
             medSamtidigUttaksprosent(periode.getOppgittPeriode().getSamtidigUttaksprosent());
             medMorsaktivitet(periode.getOppgittPeriode().getMorsAktivitet());

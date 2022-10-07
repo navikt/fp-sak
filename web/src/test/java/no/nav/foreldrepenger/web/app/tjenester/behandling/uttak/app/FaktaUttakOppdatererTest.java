@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -170,6 +171,7 @@ public class FaktaUttakOppdatererTest {
                 .medUttakPeriodeType(UttakPeriodeType.MØDREKVOTE)
                 .medArbeidstidsprosent(BigDecimal.TEN)
                 .medArbeidsgiver(arbeidsgiverDto)
+                .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
                 .medMottattDato(LocalDate.now())
                 .build());
         avklarFaktaDto.setBekreftedePerioder(List.of(bekreftetDto));

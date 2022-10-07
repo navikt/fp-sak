@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType.FRILANS;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE;
 import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.map;
 
 import java.time.LocalDate;
@@ -143,10 +145,10 @@ public class SøknadGrunnlagBygger {
     }
 
     private static Set<AktivitetIdentifikator> finnGraderteAktiviteter(OppgittPeriodeEntitet oppgittPeriode, Set<AktivitetIdentifikator> aktiviter) {
-        if (oppgittPeriode.isFrilanser()) {
+        if (oppgittPeriode.getGraderingAktivitetType() == FRILANS) {
             return aktivieterMedType(aktiviter, AktivitetType.FRILANS);
         }
-        if (oppgittPeriode.isSelvstendig()) {
+        if (oppgittPeriode.getGraderingAktivitetType() == SELVSTENDIG_NÆRINGSDRIVENDE) {
             return aktivieterMedType(aktiviter, AktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE);
         }
         return aktivieterMedType(aktiviter, AktivitetType.ARBEID).stream()
