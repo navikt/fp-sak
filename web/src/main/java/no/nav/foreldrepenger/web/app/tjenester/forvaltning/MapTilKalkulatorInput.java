@@ -300,6 +300,7 @@ class MapTilKalkulatorInput {
 
     private static OppgittOpptjeningDto mapOppgittOpptjening(Optional<no.nav.folketrygdloven.kalkulator.modell.iay.OppgittOpptjeningDto> oppgittOpptjening) {
         return oppgittOpptjening.map(oppgittOpptjeningDto -> new OppgittOpptjeningDto(
+            null,
             mapFrilans(oppgittOpptjeningDto.getFrilans()),
             mapNæringer(oppgittOpptjeningDto.getEgenNæring()),
             null)).orElse(null);
