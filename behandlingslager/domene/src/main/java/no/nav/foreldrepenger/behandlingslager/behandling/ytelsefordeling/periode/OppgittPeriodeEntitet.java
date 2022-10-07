@@ -312,7 +312,7 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         } else if (erFrilanser) {
             return GraderingAktivitetType.FRILANS;
         } else {
-            return GraderingAktivitetType.ANNET;
+            return null;
         }
     }
 

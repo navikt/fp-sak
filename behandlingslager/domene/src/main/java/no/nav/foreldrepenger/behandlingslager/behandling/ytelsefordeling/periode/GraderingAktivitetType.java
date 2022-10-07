@@ -4,5 +4,4 @@ public enum GraderingAktivitetType {
     ARBEID,
     SELVSTENDIG_NÆRINGSDRIVENDE,
     FRILANS,
-    ANNET;
 }
