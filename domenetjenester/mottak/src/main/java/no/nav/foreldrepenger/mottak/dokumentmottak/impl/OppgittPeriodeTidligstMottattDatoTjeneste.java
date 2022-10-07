@@ -228,7 +228,7 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
             this(periode.getÅrsak(), periode.getPeriodeType(), periode.getSamtidigUttaksprosent(), periode.isGradert() ? new SammenligningGraderingForOppgitt(periode) : null, periode.isFlerbarnsdager(), periode.getMorsAktivitet());
         }
     }
-    
+
     private record SammenligningGraderingForOppgitt(GraderingAktivitetType gradertAktivitet, Stillingsprosent arbeidsprosent, Arbeidsgiver arbeidsgiver) {
         SammenligningGraderingForOppgitt(OppgittPeriodeEntitet periode) {
             this(periode.utledGraderingAktivitetType(), periode.getArbeidsprosentSomStillingsprosent(), periode.getArbeidsgiver());
