@@ -102,7 +102,7 @@ class FarsJustering implements ForelderFødselJustering {
     }
 
     private boolean erFedrekvoteRundtTermin(OppgittPeriodeEntitet op) {
-        return op.isSamtidigUttak() && erFedrekvote(op) && liggerIIntervalletRundtTermin(op) && !op.isFlerbarnsdager();
+        return op.isSamtidigUttak() && (erFedrekvote(op) || erForeldrepenger(op)) && liggerIIntervalletRundtTermin(op) && !op.isFlerbarnsdager();
     }
 
     private Boolean liggerIIntervalletRundtTermin(OppgittPeriodeEntitet op) {
@@ -112,6 +112,10 @@ class FarsJustering implements ForelderFødselJustering {
 
     private Optional<LocalDateInterval> intervallRundt(LocalDate dato) {
         return TidsperiodeFarRundtFødsel.intervallFarRundtFødsel(false, true, dato, dato);
+    }
+
+    private boolean erForeldrepenger(OppgittPeriodeEntitet op) {
+        return UttakPeriodeType.FORELDREPENGER.equals(op.getPeriodeType());
     }
 
     private boolean erFedrekvote(OppgittPeriodeEntitet op) {
