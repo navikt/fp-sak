@@ -54,7 +54,7 @@ public class ForeslåBeregningsgrunnlag2Steg implements BeregningsgrunnlagSteg {
         var ref = BehandlingReferanse.fra(behandling);
         var input = getInputTjeneste(ref.fagsakYtelseType()).lagInput(ref.behandlingId());
         if (input.isEnabled(SPLITT_FORESLÅ_TOGGLE, false)) {
-            var resultat = beregningsgrunnlagKopierOgLagreTjeneste.foreslåBeregningsgrunnlag2(input);
+            var resultat = beregningsgrunnlagKopierOgLagreTjeneste.fortsettForeslåBeregningsgrunnlag(input);
             var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map)
                 .collect(Collectors.toList());
             return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);

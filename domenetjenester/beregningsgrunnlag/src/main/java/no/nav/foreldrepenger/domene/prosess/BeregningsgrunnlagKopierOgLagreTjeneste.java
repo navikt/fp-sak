@@ -27,9 +27,9 @@ import javax.inject.Inject;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.FaktaOmBeregningInput;
 import no.nav.folketrygdloven.kalkulator.input.FordelBeregningsgrunnlagInput;
-import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagDel2Input;
 import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.ForeslåBesteberegningInput;
+import no.nav.folketrygdloven.kalkulator.input.FortsettForeslåBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.VurderRefusjonBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
 import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;
@@ -220,11 +220,11 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             beregningResultatAggregat.getBeregningAvklaringsbehovResultater());
     }
 
-    public BeregningsgrunnlagVilkårOgAkjonspunktResultat foreslåBeregningsgrunnlag2(BeregningsgrunnlagInput input) {
+    public BeregningsgrunnlagVilkårOgAkjonspunktResultat fortsettForeslåBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         var behandlingId = input.getKoblingReferanse().getKoblingId();
-        var foreslåBeregningsgrunnlag2Input = (ForeslåBeregningsgrunnlagDel2Input) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
+        var foreslåBeregningsgrunnlag2Input = (FortsettForeslåBeregningsgrunnlagInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
             behandlingId, input, BehandlingStegType.FORTSETT_FORESLÅ_BEREGNINGSGRUNNLAG);
-        var beregningResultatAggregat = beregningsgrunnlagTjeneste.foreslåBeregningsgrunnlagDel2(
+        var beregningResultatAggregat = beregningsgrunnlagTjeneste.fortsettForeslåBeregningsgrunnlag(
             foreslåBeregningsgrunnlag2Input);
         var nyttBg = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(
             beregningResultatAggregat.getBeregningsgrunnlag(),
