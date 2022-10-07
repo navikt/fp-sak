@@ -304,6 +304,18 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         return getÅrsak() instanceof UtsettelseÅrsak;
     }
 
+    public GraderingAktivitetType utledGraderingAktivitetType() {
+        if (erArbeidstaker) {
+            return GraderingAktivitetType.ARBEID;
+        } else if (erSelvstendig) {
+            return GraderingAktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE;
+        } else if (erFrilanser) {
+            return GraderingAktivitetType.FRILANS;
+        } else {
+            return null;
+        }
+    }
+
     public LocalDate getMottattDato() {
         return mottattDato;
     }

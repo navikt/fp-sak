@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -25,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.VedtaksperioderHelper;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -113,7 +115,7 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
             .flatMap(uttakRepository::hentUttakResultatHvisEksisterer).orElse(null);
         var tidligstedato = nysøknad.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder()).orElse(null);
         List<OppgittPeriodeEntitet> perioderURBekreft = forrigeUttak != null && tidligstedato != null ? VedtaksperioderHelper.opprettOppgittePerioder(forrigeUttak, List.of(), tidligstedato) : List.of();
-        List<OppgittPeriodeEntitet> perioderURSøknad = forrigeUttak != null && tidligstedato != null ?  VedtaksperioderHelper.opprettOppgittePerioderSøknadverdier(forrigeUttak, List.of(), tidligstedato) : List.of();
+        List<OppgittPeriodeEntitet> perioderURSøknad = forrigeUttak != null && tidligstedato != null ?  VedtaksperioderHelper.opprettOppgittePerioderSøknadverdier(forrigeUttak, tidligstedato) : List.of();
 
         // Bygg tidslinjer for uttaksperioder
         var tidslinjeSammenlignNy =  new LocalDateTimeline<>(nysøknad.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), new SammenligningPeriodeForMottat(p))).toList());
@@ -188,18 +190,26 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
     }
 
     public void sjekkOmPerioderKanForkastesSomLike(Behandling behandling, List<OppgittPeriodeEntitet> nysøknad) {
-        var tidslinjeSammenlignNy =  new LocalDateTimeline<>(nysøknad.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), new SammenligningPeriodeForOppgitt(p))).toList());
+        if (nysøknad.isEmpty()) {
+            return;
+        }
+        // Tidslinje og tidligste dato fra ny søknad
+        var tidligstedato = nysøknad.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder()).orElseThrow();
+        var tidslinjeSammenlignNy =  new LocalDateTimeline<>(nysøknad.stream().map(p -> new LocalDateSegment<>(VirkedagUtil.lørdagSøndagTilMandag(p.getFom()), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), new SammenligningPeriodeForOppgitt(p))).toList());
 
+        // Tidslinje for innvilgete peridoder fra forrige uttaksresultat - kun fom tidligstedato
         var forrigeUttak = behandling.getOriginalBehandlingId()
             .flatMap(uttakRepository::hentUttakResultatHvisEksisterer).orElse(null);
-        var tidligstedato = nysøknad.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder()).orElse(null);
+        List<OppgittPeriodeEntitet> perioderURBekreft = forrigeUttak != null ? VedtaksperioderHelper.opprettOppgittePerioderKunInnvilget(forrigeUttak, tidligstedato) : List.of();
+        var segmenter = perioderURBekreft.stream().map(p -> new LocalDateSegment<>(VirkedagUtil.lørdagSøndagTilMandag(p.getFom()), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), new SammenligningPeriodeForOppgitt(p))).toList();
+        var tidslinjeSammenlignURB =  new LocalDateTimeline<>(segmenter).intersection(new LocalDateInterval(tidligstedato, LocalDateInterval.TIDENES_ENDE));
 
-        List<OppgittPeriodeEntitet> perioderURBekreft = forrigeUttak != null && tidligstedato != null ? VedtaksperioderHelper.opprettOppgittePerioder(forrigeUttak, List.of(), tidligstedato) : List.of();
-        var tidslinjeSammenlignURB =  new LocalDateTimeline<>(perioderURBekreft.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), new SammenligningPeriodeForOppgitt(p))).toList());
+        // Finner segmenter der de to tidslinjene (søknad vs vedtakFomTidligsteDatoSøknad) er ulike
+        var ulike = tidslinjeSammenlignNy.combine(tidslinjeSammenlignURB, (i, l, r) -> new LocalDateSegment<>(i, !Objects.equals(l ,r)), LocalDateTimeline.JoinStyle.CROSS_JOIN)
+            .filterValue(v -> v);
 
-        var sammenfall = tidslinjeSammenlignNy.combine(tidslinjeSammenlignURB, this::leftIfEqualsRight, LocalDateTimeline.JoinStyle.INNER_JOIN);
-        var nyheter = tidslinjeSammenlignNy.disjoint(sammenfall);
-        var førsteNyhet = nyheter.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder());
+        // Første segment med ulikhet
+        var førsteNyhet = ulike.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder());
         if (førsteNyhet.isPresent() &&!førsteNyhet.get().equals(tidligstedato)) {
             LOG.info("SØKNAD KAST PERIODER: behandling {} kan kaste perioder mellom {} og {}", behandling.getId(), tidligstedato, førsteNyhet.get());
         }
@@ -219,9 +229,9 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
         }
     }
 
-    private record SammenligningGraderingForOppgitt(boolean erArbeidstaker, Stillingsprosent arbeidsprosent, Arbeidsgiver arbeidsgiver) {
+    private record SammenligningGraderingForOppgitt(GraderingAktivitetType gradertAktivitet, Stillingsprosent arbeidsprosent, Arbeidsgiver arbeidsgiver) {
         SammenligningGraderingForOppgitt(OppgittPeriodeEntitet periode) {
-            this(periode.isArbeidstaker(), periode.getArbeidsprosentSomStillingsprosent(), periode.getArbeidsgiver());
+            this(periode.utledGraderingAktivitetType(), periode.getArbeidsprosentSomStillingsprosent(), periode.getArbeidsgiver());
         }
     }
 
