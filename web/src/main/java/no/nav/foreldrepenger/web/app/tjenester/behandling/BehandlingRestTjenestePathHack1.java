@@ -84,7 +84,7 @@ public class BehandlingRestTjenestePathHack1 {
                                                     @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto)
         throws URISyntaxException {
         LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), STATUS_PATH);
-        return behandlingRestTjeneste.hentBehandlingMidlertidigStatus(request, new BehandlingIdDto(uuidDto), gruppeDto);
+        return behandlingRestTjeneste.getMidlertidigStatusResponse(request, new BehandlingIdDto(uuidDto), gruppeDto);
     }
 
     @GET
@@ -96,6 +96,6 @@ public class BehandlingRestTjenestePathHack1 {
     public Response hentBehandlingResultat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), BASE_PATH);
-        return behandlingRestTjeneste.hentBehandlingResultat(new BehandlingIdDto(uuidDto));
+        return behandlingRestTjeneste.getAsynkResultatResponse(new BehandlingIdDto(uuidDto));
     }
 }
