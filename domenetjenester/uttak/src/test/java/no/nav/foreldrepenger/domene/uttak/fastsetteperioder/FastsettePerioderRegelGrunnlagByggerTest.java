@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -127,7 +128,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medArbeidsprosent(arbeidsprosentFraSøknad)
             .medArbeidsgiver(virksomhet)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
 
         var behandling = setup(oppgittPeriode, virksomhet, BigDecimal.valueOf(100), aktivitet.getArbeidsforholdId(),
@@ -171,7 +172,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medArbeidsprosent(arbeidsprosent)
             .medArbeidsgiver(virksomhet)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
 
         var oppgittPeriode1 = OppgittPeriodeBuilder.ny()
@@ -229,7 +230,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             .medPeriode(fom, tom)
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medArbeidsprosent(arbeidsprosent)
-            .medErFrilanser(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.FRILANS)
             .build();
 
         var behandling = setupFrilans(oppgittPeriode, virksomhet);
@@ -265,7 +266,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medArbeidsprosent(arbeidsprosent)
             .medArbeidsgiver(arbeidsgiver)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
 
         var behandling = setupScenario(Collections.singletonList(oppgittPeriode));
@@ -373,7 +374,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsprosent(BigDecimal.ZERO)
             .medArbeidsgiver(virksomhet)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
 
         var avklarteUttakDatoerEntitet = new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(fødselsdato)
@@ -450,7 +451,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             .medPeriode(fom, tom)
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsgiver(virksomhet)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .medSamtidigUttak(true)
             .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .build();

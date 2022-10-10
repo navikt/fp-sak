@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.Pleiepenger
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
@@ -176,7 +177,7 @@ final class SøknadsperiodeDokKontrollerer {
     }
 
     private void validerSøknadsperiodeGraderingOrdinærtArbeidsforhold(OppgittPeriodeEntitet søknadsperiode) {
-        if (søknadsperiode.getArbeidsgiver() == null && søknadsperiode.isArbeidstaker()) {
+        if (søknadsperiode.getArbeidsgiver() == null && søknadsperiode.getGraderingAktivitetType() == GraderingAktivitetType.ARBEID) {
             throw KontrollerFaktaUttakFeil.søktGraderingUtenArbeidsgiver(søknadsperiode.getPeriodeType().getKode(),
                 søknadsperiode.getFom(), søknadsperiode.getTom());
         }

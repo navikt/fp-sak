@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.kompletthettjeneste.impl;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,18 +24,15 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class KompletthetssjekkerTestUtil {
 
     public static final AktørId AKTØR_ID  = AktørId.dummy();
-    public static final String ARBGIVER1 = "123456789";
-    public static final String ARBGIVER2 = "234567890";
 
-    private BehandlingRepositoryProvider repositoryProvider;
-    private BehandlingRepository behandlingRepository;
-    private FagsakRepository fagsakRepository;
+    private final BehandlingRepositoryProvider repositoryProvider;
+    private final BehandlingRepository behandlingRepository;
+    private final FagsakRepository fagsakRepository;
 
     public KompletthetssjekkerTestUtil(BehandlingRepositoryProvider repositoryProvider) {
         this.repositoryProvider = repositoryProvider;
@@ -49,10 +45,9 @@ public class KompletthetssjekkerTestUtil {
         var førstegangsbehandling = opprettOgAvsluttFørstegangsbehandling(scenario);
         settRelasjonPåFagsak(førstegangsbehandling.getFagsakId(), RelasjonsRolleType.MORA);
 
-        var scenario2 = ScenarioMorSøkerForeldrepenger.forFødselUtenSøknad(AKTØR_ID)
+        return ScenarioMorSøkerForeldrepenger.forFødselUtenSøknad(AKTØR_ID)
             .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
             .medBehandlingType(BehandlingType.REVURDERING);
-        return scenario2;
     }
 
     public ScenarioFarSøkerForeldrepenger opprettRevurderingsscenarioForFar() {
@@ -87,7 +82,7 @@ public class KompletthetssjekkerTestUtil {
     }
 
     public void byggOgLagreSøknadMedNyOppgittFordeling(Behandling behandling, boolean erEndringssøknad) {
-        byggOppgittFordeling(behandling, UtsettelseÅrsak.ARBEID, BigDecimal.valueOf(100), true, false, false);
+        byggOppgittFordelingMedUtsettelse(behandling, UtsettelseÅrsak.ARBEID);
         byggOgLagreSøknadMedEksisterendeOppgittFordeling(behandling, erEndringssøknad);
     }
 
@@ -110,7 +105,7 @@ public class KompletthetssjekkerTestUtil {
 
 
     public void byggOgLagreFørstegangsSøknadMedMottattdato(Behandling behandling, LocalDate søknadsdato, LocalDate stp) {
-        byggOppgittFordeling(behandling, stp, null, null, true, false, false);
+        byggOppgittFordelingMedUtsettelse(behandling, stp, null);
         byggFamilieHendelse(behandling);
         var søknad = new SøknadEntitet.Builder().medElektroniskRegistrert(true)
             .medSøknadsdato(søknadsdato)
@@ -120,25 +115,18 @@ public class KompletthetssjekkerTestUtil {
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
     }
 
-    public void byggOppgittFordeling(Behandling behandling, Årsak utsettelseÅrsak, BigDecimal arbeidsprosent, boolean erArbeidstaker, boolean erFrilanser, boolean erSelvstendig) {
-        byggOppgittFordeling(behandling, LocalDate.now(), utsettelseÅrsak, arbeidsprosent, erArbeidstaker, erFrilanser, erSelvstendig);
+    public void byggOppgittFordelingMedUtsettelse(Behandling behandling, Årsak utsettelseÅrsak) {
+        byggOppgittFordelingMedUtsettelse(behandling, LocalDate.now(), utsettelseÅrsak);
     }
 
-    private void byggOppgittFordeling(Behandling behandling, LocalDate stp,  Årsak utsettelseÅrsak, BigDecimal arbeidsprosent, boolean erArbeidstaker, boolean erFrilanser, boolean erSelvstendig) {
+    private void byggOppgittFordelingMedUtsettelse(Behandling behandling, LocalDate stp, Årsak utsettelseÅrsak) {
 
         var builder = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medPeriode(stp, stp.plusWeeks(10).minusDays(1))
-            .medErArbeidstaker(erArbeidstaker)
-            .medErFrilanser(erFrilanser)
-            .medErSelvstendig(erSelvstendig);
+            .medPeriode(stp, stp.plusWeeks(10).minusDays(1));
 
         if (utsettelseÅrsak != null) {
             builder.medÅrsak(utsettelseÅrsak);
-        }
-        if (arbeidsprosent != null) {
-            builder.medArbeidsgiver(Arbeidsgiver.virksomhet(ARBGIVER1));
-            builder.medArbeidsprosent(arbeidsprosent);
         }
 
         var fpPeriode = builder.build();

@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -50,7 +51,7 @@ public class SøknadsperiodeDokKontrollererFrittUttakTest {
             .medBegrunnelse("erstatter")
             .medVurdering(UttakPeriodeVurderingType.PERIODE_OK)
             .medArbeidsgiver(virksomhet)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
 
         var dokumentasjonPerioder = List.of(
@@ -156,7 +157,7 @@ public class SøknadsperiodeDokKontrollererFrittUttakTest {
             .medPeriode(FOM, TOM)
             .medArbeidsprosent(BigDecimal.valueOf(60))
             .medArbeidsgiver(arbeidsgiver)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
 
         var kontrollerFaktaPeriode = kontroller(graderingPeriode, graderingPeriode.getFom().minusMonths(2));
@@ -171,7 +172,7 @@ public class SøknadsperiodeDokKontrollererFrittUttakTest {
             .medPeriode(FOM, TOM)
             .medArbeidsgiver(null)
             .medArbeidsprosent(arbeidsprosent)
-            .medErFrilanser(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.FRILANS)
             .build();
 
         var kontrollerFaktaPeriode = kontroller(graderingPeriode, graderingPeriode.getFom().minusMonths(2));
@@ -187,7 +188,7 @@ public class SøknadsperiodeDokKontrollererFrittUttakTest {
             .medPeriode(FOM, TOM)
             .medArbeidsgiver(arbeidsgiver1)
             .medArbeidsprosent(arbeidsprosent)
-            .medErFrilanser(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.FRILANS)
             .build();
 
         var kontrollerFaktaPeriode = kontroller(graderingPeriode, graderingPeriode.getFom());
@@ -200,7 +201,7 @@ public class SøknadsperiodeDokKontrollererFrittUttakTest {
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medPeriode(FOM, TOM)
             .medArbeidsprosent(BigDecimal.valueOf(60))
-            .medErSelvstendig(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE)
             .build();
 
         var kontrollerFaktaPeriode = kontroller(graderingPeriode, graderingPeriode.getFom().plusMonths(2));
@@ -215,7 +216,7 @@ public class SøknadsperiodeDokKontrollererFrittUttakTest {
             .medPeriode(FOM, TOM)
             .medArbeidsprosent(BigDecimal.TEN)
             .medArbeidsgiver(arbeidsgiver)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
 
         var kontrollerFaktaPeriode = kontroller(graderingsperiode, graderingsperiode.getFom().minusMonths(2));
@@ -230,7 +231,7 @@ public class SøknadsperiodeDokKontrollererFrittUttakTest {
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medPeriode(FOM, TOM)
             .medArbeidsgiver(arbeidsgiver)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
 
         var kontrollerFaktaPeriode = kontroller(utsettelseArbeidPeriode, utsettelseArbeidPeriode.getFom().minusMonths(2));
@@ -245,7 +246,7 @@ public class SøknadsperiodeDokKontrollererFrittUttakTest {
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medPeriode(FOM, TOM)
             .medArbeidsgiver(arbeidsgiver)
-            .medErArbeidstaker(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
 
         var kontrollerFaktaPeriode = kontroller(utsettelseFeriePeriode, utsettelseFeriePeriode.getFom());
@@ -259,7 +260,7 @@ public class SøknadsperiodeDokKontrollererFrittUttakTest {
             .medPeriode(FOM, TOM)
             .medArbeidsprosent(BigDecimal.TEN)
             .medArbeidsgiver(null)
-            .medErFrilanser(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.FRILANS)
             .build();
 
         var kontrollerFaktaPeriode = kontroller(graderingsperiode, graderingsperiode.getFom().minusMonths(2));

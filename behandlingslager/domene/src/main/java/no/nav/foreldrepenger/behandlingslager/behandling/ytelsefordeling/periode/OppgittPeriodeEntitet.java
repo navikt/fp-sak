@@ -216,30 +216,6 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         this.begrunnelse = begrunnelse;
     }
 
-    public boolean isArbeidstaker() {
-        return erArbeidstaker;
-    }
-
-    void setArbeidstaker(boolean erArbeidstaker) {
-        this.erArbeidstaker = erArbeidstaker;
-    }
-
-    public boolean isFrilanser() {
-        return erFrilanser;
-    }
-
-    void setFrilanser(boolean erFrilanser) {
-        this.erFrilanser = erFrilanser;
-    }
-
-    public boolean isSelvstendig() {
-        return erSelvstendig;
-    }
-
-    void setSelvstendig(boolean erSelvstendig) {
-        this.erSelvstendig = erSelvstendig;
-    }
-
     public Arbeidsgiver getArbeidsgiver() {
         return arbeidsgiver;
     }
@@ -304,16 +280,14 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         return getÅrsak() instanceof UtsettelseÅrsak;
     }
 
-    public GraderingAktivitetType utledGraderingAktivitetType() {
-        if (erArbeidstaker) {
-            return GraderingAktivitetType.ARBEID;
-        } else if (erSelvstendig) {
-            return GraderingAktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE;
-        } else if (erFrilanser) {
-            return GraderingAktivitetType.FRILANS;
-        } else {
-            return null;
-        }
+    public GraderingAktivitetType getGraderingAktivitetType() {
+        return GraderingAktivitetType.from(erArbeidstaker, erFrilanser, erSelvstendig);
+    }
+
+    public void setGraderingAktivitetType(GraderingAktivitetType type) {
+        this.erArbeidstaker = GraderingAktivitetType.ARBEID == type;
+        this.erFrilanser = GraderingAktivitetType.FRILANS == type;
+        this.erSelvstendig = GraderingAktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE == type;
     }
 
     public LocalDate getMottattDato() {
