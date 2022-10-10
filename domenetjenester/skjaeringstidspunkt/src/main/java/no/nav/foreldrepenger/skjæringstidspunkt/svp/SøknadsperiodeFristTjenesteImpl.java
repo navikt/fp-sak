@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
@@ -93,10 +94,17 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
     }
 
     private static Optional<LocalDate> utledTilretteleggingTomFraTermin(FamilieHendelseEntitet familieHendelse) {
-        return Optional.ofNullable(familieHendelse)
-            .filter(FamilieHendelseEntitet::getGjelderFødsel)
-            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
-            .map(d -> d.minus(SENESTE_UTTAK_FØR_TERMIN).minusDays(1));
+        var fh = Optional.ofNullable(familieHendelse).filter(FamilieHendelseEntitet::getGjelderFødsel);
+        var termindatoMinusFFF = fh.flatMap(FamilieHendelseEntitet::getTerminbekreftelse)
+            .map(TerminbekreftelseEntitet::getTermindato)
+            .map(t -> t.minus(SENESTE_UTTAK_FØR_TERMIN));
+        var fødselsdato = fh.flatMap(FamilieHendelseEntitet::getFødselsdato);
+        if (termindatoMinusFFF.isPresent() && fødselsdato.filter(f -> f.isBefore(termindatoMinusFFF.get())).isPresent()) {
+            return fødselsdato.map(f -> f.minusDays(1));
+        }
+        return termindatoMinusFFF
+            .or(() -> fh.map(FamilieHendelseEntitet::getSkjæringstidspunkt).map(d -> d.minus(SENESTE_UTTAK_FØR_TERMIN)))
+            .map(t -> t.minusDays(1));
     }
 
 }
