@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
@@ -38,6 +37,8 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ExtendWith(MockitoExtension.class)
 public class FagsakTjenesteTest {
@@ -74,7 +75,7 @@ public class FagsakTjenesteTest {
     public void oppsett() {
         var prosesseringAsynkTjeneste = mock(ProsesseringAsynkTjeneste.class);
         tjeneste = new FagsakTjeneste(fagsakRepository, behandlingRepository, prosesseringAsynkTjeneste, personinfoAdapter, null, hendelseTjeneste,
-            null, dekningsgradTjeneste);
+            null);
     }
 
     @Test
@@ -92,16 +93,13 @@ public class FagsakTjenesteTest {
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(anyLong()))
                 .thenReturn(Optional.of(Behandling.forFørstegangssøknad(fagsak).build()));
         when(hendelseTjeneste.finnAggregat(any())).thenReturn(Optional.of(grunnlag));
-        var dekningsgrad = Optional.of(Dekningsgrad._100);
-        when(dekningsgradTjeneste.finnDekningsgrad(any())).thenReturn(dekningsgrad);
 
         var view = tjeneste.søkFagsakDto(FNR);
 
         assertThat(view).hasSize(1);
-        assertThat(view.get(0).getSaksnummer()).isEqualTo(fagsak.getSaksnummer().getVerdi());
-        assertThat(view.get(0).getBarnFodt()).isEqualTo(fødselsdato);
-        assertThat(view.get(0).getFagsakYtelseType()).isEqualTo(FagsakYtelseType.ENGANGSTØNAD);
-        assertThat(view.get(0).getDekningsgrad()).isEqualTo(Dekningsgrad._100.getVerdi());
+        assertThat(view.get(0).saksnummer()).isEqualTo(fagsak.getSaksnummer().getVerdi());
+        assertThat(view.get(0).barnFødt()).isEqualTo(fødselsdato);
+        assertThat(view.get(0).fagsakYtelseType()).isEqualTo(FagsakYtelseType.ENGANGSTØNAD);
     }
 
     @Test
@@ -117,15 +115,12 @@ public class FagsakTjenesteTest {
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(anyLong()))
                 .thenReturn(Optional.of(Behandling.forFørstegangssøknad(fagsak).build()));
         when(hendelseTjeneste.finnAggregat(any())).thenReturn(Optional.of(grunnlag));
-        var dekningsgrad = Optional.of(Dekningsgrad._80);
-        when(dekningsgradTjeneste.finnDekningsgrad(any())).thenReturn(dekningsgrad);
 
         var view = tjeneste.søkFagsakDto(SAKSNUMMER.getVerdi());
 
         assertThat(view).hasSize(1);
-        assertThat(view.get(0).getSaksnummer()).isEqualTo(fagsak.getSaksnummer().getVerdi());
-        assertThat(view.get(0).getBarnFodt()).isEqualTo(fødselsdato);
-        assertThat(view.get(0).getDekningsgrad()).isEqualTo(Dekningsgrad._80.getVerdi());
+        assertThat(view.get(0).saksnummer()).isEqualTo(fagsak.getSaksnummer().getVerdi());
+        assertThat(view.get(0).barnFødt()).isEqualTo(fødselsdato);
     }
 
     @Test
@@ -157,7 +152,9 @@ public class FagsakTjenesteTest {
 
     @Test
     public void skal_returnere_tomt_view_ved_ukjent_saksnr() {
+        System.out.println(DefaultJsonMapper.toJson(new TestSak(new SaksnummerDto("921345678"))));
         var view = tjeneste.søkFagsakDto(valueOf(SAKSNUMMER));
         assertThat(view).isEmpty();
     }
+    private record TestSak(SaksnummerDto saksnummer) {}
 }

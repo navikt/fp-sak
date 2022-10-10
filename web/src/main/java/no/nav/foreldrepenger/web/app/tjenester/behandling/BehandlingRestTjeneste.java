@@ -163,6 +163,8 @@ public class BehandlingRestTjeneste {
         @NotNull @Valid BehandlingIdDto behandlingIdDto) throws URISyntaxException {
         var behandling = getBehandling(behandlingIdDto);
 
+        LOG.info("REST DEPRECATED {} POST {}", this.getClass().getSimpleName(), BASE_PATH);
+
         var gruppeOpt = behandlingsprosessTjeneste.sjekkOgForberedAsynkInnhentingAvRegisteropplysningerOgKjørProsess(behandling);
 
         // sender alltid til poll status slik at vi får sjekket på utestående prosess
@@ -185,6 +187,7 @@ public class BehandlingRestTjeneste {
             @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto)
         throws URISyntaxException {
         var behandling = getBehandling(behandlingIdDto);
+        LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), BEHANDLINGER_STATUS_PART_PATH);
         var gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
         var prosessTaskGruppePågår = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, gruppe);
         return Redirect.tilBehandlingEllerPollStatus(request, behandling.getUuid(), prosessTaskGruppePågår.orElse(null));
@@ -204,6 +207,7 @@ public class BehandlingRestTjeneste {
     public Response hentBehandlingResultat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
         @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
         var behandling = getBehandling(behandlingIdDto);
+        LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), BASE_PATH);
         var taskStatus = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, null).orElse(null);
         var dto = behandlingDtoTjeneste.lagUtvidetBehandlingDto(behandling, taskStatus);
         var responseBuilder = Response.ok().entity(dto);

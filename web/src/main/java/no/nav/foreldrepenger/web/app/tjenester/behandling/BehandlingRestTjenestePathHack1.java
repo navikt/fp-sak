@@ -17,6 +17,9 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -49,6 +52,8 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Produces(MediaType.APPLICATION_JSON)
 public class BehandlingRestTjenestePathHack1 {
 
+    private static final Logger LOG = LoggerFactory.getLogger(BehandlingRestTjenestePathHack1.class);
+
     static final String BASE_PATH = "/behandling";
     private static final String BEHANDLING_PART_PATH = "";
     public static final String BEHANDLING_PATH = BASE_PATH + BEHANDLING_PART_PATH;
@@ -78,6 +83,7 @@ public class BehandlingRestTjenestePathHack1 {
                                                     @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto,
                                                     @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto)
         throws URISyntaxException {
+        LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), STATUS_PATH);
         return behandlingRestTjeneste.hentBehandlingMidlertidigStatus(request, new BehandlingIdDto(uuidDto), gruppeDto);
     }
 
@@ -89,6 +95,7 @@ public class BehandlingRestTjenestePathHack1 {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentBehandlingResultat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), BASE_PATH);
         return behandlingRestTjeneste.hentBehandlingResultat(new BehandlingIdDto(uuidDto));
     }
 }
