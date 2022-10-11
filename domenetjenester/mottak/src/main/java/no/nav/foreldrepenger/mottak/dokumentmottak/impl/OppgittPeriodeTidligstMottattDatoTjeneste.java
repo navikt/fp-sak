@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
@@ -213,14 +212,6 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
             .toList();
         // Ser kun på perioder fom tidligsteFom fra søknad.
         var tidslinjeSammenlignVedtak =  new LocalDateTimeline<>(segmenterVedtak).intersection(new LocalDateInterval(tidligsteFom, LocalDateInterval.TIDENES_ENDE));
-        // Fyll opp hull i tidslinjen med FRI utsettelse - med en liten stopp for lange løkker
-        var discontinuity = tidslinjeSammenlignVedtak.firstDiscontinuity();
-        int teller = 0;
-        while (discontinuity != null && teller++ < 10) {
-            var pauseSegment = new LocalDateSegment<>(discontinuity, SammenligningPeriodeForOppgitt.friUtsettelse());
-            tidslinjeSammenlignVedtak = tidslinjeSammenlignVedtak.combine(new LocalDateTimeline<>(List.of(pauseSegment)), StandardCombinators::coalesceLeftHandSide, LocalDateTimeline.JoinStyle.CROSS_JOIN);
-            discontinuity = tidslinjeSammenlignVedtak.firstDiscontinuity();
-        }
 
         // Finner segmenter der de to tidslinjene (søknad vs vedtakFomTidligsteDatoSøknad) er ulike
         var ulike = tidslinjeSammenlignSøknad.combine(tidslinjeSammenlignVedtak, (i, l, r) -> new LocalDateSegment<>(i, !Objects.equals(l ,r)), LocalDateTimeline.JoinStyle.CROSS_JOIN)
@@ -295,10 +286,6 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
     private record SammenligningPeriodeForOppgitt(Årsak årsak, UttakPeriodeType periodeType, SamtidigUttaksprosent samtidigUttaksprosent, SammenligningGraderingForOppgitt gradering, boolean flerbarnsdager, MorsAktivitet morsAktivitet) {
         SammenligningPeriodeForOppgitt(OppgittPeriodeEntitet periode) {
             this(periode.getÅrsak(), periode.getPeriodeType(), periode.getSamtidigUttaksprosent(), periode.isGradert() ? new SammenligningGraderingForOppgitt(periode) : null, periode.isFlerbarnsdager(), periode.getMorsAktivitet());
-        }
-
-        static SammenligningPeriodeForOppgitt friUtsettelse() {
-            return new SammenligningPeriodeForOppgitt(UtsettelseÅrsak.FRI, UttakPeriodeType.UDEFINERT, null, null, false, MorsAktivitet.UDEFINERT);
         }
     }
 

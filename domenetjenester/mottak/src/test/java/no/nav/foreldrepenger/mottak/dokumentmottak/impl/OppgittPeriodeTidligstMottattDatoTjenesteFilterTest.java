@@ -269,7 +269,7 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteFilterTest extends EntityM
     }
 
     @Test
-    public void utViderFriUtsettelseOgSenereUttak() {
+    public void utviderPeriodeUtenUttakOgLeggerTilSenereUttak() {
         var fom0 = LocalDate.of(2022, 10, 4);
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
@@ -306,7 +306,7 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteFilterTest extends EntityM
             .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
             .lagre(repositoryProvider);
 
-        // Utvider utsettelse med et par dager
+        // Utvider oppholdet mellom uttaket med et par dager
         var søknad0 = OppgittPeriodeBuilder.ny()
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fom0, fom0.plusDays(1))
@@ -314,19 +314,14 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteFilterTest extends EntityM
             .build();
         var søknad1 = OppgittPeriodeBuilder.ny()
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
-            .medÅrsak(UtsettelseÅrsak.FRI)
-            .medPeriode(fom0.plusDays(2), fom.plusDays(2))
-            .build();
-        var søknad2 = OppgittPeriodeBuilder.ny()
-            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fom.plusDays(3), tom.plusWeeks(2))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
 
-        var filtrert = tjeneste.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling, List.of(søknad0, søknad1, søknad2));
+        var filtrert = tjeneste.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling, List.of(søknad0, søknad1));
         assertThat(filtrert).hasSize(2);
-        assertThat(filtrert.stream().anyMatch(p -> p.getFom().equals(fom) && søknad1.getÅrsak().equals(p.getÅrsak()))).isTrue();
-        assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad2))).isTrue();
+        assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad0))).isTrue();
+        assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad1))).isTrue();
     }
 
 }
