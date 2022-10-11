@@ -62,6 +62,19 @@ public class ForvaltningUttakRestTjeneste {
     }
 
     @POST
+    @Path("/endre-annen-forelder-rett-eøs")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Operation(description = "Endrer om annen forelder har rett i eøs i oppgitte rettighet", tags = "FORVALTNING-uttak")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response endreAnnenForelderRettEØS(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
+                                           @QueryParam(value = "harRettEØS") @Valid Boolean harRettEØS) {
+        Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
+
+        forvaltningUttakTjeneste.endreAnnenForelderHarRettEØS(dto.getBehandlingUuid(), harRettEØS);
+        return Response.noContent().build();
+    }
+
+    @POST
     @Path("/endre-aleneomsorg")
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Endrer om bruker har aleneomsorg", tags = "FORVALTNING-uttak")
