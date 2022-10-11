@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -19,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAkt
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
@@ -187,6 +189,59 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
         SammenligningGraderingForMottatt(OppgittPeriodeEntitet periode) {
             this(periode.getGraderingAktivitetType(), periode.getArbeidsprosentSomStillingsprosent(), periode.getArbeidsgiver());
         }
+    }
+
+    public List<OppgittPeriodeEntitet> filtrerVekkPerioderSomErLikeInnvilgetUttak(Behandling behandling, List<OppgittPeriodeEntitet> nysøknad) {
+        if (nysøknad.isEmpty()) {
+            return List.of();
+        }
+        // Tidslinje og tidligste/seneste dato fra ny søknad
+        var tidligsteFom = nysøknad.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder()).orElseThrow();
+        var senesteTom = nysøknad.stream().map(OppgittPeriodeEntitet::getTom).max(Comparator.naturalOrder()).orElseThrow();
+        var segmenterSøknad = nysøknad.stream()
+            .map(p -> new LocalDateSegment<>(VirkedagUtil.lørdagSøndagTilMandag(p.getFom()), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), new SammenligningPeriodeForOppgitt(p)))
+            .toList();
+        var tidslinjeSammenlignSøknad =  new LocalDateTimeline<>(segmenterSøknad);
+
+        // Tidslinje for innvilgete peridoder fra forrige uttaksresultat - kun fom tidligstedato
+        var forrigeUttak = behandling.getOriginalBehandlingId()
+            .flatMap(uttakRepository::hentUttakResultatHvisEksisterer).orElse(null);
+        List<OppgittPeriodeEntitet> gjeldendeVedtaksperioder = forrigeUttak != null ? VedtaksperioderHelper.opprettOppgittePerioderKunInnvilget(forrigeUttak, tidligsteFom) : List.of();
+        var segmenterVedtak = gjeldendeVedtaksperioder.stream()
+            .map(p -> new LocalDateSegment<>(VirkedagUtil.lørdagSøndagTilMandag(p.getFom()), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), new SammenligningPeriodeForOppgitt(p)))
+            .toList();
+        // Ser kun på perioder fom tidligsteFom fra søknad.
+        var tidslinjeSammenlignVedtak =  new LocalDateTimeline<>(segmenterVedtak).intersection(new LocalDateInterval(tidligsteFom, LocalDateInterval.TIDENES_ENDE));
+
+        // Finner segmenter der de to tidslinjene (søknad vs vedtakFomTidligsteDatoSøknad) er ulike
+        var ulike = tidslinjeSammenlignSøknad.combine(tidslinjeSammenlignVedtak, (i, l, r) -> new LocalDateSegment<>(i, !Objects.equals(l ,r)), LocalDateTimeline.JoinStyle.CROSS_JOIN)
+            .filterValue(v -> v);
+
+        // Første segment med ulikhet
+        var førsteNyhet = ulike.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(null);
+
+        // Alle periodene er like eller eksisterende vedtak har perioder etter ny søknad -> returner seneste periode i søknaden inntil videre.
+        if (førsteNyhet == null || førsteNyhet.isAfter(senesteTom)) {
+            var sistePeriodeFraSøknad = nysøknad.stream().max(Comparator.comparing(OppgittPeriodeEntitet::getTom).thenComparing(OppgittPeriodeEntitet::getFom)).orElseThrow();
+            LOG.info("SØKNAD FILTER PERIODER: behandling {} kan forkaste alle perioder men returnerer periode med fom {}", behandling.getId(), sistePeriodeFraSøknad.getFom());
+            return List.of(sistePeriodeFraSøknad);
+        } else if (nysøknad.stream().map(OppgittPeriodeEntitet::getFom).anyMatch(førsteNyhet::isEqual)) { // Matcher en ny periode, velg fom førsteNyhet
+            LOG.info("SØKNAD FILTER PERIODER: behandling {} beholder perioder fom {}", behandling.getId(), førsteNyhet);
+            return nysøknad.stream().filter(p -> !p.getTom().isBefore(førsteNyhet)).collect(Collectors.toList());
+        } else { // Må knekke en periode, velg fom førsteNyhet
+            LOG.info("SØKNAD FILTER PERIODER: behandling {} knekker og beholder perioder fom {}", behandling.getId(), førsteNyhet);
+            var knektePerioder = nysøknad.stream()
+                .filter(p -> p.getTidsperiode().inkluderer(førsteNyhet))
+                .map(p -> knekkPeriodeReturnerFom(p, førsteNyhet));
+            var perioderEtterNyhet = nysøknad.stream().filter(p -> p.getFom().isAfter(førsteNyhet));
+            return Stream.concat(knektePerioder, perioderEtterNyhet).collect(Collectors.toList());
+        }
+    }
+
+    private OppgittPeriodeEntitet knekkPeriodeReturnerFom(OppgittPeriodeEntitet periode, LocalDate fom) {
+        return OppgittPeriodeBuilder.fraEksisterende(periode)
+            .medPeriode(fom, periode.getTom())
+            .build();
     }
 
     public void sjekkOmPerioderKanForkastesSomLike(Behandling behandling, List<OppgittPeriodeEntitet> nysøknad) {
