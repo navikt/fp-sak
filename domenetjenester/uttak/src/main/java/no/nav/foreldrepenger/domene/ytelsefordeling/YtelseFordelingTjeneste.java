@@ -7,6 +7,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenForelderRettEØSEntitet;
@@ -100,6 +101,12 @@ public class YtelseFordelingTjeneste {
 
     public void aksjonspunktAvklarStartdatoForPerioden(Long behandlingId, BekreftStartdatoForPerioden adapter) {
         new BekreftStartdatoForPeriodenAksjonspunkt(ytelsesFordelingRepository).oppdater(behandlingId, adapter);
+    }
+
+    public void endreOppgittRettighet(long behandlingId, OppgittRettighetEntitet oppgittRettighetEntitet) {
+        var ytelseFordelingAggregatBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medOppgittRettighet(oppgittRettighetEntitet);
+        ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregatBuilder.build());
     }
 
     public void bekreftAnnenforelderHarRett(Long behandlingId, Boolean annenforelderHarRett, Boolean annenForelderHarRettEØS) {

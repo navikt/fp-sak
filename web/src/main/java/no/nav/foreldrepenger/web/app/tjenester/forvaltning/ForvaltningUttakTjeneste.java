@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
@@ -68,8 +69,28 @@ public class ForvaltningUttakTjeneste {
         if (UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, Optional.empty()) != harRett) {
             ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandlingId, harRett, null);
 
-            lagHistorikkinnslagRett(harRett, behandlingId);
+            var begrunnelse = harRett ? "FORVALTNING - Endret til annen forelder har rett" : "FORVALTNING - Endret til annen forelder har ikke rett";
+            lagHistorikkinnslagRett(behandlingId, begrunnelse);
         }
+    }
+
+    public void endreAnnenForelderHarRettEØS(UUID behandlingUUID, boolean annenForelderHarRettEØS) {
+        var behandling = behandlingRepository.hentBehandling(behandlingUUID);
+        if (behandling.erRevurdering()) {
+            throw new ForvaltningException("Kan ikke endre EØS rett i revurdering. Hvis nødvendig må vi utvide tjenesten til å lagre bekreftet versjon");
+        }
+        var behandlingId = behandling.getId();
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
+        if (ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring() != null) {
+            throw new ForvaltningException("Kan ikke endre oppgitt EØS rett hvis rett og omsorg allerede er avklart i aksjonspunkt. "
+                + "Hopp behandlingen tilbake til tidligere steg for å fjerne avklaringen. Senest steg KONTROLLER_OMSORG_RETT");
+        }
+
+        var nyRettighet = new OppgittRettighetEntitet(false, false, false, annenForelderHarRettEØS);
+        ytelseFordelingTjeneste.endreOppgittRettighet(behandlingId, nyRettighet);
+        var begrunnelse = annenForelderHarRettEØS ? "FORVALTNING - Endret til at bruker har oppgitt at annen forelder har rett i EØS" :
+            "FORVALTNING - Endret til at bruker har oppgitt at annen forelder ikke har rett i EØS";
+        lagHistorikkinnslagRett(behandlingId, begrunnelse);
     }
 
     public void endreAleneomsorg(UUID behandlingUuid, boolean aleneomsorg) {
@@ -88,13 +109,12 @@ public class ForvaltningUttakTjeneste {
         historikkRepository.lagre(historikkinnslag);
     }
 
-    private void lagHistorikkinnslagRett(boolean harRett, Long behandlingId) {
+    private void lagHistorikkinnslagRett(Long behandlingId, String begrunnelse) {
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         historikkinnslag.setBehandlingId(behandlingId);
 
-        var begrunnelse = harRett ? "FORVALTNING - Endret til annen forelder har rett" : "FORVALTNING - Endret til annen forelder har ikke rett";
         var historieBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
             .medBegrunnelse(begrunnelse);
         historieBuilder.build(historikkinnslag);
