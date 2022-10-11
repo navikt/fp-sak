@@ -53,6 +53,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
@@ -99,8 +100,7 @@ public class SøknadMapperTest {
     public void before(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
-        oppgittPeriodeMottattDato = new OppgittPeriodeTidligstMottattDatoTjeneste(
-            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), null);
+        oppgittPeriodeMottattDato = new OppgittPeriodeTidligstMottattDatoTjeneste(new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), new FpUttakRepository(entityManager));
 
         kvinne = new PersoninfoKjønn.Builder().medAktørId(STD_KVINNE_AKTØR_ID)
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)

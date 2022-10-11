@@ -524,17 +524,14 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                                                         boolean annenForelderErInformert,
                                                         LocalDate mottattDatoFraSøknad,
                                                         Boolean ønskerJustertVedFødsel) {
-        List<OppgittPeriodeEntitet> oppgittPerioder = new ArrayList<>();
 
-        for (var lukketPeriode : perioder) {
-            var oppgittPeriode = oversettPeriode(lukketPeriode);
-            oppgittPerioder.add(oppgittPeriode);
-        }
-        oppdaterMedMottattDato(oppgittPerioder, behandling, mottattDatoFraSøknad);
-        if (!inneholderVirkedager(oppgittPerioder)) {
+        var oppgittPerioder = perioder.stream().map(this::oversettPeriode).toList();
+        var filtrertPerioder = oppgittPeriodeTidligstMottattDatoTjeneste.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling, oppgittPerioder);
+        oppdaterMedMottattDato(filtrertPerioder, behandling, mottattDatoFraSøknad);
+        if (!inneholderVirkedager(filtrertPerioder)) {
             throw new IllegalArgumentException("Fordelingen må inneholde perioder med minst en virkedag");
         }
-        return new OppgittFordelingEntitet(oppgittPerioder, annenForelderErInformert, Objects.equals(ønskerJustertVedFødsel, true));
+        return new OppgittFordelingEntitet(filtrertPerioder, annenForelderErInformert, Objects.equals(ønskerJustertVedFødsel, true));
     }
 
     private void oppdaterMedMottattDato(List<OppgittPeriodeEntitet> oppgittPerioder,
@@ -565,11 +562,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             oppgittPeriodeTidligstMottattDatoTjeneste.sammenlignLoggMottattDato(behandling, oppgittPerioder);
         } catch (Exception e) {
             LOG.info("SØKNAD Datosammenligning ga feil", e);
-        }
-        try {
-            oppgittPeriodeTidligstMottattDatoTjeneste.sjekkOmPerioderKanForkastesSomLike(behandling, oppgittPerioder);
-        } catch (Exception e) {
-            LOG.info("SØKNAD forkasting ga feil", e);
         }
 
     }
