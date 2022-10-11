@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -229,10 +228,7 @@ public class BehandlingDtoTjeneste {
     }
 
     private boolean erBehandlingMedGjeldendeVedtak(Behandling behandling, Optional<Behandling> behandlingMedGjeldendeVedtak) {
-        if (behandlingMedGjeldendeVedtak.isEmpty()) {
-            return false;
-        }
-        return Objects.equals(behandlingMedGjeldendeVedtak.get().getId(), behandling.getId());
+        return behandlingMedGjeldendeVedtak.filter(b -> b.getId().equals(behandling.getId())).isPresent();
     }
 
     public UtvidetBehandlingDto lagUtvidetBehandlingDto(Behandling behandling, AsyncPollingStatus asyncStatus) {

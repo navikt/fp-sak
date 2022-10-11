@@ -46,6 +46,7 @@ public class InitielleLinksRestTjeneste {
         lenkene.add(get(KodeverkRestTjeneste.KODERVERK_PATH, "kodeverk"));
         lenkene.add(get(KodeverkRestTjeneste.ENHETER_PATH, "behandlende-enheter"));
         List<ResourceLink> saklenker = new ArrayList<>();
+        saklenker.add(get(FagsakRestTjeneste.FAGSAK_FULL_PATH, "fagsak-full"));
         saklenker.add(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak"));
         saklenker.add(get(FagsakRestTjeneste.PERSONER_PATH, "sak-personer"));
         saklenker.add(get(FagsakRestTjeneste.RETTIGHETER_PATH, "sak-rettigheter"));

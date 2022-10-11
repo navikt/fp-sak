@@ -40,8 +40,10 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOppretti
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SakRettigheterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.ProsessTaskGruppeIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakFullTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakSøkDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SakPersonerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
@@ -61,6 +63,8 @@ public class FagsakRestTjeneste {
     static final String BASE_PATH = "/fagsak";
     private static final String FAGSAK_PART_PATH = "";
     public static final String FAGSAK_PATH = BASE_PATH;
+    private static final String FAGSAK_FULL_PART_PATH = "/full";
+    public static final String FAGSAK_FULL_PATH = BASE_PATH + FAGSAK_FULL_PART_PATH;
     private static final String STATUS_PART_PATH = "/status";
     public static final String STATUS_PATH = BASE_PATH + STATUS_PART_PATH;
     private static final String PERSONER_PART_PATH = "/personer";
@@ -71,6 +75,7 @@ public class FagsakRestTjeneste {
     public static final String SOK_PATH = BASE_PATH + SOK_PART_PATH; // NOSONAR TFP-2234
 
     private FagsakTjeneste fagsakTjeneste;
+    private FagsakFullTjeneste fagsakFullTjeneste;
     private BehandlingsoppretterTjeneste behandlingsoppretterTjeneste;
 
     public FagsakRestTjeneste() {
@@ -78,9 +83,10 @@ public class FagsakRestTjeneste {
     }
 
     @Inject
-    public FagsakRestTjeneste(FagsakTjeneste fagsakTjeneste,
+    public FagsakRestTjeneste(FagsakTjeneste fagsakTjeneste, FagsakFullTjeneste fagsakFullTjeneste,
                               BehandlingsoppretterTjeneste behandlingsoppretterTjeneste) {
         this.fagsakTjeneste = fagsakTjeneste;
+        this.fagsakFullTjeneste = fagsakFullTjeneste;
         this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
     }
 
@@ -100,6 +106,20 @@ public class FagsakRestTjeneste {
         var gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
         var prosessTaskGruppePågår = fagsakTjeneste.sjekkProsessTaskPågår(saksnummer, gruppe);
         return Redirect.tilFagsakEllerPollStatus(request, saksnummer, prosessTaskGruppePågår.orElse(null));
+    }
+
+    @GET
+    @Path(FAGSAK_FULL_PART_PATH)
+    @Operation(description = "Hent full fagsaksaksinformasjon for saksnummer", tags = "fagsak", responses = {
+        @ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakDto.class))),
+        @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")
+    })
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    public Response hentFullFagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
+        var saksnummer = new Saksnummer(s.getVerdi());
+        return fagsakFullTjeneste.hentFullFagsakDtoForSaksnummer(saksnummer)
+            .map(f -> Response.ok(f).build())
+            .orElseGet(() -> Response.status(Response.Status.FORBIDDEN).build()); // Etablert praksis
     }
 
     @GET
@@ -140,7 +160,7 @@ public class FagsakRestTjeneste {
         +
         "Oversikt over saker knyttet til en bruker kan søkes via fødselsnummer eller d-nummer."))
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public List<FagsakDto> søkFagsaker(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
+    public List<FagsakSøkDto> søkFagsaker(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
         @Parameter(description = "Søkestreng kan være saksnummer, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
         return fagsakTjeneste.søkFagsakDto(søkestreng.getSearchString());
     }

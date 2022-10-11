@@ -13,6 +13,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -34,6 +37,8 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Path(BehandlingRestTjenestePathHack2.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
 public class BehandlingRestTjenestePathHack2 {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BehandlingRestTjenestePathHack2.class);
 
     static final String BASE_PATH = "/fagsak";
     private static final String FAGSAK_BEHANDLING_PART_PATH = "/behandling";
@@ -61,6 +66,7 @@ public class BehandlingRestTjenestePathHack2 {
     public List<BehandlingDto> hentAlleBehandlinger(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
         var saksnummer = new Saksnummer(s.getVerdi());
+        LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), FAGSAK_BEHANDLING_PATH);
         var behandlinger = behandlingsutredningTjeneste.hentBehandlingerForSaksnummer(saksnummer);
         return behandlingDtoTjeneste.lagBehandlingDtoer(behandlinger);
     }

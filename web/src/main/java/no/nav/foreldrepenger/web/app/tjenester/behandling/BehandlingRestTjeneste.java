@@ -163,6 +163,8 @@ public class BehandlingRestTjeneste {
         @NotNull @Valid BehandlingIdDto behandlingIdDto) throws URISyntaxException {
         var behandling = getBehandling(behandlingIdDto);
 
+        LOG.info("REST DEPRECATED {} POST {}", this.getClass().getSimpleName(), BASE_PATH);
+
         var gruppeOpt = behandlingsprosessTjeneste.sjekkOgForberedAsynkInnhentingAvRegisteropplysningerOgKjørProsess(behandling);
 
         // sender alltid til poll status slik at vi får sjekket på utestående prosess
@@ -184,6 +186,13 @@ public class BehandlingRestTjeneste {
         @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto,
             @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto)
         throws URISyntaxException {
+        LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), BEHANDLINGER_STATUS_PART_PATH);
+        return getMidlertidigStatusResponse(request, behandlingIdDto, gruppeDto);
+    }
+
+    Response getMidlertidigStatusResponse(HttpServletRequest request,
+                                 BehandlingIdDto behandlingIdDto,
+                                 ProsessTaskGruppeIdDto gruppeDto) throws URISyntaxException {
         var behandling = getBehandling(behandlingIdDto);
         var gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
         var prosessTaskGruppePågår = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, gruppe);
@@ -203,7 +212,13 @@ public class BehandlingRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentBehandlingResultat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
         @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
+        LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), BASE_PATH);
+        return getAsynkResultatResponse(behandlingIdDto);
+    }
+
+    Response getAsynkResultatResponse(BehandlingIdDto behandlingIdDto) {
         var behandling = getBehandling(behandlingIdDto);
+
         var taskStatus = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, null).orElse(null);
         var dto = behandlingDtoTjeneste.lagUtvidetBehandlingDto(behandling, taskStatus);
         var responseBuilder = Response.ok().entity(dto);
