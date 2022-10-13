@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,12 +16,20 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.VurderÅrsakTotrinnsvurdering;
 
-class AksjonspunktDtoMapper {
+public class AksjonspunktDtoMapper {
 
     private AksjonspunktDtoMapper() {
     }
 
-    static Set<AksjonspunktDto> lagAksjonspunktDto(Behandling behandling, Collection<Totrinnsvurdering> ttVurderinger) {
+    public static Optional<AksjonspunktDto> lagAksjonspunktDtoFor(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+        return behandling.getAksjonspunkter().stream()
+            .filter(a -> aksjonspunktDefinisjon.equals(a.getAksjonspunktDefinisjon()))
+            .filter(aksjonspunkt -> !aksjonspunkt.erAvbrutt())
+            .map(aksjonspunkt -> mapFra(aksjonspunkt, behandling, List.of()))
+            .findFirst();
+    }
+
+    public static Set<AksjonspunktDto> lagAksjonspunktDto(Behandling behandling, Collection<Totrinnsvurdering> ttVurderinger) {
         return behandling.getAksjonspunkter().stream()
                 .filter(aksjonspunkt -> !aksjonspunkt.erAvbrutt())
                 .map(aksjonspunkt -> mapFra(aksjonspunkt, behandling, ttVurderinger))

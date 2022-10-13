@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOpprettingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.AnnenPartBehandlingDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakBehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakFullDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.PersonDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SakHendelseDto;
@@ -50,7 +50,7 @@ public class FagsakFullTjeneste {
     private PersonopplysningTjeneste personopplysningTjeneste;
 
     private BehandlingsoppretterTjeneste behandlingsoppretterTjeneste;
-    private BehandlingDtoTjeneste behandlingDtoTjeneste;
+    private FagsakBehandlingDtoTjeneste behandlingDtoTjeneste;
 
     private HistorikkTjenesteAdapter historikkTjenesteAdapter;
 
@@ -66,7 +66,7 @@ public class FagsakFullTjeneste {
                               FamilieHendelseTjeneste familieHendelseTjeneste,
                               PersonopplysningTjeneste personopplysningTjeneste,
                               BehandlingsoppretterTjeneste behandlingsoppretterTjeneste,
-                              BehandlingDtoTjeneste behandlingDtoTjeneste,
+                              FagsakBehandlingDtoTjeneste behandlingDtoTjeneste,
                               HistorikkTjenesteAdapter historikkTjenesteAdapter) {
         this.fagsakRepository = fagsakRepository;
         this.personinfoAdapter = personinfoAdapter;
