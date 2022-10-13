@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -120,7 +121,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isEqualTo(Optional.of(TILBAKEKREVING_BEHANDLING_UUID));
 
         var historikkInnslager = historikkTjenesteAdapter
-                .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer());
+                .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(), URI.create("http://dummy/dummy"));
         assertThat(historikkInnslager).hasSize(2);
         historikkInnslager.sort(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt));
         var historikkinnslagDto = historikkInnslager.get(0);
@@ -171,7 +172,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isEqualTo(Optional.of(nyTilbakekrevingUUID));
 
         var historikkInnslager = historikkTjenesteAdapter
-                .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer());
+                .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(), URI.create("http://dummy/dummy"));
         assertThat(historikkInnslager).hasSize(2);
         historikkInnslager.sort(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt));
         var historikkinnslagDto = historikkInnslager.get(0);
@@ -216,7 +217,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
         var historikkInnslager = historikkTjenesteAdapter
-                .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer());
+                .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(), URI.create("http://dummy/dummy"));
         assertThat(historikkInnslager).hasSize(2);
         historikkInnslager.sort(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt));
         var historikkinnslagDto = historikkInnslager.get(0);
@@ -259,7 +260,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
         var historikkInnslager = historikkTjenesteAdapter
-                .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer());
+                .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(), URI.create("http://dummy/dummy"));
         assertThat(historikkInnslager).hasSize(2);
         historikkInnslager.sort(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt));
         var historikkinnslagDto = historikkInnslager.get(0);
@@ -293,7 +294,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
 
     private void fellesKlageHistoriskAssert() {
         var historikkInnslager = historikkTjenesteAdapter
-                .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer());
+                .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(), URI.create("http://dummy/dummy"));
         assertThat(historikkInnslager).hasSize(1);
         var historikkinnslagDto = historikkInnslager.get(0);
         assertThat(historikkinnslagDto.getType()).isEqualByComparingTo(HistorikkinnslagType.KLAGE_BEH_NFP);

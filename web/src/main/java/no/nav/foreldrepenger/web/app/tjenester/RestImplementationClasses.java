@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.web.app.tjenester.batch.BatchRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingBackendRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjenestePathHack1;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjenestePathHack2;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.anke.AnkeRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidInntektsmelding.ArbeidOgInntektsmeldingRestTjeneste;
@@ -75,7 +74,6 @@ public class RestImplementationClasses {
         classes.add(NavAnsattRestTjeneste.class);
         classes.add(BehandlingRestTjeneste.class);
         classes.add(BehandlingRestTjenestePathHack1.class);
-        classes.add(BehandlingRestTjenestePathHack2.class);
         classes.add(BehandlingBackendRestTjeneste.class);
         classes.add(BeregningsgrunnlagRestTjeneste.class);
         classes.add(AksjonspunktRestTjeneste.class);

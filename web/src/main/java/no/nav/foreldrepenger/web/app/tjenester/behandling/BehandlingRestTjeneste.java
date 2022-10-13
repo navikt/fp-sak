@@ -51,7 +51,6 @@ import no.nav.foreldrepenger.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOperasjonerDto;
@@ -67,7 +66,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.AnnenPartBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.ProsessTaskGruppeIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
@@ -95,7 +93,6 @@ public class BehandlingRestTjeneste {
     private static final String BEHANDLINGER_ALLE_PART_PATH = "/alle";
     public static final String BEHANDLINGER_ALLE_PATH = BASE_PATH + BEHANDLINGER_ALLE_PART_PATH; // NOSONAR TFP-2234
     private static final String BEHANDLINGER_PART_PATH = "";
-    private static final String BEHANDLINGER_STATUS_PART_PATH = "/status";
     private static final String BYTT_ENHET_PART_PATH = "/bytt-enhet";
     public static final String BYTT_ENHET_PATH = BASE_PATH + BYTT_ENHET_PART_PATH;
     private static final String GJENOPPTA_PART_PATH = "/gjenoppta";
@@ -163,40 +160,13 @@ public class BehandlingRestTjeneste {
         @NotNull @Valid BehandlingIdDto behandlingIdDto) throws URISyntaxException {
         var behandling = getBehandling(behandlingIdDto);
 
-        LOG.info("REST DEPRECATED {} POST {}", this.getClass().getSimpleName(), BASE_PATH);
+        //LOG.info("REST DEPRECATED {} POST {}", this.getClass().getSimpleName(), BASE_PATH);
 
         var gruppeOpt = behandlingsprosessTjeneste.sjekkOgForberedAsynkInnhentingAvRegisteropplysningerOgKjørProsess(behandling);
 
         // sender alltid til poll status slik at vi får sjekket på utestående prosess
         // tasks også.
         return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), gruppeOpt);
-    }
-
-    @GET
-    @Path(BEHANDLINGER_STATUS_PART_PATH)
-    @Deprecated
-    @Operation(description = "Url for å polle på behandling mens behandlingprosessen pågår i bakgrunnen(asynkront)", summary = ("Returnerer link til enten samme (hvis ikke ferdig) eller redirecter til /behandlinger dersom asynkrone operasjoner er ferdig."), tags = "behandlinger", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer Status", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AsyncPollingStatus.class))),
-            @ApiResponse(responseCode = "303", description = "Behandling tilgjenglig (prosesstasks avsluttet)", headers = @Header(name = HttpHeaders.LOCATION)),
-            @ApiResponse(responseCode = "418", description = "ProsessTasks har feilet", headers = @Header(name = HttpHeaders.LOCATION), content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AsyncPollingStatus.class)))
-    })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response hentBehandlingMidlertidigStatus(@Context HttpServletRequest request,
-                                                    @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-        @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto,
-            @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto)
-        throws URISyntaxException {
-        LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), BEHANDLINGER_STATUS_PART_PATH);
-        return getMidlertidigStatusResponse(request, behandlingIdDto, gruppeDto);
-    }
-
-    Response getMidlertidigStatusResponse(HttpServletRequest request,
-                                 BehandlingIdDto behandlingIdDto,
-                                 ProsessTaskGruppeIdDto gruppeDto) throws URISyntaxException {
-        var behandling = getBehandling(behandlingIdDto);
-        var gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
-        var prosessTaskGruppePågår = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, gruppe);
-        return Redirect.tilBehandlingEllerPollStatus(request, behandling.getUuid(), prosessTaskGruppePågår.orElse(null));
     }
 
     private Behandling getBehandling(BehandlingIdDto behandlingIdDto) {
@@ -212,7 +182,7 @@ public class BehandlingRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentBehandlingResultat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
         @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
-        LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), BASE_PATH);
+        //LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), BASE_PATH);
         return getAsynkResultatResponse(behandlingIdDto);
     }
 
