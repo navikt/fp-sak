@@ -24,6 +24,9 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -59,6 +62,8 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @ApplicationScoped
 @Transactional
 public class FagsakRestTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FagsakRestTjeneste.class);
 
     static final String BASE_PATH = "/fagsak";
     private static final String FAGSAK_PART_PATH = "";
@@ -103,6 +108,7 @@ public class FagsakRestTjeneste {
                                                 @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto)
         throws URISyntaxException {
         var saksnummer = new Saksnummer(idDto.getVerdi());
+        LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), STATUS_PATH);
         var gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
         var prosessTaskGruppePågår = fagsakTjeneste.sjekkProsessTaskPågår(saksnummer, gruppe);
         return Redirect.tilFagsakEllerPollStatus(request, saksnummer, prosessTaskGruppePågår.orElse(null));
@@ -115,9 +121,10 @@ public class FagsakRestTjeneste {
         @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response hentFullFagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
+    public Response hentFullFagsak(@Context HttpServletRequest request,
+                                   @TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
         var saksnummer = new Saksnummer(s.getVerdi());
-        return fagsakFullTjeneste.hentFullFagsakDtoForSaksnummer(saksnummer)
+        return fagsakFullTjeneste.hentFullFagsakDtoForSaksnummer(request, saksnummer)
             .map(f -> Response.ok(f).build())
             .orElseGet(() -> Response.status(Response.Status.FORBIDDEN).build()); // Etablert praksis
     }

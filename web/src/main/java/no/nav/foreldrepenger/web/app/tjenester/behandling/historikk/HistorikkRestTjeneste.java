@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
-import java.util.Collections;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -15,7 +13,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -52,45 +49,10 @@ public class HistorikkRestTjeneste {
     public Response hentAlleInnslag(@Context HttpServletRequest request,
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
             @Valid SaksnummerDto saksnummerDto) {
-        var responseBuilder = Response.ok();
-        // FIXME XSS valider requestURL eller bruk relativ URL
-        var requestURL = getRequestPath(request);
-        var url = requestURL + "/dokument/hent-dokument";
+        var url = historikkTjeneste.getRequestPath(request);
 
-        var historikkInnslagDtoList = historikkTjeneste
-                .hentAlleHistorikkInnslagForSak(new Saksnummer(saksnummerDto.getVerdi()));
-        if (historikkInnslagDtoList != null && historikkInnslagDtoList.size() > 0) {
-            responseBuilder.entity(historikkInnslagDtoList);
-            for (var dto : historikkInnslagDtoList) {
-                for (var linkDto : dto.getDokumentLinks()) {
-                    var journalpostId = linkDto.getJournalpostId();
-                    var dokumentId = linkDto.getDokumentId();
-                    var uriBuilder = UriBuilder.fromPath(url);
-                    uriBuilder.queryParam("journalpostId", journalpostId);
-                    uriBuilder.queryParam("dokumentId", dokumentId);
-                    linkDto.setUrl(uriBuilder.build());
-                }
-            }
-        } else {
-            responseBuilder.entity(Collections.emptyList());
-        }
-        return responseBuilder.build();
+        var historikkInnslagDtoList = historikkTjeneste.hentAlleHistorikkInnslagForSak(new Saksnummer(saksnummerDto.getVerdi()), url);
+        return Response.ok().entity(historikkInnslagDtoList).build();
     }
 
-    String getRequestPath(HttpServletRequest request) {
-        if (request == null) {
-            return null;
-        }
-        var stringBuilder = new StringBuilder();
-
-        stringBuilder.append(request.getScheme())
-                .append("://")
-                .append(request.getLocalName())
-                .append(":") // NOSONAR
-                .append(request.getLocalPort());
-
-        stringBuilder.append(request.getContextPath())
-                .append(request.getServletPath());
-        return stringBuilder.toString();
-    }
 }

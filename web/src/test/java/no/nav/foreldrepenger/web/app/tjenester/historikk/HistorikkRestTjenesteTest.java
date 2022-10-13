@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.historikk;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,12 +39,12 @@ public class HistorikkRestTjenesteTest {
         var innslagDto = new HistorikkinnslagDto();
         lagHistorikkinnslagDel(innslagDto);
         innslagDto.setDokumentLinks(Collections.emptyList());
-        when(historikkApplikasjonTjenesteMock.hentAlleHistorikkInnslagForSak(Mockito.any(Saksnummer.class)))
+        when(historikkApplikasjonTjenesteMock.hentAlleHistorikkInnslagForSak(Mockito.any(Saksnummer.class), any()))
                 .thenReturn(Collections.singletonList(innslagDto));
 
         historikkRestTjeneste.hentAlleInnslag(null, new SaksnummerDto("1234"));
 
-        verify(historikkApplikasjonTjenesteMock).hentAlleHistorikkInnslagForSak(Mockito.any(Saksnummer.class));
+        verify(historikkApplikasjonTjenesteMock).hentAlleHistorikkInnslagForSak(Mockito.any(Saksnummer.class), any());
     }
 
     private void lagHistorikkinnslagDel(HistorikkinnslagDto innslagDto) {

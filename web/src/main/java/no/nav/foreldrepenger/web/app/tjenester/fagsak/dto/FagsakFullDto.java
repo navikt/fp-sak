@@ -6,6 +6,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOpprettingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.AnnenPartBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
@@ -23,7 +24,8 @@ public record FagsakFullDto(String saksnummer,
                             AnnenPartBehandlingDto annenpartBehandling,
                             SakHendelseDto familiehendelse,
                             List<BehandlingOpprettingDto> behandlingTypeKanOpprettes,
-                            List<BehandlingDto> behandlinger) {
+                            List<BehandlingDto> behandlinger,
+                            List<HistorikkinnslagDto> historikkinnslag) {
 
     public FagsakFullDto(Fagsak fagsak, Integer dekningsgrad, PersonDto bruker,
                          boolean brukerManglerAdresse,
@@ -31,9 +33,10 @@ public record FagsakFullDto(String saksnummer,
                          AnnenPartBehandlingDto annenpartBehandling,
                          SakHendelseDto familiehendelse,
                          List<BehandlingOpprettingDto> behandlingTypeKanOpprettes,
-                         List<BehandlingDto> behandlinger) {
+                         List<BehandlingDto> behandlinger,
+                         List<HistorikkinnslagDto> historikkinnslag) {
         this(fagsak.getSaksnummer().getVerdi(), fagsak.getYtelseType(), fagsak.getRelasjonsRolleType(), fagsak.getStatus(), fagsak.getAktørId().getId(),
             fagsak.erStengt(), dekningsgrad, bruker, brukerManglerAdresse, annenPart, annenpartBehandling,
-            familiehendelse, behandlingTypeKanOpprettes, behandlinger);
+            familiehendelse, behandlingTypeKanOpprettes, behandlinger, historikkinnslag);
     }
 }

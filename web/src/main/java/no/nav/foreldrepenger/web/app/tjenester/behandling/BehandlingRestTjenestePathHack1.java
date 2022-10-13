@@ -26,9 +26,11 @@ import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.ProsessTaskGruppeIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
@@ -65,10 +67,13 @@ public class BehandlingRestTjenestePathHack1 {
     }
 
     private BehandlingRestTjeneste behandlingRestTjeneste;
+    private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
 
     @Inject
-    public BehandlingRestTjenestePathHack1(BehandlingRestTjeneste behandlingRestTjeneste) {
+    public BehandlingRestTjenestePathHack1(BehandlingRestTjeneste behandlingRestTjeneste,
+                                           BehandlingsprosessTjeneste behandlingsprosessTjeneste) {
         this.behandlingRestTjeneste = behandlingRestTjeneste;
+        this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
     }
 
     @GET
@@ -83,8 +88,16 @@ public class BehandlingRestTjenestePathHack1 {
                                                     @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto,
                                                     @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto)
         throws URISyntaxException {
-        LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), STATUS_PATH);
-        return behandlingRestTjeneste.getMidlertidigStatusResponse(request, new BehandlingIdDto(uuidDto), gruppeDto);
+        return getMidlertidigStatusResponse(request, new BehandlingIdDto(uuidDto), gruppeDto);
+    }
+
+    private Response getMidlertidigStatusResponse(HttpServletRequest request,
+                                          BehandlingIdDto behandlingIdDto,
+                                          ProsessTaskGruppeIdDto gruppeDto) throws URISyntaxException {
+        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
+        var gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
+        var prosessTaskGruppePågår = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, gruppe);
+        return Redirect.tilBehandlingEllerPollStatus(request, behandling.getUuid(), prosessTaskGruppePågår.orElse(null));
     }
 
     @GET
@@ -95,7 +108,6 @@ public class BehandlingRestTjenestePathHack1 {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentBehandlingResultat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), BASE_PATH);
         return behandlingRestTjeneste.getAsynkResultatResponse(new BehandlingIdDto(uuidDto));
     }
 }

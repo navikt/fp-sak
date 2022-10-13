@@ -1,9 +1,12 @@
 package no.nav.foreldrepenger.historikk.dto;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import javax.ws.rs.core.UriBuilder;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
@@ -17,7 +20,8 @@ public final class HistorikkInnslagKonverter {
 
     public static HistorikkinnslagDto mapFra(Historikkinnslag historikkinnslag,
                                              List<JournalpostId> journalPosterForSak,
-                                             BehandlingRepository behandlingRepository) {
+                                             BehandlingRepository behandlingRepository,
+                                             URI dokumentPath) {
         var dto = new HistorikkinnslagDto();
         if (historikkinnslag.getBehandlingId() != null) {
             dto.setBehandlingId(historikkinnslag.getBehandlingId());
@@ -26,7 +30,7 @@ public final class HistorikkInnslagKonverter {
         }
         var historikkinnslagDeler = HistorikkinnslagDelDto.mapFra(historikkinnslag.getHistorikkinnslagDeler());
         dto.setHistorikkinnslagDeler(historikkinnslagDeler);
-        var dokumentLinks = mapLenker(historikkinnslag.getDokumentLinker(), journalPosterForSak);
+        var dokumentLinks = mapLenker(historikkinnslag.getDokumentLinker(), journalPosterForSak, dokumentPath);
         dto.setDokumentLinks(dokumentLinks);
         if (historikkinnslag.getOpprettetAv() != null) {
             dto.setOpprettetAv(medStorBokstav(historikkinnslag.getOpprettetAv()));
@@ -39,17 +43,23 @@ public final class HistorikkInnslagKonverter {
     }
 
     private static List<HistorikkInnslagDokumentLinkDto> mapLenker(List<HistorikkinnslagDokumentLink> lenker,
-            List<JournalpostId> journalPosterForSak) {
-        return lenker.stream().map(lenke -> map(lenke, journalPosterForSak)).collect(Collectors.toList());
+            List<JournalpostId> journalPosterForSak, URI dokumentPath) {
+        return lenker.stream().map(lenke -> map(lenke, journalPosterForSak, dokumentPath)).collect(Collectors.toList());
     }
 
-    private static HistorikkInnslagDokumentLinkDto map(HistorikkinnslagDokumentLink lenke, List<JournalpostId> journalPosterForSak) {
+    private static HistorikkInnslagDokumentLinkDto map(HistorikkinnslagDokumentLink lenke, List<JournalpostId> journalPosterForSak, URI dokumentPath) {
         var aktivJournalPost = aktivJournalPost(lenke.getJournalpostId(), journalPosterForSak);
         var dto = new HistorikkInnslagDokumentLinkDto();
         dto.setTag(lenke.getLinkTekst());
         dto.setUtgått(aktivJournalPost.isEmpty());
         dto.setDokumentId(lenke.getDokumentId());
         dto.setJournalpostId(lenke.getJournalpostId().getVerdi());
+        if (lenke.getJournalpostId().getVerdi() != null && lenke.getDokumentId() != null) {
+            var builder = UriBuilder.fromUri(dokumentPath)
+                .queryParam("journalpostId", lenke.getJournalpostId().getVerdi())
+                .queryParam("dokumentId", lenke.getDokumentId());
+            dto.setUrl(builder.build());
+        }
         return dto;
     }
 
