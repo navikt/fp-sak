@@ -81,12 +81,21 @@ public final class KalkulusTilBGMapper {
         var builder = new SammenligningsgrunnlagPrStatus.Builder();
         builder.medAvvikPromille(fraKalkulus.getAvvikPromilleNy());
         builder.medRapportertPrÅr(fraKalkulus.getRapportertPrÅr());
-        builder.medSammenligningsgrunnlagType(
-            SammenligningsgrunnlagType.fraKode(fraKalkulus.getSammenligningsgrunnlagType().getKode()));
+        builder.medSammenligningsgrunnlagType(mapSammenligningstype(fraKalkulus.getSammenligningsgrunnlagType()));
         builder.medSammenligningsperiode(fraKalkulus.getSammenligningsperiodeFom(),
             fraKalkulus.getSammenligningsperiodeTom());
 
         return builder;
+    }
+
+    private static SammenligningsgrunnlagType mapSammenligningstype(no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType fraKalkulus) {
+        return switch (fraKalkulus) {
+            case SAMMENLIGNING_AT -> SammenligningsgrunnlagType.SAMMENLIGNING_AT;
+            case SAMMENLIGNING_FL -> SammenligningsgrunnlagType.SAMMENLIGNING_FL;
+            case SAMMENLIGNING_AT_FL -> SammenligningsgrunnlagType.SAMMENLIGNING_AT_FL;
+            case SAMMENLIGNING_SN -> SammenligningsgrunnlagType.SAMMENLIGNING_SN;
+            case SAMMENLIGNING_ATFL_SN -> SammenligningsgrunnlagType.SAMMENLIGNING_ATFL_SN;
+        };
     }
 
     private static BeregningsgrunnlagPrStatusOgAndel.Builder mapStatusOgAndel(BeregningsgrunnlagPrStatusOgAndelDto fraKalkulus,
