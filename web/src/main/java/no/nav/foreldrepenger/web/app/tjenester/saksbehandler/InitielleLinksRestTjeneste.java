@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -14,6 +15,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
+import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkRestTjeneste;
@@ -21,6 +23,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.Perso
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.KodeverkRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.kodeverk.app.HentKodeverkTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.dto.InitLinksDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -32,9 +35,19 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Produces(MediaType.APPLICATION_JSON)
 public class InitielleLinksRestTjeneste {
 
+    private TilgangerTjeneste tilgangerTjeneste;
+    private HentKodeverkTjeneste kodeverkTjeneste;
+
     InitielleLinksRestTjeneste() {
         // for CDI proxy
     }
+
+    @Inject
+    public InitielleLinksRestTjeneste(TilgangerTjeneste tilgangerTjeneste, HentKodeverkTjeneste kodeverkTjeneste) {
+        this.tilgangerTjeneste = tilgangerTjeneste;
+        this.kodeverkTjeneste = kodeverkTjeneste;
+    }
+
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
@@ -55,7 +68,7 @@ public class InitielleLinksRestTjeneste {
         saklenker.add(get(BehandlingRestTjeneste.BEHANDLINGER_ALLE_PATH, "sak-alle-behandlinger"));
         saklenker.add(get(BehandlingRestTjeneste.ANNEN_PART_BEHANDLING_PATH, "sak-annen-part-behandling"));
         saklenker.add(get(PersonRestTjeneste.HAR_IKKE_ADRESSE_PATH, "har-ikke-adresse"));
-        return new InitLinksDto(lenkene, saklenker);
+        return new InitLinksDto(tilgangerTjeneste.innloggetBruker(), kodeverkTjeneste.hentBehandlendeEnheter(), lenkene, saklenker);
     }
 
 }
