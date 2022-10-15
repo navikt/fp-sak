@@ -167,9 +167,9 @@ public class FagsakRestTjeneste {
         +
         "Oversikt over saker knyttet til en bruker kan søkes via fødselsnummer eller d-nummer."))
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public List<FagsakSøkDto> søkFagsaker(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
+    public List<FagsakSøkDto> sokFagsaker(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
         @Parameter(description = "Søkestreng kan være saksnummer, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
-        return fagsakTjeneste.søkFagsakDto(søkestreng.getSearchString());
+        return fagsakTjeneste.søkFagsakDto(søkestreng.getSearchString().trim());
     }
 
     @GET

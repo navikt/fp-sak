@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.saksbehandler;
 
 import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +59,7 @@ public class InitielleLinksRestTjeneste {
         lenkene.add(get(NavAnsattRestTjeneste.NAV_ANSATT_PATH, "nav-ansatt"));
         lenkene.add(get(KodeverkRestTjeneste.KODERVERK_PATH, "kodeverk"));
         lenkene.add(get(KodeverkRestTjeneste.ENHETER_PATH, "behandlende-enheter"));
+        lenkene.add(post(FagsakRestTjeneste.SOK_PATH, "søk-fagsak"));
         List<ResourceLink> saklenker = new ArrayList<>();
         saklenker.add(get(FagsakRestTjeneste.FAGSAK_FULL_PATH, "fagsak-full"));
         saklenker.add(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak"));
