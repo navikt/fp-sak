@@ -108,9 +108,9 @@ public class FagsakRestTjeneste {
                                                 @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto)
         throws URISyntaxException {
         var saksnummer = new Saksnummer(idDto.getVerdi());
-        LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), STATUS_PATH);
         var gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
         var prosessTaskGruppePågår = fagsakTjeneste.sjekkProsessTaskPågår(saksnummer, gruppe);
+        // TODO (jol): gjennomgå når det er riktig å oppdatere hele fagsakkonteksten, evt kalle lenke "sak-alle-behandlinger". Behandlingsoppretting er inkonsekvent
         return Redirect.tilFagsakEllerPollStatus(request, saksnummer, prosessTaskGruppePågår.orElse(null));
     }
 
