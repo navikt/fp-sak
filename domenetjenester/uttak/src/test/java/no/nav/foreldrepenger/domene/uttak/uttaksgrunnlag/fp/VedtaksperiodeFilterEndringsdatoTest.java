@@ -32,11 +32,11 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class VedtaksperiodeFilterTest {
+public class VedtaksperiodeFilterEndringsdatoTest {
 
 
     @Test
-    public void skalBeholdeSøknadsperioderDersomEtterUttak() {
+    public void skalFinnSluttUttakNårSøknadEtterUttak() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
 
@@ -63,13 +63,12 @@ public class VedtaksperiodeFilterTest {
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad), uttakResultat);
-        assertThat(filtrert).hasSize(1);
-        assertThat(filtrert.get(0)).isEqualTo(søknad);
+        var filtrert = VedtaksperiodeFilter.finnEndringsdatoKlassisk(List.of(søknad), uttakResultat);
+        assertThat(filtrert).isEqualTo(tom.plusDays(1)); // Ingen endring av vedtatt uttak, søknad er senere
     }
 
     @Test
-    public void skalFiltrereVekkTidligSøknadsperiodeDersomHeltLikUttak() {
+    public void skalFinneSøknadLikUttak() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
 
@@ -102,13 +101,84 @@ public class VedtaksperiodeFilterTest {
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad1, søknad2), uttakResultat);
-        assertThat(filtrert).hasSize(1);
-        assertThat(filtrert.get(0)).isEqualTo(søknad2);
+        var filtrert = VedtaksperiodeFilter.finnEndringsdatoKlassisk(List.of(søknad1, søknad2), uttakResultat);
+        assertThat(filtrert).isEqualTo(tom.plusDays(1)); // En periode er lik uttak, neste begynner rett etter. Dvs sisteUttak+1 = førsteSøknad
     }
 
     @Test
-    public void skalBeholdeSøknadsperiodeDersomHeltLikUttak() {
+    public void skalFinneSøknadFørSluttUttak() {
+        var fom = LocalDate.of(2022, 10, 10);
+        var tom = LocalDate.of(2022, 11, 9);
+
+        var perioder = new UttakResultatPerioderEntitet();
+        var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
+        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
+            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef());
+        var uttakPeriode1 = new UttakResultatPeriodeEntitet.Builder(fom, tom)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER).build())
+            .build();
+        UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1.build())
+            .medTrekkdager(new Trekkdager(42))
+            .medTrekkonto(StønadskontoType.FORELDREPENGER)
+            .medArbeidsprosent(BigDecimal.TEN).build();
+        perioder.leggTilPeriode(uttakPeriode1);
+        var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();
+
+        // Lik eksisterende vedtak
+        var søknad1 = OppgittPeriodeBuilder.ny()
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriode(fom, tom.minusWeeks(1))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .build();
+        // Ny periode
+        var søknad2 = OppgittPeriodeBuilder.ny()
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriode(tom.minusDays(1), tom.plusWeeks(4))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .build();
+
+        var filtrert = VedtaksperiodeFilter.finnEndringsdatoKlassisk(List.of(søknad1, søknad2), uttakResultat);
+        assertThat(filtrert).isEqualTo(tom.minusWeeks(1).plusDays(1)); // Søknad gir hull i plan etter søknad1 (som er lik uttak)
+    }
+
+    @Test
+    public void skalFinneFriUtsettelseInnenforUttak() {
+        var fom = LocalDate.of(2022, 10, 10);
+        var tom = LocalDate.of(2022, 11, 9);
+
+        var perioder = new UttakResultatPerioderEntitet();
+        var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
+        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
+            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef());
+        var uttakPeriode1 = new UttakResultatPeriodeEntitet.Builder(fom, tom)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER).build())
+            .build();
+        UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1.build())
+            .medTrekkdager(new Trekkdager(42))
+            .medTrekkonto(StønadskontoType.FORELDREPENGER)
+            .medArbeidsprosent(BigDecimal.TEN).build();
+        perioder.leggTilPeriode(uttakPeriode1);
+        var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();
+
+        // utsettelse
+        var søknad1 = OppgittPeriodeBuilder.ny()
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medÅrsak(UtsettelseÅrsak.FRI)
+            .medPeriode(tom.minusWeeks(1), tom)
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .build();
+
+        var filtrert = VedtaksperiodeFilter.finnEndringsdatoKlassisk(List.of(søknad1), uttakResultat);
+        assertThat(filtrert).isEqualTo(tom.minusWeeks(1)); // Endring fom søknad1
+    }
+
+
+    @Test
+    public void skalFinneSluttUttakNårHeltLikt() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
 
@@ -134,13 +204,12 @@ public class VedtaksperiodeFilterTest {
                 .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
                 .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad), uttakResultat);
-        assertThat(filtrert).hasSize(1);
-        assertThat(filtrert.get(0)).isEqualTo(søknad);
+        var filtrert = VedtaksperiodeFilter.finnEndringsdatoKlassisk(List.of(søknad), uttakResultat);
+        assertThat(filtrert).isEqualTo(tom.plusDays(1)); // Veldger slutt uttak + 1
     }
 
     @Test
-    public void skalBeholdeAlleSøknadsperiodeDersomHullVedEndring() {
+    public void skalFinneSluttUttakDersomHullVedEndring() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
 
@@ -171,14 +240,12 @@ public class VedtaksperiodeFilterTest {
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad1, søknad2), uttakResultat);
-        assertThat(filtrert).hasSize(2);
-        assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad1))).isTrue();
-        assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad2))).isTrue();
+        var filtrert = VedtaksperiodeFilter.finnEndringsdatoKlassisk(List.of(søknad1, søknad2), uttakResultat);
+        assertThat(filtrert).isEqualTo(tom.minusWeeks(1).plusDays(1)); // Endring fom hull skapt av søknad1
     }
 
     @Test
-    public void skalBeholdeSøknadsperiodeDersomVedtakErLengerEnnSøknad() {
+    public void skalFinneSluttSøknadNårUttakErLenger() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
 
@@ -204,13 +271,12 @@ public class VedtaksperiodeFilterTest {
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad), uttakResultat);
-        assertThat(filtrert).hasSize(1);
-        assertThat(filtrert.get(0)).isEqualTo(søknad);
+        var filtrert = VedtaksperiodeFilter.finnEndringsdatoKlassisk(List.of(søknad), uttakResultat);
+        assertThat(filtrert).isEqualTo(tom.plusDays(1)); // Søknad er lik, men setter endring rett etter søknad siden uttak er lenger
     }
 
     @Test
-    public void skalAvkorteSøknadsperiodeDersomStrekkerSegForbiInnvilgetUttak() {
+    public void skalFinneFørsteUtvidelse() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
 
@@ -241,9 +307,8 @@ public class VedtaksperiodeFilterTest {
             .medArbeidsprosent(BigDecimal.TEN)
             .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad), uttakResultat);
-        assertThat(filtrert).hasSize(1);
-        assertThat(filtrert.get(0).getFom()).isEqualTo(tom.plusDays(1));
+        var filtrert = VedtaksperiodeFilter.finnEndringsdatoKlassisk(List.of(søknad), uttakResultat);
+        assertThat(filtrert).isEqualTo(tom.plusDays(1)); // Utvider med 4 uker, velger dagen etter forrige
     }
 
     @Test
@@ -255,11 +320,9 @@ public class VedtaksperiodeFilterTest {
 
         var perioder = new UttakResultatPerioderEntitet();
         var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
-        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef());
-        var uttakPeriode1 = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+        var uttakPeriode1 = new UttakResultatPeriodeEntitet.Builder(fom, tom).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER).build())
             .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1.build())
@@ -288,14 +351,12 @@ public class VedtaksperiodeFilterTest {
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad0, søknad1, søknad2), uttakResultat);
-        assertThat(filtrert).hasSize(2);
-        assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad1))).isTrue();
-        assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad2))).isTrue();
+        var filtrert = VedtaksperiodeFilter.finnEndringsdatoKlassisk(List.of(søknad0, søknad1, søknad2), uttakResultat);
+        assertThat(filtrert).isEqualTo(søknad1.getFom()); // Oppdager endring fom fri utsettelse
     }
 
     @Test
-    public void utviderPeriodeUtenUttakOgLeggerTilSenereUttak() {
+    public void finnerEndringDerUttakBlirTilTomrom() {
         var fom0 = LocalDate.of(2022, 10, 4);
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
@@ -338,10 +399,8 @@ public class VedtaksperiodeFilterTest {
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad0, søknad1), uttakResultat);
-        assertThat(filtrert).hasSize(2);
-        assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad0))).isTrue();
-        assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad1))).isTrue();
+        var filtrert = VedtaksperiodeFilter.finnEndringsdatoKlassisk(List.of(søknad0, søknad1), uttakResultat);
+        assertThat(filtrert).isEqualTo(fom); // Setter endring der periode1/fom utsettes 3 dager i søknad1
     }
 
     @Test
@@ -417,9 +476,8 @@ public class VedtaksperiodeFilterTest {
             .medMorsAktivitet(MorsAktivitet.UTDANNING)
             .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad0, søknad1, søknad2), uttakResultat);
-        assertThat(filtrert).hasSize(1);
-        assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad2))).isTrue();
+        var filtrert = VedtaksperiodeFilter.finnEndringsdatoKlassisk(List.of(søknad0, søknad1, søknad2), uttakResultat);
+        assertThat(filtrert).isEqualTo(søknad2.getFom()); // Endring fom ny periode i søknad2
     }
 
 }

@@ -34,6 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.AbstractTestScenario;
@@ -46,7 +47,7 @@ public class UttakRevurderingTestUtil {
     public static final AktørId AKTØR_ID_FAR = AktørId.dummy();
     public static final LocalDate FØDSELSDATO = LocalDate.of(2019, 2, 5);
     public static final LocalDate FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK = FØDSELSDATO.plusDays(1);
-    public static final LocalDate FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF = FØDSELSDATO.minusDays(20);
+    public static final LocalDate FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF = VirkedagUtil.fomVirkedag(FØDSELSDATO.minusDays(20));
 
     private Virksomhet virksomhet;
 
@@ -67,10 +68,10 @@ public class UttakRevurderingTestUtil {
     public Behandling opprettRevurdering(AktørId aktørId, BehandlingÅrsakType behandlingÅrsakType) {
         List<OppgittPeriodeEntitet> fordeling = new ArrayList<>();
         if (behandlingÅrsakType.equals(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
+            var fomTom = VirkedagUtil.fomVirkedag(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(10));
             fordeling.add(OppgittPeriodeBuilder.ny()
                 .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-                .medPeriode(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(10),
-                    FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(10))
+                .medPeriode(fomTom, fomTom)
                 .build());
         }
         return opprettRevurdering(aktørId, behandlingÅrsakType, defaultUttaksresultat(),
@@ -83,7 +84,7 @@ public class UttakRevurderingTestUtil {
         List<OppgittPeriodeEntitet> fordeling = new ArrayList<>();
         fordeling.add(OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-            .medPeriode(startDato, startDato.plusDays(10))
+            .medPeriode(VirkedagUtil.fomVirkedag(startDato), VirkedagUtil.tomVirkedag(startDato.plusDays(10)))
             .build());
         return opprettRevurdering(aktørId, behandlingÅrsakType, defaultUttaksresultat(),
             new OppgittFordelingEntitet(fordeling, true), OppgittDekningsgradEntitet.bruk100());
@@ -91,7 +92,7 @@ public class UttakRevurderingTestUtil {
 
     private List<UttakResultatPeriodeEntitet> defaultUttaksresultat() {
         return Collections.singletonList(new UttakResultatPeriodeEntitet.Builder(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK,
-            FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(10)).medResultatType(PeriodeResultatType.INNVILGET,
+            VirkedagUtil.tomVirkedag(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(10))).medResultatType(PeriodeResultatType.INNVILGET,
             PeriodeResultatÅrsak.UKJENT).build());
     }
 
@@ -161,7 +162,7 @@ public class UttakRevurderingTestUtil {
     private OppgittFordelingEntitet defaultFordeling() {
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .medPeriode(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK, FØDSELSDATO.plusDays(10));
+            .medPeriode(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK, VirkedagUtil.tomVirkedag(FØDSELSDATO.plusDays(10)));
         return new OppgittFordelingEntitet(Collections.singletonList(oppgittPeriodeBuilder.build()), true);
     }
 
@@ -194,8 +195,8 @@ public class UttakRevurderingTestUtil {
             .medArbeidsgiver(getVirksomhet());
         var periode2 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medPeriode(FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF.plusWeeks(2).plusDays(1),
-                FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF.plusWeeks(10))
+            .medPeriode(VirkedagUtil.fomVirkedag(FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF.plusWeeks(2).plusDays(1)),
+                VirkedagUtil.tomVirkedag(FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF.plusWeeks(10)))
             .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR));
 
         var oppgittFordeling = new OppgittFordelingEntitet(
@@ -279,14 +280,14 @@ public class UttakRevurderingTestUtil {
     }
 
     public List<UttakResultatPeriodeEntitet> uttaksresultatBerørtSak(LocalDate fom) {
-        return Collections.singletonList(new UttakResultatPeriodeEntitet.Builder(fom, fom.plusDays(10)).medResultatType(
+        return Collections.singletonList(new UttakResultatPeriodeEntitet.Builder(VirkedagUtil.fomVirkedag(fom), VirkedagUtil.tomVirkedag(fom.plusDays(10))).medResultatType(
             PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build());
     }
 
     public YtelseFordelingAggregat søknadsAggregatBerørtSak(LocalDate fom) {
         return YtelseFordelingAggregat.oppdatere(Optional.empty())
             .medOppgittFordeling(new OppgittFordelingEntitet(List.of(
-                OppgittPeriodeBuilder.ny().medPeriode(fom, fom.plusDays(10))
+                OppgittPeriodeBuilder.ny().medPeriode(VirkedagUtil.fomVirkedag(fom), VirkedagUtil.fomVirkedag(fom.plusDays(10)))
                     .medPeriodeType(UttakPeriodeType.FELLESPERIODE).medPeriodeKilde(FordelingPeriodeKilde.SØKNAD).build()), true))
             .medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(fom).build())
             .build();

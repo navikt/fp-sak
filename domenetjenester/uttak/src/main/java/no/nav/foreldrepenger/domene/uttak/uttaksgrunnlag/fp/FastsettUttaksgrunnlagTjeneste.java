@@ -69,15 +69,19 @@ public class FastsettUttaksgrunnlagTjeneste {
         var fordeling = ytelseFordelingAggregat.getOppgittFordeling();
         var justertePerioder = ytelseFordelingAggregat.getOppgittFordeling().getOppgittePerioder();
         if (ref.erRevurdering()) {
-            var originalBehandlingId = ref.getOriginalBehandlingId();
-            if (originalBehandlingId.isEmpty()) {
-                throw new IllegalArgumentException("Utvikler-feil: ved revurdering skal det alltid finnes en original behandling");
-            }
-            if (behandlingHarUttaksresultat(originalBehandlingId.get())) {
+            var originalBehandlingId = ref.getOriginalBehandlingId()
+                .orElseThrow(() -> new IllegalArgumentException("Utvikler-feil: ved revurdering skal det alltid finnes en original behandling"));
+            if (behandlingHarUttaksresultat(originalBehandlingId)) {
+                // Modifisere søknadsperioder som er like innvilget uttak
+                var tidlisteDatoFordeling = justertePerioder.stream().map(OppgittPeriodeEntitet::getFom)
+                    .min(Comparator.naturalOrder()).orElse(endringsdatoRevurdering);
+                if (endringsdatoRevurdering != null && tidlisteDatoFordeling.isBefore(endringsdatoRevurdering)) {
+                    justertePerioder = VedtaksperiodeFilter.velgEvtKnekkPerioderFom(justertePerioder, endringsdatoRevurdering);
+                }
                 justertePerioder = kopierVedtaksperioderFomEndringsdato(justertePerioder, endringsdatoRevurdering,
-                        originalBehandlingId.get());
+                        originalBehandlingId);
             } else {
-                justertePerioder = oppgittePerioderFraForrigeBehandling(originalBehandlingId.get());
+                justertePerioder = oppgittePerioderFraForrigeBehandling(originalBehandlingId);
             }
         }
 
