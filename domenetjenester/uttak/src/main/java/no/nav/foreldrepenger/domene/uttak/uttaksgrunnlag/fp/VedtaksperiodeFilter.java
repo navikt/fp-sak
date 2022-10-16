@@ -48,7 +48,7 @@ public final class VedtaksperiodeFilter {
         var tidslinjeSammenlignSøknad =  new LocalDateTimeline<>(segmenterSøknad);
 
         // Tidslinje for innvilgete peridoder fra forrige uttaksresultat - kun fom tidligstedato
-        List<OppgittPeriodeEntitet> gjeldendeVedtaksperioder = VedtaksperioderHelper.opprettOppgittePerioderKunInnvilget(uttakResultatFraForrigeBehandling, tidligsteFom);
+        List<OppgittPeriodeEntitet> gjeldendeVedtaksperioder = VedtaksperiodeFilterHelper.opprettOppgittePerioderKunInnvilget(uttakResultatFraForrigeBehandling, tidligsteFom);
         var segmenterVedtak = gjeldendeVedtaksperioder.stream()
             .map(p -> new LocalDateSegment<>(VirkedagUtil.lørdagSøndagTilMandag(p.getFom()), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), new SammenligningPeriodeForOppgitt(p)))
             .toList();
@@ -65,18 +65,18 @@ public final class VedtaksperiodeFilter {
         // Alle periodene er like eller eksisterende vedtak har perioder etter ny søknad -> returner seneste periode i søknaden inntil videre.
         if (førsteNyhet == null || førsteNyhet.isAfter(senesteTom)) {
             var sistePeriodeFraSøknad = nysøknad.stream().max(Comparator.comparing(OppgittPeriodeEntitet::getTom).thenComparing(OppgittPeriodeEntitet::getFom)).orElseThrow();
-            LOG.info("VPERIODER FILTER: behandling {} kan forkaste alle perioder men returnerer periode med fom {}", behandlingId, sistePeriodeFraSøknad.getFom());
+            LOG.info("VPERIODER FILTER: behandling {} søkt fom {} kan forkaste alle perioder men returnerer periode med fom {}", behandlingId, tidligsteFom, sistePeriodeFraSøknad.getFom());
             return List.of(sistePeriodeFraSøknad);
         } else if (nysøknad.stream().map(OppgittPeriodeEntitet::getFom).anyMatch(førsteNyhet::isEqual)) { // Matcher en ny periode, velg fom førsteNyhet
-            LOG.info("VPERIODER FILTER: behandling {} beholder perioder fom {}", behandlingId, førsteNyhet);
+            LOG.info("VPERIODER FILTER: behandling {} søkt fom {} beholder perioder fom {}", behandlingId, tidligsteFom, førsteNyhet);
             return nysøknad.stream().filter(p -> !p.getTom().isBefore(førsteNyhet)).collect(Collectors.toList());
         } else if (nysøknad.stream().noneMatch(p -> p.getTidsperiode().inkluderer(førsteNyhet))) {  // Hull i søknad rundt første nyhet. Ta fom perioden før
             var sistePeriodeFørHull = nysøknad.stream().filter(p -> !p.getFom().isAfter(førsteNyhet))
                 .max(Comparator.comparing(OppgittPeriodeEntitet::getTom).thenComparing(OppgittPeriodeEntitet::getFom)).orElseThrow();
-            LOG.info("VPERIODER FILTER: behandling {} hull i søknad beholder perioder fom {}", behandlingId, sistePeriodeFørHull.getFom());
+            LOG.info("VPERIODER FILTER: behandling {} søkt fom {} hull i søknad beholder perioder fom {}", behandlingId, tidligsteFom, sistePeriodeFørHull.getFom());
             return nysøknad.stream().filter(p -> !p.getTom().isBefore(sistePeriodeFørHull.getTom())).collect(Collectors.toList());
         } else { // Må knekke en periode, velg fom førsteNyhet
-            LOG.info("VPERIODER FILTER: behandling {} knekker og beholder perioder fom {}", behandlingId, førsteNyhet);
+            LOG.info("VPERIODER FILTER: behandling {} søkt fom {} knekker og beholder perioder fom {}", behandlingId, tidligsteFom, førsteNyhet);
             var knektePerioder = nysøknad.stream()
                 .filter(p -> p.getTidsperiode().inkluderer(førsteNyhet))
                 .map(p -> knekkPeriodeReturnerFom(p, førsteNyhet));
