@@ -108,9 +108,9 @@ public class FagsakRestTjeneste {
                                                 @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto)
         throws URISyntaxException {
         var saksnummer = new Saksnummer(idDto.getVerdi());
-        LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), STATUS_PATH);
         var gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
         var prosessTaskGruppePågår = fagsakTjeneste.sjekkProsessTaskPågår(saksnummer, gruppe);
+        // TODO (jol): gjennomgå når det er riktig å oppdatere hele fagsakkonteksten, evt kalle lenke "sak-alle-behandlinger". Behandlingsoppretting er inkonsekvent
         return Redirect.tilFagsakEllerPollStatus(request, saksnummer, prosessTaskGruppePågår.orElse(null));
     }
 
@@ -167,9 +167,9 @@ public class FagsakRestTjeneste {
         +
         "Oversikt over saker knyttet til en bruker kan søkes via fødselsnummer eller d-nummer."))
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public List<FagsakSøkDto> søkFagsaker(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
+    public List<FagsakSøkDto> sokFagsaker(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
         @Parameter(description = "Søkestreng kan være saksnummer, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
-        return fagsakTjeneste.søkFagsakDto(søkestreng.getSearchString());
+        return fagsakTjeneste.søkFagsakDto(søkestreng.getSearchString().trim());
     }
 
     @GET

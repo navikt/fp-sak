@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.fagsak.app;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -10,6 +11,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -88,6 +90,9 @@ public class FagsakTjeneste {
     }
 
     public List<FagsakSøkDto> søkFagsakDto(String søkestreng) {
+        if (!søkestreng.matches("\\d+")) {
+            return List.of();
+        }
         if (PersonIdent.erGyldigFnr(søkestreng)) {
             return hentFagsakSøkDtoForFnr(new PersonIdent(søkestreng));
         }
@@ -96,8 +101,9 @@ public class FagsakTjeneste {
         }
 
         try {
-            return hentFagsakForSaksnummer(new Saksnummer(søkestreng))
-                .map(this::mapFraFagsakTilFagsakSøkDto).stream().collect(Collectors.toList());
+            var sak = hentFagsakForSaksnummer(new Saksnummer(søkestreng));
+            var person = sak.map(Fagsak::getAktørId).flatMap(personinfoAdapter::hentBrukerBasisForAktør).orElse(null);
+            return sak.map(f -> mapFraFagsakTilFagsakSøkDto(f, person)).stream().collect(Collectors.toList());
         } catch (Exception e) { // Ugyldig saksnummer
             return List.of();
         }
@@ -108,7 +114,8 @@ public class FagsakTjeneste {
     }
 
     private List<FagsakSøkDto> hentFagsakSøkDtoForAktørId(AktørId aktørId) {
-        return fagsakRepository.hentForBruker(aktørId).stream().map(this::mapFraFagsakTilFagsakSøkDto).collect(Collectors.toList());
+        var brukerinfo = personinfoAdapter.hentBrukerBasisForAktør(aktørId).orElse(null);
+        return fagsakRepository.hentForBruker(aktørId).stream().map(f -> mapFraFagsakTilFagsakSøkDto(f, brukerinfo)).collect(Collectors.toList());
     }
 
     public Optional<FagsakDto> hentFagsakDtoForSaksnummer(Saksnummer saksnummer) {
@@ -147,7 +154,7 @@ public class FagsakTjeneste {
         var personDto = mapFraPersoninfoBasisTilPersonDto(personinfo);
         var fagsakDtoer = fagsakRepository.hentForBruker(aktørId)
             .stream()
-            .map(this::mapFraFagsakTilFagsakSøkDto)
+            .map(f -> mapFraFagsakTilFagsakSøkDto(f, null))
             .collect(Collectors.toList());
         var aktoerInfoDto = new AktoerInfoDto(personinfo.aktørId().getId(), personinfo.aktørId().getId(), personDto, fagsakDtoer);
         return Optional.of(aktoerInfoDto);
@@ -177,9 +184,15 @@ public class FagsakTjeneste {
         return new FagsakDto(fagsak, fh.map(SakHendelseDto::getHendelseDato).orElse(null), finnDekningsgrad(fagsak.getSaksnummer()));
     }
 
-    private FagsakSøkDto mapFraFagsakTilFagsakSøkDto(Fagsak fagsak) {
+    private FagsakSøkDto mapFraFagsakTilFagsakSøkDto(Fagsak fagsak, PersoninfoBasis pi) {
         var fh = hentFamilieHendelse(fagsak);
-        return new FagsakSøkDto(fagsak, fh.map(SakHendelseDto::getHendelseDato).orElse(null));
+        var person = Optional.ofNullable(pi).map(this::mapFraPersoninfoBasisTilPersonSøkDto).orElse(null);
+        return new FagsakSøkDto(fagsak, person, fh.map(SakHendelseDto::getHendelseDato).orElse(null));
+    }
+
+    private FagsakSøkDto.PersonSøkDto mapFraPersoninfoBasisTilPersonSøkDto(PersoninfoBasis p) {
+        return new FagsakSøkDto.PersonSøkDto(p.navn(), (int) ChronoUnit.YEARS.between(p.fødselsdato(), LocalDate.now()),
+            p.personIdent().getIdent(), NavBrukerKjønn.KVINNE.equals(p.kjønn()));
     }
 
     private Optional<SakHendelseDto> hentFamilieHendelse(Fagsak fagsak) {

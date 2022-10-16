@@ -14,12 +14,21 @@ public record FagsakSøkDto(String saksnummer,
                            FagsakStatus status,
                            @Deprecated(forRemoval = true) String aktoerId,
                            String aktørId,
+                           PersonSøkDto person,
                            @Deprecated(forRemoval = true) LocalDate barnFodt,
                            LocalDate barnFødt) {
 
-    public FagsakSøkDto(Fagsak fagsak, LocalDate barnFødt) {
+    public FagsakSøkDto(Fagsak fagsak, PersonSøkDto person, LocalDate barnFødt) {
         this(fagsak.getSaksnummer().getVerdi(), fagsak.getYtelseType(), fagsak.getStatus(),
-            fagsak.getAktørId().getId(), fagsak.getAktørId().getId(), barnFødt, barnFødt);
+            fagsak.getAktørId().getId(), fagsak.getAktørId().getId(), person, barnFødt, barnFødt);
+    }
+
+    public record PersonSøkDto(String navn, Integer alder, String fødselsnummer, Boolean erKvinne) {
+
+        @Override
+        public String toString() {
+            return "FagsakMedPersonDto{Person}";
+        }
     }
 
 

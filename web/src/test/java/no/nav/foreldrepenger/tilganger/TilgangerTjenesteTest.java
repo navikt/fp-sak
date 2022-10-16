@@ -7,7 +7,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.vedtak.felles.integrasjon.ldap.LdapBruker;
 
 public class TilgangerTjenesteTest {
 
