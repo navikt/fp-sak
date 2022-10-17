@@ -168,6 +168,12 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
 
     public void leggTilSammenligningsgrunnlagPrStatus(SammenligningsgrunnlagPrStatus sammenligningsgrunnlagPrStatus) {
         Objects.requireNonNull(sammenligningsgrunnlagPrStatus, "sammenligningsgrunnlagPrStatus");
+        var finnesFraFør = sammenligningsgrunnlagPrStatusListe.stream()
+            .anyMatch(sg -> sg.getSammenligningsgrunnlagType().equals(sammenligningsgrunnlagPrStatus.getSammenligningsgrunnlagType()));
+        if (finnesFraFør) {
+            throw new IllegalStateException("Feil: Sammenligningsgrunnlag med type "
+                + sammenligningsgrunnlagPrStatus.getSammenligningsgrunnlagType() + " finnes allerede på grunnlaget");
+        }
         // Aktivitetstatuser burde implementeres som eit Set
         if (!sammenligningsgrunnlagPrStatusListe.contains(sammenligningsgrunnlagPrStatus)) {
             sammenligningsgrunnlagPrStatus.setBeregningsgrunnlag(this);
@@ -378,7 +384,7 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
         }
 
 
-        public Builder leggTilSammenligningsgrunnlag(SammenligningsgrunnlagPrStatus.Builder sammenligningsgrunnlagPrStatusBuilder) { // NOSONAR
+        public Builder leggTilSammenligningsgrunnlag(SammenligningsgrunnlagPrStatus.Builder sammenligningsgrunnlagPrStatusBuilder) {
             sammenligningsgrunnlagPrStatusBuilder.build(kladd);
             return this;
         }
