@@ -59,6 +59,11 @@ public final class VedtaksperiodeFilter {
         // Første segment med ulikhet
         var førsteNyhet = finnTidligsteUlikhetSøknadUttak(nysøknad, uttakResultatFraForrigeBehandling);
 
+        // Skipp logging i tilfelle vi skal ta vare på alle perioder fra søknad
+        if (førsteNyhet != null && førsteNyhet.equals(tidligsteFom)) {
+            return nysøknad;
+        }
+
         // Alle periodene er like eller eksisterende vedtak har perioder etter ny søknad -> returner seneste periode i søknaden inntil videre.
         if (førsteNyhet == null || førsteNyhet.isAfter(senesteTom)) {
             var sistePeriodeFraSøknad = nysøknad.stream().max(Comparator.comparing(OppgittPeriodeEntitet::getTom).thenComparing(OppgittPeriodeEntitet::getFom)).orElseThrow();
