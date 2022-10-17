@@ -36,7 +36,18 @@ public final class FastsettePerioderRevurderingUtil {
             }
         }
 
-        return perioderFør;
+        return perioderFør.stream()
+            .filter(p -> !helgUtenTrekkdager(p))
+            .toList();
+    }
+
+    private static boolean helgUtenTrekkdager(UttakResultatPeriodeEntitet p) {
+        //Helg med trekkdager skal ikke oppstå i praksis
+        return p.getTidsperiode().erHelg() && !harTrekkdager(p);
+    }
+
+    private static boolean harTrekkdager(UttakResultatPeriodeEntitet p) {
+        return p.getAktiviteter().stream().anyMatch(a -> a.getTrekkdager().merEnn0());
     }
 
     public static UttakResultatPerioderEntitet kopier(UttakResultatPerioderEntitet perioder) {

@@ -127,6 +127,10 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
         return listArbeidsdager(getFomDato(), getTomDato());
     }
 
+    public boolean erHelg() {
+        return arbeidsdager().isEmpty();
+    }
+
     private static List<LocalDate> listArbeidsdager(LocalDate fomDato, LocalDate tomDato) { // NOSONAR
         List<LocalDate> arbeidsdager = new ArrayList<>();
         var dato = fomDato;
