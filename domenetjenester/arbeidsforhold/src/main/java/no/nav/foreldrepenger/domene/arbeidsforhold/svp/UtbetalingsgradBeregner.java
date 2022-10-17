@@ -242,6 +242,6 @@ class UtbetalingsgradBeregner {
         return new LocalDateTimeline<>(segmenter).compress();
     }
 
-    private static record UtbetalingsgradBeregningProsent(BigDecimal stillingsprosent, BigDecimal overstyrtUtbetalingsgrad) {
+    private record UtbetalingsgradBeregningProsent(BigDecimal stillingsprosent, BigDecimal overstyrtUtbetalingsgrad) {
     }
 }

@@ -82,11 +82,9 @@ public class FastsettePerioderRegelResultatKonverterer {
         var perioder = new UttakResultatPerioderEntitet();
 
         var periodeSøknader = lagPeriodeSøknader(oppgittFordeling);
-        var resultatSomSkalKonverteres = resultat.stream()
-            .sorted(Comparator.comparing(periodeRes -> periodeRes.getUttakPeriode().getFom()))
+        var resultatSomSkalKonverteres = resultat.stream().sorted(Comparator.comparing(periodeRes -> periodeRes.getUttakPeriode().getFom()))
             //Trenger ikke å ta vare på "fri-utsettelse" perioder
-            .filter(p -> !InnvilgetÅrsak.UTSETTELSE_GYLDIG.equals(p.getUttakPeriode().getPeriodeResultatÅrsak()))
-            .collect(Collectors.toList());
+            .filter(p -> !InnvilgetÅrsak.UTSETTELSE_GYLDIG.equals(p.getUttakPeriode().getPeriodeResultatÅrsak())).toList();
 
         var uttakAktiviteter = lagUttakAktiviteter(resultat);
         for (var fastsettePeriodeResultat : resultatSomSkalKonverteres) {
@@ -405,7 +403,7 @@ public class FastsettePerioderRegelResultatKonverterer {
         return new PeriodeSøknad(entitet, oppgittPeriode.getFom(), oppgittPeriode.getTom());
     }
 
-    private static record PeriodeSøknad(UttakResultatPeriodeSøknadEntitet entitet, LocalDate fom, LocalDate tom) {
+    private record PeriodeSøknad(UttakResultatPeriodeSøknadEntitet entitet, LocalDate fom, LocalDate tom) {
 
         boolean harUtledet(UttakPeriode uttakPeriode) {
             return (uttakPeriode.getFom().isEqual(fom) || uttakPeriode.getFom().isAfter(fom)) && (

@@ -46,7 +46,7 @@ public class BehandlingModellTest {
         }
     }
 
-    private static record BehandlingTypeYtelseType(BehandlingType behandlingType, FagsakYtelseType ytelseType) {}
+    private record BehandlingTypeYtelseType(BehandlingType behandlingType, FagsakYtelseType ytelseType) {}
 
     public static Collection<BehandlingTypeYtelseType> parameters() {
         List<BehandlingTypeYtelseType> params = new ArrayList<>();

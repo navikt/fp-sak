@@ -66,13 +66,13 @@ public record TilKabalDto(@NotNull Klager klager,
 
     public static record Sak(@NotNull String fagsakId, @NotNull String fagsystem) {}
 
-    public static record Part(@NotNull PartsType type, @NotNull String verdi) {}
+    public record Part(@NotNull PartsType type, @NotNull String verdi) {}
 
-    public static record Fullmektig(@NotNull Part id, @NotNull boolean skalKlagerMottaKopi) {}
+    public record Fullmektig(@NotNull Part id, @NotNull boolean skalKlagerMottaKopi) {}
 
-    public static record Klager(@NotNull Part id, Fullmektig klagersProsessfullmektig) {}
+    public record Klager(@NotNull Part id, Fullmektig klagersProsessfullmektig) {}
 
-    public static record DokumentReferanse(@NotNull String journalpostId, @NotNull DokumentReferanseType type) {}
+    public record DokumentReferanse(@NotNull String journalpostId, @NotNull DokumentReferanseType type) {}
 
     public enum DokumentReferanseType {
         ANNET, BRUKERS_KLAGE, BRUKERS_SOEKNAD, KLAGE_VEDTAK, OPPRINNELIG_VEDTAK, OVERSENDELSESBREV

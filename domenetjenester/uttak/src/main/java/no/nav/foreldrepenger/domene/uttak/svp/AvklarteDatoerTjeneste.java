@@ -72,7 +72,7 @@ class AvklarteDatoerTjeneste {
     }
 
     private Optional<LocalDate> finnMuligDødsdatoBarn(List<Barn> barna) {
-        var levendeBarn = barna.stream().filter(barn -> barn.getDødsdato().isEmpty()).collect(Collectors.toList());
+        var levendeBarn = barna.stream().filter(barn -> barn.getDødsdato().isEmpty()).toList();
         if (levendeBarn.isEmpty()) {
             return barna.stream()
                 .map(barn -> barn.getDødsdato())

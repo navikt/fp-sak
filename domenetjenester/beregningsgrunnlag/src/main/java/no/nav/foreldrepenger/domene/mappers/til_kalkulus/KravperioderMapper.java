@@ -190,5 +190,5 @@ public class KravperioderMapper {
 
     }
 
-    public static record Kravnøkkel(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef referanse) { }
+    public record Kravnøkkel(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef referanse) { }
 }

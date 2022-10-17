@@ -68,7 +68,7 @@ public class MedlemskapVilkårPeriodeRepository {
         lagreOgFlush(behandling, builder.build());
     }
 
-    public static record VilkårUtfallMedMerknad(VilkårUtfallType vilkårUtfallType, VilkårUtfallMerknad vilkårUtfallMerknad) {}
+    public record VilkårUtfallMedMerknad(VilkårUtfallType vilkårUtfallType, VilkårUtfallMerknad vilkårUtfallMerknad) {}
 
     public VilkårUtfallMedMerknad utledeVilkårStatus(Behandling behandling) {
         var medlemOpt = hentAktivtGrunnlag(behandling);

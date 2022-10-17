@@ -151,7 +151,7 @@ public class BeregningsresultatMedUttaksplanMapper {
         dtoBuilder.medArbeidsgiverReferanse(arb.getIdentifikator());
     }
 
-    private static record AktivitetStatusMedIdentifikator(AktivitetStatus aktivitetStatus, Optional<String> idenfifikator) {}
+    private record AktivitetStatusMedIdentifikator(AktivitetStatus aktivitetStatus, Optional<String> idenfifikator) {}
 
     private Map<AktivitetStatusMedIdentifikator, Optional<LocalDate>> finnSisteUtbetalingdatoForAlleAndeler(List<BeregningsresultatPeriode> beregningsresultatPerioder) {
         Collector<BeregningsresultatAndel, ?, Optional<LocalDate>> maxTomDatoCollector = Collectors.mapping(andel -> andel.getBeregningsresultatPeriode().getBeregningsresultatPeriodeTom(),
@@ -166,7 +166,7 @@ public class BeregningsresultatMedUttaksplanMapper {
         return new AktivitetStatusMedIdentifikator(andel.getAktivitetStatus(), finnSekundærIdentifikator(andel));
     }
 
-    private static record AndelerBrukerAG(BeregningsresultatAndel bruker, Optional<BeregningsresultatAndel> arbeidsgiver) {}
+    private record AndelerBrukerAG(BeregningsresultatAndel bruker, Optional<BeregningsresultatAndel> arbeidsgiver) {}
 
     private List<AndelerBrukerAG> genererAndelListe(List<BeregningsresultatAndel> beregningsresultatAndelList) {
         var collect = beregningsresultatAndelList.stream()

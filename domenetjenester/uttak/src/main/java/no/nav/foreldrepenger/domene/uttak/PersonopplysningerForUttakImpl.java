@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.uttak;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -74,7 +73,7 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
             .filter(familierelasjon -> familierelasjon.getRelasjonsrolle().equals(RelasjonsRolleType.BARN))
             .filter(rel -> Objects.nonNull(rel.getHarSammeBosted()))
             .filter(rel -> erIkkeDød(personopplysningerAggregat, rel))
-            .collect(Collectors.toList());
+            .toList();
 
         if (!barnRelasjoner.isEmpty()) {
             // Utleder fra adresse pga avvik i TPS sin FR . harSammeBosted ifm overgang fra DSF til FREG

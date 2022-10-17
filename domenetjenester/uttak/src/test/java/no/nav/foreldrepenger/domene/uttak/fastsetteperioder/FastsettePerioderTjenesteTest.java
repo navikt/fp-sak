@@ -662,8 +662,8 @@ public class FastsettePerioderTjenesteTest {
                                                                              UttakResultatPeriodeEntitet periode) {
         return periode.getAktiviteter()
             .stream()
-            .filter(aktivitet -> aktivitet.getUttakAktivitet().getArbeidsgiver().orElseThrow().equals(arbeidsgiver))
             .map(UttakResultatPeriodeAktivitetEntitet::getUttakAktivitet)
+            .filter(uttakAktivitet -> uttakAktivitet.getArbeidsgiver().orElseThrow().equals(arbeidsgiver))
             .findFirst();
     }
 

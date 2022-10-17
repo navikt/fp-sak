@@ -313,7 +313,7 @@ public class TilbakehoppTest {
         return status;
     }
 
-    private static record StegPort (BehandlingStegType steg, VurderingspunktType port) {
+    private record StegPort (BehandlingStegType steg, VurderingspunktType port) {
     }
 
 }

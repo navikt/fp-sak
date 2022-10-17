@@ -64,7 +64,7 @@ public class ManuellRegistreringValidatorUtil {
         return perioder.stream().filter(p -> !p.erFørDagensDato()).map(p -> TIDLIGERE_DATO).collect(Collectors.toList());
     }
 
-    public static record Periode(LocalDate start, LocalDate slutt) {
+    public record Periode(LocalDate start, LocalDate slutt) {
         boolean begynnerFør(Periode otherPeriode) {
             return start.isBefore(otherPeriode.start);
         }

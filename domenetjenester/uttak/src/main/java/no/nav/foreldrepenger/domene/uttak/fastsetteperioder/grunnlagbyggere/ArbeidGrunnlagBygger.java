@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -83,10 +82,9 @@ public class ArbeidGrunnlagBygger {
             startdatoer.get(statusPeriode.toUttakAktivitetIdentifikator()));
 
         if (erArbeidstakerMedArbeidsgiver(arbeidsforhold)) {
-            var endringerIStilling = finnEndringerIStilling(identifikator, ytelseFordelingAggregat,
-                uttakYrkesaktiviteter).stream()
+            var endringerIStilling = finnEndringerIStilling(identifikator, ytelseFordelingAggregat, uttakYrkesaktiviteter).stream()
                 .sorted(Comparator.comparing(EndringAvStilling::getDato))
-                .collect(Collectors.toList());
+                .toList();
             for (var endringAvStilling : endringerIStilling) {
                 arbeidsforhold.leggTilEndringIStilling(endringAvStilling);
             }

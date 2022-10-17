@@ -98,6 +98,6 @@ public class KodeverkRestTjenesteTest {
         assertThat(json).contains("\"utfallType\" : \"AVSLÅTT\"");
     }
 
-    private static record X(PeriodeResultatÅrsak periodeResultatÅrsak) {}
+    private record X(PeriodeResultatÅrsak periodeResultatÅrsak) {}
 
 }

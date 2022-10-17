@@ -198,9 +198,9 @@ class VedtattYtelseMapper {
         return new AktørIdPersonident(arbeidsgiver.getIdentifikator());
     }
 
-    private static record AnvistAndelNøkkel(Arbeidsgiver arbeidsgiver,
-                                            InternArbeidsforholdRef arbeidsforholdRef,
-                                            Inntektskategori inntektskategori) implements Comparable<AnvistAndelNøkkel> {
+    private record AnvistAndelNøkkel(Arbeidsgiver arbeidsgiver,
+                                     InternArbeidsforholdRef arbeidsforholdRef,
+                                     Inntektskategori inntektskategori) implements Comparable<AnvistAndelNøkkel> {
         @Override
         public int compareTo(AnvistAndelNøkkel o) {
             if (this.equals(o)) {
@@ -224,7 +224,7 @@ class VedtattYtelseMapper {
         }
     }
 
-    private static record DagsatsUtbgradSVP(long dagsats, long utbetalingsgrad) {
+    private record DagsatsUtbgradSVP(long dagsats, long utbetalingsgrad) {
     }
 
 }

@@ -231,7 +231,7 @@ public class FremoverhoppTest {
 
     }
 
-    private static record StegPort(BehandlingStegType steg, VurderingspunktType port) {
+    private record StegPort(BehandlingStegType steg, VurderingspunktType port) {
     }
 
 }

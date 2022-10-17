@@ -172,7 +172,7 @@ public class OppdragPostConditionTjeneste {
             .orElse(null);
     }
 
-    static record TilkjentYtelseDifferanse(LocalDate førsteDatoForDifferanseSats, LocalDate førsteDatoForDifferanseUtbetalingsgrad, long differanseYtelse) {
+    record TilkjentYtelseDifferanse(LocalDate førsteDatoForDifferanseSats, LocalDate førsteDatoForDifferanseUtbetalingsgrad, long differanseYtelse) {
 
         public boolean harAvvik() {
             return førsteDatoForDifferanseSats != null || førsteDatoForDifferanseUtbetalingsgrad != null || differanseYtelse != 0;

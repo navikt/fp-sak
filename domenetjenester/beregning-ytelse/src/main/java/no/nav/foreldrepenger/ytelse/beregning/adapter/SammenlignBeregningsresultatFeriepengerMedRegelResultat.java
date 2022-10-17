@@ -81,7 +81,7 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
                 Collectors.reducing(new Beløp(BigDecimal.ZERO), prÅr -> new Beløp(prÅr.getÅrsbeløp()), Beløp::adder)));
     }
 
-    private static record AndelGruppering(Year opptjent, String mottaker) {
+    private record AndelGruppering(Year opptjent, String mottaker) {
 
         static AndelGruppering fraBeregningEntitet(BeregningsresultatFeriepengerPrÅr andel) {
             return new AndelGruppering(Year.from(andel.getOpptjeningsår()),
