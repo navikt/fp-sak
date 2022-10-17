@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -18,7 +19,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagBuilder;
@@ -56,8 +56,6 @@ public class FagsakTjenesteTest {
     private PersoninfoAdapter personinfoAdapter;
     @Mock
     private FamilieHendelseTjeneste hendelseTjeneste;
-    @Mock
-    private DekningsgradTjeneste dekningsgradTjeneste;
 
     private static FamilieHendelseGrunnlagEntitet byggHendelseGrunnlag(LocalDate fødselsdato, LocalDate oppgittFødselsdato) {
         final var hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
@@ -86,6 +84,7 @@ public class FagsakTjenesteTest {
         var fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
         // Whitebox.setInternalState(fagsak, "id", -1L);
         fagsak.setId(-1L);
+        fagsak.setOpprettetTidspunkt(LocalDateTime.now());
         when(fagsakRepository.hentForBruker(AKTØR_ID)).thenReturn(Collections.singletonList(fagsak));
 
         var fødselsdato = LocalDate.of(2017, JANUARY, 1);

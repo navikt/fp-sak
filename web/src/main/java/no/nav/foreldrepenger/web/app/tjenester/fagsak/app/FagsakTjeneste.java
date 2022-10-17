@@ -191,8 +191,9 @@ public class FagsakTjeneste {
     }
 
     private FagsakSøkDto.PersonSøkDto mapFraPersoninfoBasisTilPersonSøkDto(PersoninfoBasis p) {
-        return new FagsakSøkDto.PersonSøkDto(p.navn(), (int) ChronoUnit.YEARS.between(p.fødselsdato(), LocalDate.now()),
-            p.personIdent().getIdent(), NavBrukerKjønn.KVINNE.equals(p.kjønn()));
+        return new FagsakSøkDto.PersonSøkDto(p.aktørId().getId(), StringUtils.formaterMedStoreOgSmåBokstaver(p.navn()),
+            p.fødselsdato(), (int) ChronoUnit.YEARS.between(p.fødselsdato(), LocalDate.now()),
+            p.dødsdato(), p.personIdent().getIdent(), p.diskresjonskode(), Språkkode.NB, p.kjønn(), NavBrukerKjønn.KVINNE.equals(p.kjønn()));
     }
 
     private Optional<SakHendelseDto> hentFamilieHendelse(Fagsak fagsak) {
