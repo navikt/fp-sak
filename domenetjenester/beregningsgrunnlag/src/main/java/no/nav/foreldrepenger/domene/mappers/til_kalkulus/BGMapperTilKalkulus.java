@@ -57,14 +57,14 @@ public class BGMapperTilKalkulus {
         return builder;
     }
 
-    public static SammenligningsgrunnlagPrStatusDto.Builder mapSammenligningsgrunnlagMedStatus(SammenligningsgrunnlagPrStatus fraFpsak) {
+    public static SammenligningsgrunnlagPrStatusDto mapSammenligningsgrunnlagMedStatus(SammenligningsgrunnlagPrStatus fraFpsak) {
         var builder = new SammenligningsgrunnlagPrStatusDto.Builder();
         builder.medAvvikPromilleNy(fraFpsak.getAvvikPromille());
         builder.medRapportertPrÅr(fraFpsak.getRapportertPrÅr());
         builder.medSammenligningsgrunnlagType(SammenligningsgrunnlagType.fraKode(fraFpsak.getSammenligningsgrunnlagType().getKode()));
         builder.medSammenligningsperiode(fraFpsak.getSammenligningsperiodeFom(), fraFpsak.getSammenligningsperiodeTom());
 
-        return builder;
+        return builder.build();
     }
 
     private static BeregningsgrunnlagPrStatusOgAndelDto.Builder mapStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel fraFpsak) {
