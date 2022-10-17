@@ -117,5 +117,5 @@ public class ArbeidsforholdInformasjonBuilder {
         return new ArbeidsforholdInformasjonBuilder(arbeidInfo);
     }
 
-    public static record ArbeidsgiverForholdRefs(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref1, InternArbeidsforholdRef ref2) {}
+    public record ArbeidsgiverForholdRefs(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref1, InternArbeidsforholdRef ref2) {}
 }

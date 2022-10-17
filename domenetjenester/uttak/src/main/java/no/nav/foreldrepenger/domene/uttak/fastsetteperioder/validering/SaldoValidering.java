@@ -74,6 +74,6 @@ public class SaldoValidering implements OverstyrUttakPerioderValidering {
         return new SaldoValideringResultat(true, false);
     }
 
-    public static record SaldoValideringResultat(boolean isGyldig, boolean isNegativPgaSamtidigUttak) {
+    public record SaldoValideringResultat(boolean isGyldig, boolean isNegativPgaSamtidigUttak) {
     }
 }

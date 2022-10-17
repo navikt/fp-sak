@@ -155,7 +155,7 @@ public class MapYtelseperioderTjeneste {
                 .build());
     }
 
-    private static record YtelseGruppering(OpptjeningAktivitetType type, String orgNummer) {}
+    private record YtelseGruppering(OpptjeningAktivitetType type, String orgNummer) {}
 
     private YtelseGruppering finnYtelseDiskriminator(OpptjeningsperiodeForSaksbehandling ytelse) {
         var retOrgnr = Optional.ofNullable(ytelse.getArbeidsgiver()).map(Arbeidsgiver::getOrgnr).orElse(UTEN_ORGNR);

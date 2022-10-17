@@ -63,8 +63,8 @@ public class AdressePeriode {
             '}';
     }
 
-    public static record AdresseTypePeriode(Gyldighetsperiode gyldighetsperiode, AdresseType adresseType, String land,
-                                            LocalDate flyttedato, LocalDate gyldigFom, boolean historisk) {
+    public record AdresseTypePeriode(Gyldighetsperiode gyldighetsperiode, AdresseType adresseType, String land,
+                                     LocalDate flyttedato, LocalDate gyldigFom, boolean historisk) {
         public AdresseTypePeriode(AdressePeriode adressePeriode) {
             this(adressePeriode.getGyldighetsperiode(), adressePeriode.getAdresse().getAdresseType(), adressePeriode.getAdresse().getLand(),
                 adressePeriode.flyttedato, adressePeriode.gyldigFomDato, adressePeriode.historisk);

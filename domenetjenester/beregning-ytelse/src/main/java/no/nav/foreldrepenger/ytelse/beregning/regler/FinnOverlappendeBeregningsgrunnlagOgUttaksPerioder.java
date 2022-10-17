@@ -196,7 +196,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
     /*
      * dagsatser gradert for bruker og arbeidsgiver
      */
-    private static record DagsatsBrukerAG(Long bruker, Long arbeidsgiver) {}
+    private record DagsatsBrukerAG(Long bruker, Long arbeidsgiver) {}
 
     private static DagsatsBrukerAG kalkulerDagsatserForGradering(BigDecimal redusertBrukersAndelPrÅr, BigDecimal redusertRefusjonPrÅr,
                                                                    UttakAktivitet uttakAktivitet, Map<String, Object> resultater, String periodenavn) {

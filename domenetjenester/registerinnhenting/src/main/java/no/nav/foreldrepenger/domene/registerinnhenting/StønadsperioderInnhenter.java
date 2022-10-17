@@ -192,7 +192,7 @@ public class StønadsperioderInnhenter {
             .map(FamilieHendelseEntitet::getSkjæringstidspunkt);
     }
 
-    public static record MuligSak(FagsakYtelseType ytelse, Saksnummer saksnummer, SaksForhold relasjon, LocalDate startdato, LocalDate fhdato) {}
+    public record MuligSak(FagsakYtelseType ytelse, Saksnummer saksnummer, SaksForhold relasjon, LocalDate startdato, LocalDate fhdato) {}
 
     public enum SaksForhold { EGEN_SAK, ANNEN_PART_SAK }
 

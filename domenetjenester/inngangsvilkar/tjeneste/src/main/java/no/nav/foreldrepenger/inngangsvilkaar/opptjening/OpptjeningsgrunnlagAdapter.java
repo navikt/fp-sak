@@ -143,7 +143,7 @@ public class OpptjeningsgrunnlagAdapter {
         return resultat;
     }
 
-    private static record AktivitetGruppering(OpptjeningAktivitetType type, String arbeidsgiver) {}
+    private record AktivitetGruppering(OpptjeningAktivitetType type, String arbeidsgiver) {}
 
     private AktivitetGruppering getIdentifikator(OpptjeningAktivitetPeriode opp) {
         var identifikator = Optional.ofNullable(opp.getOpptjeningsnøkkel().getForType(Opptjeningsnøkkel.Type.ORG_NUMMER))

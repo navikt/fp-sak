@@ -452,5 +452,5 @@ public class BehandlingRevurderingRepository {
         return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
     }
 
-    public static record FagsakIdAktørId(Long fagsakId, AktørId aktørId) { }
+    public record FagsakIdAktørId(Long fagsakId, AktørId aktørId) { }
 }

@@ -256,7 +256,7 @@ public class MedlemTjeneste {
         return startDato.isAfter(LocalDate.now()) ? LocalDate.now() : startDato;
     }
 
-    public static record VilkårUtfallMedÅrsak(VilkårUtfallType vilkårUtfallType, Avslagsårsak avslagsårsak) {}
+    public record VilkårUtfallMedÅrsak(VilkårUtfallType vilkårUtfallType, Avslagsårsak avslagsårsak) {}
 
     public VilkårUtfallMedÅrsak utledVilkårUtfall(Behandling revurdering) {
         var behandlingsresultat = behandlingsresultatRepository.hent(revurdering.getId());

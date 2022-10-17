@@ -29,11 +29,11 @@ public class OpptjeningAktiviteter {
         return Collections.unmodifiableList(opptjeningPerioder);
     }
 
-    public static record OpptjeningPeriode(OpptjeningAktivitetType opptjeningAktivitetType,
-                                  Periode periode,
-                                  String arbeidsgiverOrgNummer,
-                                  String arbeidsgiverAktørId,
-                                  InternArbeidsforholdRef arbeidsforholdId) {
+    public record OpptjeningPeriode(OpptjeningAktivitetType opptjeningAktivitetType,
+                                    Periode periode,
+                                    String arbeidsgiverOrgNummer,
+                                    String arbeidsgiverAktørId,
+                                    InternArbeidsforholdRef arbeidsforholdId) {
         public OpptjeningPeriode {
             Objects.requireNonNull(opptjeningAktivitetType, "type");
             Objects.requireNonNull(periode, "periode");

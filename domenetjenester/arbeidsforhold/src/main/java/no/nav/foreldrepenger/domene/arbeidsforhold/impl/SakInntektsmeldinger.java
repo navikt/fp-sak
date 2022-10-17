@@ -92,8 +92,8 @@ public class SakInntektsmeldinger {
         return sorted;
     }
 
-    static record Key(Long behandlingId, UUID grunnlagEksternReferanse, LocalDateTime opprettetTidspunkt) {
-        
+    record Key(Long behandlingId, UUID grunnlagEksternReferanse, LocalDateTime opprettetTidspunkt) {
+
     }
 
 }

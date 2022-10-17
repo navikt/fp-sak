@@ -13,6 +13,6 @@ class ListPositionEquality {
         return equalsMap.computeIfAbsent(o, v -> new NodeWrap(node, counter.getAndIncrement())).pos();
     }
 
-    static record NodeWrap(Node root, int pos) {
+    record NodeWrap(Node root, int pos) {
     }
 }

@@ -290,12 +290,4 @@ public class ArbeidsforholdAdministrasjonTjeneste {
                 .filter(ArbeidsforholdOverstyring::erOverstyrt)
                 .findFirst();
     }
-
-    /**
-     * Param klasse for å kunne ta inn parametere som styrer utleding av
-     * arbeidsforhold.
-     */
-    public static record UtledArbeidsforholdParametere(boolean isVurderArbeidsforhold) {
-    }
-
 }

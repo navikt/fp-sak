@@ -27,8 +27,8 @@ public record Medlemskapsunntak(Long unntakId,
         return studieinformasjon != null ? studieinformasjon.studieland() : null;
     }
 
-    static record Sporingsinformasjon( LocalDate besluttet, String kilde) { }
+    record Sporingsinformasjon( LocalDate besluttet, String kilde) { }
 
-    static record Studieinformasjon(String studieland) { }
+    record Studieinformasjon(String studieland) { }
 
 }

@@ -132,5 +132,5 @@ final class PleiepengerJustering {
             .build();
     }
 
-    static record PleiepengerUtsettelse(LocalDateTime vedtakstidspunkt, OppgittPeriodeEntitet oppgittPeriode) { }
+    record PleiepengerUtsettelse(LocalDateTime vedtakstidspunkt, OppgittPeriodeEntitet oppgittPeriode) { }
 }

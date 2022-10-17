@@ -108,7 +108,7 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok().build();
     }
 
-    public static record FagsakTreff(String saksnummer, Long fagsakId) {
+    public record FagsakTreff(String saksnummer, Long fagsakId) {
     }
 
     @POST
@@ -162,7 +162,7 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok().build();
     }
 
-    private static record KabalFlytt(String saksnummer, Long behandlingId) { }
+    private record KabalFlytt(String saksnummer, Long behandlingId) { }
 
     private void flyttTilbakeTilOmsorgRett(KabalFlytt behandlingRef) {
         var behandling = behandlingRepository.hentBehandling(behandlingRef.behandlingId());
@@ -181,7 +181,7 @@ public class ForvaltningUttrekkRestTjeneste {
             row[3] != null ? ((Timestamp) row[3]).toLocalDateTime().toLocalDate() : null);
     }
 
-    public static record OpenAutopunkt(String saksnummer, String ytelseType, LocalDate aksjonspunktOpprettetDato, LocalDate aksjonspunktFristDato) {
+    public record OpenAutopunkt(String saksnummer, String ytelseType, LocalDate aksjonspunktOpprettetDato, LocalDate aksjonspunktFristDato) {
     }
 
     @GET

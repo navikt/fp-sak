@@ -156,7 +156,7 @@ public class FastsettUttaksgrunnlagTjeneste {
         return VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, oppgittePerioder, endringsdato);
     }
 
-    private static record FHSøknadGjeldende(Optional<LocalDate> søknad, LocalDate gjeldende) {
+    private record FHSøknadGjeldende(Optional<LocalDate> søknad, LocalDate gjeldende) {
     }
 
     private FHSøknadGjeldende finnFamiliehendelser(ForeldrepengerGrunnlag fpGrunnlag) {

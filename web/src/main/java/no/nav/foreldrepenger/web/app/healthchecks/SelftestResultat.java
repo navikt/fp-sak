@@ -70,6 +70,6 @@ public class SelftestResultat {
         return alle;
     }
 
-    public static record InternalResult(boolean isReady, String description, String endpoint) {
+    public record InternalResult(boolean isReady, String description, String endpoint) {
     }
 }

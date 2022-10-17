@@ -50,6 +50,6 @@ public class BehandleNegativeKvitteringTjeneste {
         }
     }
 
-    public static record NegativeKvitteringFeil(String feilmelding) {
+    public record NegativeKvitteringFeil(String feilmelding) {
     }
 }

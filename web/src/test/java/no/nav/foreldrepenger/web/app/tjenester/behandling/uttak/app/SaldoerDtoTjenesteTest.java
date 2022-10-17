@@ -945,7 +945,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             new UttakAktivitetMedTrekkdager(uttakAktivitet, Optional.empty()));
     }
 
-    private static record UttakAktivitetMedTrekkdager(UttakAktivitetEntitet aktivitet, Optional<Trekkdager> trekkdagerOptional) {}
+    private record UttakAktivitetMedTrekkdager(UttakAktivitetEntitet aktivitet, Optional<Trekkdager> trekkdagerOptional) {}
 
     @SafeVarargs
     private void lagPeriode(UttakResultatPerioderEntitet uttakResultatPerioder,

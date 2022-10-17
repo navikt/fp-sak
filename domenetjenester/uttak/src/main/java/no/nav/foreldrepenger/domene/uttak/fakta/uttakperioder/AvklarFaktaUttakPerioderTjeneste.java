@@ -77,10 +77,11 @@ public class AvklarFaktaUttakPerioderTjeneste {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId);
         if (ytelseFordelingAggregat.isPresent()) {
             var ytelseFordeling = ytelseFordelingAggregat.get();
-            var perioder = ytelseFordeling.getGjeldendeSøknadsperioder().getOppgittePerioder()
+            var perioder = ytelseFordeling.getGjeldendeSøknadsperioder()
+                .getOppgittePerioder()
                 .stream()
                 .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
-                .collect(Collectors.toList());
+                .toList();
 
             for (var i = 0; i < perioder.size() - 1; i++) {
                 var oppgittPeriode = perioder.get(i);
