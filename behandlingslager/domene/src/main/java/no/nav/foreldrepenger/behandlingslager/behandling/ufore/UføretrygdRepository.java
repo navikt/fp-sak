@@ -53,6 +53,15 @@ public class UføretrygdRepository {
         lagreGrunnlag(aktivtGrunnlag, nyttGrunnlag);
     }
 
+    public void deaktiverGrunnlagUtenRegister(Long behandlingId) {
+        hentGrunnlag(behandlingId).filter(g -> g.getUføretrygdRegister() == null)
+            .ifPresent(g -> {
+                g.deaktiver();
+                entityManager.persist(g);
+                entityManager.flush();
+            });
+    }
+
     private void lagreGrunnlag(Optional<UføretrygdGrunnlagEntitet> aktivtGrunnlag, UføretrygdGrunnlagEntitet.Builder builder) {
         var nyttGrunnlag = builder.build();
 

@@ -157,7 +157,7 @@ public class FaktaOmsorgRettTjeneste {
                                             AktørId annenpartAktørId) {
         if (annenforelderMottarUføretrygd != null) {
             var uføreGrunnlag = uføretrygdRepository.hentGrunnlag(param.getBehandlingId());
-            if (uføreGrunnlag.isEmpty() && opprettUføreGrunnlagHvisMangler) {
+            if ((uføreGrunnlag.isEmpty() || uføreGrunnlag.get().getUføretrygdRegister() == null) && opprettUføreGrunnlagHvisMangler) {
                 uføretrygdRepository.lagreUføreGrunnlagAvkreftetAleneomsorgVersjon(param.getBehandlingId(), annenpartAktørId, annenforelderMottarUføretrygd);
             } else {
                 uføreGrunnlag.ifPresent(g -> uføretrygdRepository.lagreUføreGrunnlagOverstyrtVersjon(g.getBehandlingId(), annenforelderMottarUføretrygd));
