@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.fagsak.dto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -25,7 +27,8 @@ public record FagsakSøkDto(String saksnummer,
     public FagsakSøkDto(Fagsak fagsak, PersonSøkDto person, LocalDate barnFødt) {
         this(fagsak.getSaksnummer().getVerdi(), fagsak.getYtelseType(), fagsak.getStatus(),
             fagsak.getAktørId().getId(), fagsak.getAktørId().getId(), person, barnFødt, barnFødt,
-            fagsak.getOpprettetTidspunkt().toLocalDate(), fagsak.getEndretTidspunkt().toLocalDate());
+            Optional.ofNullable(fagsak.getOpprettetTidspunkt()).map(LocalDateTime::toLocalDate).orElse(null),
+            Optional.ofNullable(fagsak.getEndretTidspunkt()).map(LocalDateTime::toLocalDate).orElse(null));
     }
 
     // Gjør om til vanlig PersonDto når frontend/los har fjernet bruk av alder og erKvinne - evt legg til disse i PersonDto
