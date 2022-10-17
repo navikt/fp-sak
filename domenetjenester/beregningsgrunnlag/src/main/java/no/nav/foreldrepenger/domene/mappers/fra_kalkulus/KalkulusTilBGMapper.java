@@ -94,7 +94,9 @@ public final class KalkulusTilBGMapper {
             case SAMMENLIGNING_FL -> SammenligningsgrunnlagType.SAMMENLIGNING_FL;
             case SAMMENLIGNING_AT_FL -> SammenligningsgrunnlagType.SAMMENLIGNING_AT_FL;
             case SAMMENLIGNING_SN -> SammenligningsgrunnlagType.SAMMENLIGNING_SN;
-            case SAMMENLIGNING_ATFL_SN -> SammenligningsgrunnlagType.SAMMENLIGNING_ATFL_SN;
+
+            // Type som kun brukes i GUI for å vise gamle sammenligningsgrunnlag før migrering, skal ikke lagres entiteter med denne typen
+            case SAMMENLIGNING_ATFL_SN -> throw new IllegalStateException("FEIL: Mottok ugyldig sammenligningsgrunnlagtype " + fraKalkulus);
         };
     }
 
