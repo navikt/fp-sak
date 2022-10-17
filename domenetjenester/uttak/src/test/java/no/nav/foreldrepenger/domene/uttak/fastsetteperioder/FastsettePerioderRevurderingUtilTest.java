@@ -121,6 +121,37 @@ public class FastsettePerioderRevurderingUtilTest {
         assertThat(perioder.get(0).getAktiviteter().get(0).getTrekkdager()).isEqualTo(new Trekkdager(2));
     }
 
+    @Test
+    public void skalFjerneUttaksperioderFørEndringsdatoSomBareErTommeHelger() {
+        var opprinneligePerioder = new UttakResultatPerioderEntitet();
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
+            .medUttakArbeidType(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE)
+            .build();
+
+        //Helg med trekkdager skal ikke oppstå i praksis
+        var helgMedTrekkdager = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2022, 10, 1), LocalDate.of(2022, 10, 2))
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .build();
+        leggTilPeriodeAktivitet(uttakAktivitet, helgMedTrekkdager, StønadskontoType.MØDREKVOTE, new Trekkdager(10));
+        var helgUtenTrekkdager = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2022, 10, 8), LocalDate.of(2022, 10, 9))
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .build();
+        leggTilPeriodeAktivitet(uttakAktivitet, helgUtenTrekkdager, StønadskontoType.FELLESPERIODE, Trekkdager.ZERO);
+
+        opprinneligePerioder.leggTilPeriode(helgMedTrekkdager);
+        opprinneligePerioder.leggTilPeriode(helgUtenTrekkdager);
+        var opprinneligUttak = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
+            .medOpprinneligPerioder(opprinneligePerioder)
+            .build();
+
+        var endringsdato = helgUtenTrekkdager.getTom().plusDays(1);
+        var perioder = FastsettePerioderRevurderingUtil.perioderFørDato(opprinneligUttak, endringsdato);
+
+        assertThat(perioder).hasSize(1);
+        assertThat(perioder.get(0).getFom()).isEqualTo(helgMedTrekkdager.getFom());
+        assertThat(perioder.get(0).getTom()).isEqualTo(helgMedTrekkdager.getTom());
+    }
+
     private void leggTilPeriodeAktivitet(UttakAktivitetEntitet uttakAktivitet, UttakResultatPeriodeEntitet periode, StønadskontoType stønadskontoType, Trekkdager trekkdager) {
         leggTilPeriodeAktivitet(uttakAktivitet, periode, stønadskontoType, trekkdager, BigDecimal.TEN);
     }
