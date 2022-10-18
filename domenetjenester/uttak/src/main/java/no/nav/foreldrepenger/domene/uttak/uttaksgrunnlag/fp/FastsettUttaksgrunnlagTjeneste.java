@@ -73,13 +73,13 @@ public class FastsettUttaksgrunnlagTjeneste {
                 .orElseThrow(() -> new IllegalArgumentException("Utvikler-feil: ved revurdering skal det alltid finnes en original behandling"));
             if (behandlingHarUttaksresultat(originalBehandlingId)) {
                 // Modifisere søknadsperioder som er like innvilget uttak
-                var tidlisteDatoFordeling = justertePerioder.stream().map(OppgittPeriodeEntitet::getFom)
-                    .min(Comparator.naturalOrder()).orElse(endringsdatoRevurdering);
-                if (endringsdatoRevurdering != null && tidlisteDatoFordeling.isBefore(endringsdatoRevurdering)) {
+                var tidlisteDatoFordeling = justertePerioder.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder());
+                if (endringsdatoRevurdering != null && tidlisteDatoFordeling.filter(d -> d.isBefore(endringsdatoRevurdering)).isPresent()) {
                     justertePerioder = VedtaksperiodeFilter.velgEvtKnekkPerioderFom(justertePerioder, endringsdatoRevurdering);
+                    tidlisteDatoFordeling = Optional.of(endringsdatoRevurdering);
                 }
-                justertePerioder = kopierVedtaksperioderFomEndringsdato(justertePerioder, endringsdatoRevurdering,
-                        originalBehandlingId);
+                justertePerioder = kopierVedtaksperioderFomEndringsdato(justertePerioder, tidlisteDatoFordeling, endringsdatoRevurdering,
+                    originalBehandlingId);
             } else {
                 justertePerioder = oppgittePerioderFraForrigeBehandling(originalBehandlingId);
             }
@@ -153,11 +153,12 @@ public class FastsettUttaksgrunnlagTjeneste {
     }
 
     private List<OppgittPeriodeEntitet> kopierVedtaksperioderFomEndringsdato(List<OppgittPeriodeEntitet> oppgittePerioder,
+                                                                             Optional<LocalDate> førsteSøknadsdato,
                                                                              LocalDate endringsdato,
                                                                              Long forrigeBehandling) {
         //Kopier vedtaksperioder fom endringsdato.
         var uttakResultatEntitet = fpUttakRepository.hentUttakResultat(forrigeBehandling);
-        return VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, oppgittePerioder, endringsdato);
+        return VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, førsteSøknadsdato, oppgittePerioder, endringsdato);
     }
 
     private record FHSøknadGjeldende(Optional<LocalDate> søknad, LocalDate gjeldende) {
