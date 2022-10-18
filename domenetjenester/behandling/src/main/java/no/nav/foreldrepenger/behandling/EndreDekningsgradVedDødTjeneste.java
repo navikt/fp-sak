@@ -5,6 +5,9 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -21,6 +24,7 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
 public class EndreDekningsgradVedDødTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(EndreDekningsgradVedDødTjeneste.class);
 
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -58,6 +62,7 @@ public class EndreDekningsgradVedDødTjeneste {
         oppdaterFagsakRelasjon(behandling, Dekningsgrad._100);
         oppdaterBehandlingsresultat(behandling);
         lagHistorikkinnslag(behandling);
+        LOG.info("Endrer dekningsgrad for saksnummer " + ref.saksnummer() + " automatisk på grunn av død");
     }
 
     private void lagHistorikkinnslag(Behandling behandling) {
