@@ -33,7 +33,7 @@ class GrunnlagOppretter {
         var jordmorsDato = LocalDate.of(2019, Month.APRIL, 1);
         var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
             .medBehovForTilretteleggingFom(jordmorsDato)
-            .medIngenTilrettelegging(jordmorsDato)
+            .medIngenTilrettelegging(jordmorsDato, jordmorsDato)
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
             .medKopiertFraTidligereBehandling(false)

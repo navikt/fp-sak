@@ -36,6 +36,9 @@ public class TilretteleggingFOM extends BaseEntitet implements IndexKey {
     @Column(name = "OVERSTYRT_UTBETALINGSGRAD")
     private BigDecimal overstyrtUtbetalingsgrad;
 
+    @Column(name = "TIDLIGST_MOTATT_DATO")
+    private LocalDate tidligstMotattDato;
+
     public Long getId() {
         return id;
     }
@@ -56,6 +59,9 @@ public class TilretteleggingFOM extends BaseEntitet implements IndexKey {
         return overstyrtUtbetalingsgrad;
     }
 
+    public LocalDate getTidligstMotattDato() {
+        return tidligstMotattDato;
+    }
     @Override
     public String getIndexKey() {
         return IndexKey.createKey(id);
@@ -71,10 +77,20 @@ public class TilretteleggingFOM extends BaseEntitet implements IndexKey {
             mal.fomDato = tilretteleggingFOM.getFomDato();
             mal.stillingsprosent = tilretteleggingFOM.getStillingsprosent();
             mal.overstyrtUtbetalingsgrad = tilretteleggingFOM.getOverstyrtUtbetalingsgrad();
+            mal.tidligstMotattDato = tilretteleggingFOM.getTidligstMotattDato()
+            ;
         }
 
         public Builder() {
             mal = new TilretteleggingFOM();
+        }
+
+        public Builder fraEksisterende(TilretteleggingFOM tilretteleggingFOM) {
+            return new Builder().medFomDato(tilretteleggingFOM.getFomDato())
+                .medTilretteleggingType(tilretteleggingFOM.getType())
+                .medStillingsprosent(tilretteleggingFOM.getStillingsprosent())
+                .medOverstyrtUtbetalingsgrad(tilretteleggingFOM.getOverstyrtUtbetalingsgrad())
+                .medTidligstMottattDato(tilretteleggingFOM.getTidligstMotattDato());
         }
 
         public Builder medTilretteleggingType(TilretteleggingType type) {
@@ -94,6 +110,11 @@ public class TilretteleggingFOM extends BaseEntitet implements IndexKey {
 
         public Builder medOverstyrtUtbetalingsgrad(BigDecimal overstyrtUtbetalingsgrad) {
             mal.overstyrtUtbetalingsgrad = overstyrtUtbetalingsgrad;
+            return this;
+        }
+
+        public Builder medTidligstMottattDato(LocalDate tidligstMotattDato) {
+            mal.tidligstMotattDato = tidligstMotattDato;
             return this;
         }
 

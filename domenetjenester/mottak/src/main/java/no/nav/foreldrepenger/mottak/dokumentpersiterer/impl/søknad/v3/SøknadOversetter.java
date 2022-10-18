@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -43,6 +44,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadVedleggE
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
@@ -347,23 +350,23 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                 .medOppgittDekningsgrad(oversettDekningsgrad(omYtelse))
                 .medOppgittFordeling(
                     oversettFordeling(behandling, omYtelse, søknadMottattDato));
-            oversettRettighet(omYtelse).ifPresent(r -> yfBuilder.medOppgittRettighet(r));
+            oversettRettighet(omYtelse).ifPresent(yfBuilder::medOppgittRettighet);
             ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
         } else if (skjemaWrapper.getOmYtelse() instanceof Svangerskapspenger svangerskapspenger) {
-            oversettOgLagreTilrettelegging(svangerskapspenger, søknadBuilder, behandling, søknadMottattDato);
+            oversettOgLagreTilretteleggingOgVurderEksisterende(svangerskapspenger, søknadBuilder, behandling, søknadMottattDato);
         }
     }
 
-    private void oversettOgLagreTilrettelegging(Svangerskapspenger svangerskapspenger,
-                                                SøknadEntitet.Builder søknadBuilder,
-                                                Behandling behandling, LocalDate søknadMottattDato) {
+    private void oversettOgLagreTilretteleggingOgVurderEksisterende(Svangerskapspenger svangerskapspenger,
+                                                                    SøknadEntitet.Builder søknadBuilder,
+                                                                    Behandling behandling, LocalDate søknadMottattDato) {
 
         var brukMottattTidspunkt = Optional.ofNullable(søknadMottattDato)
             .filter(d -> !d.equals(behandling.getOpprettetTidspunkt().toLocalDate()))
             .map(LocalDate::atStartOfDay)
             .orElseGet(behandling::getOpprettetTidspunkt);
         var svpBuilder = new SvpGrunnlagEntitet.Builder().medBehandlingId(behandling.getId());
-        List<SvpTilretteleggingEntitet> tilrettelegginger = new ArrayList<>();
+        List<SvpTilretteleggingEntitet> nyeTilrettelegginger = new ArrayList<>();
 
         var tilretteleggingListe = svangerskapspenger.getTilretteleggingListe().getTilrettelegging();
 
@@ -377,17 +380,17 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             if (tilrettelegging.getHelTilrettelegging() != null) {
                 tilrettelegging.getHelTilrettelegging()
                     .forEach(helTilrettelegging -> builder.medHelTilrettelegging(
-                        helTilrettelegging.getTilrettelagtArbeidFom()));
+                        helTilrettelegging.getTilrettelagtArbeidFom(), brukMottattTidspunkt.toLocalDate()));
             }
             if (tilrettelegging.getDelvisTilrettelegging() != null) {
                 tilrettelegging.getDelvisTilrettelegging()
                     .forEach(delvisTilrettelegging -> builder.medDelvisTilrettelegging(
-                        delvisTilrettelegging.getTilrettelagtArbeidFom(), delvisTilrettelegging.getStillingsprosent()));
+                        delvisTilrettelegging.getTilrettelagtArbeidFom(), delvisTilrettelegging.getStillingsprosent(), brukMottattTidspunkt.toLocalDate()));
             }
             if (tilrettelegging.getIngenTilrettelegging() != null) {
                 tilrettelegging.getIngenTilrettelegging()
                     .forEach(ingenTilrettelegging -> builder.medIngenTilrettelegging(
-                        ingenTilrettelegging.getSlutteArbeidFom()));
+                        ingenTilrettelegging.getSlutteArbeidFom(), brukMottattTidspunkt.toLocalDate()));
             }
 
             for (var element : tilrettelegging.getVedlegg()) {
@@ -400,40 +403,85 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             }
 
             oversettArbeidsforhold(builder, tilrettelegging.getArbeidsforhold());
-            tilrettelegginger.add(builder.build());
+            nyeTilrettelegginger.add(builder.build());
         }
 
-        var eksisterendeGrunnlag = svangerskapspengerRepository.hentGrunnlag(behandling.getId());
-        eksisterendeGrunnlag.ifPresent(eg -> {
-            List<SvpTilretteleggingEntitet> gamle =
-                eg.getOpprinneligeTilrettelegginger() != null ? eg.getOpprinneligeTilrettelegginger()
-                    .getTilretteleggingListe() : Collections.emptyList();
-            // TODO - hva med gamle tilretteleggingFom for samme aktivitet? Bør de ikke merges med ny? Når gjør SBH manuell fletting
-            // TODO - Dessuten merging av behovFom. Tenk sekvens 19/10 + 60% arbeid, 19/11 + 40% arb. Så ny søknad 2/2 + 10% arbeid.
-            gamle.stream()
-                .filter(tlg -> tilrettelegginger.stream().noneMatch(tlg2 -> gjelderSammeArbeidsforhold(tlg, tlg2)))
-                .forEach(tilrettelegging -> {
-                    var builder = new SvpTilretteleggingEntitet.Builder(tilrettelegging);
-                    builder.medKopiertFraTidligereBehandling(true);
-                    tilrettelegginger.add(builder.build());
-                });
-        });
+        //I mangel på endringssøknad forsøker vi å flette eventuelle eksisterende tilrettelegginger med nye hvis mulig
+        var eksisterendeTilrettelegginger = finnGjeldendeTilrettelegginger(behandling);
+        List<SvpTilretteleggingEntitet> nyeOgEksisterendeTilrettelegginger = new ArrayList<>(nyeTilrettelegginger);
 
-        var svpGrunnlag = svpBuilder.medOpprinneligeTilrettelegginger(tilrettelegginger).build();
+        if (!eksisterendeTilrettelegginger.isEmpty()) {
+            eksisterendeTilrettelegginger.forEach( eksTilrettelegging -> {
+                SvpTilretteleggingEntitet funnetTilretteleggingSammeArbForhold = nyeTilrettelegginger
+                    .stream()
+                    .filter( ny -> gjelderSammeArbeidsforhold(eksTilrettelegging, ny))
+                    .findFirst()
+                    .orElse(null);
+
+                if (funnetTilretteleggingSammeArbForhold != null) {
+                    nyeOgEksisterendeTilrettelegginger.remove(funnetTilretteleggingSammeArbForhold);
+                    nyeOgEksisterendeTilrettelegginger.add(oppdaterNyTlrMedEksHvisMulig( funnetTilretteleggingSammeArbForhold, eksTilrettelegging));
+                } else {
+                    var eksisterendeTilR = new SvpTilretteleggingEntitet.Builder(eksTilrettelegging)
+                        .medKopiertFraTidligereBehandling(true).build();
+
+                    nyeOgEksisterendeTilrettelegginger.add(eksisterendeTilR);
+                }
+            });
+        }
+        var svpGrunnlag = svpBuilder.medOpprinneligeTilrettelegginger(nyeOgEksisterendeTilrettelegginger).build();
         svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
     }
 
-    private boolean gjelderSammeArbeidsforhold(SvpTilretteleggingEntitet tilrettelegging1,
-                                               SvpTilretteleggingEntitet tilrettelegging2) {
-        if (tilrettelegging1.getArbeidsgiver().isPresent() && tilrettelegging2.getArbeidsgiver().isPresent()) {
-            return Objects.equals(tilrettelegging1.getArbeidsgiver(), tilrettelegging2.getArbeidsgiver());
+    private SvpTilretteleggingEntitet oppdaterNyTlrMedEksHvisMulig(SvpTilretteleggingEntitet nyTlR,
+                                                                   SvpTilretteleggingEntitet eksisterendeTlr) {
+        List<TilretteleggingFOM> nyFomListe = new ArrayList<>(nyTlR.getTilretteleggingFOMListe());
+        var tidligsteNyFom = nyFomListe.stream().map(TilretteleggingFOM::getFomDato).min(LocalDate::compareTo).orElse(LocalDate.EPOCH);
+
+        List<TilretteleggingFOM> eksisterendeFOMSomSkalKopieres =  eksisterendeTlr.getTilretteleggingFOMListe().stream().filter(f -> f.getFomDato().isBefore(tidligsteNyFom)).toList();
+
+        eksisterendeFOMSomSkalKopieres.forEach(eksFom -> {
+                nyFomListe.add(new TilretteleggingFOM.Builder().fraEksisterende(eksFom)
+                    .medTidligstMottattDato(Optional.ofNullable(eksFom.getTidligstMotattDato()).orElseGet(() -> eksisterendeTlr.getMottattTidspunkt().toLocalDate())).build());
+        });
+
+        nyFomListe.sort(Comparator.comparing(TilretteleggingFOM::getFomDato));
+
+        if (!eksisterendeFOMSomSkalKopieres.isEmpty()) {
+            return SvpTilretteleggingEntitet.Builder.fraEksisterende(nyTlR)
+                .medBehovForTilretteleggingFom(nyFomListe.stream().map(TilretteleggingFOM::getFomDato).min(LocalDate::compareTo).orElse(null))
+                .medTilretteleggingFraDatoer(nyFomListe).build();
+        } else {
+            return nyTlR;
         }
-        if (ArbeidType.FRILANSER.equals(tilrettelegging1.getArbeidType()) && ArbeidType.FRILANSER.equals(
-            tilrettelegging2.getArbeidType())) {
+    }
+
+    private List<SvpTilretteleggingEntitet> finnGjeldendeTilrettelegginger(Behandling behandling) {
+        var overstyrteTirettelegginger =  svangerskapspengerRepository.hentGrunnlag(behandling.getId())
+            .map(SvpGrunnlagEntitet::getOverstyrteTilrettelegginger)
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
+            .orElse(Collections.emptyList());
+
+        if (overstyrteTirettelegginger.isEmpty()) {
+            return svangerskapspengerRepository.hentGrunnlag(behandling.getId())
+                .map(SvpGrunnlagEntitet::getOpprinneligeTilrettelegginger)
+                .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
+                .orElse(Collections.emptyList());
+        }
+        return overstyrteTirettelegginger;
+    }
+
+    private boolean gjelderSammeArbeidsforhold(SvpTilretteleggingEntitet gjeldendeTilrettelegging,
+                                               SvpTilretteleggingEntitet nyTilrettelegging) {
+        if (gjeldendeTilrettelegging.getArbeidsgiver().isPresent() && nyTilrettelegging.getArbeidsgiver().isPresent()) {
+            return Objects.equals(gjeldendeTilrettelegging.getArbeidsgiver(), nyTilrettelegging.getArbeidsgiver());
+        }
+        if (ArbeidType.FRILANSER.equals(gjeldendeTilrettelegging.getArbeidType()) && ArbeidType.FRILANSER.equals(
+            nyTilrettelegging.getArbeidType())) {
             return true;
         }
-        return ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(tilrettelegging1.getArbeidType())
-            && ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(tilrettelegging2.getArbeidType());
+        return ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(gjeldendeTilrettelegging.getArbeidType())
+            && ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(nyTilrettelegging.getArbeidType());
     }
 
     private void oversettArbeidsforhold(SvpTilretteleggingEntitet.Builder builder, Arbeidsforhold arbeidsforhold) {

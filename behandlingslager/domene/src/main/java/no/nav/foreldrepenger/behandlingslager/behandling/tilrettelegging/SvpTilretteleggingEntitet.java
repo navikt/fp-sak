@@ -184,6 +184,22 @@ public class SvpTilretteleggingEntitet extends BaseEntitet implements IndexKey {
             this(new SvpTilretteleggingEntitet());
         }
 
+        public static Builder fraEksisterende(SvpTilretteleggingEntitet tilrettelegging) {
+            return new Builder()
+                .medArbeidsgiver(tilrettelegging.getArbeidsgiver().orElse(null))
+                .medArbeidType(tilrettelegging.getArbeidType())
+                .medBehovForTilretteleggingFom(tilrettelegging.behovForTilretteleggingFom)
+                .medBegrunnelse(tilrettelegging.getBegrunnelse().orElse(null))
+                .medArbeidType(tilrettelegging.getArbeidType())
+                .medArbeidsgiver(tilrettelegging.getArbeidsgiver().orElse(null))
+                .medInternArbeidsforholdRef(tilrettelegging.getInternArbeidsforholdRef().orElse(null))
+                .medKopiertFraTidligereBehandling(true)
+                .medOpplysningerOmRisikofaktorer(tilrettelegging.getOpplysningerOmRisikofaktorer().orElse(null))
+                .medOpplysningerOmTilretteleggingstiltak(tilrettelegging.getOpplysningerOmTilretteleggingstiltak().orElse(null))
+                .medSkalBrukes(tilrettelegging.getSkalBrukes())
+                .medMottattTidspunkt(tilrettelegging.getMottattTidspunkt())
+                .medTilretteleggingFraDatoer(tilrettelegging.getTilretteleggingFOMListe());
+        }
         public Builder(SvpTilretteleggingEntitet tilretteleggingEntitet) {
             mal = new SvpTilretteleggingEntitet(tilretteleggingEntitet, null);
             if (mal.tilretteleggingFOMListe == null) {
@@ -196,31 +212,39 @@ public class SvpTilretteleggingEntitet extends BaseEntitet implements IndexKey {
             return this;
         }
 
-        public Builder medHelTilrettelegging(LocalDate helTilretteleggingFom) {
+        public Builder medHelTilrettelegging(LocalDate helTilretteleggingFom, LocalDate tidligstMottatt) {
             var tilretteleggingFOM = new TilretteleggingFOM.Builder()
                 .medTilretteleggingType(TilretteleggingType.HEL_TILRETTELEGGING)
                 .medFomDato(helTilretteleggingFom)
+                .medTidligstMottattDato(tidligstMottatt)
                 .build();
             mal.tilretteleggingFOMListe.add(tilretteleggingFOM);
             return this;
         }
 
-        public Builder medDelvisTilrettelegging(LocalDate delvisTilretteleggingFom, BigDecimal stillingsprosent) {
+        public Builder medDelvisTilrettelegging(LocalDate delvisTilretteleggingFom, BigDecimal stillingsprosent, LocalDate tidligstMottatt) {
             var tilretteleggingFOM = new TilretteleggingFOM.Builder()
                 .medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
                 .medFomDato(delvisTilretteleggingFom)
                 .medStillingsprosent(stillingsprosent)
+                .medTidligstMottattDato(tidligstMottatt)
                 .build();
             mal.tilretteleggingFOMListe.add(tilretteleggingFOM);
             return this;
         }
 
-        public Builder medIngenTilrettelegging(LocalDate slutteArbeidFom) {
+        public Builder medIngenTilrettelegging(LocalDate slutteArbeidFom, LocalDate tidligstMottatt) {
             var tilretteleggingFOM = new TilretteleggingFOM.Builder()
                 .medTilretteleggingType(TilretteleggingType.INGEN_TILRETTELEGGING)
                 .medFomDato(slutteArbeidFom)
+                .medTidligstMottattDato(tidligstMottatt)
                 .build();
             mal.tilretteleggingFOMListe.add(tilretteleggingFOM);
+            return this;
+        }
+
+        public Builder medTilretteleggingFraDatoer(List<TilretteleggingFOM> tilretteleggingFraDatoer) {
+            mal.tilretteleggingFOMListe = tilretteleggingFraDatoer;
             return this;
         }
 

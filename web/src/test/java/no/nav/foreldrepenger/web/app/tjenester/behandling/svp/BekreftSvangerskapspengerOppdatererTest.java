@@ -296,7 +296,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
     private SvpGrunnlagEntitet byggSøknadsgrunnlag(Behandling behandling) {
         var tilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(
             BEHOV_DATO)
-            .medIngenTilrettelegging(BEHOV_DATO)
+            .medIngenTilrettelegging(BEHOV_DATO, LocalDate.now())
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
             .medMottattTidspunkt(LocalDateTime.now())

@@ -64,10 +64,10 @@ import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagPeriodeRegelType;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
 import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagPeriodeRegelType;
+import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -172,7 +172,7 @@ public class VedtakXmlTest {
         var jordmorsDato = LocalDate.of(2019, Month.APRIL, 1);
         var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
                 .medBehovForTilretteleggingFom(jordmorsDato)
-                .medIngenTilrettelegging(jordmorsDato)
+                .medIngenTilrettelegging(jordmorsDato, jordmorsDato)
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
                 .medKopiertFraTidligereBehandling(false)
@@ -270,7 +270,7 @@ public class VedtakXmlTest {
     private void lagreSvp(Behandling behandling, LocalDate jordmorsdato) {
         var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
                 .medBehovForTilretteleggingFom(jordmorsdato)
-                .medIngenTilrettelegging(jordmorsdato)
+                .medIngenTilrettelegging(jordmorsdato, jordmorsdato)
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
                 .medMottattTidspunkt(LocalDateTime.now())

@@ -1,0 +1,3 @@
+ALTER TABLE TILRETTELEGGING_FOM ADD TIDLIGST_MOTATT_DATO DATE;
+COMMENT ON COLUMN TILRETTELEGGING_FOM.TIDLIGST_MOTATT_DATO IS 'Har verdi dersom fra dato er flettet inn fra eksisteredende grunnlag ved ny søknad'
+
