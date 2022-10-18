@@ -19,15 +19,12 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.prosess.SplittForeslåBgToggle;
 
 @FagsakYtelseTypeRef
 @BehandlingStegRef(BehandlingStegType.FORTSETT_FORESLÅ_BEREGNINGSGRUNNLAG)
 @BehandlingTypeRef
 @ApplicationScoped
 public class ForeslåBeregningsgrunnlag2Steg implements BeregningsgrunnlagSteg {
-    private static final String SPLITT_FORESLÅ_TOGGLE = "splitt-foreslå-toggle";
-
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
@@ -53,14 +50,11 @@ public class ForeslåBeregningsgrunnlag2Steg implements BeregningsgrunnlagSteg {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var ref = BehandlingReferanse.fra(behandling);
         var input = getInputTjeneste(ref.fagsakYtelseType()).lagInput(ref.behandlingId());
-        if (input.isEnabled(SPLITT_FORESLÅ_TOGGLE, false)) {
-            var resultat = beregningsgrunnlagKopierOgLagreTjeneste.fortsettForeslåBeregningsgrunnlag(input);
-            var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map)
-                .collect(Collectors.toList());
-            return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
-        } else {
-            return BehandleStegResultat.utførtUtenAksjonspunkter();
-        }
+        var resultat = beregningsgrunnlagKopierOgLagreTjeneste.fortsettForeslåBeregningsgrunnlag(input);
+        var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map)
+            .collect(Collectors.toList());
+        return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
+
     }
 
     @Override
@@ -68,9 +62,9 @@ public class ForeslåBeregningsgrunnlag2Steg implements BeregningsgrunnlagSteg {
             BehandlingStegType fraSteg) {
         if (tilSteg.equals(BehandlingStegType.FORTSETT_FORESLÅ_BEREGNINGSGRUNNLAG)) {
             // Midlertidig fiks til alle saker med aksjonspunkt som starter i foreslå 2 faktisk har et foreslå 2 grunnlag
-            var finnesGrunnlagFraForeslå2 = hentOgLagreBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(),
+            var finnesGrunnlagFraFortsettForeslå = hentOgLagreBeregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(),
                 BeregningsgrunnlagTilstand.FORESLÅTT_2).isPresent();
-            if (SplittForeslåBgToggle.erTogglePå() && finnesGrunnlagFraForeslå2) {
+            if (finnesGrunnlagFraFortsettForeslå) {
                 beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddForeslåBeregningsgrunnlag2VedTilbakeføring();
             } else {
                 beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddForeslåBeregningsgrunnlagVedTilbakeføring();
