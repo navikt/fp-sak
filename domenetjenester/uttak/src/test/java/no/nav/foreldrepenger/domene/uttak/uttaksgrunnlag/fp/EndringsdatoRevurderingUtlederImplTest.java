@@ -60,6 +60,7 @@ import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjen
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -137,7 +138,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
             PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
         var opprinneligUttak = Collections.singletonList(opprinneligPeriode);
         var fordeling = Collections.singletonList(OppgittPeriodeBuilder.ny()
-            .medPeriode(LocalDate.now(), LocalDate.now())
+            .medPeriode(VirkedagUtil.fomVirkedag(LocalDate.now()), VirkedagUtil.fomVirkedag(LocalDate.now()))
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .build());
         var revurdering = testUtil.opprettRevurdering(AktørId.dummy(), RE_ENDRING_FRA_BRUKER, opprinneligUttak,
@@ -277,7 +278,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         revurderingScenario.medOriginalBehandling(originalBehandling, RE_ENDRING_FRA_BRUKER);
         var nyOppgittPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-            .medPeriode(LocalDate.now().plusWeeks(1), LocalDate.now().plusWeeks(2))
+            .medPeriode(VirkedagUtil.fomVirkedag(LocalDate.now().plusWeeks(1)), VirkedagUtil.tomVirkedag(LocalDate.now().plusWeeks(2)))
             .build();
 
         revurderingScenario.medFordeling(
@@ -355,7 +356,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
             testUtil.uttaksresultatBerørtSak(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK), testUtil.søknadsAggregatBerørtSak(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK));
 
         // Arrange førstegangsbehandling far
-        var fomFar = FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(11);
+        var fomFar = VirkedagUtil.fomVirkedag(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(11));
         var behandlingFar = testUtil.byggFørstegangsbehandlingForRevurderingBerørtSak(AKTØR_ID_FAR,
             testUtil.uttaksresultatBerørtSak(fomFar), testUtil.søknadsAggregatBerørtSak(fomFar), behandling.getFagsak());
 
@@ -486,7 +487,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     @Test
     public void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtaket_når_endring_i_ytelse_ikke_fører_til_endring_i_grunnlaget() {
         // Arrange
-        var startdatoEndringssøknad = FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(10);
+        var startdatoEndringssøknad = VirkedagUtil.fomVirkedag(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(10));
         var revurdering = testUtil.opprettEndringssøknadRevurdering(AKTØR_ID_MOR, startdatoEndringssøknad,
             RE_ENDRING_FRA_BRUKER);
         var input = lagInput(revurdering).medBehandlingÅrsaker(Set.of(RE_ENDRING_FRA_BRUKER));
@@ -501,9 +502,11 @@ public class EndringsdatoRevurderingUtlederImplTest {
     @Test
     public void skal_utlede_at_endringsdato_er_første_uttaksdato_i_endring_dersom_endringer_i_ytelse_stammer_fra_samme_fagsak() {
 
+        var endringFom = VirkedagUtil.fomVirkedag(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(11));
+
         // Arrange
         var revurdering = testUtil.opprettRevurdering(RE_ENDRING_FRA_BRUKER);
-        testUtil.byggOgLagreOppgittFordelingMedPeriode(revurdering, FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(11),
+        testUtil.byggOgLagreOppgittFordelingMedPeriode(revurdering, endringFom,
             FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(50), UttakPeriodeType.FELLESPERIODE);
 
         leggTilFpsakYtelse(revurdering);
@@ -513,7 +516,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         var endringsdato = utleder.utledEndringsdato(input);
 
         // Assert
-        assertThat(endringsdato).isEqualTo(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(11));
+        assertThat(endringsdato).isEqualTo(endringFom);
     }
 
     @Test // Adopsjon.1

@@ -69,15 +69,12 @@ public class FastsettUttaksgrunnlagTjeneste {
         var fordeling = ytelseFordelingAggregat.getOppgittFordeling();
         var justertePerioder = ytelseFordelingAggregat.getOppgittFordeling().getOppgittePerioder();
         if (ref.erRevurdering()) {
-            var originalBehandlingId = ref.getOriginalBehandlingId();
-            if (originalBehandlingId.isEmpty()) {
-                throw new IllegalArgumentException("Utvikler-feil: ved revurdering skal det alltid finnes en original behandling");
-            }
-            if (behandlingHarUttaksresultat(originalBehandlingId.get())) {
-                justertePerioder = kopierVedtaksperioderFomEndringsdato(justertePerioder, endringsdatoRevurdering,
-                        originalBehandlingId.get());
+            var originalBehandlingId = ref.getOriginalBehandlingId()
+                .orElseThrow(() -> new IllegalArgumentException("Utvikler-feil: ved revurdering skal det alltid finnes en original behandling"));
+            if (behandlingHarUttaksresultat(originalBehandlingId)) {
+                justertePerioder = kopierVedtaksperioderFomEndringsdato(justertePerioder, endringsdatoRevurdering, originalBehandlingId);
             } else {
-                justertePerioder = oppgittePerioderFraForrigeBehandling(originalBehandlingId.get());
+                justertePerioder = oppgittePerioderFraForrigeBehandling(originalBehandlingId);
             }
         }
 

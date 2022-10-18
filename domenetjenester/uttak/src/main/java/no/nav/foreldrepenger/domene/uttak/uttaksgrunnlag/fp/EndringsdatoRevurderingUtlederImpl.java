@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.RelevanteArbeidsforholdTjeneste;
@@ -192,13 +193,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private Optional<EndringsdatoType> erEndringssøknadEndringsdato(UttakInput input) {
-        if (input.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
-            if (erFørsteUttaksdatoSøknadEtterSisteUttaksdatoGjeldendeVedtak(input.getBehandlingReferanse())) {
-                return Optional.of(EndringsdatoType.SISTE_UTTAKSDATO_GJELDENDE_VEDTAK);
-            }
-            return Optional.of(EndringsdatoType.FØRSTE_UTTAKSDATO_SØKNAD);
-        }
-        return Optional.empty();
+        return input.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER) ? Optional.of(EndringsdatoType.ENDRINGSSØKNAD) : Optional.empty();
     }
 
     private Optional<EndringsdatoType> fødselHarSkjeddSidenForrigeBehandlingEndringsdato(BehandlingReferanse revurdering,
@@ -219,17 +214,6 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
 
     private boolean endretDekningsgrad(BehandlingReferanse ref) {
         return dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref);
-    }
-
-    private boolean erFørsteUttaksdatoSøknadEtterSisteUttaksdatoGjeldendeVedtak(BehandlingReferanse revurdering) {
-        var revurderingId = revurdering.behandlingId();
-        var førstegangsBehandling = finnForrigeBehandling(revurdering);
-        if (finnSisteUttaksdatoGjeldendeVedtak(førstegangsBehandling).isPresent() && finnFørsteUttaksdatoSøknad(
-            revurderingId).isPresent()) {
-            return finnFørsteUttaksdatoSøknad(revurderingId).get()
-                .isAfter(Virkedager.plusVirkedager(finnSisteUttaksdatoGjeldendeVedtak(førstegangsBehandling).get(), 1));
-        }
-        return false;
     }
 
     private boolean forrigeBehandlingHarUttaksresultat(BehandlingReferanse revurdering) {
@@ -266,14 +250,11 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private Optional<LocalDate> finnSisteUttaksdatoGjeldendeVedtak(Long revurderingId) {
-        var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(revurderingId);
-        if (uttakResultat.isEmpty()) {
-            return Optional.empty();
-        }
-        var uttakPerioder = uttakResultat.get().getGjeldendePerioder().getPerioder();
-        return uttakPerioder.stream()
-            .max(Comparator.comparing(UttakResultatPeriodeEntitet::getTom))
-            .map(UttakResultatPeriodeEntitet::getTom);
+        return fpUttakRepository.hentUttakResultatHvisEksisterer(revurderingId)
+            .map(UttakResultatEntitet::getGjeldendePerioder)
+            .map(UttakResultatPerioderEntitet::getPerioder).orElse(List.of()).stream()
+            .map(UttakResultatPeriodeEntitet::getTom)
+            .max(Comparator.naturalOrder());
     }
 
     private Optional<LocalDate> finnFørsteUttaksdatoSøknad(Long behandlingId) {
@@ -326,8 +307,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
                     .getFødselsdato()
                     .ifPresent(datoer::add);
                 case FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK -> finnFørsteUttaksdato(finnForrigeBehandling(ref)).ifPresent(datoer::add);
-                case FØRSTE_UTTAKSDATO_SØKNAD -> finnFørsteUttaksdatoSøknad(ref.behandlingId()).ifPresent(datoer::add);
-                case SISTE_UTTAKSDATO_GJELDENDE_VEDTAK -> finnEndringsdatoForEndringssøknad(ref, datoer);
+                case ENDRINGSSØKNAD -> finnEndringsdatoForEndringssøknad(ref, datoer);
                 case ENDRINGSDATO_I_BEHANDLING_SOM_FØRTE_TIL_BERØRT_BEHANDLING -> finnEndringsdatoForBerørtBehandling(ref, uttakInput, fpGrunnlag, datoer);
                 case MANUELT_SATT_FØRSTE_UTTAKSDATO -> finnManueltSattFørsteUttaksdato(ref).ifPresent(datoer::add);
                 case OMSORGSOVERTAKELSEDATO -> fpGrunnlag.getFamilieHendelser()
@@ -340,7 +320,6 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
                     .ifPresent(datoer::add);
                 case FØRSTE_UTTAKSDATO_SØKNAD_FORRIGE_BEHANDLING -> finnFørsteUttaksdatoSøknadForrigeBehandling(ref).ifPresent(datoer::add);
                 case NESTE_STØNADSPERIODE -> finnNesteStønadsperiode(fpGrunnlag).ifPresent(datoer::add);
-                default -> new IllegalStateException("Støtter ikke EndringsdatoType. " + endringsdatoType);
             }
         }
 
@@ -354,10 +333,13 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private void finnEndringsdatoForEndringssøknad(BehandlingReferanse revurdering, Set<LocalDate> datoer) {
-        var datoen = finnSisteUttaksdatoGjeldendeVedtak(finnForrigeBehandling(revurdering));
-        if (datoen.isPresent()) {
-            datoer.add(Virkedager.plusVirkedager(datoen.get(), 1));
-        }
+        var førsteSøknadsdato = finnFørsteUttaksdatoSøknad(revurdering.behandlingId());
+        var sisteUttakdato = finnSisteUttaksdatoGjeldendeVedtak(revurdering.originalBehandlingId())
+            .map(d -> Virkedager.plusVirkedager(d, 1));
+        // Bruk min(siste uttaksdato + 1, tidligste dato fra søknad) - siste uttak med mindre første søknad er tidligere
+        var endringsdato = sisteUttakdato.filter(sud -> førsteSøknadsdato.filter(fsd -> fsd.isBefore(sud)).isEmpty())
+            .or(() -> førsteSøknadsdato);
+        endringsdato.ifPresent(datoer::add);
     }
 
     private void finnEndringsdatoForBerørtBehandling(BehandlingReferanse ref,

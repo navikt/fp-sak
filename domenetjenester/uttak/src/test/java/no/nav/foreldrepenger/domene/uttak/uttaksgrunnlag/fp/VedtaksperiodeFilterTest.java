@@ -32,8 +32,41 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class VedtaksperiodeFilterTest  {
+public class VedtaksperiodeFilterTest {
 
+
+    @Test
+    public void skalBeholdeSøknadsperioderDersomEtterUttak() {
+        var fom = LocalDate.of(2022, 10, 10);
+        var tom = LocalDate.of(2022, 11, 9);
+
+        var perioder = new UttakResultatPerioderEntitet();
+        var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
+        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
+            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef());
+        var uttakPeriode1 = new UttakResultatPeriodeEntitet.Builder(fom, tom)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER).build())
+            .build();
+        UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1.build())
+            .medTrekkdager(new Trekkdager(42))
+            .medTrekkonto(StønadskontoType.FORELDREPENGER)
+            .medArbeidsprosent(BigDecimal.TEN).build();
+        perioder.leggTilPeriode(uttakPeriode1);
+        var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();
+
+        // Ny periode
+        var søknad = OppgittPeriodeBuilder.ny()
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriode(tom.plusDays(1), tom.plusWeeks(4))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .build();
+
+        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad), uttakResultat);
+        assertThat(filtrert).hasSize(1);
+        assertThat(filtrert.get(0)).isEqualTo(søknad);
+    }
 
     @Test
     public void skalFiltrereVekkTidligSøknadsperiodeDersomHeltLikUttak() {
@@ -104,6 +137,44 @@ public class VedtaksperiodeFilterTest  {
         var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad), uttakResultat);
         assertThat(filtrert).hasSize(1);
         assertThat(filtrert.get(0)).isEqualTo(søknad);
+    }
+
+    @Test
+    public void skalBeholdeAlleSøknadsperiodeDersomHullVedEndring() {
+        var fom = LocalDate.of(2022, 10, 10);
+        var tom = LocalDate.of(2022, 11, 9);
+
+        var perioder = new UttakResultatPerioderEntitet();
+        var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
+        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
+            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef());
+        var uttakPeriode1 = new UttakResultatPeriodeEntitet.Builder(fom, tom)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER).build())
+            .build();
+        UttakResultatPeriodeAktivitetEntitet.builder(uttakPeriode1, arbeidsforhold1.build())
+            .medTrekkdager(new Trekkdager(42))
+            .medTrekkonto(StønadskontoType.FORELDREPENGER)
+            .medArbeidsprosent(BigDecimal.TEN).build();
+        perioder.leggTilPeriode(uttakPeriode1);
+        var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();
+
+        var søknad1 = OppgittPeriodeBuilder.ny()
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriode(fom, tom.minusWeeks(1))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .build();
+        var søknad2 = OppgittPeriodeBuilder.ny()
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriode(tom.plusWeeks(1), tom.plusWeeks(2))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .build();
+
+        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad1, søknad2), uttakResultat);
+        assertThat(filtrert).hasSize(2);
+        assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad1))).isTrue();
+        assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad2))).isTrue();
     }
 
     @Test
