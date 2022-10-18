@@ -49,6 +49,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -384,11 +385,11 @@ public class SøknadMapperTest {
         var navBruker = opprettBruker();
         var dto = new ManuellRegistreringForeldrepengerDto();
         oppdaterDtoForFødsel(dto, true, LocalDate.now(), 1);
-        var permisjonPeriodeDto = opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(3), LocalDate.now(), MØDREKVOTE,
+        var permisjonPeriodeDto = opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(3), LocalDate.now().minusWeeks(2).minusDays(1), MØDREKVOTE,
             null);
-        var permisjonPeriodeDto2 = opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(3), LocalDate.now(),
+        var permisjonPeriodeDto2 = opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(2), LocalDate.now().minusWeeks(1).minusDays(1),
             FELLESPERIODE, ARBEID);
-        var permisjonPeriodeDto3 = opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(3), LocalDate.now(),
+        var permisjonPeriodeDto3 = opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(1), LocalDate.now(),
             FORELDREPENGER, INNLAGT);
         var permisjonPerioder = List.of(permisjonPeriodeDto, permisjonPeriodeDto2, permisjonPeriodeDto3);
 
@@ -439,8 +440,8 @@ public class SøknadMapperTest {
         // Perioder: permisjon før fødsel og mødrekvote
         List<PermisjonPeriodeDto> permisjonsperioder = new ArrayList<>();
         permisjonsperioder.add(
-            opprettPermisjonPeriodeDto(fødselsdato.minusWeeks(3), fødselsdato, FORELDREPENGER_FØR_FØDSEL, null));
-        permisjonsperioder.add(opprettPermisjonPeriodeDto(fødselsdato, mødrekvoteSlutt, MØDREKVOTE, null));
+            opprettPermisjonPeriodeDto(fødselsdato.minusWeeks(3), fødselsdato.minusDays(1), FORELDREPENGER_FØR_FØDSEL, null));
+        permisjonsperioder.add(opprettPermisjonPeriodeDto(fødselsdato, mødrekvoteSlutt.minusDays(1), MØDREKVOTE, null));
         var tidsromPermisjonDto = opprettTidsromPermisjonDto(permisjonsperioder);
 
         var utsettelserDto = opprettUtsettelseDto(mødrekvoteSlutt, mødrekvoteSlutt.plusWeeks(1), MØDREKVOTE);
@@ -488,8 +489,8 @@ public class SøknadMapperTest {
             periode -> assertThat(periode.getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL));
         assertThat(ytelseFordeling.getOppgittFordeling().getOppgittePerioder()).anySatisfy(
             periode -> assertThat(periode.getPeriodeType()).isEqualTo(MØDREKVOTE));
-        assertThat(ytelseFordeling.getOppgittFordeling().getOppgittePerioder()).anySatisfy(
-            periode -> assertThat((UtsettelseÅrsak)periode.getÅrsak()).isEqualTo(UtsettelseÅrsak.FERIE));
+        assertThat(ytelseFordeling.getOppgittFordeling().getOppgittePerioder().stream().map(OppgittPeriodeEntitet::getÅrsak).filter(u -> u instanceof UtsettelseÅrsak).toList()).anySatisfy(
+            årsak -> assertThat((UtsettelseÅrsak)årsak).isEqualTo(UtsettelseÅrsak.FERIE));
     }
 
     @Test
