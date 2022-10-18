@@ -43,13 +43,6 @@ public class VedtaksperioderHelper {
                                                         List<OppgittPeriodeEntitet> søknadsperioder,
                                                         LocalDate endringsdato) {
         var førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
-        return opprettOppgittePerioder(uttakResultatFraForrigeBehandling, førsteSøknadsdato, søknadsperioder, endringsdato);
-    }
-
-    public static List<OppgittPeriodeEntitet> opprettOppgittePerioder(UttakResultatEntitet uttakResultatFraForrigeBehandling,
-                                                                      Optional<LocalDate> førsteSøknadsdato,
-                                                                      List<OppgittPeriodeEntitet> søknadsperioder,
-                                                                      LocalDate endringsdato) {
         var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling, endringsdato, førsteSøknadsdato, p -> true);
 
         List<OppgittPeriodeEntitet> søknadOgVedtaksperioder = new ArrayList<>();

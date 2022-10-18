@@ -333,11 +333,13 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private void finnEndringsdatoForEndringssøknad(BehandlingReferanse revurdering, Set<LocalDate> datoer) {
-        var søknad = ytelsesFordelingRepository.hentAggregat(revurdering.behandlingId())
-            .getOppgittFordeling().getOppgittePerioder();
-        var forrigeUttak = fpUttakRepository.hentUttakResultatHvisEksisterer(revurdering.originalBehandlingId()).orElse(null);
-        var endringsdato = VedtaksperiodeFilter.finnEndringsdatoKlassisk(søknad, forrigeUttak);
-        Optional.ofNullable(endringsdato).ifPresent(datoer::add);
+        var førsteSøknadsdato = finnFørsteUttaksdatoSøknad(revurdering.behandlingId());
+        var sisteUttakdato = finnSisteUttaksdatoGjeldendeVedtak(revurdering.originalBehandlingId())
+            .map(d -> Virkedager.plusVirkedager(d, 1));
+        // Bruk min(siste uttaksdato + 1, tidligste dato fra søknad) - siste uttak med mindre første søknad er tidligere
+        var endringsdato = sisteUttakdato.filter(sud -> førsteSøknadsdato.filter(fsd -> fsd.isBefore(sud)).isEmpty())
+            .or(() -> førsteSøknadsdato);
+        endringsdato.ifPresent(datoer::add);
     }
 
     private void finnEndringsdatoForBerørtBehandling(BehandlingReferanse ref,

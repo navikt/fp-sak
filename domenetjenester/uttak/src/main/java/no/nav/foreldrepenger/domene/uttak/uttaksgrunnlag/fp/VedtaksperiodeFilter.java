@@ -17,11 +17,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
-import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -31,21 +29,6 @@ public final class VedtaksperiodeFilter {
     private static final Logger LOG = LoggerFactory.getLogger(VedtaksperiodeFilter.class);
 
     private VedtaksperiodeFilter() {
-    }
-
-    public static LocalDate finnEndringsdatoKlassisk(List<OppgittPeriodeEntitet> nysøknad, UttakResultatEntitet uttakResultatFraForrigeBehandling) {
-        if (uttakResultatFraForrigeBehandling == null || uttakResultatFraForrigeBehandling.getGjeldendePerioder().getPerioder().isEmpty()) {
-            return nysøknad.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder()).orElse(null);
-        }
-        var forrigeUttakTomPlussVirkedag = uttakResultatFraForrigeBehandling.getGjeldendePerioder().getPerioder().stream()
-            .map(UttakResultatPeriodeEntitet::getTom).max(Comparator.naturalOrder())
-            .map(sud -> Virkedager.plusVirkedager(sud, 1))
-            .orElseThrow();
-        if (nysøknad.isEmpty()) {
-            return forrigeUttakTomPlussVirkedag;
-        }
-        var førsteUlikhet = finnTidligsteUlikhetSøknadUttak(nysøknad, uttakResultatFraForrigeBehandling);
-        return førsteUlikhet == null || forrigeUttakTomPlussVirkedag.isBefore(førsteUlikhet) ? forrigeUttakTomPlussVirkedag : førsteUlikhet;
     }
 
     public static List<OppgittPeriodeEntitet> filtrerVekkPerioderSomErLikeInnvilgetUttak(Long behandlingId, List<OppgittPeriodeEntitet> nysøknad, UttakResultatEntitet uttakResultatFraForrigeBehandling) {
