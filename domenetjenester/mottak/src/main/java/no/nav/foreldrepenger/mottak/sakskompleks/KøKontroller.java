@@ -99,6 +99,11 @@ public class KøKontroller {
     public void håndterSakskompleks(Fagsak fagsak) {
         var køetBehandling = behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
         var køetBehandlingMedforelder = behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsak);
+        var køetBerørt = sjekkKøetBerørt(køetBehandling, køetBehandlingMedforelder);
+        if (køetBerørt.isPresent()) {
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(køetBerørt.get(), Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+            return;
+        }
         var nesteBehandling = finnTidligsteSøknad(køetBehandling, køetBehandlingMedforelder)
             .or(() -> finnTidligstOpprettet(køetBehandling, køetBehandlingMedforelder));
         nesteBehandling.ifPresent(b -> {
@@ -108,6 +113,16 @@ public class KøKontroller {
                 behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(b, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
             }
         });
+    }
+
+    private Optional<Behandling> sjekkKøetBerørt(Optional<Behandling> behandling1, Optional<Behandling> behandling2) {
+        var ts1 = behandling1.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)).map(Behandling::getOpprettetTidspunkt);
+        var ts2 = behandling2.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)).map(Behandling::getOpprettetTidspunkt);
+        if (ts1.isEmpty() && ts2.isEmpty()) return Optional.empty();
+        if (ts1.isPresent() && ts2.isPresent()) {
+            return ts1.get().isBefore(ts2.get()) ? behandling1 : behandling2;
+        }
+        return ts1.isPresent() ? behandling1 : behandling2;
     }
 
     private Optional<Behandling> finnTidligsteSøknad(Optional<Behandling> behandling1, Optional<Behandling> behandling2) {

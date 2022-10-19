@@ -1,7 +1,12 @@
 package no.nav.foreldrepenger.behandling.revurdering.flytkontroll;
 
+import java.util.Optional;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -13,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 
 /*
  * Metoder for å sekvensiere flyten av behandlinger for koblede saker.
@@ -23,10 +29,13 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 @ApplicationScoped
 public class BehandlingFlytkontroll {
 
+    private Logger LOG = LoggerFactory.getLogger(BehandlingFlytkontroll.class);
+
     private static final BehandlingStegType SYNK_STEG = StartpunktType.UTTAKSVILKÅR.getBehandlingSteg();
 
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private BehandlingRepository behandlingRepository;
 
     public BehandlingFlytkontroll() {
@@ -35,15 +44,16 @@ public class BehandlingFlytkontroll {
 
     @Inject
     public BehandlingFlytkontroll(BehandlingRevurderingRepository behandlingRevurderingRepository,
-            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-            BehandlingRepository behandlingRepository) {
+                                  BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                  BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
+                                  BehandlingRepository behandlingRepository) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingRevurderingRepository = behandlingRevurderingRepository;
         this.behandlingRepository = behandlingRepository;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
     }
 
-    // Vente = true hvis egen sak har åpen berørt eller 2 part har åpen berørt eller
-    // behandling som er i Uttak
+    // Vente = true hvis egen sak har åpen berørt eller 2 part har åpen berørt eller behandling som er i Uttak
     public boolean uttaksProsessenSkalVente(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var annenpartFagsak = behandlingRevurderingRepository.finnFagsakPåMedforelder(behandling.getFagsak()).orElse(null);
@@ -57,6 +67,16 @@ public class BehandlingFlytkontroll {
                 .anyMatch(SpesialBehandling::skalIkkeKøes);
         var annenPartAktivUttak = annenpartÅpneBehandlinger.stream()
                 .anyMatch(b -> behandlingskontrollTjeneste.erStegPassert(b, SYNK_STEG));
+        // Berørt skal bare køes dersom annenpart har en berørt som står i uttak.
+        if (SpesialBehandling.skalIkkeKøes(behandling)) {
+            // TODO fjern sjekk på ventVedSynk og fortsettAnnenPart dersom ikke inntreffer ila nov 2022
+            var køetAnnenpartBerørt = annenpartÅpneBehandlinger.stream().filter(b -> SpesialBehandling.skalIkkeKøes(b) && venterVedUttakSynk(b)).findFirst();
+            køetAnnenpartBerørt.ifPresent(b -> {
+                LOG.warn("Berørt behandling: Annenpart har en berørt på vent ved uttak. Fortsetter annenpart og går selv på vent.");
+                behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(b, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+            });
+            return annenpartÅpneBehandlinger.stream().anyMatch(b -> SpesialBehandling.skalIkkeKøes(b) && (passertUttakSynk(b) || venterVedUttakSynk(b)));
+        }
         // TODO avklare om aktivUttak skal ekskludere behandling.isBehandlingPåVent();
         return finnesBerørt || annenPartHarBerørt || annenPartAktivUttak;
     }
@@ -79,6 +99,14 @@ public class BehandlingFlytkontroll {
     public void settNyRevurderingPåVent(Behandling behandling) {
         behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null,
                 Venteårsak.VENT_ÅPEN_BEHANDLING);
+    }
+
+    private boolean passertUttakSynk(Behandling behandling) {
+        return behandlingskontrollTjeneste.erStegPassert(behandling, SYNK_STEG) || venterVedUttakSynk(behandling);
+    }
+
+    private boolean venterVedUttakSynk(Behandling behandling) {
+        return SYNK_STEG.equals(behandling.getAktivtBehandlingSteg()) && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING);
     }
 
 }
