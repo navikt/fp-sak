@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -527,43 +526,11 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
         var oppgittPerioder = perioder.stream().map(this::oversettPeriode).toList();
         var filtrertPerioder = oppgittPeriodeTidligstMottattDatoTjeneste.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling, oppgittPerioder);
-        oppdaterMedMottattDato(filtrertPerioder, behandling, mottattDatoFraSøknad);
-        if (!inneholderVirkedager(filtrertPerioder)) {
+        var oppdatertPerioder = oppgittPeriodeTidligstMottattDatoTjeneste.oppdaterTidligstMottattDato(behandling, mottattDatoFraSøknad, filtrertPerioder);
+        if (!inneholderVirkedager(oppdatertPerioder)) {
             throw new IllegalArgumentException("Fordelingen må inneholde perioder med minst en virkedag");
         }
-        return new OppgittFordelingEntitet(filtrertPerioder, annenForelderErInformert, Objects.equals(ønskerJustertVedFødsel, true));
-    }
-
-    private void oppdaterMedMottattDato(List<OppgittPeriodeEntitet> oppgittPerioder,
-                                        Behandling behandling,
-                                        LocalDate mottattDatoFraSøknad) {
-        //Fra og med første endret periode skal tidligst mottatt dato være satt til mottatt dato fra søknad selv om etterfølgene
-        //perioder er søkt om i tidligere søknader
-        var seEtterMottattDatoIOriginalBehandling = true;
-        var sorted = oppgittPerioder.stream()
-            .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
-            .collect(Collectors.toList());
-        for (var oppgittPeriode : sorted) {
-            oppgittPeriode.setMottattDato(mottattDatoFraSøknad);
-            if (seEtterMottattDatoIOriginalBehandling) {
-                var eksisterendeTidligstMottattDato = oppgittPeriodeTidligstMottattDatoTjeneste.finnTidligstMottattDatoForPeriode(behandling,
-                    oppgittPeriode);
-                if (eksisterendeTidligstMottattDato.isPresent()) {
-                    oppgittPeriode.setTidligstMottattDato(eksisterendeTidligstMottattDato.get());
-                } else {
-                    oppgittPeriode.setTidligstMottattDato(mottattDatoFraSøknad);
-                    seEtterMottattDatoIOriginalBehandling = false;
-                }
-            } else {
-                oppgittPeriode.setTidligstMottattDato(mottattDatoFraSøknad);
-            }
-        }
-        try {
-            oppgittPeriodeTidligstMottattDatoTjeneste.sammenlignLoggMottattDato(behandling, oppgittPerioder);
-        } catch (Exception e) {
-            LOG.info("SØKNAD Datosammenligning ga feil", e);
-        }
-
+        return new OppgittFordelingEntitet(oppdatertPerioder, annenForelderErInformert, Objects.equals(ønskerJustertVedFødsel, true));
     }
 
     private boolean inneholderVirkedager(List<OppgittPeriodeEntitet> perioder) {
