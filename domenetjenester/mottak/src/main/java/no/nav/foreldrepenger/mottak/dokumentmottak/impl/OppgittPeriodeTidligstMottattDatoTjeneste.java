@@ -86,9 +86,9 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
 
         // Bygg tidslinjer for uttaksperioder
         var tidslinjeSammenlignNy =  new LocalDateTimeline<>(fraOppgittePerioder(nysøknad));
-        var tidslinjeSammenlignForrigeSøknad =  new LocalDateTimeline<>(fraOppgittePerioderJusterHelg(forrigesøknad));
-        var tidslinjeSammenlignForrigeUttak =  new LocalDateTimeline<>(fraOppgittePerioderJusterHelg(perioderForrigeUttak));
-        var tidslinjeSammenlignForrigeUttakSøknad =  new LocalDateTimeline<>(fraOppgittePerioderJusterHelg(perioderForrigeUttakSøknad));
+        var tidslinjeSammenlignForrigeSøknad =  new LocalDateTimeline<>(fraOppgittePerioder(forrigesøknad));
+        var tidslinjeSammenlignForrigeUttak =  new LocalDateTimeline<>(fraOppgittePerioder(perioderForrigeUttak));
+        var tidslinjeSammenlignForrigeUttakSøknad =  new LocalDateTimeline<>(fraOppgittePerioder(perioderForrigeUttakSøknad));
 
         // Finn sammenfallende perioder - søkt likt innen samme peride
         var tidslinjeSammenfallForrigeSøknad = tidslinjeSammenlignNy.combine(tidslinjeSammenlignForrigeSøknad, OppgittPeriodeTidligstMottattDatoTjeneste::leftIfEqualsRight, LocalDateTimeline.JoinStyle.INNER_JOIN);
@@ -96,9 +96,9 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
         var tidslinjeSammenfallForrigeUttakSøknad = tidslinjeSammenlignNy.combine(tidslinjeSammenlignForrigeUttakSøknad, OppgittPeriodeTidligstMottattDatoTjeneste::leftIfEqualsRight, LocalDateTimeline.JoinStyle.INNER_JOIN);
 
         // Bygg tidslinjer over tidligst mottatt - men kun de som finnes for sammenfallende (like nok) perioder
-        var tidslinjeTidligstMottattForrigeSøknad = new LocalDateTimeline<>(tidligstMottattFraOppgittePerioderJusterHelg(forrigesøknad)).intersection(tidslinjeSammenfallForrigeSøknad);
-        var tidslinjeTidligstMottattForrigeUttak = new LocalDateTimeline<>(tidligstMottattFraOppgittePerioderJusterHelg(perioderForrigeUttak)).intersection(tidslinjeSammenfallForrigeUttak);
-        var tidslinjeTidligstMottattForrigeUttakSøknad = new LocalDateTimeline<>(tidligstMottattFraOppgittePerioderJusterHelg(perioderForrigeUttakSøknad)).intersection(tidslinjeSammenfallForrigeUttakSøknad);
+        var tidslinjeTidligstMottattForrigeSøknad = new LocalDateTimeline<>(tidligstMottattFraOppgittePerioderJusterHelg(forrigesøknad), StandardCombinators::min).intersection(tidslinjeSammenfallForrigeSøknad);
+        var tidslinjeTidligstMottattForrigeUttak = new LocalDateTimeline<>(tidligstMottattFraOppgittePerioderJusterHelg(perioderForrigeUttak), StandardCombinators::min).intersection(tidslinjeSammenfallForrigeUttak);
+        var tidslinjeTidligstMottattForrigeUttakSøknad = new LocalDateTimeline<>(tidligstMottattFraOppgittePerioderJusterHelg(perioderForrigeUttakSøknad), StandardCombinators::min).intersection(tidslinjeSammenfallForrigeUttakSøknad);
 
         // Slå sammen de 3 tidslinjene over tidligst mottatt for sammenfallende perioder - som potensielt har tidligere dato og beholder de som er før mottattDatoSøknad
         var oppdatertTidligstMottattUttak = tidslinjeTidligstMottattForrigeUttak.combine(tidslinjeTidligstMottattForrigeUttakSøknad, StandardCombinators::min, LocalDateTimeline.JoinStyle.CROSS_JOIN);
@@ -143,6 +143,7 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
         return perioder.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), new SammenligningPeriodeForMottatt(p))).toList();
     }
 
+    // Flyr ikke så bra med autotest
     private static List<LocalDateSegment<SammenligningPeriodeForMottatt>> fraOppgittePerioderJusterHelg(List<OppgittPeriodeEntitet> perioder) {
         return perioder.stream()
             .map(p -> new LocalDateSegment<>(VirkedagUtil.lørdagSøndagTilMandag(p.getFom()), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), new SammenligningPeriodeForMottatt(p)))
@@ -151,7 +152,7 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
 
     private static List<LocalDateSegment<LocalDate>> tidligstMottattFraOppgittePerioderJusterHelg(List<OppgittPeriodeEntitet> perioder) {
         return perioder.stream()
-            .map(p -> new LocalDateSegment<>(VirkedagUtil.lørdagSøndagTilMandag(p.getFom()), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), p.getTidligstMottattDato().orElseGet(p::getMottattDato)))
+            .map(p -> new LocalDateSegment<>(p.getFom(), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), p.getTidligstMottattDato().orElseGet(p::getMottattDato)))
             .toList();
     }
 
