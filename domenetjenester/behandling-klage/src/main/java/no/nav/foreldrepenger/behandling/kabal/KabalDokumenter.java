@@ -74,6 +74,10 @@ public class KabalDokumenter {
             .ifPresent(b -> opprettReferanseFraBestilltDokument(b, erVedtakDokument(), referanser,
                 TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK));
 
+        resultat.getPåKlagdBehandlingId()
+            .ifPresent(b -> opprettReferanseFraBestilltDokument(b, erKlageAvvist(), referanser,
+                TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK));
+
         opprettReferanseFraMottattDokument(behandlingId, erKlageEllerAnkeDokument(), referanser, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE);
 
         resultat.getPåKlagdBehandlingId()
@@ -175,6 +179,10 @@ public class KabalDokumenter {
 
     private Predicate<BehandlingDokumentBestiltEntitet> erVedtakDokument() {
         return d -> d.getDokumentMalType() != null && DokumentMalType.erVedtaksBrev(DokumentMalType.fraKode(d.getDokumentMalType()));
+    }
+
+    private Predicate<BehandlingDokumentBestiltEntitet> erKlageAvvist() {
+        return d -> d.getDokumentMalType() != null && DokumentMalType.KLAGE_AVVIST.equals(DokumentMalType.fraKode(d.getDokumentMalType()));
     }
 
     private Predicate<BehandlingDokumentBestiltEntitet> erKlageVedtakDokument() {
