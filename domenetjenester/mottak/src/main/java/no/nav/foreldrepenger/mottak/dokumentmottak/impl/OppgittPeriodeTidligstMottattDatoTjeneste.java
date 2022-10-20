@@ -165,6 +165,7 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
 
     private static List<LocalDateSegment<LocalDate>> tidligstMottattFraOppgittePerioderJusterHelg(List<OppgittPeriodeEntitet> perioder) {
         return perioder.stream()
+            .filter(p -> p.getTidligstMottattDato().orElseGet(p::getMottattDato) != null)
             .map(p -> new LocalDateSegment<>(p.getFom(), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), p.getTidligstMottattDato().orElseGet(p::getMottattDato)))
             .toList();
     }
