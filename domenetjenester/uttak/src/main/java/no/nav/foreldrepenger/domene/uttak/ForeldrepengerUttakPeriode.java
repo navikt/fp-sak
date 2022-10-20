@@ -38,6 +38,7 @@ public class ForeldrepengerUttakPeriode {
     private LocalDate mottattDato;
     private LocalDate tidligstMottattDato;
     private MorsAktivitet morsAktivitet;
+    private boolean erFraSøknad = true;
 
     private ForeldrepengerUttakPeriode() {
 
@@ -73,6 +74,7 @@ public class ForeldrepengerUttakPeriode {
             && Objects.equals(periode.isFlerbarnsdager(), isFlerbarnsdager())
             && Objects.equals(periode.getUtsettelseType(), getUtsettelseType())
             && Objects.equals(periode.getOverføringÅrsak(), getOverføringÅrsak())
+            && Objects.equals(periode.erFraSøknad(), erFraSøknad())
             && Objects.equals(periode.getOppholdÅrsak(), getOppholdÅrsak());
     }
 
@@ -211,6 +213,10 @@ public class ForeldrepengerUttakPeriode {
         return morsAktivitet;
     }
 
+    public boolean erFraSøknad() {
+        return erFraSøknad;
+    }
+
     @Override
     public String toString() {
         return "ForeldrepengerUttakPeriode{" +
@@ -232,6 +238,7 @@ public class ForeldrepengerUttakPeriode {
             ", mottattDato=" + mottattDato +
             ", tidligstMottattDato=" + tidligstMottattDato +
             ", morsAktivitet=" + morsAktivitet +
+            ", erFraSøknad=" + erFraSøknad +
             '}';
     }
 
@@ -344,6 +351,11 @@ public class ForeldrepengerUttakPeriode {
 
         public Builder medMorsAktivitet(MorsAktivitet morsAktivitet) {
             kladd.morsAktivitet = morsAktivitet;
+            return this;
+        }
+
+        public Builder medErFraSøknad(boolean erFraSøknad) {
+            kladd.erFraSøknad = erFraSøknad;
             return this;
         }
 

@@ -31,6 +31,9 @@ public final class EndringsdatoBerørtUtleder {
 
     private static final Logger LOG = LoggerFactory.getLogger(EndringsdatoBerørtUtleder.class);
 
+    private EndringsdatoBerørtUtleder() {
+    }
+
     public static Optional<LocalDate> utledEndringsdatoForBerørtBehandling(ForeldrepengerUttak utløsendeBehandlingUttak,
                                                                            Optional<YtelseFordelingAggregat> utløsendeBehandlingYtelseFordeling,
                                                                            Behandlingsresultat utløsendeBehandlingsresultat,
@@ -90,10 +93,13 @@ public final class EndringsdatoBerørtUtleder {
         return berørtBehovDatoer.stream().min(Comparator.naturalOrder());
     }
 
-    private static Optional<LocalDate> overlappSomIkkeErFulltSamtidigUttak(FamilieHendelser familieHendelser, boolean utenMinsterett, LocalDateInterval periodeFomEndringsdato,
-                                                                           ForeldrepengerUttak brukersUttak, ForeldrepengerUttak annenpartsUttak) {
+    private static Optional<LocalDate> overlappSomIkkeErFulltSamtidigUttak(FamilieHendelser familieHendelser,
+                                                                           boolean utenMinsterett,
+                                                                           LocalDateInterval periodeFomEndringsdato,
+                                                                           ForeldrepengerUttak brukersUttak,
+                                                                           ForeldrepengerUttak annenpartsUttak) {
         var tidslinjeBruker = lagTidslinje(brukersUttak, p -> !p.isOpphold(), EndringsdatoBerørtUtleder::helgFomMandagSegment);
-        var tidslinjeAnnenpart = lagTidslinje(annenpartsUttak, p -> !p.isOpphold(), EndringsdatoBerørtUtleder::helgFomMandagSegment);
+        var tidslinjeAnnenpart = lagTidslinje(annenpartsUttak, p -> !p.isOpphold() && p.erFraSøknad(), EndringsdatoBerørtUtleder::helgFomMandagSegment);
         // Tidslinje der begge har uttak - fom endringsdato.
         var tidslinjeOverlappendeUttakFomEndringsdato = tidslinjeAnnenpart.intersection(tidslinjeBruker).intersection(periodeFomEndringsdato);
         if (tidslinjeOverlappendeUttakFomEndringsdato.isEmpty()) {

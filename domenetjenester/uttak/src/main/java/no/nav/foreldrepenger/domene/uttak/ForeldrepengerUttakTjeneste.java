@@ -72,6 +72,7 @@ public class ForeldrepengerUttakTjeneste {
             .medTidligstMottattDato(entitet.getPeriodeSøknad().map(se -> se.getTidligstMottattDato().orElse(mottattDato)).orElse(null))
             .medMorsAktivitet(entitet.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMorsAktivitet).orElse(MorsAktivitet.UDEFINERT))
             .medOpprinneligSendtTilManuellBehandling(entitet.opprinneligSendtTilManuellBehandling())
+            .medErFraSøknad(entitet.getPeriodeSøknad().isPresent())
             .medManueltBehandlet(entitet.isManueltBehandlet());
         return periodeBuilder.build();
     }
