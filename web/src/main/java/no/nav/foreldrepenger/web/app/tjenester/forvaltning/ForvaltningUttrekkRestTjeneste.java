@@ -48,7 +48,9 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -222,6 +224,72 @@ public class ForvaltningUttrekkRestTjeneste {
             suffix++;
         }
 
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/avstemPeriodeOverlappSpøkelseEnDag")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    public Response avstemPeriodeForSpøkelseEnDag(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
+        if (!dto.getKey().equals(VedtakOverlappAvstemTask.LOG_TEMA_FOR_KEY) && !dto.getKey().equals(VedtakOverlappAvstemTask.LOG_TEMA_OTH_KEY)) return Response.ok().build();
+        var fom = LocalDate.of(2018,10,20);
+        if (dto.getFom().isAfter(fom)) fom = dto.getFom();
+        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
+        var callId = MDCOperations.getCallId();
+        var prosessTaskData = ProsessTaskData.forProsessTask(VedtakOverlappAvstemTask.class);
+        prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TEMA_KEY_KEY, VedtakOverlappAvstemTask.LOG_TEMA_SPO_KEY);
+        prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_FOM_KEY, fom.toString());
+        prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TOM_KEY, fom.toString());
+        prosessTaskData.setCallId(callId + "_" + 1);
+        prosessTaskData.setPrioritet(50);
+        taskTjeneste.lagre(prosessTaskData);
+
+
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/avstemPeriodeOverlappSpøkelseFull")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    public Response avstemPeriodeForSpøkelse() {
+        var fom = LocalDate.of(2018,10,20);
+        var spread = 43199;
+        var baseline = LocalDateTime.now();
+        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
+        var callId = MDCOperations.getCallId();
+        int suffix = 1;
+        for (var betweendays = fom; !betweendays.isAfter(LocalDate.now()); betweendays = betweendays.plusDays(1)) {
+            var prosessTaskData = ProsessTaskData.forProsessTask(VedtakOverlappAvstemTask.class);
+            prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TEMA_KEY_KEY, VedtakOverlappAvstemTask.LOG_TEMA_SPO_KEY);
+            prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_FOM_KEY, betweendays.toString());
+            prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TOM_KEY, betweendays.toString());
+            prosessTaskData.setNesteKjøringEtter(baseline.plusSeconds(LocalDateTime.now().getNano() % spread));
+            prosessTaskData.setCallId(callId + "_" + suffix);
+            prosessTaskData.setPrioritet(50);
+            taskTjeneste.lagre(prosessTaskData);
+            suffix++;
+        }
+
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/avbrytAvstemming")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Avbryter pågående avstemming", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    public Response avbrytAvstemming() {
+        var tt = TaskType.forProsessTask(VedtakOverlappAvstemTask.class);
+        taskTjeneste.finnAlle(ProsessTaskStatus.KLAR).stream()
+            .filter(t -> t.taskType().equals(tt))
+            .forEach(t -> taskTjeneste.setProsessTaskFerdig(t.getId(), ProsessTaskStatus.KLAR));
         return Response.ok().build();
     }
 

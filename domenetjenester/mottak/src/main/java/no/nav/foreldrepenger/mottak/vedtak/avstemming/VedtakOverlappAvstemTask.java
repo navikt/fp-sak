@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.mottak.vedtak.avstemming;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak.HENDELSE_AVSTEM_SPØKELSE;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -26,6 +28,7 @@ public class VedtakOverlappAvstemTask extends GenerellProsessTask {
     public static final String LOG_TEMA_KEY_KEY = "logtema";
     public static final String LOG_TEMA_FOR_KEY = "temaFOR";
     public static final String LOG_TEMA_OTH_KEY = "temaOTH";
+    public static final String LOG_TEMA_SPO_KEY = "temaSPO";
     public static final String LOG_TEMA_BOTH_KEY = "temaALL";
     public static final String LOG_FOM_KEY = "logfom";
     public static final String LOG_TOM_KEY = "logtom";
@@ -63,6 +66,8 @@ public class VedtakOverlappAvstemTask extends GenerellProsessTask {
                 loggOverlappFOR(fom, tom, saksnr, OverlappVedtak.HENDELSE_AVSTEM_PERIODE);
             } else if (LOG_TEMA_OTH_KEY.equalsIgnoreCase(prosessTaskData.getPropertyValue(LOG_TEMA_KEY_KEY))) {
                 loggOverlappOTH(fom, tom, saksnr, OverlappVedtak.HENDELSE_AVSTEM_PERIODE);
+            }  else if (LOG_TEMA_SPO_KEY.equalsIgnoreCase(prosessTaskData.getPropertyValue(LOG_TEMA_KEY_KEY))) {
+                loggOverlappSPO(fom, tom, saksnr);
             }
         }
     }
@@ -79,6 +84,13 @@ public class VedtakOverlappAvstemTask extends GenerellProsessTask {
         // Finner alle behandlinger med vedtaksdato innen intervall (evt med gitt saksnummer) - tidligste dato = tidligeste dato med utbetaling
         var saker = informasjonssakRepository.finnSakerSisteVedtakInnenIntervallMedKunUtbetalte(fom, tom, saksnr);
         saker.forEach(o -> syklogger.loggOverlappForAvstemming(hendelse, o.getBehandlingId(), o.getSaksnummer(), o.getAktørId()));
+    }
+
+    private void loggOverlappSPO(LocalDate fom, LocalDate tom, String saksnr) {
+        if (fom != null) LOG.info("FPSAK DETEKTOR SPokelse PERIODE {} til {}", fom, tom);
+        // Finner alle behandlinger med vedtaksdato innen intervall (evt med gitt saksnummer) - tidligste dato = tidligeste dato med utbetaling
+        var saker = informasjonssakRepository.finnSakerSisteVedtakInnenIntervallMedKunUtbetalte(fom, tom, saksnr);
+        saker.forEach(o -> syklogger.loggOverlappForAvstemmingSpøkelse(HENDELSE_AVSTEM_SPØKELSE, o.getBehandlingId(), o.getSaksnummer(), o.getAktørId()));
     }
 
 }
