@@ -122,6 +122,12 @@ public class LoggOverlappEksterneYtelserTjeneste {
         }
     }
 
+    public void loggOverlappForAvstemmingSpøkelse(String hendelse, Long behandlingId, Saksnummer saksnummer, AktørId aktørId) {
+        loggOverlappendeYtelserSpøkelse(behandlingId, saksnummer, aktørId).stream()
+            .map(b -> b.medHendelse(hendelse))
+            .forEach(overlappRepository::lagre);
+    }
+
     public void loggOverlappForVedtakK9SAK(YtelseV1 ytelse, List<Fagsak> sakerForBruker) {
         // OBS Flere av K9SAK-ytelsene har fom/tom i helg ... ikke bruk VirkedagUtil på dem.
         var ytelseTidslinje = lagTidslinjeforYtelseV1(ytelse);
@@ -172,6 +178,26 @@ public class LoggOverlappEksterneYtelserTjeneste {
         vurderOmOverlappInfotrygd(ident, tidligsteUttakFP, perioderFpGradert, overlappene);
         vurderOmOverlappOMS(aktørId, tidligsteUttakFP, perioderFpGradert, overlappene);
         vurderOmOverlappSYK(ident, perioderFpGradert, overlappene);
+        return overlappene.stream()
+            .map(b -> b.medSaksnummer(saksnummer).medBehandlingId(behandlingId))
+            .collect(Collectors.toList());
+    }
+
+    private List<OverlappVedtak.Builder> loggOverlappendeYtelserSpøkelse(Long behandlingId, Saksnummer saksnummer, AktørId aktørId) {
+        var ytelseType = behandlingRepository.hentBehandling(behandlingId).getFagsakYtelseType();
+        var perioderFpGradert = getTidslinjeForBehandling(behandlingId, ytelseType);
+        if (perioderFpGradert.getLocalDateIntervals().isEmpty()) {
+            return Collections.emptyList();
+        }
+        var ident = getFnrFraAktørId(aktørId);
+        List<OverlappVedtak.Builder> overlappene = new ArrayList<>();
+
+        vurderOmOverlappSYK(ident, perioderFpGradert, overlappene);
+        try {
+            Thread.sleep(100);
+        } catch (Exception e) {
+            // Ignore
+        }
         return overlappene.stream()
             .map(b -> b.medSaksnummer(saksnummer).medBehandlingId(behandlingId))
             .collect(Collectors.toList());

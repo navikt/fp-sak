@@ -29,6 +29,7 @@ public class OverlappVedtak extends BaseEntitet {
     // Konvensjon AVTEMMING-<formål>-<sak/periode-ref>
     public static final String HENDELSE_AVSTEM_PERIODE = "AVSTEM-PER";
     public static final String HENDELSE_AVSTEM_SAK = "AVSTEM-SAK";
+    public static final String HENDELSE_AVSTEM_SPØKELSE = "AVSTEM-SPO";
 
 
     @Id
