@@ -25,6 +25,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.hibernate.query.NativeQuery;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -50,7 +52,7 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriode
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.TaskType;
+import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEntitet;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -286,10 +288,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Operation(description = "Avbryter pågående avstemming", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
     public Response avbrytAvstemming() {
-        var tt = TaskType.forProsessTask(VedtakOverlappAvstemTask.class);
-        taskTjeneste.finnAlle(ProsessTaskStatus.KLAR).stream()
-            .filter(t -> t.taskType().equals(tt))
-            .forEach(t -> taskTjeneste.setProsessTaskFerdig(t.getId(), ProsessTaskStatus.KLAR));
+        finnAlleAvstemming().forEach(t -> taskTjeneste.setProsessTaskFerdig(t.getId(), ProsessTaskStatus.KLAR));
         return Response.ok().build();
     }
 
@@ -337,6 +336,27 @@ public class ForvaltningUttrekkRestTjeneste {
                 .sorted(Comparator.comparing(OverlappVedtak::getOpprettetTidspunkt).reversed())
                 .collect(Collectors.toList());
         return Response.ok(resultat).build();
+    }
+
+    private List<ProsessTaskData> finnAlleAvstemming() {
+
+        // native sql for å håndtere join og subselect,
+        // samt cast til hibernate spesifikk håndtering av parametere som kan være NULL
+        @SuppressWarnings("unchecked") var query = (NativeQuery<ProsessTaskEntitet>) entityManager
+            .createNativeQuery(
+                "SELECT pt.* FROM PROSESS_TASK pt"
+                    + " WHERE pt.status = 'KLAR'"
+                    + " AND pt.task_type = 'vedtak.overlapp.avstem'"
+                    + " FOR UPDATE SKIP LOCKED ",
+                ProsessTaskEntitet.class);
+
+
+        var resultList = query.getResultList();
+        return tilProsessTask(resultList);
+    }
+
+    private List<ProsessTaskData> tilProsessTask(List<ProsessTaskEntitet> resultList) {
+        return resultList.stream().map(ProsessTaskEntitet::tilProsessTask).collect(Collectors.toList());
     }
 
 }
