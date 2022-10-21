@@ -70,4 +70,11 @@ public class BatchSupportTjeneste {
         taskTjeneste.restartAlleFeiledeTasks();
     }
 
+    /**
+     * Prøv å kjøre feilete tasks på nytt - restart av andre system.
+     */
+    public void slettGamleTasks() {
+        taskTjeneste.slettÅrsgamleFerdige();
+    }
+
 }

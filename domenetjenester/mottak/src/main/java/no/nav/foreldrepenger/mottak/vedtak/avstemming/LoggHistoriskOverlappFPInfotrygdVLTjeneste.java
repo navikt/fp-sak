@@ -12,9 +12,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -41,7 +38,6 @@ import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 @ApplicationScoped
 public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LoggHistoriskOverlappFPInfotrygdVLTjeneste.class);
     private static final long HUNDRE = 100L;
 
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -65,11 +61,7 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
     }
 
     public void vurderOglagreEventueltOverlapp(String hendelse, OverlappData overlappData) {
-        try {
-            utledPerioderMedOverlapp(overlappData).stream().map(b -> b.medHendelse(hendelse)).forEach(overlappRepository::lagre);
-        } catch (Exception e) {
-            LOG.info("Identifisering av overlapp i Infotrygd feilet ", e);
-        }
+        utledPerioderMedOverlapp(overlappData).stream().map(b -> b.medHendelse(hendelse)).forEach(overlappRepository::lagre);
     }
 
     private List<OverlappVedtak.Builder> utledPerioderMedOverlapp(OverlappData overlappData) {

@@ -113,17 +113,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
     }
 
     public void loggOverlappForAvstemming(String hendelse, Long behandlingId, Saksnummer saksnummer, AktørId aktørId) {
-        try {
-            loggOverlappendeYtelser(behandlingId, saksnummer, aktørId).stream()
-                .map(b -> b.medHendelse(hendelse))
-                .forEach(overlappRepository::lagre);
-        } catch (Exception e) {
-            LOG.info("Identifisering av overlapp ifm avstemming feilet ", e);
-        }
-    }
-
-    public void loggOverlappForAvstemmingSpøkelse(String hendelse, Long behandlingId, Saksnummer saksnummer, AktørId aktørId) {
-        loggOverlappendeYtelserSpøkelse(behandlingId, saksnummer, aktørId).stream()
+        loggOverlappendeYtelser(behandlingId, saksnummer, aktørId).stream()
             .map(b -> b.medHendelse(hendelse))
             .forEach(overlappRepository::lagre);
     }
@@ -178,26 +168,6 @@ public class LoggOverlappEksterneYtelserTjeneste {
         vurderOmOverlappInfotrygd(ident, tidligsteUttakFP, perioderFpGradert, overlappene);
         vurderOmOverlappOMS(aktørId, tidligsteUttakFP, perioderFpGradert, overlappene);
         vurderOmOverlappSYK(ident, perioderFpGradert, overlappene);
-        return overlappene.stream()
-            .map(b -> b.medSaksnummer(saksnummer).medBehandlingId(behandlingId))
-            .collect(Collectors.toList());
-    }
-
-    private List<OverlappVedtak.Builder> loggOverlappendeYtelserSpøkelse(Long behandlingId, Saksnummer saksnummer, AktørId aktørId) {
-        var ytelseType = behandlingRepository.hentBehandling(behandlingId).getFagsakYtelseType();
-        var perioderFpGradert = getTidslinjeForBehandling(behandlingId, ytelseType);
-        if (perioderFpGradert.getLocalDateIntervals().isEmpty()) {
-            return Collections.emptyList();
-        }
-        var ident = getFnrFraAktørId(aktørId);
-        List<OverlappVedtak.Builder> overlappene = new ArrayList<>();
-
-        vurderOmOverlappSYK(ident, perioderFpGradert, overlappene);
-        try {
-            Thread.sleep(100);
-        } catch (Exception e) {
-            // Ignore
-        }
         return overlappene.stream()
             .map(b -> b.medSaksnummer(saksnummer).medBehandlingId(behandlingId))
             .collect(Collectors.toList());
