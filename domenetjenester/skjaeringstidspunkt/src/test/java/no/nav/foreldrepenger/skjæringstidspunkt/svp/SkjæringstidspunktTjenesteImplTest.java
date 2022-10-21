@@ -16,15 +16,15 @@ public class SkjæringstidspunktTjenesteImplTest {
 
     @Test
     public void skal_utlede_skjæringstidspunktet() {
-        var forventetResultat = LocalDate.of(2019, 7, 10);
+        var forventetSkjæringstidspunkt = LocalDate.of(2019, 7, 10);
 
         var svpGrunnlagEntitet = new SvpGrunnlagEntitet.Builder();
         var svp = new SvpTilretteleggingEntitet.Builder();
-        svp.medBehovForTilretteleggingFom(forventetResultat);
-        svp.medDelvisTilrettelegging(forventetResultat, BigDecimal.valueOf(50));
-        svp.medDelvisTilrettelegging(LocalDate.of(2019, 9, 17), BigDecimal.valueOf(30));
-        svp.medHelTilrettelegging(LocalDate.of(2019, 11, 1));
-        svp.medIngenTilrettelegging(LocalDate.of(2019, 11, 25));
+        svp.medBehovForTilretteleggingFom(forventetSkjæringstidspunkt);
+        svp.medDelvisTilrettelegging(forventetSkjæringstidspunkt, BigDecimal.valueOf(50), forventetSkjæringstidspunkt);
+        svp.medDelvisTilrettelegging(LocalDate.of(2019, 9, 17), BigDecimal.valueOf(30), forventetSkjæringstidspunkt);
+        svp.medHelTilrettelegging(LocalDate.of(2019, 11, 1), forventetSkjæringstidspunkt);
+        svp.medIngenTilrettelegging(LocalDate.of(2019, 11, 25), forventetSkjæringstidspunkt);
 
         var tilretteleggingEntitet = svp.build();
         svpGrunnlagEntitet.medOpprinneligeTilrettelegginger(List.of(tilretteleggingEntitet));
@@ -32,6 +32,6 @@ public class SkjæringstidspunktTjenesteImplTest {
 
         var dag = SkjæringstidspunktTjenesteImpl.utledBasertPåGrunnlag(svpGrunnlagEntitet.build());
 
-        assertThat(dag).isEqualTo(forventetResultat);
+        assertThat(dag).isEqualTo(forventetSkjæringstidspunkt);
     }
 }

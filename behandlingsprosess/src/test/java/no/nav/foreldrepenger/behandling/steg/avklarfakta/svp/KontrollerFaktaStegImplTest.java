@@ -131,7 +131,7 @@ public class KontrollerFaktaStegImplTest {
     private void lagreSvp(Behandling behandling, LocalDate jordmorsdato) {
         var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
                 .medBehovForTilretteleggingFom(jordmorsdato)
-                .medIngenTilrettelegging(jordmorsdato)
+                .medIngenTilrettelegging(jordmorsdato, jordmorsdato)
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
                 .medMottattTidspunkt(LocalDateTime.now())

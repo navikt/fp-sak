@@ -144,7 +144,7 @@ public class InntektsmeldingTjenesteTest {
     private SvpGrunnlagEntitet byggSvpGrunnlag(Behandling behandling, String arbeidsgiverOrgnr) {
         var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
                 .medBehovForTilretteleggingFom(LocalDate.now())
-                .medIngenTilrettelegging(LocalDate.now())
+                .medIngenTilrettelegging(LocalDate.now(), LocalDate.now())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .medArbeidsgiver(Arbeidsgiver.virksomhet(arbeidsgiverOrgnr))
                 .medMottattTidspunkt(LocalDateTime.now())
