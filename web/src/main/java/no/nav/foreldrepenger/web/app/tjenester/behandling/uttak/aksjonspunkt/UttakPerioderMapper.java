@@ -52,6 +52,7 @@ public final class UttakPerioderMapper {
             .medAktiviteter(aktiviteter)
             .medMottattDato(gjeldendePeriode.getMottattDato())
             .medMorsAktivitet(gjeldendePeriode.getMorsAktivitet())
+            .medErFraSøknad(gjeldendePeriode.erFraSøknad())
             .build();
     }
 
