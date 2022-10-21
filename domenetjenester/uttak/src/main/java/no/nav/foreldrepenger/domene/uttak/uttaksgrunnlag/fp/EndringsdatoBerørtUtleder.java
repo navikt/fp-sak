@@ -34,41 +34,56 @@ public final class EndringsdatoBerørtUtleder {
     private EndringsdatoBerørtUtleder() {
     }
 
-    public static Optional<LocalDate> utledEndringsdatoForBerørtBehandling(ForeldrepengerUttak utløsendeBehandlingUttak,
+    public static Optional<LocalDate> utledEndringsdatoForBerørtBehandling(ForeldrepengerUttak utløsendeUttak,
                                                                            Optional<YtelseFordelingAggregat> utløsendeBehandlingYtelseFordeling,
                                                                            Behandlingsresultat utløsendeBehandlingsresultat,
                                                                            boolean negativSaldoNoenKonto,
-                                                                           Optional<ForeldrepengerUttak> berørtBehandlingUttak,
+                                                                           Optional<ForeldrepengerUttak> berørtUttakOpt,
                                                                            UttakInput uttakInput,
                                                                            String loggPrefix) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var familieHendelser = fpGrunnlag.getFamilieHendelser();
         var kreverSammenhengendeUttak = uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak();
         var utenMinsterett = uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().utenMinsterett();
-        //Må sjekke konsekvens pga overlapp med samtidig uttak
-        if (berørtBehandlingUttak.isEmpty() || finnMinAktivDato(berørtBehandlingUttak.get()).isEmpty() || finnMinAktivDato(utløsendeBehandlingUttak, berørtBehandlingUttak.get()).isEmpty()) {
+        if (berørtUttakOpt.isEmpty() || finnMinAktivDato(berørtUttakOpt.get()).isEmpty() || finnMinAktivDato(utløsendeUttak, berørtUttakOpt.get()).isEmpty()) {
             return Optional.empty();
         }
+        var berørtUttak = berørtUttakOpt.get();
         // Endring fra en søknadsperiode eller fra start?
         var endringsdato = utløsendeBehandlingYtelseFordeling.flatMap(YtelseFordelingAggregat::getGjeldendeEndringsdatoHvisEksisterer)
-            .orElseGet(() -> finnMinAktivDato(utløsendeBehandlingUttak, berørtBehandlingUttak.get()).orElseThrow());
+            .orElseGet(() -> {
+                //har vi ikke alltid endringsdato i en utløsende behandling?
+                LOG.info("Berørtutleder mangler endringsdato på utløsende behandling");
+                return finnMinAktivDato(utløsendeUttak, berørtUttak).orElseThrow();
+            });
 
         Set<LocalDate> berørtBehovDatoer = new HashSet<>();
-        if (utløsendeBehandlingsresultat.isEndretStønadskonto() || negativSaldoNoenKonto) {
-            LOG.info("{}: EndretKonto/NegativKonto endringsdato {}", loggPrefix, endringsdato);
-            berørtBehovDatoer.add(endringsdato);
+        if (utløsendeBehandlingsresultat.isEndretStønadskonto()) {
+            LOG.info("{}: EndretKonto endringsdato {}", loggPrefix, endringsdato);
+            berørtBehovDatoer.add(berørtUttak.finnFørsteUttaksdato().orElseThrow());
         }
 
-        var periodeTom = finnMaxAktivDato(utløsendeBehandlingUttak, berørtBehandlingUttak.get()).filter(endringsdato::isBefore).orElse(endringsdato);
+        if (negativSaldoNoenKonto) {
+            LOG.info("{}: NegativKonto endringsdato {}", loggPrefix, endringsdato);
+            berørtBehovDatoer.add(endringsdato);
+            if (berørtUttak.sistDagMedTrekkdager().isBefore(endringsdato)) {
+                //Vurdere om vi skal sette endringsdato til første i berørt uttak, eller ikke opprette noen berørt
+                LOG.info("Berørt uttak har ikke trekkdager etter utløsende behandlings endringsdato {}. Siste dag med trekkdager {}",
+                    endringsdato, berørtUttak.sistDagMedTrekkdager());
+            }
+        }
+
+        var periodeTom = finnMaxAktivDato(utløsendeUttak, berørtUttak).filter(endringsdato::isBefore).orElse(endringsdato);
         var periodeFomEndringsdato = new LocalDateInterval(endringsdato, periodeTom);
 
-        var overlapp = overlappSomIkkeErFulltSamtidigUttak(familieHendelser, utenMinsterett, periodeFomEndringsdato, utløsendeBehandlingUttak, berørtBehandlingUttak.get());
+        var overlapp = overlappSomIkkeErFulltSamtidigUttak(familieHendelser, utenMinsterett, periodeFomEndringsdato, utløsendeUttak,
+            berørtUttak);
         if (overlapp.isPresent()) {
             LOG.info("{}: OverlappUtenSamtidig fom {} endringsdato {}", loggPrefix, overlapp.get(), endringsdato);
             berørtBehovDatoer.add(overlapp.get());
         }
 
-        var fellesTidslinjeForSammenheng = tidslinjeForSammenhengendeUttaksplan(utløsendeBehandlingUttak, berørtBehandlingUttak.get());
+        var fellesTidslinjeForSammenheng = tidslinjeForSammenhengendeUttaksplan(utløsendeUttak, berørtUttak);
         // Sikre at periode reservert mor er komplett med uttak, utsettelser, overføringer
         if (familieHendelser.gjelderTerminFødsel()) {
             var familieHendelseDato = familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato();
@@ -168,12 +183,6 @@ public final class EndringsdatoBerørtUtleder {
     private static Optional<LocalDate> finnMinAktivDato(ForeldrepengerUttak bruker, ForeldrepengerUttak annenpart) {
         return Stream.concat(finnMinAktivDato(bruker).stream(), finnMinAktivDato(annenpart).stream())
             .min(Comparator.naturalOrder());
-    }
-
-    // Mulig denne skal brukes om endringsdato mangler
-    private static Optional<LocalDate> finnSenesteMinAktivDato(ForeldrepengerUttak bruker, ForeldrepengerUttak annenpart) {
-        return Stream.concat(finnMinAktivDato(bruker).stream(), finnMinAktivDato(annenpart).stream())
-            .max(Comparator.naturalOrder());
     }
 
     private static Optional<LocalDate> finnMaxAktivDato(ForeldrepengerUttak bruker, ForeldrepengerUttak annenpart) {
