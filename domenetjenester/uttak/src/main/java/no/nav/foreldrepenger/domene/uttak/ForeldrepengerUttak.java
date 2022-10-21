@@ -43,6 +43,14 @@ public class ForeldrepengerUttak {
         return getGjeldendePerioder().stream().map(p -> p.getTidsperiode().getFomDato()).min(LocalDate::compareTo);
     }
 
+    public LocalDate sistDagMedTrekkdager() {
+        return getGjeldendePerioder().stream()
+            .filter(p -> p.harTrekkdager() || p.isInnvilgetOpphold())
+            .map(p -> p.getTidsperiode().getTomDato())
+            .max(LocalDate::compareTo)
+            .orElseThrow();
+    }
+
     private List<ForeldrepengerUttakPeriode> sortByFom(List<ForeldrepengerUttakPeriode> perioder) {
         return perioder.stream().sorted(Comparator.comparing(ForeldrepengerUttakPeriode::getFom)).collect(Collectors.toList());
     }
