@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
+package no.nav.foreldrepenger.mottak.vedtak.avstemming;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -7,19 +7,20 @@ import java.time.format.DateTimeFormatter;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
-import no.nav.foreldrepenger.domene.vedtak.observer.RestRePubliserVedtattYtelseHendelseTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
-@ProsessTask(value = "vedtak.republiser.dag", maxFailedRuns = 1)
+@ProsessTask(value = "vedtak.overlapp.periode", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class ReLagreVedtakDagTask extends GenerellProsessTask {
+public class VedtakAvstemPeriodeTask extends GenerellProsessTask {
 
     public static final String LOG_FOM_KEY = "logfom";
     public static final String LOG_TOM_KEY = "logtom";
@@ -28,13 +29,13 @@ public class ReLagreVedtakDagTask extends GenerellProsessTask {
     private InformasjonssakRepository informasjonssakRepository;
     private ProsessTaskTjeneste taskTjeneste;
 
-    ReLagreVedtakDagTask() {
+    VedtakAvstemPeriodeTask() {
         // for CDI proxy
     }
 
     @Inject
-    public ReLagreVedtakDagTask(InformasjonssakRepository informasjonssakRepository,
-                                ProsessTaskTjeneste taskTjeneste) {
+    public VedtakAvstemPeriodeTask(InformasjonssakRepository informasjonssakRepository,
+                                   ProsessTaskTjeneste taskTjeneste) {
         super();
         this.informasjonssakRepository = informasjonssakRepository;
         this.taskTjeneste = taskTjeneste;
@@ -44,24 +45,21 @@ public class ReLagreVedtakDagTask extends GenerellProsessTask {
     public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         var fom = LocalDate.parse(prosessTaskData.getPropertyValue(LOG_FOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
         var tom = LocalDate.parse(prosessTaskData.getPropertyValue(LOG_TOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
-
-
-        // Finner alle behandlinger med vedtaksdato innen intervall (evt med gitt saksnummer) - tidligste dato = tidligeste dato med utbetaling
-        var saker = informasjonssakRepository.finnSakerSisteVedtakInnenIntervallMedKunUtbetalte(fom, tom, null);
-        var spread = 3599;
         var baseline = LocalDateTime.now();
         if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
         var callId = MDCOperations.getCallId();
-        int suffix = 1;
-        for (var o : saker) {
-            var taskData = ProsessTaskData.forProsessTask(RestRePubliserVedtattYtelseHendelseTask.class);
-            taskData.setProperty(RestRePubliserVedtattYtelseHendelseTask.KEY, o.getBehandlingId().toString());
-            taskData.setNesteKjøringEtter(baseline.plusSeconds(LocalDateTime.now().getNano() % spread));
-            taskData.setCallId(callId + "_" + suffix);
-            taskData.setPrioritet(50);
-            taskTjeneste.lagre(taskData);
-            suffix++;
-        }
+        var gruppeRunner = new ProsessTaskGruppe();
+        informasjonssakRepository.finnSakerSisteVedtakInnenIntervallMedKunUtbetalte(fom, tom, null).forEach(f -> {
+            var task = ProsessTaskData.forProsessTask(VedtakOverlappAvstemTask.class);
+            task.setProperty(VedtakOverlappAvstemTask.LOG_SAKSNUMMER_KEY, f.getSaksnummer().getVerdi());
+            task.setProperty(VedtakOverlappAvstemTask.LOG_HENDELSE_KEY, OverlappVedtak.HENDELSE_AVSTEM_PERIODE);
+            task.setNesteKjøringEtter(baseline.plusSeconds(Math.abs(System.nanoTime()) % 127));
+            task.setCallId(callId + "_" + f.getSaksnummer().getVerdi());
+            task.setPrioritet(100);
+            gruppeRunner.addNesteParallell(task);
+        });
+        taskTjeneste.lagre(gruppeRunner);
     }
+
 
 }

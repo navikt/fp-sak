@@ -48,6 +48,7 @@ public class BatchRunnerTask implements ProsessTaskHandler {
         var batchName = prosessTaskData.getPropertyValue(BATCH_NAME);
         var batchParams = prosessTaskData.getPropertyValue(BATCH_PARAMS);
         var batchDate = prosessTaskData.getPropertyValue(BATCH_RUN_DATE);
+        // TODO (jol) slett if + BATCH_NAME_RETRY_TASKS etter hamar
         if (BATCH_NAME_RETRY_TASKS.equals(batchName)) {
             batchSupportTjeneste.retryAlleProsessTasksFeilet();
             return;

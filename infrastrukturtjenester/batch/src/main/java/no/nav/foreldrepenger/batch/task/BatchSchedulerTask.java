@@ -6,12 +6,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.MonthDay;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -46,7 +44,7 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
     // Gjenoppta-tasks og oppdatering spres utover 24 min, infobrev 5 min,
 
     // Her injiseres antallDager=N ut fra bereging gitt helg og helligdag ....
-    private static final List<BatchConfig> BATCH_OPPSETT_ANTALL_DAGER = Arrays.asList(
+    private static final List<BatchConfig> BATCH_OPPSETT_ANTALL_DAGER = List.of(
             new BatchConfig(6, 45, AVSTEMMING, "fagomrade=SVP, "),
             new BatchConfig(6, 46, AVSTEMMING, "fagomrade=SVPREF, "),
             new BatchConfig(6, 47, AVSTEMMING, "fagomrade=REFUTG, "),
@@ -58,14 +56,18 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
     );
 
     // Skal kjøres hver ukedag
-    private static final List<BatchConfig> BATCH_OPPSETT_VIRKEDAGER = Arrays.asList(
+    private static final List<BatchConfig> BATCH_OPPSETT_VIRKEDAGER = List.of(
             new BatchConfig(1, 58, "BVL010", null), // Oppdatering DVH. Bør kjøre før kl 03-04.
             new BatchConfig(6, 5, "BVL004", null), // Gjenoppta - 24 min spread
             new BatchConfig(7, 0, "BVL002", null), // Etterkontroll
             new BatchConfig(7, 2, "BVL003", null), // Forlengelsesbrev må kjøre noe etter Gjenoppta
             new BatchConfig(7, 1, "BVL006", null), // Fagsakavslutning
-            new BatchConfig(7, 20, "BVL007", null), // Oppdatering dagsgamle oppgaver - 24 min spread
-            new BatchConfig(7, 45, BatchRunnerTask.BATCH_NAME_RETRY_TASKS, null) // Siste steg
+            new BatchConfig(7, 20, "BVL007", null) // Oppdatering dagsgamle oppgaver - 24 min spread
+    );
+
+    private static final List<DagligTaskConfig> TASKS_VIRKEDAGER = List.of(
+        new DagligTaskConfig(1, 59, SlettGamleTask.class),
+        new DagligTaskConfig(7, 45, RetryFeiletTask.class) // Siste steg - etter batch virkedager
     );
 
     // Skal kjøres enkelte ukedager
@@ -82,7 +84,7 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
             MonthDay.of(12, 26),
             MonthDay.of(12, 31));
 
-    private Map<Integer, List<LocalDate>> bevegeligeHelligdager = new HashMap<>();
+    private final Map<Integer, List<LocalDate>> bevegeligeHelligdager = new HashMap<>();
 
     private static final Set<DayOfWeek> HELG = Set.of(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
 
@@ -120,14 +122,22 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
         BATCH_OPPSETT_ANTALL_DAGER.stream().map(b -> new BatchConfig(b, antallDager)).forEach(batchOppsett::add);
 
         if (!batchOppsett.isEmpty()) {
+            var parallelle = new ArrayList<>(TASKS_VIRKEDAGER.stream().map(tc -> mapDagligTaskConfigTilTask(tc, dagensDato)).toList());
             var batchtasks = batchOppsett.stream()
                     .map(bc -> mapBatchConfigTilBatchRunnerTask(bc, dagensDato))
-                    .collect(Collectors.toList());
+                    .toList();
+            parallelle.addAll(batchtasks);
             var gruppeRunner = new ProsessTaskGruppe();
-            gruppeRunner.addNesteParallell(batchtasks);
+            gruppeRunner.addNesteParallell(parallelle);
 
             batchSupportTjeneste.opprettScheduledTasks(gruppeRunner);
         }
+    }
+
+    private static ProsessTaskData mapDagligTaskConfigTilTask(DagligTaskConfig taskConfig, LocalDate dagensDato) {
+        var task = ProsessTaskData.forProsessTask(taskConfig.tClass);
+        task.setNesteKjøringEtter(LocalDateTime.of(dagensDato, taskConfig.getKjøreTidspunkt()));
+        return task;
     }
 
     private static ProsessTaskData mapBatchConfigTilBatchRunnerTask(BatchConfig config, LocalDate dagensDato) {
@@ -166,5 +176,12 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
             return LocalTime.of(time(), minutt());
         }
 
+    }
+
+    private record DagligTaskConfig(int time, int minutt, Class<? extends ProsessTaskHandler> tClass) {
+
+        LocalTime getKjøreTidspunkt() {
+            return LocalTime.of(time(), minutt());
+        }
     }
 }
