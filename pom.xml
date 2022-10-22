@@ -36,7 +36,7 @@
         <fp-uttak.version>13.0.2</fp-uttak.version>
         <svp-uttak.version>2.3.4</svp-uttak.version>
         <felles.version>4.2.7</felles.version>
-        <prosesstask.version>3.1.12</prosesstask.version>
+        <prosesstask.version>3.1.13</prosesstask.version>
         <fp-jms.version>2.2.0</fp-jms.version>
 
         <fp-kontrakter.version>6.1.27</fp-kontrakter.version>

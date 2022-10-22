@@ -37,7 +37,7 @@ spec:
       memory: "3072Mi"
     requests:
       cpu: "1200m"
-      memory: "2688Mi"
+      memory: "2816Mi"
   kafka:
       pool: {{kafkaPool}}
   vault:
