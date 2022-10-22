@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.mottak.vedtak.avstemming;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -13,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
@@ -48,17 +51,20 @@ public class VedtakAvstemPeriodeTask extends GenerellProsessTask {
         var baseline = LocalDateTime.now();
         if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
         var callId = MDCOperations.getCallId();
-        var gruppeRunner = new ProsessTaskGruppe();
+        var gruppe = new ProsessTaskGruppe();
+        List<ProsessTaskData> tasks = new ArrayList<>();
         informasjonssakRepository.finnSakerSisteVedtakInnenIntervallMedKunUtbetalte(fom, tom, null).forEach(f -> {
-            var task = ProsessTaskData.forProsessTask(VedtakOverlappAvstemTask.class);
-            task.setProperty(VedtakOverlappAvstemTask.LOG_SAKSNUMMER_KEY, f.getSaksnummer().getVerdi());
-            task.setProperty(VedtakOverlappAvstemTask.LOG_HENDELSE_KEY, OverlappVedtak.HENDELSE_AVSTEM_PERIODE);
-            task.setNesteKjøringEtter(baseline.plusSeconds(Math.abs(System.nanoTime()) % 127));
-            task.setCallId(callId + "_" + f.getSaksnummer().getVerdi());
-            task.setPrioritet(100);
-            gruppeRunner.addNesteParallell(task);
+            var task = ProsessTaskDataBuilder.forProsessTask(VedtakOverlappAvstemTask.class)
+                .medProperty(VedtakOverlappAvstemTask.LOG_SAKSNUMMER_KEY, f.getSaksnummer().getVerdi())
+                .medProperty(VedtakOverlappAvstemTask.LOG_HENDELSE_KEY, OverlappVedtak.HENDELSE_AVSTEM_PERIODE)
+                .medNesteKjøringEtter(baseline.plusSeconds(Math.abs(System.nanoTime()) % 127))
+                .medCallId(callId + "_" + f.getSaksnummer().getVerdi())
+                .medPrioritet(100)
+                .build();
+            tasks.add(task);
         });
-        taskTjeneste.lagre(gruppeRunner);
+        gruppe.addNesteParallell(tasks);
+        taskTjeneste.lagre(gruppe);
     }
 
 

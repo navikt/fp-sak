@@ -1,9 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +14,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -51,6 +54,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -216,18 +220,21 @@ public class ForvaltningUttrekkRestTjeneste {
         if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
         var callId = MDCOperations.getCallId();
         long suffix = 1;
-        var gruppeRunner = new ProsessTaskGruppe();
+        var gruppe = new ProsessTaskGruppe();
+        List<ProsessTaskData> tasks = new ArrayList<>();
         for (var betweendays = fom; !betweendays.isAfter(tom); betweendays = betweendays.plusDays(1)) {
-            var prosessTaskData = ProsessTaskData.forProsessTask(VedtakAvstemPeriodeTask.class);
-            prosessTaskData.setProperty(VedtakAvstemPeriodeTask.LOG_FOM_KEY, betweendays.toString());
-            prosessTaskData.setProperty(VedtakAvstemPeriodeTask.LOG_TOM_KEY, betweendays.toString());
-            prosessTaskData.setNesteKjøringEtter(baseline.plusSeconds(suffix * 125));
-            prosessTaskData.setCallId(callId + "_" + suffix);
-            prosessTaskData.setPrioritet(100);
-            gruppeRunner.addNesteParallell(prosessTaskData);
+            var prosessTaskData = ProsessTaskDataBuilder.forProsessTask(VedtakAvstemPeriodeTask.class)
+                .medProperty(VedtakAvstemPeriodeTask.LOG_FOM_KEY, betweendays.toString())
+                .medProperty(VedtakAvstemPeriodeTask.LOG_TOM_KEY, betweendays.toString())
+                .medNesteKjøringEtter(baseline.plusSeconds(suffix * 125))
+                .medCallId(callId + "_" + suffix)
+                .medPrioritet(100)
+                .build();
+            tasks.add(prosessTaskData);
             suffix++;
         }
-        taskTjeneste.lagre(gruppeRunner);
+        gruppe.addNesteParallell(tasks);
+        taskTjeneste.lagre(gruppe);
 
         return Response.ok().build();
     }
@@ -247,7 +254,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Path("/slettTidligereAvstemmingOverlapp")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
+    @Operation(description = "Sletter tidligere avstemming som er eldre enn fom (dd + 1 sletter alle)", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
     public Response slettTidligereAvstemming(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
         if ("hendelseALLE".equals(dto.getKey())) {
@@ -274,6 +281,26 @@ public class ForvaltningUttrekkRestTjeneste {
         taskTjeneste.lagre(prosessTaskData);
 
         return Response.ok().build();
+    }
+
+    @Deprecated(forRemoval = true)
+    @POST
+    @Path("/slettMigrering")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Sletter ferdige migreringstasks", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    public Response slettMigrering(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
+        if (dto.getKey() == null || !dto.getKey().contains("migrer")) {
+            return Response.status(HttpURLConnection.HTTP_BAD_REQUEST).build();
+        }
+        Query query = entityManager.createNativeQuery("DELETE FROM PROSESS_TASK WHERE STATUS = :ferdig AND TASK_TYPE = :type")
+            .setParameter("ferdig", ProsessTaskStatus.FERDIG.getDbKode())
+            .setParameter("type", dto.getKey());
+        int deletedRows = query.executeUpdate();
+        entityManager.flush();
+
+        return Response.ok(deletedRows).build();
     }
 
     @GET
