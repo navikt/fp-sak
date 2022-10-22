@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølg
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEntitet;
 
@@ -39,14 +38,15 @@ public class AvbrytAvstemTask implements ProsessTaskHandler {
         @SuppressWarnings("unchecked") var query = (NativeQuery<ProsessTaskEntitet>) entityManager
             .createNativeQuery(
                 "SELECT pt.* FROM PROSESS_TASK pt"
-                    + " WHERE pt.status = 'KLAR'"
+                    + " WHERE pt.status in ('KLAR', 'FEILET')"
                     + " AND pt.task_type in ('vedtak.overlapp.avstem', 'vedtak.overlapp.periode')"
                     + " FOR UPDATE SKIP LOCKED ",
-                ProsessTaskEntitet.class);
+                ProsessTaskEntitet.class)
+            .setMaxResults(2000);
 
 
-        var resultList = query.getResultList();
-        resultList.forEach(task -> taskTjeneste.setProsessTaskFerdig(task.getId(), ProsessTaskStatus.KLAR));
+        var resultList = query.getResultList().stream().map(ProsessTaskEntitet::tilProsessTask).toList();
+        resultList.forEach(task -> entityManager.createNativeQuery("update prosess_task set status = 'FERDIG' where id = :tid").setParameter("tid", task.getId()).executeUpdate());
     }
-    
+
 }
