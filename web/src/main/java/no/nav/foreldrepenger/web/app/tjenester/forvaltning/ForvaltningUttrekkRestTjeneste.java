@@ -246,7 +246,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Operation(description = "Avbryter pågående avstemming", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
     public Response avbrytAvstemming() {
-        finnAlleAvstemming().forEach(t -> taskTjeneste.setProsessTaskFerdig(t.getId(), ProsessTaskStatus.KLAR));
+        finnAlleAvstemming().stream().limit(200).forEach(t -> taskTjeneste.setProsessTaskFerdig(t.getId(), ProsessTaskStatus.KLAR));
         return Response.ok().build();
     }
 
@@ -326,7 +326,7 @@ public class ForvaltningUttrekkRestTjeneste {
                     + " WHERE pt.status = 'KLAR'"
                     + " AND pt.task_type in ('vedtak.overlapp.avstem', 'vedtak.overlapp.periode')"
                     + " FOR UPDATE SKIP LOCKED ",
-                ProsessTaskEntitet.class);
+                ProsessTaskEntitet.class).setMaxResults(200);
 
 
         var resultList = query.getResultList();
