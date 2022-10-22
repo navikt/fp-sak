@@ -324,7 +324,7 @@ public class ForvaltningUttrekkRestTjeneste {
             .createNativeQuery(
                 "SELECT pt.* FROM PROSESS_TASK pt"
                     + " WHERE pt.status = 'KLAR'"
-                    + " AND pt.task_type in ('vedtak.overlapp.avstem', 'vedtak.overlapp.periode'"
+                    + " AND pt.task_type in ('vedtak.overlapp.avstem', 'vedtak.overlapp.periode')"
                     + " FOR UPDATE SKIP LOCKED ",
                 ProsessTaskEntitet.class);
 
