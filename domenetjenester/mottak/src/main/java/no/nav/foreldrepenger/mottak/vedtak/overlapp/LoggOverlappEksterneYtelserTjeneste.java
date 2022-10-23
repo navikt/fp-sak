@@ -293,7 +293,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
     public void vurderOmOverlappSYK(PersonIdent ident,
                                     LocalDateTimeline<BigDecimal> perioderFp,
                                     List<OverlappVedtak.Builder> overlappene) {
-        spøkelse.hentGrunnlag(ident.getIdent()).forEach(y -> {
+        hentSpøkelse(ident.getIdent()).forEach(y -> {
             var graderteSegments = y.utbetalingerNonNull()
                 .stream()
                 .map(

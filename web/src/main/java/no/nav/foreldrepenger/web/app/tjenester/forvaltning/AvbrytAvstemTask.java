@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølg
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEntitet;
 
@@ -35,17 +34,6 @@ public class AvbrytAvstemTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        entityManager.createNativeQuery("DELETE FROM PROSESS_TASK WHERE STATUS = :ferdig AND TASK_TYPE like '%migrer%'")
-            .setParameter("ferdig", ProsessTaskStatus.FERDIG.getDbKode())
-            .executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM PROSESS_TASK WHERE STATUS = :ferdig AND TASK_TYPE like '%overlapp%'")
-            .setParameter("ferdig", ProsessTaskStatus.FERDIG.getDbKode())
-            .executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM PROSESS_TASK WHERE STATUS = :ferdig AND TASK_TYPE like '%avstem%'")
-            .setParameter("ferdig", ProsessTaskStatus.FERDIG.getDbKode())
-            .executeUpdate();
-        entityManager.flush();
-
         @SuppressWarnings("unchecked") var query = (NativeQuery<ProsessTaskEntitet>) entityManager
             .createNativeQuery(
                 "SELECT pt.* FROM PROSESS_TASK pt"
