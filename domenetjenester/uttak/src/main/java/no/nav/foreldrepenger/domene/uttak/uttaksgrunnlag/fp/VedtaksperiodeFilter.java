@@ -113,16 +113,12 @@ public final class VedtaksperiodeFilter {
     private static LocalDate finnTidligsteUlikhetSøknadUttak(List<OppgittPeriodeEntitet> nysøknad, UttakResultatEntitet uttakResultatFraForrigeBehandling) {
         // Tidslinje og tidligste/seneste dato fra ny søknad
         var tidligsteFom = nysøknad.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder()).orElseThrow();
-        var segmenterSøknad = nysøknad.stream()
-            .map(p -> new LocalDateSegment<>(VirkedagUtil.lørdagSøndagTilMandag(p.getFom()), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), new SammenligningPeriodeForOppgitt(p)))
-            .toList();
+        var segmenterSøknad = nysøknad.stream().map(VedtaksperiodeFilter::segmentForOppgittPeriode).toList();
         var tidslinjeSammenlignSøknad =  new LocalDateTimeline<>(segmenterSøknad);
 
         // Tidslinje for innvilgete peridoder fra forrige uttaksresultat - kun fom tidligstedato
         List<OppgittPeriodeEntitet> gjeldendeVedtaksperioder = VedtaksperiodeFilterHelper.opprettOppgittePerioderKunInnvilget(uttakResultatFraForrigeBehandling, tidligsteFom);
-        var segmenterVedtak = gjeldendeVedtaksperioder.stream()
-            .map(p -> new LocalDateSegment<>(VirkedagUtil.lørdagSøndagTilMandag(p.getFom()), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), new SammenligningPeriodeForOppgitt(p)))
-            .toList();
+        var segmenterVedtak = gjeldendeVedtaksperioder.stream().map(VedtaksperiodeFilter::segmentForOppgittPeriode).toList();
         // Ser kun på perioder fom tidligsteFom fra søknad.
         var tidslinjeSammenlignVedtak =  new LocalDateTimeline<>(segmenterVedtak).intersection(new LocalDateInterval(tidligsteFom, LocalDateInterval.TIDENES_ENDE));
 
@@ -133,6 +129,15 @@ public final class VedtaksperiodeFilter {
         // Første segment med ulikhet
         var førsteNyhet = ulike.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(null);
         return førsteNyhet;
+    }
+
+    private static LocalDateSegment<SammenligningPeriodeForOppgitt> segmentForOppgittPeriode(OppgittPeriodeEntitet periode) {
+        var fom = VirkedagUtil.lørdagSøndagTilMandag(periode.getFom());
+        var tom = VirkedagUtil.fredagLørdagTilSøndag(periode.getTom());
+        if (fom.isAfter(tom)) {
+            fom = periode.getFom();
+        }
+        return new LocalDateSegment<>(fom, tom, new SammenligningPeriodeForOppgitt(periode));
     }
 
     private static OppgittPeriodeEntitet knekkPeriodeReturnerFom(OppgittPeriodeEntitet periode, LocalDate fom) {
