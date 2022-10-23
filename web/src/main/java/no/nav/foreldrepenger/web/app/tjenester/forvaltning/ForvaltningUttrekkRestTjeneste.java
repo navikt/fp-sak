@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import java.math.BigDecimal;
-import java.net.HttpURLConnection;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,7 +13,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -281,26 +279,6 @@ public class ForvaltningUttrekkRestTjeneste {
         taskTjeneste.lagre(prosessTaskData);
 
         return Response.ok().build();
-    }
-
-    @Deprecated(forRemoval = true)
-    @POST
-    @Path("/slettMigrering")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Sletter ferdige migreringstasks", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
-    public Response slettMigrering(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
-        if (dto.getKey() == null || !dto.getKey().contains("migrer")) {
-            return Response.status(HttpURLConnection.HTTP_BAD_REQUEST).build();
-        }
-        Query query = entityManager.createNativeQuery("DELETE FROM PROSESS_TASK WHERE STATUS = :ferdig AND TASK_TYPE = :type")
-            .setParameter("ferdig", ProsessTaskStatus.FERDIG.getDbKode())
-            .setParameter("type", dto.getKey());
-        int deletedRows = query.executeUpdate();
-        entityManager.flush();
-
-        return Response.ok(deletedRows).build();
     }
 
     @GET
