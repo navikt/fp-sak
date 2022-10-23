@@ -49,6 +49,7 @@ import no.nav.fpsak.tidsserie.StandardCombinators;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.spokelse.Spøkelse;
+import no.nav.vedtak.felles.integrasjon.spokelse.SykepengeVedtak;
 import no.nav.vedtak.konfig.Tid;
 
 /*
@@ -292,21 +293,29 @@ public class LoggOverlappEksterneYtelserTjeneste {
     public void vurderOmOverlappSYK(PersonIdent ident,
                                     LocalDateTimeline<BigDecimal> perioderFp,
                                     List<OverlappVedtak.Builder> overlappene) {
-        if (IS_PROD) {
-            spøkelse.hentGrunnlag(ident.getIdent()).forEach(y -> {
-                var graderteSegments = y.utbetalingerNonNull()
-                    .stream()
-                    .map(
-                        p -> new LocalDateSegment<>(p.fom(), p.tom(), utbetalingsgradHundreHvisNull(p.gradScale2())))
-                    .filter(s -> s.getValue().compareTo(BigDecimal.ZERO) > 0)
-                    .collect(Collectors.toList());
-                var ytelseTidslinje = new LocalDateTimeline<>(graderteSegments,
-                    LoggOverlappEksterneYtelserTjeneste::max).compress(this::like, this::kombiner);
-                overlappene.addAll(
-                    finnGradertOverlapp(perioderFp, Fagsystem.VLSP.getKode(), "SP",
-                        y.vedtaksreferanse(), ytelseTidslinje));
-            });
-        }
+        spøkelse.hentGrunnlag(ident.getIdent()).forEach(y -> {
+            var graderteSegments = y.utbetalingerNonNull()
+                .stream()
+                .map(
+                    p -> new LocalDateSegment<>(p.fom(), p.tom(), utbetalingsgradHundreHvisNull(p.gradScale2())))
+                .filter(s -> s.getValue().compareTo(BigDecimal.ZERO) > 0)
+                .collect(Collectors.toList());
+            var ytelseTidslinje = new LocalDateTimeline<>(graderteSegments,
+                LoggOverlappEksterneYtelserTjeneste::max).compress(this::like, this::kombiner);
+            overlappene.addAll(
+                finnGradertOverlapp(perioderFp, Fagsystem.VLSP.getKode(), "SP",
+                    y.vedtaksreferanse(), ytelseTidslinje));
+        });
+
+    }
+
+    private List<SykepengeVedtak> hentSpøkelse(String fnr) {
+        if (!IS_PROD) return List.of();
+        var før = System.nanoTime();
+        var vedtak = spøkelse.hentGrunnlag(fnr);
+        var etter = System.nanoTime();
+        LOG.info("Spøkelse antall {} svartid {}", vedtak.size(), etter-før);
+        return vedtak;
     }
 
     private BigDecimal utbetalingsgradHundreHvisNull(Desimaltall anvistUtbetalingsprosent) {
