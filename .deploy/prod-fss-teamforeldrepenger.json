@@ -9,6 +9,14 @@
     "mqserviceuser": "serviceuser/data/prod/srvfpsak",
     "minReplicas": "4",
     "maxReplicas": "9",
+    "limits": {
+        "cpu": "4",
+        "mem": "3072Mi"
+    },
+    "requests": {
+        "cpu": "1",
+        "mem": "2816Mi"
+    },
     "ingresses": [
         "https://fpsak.nais.adeo.no",
         "https://fpsak-api.intern.nav.no",
