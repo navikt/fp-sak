@@ -52,8 +52,7 @@ public final class EndringsdatoBerørtUtleder {
         // Endring fra en søknadsperiode eller fra start?
         var endringsdato = utløsendeBehandlingYtelseFordeling.flatMap(YtelseFordelingAggregat::getGjeldendeEndringsdatoHvisEksisterer)
             .orElseGet(() -> {
-                //har vi ikke alltid endringsdato i en utløsende behandling?
-                LOG.info("Berørtutleder mangler endringsdato på utløsende behandling");
+                //mangler endringsdato ved utsatt oppstart behandlinger.
                 return finnMinAktivDato(utløsendeUttak, berørtUttak).orElseThrow();
             });
 
