@@ -7,12 +7,10 @@ RUN mkdir lib
 RUN mkdir conf
 
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=75 \
-    -XX:ActiveProcessorCount=2 \
     -XX:+PrintCommandLineFlags \
     -Djava.security.egd=file:/dev/urandom \
     -Duser.timezone=Europe/Oslo \
-    -Dlogback.configurationFile=conf/logback.xml \
-    -Dapplication.name=fpsak"
+    -Dlogback.configurationFile=conf/logback.xml"
 
 # Config
 COPY web/target/classes/logback*.xml conf/
