@@ -28,11 +28,12 @@ public class VedtaksperiodeFilterHelper {
             .filter(UttakResultatPeriodeEntitet::isInnvilget)
             .filter(p -> !p.getTom().isBefore(perioderFom))
             .filter(p -> p.getPeriodeSøknad().isPresent())
+            .filter(p -> !p.getTidsperiode().erHelg())
             .map(VedtaksperiodeFilterHelper::konverter)
             .toList();
     }
 
-    static OppgittPeriodeEntitet konverter(UttakResultatPeriodeEntitet up) {
+    private static OppgittPeriodeEntitet konverter(UttakResultatPeriodeEntitet up) {
         var samtidigUttaksprosent = VedtaksperioderHelper.finnSamtidigUttaksprosent(up).orElse(null);
         var builder = OppgittPeriodeBuilder.ny()
             .medPeriode(up.getTidsperiode().getFomDato(), up.getTidsperiode().getTomDato())
