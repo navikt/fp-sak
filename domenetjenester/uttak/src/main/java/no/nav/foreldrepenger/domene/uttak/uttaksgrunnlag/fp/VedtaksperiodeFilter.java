@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
+import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.VedtaksperiodeFilterHelper.opprettOppgittePerioderKunInnvilget;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -117,7 +119,7 @@ public final class VedtaksperiodeFilter {
         var tidslinjeSammenlignSøknad =  new LocalDateTimeline<>(segmenterSøknad);
 
         // Tidslinje for innvilgete peridoder fra forrige uttaksresultat - kun fom tidligstedato
-        List<OppgittPeriodeEntitet> gjeldendeVedtaksperioder = VedtaksperiodeFilterHelper.opprettOppgittePerioderKunInnvilget(uttakResultatFraForrigeBehandling, tidligsteFom);
+        var gjeldendeVedtaksperioder = opprettOppgittePerioderKunInnvilget(uttakResultatFraForrigeBehandling, tidligsteFom);
         var segmenterVedtak = gjeldendeVedtaksperioder.stream().map(VedtaksperiodeFilter::segmentForOppgittPeriode).toList();
         // Ser kun på perioder fom tidligsteFom fra søknad.
         var tidslinjeSammenlignVedtak =  new LocalDateTimeline<>(segmenterVedtak).intersection(new LocalDateInterval(tidligsteFom, LocalDateInterval.TIDENES_ENDE));

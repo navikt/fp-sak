@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
@@ -431,6 +432,62 @@ public class VedtaksperiodeFilterFRITest {
         var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad0, søknad1, søknad2), uttakResultat, false);
         assertThat(filtrert).hasSize(1);
         assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad2))).isTrue();
+    }
+
+    @Test
+    public void skalHåndtereAtUttaksresultatInneholderPerioderSomBareErInnvilgetHelger() {
+        var lørdag = LocalDate.of(2022, 10, 29);
+        var søndag = LocalDate.of(2022, 10, 30);
+
+        var perioder = new UttakResultatPerioderEntitet();
+        var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
+        var aktivitet = new UttakAktivitetEntitet.Builder()
+            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef()).build();
+        var helg1 = uttaksperiodeMedForeldrepenger(lørdag, søndag, aktivitet, Trekkdager.ZERO);
+        var likUttaksperiode = uttaksperiodeMedForeldrepenger(søndag.plusDays(1), søndag.plusWeeks(2).minusDays(2), aktivitet, new Trekkdager(10));
+        var helg2 = uttaksperiodeMedForeldrepenger(søndag.plusWeeks(2), søndag.plusWeeks(2), aktivitet, Trekkdager.ZERO);
+        var forskjellUttaksperiode = uttaksperiodeMedForeldrepenger(søndag.plusWeeks(2).plusDays(1), søndag.plusWeeks(4), aktivitet, new Trekkdager(10));
+        perioder.leggTilPeriode(helg1);
+        perioder.leggTilPeriode(likUttaksperiode);
+        perioder.leggTilPeriode(helg2);
+        perioder.leggTilPeriode(forskjellUttaksperiode);
+        var uttakResultat = new UttakResultatEntitet.Builder(Behandlingsresultat.builder().build()).medOpprinneligPerioder(perioder).build();
+
+        // Lik eksisterende vedtak
+        var søknad1 = OppgittPeriodeBuilder.ny()
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriode(lørdag.plusDays(2), helg2.getTom())
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .build();
+        // Ny periode
+        var søknad2 = OppgittPeriodeBuilder.ny()
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriode(forskjellUttaksperiode.getFom(), forskjellUttaksperiode.getTom())
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medSamtidigUttak(true)
+            .medSamtidigUttaksprosent(new SamtidigUttaksprosent(50))
+            .build();
+
+        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad1, søknad2), uttakResultat, false);
+        assertThat(filtrert).hasSize(1);
+        assertThat(filtrert.get(0)).isEqualTo(søknad2);
+    }
+
+    private static UttakResultatPeriodeEntitet uttaksperiodeMedForeldrepenger(LocalDate fom,
+                                                                              LocalDate tom,
+                                                                              UttakAktivitetEntitet arbeidsforhold,
+                                                                              Trekkdager trekkdager) {
+        var periode = new UttakResultatPeriodeEntitet.Builder(fom, tom).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER).build())
+            .build();
+        UttakResultatPeriodeAktivitetEntitet.builder(periode, arbeidsforhold)
+            .medTrekkdager(trekkdager)
+            .medTrekkonto(StønadskontoType.FORELDREPENGER)
+            .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
+        return periode;
     }
 
 }
