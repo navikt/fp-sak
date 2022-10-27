@@ -7,7 +7,7 @@ on:
       branches:
           - master
       paths:
-          - 'snyk.yml'
+          - '.github/workflows/snyk.yml'
 
 jobs:
   snyk:
