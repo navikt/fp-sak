@@ -56,7 +56,7 @@ jobs:
       - name: Build artifacts & deploy
         run: |
           echo "Building artifacts $BUILD_VERSION"
-          mvn verify -T 1C -q -e -B -s settings.xml -Drevision=${BUILD_VERSION} -Dfile.encoding=UTF-8
+          mvn verify -T 1.5C -q -e -B -s settings.xml -Drevision=${BUILD_VERSION} -Dfile.encoding=UTF-8
           echo "Build artifacts"
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
