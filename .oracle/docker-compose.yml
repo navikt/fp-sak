@@ -8,9 +8,9 @@ services:
         deploy:
             resources:
                 limits:
-                    memory: 2gb
+                    memory: 4gb
                 reservations:
-                    memory: 1gb
+                    memory: 4gb
         ports:
             - "1521:1521"
         volumes:
