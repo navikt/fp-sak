@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -64,6 +65,9 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(LoggOverlappEksterneYtelserTjeneste.class);
     private static final BigDecimal HUNDRE = new BigDecimal(100);
+
+    private static final List<Duration> SPOKELSE_TIMEOUTS = List.of(Duration.ofMillis(100), Duration.ofMillis(500), Duration.ofMillis(2500),
+        Duration.ofMillis(12), Duration.ofSeconds(60));
 
     private static final boolean IS_PROD = Environment.current().isProd();
 
@@ -168,7 +172,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
         vurderOmOverlappInfotrygd(ident, tidligsteUttakFP, perioderFpGradert, overlappene);
         vurderOmOverlappOMS(aktørId, tidligsteUttakFP, perioderFpGradert, overlappene);
-        vurderOmOverlappSYK(ident, perioderFpGradert, overlappene);
+        vurderOmOverlappSYK(ident, tidligsteUttakFP, perioderFpGradert, overlappene);
         return overlappene.stream()
             .map(b -> b.medSaksnummer(saksnummer).medBehandlingId(behandlingId))
             .collect(Collectors.toList());
@@ -291,9 +295,10 @@ public class LoggOverlappEksterneYtelserTjeneste {
     }
 
     public void vurderOmOverlappSYK(PersonIdent ident,
+                                    LocalDate førsteUttaksDatoFP,
                                     LocalDateTimeline<BigDecimal> perioderFp,
                                     List<OverlappVedtak.Builder> overlappene) {
-        hentSpøkelse(ident.getIdent()).forEach(y -> {
+        hentSpøkelse(ident.getIdent(), førsteUttaksDatoFP).forEach(y -> {
             var graderteSegments = y.utbetalingerNonNull()
                 .stream()
                 .map(
@@ -309,13 +314,24 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
     }
 
-    private List<SykepengeVedtak> hentSpøkelse(String fnr) {
+    private List<SykepengeVedtak> hentSpøkelse(String fnr, LocalDate førsteUttaksDatoFP) {
         if (!IS_PROD) return List.of();
-        var før = System.nanoTime();
-        var vedtak = spøkelse.hentGrunnlag(fnr);
-        var etter = System.nanoTime();
-        LOG.info("Spøkelse antall {} svartid {}", vedtak.size(), etter-før);
-        return vedtak;
+        var it = SPOKELSE_TIMEOUTS.iterator();
+        while (it.hasNext()) {
+            try {
+                var timeout = it.next();
+                var før = System.nanoTime();
+                var vedtak = spøkelse.hentGrunnlag(fnr, førsteUttaksDatoFP, timeout);
+                var etter = System.nanoTime();
+                LOG.info("Spøkelse antall {} timeout {} svartid {}", vedtak.size(), timeout, (etter-før) / 1000000); // Log millis
+                return vedtak;
+            } catch (Exception e) {
+                if (!it.hasNext()) {
+                    throw e;
+                }
+            }
+        }
+        return List.of();
     }
 
     private BigDecimal utbetalingsgradHundreHvisNull(Desimaltall anvistUtbetalingsprosent) {
