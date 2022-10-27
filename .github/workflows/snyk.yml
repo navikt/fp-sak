@@ -34,15 +34,13 @@ jobs:
             mvn -B -s settings.xml versions:set -DnewVersion=snyk-snapshot
             mvn install -q -B -s settings.xml -DskipTests
 
-      - name: Run Snyk
-        uses: snyk/actions/maven@master
-        with:
-            command: monitor
-            args: |
-                --org=teamforeldrepenger
-                --all-projects
-                --configuration-attributes=usage:java-runtime
-                --remote-repo-url=https://github.com/${{ github.repository }}.git
-                -- -s settings.xml
+      - name: Run Snyk monitor
+        run: >
+            snyk monitor
+            --org=teamforeldrepenger
+            --all-projects
+            --configuration-attributes=usage:java-runtime
+            --remote-repo-url=https://github.com/${{ github.repository }}.git
+            -- -s settings.xml
         env:
             SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
