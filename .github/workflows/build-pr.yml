@@ -57,7 +57,7 @@ jobs:
       - name: Build
         run: |
           echo "Building $BUILD_VERSION"
-          mvn verify -T 1C -q -e -B -s settings.xml -Drevision=${BUILD_VERSION}
+          mvn verify -T 2C -q -e -B -s settings.xml -Drevision=${BUILD_VERSION}
         env:
           DATABASE_HOST: localhost
           DATABASE_PORT: ${{ job.services.oracle.ports[1521] }}
