@@ -411,26 +411,84 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         List<SvpTilretteleggingEntitet> nyeOgEksisterendeTilrettelegginger = new ArrayList<>(nyeTilrettelegginger);
 
         if (!eksisterendeTilrettelegginger.isEmpty()) {
-            eksisterendeTilrettelegginger.forEach( eksTilrettelegging -> {
-                SvpTilretteleggingEntitet funnetTilretteleggingSammeArbForhold = nyeTilrettelegginger
-                    .stream()
-                    .filter( ny -> gjelderSammeArbeidsforhold(eksTilrettelegging, ny))
-                    .findFirst()
-                    .orElse(null);
+            var tilretteleggingMap = eksisterendeTilrettelegginger.stream().collect(Collectors.groupingBy(this::tilretteleggingNøkkel));
 
-                if (funnetTilretteleggingSammeArbForhold != null) {
-                    nyeOgEksisterendeTilrettelegginger.remove(funnetTilretteleggingSammeArbForhold);
-                    nyeOgEksisterendeTilrettelegginger.add(oppdaterNyTlrMedEksHvisMulig( funnetTilretteleggingSammeArbForhold, eksTilrettelegging));
+            for (var eksTilrettelegging : tilretteleggingMap.entrySet() ) {
+                SvpTilretteleggingEntitet nyTlrSammeArbgiverFunnet = sjekkOmNyTlrGjelderSammeArbgiver(nyeTilrettelegginger, eksTilrettelegging.getKey());
+                if (nyTlrSammeArbgiverFunnet != null ) {
+                    if (eksTilrettelegging.getValue().size() > 1) {
+                        //Legger til alle eksisterende for denne arbeidsgiveren da vi ikke enda vet hvilken som skal oppdateres
+                        nyeOgEksisterendeTilrettelegginger.addAll(eksTilrettelegging.getValue());
+                        var eksTlrSomskalOppdateres = finnDenEksisterendeTlrSomSKalOppdateres(nyTlrSammeArbgiverFunnet, eksTilrettelegging.getValue());
+                        if (eksTlrSomskalOppdateres != null) {
+                            //Fjerner den eksisterende som vi nå vet skal oppdateres med ny, og må også fjerne den nye siden vi nå vet at den skal flettes med en eksisterende
+                            nyeOgEksisterendeTilrettelegginger.remove(eksTlrSomskalOppdateres);
+                            nyeOgEksisterendeTilrettelegginger.remove(nyTlrSammeArbgiverFunnet);
+                            nyeOgEksisterendeTilrettelegginger.add(oppdaterNyTlrMedEksHvisMulig(nyTlrSammeArbgiverFunnet, eksTlrSomskalOppdateres));
+                        }
+                    } else {
+                        nyeOgEksisterendeTilrettelegginger.remove(nyTlrSammeArbgiverFunnet);
+                        nyeOgEksisterendeTilrettelegginger.add(oppdaterNyTlrMedEksHvisMulig(nyTlrSammeArbgiverFunnet, eksTilrettelegging.getValue().get(0)));
+                    }
                 } else {
-                    var eksisterendeTilR = new SvpTilretteleggingEntitet.Builder(eksTilrettelegging)
+                    var eksisterendeTilR = new SvpTilretteleggingEntitet.Builder(eksTilrettelegging.getValue().get(0))
                         .medKopiertFraTidligereBehandling(true).build();
 
                     nyeOgEksisterendeTilrettelegginger.add(eksisterendeTilR);
                 }
-            });
+            }
         }
         var svpGrunnlag = svpBuilder.medOpprinneligeTilrettelegginger(nyeOgEksisterendeTilrettelegginger).build();
         svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
+    }
+
+    private String tilretteleggingNøkkel(SvpTilretteleggingEntitet tilrettelegging) {
+        return tilrettelegging.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElseGet(() -> tilrettelegging.getArbeidType().getKode());
+    }
+
+    private SvpTilretteleggingEntitet sjekkOmNyTlrGjelderSammeArbgiver(List<SvpTilretteleggingEntitet> nyeTilrettelegginger,
+                                                                         String eksAktivitet) {
+        return nyeTilrettelegginger
+            .stream()
+            .filter( ny -> gjelderSammeArbeidsforholdString(eksAktivitet, tilretteleggingNøkkel(ny)))
+            .findFirst()
+            .orElse(null);
+    }
+
+    private SvpTilretteleggingEntitet finnDenEksisterendeTlrSomSKalOppdateres(SvpTilretteleggingEntitet nyTilrettelegging, List<SvpTilretteleggingEntitet> eksisterendeTilrettelegginger) {
+        //Vi vet ikke hvilket arbeidsforhold vi skal oppdatere fordi vi ikke har informasjon om arbeidsforholdsid. Vi forutsetter at folk ønsker å jobbe mindre og mindre.
+        // Velger derfor å oppdatere tilretteleggingen som er høyere enn den nye fra søknad
+        var nyTlrMedHøyestArbProsent = nyTilrettelegging.getTilretteleggingFOMListe().stream().max(Comparator.comparing(TilretteleggingFOM::getStillingsprosent)).stream().findFirst().orElse(null);
+        if (nyTlrMedHøyestArbProsent != null) {
+            var høyesteArbProsentNyTlr = nyTlrMedHøyestArbProsent.getStillingsprosent();
+            SvpTilretteleggingEntitet valgtTilrettelegging = null;
+            BigDecimal lavesteEksArbprosent = BigDecimal.ZERO;
+
+            for (int teller = 0; teller < eksisterendeTilrettelegginger.size(); teller ++) {
+                var gjeldendeTlrFom = finnTlrFomMedLavestArbProsentStørreEnnNull(eksisterendeTilrettelegginger.get(teller));
+                var gjeldendeArbProsent = gjeldendeTlrFom.getStillingsprosent();
+
+                if (teller == 0 || gjeldendeArbProsent.compareTo(lavesteEksArbprosent) < 0 ) {
+                    if (nyTlrMedHøyestArbProsent.getFomDato().isAfter(gjeldendeTlrFom.getFomDato()) && gjeldendeArbProsent.compareTo(høyesteArbProsentNyTlr) > 0) {
+                        lavesteEksArbprosent = gjeldendeTlrFom.getStillingsprosent();
+                        valgtTilrettelegging = eksisterendeTilrettelegginger.get(teller);
+                    }
+                }
+            }
+            return valgtTilrettelegging;
+        }
+        //ny arbeidsprosent er høyere enn alle eksisterende - kan ikke oppdatere
+        return null;
+    }
+
+    private TilretteleggingFOM finnTlrFomMedLavestArbProsentStørreEnnNull(SvpTilretteleggingEntitet eksTilrlegging) {
+       return eksTilrlegging.getTilretteleggingFOMListe()
+           .stream()
+           .filter( tf -> tf.getStillingsprosent().compareTo(BigDecimal.ZERO) > 0)
+           .min(Comparator.comparing(TilretteleggingFOM::getStillingsprosent))
+           .stream()
+           .findFirst()
+           .orElse(null);
     }
 
     private SvpTilretteleggingEntitet oppdaterNyTlrMedEksHvisMulig(SvpTilretteleggingEntitet nyTlR,
@@ -440,10 +498,12 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
         List<TilretteleggingFOM> eksisterendeFOMSomSkalKopieres =  eksisterendeTlr.getTilretteleggingFOMListe().stream().filter(f -> f.getFomDato().isBefore(tidligsteNyFom)).toList();
 
-        eksisterendeFOMSomSkalKopieres.forEach(eksFom -> {
-                nyFomListe.add(new TilretteleggingFOM.Builder().fraEksisterende(eksFom)
-                    .medTidligstMottattDato(Optional.ofNullable(eksFom.getTidligstMotattDato()).orElseGet(() -> eksisterendeTlr.getMottattTidspunkt().toLocalDate())).build());
-        });
+        eksisterendeFOMSomSkalKopieres.forEach(eksFom ->
+            nyFomListe.add(new TilretteleggingFOM.Builder()
+                .fraEksisterende(eksFom)
+                .medTidligstMottattDato(Optional.ofNullable(eksFom.getTidligstMotattDato())
+                    .orElseGet(() -> eksisterendeTlr.getMottattTidspunkt().toLocalDate()))
+                .build()));
 
         nyFomListe.sort(Comparator.comparing(TilretteleggingFOM::getFomDato));
 
@@ -456,7 +516,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         }
     }
 
-    private List<SvpTilretteleggingEntitet> finnGjeldendeTilrettelegginger(Behandling behandling) {
+     private List<SvpTilretteleggingEntitet> finnGjeldendeTilrettelegginger(Behandling behandling) {
         var overstyrteTirettelegginger =  svangerskapspengerRepository.hentGrunnlag(behandling.getId())
             .map(SvpGrunnlagEntitet::getOverstyrteTilrettelegginger)
             .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
@@ -474,7 +534,9 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     private boolean gjelderSammeArbeidsforhold(SvpTilretteleggingEntitet gjeldendeTilrettelegging,
                                                SvpTilretteleggingEntitet nyTilrettelegging) {
         if (gjeldendeTilrettelegging.getArbeidsgiver().isPresent() && nyTilrettelegging.getArbeidsgiver().isPresent()) {
-            return Objects.equals(gjeldendeTilrettelegging.getArbeidsgiver(), nyTilrettelegging.getArbeidsgiver());
+            if (gjeldendeTilrettelegging.getInternArbeidsforholdRef().isPresent()) {
+                return Objects.equals(gjeldendeTilrettelegging.getArbeidsgiver(), nyTilrettelegging.getArbeidsgiver());
+            }
         }
         if (ArbeidType.FRILANSER.equals(gjeldendeTilrettelegging.getArbeidType()) && ArbeidType.FRILANSER.equals(
             nyTilrettelegging.getArbeidType())) {
@@ -482,6 +544,11 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         }
         return ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(gjeldendeTilrettelegging.getArbeidType())
             && ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(nyTilrettelegging.getArbeidType());
+    }
+
+    private boolean gjelderSammeArbeidsforholdString(String arbeidsgiverEksTlr,
+                                               String arbeidsgiverNyTlr) {
+        return Objects.equals(arbeidsgiverEksTlr, arbeidsgiverNyTlr);
     }
 
     private void oversettArbeidsforhold(SvpTilretteleggingEntitet.Builder builder, Arbeidsforhold arbeidsforhold) {
