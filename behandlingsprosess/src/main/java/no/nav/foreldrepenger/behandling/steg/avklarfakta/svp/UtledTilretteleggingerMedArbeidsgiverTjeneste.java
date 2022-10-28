@@ -45,8 +45,8 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
 
         var nyeTilrettelegginger = new ArrayList<SvpTilretteleggingEntitet>();
         var tilretteleggingerMedArbeidsgiver = opprinneligeTilrettelegginger.stream()
-                .filter(tilrettelegging -> tilrettelegging.getArbeidsgiver().isPresent())
-                .collect(Collectors.toList());
+            .filter(tilrettelegging -> tilrettelegging.getArbeidsgiver().isPresent())
+            .toList();
 
         if (tilretteleggingerMedArbeidsgiver.isEmpty()) {
             return nyeTilrettelegginger;
@@ -65,7 +65,17 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
                 .filter(yrkesaktivitet -> harAnsettelsesperiodeSomInkludererEllerTilkommerEtterStp(stp, yrkesaktivitet))
                 .collect(Collectors.toList());
 
-        for (var tilrettelegging : tilretteleggingerMedArbeidsgiver) {
+        var tilretteleggingerMedArbeidsforholdId = tilretteleggingerMedArbeidsgiver.stream()
+            .filter(t -> t.getInternArbeidsforholdRef().isPresent())
+            .toList();
+
+        nyeTilrettelegginger.addAll(tilretteleggingerMedArbeidsforholdId);
+
+        var tilretteleggingerUtenArbeidsforholdId = tilretteleggingerMedArbeidsgiver.stream()
+            .filter(t -> t.getInternArbeidsforholdRef().isEmpty())
+            .toList();
+
+        for (var tilrettelegging : tilretteleggingerUtenArbeidsforholdId) {
 
             var arbeidsgiver = tilrettelegging.getArbeidsgiver().orElseThrow(() -> new IllegalStateException(
                     "Utviklerfeil: Skal ikke kunne være her med en tilrettelegging uten arbeidsgiver for tilrettelegging: "
@@ -83,7 +93,6 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
             }
 
         }
-
         return nyeTilrettelegginger;
 
     }
