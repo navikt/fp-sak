@@ -57,7 +57,7 @@ public class VedtakAvstemPeriodeTask extends GenerellProsessTask {
             var task = ProsessTaskDataBuilder.forProsessTask(VedtakOverlappAvstemTask.class)
                 .medProperty(VedtakOverlappAvstemTask.LOG_SAKSNUMMER_KEY, f.getSaksnummer().getVerdi())
                 .medProperty(VedtakOverlappAvstemTask.LOG_HENDELSE_KEY, OverlappVedtak.HENDELSE_AVSTEM_PERIODE)
-                .medNesteKjøringEtter(baseline.plusSeconds(Math.abs(System.nanoTime()) % 127))
+                .medNesteKjøringEtter(baseline.plusSeconds(Math.abs(System.nanoTime()) % 239))
                 .medCallId(callId + "_" + f.getSaksnummer().getVerdi())
                 .medPrioritet(100)
                 .build();

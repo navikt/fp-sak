@@ -296,12 +296,12 @@ public class InformasjonssakRepository {
                      left join br_andel ba on ba.br_periode_id = brp.id
                      where ba.dagsats > 0  group by BEREGNINGSRESULTAT_FP_ID
                   ) on utbbrpid = brr.BG_BEREGNINGSRESULTAT_FP_ID
-            where beh.behandling_status in (:avsluttet) and beh.behandling_type in (:behtyper)
+            where saksnummer = :saksnr and beh.behandling_status in (:avsluttet) and beh.behandling_type in (:behtyper)
              and fs.til_infotrygd='N' and fs.ytelse_type in (:foreldrepenger) and minbrfom is not null
              and ( br.behandling_resultat_type in (:innvilgetyper) or utbminbrfom is not null )
             """;
 
-    public List<OverlappData> finnSakerSisteVedtakInnenIntervallMedSisteVedtak(LocalDate fom, LocalDate tom, String saksnummer) {
+    public List<OverlappData> finnSakerSisteVedtakInnenIntervallMedSisteVedtak(String saksnummer) {
         /*
          * Plukker saksnummer, siste ytelsebehandling, annenpart og første uttaksdato: -
          * Saker der det finnes et beregnignsresultat/TY med utbetalt periode - inklusive
@@ -311,22 +311,15 @@ public class InformasjonssakRepository {
          */
         var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
                 .collect(Collectors.toList());
-        Query query;
-        if (saksnummer == null) {
-            query = entityManager.createNativeQuery(QUERY_AVSTEMMING_FOR + " and fs.opprettet_tid >= :fomdato and fs.opprettet_tid < :tomdato "); //$NON-NLS-1$
-            query.setParameter("fomdato", fom); //$NON-NLS-1$
-            query.setParameter("tomdato", tom.plusDays(1)); //$NON-NLS-1$
-        } else {
-            query = entityManager.createNativeQuery(QUERY_AVSTEMMING_FOR + " and saksnummer = :saksnr "); //$NON-NLS-1$
-            query.setParameter("saksnr", saksnummer); //$NON-NLS-1$
-        }
-        query.setParameter("foreldrepenger", List.of(FagsakYtelseType.FORELDREPENGER.getKode(), FagsakYtelseType.SVANGERSKAPSPENGER.getKode())); //$NON-NLS-1$
-        query.setParameter("restyper", List.of(BehandlingResultatType.INNVILGET.getKode(), BehandlingResultatType.INGEN_ENDRING.getKode(),
+        var query = entityManager.createNativeQuery(QUERY_AVSTEMMING_FOR)
+            .setParameter("saksnr", saksnummer)
+            .setParameter("foreldrepenger", List.of(FagsakYtelseType.FORELDREPENGER.getKode(), FagsakYtelseType.SVANGERSKAPSPENGER.getKode()))
+            .setParameter("restyper", List.of(BehandlingResultatType.INNVILGET.getKode(), BehandlingResultatType.INGEN_ENDRING.getKode(),
                 BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(), BehandlingResultatType.FORELDREPENGER_SENERE.getKode(),
-            BehandlingResultatType.AVSLÅTT.getKode(), BehandlingResultatType.OPPHØR.getKode()));
-        query.setParameter("innvilgetyper", INNVILGET_TYPER); //$NON-NLS-1$
-        query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
-        query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode(), BehandlingType.REVURDERING.getKode())); //$NON-NLS-1$
+                BehandlingResultatType.AVSLÅTT.getKode(), BehandlingResultatType.OPPHØR.getKode()))
+            .setParameter("innvilgetyper", INNVILGET_TYPER)
+            .setParameter("avsluttet", avsluttendeStatus)
+            .setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode(), BehandlingType.REVURDERING.getKode())); //$NON-NLS-1$
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return toOverlappData(resultatList);
@@ -394,13 +387,13 @@ public class InformasjonssakRepository {
                 .collect(Collectors.toList());
         Query query;
         if (saksnummer == null) {
-            query = entityManager.createNativeQuery(QUERY_AVSTEMMING_UTBET2022 + " and fs.opprettet_tid >= :fomdato and fs.opprettet_tid < :tomdato "); //$NON-NLS-1$
+            query = entityManager.createNativeQuery(QUERY_AVSTEMMING_ANDRE + " and fs.opprettet_tid >= :fomdato and fs.opprettet_tid < :tomdato "); //$NON-NLS-1$
             query.setParameter("fomdato", fom); //$NON-NLS-1$
             query.setParameter("tomdato", tom.plusDays(1)); //$NON-NLS-1$
-            query.setParameter("datototo", LocalDate.of(2021,12,24)); //$NON-NLS-1$
+            //query.setParameter("datototo", LocalDate.of(2021,12,24)); //$NON-NLS-1$
         } else {
-            query = entityManager.createNativeQuery(QUERY_AVSTEMMING_UTBET2022 + " and saksnummer = :saksnr "); //$NON-NLS-1$
-            query.setParameter("datototo", LocalDate.of(2021,12,24)); //$NON-NLS-1$
+            query = entityManager.createNativeQuery(QUERY_AVSTEMMING_ANDRE + " and saksnummer = :saksnr "); //$NON-NLS-1$
+            //query.setParameter("datototo", LocalDate.of(2021,12,24)); //$NON-NLS-1$
             query.setParameter("saksnr", saksnummer); //$NON-NLS-1$
         }
         query.setParameter("foreldrepenger", List.of(FagsakYtelseType.FORELDREPENGER.getKode(), FagsakYtelseType.SVANGERSKAPSPENGER.getKode())); //$NON-NLS-1$

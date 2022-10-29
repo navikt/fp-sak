@@ -217,14 +217,14 @@ public class ForvaltningUttrekkRestTjeneste {
         var baseline = LocalDateTime.now();
         if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
         var callId = MDCOperations.getCallId();
-        long suffix = 1;
+        long suffix = 0;
         var gruppe = new ProsessTaskGruppe();
         List<ProsessTaskData> tasks = new ArrayList<>();
         for (var betweendays = fom; !betweendays.isAfter(tom); betweendays = betweendays.plusDays(1)) {
             var prosessTaskData = ProsessTaskDataBuilder.forProsessTask(VedtakAvstemPeriodeTask.class)
                 .medProperty(VedtakAvstemPeriodeTask.LOG_FOM_KEY, betweendays.toString())
                 .medProperty(VedtakAvstemPeriodeTask.LOG_TOM_KEY, betweendays.toString())
-                .medNesteKjøringEtter(baseline.plusSeconds(suffix * 125))
+                .medNesteKjøringEtter(baseline.plusSeconds(suffix * 240))
                 .medCallId(callId + "_" + suffix)
                 .medPrioritet(100)
                 .build();
