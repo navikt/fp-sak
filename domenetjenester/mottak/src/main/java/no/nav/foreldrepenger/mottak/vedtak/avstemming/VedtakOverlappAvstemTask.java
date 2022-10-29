@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.vedtak.avstemming;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -50,22 +49,20 @@ public class VedtakOverlappAvstemTask extends GenerellProsessTask {
         var saksnr = prosessTaskData.getPropertyValue(LOG_SAKSNUMMER_KEY);
         var hendelse = Optional.ofNullable(prosessTaskData.getPropertyValue(LOG_HENDELSE_KEY)).orElse(OverlappVedtak.HENDELSE_AVSTEM_SAK);
         if (saksnr != null) {
-            loggOverlappFOR(null, null, saksnr, hendelse);
-            loggOverlappOTH(null, null, saksnr, hendelse);
+            loggOverlappFOR(saksnr, hendelse);
+            loggOverlappOTH(saksnr, hendelse);
         }
     }
 
-    private void loggOverlappFOR(LocalDate fom, LocalDate tom, String saksnr, String hendelse) {
-        if (fom != null) LOG.info("FPSAK DETEKTOR FPSV PERIODE {} til {}", fom, tom);
+    private void loggOverlappFOR(String saksnr, String hendelse) {
         // Finner alle behandlinger med vedtaksdato innen intervall (evt med gitt saksnummer) - tidligste dato = Første uttaksdato
-        var saker = informasjonssakRepository.finnSakerSisteVedtakInnenIntervallMedSisteVedtak(fom, tom, saksnr);
+        var saker = informasjonssakRepository.finnSakerSisteVedtakInnenIntervallMedSisteVedtak(saksnr);
         saker.forEach(o -> loggertjeneste.vurderOglagreEventueltOverlapp(hendelse, o));
     }
 
-    private void loggOverlappOTH(LocalDate fom, LocalDate tom, String saksnr, String hendelse) {
-        if (fom != null) LOG.info("FPSAK DETEKTOR SPBS PERIODE {} til {}", fom, tom);
+    private void loggOverlappOTH(String saksnr, String hendelse) {
         // Finner alle behandlinger med vedtaksdato innen intervall (evt med gitt saksnummer) - tidligste dato = tidligeste dato med utbetaling
-        var saker = informasjonssakRepository.finnSakerSisteVedtakInnenIntervallMedKunUtbetalte(fom, tom, saksnr);
+        var saker = informasjonssakRepository.finnSakerSisteVedtakInnenIntervallMedKunUtbetalte(null, null, saksnr);
         saker.forEach(o -> syklogger.loggOverlappForAvstemming(hendelse, o.getBehandlingId(), o.getSaksnummer(), o.getAktørId()));
     }
 

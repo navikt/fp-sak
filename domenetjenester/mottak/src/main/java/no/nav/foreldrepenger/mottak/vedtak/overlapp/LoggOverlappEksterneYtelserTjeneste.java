@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -51,7 +50,6 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.spokelse.Spøkelse;
 import no.nav.vedtak.felles.integrasjon.spokelse.SykepengeVedtak;
-import no.nav.vedtak.konfig.Tid;
 
 /*
 Når Foreldrepenger-sak, enten førstegang eller revurdering, innvilges sjekker vi for overlapp med pleiepenger eller sykepenger i Infortrygd på personen.
@@ -158,14 +156,10 @@ public class LoggOverlappEksterneYtelserTjeneste {
                                                                  AktørId aktørId) {
         var ytelseType = behandlingRepository.hentBehandling(behandlingId).getFagsakYtelseType();
         var perioderFpGradert = getTidslinjeForBehandling(behandlingId, ytelseType);
-        if (perioderFpGradert.getLocalDateIntervals().isEmpty()) {
+        if (perioderFpGradert.isEmpty()) {
             return Collections.emptyList();
         }
-        var tidligsteUttakFP = perioderFpGradert.getLocalDateIntervals()
-            .stream()
-            .map(LocalDateInterval::getFomDato)
-            .min(Comparator.naturalOrder())
-            .orElse(Tid.TIDENES_ENDE);
+        var tidligsteUttakFP = perioderFpGradert.getMinLocalDate();
 
         var ident = getFnrFraAktørId(aktørId);
         List<OverlappVedtak.Builder> overlappene = new ArrayList<>();
