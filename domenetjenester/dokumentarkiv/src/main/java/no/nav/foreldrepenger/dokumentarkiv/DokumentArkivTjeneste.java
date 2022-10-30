@@ -207,6 +207,10 @@ public class DokumentArkivTjeneste {
         return dokumenttyper;
     }
 
+    void emptyCache(String key) {
+        SAK_JOURNAL_CACHE.remove(key);
+    }
+
     private Set<DokumentTypeId> ekstraherJournalpostDTID(ArkivJournalPost jpost) {
         Set<DokumentTypeId> alle = new HashSet<>();
         dokumentTypeFraTittel(jpost.getBeskrivelse()).ifPresent(alle::add);
