@@ -17,10 +17,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold.Inntekt
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsgrunnlag.BeregningsgrunnlagRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.BeregningsresultatRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.FeriepengegrunnlagRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.InnsynRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.KlageRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.KontrollRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag.OppdragRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.opptjening.OpptjeningRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonRestTjeneste;
@@ -28,7 +26,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.svp.Svangerskapspenger
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.SøknadRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.TilbakekrevingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.TotrinnskontrollRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
@@ -59,7 +56,6 @@ import no.nav.foreldrepenger.web.app.tjenester.integrasjonstatus.Integrasjonstat
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.KodeverkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.nokkeltall.LosNøkkeltallRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.InitielleLinksRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.NavAnsattRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.VedtakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.VedtakJsonFeedRestTjeneste;
 import no.nav.foreldrepenger.web.server.abac.PipRestTjeneste;
@@ -71,14 +67,12 @@ public class RestImplementationClasses {
         Set<Class<?>> classes = new HashSet<>();
         classes.add(InitielleLinksRestTjeneste.class);
         classes.add(FagsakRestTjeneste.class);
-        classes.add(NavAnsattRestTjeneste.class);
         classes.add(BehandlingRestTjeneste.class);
         classes.add(BehandlingRestTjenestePathHack1.class);
         classes.add(BehandlingBackendRestTjeneste.class);
         classes.add(BeregningsgrunnlagRestTjeneste.class);
         classes.add(AksjonspunktRestTjeneste.class);
         classes.add(DokumentRestTjeneste.class);
-        classes.add(HistorikkRestTjeneste.class);
         classes.add(ForvaltningBehandlingskontrollRestTjeneste.class);
         classes.add(KodeverkRestTjeneste.class);
         classes.add(BatchRestTjeneste.class);
@@ -90,7 +84,6 @@ public class RestImplementationClasses {
         classes.add(BeregningsresultatRestTjeneste.class);
         classes.add(FeriepengegrunnlagRestTjeneste.class);
         classes.add(VedtakRestTjeneste.class);
-        classes.add(TotrinnskontrollRestTjeneste.class);
         classes.add(PersonRestTjeneste.class);
         classes.add(YtelsefordelingRestTjeneste.class);
         classes.add(SøknadRestTjeneste.class);
@@ -108,7 +101,6 @@ public class RestImplementationClasses {
         classes.add(AktoerRestTjeneste.class);
         classes.add(OppdragRestTjeneste.class);
         classes.add(SvangerskapspengerRestTjeneste.class);
-        classes.add(KontrollRestTjeneste.class);
         classes.add(IAYRegisterdataCallbackRestTjeneste.class);
         classes.add(VergeRestTjeneste.class);
         classes.add(ForvaltningBeregningRestTjeneste.class);

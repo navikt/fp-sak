@@ -32,14 +32,12 @@ import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDok
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,11 +59,7 @@ public class BehandlingRestTjenesteESTest {
     @Mock
     private BehandlingDokumentRepository behandlingDokumentRepository;
     @Mock
-    private VergeTjeneste vergeTjeneste;
-    @Mock
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
-    @Mock
-    private TotrinnTjeneste totrinnTjeneste;
     @Mock
     private BeregningTjeneste beregningTjeneste;
 
@@ -86,12 +80,9 @@ public class BehandlingRestTjenesteESTest {
             behandlingDokumentRepository, relatertBehandlingTjeneste,
             new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), null, null);
 
-        vergeTjeneste = mock(VergeTjeneste.class);
         henleggBehandlingTjeneste = mock(HenleggBehandlingTjeneste.class);
-        totrinnTjeneste = mock(TotrinnTjeneste.class);
         behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningTjeneste, behandlingsoppretterTjeneste,
-            behandlingOpprettingTjeneste, behandlingsprosessTjenste, fagsakTjeneste, vergeTjeneste,
-            henleggBehandlingTjeneste, behandlingDtoTjeneste, relatertBehandlingTjeneste, totrinnTjeneste);
+            behandlingOpprettingTjeneste, behandlingsprosessTjenste, fagsakTjeneste, henleggBehandlingTjeneste, behandlingDtoTjeneste);
     }
 
     @Test

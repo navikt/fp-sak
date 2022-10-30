@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -66,10 +65,6 @@ public class AksjonspunktRestTjeneste {
     public static final String AKSJONSPUNKT_PATH = BASE_PATH + AKSJONSPUNKT_PART_PATH;
     private static final String AKSJONSPUNKT_V2_PART_PATH = "/aksjonspunkt-v2";
     public static final String AKSJONSPUNKT_V2_PATH = BASE_PATH + AKSJONSPUNKT_V2_PART_PATH;
-    private static final String AKSJONSPUNKT_RISIKO_PART_PATH = "/aksjonspunkt/risiko";
-    public static final String AKSJONSPUNKT_RISIKO_PATH = BASE_PATH + AKSJONSPUNKT_RISIKO_PART_PATH;
-    private static final String AKSJONSPUNKT_KONTROLLER_REVURDERING_PART_PATH = "/aksjonspunkt/kontroller-revurdering";
-    public static final String AKSJONSPUNKT_KONTROLLER_REVURDERING_PATH = BASE_PATH + AKSJONSPUNKT_KONTROLLER_REVURDERING_PART_PATH;
 
     private AksjonspunktTjeneste applikasjonstjeneste;
     private BehandlingRepository behandlingRepository;
@@ -109,48 +104,6 @@ public class AksjonspunktRestTjeneste {
         cc.setNoStore(true);
         cc.setMaxAge(0);
         return Response.ok(dto).cacheControl(cc).build();
-    }
-
-    @GET
-    @Path(AKSJONSPUNKT_RISIKO_PART_PATH)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent risikoaksjonspunkt for en behandling", tags = "aksjonspunkt", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = AksjonspunktDto.class), mediaType = MediaType.APPLICATION_JSON))
-    })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response getRisikoAksjonspunkt(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        var dto = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, Collections.emptyList())
-                .stream()
-                .filter(ap -> AksjonspunktDefinisjon.VURDER_FARESIGNALER.equals(ap.getDefinisjon()))
-                .findFirst()
-                .orElse(null);
-
-        var cc = new CacheControl();
-        cc.setNoCache(true);
-        cc.setNoStore(true);
-        cc.setMaxAge(0);
-        return Response.ok(dto).cacheControl(cc).build();
-    }
-
-    @GET
-    @Path(AKSJONSPUNKT_KONTROLLER_REVURDERING_PART_PATH)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Har behandling åpent kontroller revurdering aksjonspunkt", tags = "aksjonspunkt", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Boolean.class), mediaType = MediaType.APPLICATION_JSON))
-    })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response erKontrollerRevurderingAksjonspunktÅpent(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        var harÅpentAksjonspunkt = behandling
-                .harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST);
-        var cc = new CacheControl();
-        cc.setNoCache(true);
-        cc.setNoStore(true);
-        cc.setMaxAge(0);
-        return Response.ok(harÅpentAksjonspunkt).cacheControl(cc).build();
     }
 
     /**

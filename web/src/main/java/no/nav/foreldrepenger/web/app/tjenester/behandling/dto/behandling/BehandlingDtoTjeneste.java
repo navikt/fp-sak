@@ -68,7 +68,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.InnsynRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.KlageRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktMellomlagringDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.KontrollRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.opptjening.OpptjeningRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.svp.SvangerskapspengerRestTjeneste;
@@ -77,7 +76,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.Tilbake
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAktivitetskravDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.TotrinnskontrollRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
@@ -158,24 +156,9 @@ public class BehandlingDtoTjeneste {
         dto.setSpråkkode(getSpråkkode(behandling, søknadRepository, behandlingRepository));
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
 
-        // Felles for alle behandlingstyper
-        dto.leggTil(get(BehandlingRestTjeneste.RETTIGHETER_PATH, "behandling-rettigheter", uuidDto));
-
         if (behandling.erYtelseBehandling()) {
             dto.leggTil(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
             dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
-        }
-
-        if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
-            dto.leggTil(get(KontrollRestTjeneste.KONTROLLRESULTAT_V2_PATH, "kontrollresultat", uuidDto));
-            dto.leggTil(get(AksjonspunktRestTjeneste.AKSJONSPUNKT_RISIKO_PATH, "risikoklassifisering-aksjonspunkt", uuidDto));
-        }
-
-        if (BehandlingType.REVURDERING.equals(behandling.getType())) {
-            dto.leggTil(
-                get(AksjonspunktRestTjeneste.AKSJONSPUNKT_KONTROLLER_REVURDERING_PATH, "har-apent-kontroller-revurdering-aksjonspunkt",
-                    uuidDto));
-            dto.leggTil(get(BeregningsresultatRestTjeneste.HAR_SAMME_RESULTAT_PATH, "har-samme-resultat", uuidDto));
         }
 
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
@@ -185,15 +168,11 @@ public class BehandlingDtoTjeneste {
         if (!BehandlingType.INNSYN.equals(behandling.getType())) {
             // Totrinnsbehandling
             if (BehandlingStatus.FATTER_VEDTAK.equals(behandling.getStatus())) {
-                dto.leggTil(get(TotrinnskontrollRestTjeneste.ARSAKER_PATH, "totrinnskontroll-arsaker", uuidDto));
                 dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_PATH, "bekreft-totrinnsaksjonspunkt", uuidDto));
-            } else if (BehandlingStatus.UTREDES.equals(behandling.getStatus())) {
-                dto.leggTil(get(TotrinnskontrollRestTjeneste.ARSAKER_READ_ONLY_PATH, "totrinnskontroll-arsaker-readOnly", uuidDto));
             }
         }
 
         // Brev
-        dto.leggTil(get(BrevRestTjeneste.BREV_MALER_PATH, "fpsak-brev-maler", uuidDto));
         dto.leggTil(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill", new BestillBrevDto()));
         dto.leggTil(ResourceLink.get("/fpformidling/api/brev/maler", "brev-maler", uuidDto));
 
@@ -349,10 +328,6 @@ public class BehandlingDtoTjeneste {
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.MEDLEMSKAP_V2_PATH, "soeker-medlemskap-v2", uuidDto));
-
-        if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
-            dto.leggTil(get(KontrollRestTjeneste.KONTROLLRESULTAT_V2_PATH, "kontrollresultat", uuidDto));
-        }
 
         if (behandlingHarVergeAksjonspunkt(behandling)) {
             dto.leggTil(get(PersonRestTjeneste.VERGE_PATH, "soeker-verge", uuidDto));

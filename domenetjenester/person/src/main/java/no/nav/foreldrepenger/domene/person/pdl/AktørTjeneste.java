@@ -25,11 +25,11 @@ import no.nav.vedtak.util.LRUCache;
 @ApplicationScoped
 public class AktørTjeneste {
 
-    private static final int DEFAULT_CACHE_SIZE = 1000;
+    private static final int DEFAULT_CACHE_SIZE = 3000;
     private static final long DEFAULT_CACHE_TIMEOUT = TimeUnit.MILLISECONDS.convert(8, TimeUnit.HOURS);
 
-    private LRUCache<AktørId, PersonIdent> cacheAktørIdTilIdent;
-    private LRUCache<PersonIdent, AktørId> cacheIdentTilAktørId;
+    private static final LRUCache<AktørId, PersonIdent> CACHE_AKTØR_ID_TIL_IDENT = new LRUCache<>(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT);
+    private static final LRUCache<PersonIdent, AktørId> CACHE_IDENT_TIL_AKTØR_ID = new LRUCache<>(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT);
 
     private Persondata pdlKlient;
 
@@ -40,13 +40,12 @@ public class AktørTjeneste {
     @Inject
     public AktørTjeneste(Persondata pdlKlient) {
         this.pdlKlient = pdlKlient;
-        this.cacheAktørIdTilIdent = new LRUCache<>(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT);
-        this.cacheIdentTilAktørId = new LRUCache<>(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT);
     }
 
     public Optional<AktørId> hentAktørIdForPersonIdent(PersonIdent personIdent) {
-        var fraCache = cacheIdentTilAktørId.get(personIdent);
+        var fraCache = CACHE_IDENT_TIL_AKTØR_ID.get(personIdent);
         if (fraCache != null) {
+            CACHE_IDENT_TIL_AKTØR_ID.put(personIdent, fraCache);
             return Optional.of(fraCache);
         }
         var request = new HentIdenterQueryRequest();
@@ -70,14 +69,15 @@ public class AktørTjeneste {
         }
 
         var aktørId = identliste.getIdenter().stream().findFirst().map(IdentInformasjon::getIdent).map(AktørId::new);
-        aktørId.ifPresent(a -> cacheIdentTilAktørId.put(personIdent, a)); // Kan ikke legge til i cache aktørId -> ident ettersom ident kan være
-                                                                          // ikke-current
+        aktørId.ifPresent(a -> CACHE_IDENT_TIL_AKTØR_ID.put(personIdent, a)); // Kan ikke legge til i cache aktørId -> ident ettersom ident kan være ikke-current
         return aktørId;
     }
 
     public Optional<PersonIdent> hentPersonIdentForAktørId(AktørId aktørId) {
-        var fraCache = cacheAktørIdTilIdent.get(aktørId);
+        var fraCache = CACHE_AKTØR_ID_TIL_IDENT.get(aktørId);
         if (fraCache != null) {
+            CACHE_AKTØR_ID_TIL_IDENT.put(aktørId, fraCache);
+            CACHE_IDENT_TIL_AKTØR_ID.put(fraCache, aktørId); // OK her, men ikke over ettersom dette er gjeldende mapping
             return Optional.of(fraCache);
         }
         var request = new HentIdenterQueryRequest();
@@ -102,8 +102,8 @@ public class AktørTjeneste {
 
         var ident = identliste.getIdenter().stream().findFirst().map(IdentInformasjon::getIdent).map(PersonIdent::new);
         ident.ifPresent(i -> {
-            cacheAktørIdTilIdent.put(aktørId, i);
-            cacheIdentTilAktørId.put(i, aktørId); // OK her, men ikke over ettersom dette er gjeldende mapping
+            CACHE_AKTØR_ID_TIL_IDENT.put(aktørId, i);
+            CACHE_IDENT_TIL_AKTØR_ID.put(i, aktørId); // OK her, men ikke over ettersom dette er gjeldende mapping
         });
         return ident;
     }

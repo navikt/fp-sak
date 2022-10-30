@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 public record PersonDto(String aktørId, String navn, String fødselsnummer, NavBrukerKjønn kjønn, String diskresjonskode,
                         LocalDate fødselsdato, LocalDate dødsdato, @Deprecated(forRemoval = true) LocalDate dodsdato, Språkkode språkkode) {
 
+
     @Override
     public String toString() {
         return "PersonDto{fødselsdato=" + fødselsdato + "}";

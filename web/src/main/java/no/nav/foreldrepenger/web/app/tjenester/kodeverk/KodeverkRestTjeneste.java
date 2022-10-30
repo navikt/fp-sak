@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.kodeverk;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -20,7 +19,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.v3.oas.annotations.Operation;
-import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
@@ -36,7 +34,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 public class KodeverkRestTjeneste {
 
     public static final String KODERVERK_PATH = "/kodeverk";
-    public static final String ENHETER_PATH = KODERVERK_PATH + "/behandlende-enheter";
 
     private HentKodeverkTjeneste hentKodeverkTjeneste; // NOSONAR
 
@@ -67,14 +64,6 @@ public class KodeverkRestTjeneste {
                 .type(MediaType.APPLICATION_JSON)
                 .cacheControl(cc)
                 .build();
-    }
-
-    @GET
-    @Path("/behandlende-enheter")
-    @Operation(description = "Henter liste over behandlende enheter", tags = "kodeverk")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public List<OrganisasjonsEnhet> hentBehandlendeEnheter() {
-        return hentKodeverkTjeneste.hentBehandlendeEnheter();
     }
 
     private String getKodeverkRawJson() throws JsonProcessingException {

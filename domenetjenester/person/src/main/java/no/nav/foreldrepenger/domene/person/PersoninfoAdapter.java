@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.person;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -30,11 +31,14 @@ import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
 public class PersoninfoAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersoninfoAdapter.class);
+
+    private static final LRUCache<AktørId, Boolean> MANGLER_ADRESSE = new LRUCache<>(1000, TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS));
 
     private AktørTjeneste aktørConsumer;
     private FødselTjeneste fødselTjeneste;
@@ -71,7 +75,11 @@ public class PersoninfoAdapter {
     }
 
     public boolean sjekkOmBrukerManglerAdresse(AktørId aktørId) {
-        return aktørConsumer.hentPersonIdentForAktørId(aktørId).map(i -> personinfoTjeneste.brukerManglerAdresse(i)).orElse(true);
+        var manglerAdresse = Optional.ofNullable(MANGLER_ADRESSE.get(aktørId))
+            .or(() -> aktørConsumer.hentPersonIdentForAktørId(aktørId).map(i -> personinfoTjeneste.brukerManglerAdresse(i)))
+            .orElse(Boolean.TRUE);
+        MANGLER_ADRESSE.put(aktørId, manglerAdresse);
+        return manglerAdresse;
     }
 
     private Personinfo hentKjerneinformasjon(AktørId aktørId, PersonIdent personIdent) {

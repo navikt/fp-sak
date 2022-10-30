@@ -22,19 +22,15 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBackendDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.MedlemDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.MedlemV2Dto;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -55,8 +51,6 @@ public class PersonRestTjeneste {
     public static final String MEDLEMSKAP_V2_PATH = BASE_PATH + MEDLEMSKAP_V2_PART_PATH; // NOSONAR TFP-2234
     private static final String PERSONOVERSIKT_PART_PATH = "/person/personoversikt";
     public static final String PERSONOVERSIKT_PATH = BASE_PATH + PERSONOVERSIKT_PART_PATH; // NOSONAR TFP-2234
-    private static final String HAR_IKKE_ADRESSE_PART_PATH = "/person/har-ikke-adresse";
-    public static final String HAR_IKKE_ADRESSE_PATH = BASE_PATH + HAR_IKKE_ADRESSE_PART_PATH; // NOSONAR TFP-2234
     private static final String PERSONOPPLYSNINGER_TILBAKE_PART_PATH = "/person/personopplysninger-tilbake";
     public static final String PERSONOPPLYSNINGER_TILBAKE_PATH = BASE_PATH + PERSONOPPLYSNINGER_TILBAKE_PART_PATH; // NOSONAR TFP-2234
 
@@ -66,8 +60,6 @@ public class PersonRestTjeneste {
     private PersonopplysningDtoPersonIdentTjeneste personopplysningFnrFinder;
     private PersonopplysningDtoTjeneste personopplysningDtoTjeneste;
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
-    private AdresseTjeneste adresseTjeneste;
-    private FagsakTjeneste fagsakTjeneste;
 
     public PersonRestTjeneste() {
         // for CDI proxy
@@ -79,17 +71,13 @@ public class PersonRestTjeneste {
             MedlemDtoTjeneste medlemTjeneste,
             PersonopplysningDtoTjeneste personopplysningTjeneste,
             PersonopplysningDtoPersonIdentTjeneste personopplysningFnrFinder,
-            BehandlingsprosessTjeneste behandlingsprosessTjeneste,
-            AdresseTjeneste adresseTjeneste,
-            FagsakTjeneste fagsakTjeneste) {
+            BehandlingsprosessTjeneste behandlingsprosessTjeneste) {
         this.vergeRepository = vergeRepository;
         this.medlemDtoTjeneste = medlemTjeneste;
         this.vergeDtoTjenesteImpl = vergeTjeneste;
         this.personopplysningDtoTjeneste = personopplysningTjeneste;
         this.personopplysningFnrFinder = personopplysningFnrFinder;
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
-        this.adresseTjeneste = adresseTjeneste;
-        this.fagsakTjeneste = fagsakTjeneste;
     }
 
     @GET
@@ -145,20 +133,6 @@ public class PersonRestTjeneste {
         personoversiktDto.ifPresent(personopplysningFnrFinder::oppdaterMedPersonIdent);
 
         return personoversiktDto.orElse(null);
-    }
-
-    @GET
-    @Path(HAR_IKKE_ADRESSE_PART_PATH)
-    @Operation(description = "Sjekker om søker i behandling har en registrert adresse", tags = "behandling - person", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer true hvis brukeren mangler adresse ellers returneres false", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = boolean.class)))
-    })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public boolean harIkkeRegistrertAdresse(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-                                                @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
-
-        var saksnummer = new Saksnummer(s.getVerdi());
-        var fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false);
-        return adresseTjeneste.sjekkBrukerManglerAdresse(fagsak.orElseThrow().getAktørId());
     }
 
     @GET

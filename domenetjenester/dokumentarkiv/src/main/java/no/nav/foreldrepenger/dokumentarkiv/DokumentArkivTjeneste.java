@@ -53,8 +53,8 @@ public class DokumentArkivTjeneste {
     private static final VariantFormat VARIANT_FORMAT_ARKIV = VariantFormat.ARKIV;
     private static final Set<Journalstatus> EKSKLUDER_STATUS = Set.of(Journalstatus.UTGAAR);
 
-    private static final long CACHE_ELEMENT_LIVE_TIME_MS = TimeUnit.MILLISECONDS.convert(15, TimeUnit.MINUTES);
-    private LRUCache<String, List<ArkivJournalPost>> sakJournalCache = new LRUCache<>(500, CACHE_ELEMENT_LIVE_TIME_MS);
+    private static final long CACHE_ELEMENT_LIVE_TIME_MS = TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
+    private static final LRUCache<String, List<ArkivJournalPost>> SAK_JOURNAL_CACHE = new LRUCache<>(500, CACHE_ELEMENT_LIVE_TIME_MS);
 
 
     DokumentArkivTjeneste() {
@@ -104,13 +104,12 @@ public class DokumentArkivTjeneste {
         return arkivDokument.getTilgjengeligSom().contains(VARIANT_FORMAT_ARKIV);
     }
 
-    private List<ArkivJournalPost> hentAlleJournalposterForSakSjekkCache(Saksnummer saksnummer) {
-        if (sakJournalCache.get(saksnummer.getVerdi()) != null && !sakJournalCache.get(saksnummer.getVerdi()).isEmpty())
-            return sakJournalCache.get(saksnummer.getVerdi());
-        return hentAlleJournalposterForSak(saksnummer);
-    }
-
     public List<ArkivJournalPost> hentAlleJournalposterForSak(Saksnummer saksnummer) {
+        var cached = SAK_JOURNAL_CACHE.get(saksnummer.getVerdi());
+        if (cached != null && !cached.isEmpty()) {
+            SAK_JOURNAL_CACHE.put(saksnummer.getVerdi(), cached);
+            return cached;
+        }
         var query = new DokumentoversiktFagsakQueryRequest();
         query.setFagsak(new FagsakInput(saksnummer.getVerdi(), Fagsystem.FPSAK.getOffisiellKode()));
         query.setFoerste(1000);
@@ -125,7 +124,7 @@ public class DokumentArkivTjeneste {
             .map(this::mapTilArkivJournalPost)
             .collect(Collectors.toList());
 
-        sakJournalCache.put(saksnummer.getVerdi(), journalposter);
+        SAK_JOURNAL_CACHE.put(saksnummer.getVerdi(), journalposter);
         return journalposter;
     }
 
@@ -193,12 +192,12 @@ public class DokumentArkivTjeneste {
     public Set<DokumentTypeId> hentDokumentTypeIdForSak(Saksnummer saksnummer, LocalDate mottattEtterDato) {
         Set<DokumentTypeId> dokumenttyper = new HashSet<>();
         if (LocalDate.MIN.equals(mottattEtterDato)) {
-            dokumenttyper.addAll(hentAlleJournalposterForSakSjekkCache(saksnummer).stream()
+            dokumenttyper.addAll(hentAlleJournalposterForSak(saksnummer).stream()
                 .filter(ajp -> Kommunikasjonsretning.INN.equals(ajp.getKommunikasjonsretning()))
                 .flatMap(jp -> ekstraherJournalpostDTID(jp).stream())
                 .collect(Collectors.toSet()));
         } else {
-            dokumenttyper.addAll(hentAlleJournalposterForSakSjekkCache(saksnummer).stream()
+            dokumenttyper.addAll(hentAlleJournalposterForSak(saksnummer).stream()
                 .filter(ajp -> Kommunikasjonsretning.INN.equals(ajp.getKommunikasjonsretning()))
                 .filter(jpost -> jpost.getTidspunkt() != null && jpost.getTidspunkt().isAfter(mottattEtterDato.atStartOfDay()))
                 .flatMap(jp -> ekstraherJournalpostDTID(jp).stream())
