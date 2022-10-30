@@ -15,6 +15,7 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
@@ -80,7 +81,7 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
     @BeforeEach
     void setUp(EntityManager entityManager) {
         provider = new IAYRepositoryProvider(entityManager);
-        when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(lagVirksomhet(NAV_ORGNR));
+        Mockito.lenient().when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(lagVirksomhet(NAV_ORGNR));
         arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(personIdentTjeneste, virksomhetTjeneste);
         var arbeidsforholdAdministrasjonTjeneste = new ArbeidsforholdAdministrasjonTjeneste(
                 inntektsmeldingTjeneste, iayTjeneste);
