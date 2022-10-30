@@ -66,18 +66,5 @@ public class BrevRestTjenesteTest {
         verify(dokumentBehandlingTjenesteMock).erDokumentBestilt(any(), any());
         assertThat(harSendt).isTrue();
     }
-
-    @Test
-    public void hentMaler() {
-        // Arrange
-        when(dokumentBehandlingTjenesteMock.erDokumentBestilt(any(), any())).thenReturn(true);
-        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(mock(Behandling.class));
-
-        // Act
-        var maler = brevRestTjeneste.hentMaler(new UuidDto(UUID.randomUUID()));
-
-        // Assert
-        assertThat(maler).isNotEmpty();
-        assertThat(maler);
-    }
+    
 }
