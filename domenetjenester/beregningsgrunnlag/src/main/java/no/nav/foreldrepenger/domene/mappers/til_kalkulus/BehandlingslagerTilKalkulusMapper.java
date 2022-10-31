@@ -48,8 +48,11 @@ public class BehandlingslagerTilKalkulusMapper {
         builder.medGrunnbeløp(beregningsgrunnlagFraFpsak.getGrunnbeløp().getVerdi());
         builder.medOverstyring(beregningsgrunnlagFraFpsak.isOverstyrt());
         builder.medSkjæringstidspunkt(beregningsgrunnlagFraFpsak.getSkjæringstidspunkt());
-        if (beregningsgrunnlagFraFpsak.getSammenligningsgrunnlag().isPresent()) {
-            builder.medSammenligningsgrunnlag(BGMapperTilKalkulus.mapSammenligningsgrunnlag(beregningsgrunnlagFraFpsak.getSammenligningsgrunnlag().get()));
+
+        if (beregningsgrunnlagFraFpsak.getSammenligningsgrunnlag().isPresent() && beregningsgrunnlagFraFpsak.getSammenligningsgrunnlagPrStatusListe().isEmpty()) {
+            // Intill alle grunnlag er migrert til nytt sammenligningsgrunnlag må denne være her
+            BGMapperTilKalkulus.mapGammeltTilNyttSammenligningsgrunnlag(beregningsgrunnlagFraFpsak).
+                forEach(builder::leggTilSammenligningsgrunnlag);
         }
 
         //lister

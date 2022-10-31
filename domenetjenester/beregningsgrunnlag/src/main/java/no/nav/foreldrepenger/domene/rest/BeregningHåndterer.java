@@ -11,7 +11,7 @@ import no.nav.folketrygdloven.kalkulator.avklaringsbehov.FastsettBGTidsbegrenset
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.FastsettBeregningsgrunnlagATFLHåndterer;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetHåndterer;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.FordelBeregningsgrunnlagHåndterer;
-import no.nav.folketrygdloven.kalkulator.avklaringsbehov.VurderVarigEndretNyoppstartetSNHåndterer;
+import no.nav.folketrygdloven.kalkulator.avklaringsbehov.VurderVarigEndretEllerNyoppstartetHåndterer;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.AvklarteAktiviteterDto;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.BeregningsaktivitetLagreDto;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.FaktaBeregningLagreDto;
@@ -20,10 +20,10 @@ import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.FastsettBeregningsg
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.OverstyrBeregningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.VurderRefusjonBeregningsgrunnlagDto;
-import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.VurderVarigEndringEllerNyoppstartetSNDto;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.fordeling.FordelBeregningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.refusjon.VurderRefusjonBeregningsgrunnlagHåndterer;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.domene.input.KalkulatorHåndteringInputTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
@@ -133,11 +133,11 @@ public class BeregningHåndterer {
     }
 
     public void håndterVurderVarigEndretNyoppstartetSN(BeregningsgrunnlagInput input,
-                                                       VurderVarigEndringEllerNyoppstartetSNDto dto) {
+                                                       Integer bruttoBeregningsgrunnlag) {
         var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(
             input.getKoblingReferanse().getKoblingId(), input,
             AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE);
-        var resultat = VurderVarigEndretNyoppstartetSNHåndterer.håndter(håndterBeregningsgrunnlagInput, dto);
+        var resultat = VurderVarigEndretEllerNyoppstartetHåndterer.håndter(håndterBeregningsgrunnlagInput, bruttoBeregningsgrunnlag, AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
     }
 

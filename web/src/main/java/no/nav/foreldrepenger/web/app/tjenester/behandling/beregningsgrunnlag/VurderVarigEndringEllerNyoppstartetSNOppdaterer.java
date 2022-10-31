@@ -42,7 +42,7 @@ public class VurderVarigEndringEllerNyoppstartetSNOppdaterer implements Aksjonsp
             Objects.requireNonNull(dto.getBruttoBeregningsgrunnlag(), "næringsinntekt");
             var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(param.getRef().fagsakYtelseType());
             var input = tjeneste.lagInput(param.getRef().behandlingId());
-            beregningHåndterer.håndterVurderVarigEndretNyoppstartetSN(input, OppdatererDtoMapper.mapdVurderVarigEndringEllerNyoppstartetSNDto(dto));
+            beregningHåndterer.håndterVurderVarigEndretNyoppstartetSN(input, dto.getBruttoBeregningsgrunnlag());
         }
         vurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste.lagHistorikkInnslag(param, dto);
         return OppdateringResultat.utenOveropp();

@@ -65,10 +65,6 @@ public final class KalkulusTilBehandlingslagerMapper {
         leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.BRUKERS_STATUS);
         leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT);
         builder.medSkjæringstidspunkt(beregningsgrunnlagFraKalkulus.getSkjæringstidspunkt());
-        if (beregningsgrunnlagFraKalkulus.getSammenligningsgrunnlag() != null) {
-            builder.medSammenligningsgrunnlagOld(KalkulusTilBGMapper.mapSammenligningsgrunnlag(
-                beregningsgrunnlagFraKalkulus.getSammenligningsgrunnlag()));
-        }
 
         //lister
         beregningsgrunnlagFraKalkulus.getAktivitetStatuser()
