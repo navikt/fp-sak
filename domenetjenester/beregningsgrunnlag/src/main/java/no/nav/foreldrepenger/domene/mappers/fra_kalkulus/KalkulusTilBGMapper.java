@@ -11,7 +11,6 @@ import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.Beregningsgru
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAggregatDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAktørDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaArbeidsforholdDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagPrStatusDto;
 import no.nav.folketrygdloven.kalkulator.modell.typer.FaktaVurdering;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
@@ -33,15 +32,6 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType;
 public final class KalkulusTilBGMapper {
 
     private KalkulusTilBGMapper() {
-    }
-
-    public static Sammenligningsgrunnlag mapSammenligningsgrunnlag(SammenligningsgrunnlagDto fraKalkulus) {
-        var builder = Sammenligningsgrunnlag.builder();
-        builder.medAvvikPromille(fraKalkulus.getAvvikPromilleNy());
-        builder.medRapportertPrÅr(fraKalkulus.getRapportertPrÅr());
-        builder.medSammenligningsperiode(fraKalkulus.getSammenligningsperiodeFom(),
-            fraKalkulus.getSammenligningsperiodeTom());
-        return builder.build();
     }
 
     public static BeregningsgrunnlagAktivitetStatus.Builder mapAktivitetStatus(BeregningsgrunnlagAktivitetStatusDto fraKalkulus) {
@@ -95,8 +85,9 @@ public final class KalkulusTilBGMapper {
             case SAMMENLIGNING_AT_FL -> SammenligningsgrunnlagType.SAMMENLIGNING_AT_FL;
             case SAMMENLIGNING_SN -> SammenligningsgrunnlagType.SAMMENLIGNING_SN;
 
-            // Type som kun brukes i GUI for å vise gamle sammenligningsgrunnlag før migrering, skal ikke lagres entiteter med denne typen
-            case SAMMENLIGNING_ATFL_SN -> throw new IllegalStateException("FEIL: Mottok ugyldig sammenligningsgrunnlagtype " + fraKalkulus);
+            // SAMMENLIGNING_ATFL_SN: Type som kun brukes i GUI for å vise gamle sammenligningsgrunnlag før migrering, skal ikke lagres entiteter med denne typen
+            // SAMMENLIGNING_MIDL_INAKTIV: Type som ikke er relevant for fp / svp saker
+            case SAMMENLIGNING_ATFL_SN, SAMMENLIGNING_MIDL_INAKTIV -> throw new IllegalStateException("FEIL: Mottok ugyldig sammenligningsgrunnlagtype " + fraKalkulus);
         };
     }
 

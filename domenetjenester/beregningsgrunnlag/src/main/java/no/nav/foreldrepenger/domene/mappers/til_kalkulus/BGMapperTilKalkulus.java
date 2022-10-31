@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
 
+import java.util.Collections;
 import java.util.List;
 
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BGAndelArbeidsforholdDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagAktivitetStatusDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagPeriodeDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagPrStatusOgAndelDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagPrStatusDto;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
@@ -18,19 +18,37 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Utfall;
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
 import no.nav.foreldrepenger.domene.entiteter.SammenligningsgrunnlagPrStatus;
 
 
 public class BGMapperTilKalkulus {
-    public static SammenligningsgrunnlagDto mapSammenligningsgrunnlag(Sammenligningsgrunnlag fraFpsak) {
-        var builder = SammenligningsgrunnlagDto.builder();
-        builder.medAvvikPromilleNy(fraFpsak.getAvvikPromille());
-        builder.medRapportertPrÅr(fraFpsak.getRapportertPrÅr());
-        builder.medSammenligningsperiode(fraFpsak.getSammenligningsperiodeFom(), fraFpsak.getSammenligningsperiodeTom());
-        return builder.build();
+
+    public static List<SammenligningsgrunnlagPrStatusDto> mapGammeltTilNyttSammenligningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlagEntitet) {
+        if (beregningsgrunnlagEntitet.getSammenligningsgrunnlag().isEmpty()) {
+            return Collections.emptyList();
+        }
+        var gammeltSG = beregningsgrunnlagEntitet.getSammenligningsgrunnlag().get();
+        var sammenligningsgrunnlagType = finnSGType(beregningsgrunnlagEntitet);
+        return Collections.singletonList(SammenligningsgrunnlagPrStatusDto.builder()
+            .medSammenligningsgrunnlagType(sammenligningsgrunnlagType)
+            .medSammenligningsperiode(gammeltSG.getSammenligningsperiodeFom(), gammeltSG.getSammenligningsperiodeTom())
+            .medAvvikPromilleNy(gammeltSG.getAvvikPromille())
+            .medRapportertPrÅr(gammeltSG.getRapportertPrÅr())
+            .build());
+
+    }
+
+    private static SammenligningsgrunnlagType finnSGType(BeregningsgrunnlagEntitet beregningsgrunnlagEntitet) {
+        if (beregningsgrunnlagEntitet.getAktivitetStatuser().stream().anyMatch(st -> st.getAktivitetStatus().erSelvstendigNæringsdrivende())) {
+            return SammenligningsgrunnlagType.SAMMENLIGNING_SN;
+        } else if (beregningsgrunnlagEntitet.getAktivitetStatuser().stream().anyMatch(st -> st.getAktivitetStatus().erFrilanser()
+            || st.getAktivitetStatus().erArbeidstaker())) {
+            return SammenligningsgrunnlagType.SAMMENLIGNING_AT_FL;
+        }
+        throw new IllegalStateException("Klarte ikke utlede sammenligningstype for gammelt grunnlag. Aktivitetstatuser var " + beregningsgrunnlagEntitet.getAktivitetStatuser());
     }
 
     public static BeregningsgrunnlagAktivitetStatusDto.Builder mapAktivitetStatus(BeregningsgrunnlagAktivitetStatus fraFpsak) {

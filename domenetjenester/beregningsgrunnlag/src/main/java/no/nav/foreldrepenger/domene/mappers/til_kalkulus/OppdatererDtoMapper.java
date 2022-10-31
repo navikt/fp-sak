@@ -46,7 +46,6 @@ import no.nav.foreldrepenger.domene.rest.dto.VurderRefusjonAndelBeregningsgrunnl
 import no.nav.foreldrepenger.domene.rest.dto.VurderRefusjonBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderTidsbegrensetArbeidsforholdDto;
-import no.nav.foreldrepenger.domene.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagPeriodeDto;
@@ -89,10 +88,6 @@ public class OppdatererDtoMapper {
             a.getFastsattRefusjonFom(),
             a.getDelvisRefusjonPrMndFørStart()))
             .collect(Collectors.toList());
-    }
-
-    public static no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.VurderVarigEndringEllerNyoppstartetSNDto mapdVurderVarigEndringEllerNyoppstartetSNDto(VurderVarigEndringEllerNyoppstartetSNDto dto) {
-        return new no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.VurderVarigEndringEllerNyoppstartetSNDto(dto.getErVarigEndretNaering(), dto.getBruttoBeregningsgrunnlag());
     }
 
     public static List<no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.BeregningsaktivitetLagreDto> mapOverstyrBeregningsaktiviteterDto(List<BeregningsaktivitetLagreDto> beregningsaktivitetLagreDtoList) {

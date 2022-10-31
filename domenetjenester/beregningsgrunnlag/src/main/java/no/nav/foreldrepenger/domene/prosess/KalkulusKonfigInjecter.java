@@ -7,6 +7,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 /**
@@ -21,6 +22,7 @@ public class KalkulusKonfigInjecter {
 
     static {
         TOGGLES.put("automatisk-besteberegning", true);
+        TOGGLES.put("fremskyndet.regelendring.toggle", !Environment.current().isProd());
         // Kan fjernes når vi har fått gui for å vise lønnsendring
         TOGGLES.put("AUTOMATISK_BERGNE_LØNNENDRING", false);
     }
