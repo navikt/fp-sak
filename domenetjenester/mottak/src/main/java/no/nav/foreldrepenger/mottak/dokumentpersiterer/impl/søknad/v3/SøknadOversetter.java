@@ -407,52 +407,70 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         }
 
         //I mangel på endringssøknad forsøker vi å flette eventuelle eksisterende tilrettelegginger med nye hvis mulig
+        //Spesialhåndtering fordi vi på de eksisterende kan ha flere tilrettelgginger på samme arbeidsgiver, og vi må prøve å gjette hvilken av de som skal oppdateres (Dette kan inntreffe dersom bruker har flere arbeidsforhold hos samme arbeidsgvier. RefUtledTilretteleggingerMedArbeidsgiverTjeneste i Fakta steget)
         var eksisterendeTilrettelegginger = finnGjeldendeTilrettelegginger(behandling);
-        List<SvpTilretteleggingEntitet> nyeOgEksisterendeTilrettelegginger = new ArrayList<>(nyeTilrettelegginger);
+        List<SvpTilretteleggingEntitet> nyeOgEksisterendeTilrettelegginger = new ArrayList<>();
 
         if (!eksisterendeTilrettelegginger.isEmpty()) {
-            var tilretteleggingMap = eksisterendeTilrettelegginger.stream().collect(Collectors.groupingBy(this::tilretteleggingNøkkel));
+            var inputEksisterendeTilretteleggingMap = eksisterendeTilrettelegginger.stream().collect(Collectors.groupingBy(this::tilretteleggingNøkkel)); // Kortlevet
+            var inputNyeTilretteleggingMap = nyeTilrettelegginger.stream().collect(Collectors.groupingBy(this::tilretteleggingNøkkel)); // Kortlevet
 
-            for (var eksTilrettelegging : tilretteleggingMap.entrySet() ) {
-                SvpTilretteleggingEntitet nyTlrSammeArbgiverFunnet = sjekkOmNyTlrGjelderSammeArbgiver(nyeTilrettelegginger, eksTilrettelegging.getKey());
-                if (nyTlrSammeArbgiverFunnet != null ) {
-                    if (eksTilrettelegging.getValue().size() > 1) {
-                        //Legger til alle eksisterende for denne arbeidsgiveren da vi ikke enda vet hvilken som skal oppdateres
-                        nyeOgEksisterendeTilrettelegginger.addAll(eksTilrettelegging.getValue());
-                        var eksTlrSomskalOppdateres = finnDenEksisterendeTlrSomSKalOppdateres(nyTlrSammeArbgiverFunnet, eksTilrettelegging.getValue());
+            var heltNyeMap = nyeTilrettelegginger.stream()
+                .filter(nt -> inputEksisterendeTilretteleggingMap.get(tilretteleggingNøkkel(nt)) == null)
+                .collect(Collectors.groupingBy(this::tilretteleggingNøkkel));
+
+            if (!heltNyeMap.isEmpty()) {
+                heltNyeMap.forEach((key, value) -> nyeOgEksisterendeTilrettelegginger.addAll(value));
+            }
+            var bareGamleMap = eksisterendeTilrettelegginger.stream()
+                .filter(gt -> inputNyeTilretteleggingMap.get(tilretteleggingNøkkel(gt)) == null)
+                .collect(Collectors.groupingBy(this::tilretteleggingNøkkel));
+
+            if (!bareGamleMap.isEmpty()) {
+                bareGamleMap.forEach((key, value) -> value.forEach(tlr -> {
+                    var eksisterendeTilR = new SvpTilretteleggingEntitet.Builder(tlr).medKopiertFraTidligereBehandling(true).build();
+                    nyeOgEksisterendeTilrettelegginger.add(eksisterendeTilR);
+                }));
+            }
+
+            //nye tilrettelegginger vil alltid ha en tilrettelegging per arbeidsgiver, trenger ikke map
+            var fletteNyeListe = nyeTilrettelegginger.stream()
+                .filter(nt -> inputEksisterendeTilretteleggingMap.get(tilretteleggingNøkkel(nt)) != null)
+                .toList();
+
+            var fletteGamleMap = eksisterendeTilrettelegginger.stream()
+                .filter(nt -> inputNyeTilretteleggingMap.get(tilretteleggingNøkkel(nt)) != null)
+                .collect(Collectors.groupingBy(this::tilretteleggingNøkkel));
+
+            if (!fletteNyeListe.isEmpty()) {
+                for (var nyTlrSAmmeArbgiver : fletteNyeListe) {
+                    var eksisterendeSomskalflettes = fletteGamleMap.get(tilretteleggingNøkkel(nyTlrSAmmeArbgiver));
+                    if (eksisterendeSomskalflettes.size() > 1) {
+                        var eksTlrSomskalOppdateres = finnDenEksisterendeTlrSomSKalOppdateres(nyTlrSAmmeArbgiver, eksisterendeSomskalflettes);
                         if (eksTlrSomskalOppdateres != null) {
-                            //Fjerner den eksisterende som vi nå vet skal oppdateres med ny, og må også fjerne den nye siden vi nå vet at den skal flettes med en eksisterende
-                            nyeOgEksisterendeTilrettelegginger.remove(eksTlrSomskalOppdateres);
-                            nyeOgEksisterendeTilrettelegginger.remove(nyTlrSammeArbgiverFunnet);
-                            nyeOgEksisterendeTilrettelegginger.add(oppdaterNyTlrMedEksHvisMulig(nyTlrSammeArbgiverFunnet, eksTlrSomskalOppdateres));
+                            eksisterendeSomskalflettes.remove(eksTlrSomskalOppdateres);
+                            eksisterendeSomskalflettes.forEach(tlr -> nyeOgEksisterendeTilrettelegginger.add(new SvpTilretteleggingEntitet.Builder(tlr).medKopiertFraTidligereBehandling(true).build()));
+                            nyeOgEksisterendeTilrettelegginger.add(oppdaterNyTlrMedEksHvisMulig(nyTlrSAmmeArbgiver, eksTlrSomskalOppdateres));
+                        } else {
+                            //Legger inn nye og saksbehandler må legge inn eksisterende siden vi ikke vet hvordan vi skal flette nye
+                            nyeOgEksisterendeTilrettelegginger.add(nyTlrSAmmeArbgiver);
                         }
                     } else {
-                        nyeOgEksisterendeTilrettelegginger.remove(nyTlrSammeArbgiverFunnet);
-                        nyeOgEksisterendeTilrettelegginger.add(oppdaterNyTlrMedEksHvisMulig(nyTlrSammeArbgiverFunnet, eksTilrettelegging.getValue().get(0)));
+                        nyeOgEksisterendeTilrettelegginger.add(oppdaterNyTlrMedEksHvisMulig(nyTlrSAmmeArbgiver, eksisterendeSomskalflettes.get(0)));
                     }
-                } else {
-                    var eksisterendeTilR = new SvpTilretteleggingEntitet.Builder(eksTilrettelegging.getValue().get(0))
-                        .medKopiertFraTidligereBehandling(true).build();
-
-                    nyeOgEksisterendeTilrettelegginger.add(eksisterendeTilR);
                 }
             }
+        } else {
+            //ingen eksisterende
+            nyeOgEksisterendeTilrettelegginger.addAll(nyeTilrettelegginger);
         }
+
         var svpGrunnlag = svpBuilder.medOpprinneligeTilrettelegginger(nyeOgEksisterendeTilrettelegginger).build();
         svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
     }
 
     private String tilretteleggingNøkkel(SvpTilretteleggingEntitet tilrettelegging) {
         return tilrettelegging.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElseGet(() -> tilrettelegging.getArbeidType().getKode());
-    }
-
-    private SvpTilretteleggingEntitet sjekkOmNyTlrGjelderSammeArbgiver(List<SvpTilretteleggingEntitet> nyeTilrettelegginger,
-                                                                         String eksAktivitet) {
-        return nyeTilrettelegginger
-            .stream()
-            .filter( ny -> gjelderSammeArbeidsforholdString(eksAktivitet, tilretteleggingNøkkel(ny)))
-            .findFirst()
-            .orElse(null);
     }
 
     private SvpTilretteleggingEntitet finnDenEksisterendeTlrSomSKalOppdateres(SvpTilretteleggingEntitet nyTilrettelegging, List<SvpTilretteleggingEntitet> eksisterendeTilrettelegginger) {
@@ -508,9 +526,11 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         nyFomListe.sort(Comparator.comparing(TilretteleggingFOM::getFomDato));
 
         if (!eksisterendeFOMSomSkalKopieres.isEmpty()) {
-            return SvpTilretteleggingEntitet.Builder.fraEksisterende(nyTlR)
+            var nyBuilder =  SvpTilretteleggingEntitet.Builder.fraEksisterende(nyTlR)
                 .medBehovForTilretteleggingFom(nyFomListe.stream().map(TilretteleggingFOM::getFomDato).min(LocalDate::compareTo).orElse(null))
-                .medTilretteleggingFraDatoer(nyFomListe).build();
+                .medTilretteleggingFraDatoer(nyFomListe);
+            eksisterendeTlr.getInternArbeidsforholdRef().ifPresent(nyBuilder::medInternArbeidsforholdRef);
+            return nyBuilder.build();
         } else {
             return nyTlR;
         }
@@ -529,26 +549,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                 .orElse(Collections.emptyList());
         }
         return overstyrteTirettelegginger;
-    }
-
-    private boolean gjelderSammeArbeidsforhold(SvpTilretteleggingEntitet gjeldendeTilrettelegging,
-                                               SvpTilretteleggingEntitet nyTilrettelegging) {
-        if (gjeldendeTilrettelegging.getArbeidsgiver().isPresent() && nyTilrettelegging.getArbeidsgiver().isPresent()) {
-            if (gjeldendeTilrettelegging.getInternArbeidsforholdRef().isPresent()) {
-                return Objects.equals(gjeldendeTilrettelegging.getArbeidsgiver(), nyTilrettelegging.getArbeidsgiver());
-            }
-        }
-        if (ArbeidType.FRILANSER.equals(gjeldendeTilrettelegging.getArbeidType()) && ArbeidType.FRILANSER.equals(
-            nyTilrettelegging.getArbeidType())) {
-            return true;
-        }
-        return ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(gjeldendeTilrettelegging.getArbeidType())
-            && ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(nyTilrettelegging.getArbeidType());
-    }
-
-    private boolean gjelderSammeArbeidsforholdString(String arbeidsgiverEksTlr,
-                                               String arbeidsgiverNyTlr) {
-        return Objects.equals(arbeidsgiverEksTlr, arbeidsgiverNyTlr);
     }
 
     private void oversettArbeidsforhold(SvpTilretteleggingEntitet.Builder builder, Arbeidsforhold arbeidsforhold) {
