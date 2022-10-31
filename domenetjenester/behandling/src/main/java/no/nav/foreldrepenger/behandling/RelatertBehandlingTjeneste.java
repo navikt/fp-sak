@@ -41,10 +41,6 @@ public class RelatertBehandlingTjeneste {
         this.behandlingVedtakRepository = behandlingRepositoryProvider.getBehandlingVedtakRepository();
     }
 
-    public Optional<Behandling> hentAnnenPartsGjeldendeYtelsesBehandling(Saksnummer saksnummer) {
-        return hentAnnenPartsFagsak(saksnummer).map(Fagsak::getId).flatMap(behandlingRepository::hentSisteYtelsesBehandlingForFagsakId);
-    }
-
     public Optional<Behandling> hentAnnenPartsGjeldendeVedtattBehandling(Saksnummer saksnummer) {
         var annenPartsFagsak = hentAnnenPartsFagsak(saksnummer);
 

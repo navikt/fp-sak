@@ -25,6 +25,10 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
+/**
+ * Denne finnes utelukkende pga autotest
+ */
+
 @Path("/historikk")
 @ApplicationScoped
 @Transactional
