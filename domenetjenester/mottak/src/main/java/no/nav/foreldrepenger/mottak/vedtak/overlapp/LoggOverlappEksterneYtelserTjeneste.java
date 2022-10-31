@@ -359,12 +359,16 @@ public class LoggOverlappEksterneYtelserTjeneste {
             .map(Grunnlag::vedtak)
             .flatMap(Collection::stream)
             .filter(v -> v.utbetalingsgrad() > 0)
-            .map(p -> new LocalDateSegment<>(p.periode().fom(), p.periode().tom(),
+            .map(p -> new LocalDateSegment<>(normertIntervall(p.periode().fom(), p.periode().tom()),
                 new BigDecimal(p.utbetalingsgrad())))
             .collect(Collectors.toList());
 
         return new LocalDateTimeline<>(segmenter, LoggOverlappEksterneYtelserTjeneste::max).compress(this::like,
             this::kombiner);
+    }
+
+    private LocalDateInterval normertIntervall(LocalDate fom, LocalDate tom) {
+        return tom.isBefore(fom) ? new LocalDateInterval(tom, fom) : new LocalDateInterval(fom, tom);
     }
 
     private OverlappVedtak.Builder opprettOverlappBuilder(LocalDateInterval periode, BigDecimal utbetaling) {
