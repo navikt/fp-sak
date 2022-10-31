@@ -33,15 +33,16 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakReposito
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FastsettePeriodeResultat;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppgittPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Perioderesultattype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.SamtidigUttaksprosent;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UttakPeriodeAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.InnvilgetÅrsak;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 
 public class FastsettePerioderRegelResultatKonvertererTest {
 
@@ -82,8 +83,8 @@ public class FastsettePerioderRegelResultatKonvertererTest {
         var aktivitet = new UttakPeriodeAktivitet(
             AktivitetIdentifikator.forArbeid(new Orgnummer(arbeidsgiver.getIdentifikator()), null), Utbetalingsgrad.TEN,
             Trekkdager.ZERO, false);
-        var uttakOppgittPeriode = no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppgittPeriode.forUtsettelse(periodeFom, periodeTom,
-            UtsettelseÅrsak.ARBEID, periodeFom, periodeFom, null);
+        var uttakOppgittPeriode = OppgittPeriode.forUtsettelse(periodeFom, periodeTom,
+            UtsettelseÅrsak.ARBEID, periodeFom, periodeFom, null, null);
         var uttakPeriode = new UttakPeriode(uttakOppgittPeriode, Perioderesultattype.INNVILGET, null,
             InnvilgetÅrsak.UTSETTELSE_GYLDIG_PGA_100_PROSENT_ARBEID, null, Set.of(aktivitet), SamtidigUttaksprosent.ZERO, Stønadskontotype.MØDREKVOTE);
         var fastsetteResultat = List.of(new FastsettePeriodeResultat(uttakPeriode, null, null, null));

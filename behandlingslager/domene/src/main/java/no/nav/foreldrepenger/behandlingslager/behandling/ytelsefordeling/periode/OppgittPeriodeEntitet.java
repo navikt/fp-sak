@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
@@ -125,6 +126,10 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     private LocalDate mottattDato;
     @Column(name = "tidligst_mottatt_dato")
     private LocalDate tidligstMottattDato;
+
+    //TODO lagre i DB, denne brukes nå bare som en mellomlagring før migrering
+    @Transient
+    private DokumentasjonVurdering dokumentasjonVurdering;
 
     protected OppgittPeriodeEntitet() {
         // Hibernate
@@ -313,6 +318,14 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         return getPeriodeKilde().equals(FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
     }
 
+    public DokumentasjonVurdering getDokumentasjonVurdering() {
+        return dokumentasjonVurdering;
+    }
+
+    public void setDokumentasjonVurdering(DokumentasjonVurdering dokumentasjonVurdering) {
+        this.dokumentasjonVurdering = dokumentasjonVurdering;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -332,6 +345,7 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
                 Objects.equals(samtidigUttak, that.samtidigUttak) &&
                 Objects.equals(periodeKilde, that.periodeKilde) &&
                 Objects.equals(mottattDato, that.mottattDato) &&
+                Objects.equals(dokumentasjonVurdering, that.dokumentasjonVurdering) &&
                 Objects.equals(tidligstMottattDato, that.tidligstMottattDato) &&
                 Objects.equals(samtidigUttaksprosent, that.samtidigUttaksprosent);
     }
@@ -339,7 +353,7 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     @Override
     public int hashCode() {
         return Objects.hash(uttakPeriodeType, årsakType, årsak, periode, arbeidsprosent, morsAktivitet, erArbeidstaker,
-            arbeidsgiver, periodeKilde, samtidigUttaksprosent, mottattDato, tidligstMottattDato);
+            arbeidsgiver, periodeKilde, samtidigUttaksprosent, mottattDato, tidligstMottattDato, dokumentasjonVurdering);
     }
 
     @Override
@@ -347,6 +361,7 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         return "OppgittPeriodeEntitet{" +
                 "uttakPeriodeType=" + uttakPeriodeType.getKode() +
                 ", årsak=" + årsak +
+                ", dokumentasjonVurdering=" + dokumentasjonVurdering +
                 ", periode=" + periode +
                 '}';
     }
