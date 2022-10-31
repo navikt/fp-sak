@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold.Inntekt
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsgrunnlag.BeregningsgrunnlagRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.BeregningsresultatRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.FeriepengegrunnlagRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.InnsynRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.KlageRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag.OppdragRestTjeneste;
@@ -75,6 +76,7 @@ public class RestImplementationClasses {
         classes.add(DokumentRestTjeneste.class);
         classes.add(ForvaltningBehandlingskontrollRestTjeneste.class);
         classes.add(KodeverkRestTjeneste.class);
+        classes.add(HistorikkRestTjeneste.class);
         classes.add(BatchRestTjeneste.class);
         classes.add(ProsessTaskRestTjeneste.class);
         classes.add(VedtakJsonFeedRestTjeneste.class);
