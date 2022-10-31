@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.dokumentarkiv;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -16,6 +15,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -31,24 +33,26 @@ import no.nav.saf.Tilleggsopplysning;
 import no.nav.saf.Variantformat;
 import no.nav.vedtak.felles.integrasjon.saf.Saf;
 
+@ExtendWith(MockitoExtension.class)
 public class DokumentArkivSafTest {
 
     private static final JournalpostId JOURNAL_ID = new JournalpostId("42");
     private static final Saksnummer SAF_SAK = new Saksnummer("987123456");
     private static final LocalDateTime NOW = LocalDateTime.of(LocalDate.now(), LocalTime.of(10, 10));
     private static final LocalDateTime YESTERDAY = LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(10, 10));
-    private static DokumentTypeId SØK_ENG_FØDSEL;
+    private static final DokumentTypeId SØK_ENG_FØDSEL = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
+
+    @Mock
+    private Saf saf;
 
     private DokumentArkivTjeneste dokumentApplikasjonTjeneste;
-    private Saf saf;
 
     private Long DOKUMENT_ID = 66L;
 
     @BeforeEach
     public void setUp() {
-        saf = mock(Saf.class);
-        SØK_ENG_FØDSEL = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
         dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(saf);
+        dokumentApplikasjonTjeneste.emptyCache(SAF_SAK.getVerdi());
     }
 
     @Test
@@ -116,10 +120,8 @@ public class DokumentArkivSafTest {
 
         var arkivDokuments = dokumentApplikasjonTjeneste.hentAlleDokumenterForVisning(SAF_SAK);
 
-        assertThat(arkivDokuments.get(0).getTidspunkt()).isEqualTo(NOW);
-        assertThat(arkivDokuments.get(0).getKommunikasjonsretning()).isEqualTo(Kommunikasjonsretning.UT);
-        assertThat(arkivDokuments.get(1).getTidspunkt()).isEqualTo(YESTERDAY.minusHours(1));
-        assertThat(arkivDokuments.get(1).getKommunikasjonsretning()).isEqualTo(Kommunikasjonsretning.INN);
+        assertThat(arkivDokuments.stream().anyMatch(d -> d.getTidspunkt().equals(NOW) && Kommunikasjonsretning.UT.equals(d.getKommunikasjonsretning()))).isTrue();
+        assertThat(arkivDokuments.stream().anyMatch(d -> d.getTidspunkt().equals(YESTERDAY.minusHours(1)) && Kommunikasjonsretning.INN.equals(d.getKommunikasjonsretning()))).isTrue();
     }
 
     @Test

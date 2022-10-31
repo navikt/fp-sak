@@ -19,8 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt√
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.foreldrepenger.dokumentbestiller.brevmal.BrevmalTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 
@@ -30,18 +28,16 @@ public class BrevRestTjenesteTest {
     private DokumentBestillerTjeneste dokumentBestillerTjenesteMock;
     private DokumentBehandlingTjeneste dokumentBehandlingTjenesteMock;
     private BehandlingRepository behandlingRepository;
-    private BrevmalTjeneste brevmalTjeneste;
 
     @BeforeEach
     public void setUp() {
         dokumentBestillerTjenesteMock = mock(DokumentBestillerTjeneste.class);
         dokumentBehandlingTjenesteMock = mock(DokumentBehandlingTjeneste.class);
         behandlingRepository = mock(BehandlingRepository.class);
-        brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjenesteMock);
 
         when(behandlingRepository.hentBehandling(anyLong())).thenReturn(mock(Behandling.class));
 
-        brevRestTjeneste = new BrevRestTjeneste(dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, behandlingRepository, brevmalTjeneste);
+        brevRestTjeneste = new BrevRestTjeneste(dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, behandlingRepository);
     }
 
     @Test
@@ -70,18 +66,5 @@ public class BrevRestTjenesteTest {
         verify(dokumentBehandlingTjenesteMock).erDokumentBestilt(any(), any());
         assertThat(harSendt).isTrue();
     }
-
-    @Test
-    public void hentMaler() {
-        // Arrange
-        when(dokumentBehandlingTjenesteMock.erDokumentBestilt(any(), any())).thenReturn(true);
-        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(mock(Behandling.class));
-
-        // Act
-        var maler = brevRestTjeneste.hentMaler(new UuidDto(UUID.randomUUID()));
-
-        // Assert
-        assertThat(maler).isNotEmpty();
-        assertThat(maler);
-    }
+    
 }

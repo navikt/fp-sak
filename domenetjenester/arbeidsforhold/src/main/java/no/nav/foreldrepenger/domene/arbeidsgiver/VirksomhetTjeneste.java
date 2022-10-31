@@ -25,11 +25,11 @@ public class VirksomhetTjeneste {
             .medNavn("Kunstig virksomhet")
             .medOrganisasjonstype(Organisasjonstype.KUNSTIG)
             .medOrgnr(OrgNummer.KUNSTIG_ORG)
-            .medRegistrert(LocalDate.of(1978, 01, 01))
-            .medOppstart(LocalDate.of(1978, 01, 01))
+            .medRegistrert(LocalDate.of(1978, 1, 1))
+            .medOppstart(LocalDate.of(1978, 1, 1))
             .build();
 
-    private LRUCache<String, Virksomhet> cache = new LRUCache<>(2000, CACHE_ELEMENT_LIVE_TIME_MS);
+    private static final LRUCache<String, Virksomhet> CACHE = new LRUCache<>(2500, CACHE_ELEMENT_LIVE_TIME_MS);
 
     private OrgInfo eregRestKlient;
 
@@ -69,8 +69,8 @@ public class VirksomhetTjeneste {
         if (Objects.equals(KUNSTIG_VIRKSOMHET.getOrgnr(), orgnr)) {
             return KUNSTIG_VIRKSOMHET;
         }
-        var virksomhet = Optional.ofNullable(cache.get(orgnr)).orElseGet(() -> hentOrganisasjonRest(orgnr));
-        cache.put(orgnr, virksomhet);
+        var virksomhet = Optional.ofNullable(CACHE.get(orgnr)).orElseGet(() -> hentOrganisasjonRest(orgnr));
+        CACHE.put(orgnr, virksomhet);
         return virksomhet;
     }
 

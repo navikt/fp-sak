@@ -1,11 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.fagsak;
 
 import java.net.URISyntaxException;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -33,21 +30,16 @@ import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOpprettingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SakRettigheterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.ProsessTaskGruppeIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakFullTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakBackendDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakFullDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakSøkDto;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SakPersonerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SokefeltDto;
@@ -72,27 +64,20 @@ public class FagsakRestTjeneste {
     public static final String FAGSAK_FULL_PATH = BASE_PATH + FAGSAK_FULL_PART_PATH;
     private static final String STATUS_PART_PATH = "/status";
     public static final String STATUS_PATH = BASE_PATH + STATUS_PART_PATH;
-    private static final String PERSONER_PART_PATH = "/personer";
-    public static final String PERSONER_PATH = BASE_PATH + PERSONER_PART_PATH;
-    private static final String RETTIGHETER_PART_PATH = "/rettigheter";
-    public static final String RETTIGHETER_PATH = BASE_PATH + RETTIGHETER_PART_PATH;
     private static final String SOK_PART_PATH = "/sok";
     public static final String SOK_PATH = BASE_PATH + SOK_PART_PATH; // NOSONAR TFP-2234
 
     private FagsakTjeneste fagsakTjeneste;
     private FagsakFullTjeneste fagsakFullTjeneste;
-    private BehandlingsoppretterTjeneste behandlingsoppretterTjeneste;
 
     public FagsakRestTjeneste() {
         // For Rest-CDI
     }
 
     @Inject
-    public FagsakRestTjeneste(FagsakTjeneste fagsakTjeneste, FagsakFullTjeneste fagsakFullTjeneste,
-                              BehandlingsoppretterTjeneste behandlingsoppretterTjeneste) {
+    public FagsakRestTjeneste(FagsakTjeneste fagsakTjeneste, FagsakFullTjeneste fagsakFullTjeneste) {
         this.fagsakTjeneste = fagsakTjeneste;
         this.fagsakFullTjeneste = fagsakFullTjeneste;
-        this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
     }
 
     @GET
@@ -117,7 +102,7 @@ public class FagsakRestTjeneste {
     @GET
     @Path(FAGSAK_FULL_PART_PATH)
     @Operation(description = "Hent full fagsaksaksinformasjon for saksnummer", tags = "fagsak", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakDto.class))),
+        @ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakFullDto.class))),
         @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
@@ -130,24 +115,10 @@ public class FagsakRestTjeneste {
     }
 
     @GET
-    @Path(PERSONER_PART_PATH)
-    @Operation(description = "Hent persondato for fagsak", tags = "fagsak", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer personer", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SakPersonerDto.class))),
-        @ApiResponse(responseCode = "404", description = "Person ikke tilgjengelig")
-    })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response hentPersonerForFagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
-        var saksnummer = new Saksnummer(s.getVerdi());
-        return fagsakTjeneste.lagSakPersonerDto(saksnummer).map(b -> Response.ok(b).build())
-            .orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
-    }
-
-    @GET
     @Produces(MediaType.APPLICATION_JSON)
     // re-enable hvis endres til ikke-tom @Path(FAGSAK_PART_PATH)
     @Operation(description = "Hent fagsak for saksnummer", tags = "fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakDto.class))),
+            @ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakBackendDto.class))),
             @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
@@ -170,30 +141,6 @@ public class FagsakRestTjeneste {
     public List<FagsakSøkDto> sokFagsaker(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
         @Parameter(description = "Søkestreng kan være saksnummer, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
         return fagsakTjeneste.søkFagsakDto(søkestreng.getSearchString().trim());
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path(RETTIGHETER_PART_PATH)
-    @Operation(description = "Hent rettigheter for saksnummer", tags = "fagsak", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer rettigheter", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SakRettigheterDto.class))),
-        @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")
-    })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response hentRettigheter(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
-        var saksnummer = new Saksnummer(s.getVerdi());
-        var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(saksnummer);
-        if (fagsak.isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        var fagsakId = fagsak.map(Fagsak::getId).orElseThrow();
-        var oppretting = Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper()).flatMap(Collection::stream)
-            .map(bt -> new BehandlingOpprettingDto(bt, behandlingsoppretterTjeneste.kanOppretteNyBehandlingAvType(fagsakId, bt)))
-            .collect(Collectors.toList());
-
-        var dto = new SakRettigheterDto(fagsak.filter(Fagsak::erStengt).isPresent(), oppretting, List.of());
-        return Response.ok(dto).build();
     }
 
     public static class SøkeFeltAbacDataSupplier implements Function<Object, AbacDataAttributter> {

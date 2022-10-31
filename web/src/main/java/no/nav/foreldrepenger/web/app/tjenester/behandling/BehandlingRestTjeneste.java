@@ -33,19 +33,15 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
-import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
@@ -53,7 +49,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOperasjonerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ByttBehandlendeEnhetDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.DtoMedBehandlingId;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.GjenopptaBehandlingDto;
@@ -62,12 +57,9 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.NyBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ReåpneBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SettBehandlingPaVentDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.AnnenPartBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
@@ -77,7 +69,6 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ApplicationScoped
 @Transactional
@@ -88,10 +79,7 @@ public class BehandlingRestTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(BehandlingRestTjeneste.class);
 
     static final String BASE_PATH = "/behandlinger";
-    private static final String ANNEN_PART_BEHANDLING_PART_PATH = "/annen-part-behandling";
-    public static final String ANNEN_PART_BEHANDLING_PATH = BASE_PATH + ANNEN_PART_BEHANDLING_PART_PATH; // NOSONAR TFP-2234
-    private static final String BEHANDLINGER_ALLE_PART_PATH = "/alle";
-    public static final String BEHANDLINGER_ALLE_PATH = BASE_PATH + BEHANDLINGER_ALLE_PART_PATH; // NOSONAR TFP-2234
+    private static final String BEHANDLINGER_ALLE_PART_PATH = "/alle"; // Brukes i autotest ++
     private static final String BEHANDLINGER_PART_PATH = "";
     private static final String BYTT_ENHET_PART_PATH = "/bytt-enhet";
     public static final String BYTT_ENHET_PATH = BASE_PATH + BYTT_ENHET_PART_PATH;
@@ -103,8 +91,6 @@ public class BehandlingRestTjeneste {
     public static final String OPNE_FOR_ENDRINGER_PATH = BASE_PATH + OPNE_FOR_ENDRINGER_PART_PATH;
     private static final String SETT_PA_VENT_PART_PATH = "/sett-pa-vent";
     public static final String SETT_PA_VENT_PATH = BASE_PATH + SETT_PA_VENT_PART_PATH;
-    private static final String RETTIGHETER_PART_PATH = "/rettigheter";
-    public static final String RETTIGHETER_PATH = BASE_PATH + RETTIGHETER_PART_PATH;
     private static final String ENDRE_VENTEFRIST_PART_PATH = "/endre-pa-vent";
     public static final String ENDRE_VENTEFRIST_PATH = BASE_PATH + ENDRE_VENTEFRIST_PART_PATH;
 
@@ -115,9 +101,6 @@ public class BehandlingRestTjeneste {
     private FagsakTjeneste fagsakTjeneste;
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
     private BehandlingDtoTjeneste behandlingDtoTjeneste;
-    private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
-    private VergeTjeneste vergeTjeneste;
-    private TotrinnTjeneste totrinnTjeneste;
 
     public BehandlingRestTjeneste() {
         // CDI
@@ -128,22 +111,15 @@ public class BehandlingRestTjeneste {
                                   BehandlingsoppretterTjeneste behandlingsoppretterTjeneste,
                                   BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
                                   BehandlingsprosessTjeneste behandlingsprosessTjeneste,
-                                  FagsakTjeneste fagsakTjeneste,
-                                  VergeTjeneste vergeTjeneste,
-                                  HenleggBehandlingTjeneste henleggBehandlingTjeneste,
-                                  BehandlingDtoTjeneste behandlingDtoTjeneste,
-                                  RelatertBehandlingTjeneste relatertBehandlingTjeneste,
-                                  TotrinnTjeneste totrinnTjeneste) {
+                                  FagsakTjeneste fagsakTjeneste, HenleggBehandlingTjeneste henleggBehandlingTjeneste,
+                                  BehandlingDtoTjeneste behandlingDtoTjeneste) {
         this.behandlingsutredningTjeneste = behandlingsutredningTjeneste;
         this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
-        this.vergeTjeneste = vergeTjeneste;
         this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
         this.behandlingDtoTjeneste = behandlingDtoTjeneste;
-        this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
-        this.totrinnTjeneste = totrinnTjeneste;
     }
 
     @POST
@@ -399,32 +375,6 @@ public class BehandlingRestTjeneste {
         return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), Optional.empty());
     }
 
-    @GET
-    @Path(ANNEN_PART_BEHANDLING_PART_PATH)
-    @Operation(description = "Henter annen parts behandling basert på saksnummer", tags = "behandlinger")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-
-    public Response hentAnnenPartsGjeldendeBehandling(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-            @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
-        var saksnummer = new Saksnummer(s.getVerdi());
-
-        return relatertBehandlingTjeneste.hentAnnenPartsGjeldendeYtelsesBehandling(saksnummer)
-            .map(behandling -> new AnnenPartBehandlingDto(behandling.getFagsak().getSaksnummer().getVerdi(), behandling.getUuid()))
-            .map(apDto -> Response.ok().entity(apDto).build()).orElseGet(() -> Response.ok().build());
-    }
-
-    @GET
-    @Path(RETTIGHETER_PART_PATH)
-    @Operation(description = "Henter rettigheter for menyvalg", tags = "behandlinger")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public BehandlingOperasjonerDto hentMenyOpsjoner(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-
-        var behandling = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid());
-
-        return lovligeOperasjoner(behandling);
-    }
-
     public static class LocalBehandlingIdAbacDataSupplier implements Function<Object, AbacDataAttributter> {
 
         @Override
@@ -444,29 +394,4 @@ public class BehandlingRestTjeneste {
         }
     }
 
-    private BehandlingOperasjonerDto lovligeOperasjoner(Behandling b) {
-        if (b.erSaksbehandlingAvsluttet()) {
-            return BehandlingOperasjonerDto.builder(b.getUuid()).build(); // Skal ikke foreta menyvalg lenger
-        }
-        if (BehandlingStatus.FATTER_VEDTAK.equals(b.getStatus())) {
-            var tilgokjenning = b.getAnsvarligSaksbehandler() != null && !b.getAnsvarligSaksbehandler().equalsIgnoreCase(SubjectHandler.getSubjectHandler().getUid());
-            return BehandlingOperasjonerDto.builder(b.getUuid()).medTilGodkjenning(tilgokjenning).build();
-        }
-        var kanÅpnesForEndring = b.erRevurdering() && !b.isBehandlingPåVent() &&
-            SpesialBehandling.erIkkeSpesialBehandling(b) && !b.erKøet() &&
-            !FagsakYtelseType.ENGANGSTØNAD.equals(b.getFagsakYtelseType());
-        var totrinnRetur = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(b).stream()
-            .anyMatch(tt -> !tt.isGodkjent());
-        return BehandlingOperasjonerDto.builder(b.getUuid())
-            .medTilGodkjenning(false)
-            .medFraBeslutter(!b.isBehandlingPåVent() && totrinnRetur)
-            .medKanBytteEnhet(!b.erKøet())
-            .medKanHenlegges(SpesialBehandling.kanHenlegges(b))
-            .medKanSettesPaVent(!b.isBehandlingPåVent())
-            .medKanGjenopptas(b.isBehandlingPåVent() && !b.erKøet())
-            .medKanOpnesForEndringer(kanÅpnesForEndring)
-            .medKanSendeMelding(!b.isBehandlingPåVent())
-            .medVergemeny(vergeTjeneste.utledBehandlingsmeny(b.getId()).getVergeBehandlingsmeny())
-            .build();
-    }
 }

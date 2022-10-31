@@ -37,17 +37,13 @@ import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktDtoMapper;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.BeregningsresultatRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOperasjonerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.KlageRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.KontrollRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.app.KontrollDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.TotrinnskontrollRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.TotrinnskontrollAksjonspunkterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
@@ -132,7 +128,6 @@ public class FagsakBehandlingDtoTjeneste {
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
 
         // Felles for alle behandlingstyper
-        dto.leggTil(get(BehandlingRestTjeneste.RETTIGHETER_PATH, "behandling-rettigheter", uuidDto));
         dto.setBehandlingTillatteOperasjoner(lovligeOperasjoner(behandling));
 
         if (behandling.erYtelseBehandling()) {
@@ -141,15 +136,11 @@ public class FagsakBehandlingDtoTjeneste {
         }
 
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
-            dto.leggTil(get(KontrollRestTjeneste.KONTROLLRESULTAT_V2_PATH, "kontrollresultat", uuidDto));
-            dto.leggTil(get(AksjonspunktRestTjeneste.AKSJONSPUNKT_RISIKO_PATH, "risikoklassifisering-aksjonspunkt", uuidDto));
             AksjonspunktDtoMapper.lagAksjonspunktDtoFor(behandling, AksjonspunktDefinisjon.VURDER_FARESIGNALER).ifPresent(dto::setRisikoAksjonspunkt);
             kontrollDtoTjeneste.lagKontrollresultatForBehandling(BehandlingReferanse.fra(behandling)).ifPresent(dto::setKontrollResultat);
         }
 
         if (BehandlingType.REVURDERING.equals(behandling.getType())) {
-            dto.leggTil(get(AksjonspunktRestTjeneste.AKSJONSPUNKT_KONTROLLER_REVURDERING_PATH, "har-apent-kontroller-revurdering-aksjonspunkt", uuidDto));
-            dto.leggTil(get(BeregningsresultatRestTjeneste.HAR_SAMME_RESULTAT_PATH, "har-samme-resultat", uuidDto));
             dto.setUgunstAksjonspunkt(behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST));
         }
 
@@ -161,18 +152,15 @@ public class FagsakBehandlingDtoTjeneste {
         if (!BehandlingType.INNSYN.equals(behandling.getType())) {
             // Totrinnsbehandling
             if (BehandlingStatus.FATTER_VEDTAK.equals(behandling.getStatus())) {
-                dto.leggTil(get(TotrinnskontrollRestTjeneste.ARSAKER_PATH, "totrinnskontroll-arsaker", uuidDto));
                 dto.setTotrinnskontrollÅrsaker(totrinnskontrollTjeneste.hentTotrinnsSkjermlenkeContext(behandling));
                 dto.setTotrinnskontrollReadonly(false);
                 dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_PATH, "bekreft-totrinnsaksjonspunkt", uuidDto));
             } else if (BehandlingStatus.UTREDES.equals(behandling.getStatus())) {
-                dto.leggTil(get(TotrinnskontrollRestTjeneste.ARSAKER_READ_ONLY_PATH, "totrinnskontroll-arsaker-readOnly", uuidDto));
                 dto.setTotrinnskontrollÅrsaker(totrinnskontrollTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling));
             }
         }
 
         // Brev
-        dto.leggTil(get(BrevRestTjeneste.BREV_MALER_PATH, "fpsak-brev-maler", uuidDto));
         dto.setBrevmaler(brevmalTjeneste.hentBrevmalerFor(behandling));
         dto.leggTil(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill", new BestillBrevDto()));
         dto.leggTil(ResourceLink.get("/fpformidling/api/brev/maler", "brev-maler", uuidDto));
