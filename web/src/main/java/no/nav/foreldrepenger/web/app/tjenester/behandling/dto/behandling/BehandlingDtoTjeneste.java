@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -42,6 +43,7 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ManueltArbeidsforholdD
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDokStatusTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
@@ -141,6 +143,15 @@ public class BehandlingDtoTjeneste {
     BehandlingDtoTjeneste() {
         // for CDI proxy
     }
+
+    public Optional<Behandling> hentAnnenPartsGjeldendeYtelsesBehandling(Saksnummer saksnummer) {
+        return fagsakRelasjonRepository.finnRelasjonHvisEksisterer(saksnummer)
+            .flatMap(r -> saksnummer.equals(r.getFagsakNrEn().getSaksnummer()) ? r.getFagsakNrTo() : Optional.of(r.getFagsakNrEn()))
+            .map(Fagsak::getId)
+            .flatMap(behandlingRepository::hentSisteYtelsesBehandlingForFagsakId);
+    }
+
+
 
     private BehandlingDto lagBehandlingDto(Behandling behandling,
                                            Optional<BehandlingsresultatDto> behandlingsresultatDto,

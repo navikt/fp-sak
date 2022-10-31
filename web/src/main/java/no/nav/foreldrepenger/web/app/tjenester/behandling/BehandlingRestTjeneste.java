@@ -57,6 +57,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.NyBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ReåpneBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SettBehandlingPaVentDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.AnnenPartBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
@@ -93,6 +94,7 @@ public class BehandlingRestTjeneste {
     public static final String SETT_PA_VENT_PATH = BASE_PATH + SETT_PA_VENT_PART_PATH;
     private static final String ENDRE_VENTEFRIST_PART_PATH = "/endre-pa-vent";
     public static final String ENDRE_VENTEFRIST_PATH = BASE_PATH + ENDRE_VENTEFRIST_PART_PATH;
+    private static final String ANNEN_PART_BEHANDLING_PART_PATH = "/annen-part-behandling";
 
     private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
     private BehandlingsoppretterTjeneste behandlingsoppretterTjeneste;
@@ -373,6 +375,21 @@ public class BehandlingRestTjeneste {
         behandlingsprosessTjeneste.asynkTilbakestillOgÅpneBehandlingForEndringer(behandling);
         behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
         return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), Optional.empty());
+    }
+
+    // Finnes pga autotest
+    @GET
+    @Path(ANNEN_PART_BEHANDLING_PART_PATH)
+    @Operation(description = "Henter annen parts behandling basert på saksnummer", tags = "behandlinger")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+
+    public Response hentAnnenPartsGjeldendeBehandling(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
+                                                      @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
+        var saksnummer = new Saksnummer(s.getVerdi());
+
+        return behandlingDtoTjeneste.hentAnnenPartsGjeldendeYtelsesBehandling(saksnummer)
+            .map(behandling -> new AnnenPartBehandlingDto(behandling.getFagsak().getSaksnummer().getVerdi(), behandling.getUuid()))
+            .map(apDto -> Response.ok().entity(apDto).build()).orElseGet(() -> Response.ok().build());
     }
 
     public static class LocalBehandlingIdAbacDataSupplier implements Function<Object, AbacDataAttributter> {
