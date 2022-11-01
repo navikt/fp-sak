@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -408,55 +409,74 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
         //I mangel på endringssøknad forsøker vi å flette eventuelle eksisterende tilrettelegginger med nye hvis mulig
         var eksisterendeTilrettelegginger = finnGjeldendeTilrettelegginger(behandling);
-        List<SvpTilretteleggingEntitet> nyeOgEksisterendeTilrettelegginger = new ArrayList<>(nyeTilrettelegginger);
+        List<SvpTilretteleggingEntitet> nyeOgEksisterendeTilrettelegginger = new ArrayList<>();
 
         if (!eksisterendeTilrettelegginger.isEmpty()) {
-            eksisterendeTilrettelegginger.forEach( eksTilrettelegging -> {
-                SvpTilretteleggingEntitet funnetTilretteleggingSammeArbForhold = nyeTilrettelegginger
-                    .stream()
-                    .filter( ny -> gjelderSammeArbeidsforhold(eksTilrettelegging, ny))
-                    .findFirst()
-                    .orElse(null);
+            var inputEksisterendeTilretteleggingMap = eksisterendeTilrettelegginger.stream().collect(Collectors.groupingBy(this::tilretteleggingNøkkel)); // Kortlevet
+            var inputNyeTilretteleggingMap = nyeTilrettelegginger.stream().collect(Collectors.groupingBy(this::tilretteleggingNøkkel)); // Kortlevet
 
-                if (funnetTilretteleggingSammeArbForhold != null) {
-                    nyeOgEksisterendeTilrettelegginger.remove(funnetTilretteleggingSammeArbForhold);
-                    nyeOgEksisterendeTilrettelegginger.add(oppdaterNyTlrMedEksHvisMulig( funnetTilretteleggingSammeArbForhold, eksTilrettelegging));
-                } else {
-                    var eksisterendeTilR = new SvpTilretteleggingEntitet.Builder(eksTilrettelegging)
-                        .medKopiertFraTidligereBehandling(true).build();
+            var heltNyeMap = nyeTilrettelegginger.stream()
+                .filter(nt -> inputEksisterendeTilretteleggingMap.get(tilretteleggingNøkkel(nt)) == null)
+                .collect(Collectors.groupingBy(this::tilretteleggingNøkkel));
 
-                    nyeOgEksisterendeTilrettelegginger.add(eksisterendeTilR);
-                }
-            });
+            heltNyeMap.forEach((key, value) -> nyeOgEksisterendeTilrettelegginger.addAll(value));
+
+            var bareGamleMap = eksisterendeTilrettelegginger.stream()
+                .filter(gt -> inputNyeTilretteleggingMap.get(tilretteleggingNøkkel(gt)) == null)
+                .collect(Collectors.groupingBy(this::tilretteleggingNøkkel));
+
+            bareGamleMap.forEach((key, value) -> value.forEach(tlr -> {
+                var eksisterendeTilR = new SvpTilretteleggingEntitet.Builder(tlr).medKopiertFraTidligereBehandling(true).build();
+                nyeOgEksisterendeTilrettelegginger.add(eksisterendeTilR);
+            }));
+
+            var fletteNyeMap = nyeTilrettelegginger.stream()
+                .filter(nt -> inputEksisterendeTilretteleggingMap.get(tilretteleggingNøkkel(nt)) != null)
+                .collect(Collectors.toMap(this::tilretteleggingNøkkel, Function.identity()));
+
+            var fletteGamleMap = eksisterendeTilrettelegginger.stream()
+                .filter(nt -> inputNyeTilretteleggingMap.get(tilretteleggingNøkkel(nt)) != null)
+                .collect(Collectors.groupingBy(this::tilretteleggingNøkkel));
+
+            for (var eksTilrettelegging : fletteGamleMap.entrySet()) {
+                var nyTilrettelegging = fletteNyeMap.get(eksTilrettelegging.getKey());
+                eksTilrettelegging.getValue().forEach( eksTlr -> nyeOgEksisterendeTilrettelegginger.add(oppdaterEksisterendeTlrMedNyeFOMs(nyTilrettelegging, eksTlr)));
+            }
+        } else {
+            //ingen eksisterende
+            nyeOgEksisterendeTilrettelegginger.addAll(nyeTilrettelegginger);
         }
+
         var svpGrunnlag = svpBuilder.medOpprinneligeTilrettelegginger(nyeOgEksisterendeTilrettelegginger).build();
         svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
     }
 
-    private SvpTilretteleggingEntitet oppdaterNyTlrMedEksHvisMulig(SvpTilretteleggingEntitet nyTlR,
-                                                                   SvpTilretteleggingEntitet eksisterendeTlr) {
+    private String tilretteleggingNøkkel(SvpTilretteleggingEntitet tilrettelegging) {
+        return tilrettelegging.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElseGet(() -> tilrettelegging.getArbeidType().getKode());
+    }
+
+    private SvpTilretteleggingEntitet oppdaterEksisterendeTlrMedNyeFOMs(SvpTilretteleggingEntitet nyTlR,
+                                                                        SvpTilretteleggingEntitet eksisterendeTlr) {
         List<TilretteleggingFOM> nyFomListe = new ArrayList<>(nyTlR.getTilretteleggingFOMListe());
         var tidligsteNyFom = nyFomListe.stream().map(TilretteleggingFOM::getFomDato).min(LocalDate::compareTo).orElse(LocalDate.EPOCH);
 
         List<TilretteleggingFOM> eksisterendeFOMSomSkalKopieres =  eksisterendeTlr.getTilretteleggingFOMListe().stream().filter(f -> f.getFomDato().isBefore(tidligsteNyFom)).toList();
 
-        eksisterendeFOMSomSkalKopieres.forEach(eksFom -> {
-                nyFomListe.add(new TilretteleggingFOM.Builder().fraEksisterende(eksFom)
-                    .medTidligstMottattDato(Optional.ofNullable(eksFom.getTidligstMotattDato()).orElseGet(() -> eksisterendeTlr.getMottattTidspunkt().toLocalDate())).build());
-        });
+        eksisterendeFOMSomSkalKopieres.forEach(eksFom ->
+            nyFomListe.add(new TilretteleggingFOM.Builder()
+                .fraEksisterende(eksFom)
+                .medTidligstMottattDato(Optional.ofNullable(eksFom.getTidligstMotattDato())
+                    .orElseGet(() -> eksisterendeTlr.getMottattTidspunkt().toLocalDate()))
+                .build()));
 
         nyFomListe.sort(Comparator.comparing(TilretteleggingFOM::getFomDato));
 
-        if (!eksisterendeFOMSomSkalKopieres.isEmpty()) {
-            return SvpTilretteleggingEntitet.Builder.fraEksisterende(nyTlR)
-                .medBehovForTilretteleggingFom(nyFomListe.stream().map(TilretteleggingFOM::getFomDato).min(LocalDate::compareTo).orElse(null))
-                .medTilretteleggingFraDatoer(nyFomListe).build();
-        } else {
-            return nyTlR;
-        }
+        return SvpTilretteleggingEntitet.Builder.fraEksisterende(eksisterendeTlr)
+            .medBehovForTilretteleggingFom(nyFomListe.stream().map(TilretteleggingFOM::getFomDato).min(LocalDate::compareTo).orElse(null))
+            .medTilretteleggingFraDatoer(nyFomListe).build();
     }
 
-    private List<SvpTilretteleggingEntitet> finnGjeldendeTilrettelegginger(Behandling behandling) {
+     private List<SvpTilretteleggingEntitet> finnGjeldendeTilrettelegginger(Behandling behandling) {
         var overstyrteTirettelegginger =  svangerskapspengerRepository.hentGrunnlag(behandling.getId())
             .map(SvpGrunnlagEntitet::getOverstyrteTilrettelegginger)
             .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
@@ -469,19 +489,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                 .orElse(Collections.emptyList());
         }
         return overstyrteTirettelegginger;
-    }
-
-    private boolean gjelderSammeArbeidsforhold(SvpTilretteleggingEntitet gjeldendeTilrettelegging,
-                                               SvpTilretteleggingEntitet nyTilrettelegging) {
-        if (gjeldendeTilrettelegging.getArbeidsgiver().isPresent() && nyTilrettelegging.getArbeidsgiver().isPresent()) {
-            return Objects.equals(gjeldendeTilrettelegging.getArbeidsgiver(), nyTilrettelegging.getArbeidsgiver());
-        }
-        if (ArbeidType.FRILANSER.equals(gjeldendeTilrettelegging.getArbeidType()) && ArbeidType.FRILANSER.equals(
-            nyTilrettelegging.getArbeidType())) {
-            return true;
-        }
-        return ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(gjeldendeTilrettelegging.getArbeidType())
-            && ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(nyTilrettelegging.getArbeidType());
     }
 
     private void oversettArbeidsforhold(SvpTilretteleggingEntitet.Builder builder, Arbeidsforhold arbeidsforhold) {
