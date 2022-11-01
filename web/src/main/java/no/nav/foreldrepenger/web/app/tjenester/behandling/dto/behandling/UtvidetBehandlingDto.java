@@ -21,6 +21,9 @@ public class UtvidetBehandlingDto extends BehandlingDto {
     @JsonProperty("harSøknad")
     private boolean harSøknad;
 
+    @JsonProperty("harRegisterdata")
+    private boolean harRegisterdata;
+
     @JsonProperty("harSattEndringsdato")
     private boolean harSattEndringsdato;
 
@@ -47,6 +50,10 @@ public class UtvidetBehandlingDto extends BehandlingDto {
         return harSøknad;
     }
 
+    public boolean getHarRegisterdata() {
+        return harRegisterdata;
+    }
+
     public boolean getHarSattEndringsdato() {
         return harSattEndringsdato;
     }
@@ -69,6 +76,10 @@ public class UtvidetBehandlingDto extends BehandlingDto {
 
     public void setHarSøknad(boolean harSøknad) {
         this.harSøknad = harSøknad;
+    }
+
+    public void setHarRegisterdata(boolean harRegisterdata) {
+        this.harRegisterdata = harRegisterdata;
     }
 
     public void setHarSattEndringsdato(boolean harSattEndringsdato) {

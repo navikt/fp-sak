@@ -335,6 +335,7 @@ public class BehandlingDtoTjeneste {
     private UtvidetBehandlingDto utvideBehandlingDto(Behandling behandling, UtvidetBehandlingDto dto) {
         var uuidDto = new UuidDto(behandling.getUuid());
         // mapping ved hjelp av tjenester
+        dto.setHarRegisterdata(behandlingRepository.hentSistOppdatertTidspunkt(behandling.getId()).isPresent());
         dto.setHarSøknad(søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).isPresent());
         dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "soknad", uuidDto));
         dto.leggTil(get(SøknadRestTjeneste.SOKNAD_BACKEND_PATH, "soknad-backend", uuidDto));
