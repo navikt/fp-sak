@@ -176,10 +176,10 @@ public class SøknadMapperFelles {
         var fødsel = new Foedsel();
         if (harFødselsdato(registreringDto)) {
             var foedselsDato = registreringDto.getFoedselsDato();
-            if (foedselsDato.size() != 1) {
+            if (foedselsDato == null) {
                 throw new IllegalArgumentException("Støtter bare 1 fødselsdato på fødsel");
             }
-            fødsel.setFoedselsdato(registreringDto.getFoedselsDato().get(0));
+            fødsel.setFoedselsdato(registreringDto.getFoedselsDato());
             fødsel.setTermindato(registreringDto.getTermindato());
         }
         fødsel.setAntallBarn(registreringDto.getAntallBarn());
@@ -258,7 +258,7 @@ public class SøknadMapperFelles {
     }
 
     private static boolean harFødselsdato(ManuellRegistreringDto registreringDto) {
-        return !erTomListe(registreringDto.getFoedselsDato());
+        return registreringDto.getFoedselsDato() != null;
     }
 
     private static boolean erSøknadVedFødsel(Boolean erBarnetFødt, FamilieHendelseType tema) {

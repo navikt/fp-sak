@@ -110,7 +110,7 @@ public class ManuellRegistreringFellesValidator {
         var feltnavn = "terminEllerFoedsel";
         if (erFødsel(manuellRegistreringDto)) {
             var harTerminDato = nonNull(manuellRegistreringDto.getTermindato());
-            var harFødselsDato = !erTomListe(manuellRegistreringDto.getFoedselsDato());
+            var harFødselsDato = manuellRegistreringDto.getFoedselsDato() != null;
             if (!harTerminDato && !harFødselsDato) {
                 return Optional.of(new FeltFeilDto(feltnavn, TERMINDATO_ELLER_FØDSELSDATO));
             }
@@ -135,7 +135,7 @@ public class ManuellRegistreringFellesValidator {
         if (erFødsel(manuellRegistreringDto) && !manuellRegistreringDto.getErBarnetFodt()) {
             var terminbekreftelseDato = manuellRegistreringDto.getTerminbekreftelseDato();
             var termindato = manuellRegistreringDto.getTermindato();
-            var harFødselsdato = !erTomListe(manuellRegistreringDto.getFoedselsDato());
+            var harFødselsdato = manuellRegistreringDto.getFoedselsDato() != null;
             var harTermindato = nonNull(termindato);
             if (nonNull(terminbekreftelseDato)) {
                 var feltFeilDto = validerTerminBekreftelsesdato(terminbekreftelseDato, termindato, harFødselsdato, harTermindato, feltnavn);
@@ -163,7 +163,7 @@ public class ManuellRegistreringFellesValidator {
     static Optional<FeltFeilDto> validerTerminBekreftelseAntallBarn(ManuellRegistreringDto registreringDto) {
         var feltnavn = "antallBarnFraTerminbekreftelse";
         if (erFødsel(registreringDto) && !registreringDto.getErBarnetFodt()) {
-            var harFødselsdato = !erTomListe(registreringDto.getFoedselsDato());
+            var harFødselsdato = registreringDto.getFoedselsDato() != null;
             if (harFødselsdato && nonNull(registreringDto.getAntallBarnFraTerminbekreftelse())) {
                 return Optional.of(new FeltFeilDto(feltnavn, TERMINDATO_OG_FØDSELSDATO));
             }
@@ -179,7 +179,7 @@ public class ManuellRegistreringFellesValidator {
         if (erAdopsjonEllerOmsorg(registreringDto) && isNull(registreringDto.getOmsorg().getAntallBarn())) {
             return Optional.of(new FeltFeilDto(feltnavn, PAAKREVD_FELT));
         }
-        var harFødselsdato = !erTomListe(registreringDto.getFoedselsDato());
+        var harFødselsdato = registreringDto.getFoedselsDato() != null;
         if (harFødselsdato && erFødsel(registreringDto) && isNull(registreringDto.getAntallBarn())) {
             return Optional.of(new FeltFeilDto(feltnavn, PAAKREVD_FELT));
         }
@@ -228,7 +228,7 @@ public class ManuellRegistreringFellesValidator {
         if (erAdopsjonEllerOmsorg(registreringDto)) {
             fødselsdatoer = Optional.ofNullable(registreringDto.getOmsorg().getFoedselsDato()).orElse(emptyList());
         } else {
-            fødselsdatoer = Optional.ofNullable(registreringDto.getFoedselsDato()).orElse(emptyList());
+            fødselsdatoer = Optional.ofNullable(registreringDto.getFoedselsDato()).map(List::of).orElse(List.of());
         }
         return fødselsdatoer.stream()
             .filter(Objects::nonNull)
