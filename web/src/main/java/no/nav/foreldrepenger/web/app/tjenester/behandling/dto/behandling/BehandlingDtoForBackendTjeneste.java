@@ -9,8 +9,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -67,8 +65,7 @@ public class BehandlingDtoForBackendTjeneste {
                                                   Optional<OrganisasjonsEnhet> endretEnhet) {
         var dto = new UtvidetBehandlingDto();
         var vedtaksDato = behandlingVedtak.map(BehandlingVedtak::getVedtaksdato).orElse(null);
-        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
-            .map(Behandlingsresultat::getBehandlingResultatType).orElse(BehandlingResultatType.IKKE_FASTSATT);
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
         BehandlingDtoUtil.settStandardfelterUtvidet(behandling, behandlingsresultat, dto, erBehandlingGjeldendeVedtak(behandling), vedtaksDato);
         if (asyncStatus != null && !asyncStatus.isPending()) {
             dto.setAsyncStatus(asyncStatus);

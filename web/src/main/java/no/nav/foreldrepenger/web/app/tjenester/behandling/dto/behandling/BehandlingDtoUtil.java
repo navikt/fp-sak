@@ -12,19 +12,21 @@ import java.util.stream.Collectors;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårDtoMapper;
 
 public final class BehandlingDtoUtil {
 
     static void settStandardfelterUtvidet(Behandling behandling,
-                                          BehandlingResultatType behandlingsresultat,
+                                          Behandlingsresultat behandlingsresultat,
                                           UtvidetBehandlingDto dto,
                                           boolean erBehandlingMedGjeldendeVedtak,
                                           LocalDate vedtaksDato) {
         setStandardfelterMedGjeldendeVedtak(behandling, behandlingsresultat, dto, erBehandlingMedGjeldendeVedtak, vedtaksDato);
               dto.setAnsvarligBeslutter(behandling.getAnsvarligBeslutter());
-        dto.setBehandlingHenlagt(behandlingsresultat.erHenlagt());
+        dto.setBehandlingHenlagt(getBehandlingsResultatType(behandlingsresultat).erHenlagt());
     }
 
     private static Optional<String> getFristDatoBehandlingPåVent(Behandling behandling) {
@@ -51,7 +53,7 @@ public final class BehandlingDtoUtil {
     }
 
     static void setStandardfelter(Behandling behandling,
-                                  BehandlingResultatType behandlingsresultat,
+                                  Behandlingsresultat behandlingsresultat,
                                   BehandlingDto dto,
                                   LocalDate vedtaksDato) {
         dto.setFagsakId(behandling.getFagsakId());
@@ -70,7 +72,7 @@ public final class BehandlingDtoUtil {
         dto.setBehandlingsfristTid(behandling.getBehandlingstidFrist());
         dto.setErAktivPapirsøknad(erAktivPapirsøknad(behandling));
         dto.setBehandlingPåVent(behandling.isBehandlingPåVent());
-        dto.setBehandlingHenlagt(behandlingsresultat.erHenlagt());
+        dto.setBehandlingHenlagt(getBehandlingsResultatType(behandlingsresultat).erHenlagt());
         getFristDatoBehandlingPåVent(behandling).ifPresent(dto::setFristBehandlingPåVent);
         getVenteÅrsak(behandling).ifPresent(dto::setVenteÅrsakKode);
         dto.setOriginalVedtaksDato(vedtaksDato);
@@ -78,10 +80,11 @@ public final class BehandlingDtoUtil {
         dto.setAnsvarligSaksbehandler(behandling.getAnsvarligSaksbehandler());
         dto.setToTrinnsBehandling(behandling.isToTrinnsBehandling());
         dto.setBehandlingÅrsaker(lagBehandlingÅrsakDto(behandling));
+        dto.setVilkår(!erAktivPapirsøknad(behandling) ? VilkårDtoMapper.lagVilkarDto(behandling, behandlingsresultat) : List.of());
     }
 
     static void setStandardfelterMedGjeldendeVedtak(Behandling behandling,
-                                                    BehandlingResultatType behandlingsresultat,
+                                                    Behandlingsresultat behandlingsresultat,
                                                     BehandlingDto dto,
                                                     boolean erBehandlingMedGjeldendeVedtak,
                                                     LocalDate vedtaksDato) {
@@ -102,7 +105,7 @@ public final class BehandlingDtoUtil {
             AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER,
             AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER,
             AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER);
-        return behandling.getÅpneAksjonspunkter(kriterier).size() > 0;
+        return !behandling.getÅpneAksjonspunkter(kriterier).isEmpty();
     }
 
     private static BehandlingÅrsakDto map(BehandlingÅrsak årsak) {
@@ -110,5 +113,9 @@ public final class BehandlingDtoUtil {
         dto.setBehandlingArsakType(årsak.getBehandlingÅrsakType());
         dto.setManueltOpprettet(årsak.erManueltOpprettet());
         return dto;
+    }
+
+    private static BehandlingResultatType getBehandlingsResultatType(Behandlingsresultat behandlingsresultat) {
+        return Optional.ofNullable(behandlingsresultat).map(Behandlingsresultat::getBehandlingResultatType).orElse(BehandlingResultatType.IKKE_FASTSATT);
     }
 }

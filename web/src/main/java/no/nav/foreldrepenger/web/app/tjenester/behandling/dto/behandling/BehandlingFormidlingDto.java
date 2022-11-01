@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import no.nav.foreldrepenger.web.app.rest.ResourceLink;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 
 /**
  * Dataobjekt som skal brukes som respons ut mot fp-formidling.
@@ -21,6 +22,9 @@ public class BehandlingFormidlingDto extends BehandlingDto {
     @JsonProperty("formidlingRessurser")
     private List<ResourceLink> formidlingRessurser = new ArrayList<>();
 
+    @JsonProperty("harAvklartAnnenForelderRett")
+    private Boolean harAvklartAnnenForelderRett;
+
     public List<ResourceLink> getFormidlingRessurser() {
         return formidlingRessurser;
     }
@@ -31,5 +35,13 @@ public class BehandlingFormidlingDto extends BehandlingDto {
 
     public void setFormidlingRessurser(List<ResourceLink> formidlingRessurser) {
         this.formidlingRessurser = formidlingRessurser;
+    }
+
+    public Boolean getHarAvklartAnnenForelderRett() {
+        return harAvklartAnnenForelderRett;
+    }
+
+    public void setHarAvklartAnnenForelderRett(Boolean harAvklartAnnenForelderRett) {
+        this.harAvklartAnnenForelderRett = harAvklartAnnenForelderRett;
     }
 }

@@ -1,16 +1,23 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
+
+import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -47,13 +54,6 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.FormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.BeregningsgrunnlagFormidlingRestTjeneste;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import java.util.Optional;
-
-import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
 
 /**
  * Bygger en BehandlingBrevDto som skal brukes til å populere brev for behandlinger behandlet i fpsak.
@@ -116,9 +116,7 @@ public class BehandlingFormidlingDtoTjeneste {
         var vedtaksDato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
             .map(BehandlingVedtak::getVedtaksdato)
             .orElse(null);
-        var behandlingsresultat = Optional.ofNullable(getBehandlingsresultat(behandling.getId()))
-            .map(Behandlingsresultat::getBehandlingResultatType).orElse(BehandlingResultatType.IKKE_FASTSATT);
-        BehandlingDtoUtil.setStandardfelter(behandling, behandlingsresultat, dto, vedtaksDato);
+        BehandlingDtoUtil.setStandardfelter(behandling, getBehandlingsresultat(behandling.getId()), dto, vedtaksDato);
         dto.setSpråkkode(getSpråkkode(behandling, søknadRepository, behandlingRepository));
         var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
@@ -204,6 +202,11 @@ public class BehandlingFormidlingDtoTjeneste {
                     dto.leggTil(get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger", uuidDto));
                 }
             } else {
+                var harAvklartAnnenForelderRett = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT)
+                    .filter(ap -> AksjonspunktStatus.UTFØRT.equals(ap.getStatus()))
+                    .isPresent();
+                dto.setHarAvklartAnnenForelderRett(harAvklartAnnenForelderRett);
+
                 var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
                 var stønadskontoberegning = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())
                     .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning);
@@ -284,11 +287,7 @@ public class BehandlingFormidlingDtoTjeneste {
         if (!behandling.erYtelseBehandling() || behandlingsresultat.isBehandlingHenlagt()) {
             return Optional.empty();
         }
-        var skjæringstidspunktHvisUtledet = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getSkjæringstidspunktHvisUtledet();
-        if (skjæringstidspunktHvisUtledet.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(new SkjæringstidspunktDto(skjæringstidspunktHvisUtledet.get()));
+        return SkjæringstidspunktDto.fraSkjæringstidspunkt(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
     }
 
     private boolean behandlingHarVergeAksjonspunkt(Behandling behandling) {
