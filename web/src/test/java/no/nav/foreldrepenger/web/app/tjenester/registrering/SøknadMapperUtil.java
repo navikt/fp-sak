@@ -44,7 +44,7 @@ public class SøknadMapperUtil {
         dto.setTema(FamilieHendelseType.FØDSEL);
         dto.setSoker(ForeldreType.MOR);
         dto.setMottattDato(LocalDate.now());
-        dto.setFoedselsDato(List.of(fødselssdato));
+        dto.setFoedselsDato(fødselssdato);
         dto.setAntallBarn(antallBarn);
         dto.setErBarnetFodt(erBarnetFødt);
     }

@@ -62,8 +62,7 @@ public abstract class ManuellRegistreringDto extends BekreftetAksjonspunktDto {
     @Max(9)
     private Integer antallBarn;
 
-    @Size(min = 1, max = 9)
-    private List<LocalDate> foedselsDato;
+    private LocalDate foedselsDato;
 
     @Valid
     private AnnenForelderDto annenForelder;
@@ -201,11 +200,11 @@ public abstract class ManuellRegistreringDto extends BekreftetAksjonspunktDto {
         this.antallBarn = antallBarn;
     }
 
-    public List<LocalDate> getFoedselsDato() {
+    public LocalDate getFoedselsDato() {
         return foedselsDato;
     }
 
-    public void setFoedselsDato(List<LocalDate> foedselsDato) {
+    public void setFoedselsDato(LocalDate foedselsDato) {
         this.foedselsDato = foedselsDato;
     }
 

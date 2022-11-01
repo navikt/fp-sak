@@ -169,7 +169,7 @@ public class ManuellRegistreringFellesValidatorTest {
         assertThat(feltFeil.get().getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.TERMINDATO_ELLER_FØDSELSDATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
-        registreringDto.setFoedselsDato(Collections.singletonList(LocalDate.now()));
+        registreringDto.setFoedselsDato(LocalDate.now());
         registreringDto.setTermindato(LocalDate.now());
 
         feltFeil = ManuellRegistreringFellesValidator.validerTerminEllerFødselsdato(registreringDto);
@@ -184,7 +184,7 @@ public class ManuellRegistreringFellesValidatorTest {
         assertThat(feltFeil).isNotPresent();
 
         registreringDto.setTermindato(LocalDate.now());
-        registreringDto.setFoedselsDato(Collections.emptyList());
+        registreringDto.setFoedselsDato(null);
 
         feltFeil = ManuellRegistreringFellesValidator.validerTerminEllerFødselsdato(registreringDto);
 
@@ -239,7 +239,7 @@ public class ManuellRegistreringFellesValidatorTest {
                 .isEqualTo(ManuellRegistreringValidatorTekster.TERMINBEKREFTELSESDATO_FØR_TERMINDATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
-        registreringDto.setFoedselsDato(singletonList(LocalDate.now()));
+        registreringDto.setFoedselsDato(LocalDate.now());
         registreringDto.setTerminbekreftelseDato(LocalDate.now().minusWeeks(1));
         feltFeil = ManuellRegistreringFellesValidator.validerTerminBekreftelsesdato(registreringDto);
         assertThat(feltFeil).as("Skal ikke fylle inn terminbekreftelsesdato når fødselsdato er fylt ut").isPresent();
@@ -265,7 +265,7 @@ public class ManuellRegistreringFellesValidatorTest {
         assertThat(feltFeil.get().getMelding()).as("Antall barn må være fylt ut").isEqualTo(PAAKREVD_FELT);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
-        registreringDto.setFoedselsDato(singletonList(LocalDate.now()));
+        registreringDto.setFoedselsDato(LocalDate.now());
         registreringDto.setAntallBarnFraTerminbekreftelse(1);
         feltFeil = ManuellRegistreringFellesValidator.validerTerminBekreftelseAntallBarn(registreringDto);
         assertThat(feltFeil).as("Skal ikke fylle inn terminbekreftelseAntallBarn når fødselsdato er fylt ut").isPresent();
@@ -279,7 +279,7 @@ public class ManuellRegistreringFellesValidatorTest {
         var forventetFeltnavn = "antallBarn";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
-        registreringDto.setFoedselsDato(singletonList(LocalDate.now()));
+        registreringDto.setFoedselsDato(LocalDate.now());
 
         var feltFeil = ManuellRegistreringFellesValidator.validerAntallBarn(registreringDto);
 
@@ -314,7 +314,7 @@ public class ManuellRegistreringFellesValidatorTest {
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
         registreringDto.setErBarnetFodt(Boolean.TRUE);
         registreringDto.setAntallBarn(1);
-        registreringDto.setFoedselsDato(Collections.singletonList(LocalDate.now().minusMonths(1)));
+        registreringDto.setFoedselsDato(LocalDate.now().minusMonths(1));
 
         var feltFeil = ManuellRegistreringFellesValidator.validerFødselsdato(registreringDto);
 
