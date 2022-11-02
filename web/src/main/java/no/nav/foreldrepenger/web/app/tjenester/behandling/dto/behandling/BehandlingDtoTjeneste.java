@@ -283,7 +283,7 @@ public class BehandlingDtoTjeneste {
 
         var uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(AksjonspunktRestTjeneste.AKSJONSPUNKT_V2_PATH, "aksjonspunkter", uuidDto));
-        dto.setAksjonspunkter(AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling)));
+        dto.setAksjonspunktene(AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling)));
         if (!dto.isErAktivPapirsoknad()) {
             dto.leggTil(get(VilkårRestTjeneste.VILKÅR_V2_PATH, "vilkar", uuidDto));
         }

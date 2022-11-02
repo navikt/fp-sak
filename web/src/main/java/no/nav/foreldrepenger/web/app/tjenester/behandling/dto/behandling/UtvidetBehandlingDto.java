@@ -15,8 +15,8 @@ public class UtvidetBehandlingDto extends BehandlingDto {
     @JsonProperty("ansvarligBeslutter")
     private String ansvarligBeslutter;
 
-    @JsonProperty("aksjonspunkter")
-    private Set<AksjonspunktDto> aksjonspunkter;
+    @JsonProperty("aksjonspunktene")
+    private Set<AksjonspunktDto> aksjonspunktene;
 
     @JsonProperty("harSøknad")
     private boolean harSøknad;
@@ -42,8 +42,8 @@ public class UtvidetBehandlingDto extends BehandlingDto {
         return taskStatus;
     }
 
-    public Set<AksjonspunktDto> getAksjonspunkter() {
-        return aksjonspunkter;
+    public Set<AksjonspunktDto> getAksjonspunktene() {
+        return aksjonspunktene;
     }
 
     public boolean getHarSøknad() {
@@ -70,8 +70,8 @@ public class UtvidetBehandlingDto extends BehandlingDto {
         this.taskStatus = asyncStatus;
     }
 
-    public void setAksjonspunkter(Set<AksjonspunktDto> aksjonspunkter) {
-        this.aksjonspunkter = aksjonspunkter;
+    public void setAksjonspunktene(Set<AksjonspunktDto> aksjonspunktene) {
+        this.aksjonspunktene = aksjonspunktene;
     }
 
     public void setHarSøknad(boolean harSøknad) {
