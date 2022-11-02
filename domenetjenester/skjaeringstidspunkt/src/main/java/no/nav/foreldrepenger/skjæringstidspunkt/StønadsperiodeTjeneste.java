@@ -162,7 +162,7 @@ public class StønadsperiodeTjeneste {
             .max(Comparator.naturalOrder());
     }
 
-    private Optional<LocalDate> stønadsperiodeStartdatoEnkeltSakBR(Behandling behandling) {
+    public Optional<LocalDate> stønadsperiodeStartdatoEnkeltSakBR(Behandling behandling) {
         return tilkjentRepository.hentUtbetBeregningsresultat(behandling.getId())
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
             .filter(p -> p.getDagsats() > 0)

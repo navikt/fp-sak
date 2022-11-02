@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.StønadsperiodeTjeneste;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ExtendWith(MockitoExtension.class)
 public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
@@ -144,7 +145,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(avsluttetFPBehMor.getId())).thenReturn(Optional.of(fhGrunnlagAnnenMock));
         Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
         Mockito.lenient().when(familieHendelseAnnenMock.getSkjæringstidspunkt()).thenReturn(FH_DATO.minusWeeks(1));
-        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(STP_NORMAL));
+        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(STP_NORMAL, STP_NORMAL)));
         avsluttetFPBehMor.avsluttBehandling();
 
         var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
@@ -219,7 +220,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(avsluttetFPBehMor.getId())).thenReturn(Optional.of(fhGrunnlagAnnenMock));
         Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
         Mockito.lenient().when(familieHendelseAnnenMock.getSkjæringstidspunkt()).thenReturn(FH_DATO.plusWeeks(1));
-        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(FH_DATO.minusWeeks(15)));
+        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(FH_DATO.minusWeeks(15), FH_DATO)));
         avsluttetFPBehMor.avsluttBehandling();
 
         var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
