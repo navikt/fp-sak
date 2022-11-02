@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.StønadsperiodeTjeneste;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.konfig.Tid;
 
 /*
@@ -143,7 +144,7 @@ public class StønadsperioderInnhenter {
         alleEgneSaker.stream()
             .filter(f -> f.getYtelseType().equals(aktuellType) ||
                 (FagsakYtelseType.SVANGERSKAPSPENGER.equals(aktuellType) && FagsakYtelseType.FORELDREPENGER.equals(f.getYtelseType())))
-            .flatMap(f -> opprettMuligSak(f, SaksForhold.EGEN_SAK).stream())
+            .flatMap(f -> opprettMuligSak(behandling, f, SaksForhold.EGEN_SAK).stream())
             .forEach(egneMuligeSaker::add);
         // Finn mødres saker der bruker er implisert
         if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER) && !RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType())) {
@@ -167,7 +168,7 @@ public class StønadsperioderInnhenter {
             .filter(f -> fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(f).flatMap(fr -> fr.getRelatertFagsak(f))
                 .filter(f2 -> egneFagsakerId.contains(f2.getId()) || f2.getSaksnummer().equals(egenSak.saksnummer())).isEmpty())
             .filter(f -> FagsakYtelseType.FORELDREPENGER.equals(f.getYtelseType()) && RelasjonsRolleType.erMor(f.getRelasjonsRolleType()))
-            .flatMap(f -> opprettMuligSak(f, SaksForhold.ANNEN_PART_SAK).stream())
+            .flatMap(f -> opprettMuligSak(behandling, f, SaksForhold.ANNEN_PART_SAK).stream())
             .forEach(egneMuligeSaker::add);
     }
 
@@ -179,11 +180,15 @@ public class StønadsperioderInnhenter {
             .toList();
     }
 
-    private Optional<MuligSak> opprettMuligSak(Fagsak fagsak, SaksForhold type) {
+    private Optional<MuligSak> opprettMuligSak(Behandling behandling, Fagsak fagsak, SaksForhold type) {
         var fhDato = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId())
             .flatMap(this::finnFamilieHendelseDato);
-        return stønadsperiodeTjeneste.stønadsperiodeStartdato(fagsak)
-            .map(d -> new MuligSak(fagsak.getYtelseType(), fagsak.getSaksnummer(), type, d, fhDato.orElse(Tid.TIDENES_ENDE)));
+        // Dersom aktuell sak er svp så ser vi på mors fp/svp-sak alene eller så ser vi på stønadsperioden
+        var startDato = FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) ?
+            stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(fagsak).map(LocalDateInterval::getFomDato) :
+            stønadsperiodeTjeneste.stønadsperiodeStartdato(fagsak);
+
+        return  startDato.map(d -> new MuligSak(fagsak.getYtelseType(), fagsak.getSaksnummer(), type, d, fhDato.orElse(Tid.TIDENES_ENDE)));
     }
 
     private Optional<LocalDate> finnFamilieHendelseDato(Behandling behandling) {
