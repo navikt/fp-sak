@@ -39,8 +39,4 @@ public class PerioderUttakDokumentasjonEntitet extends DokumentasjonPerioderEnti
         entitet.setPerioder(this);
         this.perioder.add(entitet);
     }
-
-    public void tilbakestillPerioder() {
-        this.perioder = new ArrayList<>();
-    }
 }

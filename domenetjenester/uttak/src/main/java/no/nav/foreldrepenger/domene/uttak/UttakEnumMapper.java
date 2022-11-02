@@ -13,11 +13,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.KontrollerAktivitetskravAvklaring;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
@@ -34,16 +32,15 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.regler.uttak.beregnkontoer.StønadskontoBeregningStønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.beregnkontoer.grunnlag.Dekningsgrad;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetType;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ArbeidsgiverIdentifikator;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedAvklartMorsAktivitet;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeVurderingType;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Perioderesultattype;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.GraderingIkkeInnvilgetÅrsak;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.Manuellbehandlingårsak;
 
@@ -52,7 +49,6 @@ public final class UttakEnumMapper {
     private static final KodeMapper<StønadskontoType, Stønadskontotype> STØNADSKONTOTYPE_KODE_MAPPER = initStønadskontotypeMapper();
     private static final KodeMapper<UttakPeriodeType, Stønadskontotype> UTTAK_PERIODE_TYPE_MAPPER = initUttakPeriodeTypeMapper();
     private static final KodeMapper<UtsettelseÅrsak, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak> UTSETTELSE_ÅRSAK_MAPPER = initUtsettelseÅrsakMapper();
-    private static final KodeMapper<UttakPeriodeVurderingType, PeriodeVurderingType> VURDERING_TYPE_MAPPER = initVurderingTypeMapper();
     private static final KodeMapper<OverføringÅrsak, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak> OVERFØRING_ÅRSAK_MAPPER = initOverføringÅrsakMapper();
     private static final KodeMapper<MorsAktivitet, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet> MORS_AKTIVITET_MAPPER = initMorsAktivitetMapper();
     private static final KodeMapper<UttakUtsettelseType, UtsettelseÅrsak> UTTAK_TIL_OPPGITT_UTSETTELSE_MAPPER = initUttakTilOppgittUtsettelseMapper();
@@ -199,21 +195,6 @@ public final class UttakEnumMapper {
             .build();
     }
 
-    public static PeriodeVurderingType map(UttakPeriodeVurderingType uttakPeriodeVurderingType) {
-        return VURDERING_TYPE_MAPPER
-            .map(uttakPeriodeVurderingType)
-            .orElseThrow(() -> new UnsupportedOperationException("Ikke støttet periodevurdering " + uttakPeriodeVurderingType.getKode()));
-    }
-
-    private static KodeMapper<UttakPeriodeVurderingType, PeriodeVurderingType> initVurderingTypeMapper() {
-        return KodeMapper
-            .medMapping(UttakPeriodeVurderingType.PERIODE_OK, PeriodeVurderingType.PERIODE_OK)
-            .medMapping(UttakPeriodeVurderingType.PERIODE_OK_ENDRET, PeriodeVurderingType.ENDRE_PERIODE)
-            .medMapping(UttakPeriodeVurderingType.PERIODE_KAN_IKKE_AVKLARES, PeriodeVurderingType.UAVKLART_PERIODE)
-            .medMapping(UttakPeriodeVurderingType.PERIODE_IKKE_VURDERT, PeriodeVurderingType.IKKE_VURDERT)
-            .build();
-    }
-
     public static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak map(OverføringÅrsak overføringÅrsak) {
         return OVERFØRING_ÅRSAK_MAPPER
             .map(overføringÅrsak)
@@ -333,7 +314,6 @@ public final class UttakEnumMapper {
         };
     }
 
-
     public static Arbeidsgiver mapArbeidsgiver(AktivitetIdentifikator aktivitetIdentifikator) {
         if (aktivitetIdentifikator == null || aktivitetIdentifikator.getArbeidsgiverIdentifikator() == null) {
             throw new IllegalArgumentException("Arbeidsgiver ident kan ikke være null");
@@ -353,17 +333,6 @@ public final class UttakEnumMapper {
         return UTTAK_TIL_OPPGITT_UTSETTELSE_MAPPER.map(utsettelseType);
     }
 
-    public static PeriodeMedAvklartMorsAktivitet.Resultat map(KontrollerAktivitetskravAvklaring avklaring) {
-        if (avklaring == null) {
-            return null;
-        }
-        return switch (avklaring) {
-            case I_AKTIVITET -> PeriodeMedAvklartMorsAktivitet.Resultat.I_AKTIVITET;
-            case IKKE_I_AKTIVITET_DOKUMENTERT -> PeriodeMedAvklartMorsAktivitet.Resultat.IKKE_I_AKTIVITET_DOKUMENTERT;
-            case IKKE_I_AKTIVITET_IKKE_DOKUMENTERT -> PeriodeMedAvklartMorsAktivitet.Resultat.IKKE_I_AKTIVITET_IKKE_DOKUMENTERT;
-        };
-    }
-
     public static FastsattUttakPeriode.ResultatÅrsak mapTilFastsattPeriodeÅrsak(PeriodeResultatÅrsak periodeResultatÅrsak) {
         if (PeriodeResultatÅrsak.FORELDREPENGER_KUN_FAR_HAR_RETT.equals(periodeResultatÅrsak)) {
             return FastsattUttakPeriode.ResultatÅrsak.INNVILGET_FORELDREPENGER_KUN_FAR_HAR_RETT;
@@ -378,5 +347,29 @@ public final class UttakEnumMapper {
             return FastsattUttakPeriode.ResultatÅrsak.UTSETTELSE_GYLDIG;
         }
         return FastsattUttakPeriode.ResultatÅrsak.ANNET;
+    }
+
+    public static DokumentasjonVurdering map(no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering dokumentasjonVurdering) {
+        if (dokumentasjonVurdering == null) {
+            return null;
+        }
+        return switch (dokumentasjonVurdering) {
+            case SYKDOM_SØKER_DOKUMENTERT -> DokumentasjonVurdering.SYKDOM_SØKER_DOKUMENTERT;
+            case SYKDOM_ANNEN_FORELDER_DOKUMENTERT -> DokumentasjonVurdering.SYKDOM_ANNEN_FORELDER_DOKUMENTERT;
+            case INNLEGGELSE_SØKER_DOKUMENTERT -> DokumentasjonVurdering.INNLEGGELSE_SØKER_DOKUMENTERT;
+            case INNLEGGELSE_ANNEN_FORELDER_DOKUMENTERT -> DokumentasjonVurdering.INNLEGGELSE_ANNEN_FORELDER_DOKUMENTERT;
+            case INNLEGGELSE_BARN_DOKUMENTERT -> DokumentasjonVurdering.INNLEGGELSE_BARN_DOKUMENTERT;
+            case HV_OVELSE_DOKUMENTERT -> DokumentasjonVurdering.HV_OVELSE_DOKUMENTERT;
+            case NAV_TILTAK_DOKUMENTERT -> DokumentasjonVurdering.NAV_TILTAK_DOKUMENTERT;
+            case MORS_AKTIVITET_DOKUMENTERT_AKTIVITET -> DokumentasjonVurdering.MORS_AKTIVITET_DOKUMENTERT_AKTIVITET;
+            case MORS_AKTIVITET_DOKUMENTERT_IKKE_AKTIVITET -> DokumentasjonVurdering.MORS_AKTIVITET_DOKUMENTERT_IKKE_AKTIVITET;
+            case MORS_AKTIVITET_IKKE_DOKUMENTERT -> DokumentasjonVurdering.MORS_AKTIVITET_IKKE_DOKUMENTERT;
+            case ALENEOMSORG_DOKUMENTERT -> DokumentasjonVurdering.ER_ALENEOMSORG;
+            case BARE_SØKER_RETT_DOKUMENTERT -> DokumentasjonVurdering.ER_BARE_SØKER_RETT;
+            case TIDLIG_OPPSTART_FEDREKVOTE_DOKUMENTERT -> DokumentasjonVurdering.TIDLIG_OPPSTART_FEDREKVOTE_DOKUMENTERT;
+            //Reglene trenger ikke å skille mellom "ikke dokumentert" og "ikke vurdert", setter derfor null
+            case SYKDOM_SØKER_IKKE_DOKUMENTERT, SYKDOM_ANNEN_FORELDER_IKKE_DOKUMENTERT, INNLEGGELSE_SØKER_IKKE_DOKUMENTERT, INNLEGGELSE_ANNEN_FORELDER_IKKE_DOKUMENTERT, INNLEGGELSE_BARN_IKKE_DOKUMENTERT, HV_OVELSE_IKKE_DOKUMENTERT,
+                NAV_TILTAK_IKKE_DOKUMENTERT, TIDLIG_OPPSTART_FEDREKVOTE_IKKE_DOKUMENTERT, ALENEOMSORG_IKKE_DOKUMENTERT, BARE_SØKER_RETT_IKKE_DOKUMENTERT -> null;
+        };
     }
 }

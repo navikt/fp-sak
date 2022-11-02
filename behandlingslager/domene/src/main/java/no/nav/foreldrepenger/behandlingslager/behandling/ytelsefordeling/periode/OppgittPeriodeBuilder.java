@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 
 public class OppgittPeriodeBuilder {
-    private OppgittPeriodeEntitet kladd;
+    private final OppgittPeriodeEntitet kladd;
 
     private OppgittPeriodeBuilder() {
         kladd = new OppgittPeriodeEntitet();
@@ -34,6 +34,7 @@ public class OppgittPeriodeBuilder {
                 .medVurdering(oppgittPeriode.getPeriodeVurderingType())
                 .medMottattDato(oppgittPeriode.getMottattDato())
                 .medTidligstMottattDato(oppgittPeriode.getTidligstMottattDato().orElse(null))
+                .medDokumentasjonVurdering(oppgittPeriode.getDokumentasjonVurdering())
                 .medPeriodeKilde(oppgittPeriode.getPeriodeKilde());
 
         if (oppgittPeriode.getArbeidsprosent() != null) {
@@ -118,6 +119,11 @@ public class OppgittPeriodeBuilder {
 
     public OppgittPeriodeBuilder medTidligstMottattDato(LocalDate tidligstMottattDato) {
         kladd.setTidligstMottattDato(tidligstMottattDato);
+        return this;
+    }
+
+    public OppgittPeriodeBuilder medDokumentasjonVurdering(DokumentasjonVurdering dokumentasjonVurdering) {
+        kladd.setDokumentasjonVurdering(dokumentasjonVurdering);
         return this;
     }
 
