@@ -579,7 +579,10 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                                                         LocalDate mottattDatoFraSøknad,
                                                         Boolean ønskerJustertVedFødsel) {
 
-        var oppgittPerioder = perioder.stream().map(this::oversettPeriode).toList();
+        var oppgittPerioder = perioder.stream()
+            .map(this::oversettPeriode)
+            .filter(this::inneholderVirkedager)
+            .toList();
         var filtrertPerioder = oppgittPeriodeTidligstMottattDatoTjeneste.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling, oppgittPerioder);
         var oppdatertPerioder = oppgittPeriodeTidligstMottattDatoTjeneste.oppdaterTidligstMottattDato(behandling, mottattDatoFraSøknad, filtrertPerioder);
         if (!inneholderVirkedager(oppdatertPerioder)) {
@@ -589,7 +592,11 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     }
 
     private boolean inneholderVirkedager(List<OppgittPeriodeEntitet> perioder) {
-        return perioder.stream().anyMatch(p -> Virkedager.beregnAntallVirkedager(p.getFom(), p.getTom()) > 0);
+        return perioder.stream().anyMatch(this::inneholderVirkedager);
+    }
+
+    private boolean inneholderVirkedager(OppgittPeriodeEntitet periode) {
+        return Virkedager.beregnAntallVirkedager(periode.getFom(), periode.getTom()) > 0;
     }
 
     private OppgittDekningsgradEntitet oversettDekningsgrad(Foreldrepenger omYtelse) {
