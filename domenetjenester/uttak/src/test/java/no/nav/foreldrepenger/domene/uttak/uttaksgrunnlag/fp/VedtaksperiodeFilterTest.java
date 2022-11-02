@@ -63,7 +63,7 @@ public class VedtaksperiodeFilterTest {
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad), uttakResultat);
+        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad), uttakResultat, true);
         assertThat(filtrert).hasSize(1);
         assertThat(filtrert.get(0)).isEqualTo(søknad);
     }
@@ -102,7 +102,7 @@ public class VedtaksperiodeFilterTest {
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad1, søknad2), uttakResultat);
+        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad1, søknad2), uttakResultat, true);
         assertThat(filtrert).hasSize(1);
         assertThat(filtrert.get(0)).isEqualTo(søknad2);
     }
@@ -134,7 +134,7 @@ public class VedtaksperiodeFilterTest {
                 .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
                 .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad), uttakResultat);
+        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad), uttakResultat, true);
         assertThat(filtrert).hasSize(1);
         assertThat(filtrert.get(0)).isEqualTo(søknad);
     }
@@ -171,7 +171,7 @@ public class VedtaksperiodeFilterTest {
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad1, søknad2), uttakResultat);
+        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad1, søknad2), uttakResultat, true);
         assertThat(filtrert).hasSize(2);
         assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad1))).isTrue();
         assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad2))).isTrue();
@@ -204,7 +204,7 @@ public class VedtaksperiodeFilterTest {
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad), uttakResultat);
+        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad), uttakResultat, true);
         assertThat(filtrert).hasSize(1);
         assertThat(filtrert.get(0)).isEqualTo(søknad);
     }
@@ -241,7 +241,7 @@ public class VedtaksperiodeFilterTest {
             .medArbeidsprosent(BigDecimal.TEN)
             .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad), uttakResultat);
+        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad), uttakResultat, true);
         assertThat(filtrert).hasSize(1);
         assertThat(filtrert.get(0).getFom()).isEqualTo(tom.plusDays(1));
     }
@@ -288,7 +288,7 @@ public class VedtaksperiodeFilterTest {
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad0, søknad1, søknad2), uttakResultat);
+        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad0, søknad1, søknad2), uttakResultat, true);
         assertThat(filtrert).hasSize(2);
         assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad1))).isTrue();
         assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad2))).isTrue();
@@ -338,7 +338,7 @@ public class VedtaksperiodeFilterTest {
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad0, søknad1), uttakResultat);
+        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad0, søknad1), uttakResultat, true);
         assertThat(filtrert).hasSize(2);
         assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad0))).isTrue();
         assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad1))).isTrue();
@@ -417,7 +417,7 @@ public class VedtaksperiodeFilterTest {
             .medMorsAktivitet(MorsAktivitet.UTDANNING)
             .build();
 
-        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad0, søknad1, søknad2), uttakResultat);
+        var filtrert = VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(123L, List.of(søknad0, søknad1, søknad2), uttakResultat, true);
         assertThat(filtrert).hasSize(1);
         assertThat(filtrert.stream().anyMatch(p -> p.equals(søknad2))).isTrue();
     }

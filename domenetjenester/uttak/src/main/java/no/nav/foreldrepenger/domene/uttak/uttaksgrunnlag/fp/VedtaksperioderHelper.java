@@ -76,7 +76,9 @@ public class VedtaksperioderHelper {
         }
 
         //avslått perioder med null trekk dager skal filtreres bort
-        if (avslåttPgaAvTaptPeriodeTilAnnenpart(periode)) {
+        // Fra før: avslått pga tap til annenpart
+        // Legger til avslått med 4002 som er en vanlig kilde til uttaks-aksjonspunkt
+        if (avslåttPgaAvTaptPeriodeTilAnnenpart(periode) || avslåttPgaTomKonto(periode)) {
             return false;
         }
 
@@ -90,6 +92,13 @@ public class VedtaksperioderHelper {
 
     public static boolean avslåttPgaAvTaptPeriodeTilAnnenpart(UttakResultatPeriodeEntitet periode) {
         return PeriodeResultatÅrsak.årsakerTilAvslagPgaAnnenpart().contains(periode.getResultatÅrsak())
+            && PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) && periode.getAktiviteter()
+            .stream()
+            .allMatch(aktivitet -> aktivitet.getTrekkdager().equals(Trekkdager.ZERO));
+    }
+
+    public static boolean avslåttPgaTomKonto(UttakResultatPeriodeEntitet periode) {
+        return PeriodeResultatÅrsak.IKKE_STØNADSDAGER_IGJEN.equals(periode.getResultatÅrsak())
             && PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) && periode.getAktiviteter()
             .stream()
             .allMatch(aktivitet -> aktivitet.getTrekkdager().equals(Trekkdager.ZERO));
