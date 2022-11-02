@@ -12,13 +12,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 
 
-class VilkårDtoMapper {
+public final class VilkårDtoMapper {
 
     private VilkårDtoMapper() {
         // SONAR - Utility classes should not have public constructors
     }
 
-    static List<VilkårDto> lagVilkarDto(Behandling behandling, Behandlingsresultat behandlingsresultat) {
+    public static List<VilkårDto> lagVilkarDto(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         return Optional.ofNullable(behandlingsresultat)
             .map(Behandlingsresultat::getVilkårResultat)
             .map(VilkårResultat::getVilkårene).orElse(List.of()).stream()

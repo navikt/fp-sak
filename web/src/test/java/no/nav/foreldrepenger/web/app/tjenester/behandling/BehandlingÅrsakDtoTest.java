@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
@@ -65,7 +66,7 @@ public class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
             behandlingDokumentRepository, relatertBehandlingTjeneste,
             foreldrepengerUttakTjeneste, null,
             new KontrollerAktivitetskravDtoTjeneste(repositoryProvider.getBehandlingRepository(),
-                ytelseFordelingTjeneste, uttakInputTjeneste, foreldrepengerUttakTjeneste));
+                ytelseFordelingTjeneste, uttakInputTjeneste, foreldrepengerUttakTjeneste), mock(TotrinnTjeneste.class));
     }
 
     @Test

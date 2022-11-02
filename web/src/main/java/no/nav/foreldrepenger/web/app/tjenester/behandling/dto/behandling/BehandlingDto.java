@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårDto;
 
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class BehandlingDto {
@@ -75,6 +76,8 @@ public class BehandlingDto {
     private BehandlingsresultatDto behandlingsresultat;
     @JsonProperty("behandlingÅrsaker")
     private List<BehandlingÅrsakDto> behandlingÅrsaker;
+    @JsonProperty("vilkår")
+    private List<VilkårDto> vilkår;
 
     /**
      * REST HATEOAS - pekere på data innhold som hentes fra andre url'er, eller handlinger som er tilgjengelig på behandling.
@@ -138,6 +141,10 @@ public class BehandlingDto {
 
     public BehandlingÅrsakDto getFørsteÅrsak() {
         return førsteÅrsak;
+    }
+
+    public List<VilkårDto> getVilkår() {
+        return vilkår;
     }
 
     public boolean isErAktivPapirsoknad() {
@@ -320,5 +327,9 @@ public class BehandlingDto {
 
     void setToTrinnsBehandling(boolean toTrinnsBehandling) {
         this.toTrinnsBehandling = toTrinnsBehandling;
+    }
+
+    public void setVilkår(List<VilkårDto> vilkår) {
+        this.vilkår = vilkår;
     }
 }

@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
@@ -42,6 +43,7 @@ import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDok
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.ApplicationConfig;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
@@ -92,7 +94,7 @@ public class BehandlingDtoTjenesteTest {
     public void setUp() {
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
                 opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste, foreldrepengerUttakTjeneste, null,
-                kontrollerAktivitetskravDtoTjeneste);
+                kontrollerAktivitetskravDtoTjeneste, mock(TotrinnTjeneste.class));
     }
 
     @Test

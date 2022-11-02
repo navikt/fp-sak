@@ -1,21 +1,17 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonProperty;
+
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class SkjæringstidspunktDto {
+public record SkjæringstidspunktDto(LocalDate dato, boolean kreverSammenhengendeUttak, boolean utenMinsterett) {
 
-    @JsonProperty("dato")
-    private final LocalDate dato;
-
-    public SkjæringstidspunktDto(LocalDate dato) {
-        this.dato = dato;
-    }
-
-    public LocalDate getDato() {
-        return dato;
+    public static Optional<SkjæringstidspunktDto> fraSkjæringstidspunkt(Skjæringstidspunkt skjæringstidspunkt) {
+        var dato = Optional.ofNullable(skjæringstidspunkt).flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet);
+        return dato.map(d -> new SkjæringstidspunktDto(d, skjæringstidspunkt.kreverSammenhengendeUttak(), skjæringstidspunkt.utenMinsterett()));
     }
 }

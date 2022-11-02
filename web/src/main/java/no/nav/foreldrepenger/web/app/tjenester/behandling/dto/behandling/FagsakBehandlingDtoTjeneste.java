@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -121,9 +120,7 @@ public class FagsakBehandlingDtoTjeneste {
                                            BehandlingRepository behandlingRepository) {
         var dto = new FagsakBehandlingDto();
         var uuidDto = new UuidDto(behandling.getUuid());
-        var behandlingsresultat = Optional.ofNullable(getBehandlingsresultat(behandling.getId()))
-            .map(Behandlingsresultat::getBehandlingResultatType).orElse(BehandlingResultatType.IKKE_FASTSATT);
-        BehandlingDtoUtil.setStandardfelterMedGjeldendeVedtak(behandling, behandlingsresultat, dto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
+        BehandlingDtoUtil.setStandardfelterMedGjeldendeVedtak(behandling, getBehandlingsresultat(behandling.getId()), dto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
         dto.setSpråkkode(getSpråkkode(behandling, søknadRepository, behandlingRepository));
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
 
@@ -215,11 +212,7 @@ public class FagsakBehandlingDtoTjeneste {
         if (!behandling.erYtelseBehandling() || behandlingsresultat.isBehandlingHenlagt()) {
             return Optional.empty();
         }
-        var skjæringstidspunktHvisUtledet = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getSkjæringstidspunktHvisUtledet();
-        if (skjæringstidspunktHvisUtledet.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(new SkjæringstidspunktDto(skjæringstidspunktHvisUtledet.get()));
+        return SkjæringstidspunktDto.fraSkjæringstidspunkt(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {

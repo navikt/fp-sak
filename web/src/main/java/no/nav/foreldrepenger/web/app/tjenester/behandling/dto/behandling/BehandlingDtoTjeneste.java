@@ -16,13 +16,13 @@ import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -31,6 +31,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
@@ -47,10 +50,12 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjenestePathHack1;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktDtoMapper;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BekreftedeAksjonspunkterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.anke.AnkeRestTjeneste;
@@ -110,6 +115,8 @@ public class BehandlingDtoTjeneste {
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
     private String fpoppdragOverrideProxyUrl;
     private KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste;
+    private TotrinnTjeneste totrinnTjeneste;
+    private YtelsesFordelingRepository ytelsesFordelingRepository;
 
     @Inject
     public BehandlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -121,7 +128,8 @@ public class BehandlingDtoTjeneste {
                                  RelatertBehandlingTjeneste relatertBehandlingTjeneste,
                                  ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                                  @KonfigVerdi(value = "fpoppdrag.override.proxy.url", required = false) String fpoppdragOverrideProxyUrl,
-                                 KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste) {
+                                 KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste,
+                                 TotrinnTjeneste totrinnTjeneste) {
 
         this.beregningTjeneste = beregningTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
@@ -138,6 +146,8 @@ public class BehandlingDtoTjeneste {
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
         this.fpoppdragOverrideProxyUrl = fpoppdragOverrideProxyUrl;
         this.kontrollerAktivitetskravDtoTjeneste = kontrollerAktivitetskravDtoTjeneste;
+        this.totrinnTjeneste = totrinnTjeneste;
+        this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
     }
 
     BehandlingDtoTjeneste() {
@@ -161,9 +171,7 @@ public class BehandlingDtoTjeneste {
                                            BehandlingRepository behandlingRepository) {
         var dto = new BehandlingDto();
         var uuidDto = new UuidDto(behandling.getUuid());
-        var behandlingsresultat = Optional.ofNullable(getBehandlingsresultat(behandling.getId()))
-            .map(Behandlingsresultat::getBehandlingResultatType).orElse(BehandlingResultatType.IKKE_FASTSATT);
-        BehandlingDtoUtil.setStandardfelterMedGjeldendeVedtak(behandling, behandlingsresultat, dto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
+        BehandlingDtoUtil.setStandardfelterMedGjeldendeVedtak(behandling, getBehandlingsresultat(behandling.getId()), dto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
         dto.setSpråkkode(getSpråkkode(behandling, søknadRepository, behandlingRepository));
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
 
@@ -233,9 +241,7 @@ public class BehandlingDtoTjeneste {
         var vedtaksDato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
             .map(BehandlingVedtak::getVedtaksdato)
             .orElse(null);
-        var behandlingsresultat = Optional.ofNullable(getBehandlingsresultat(behandling.getId()))
-            .map(Behandlingsresultat::getBehandlingResultatType).orElse(BehandlingResultatType.IKKE_FASTSATT);
-        BehandlingDtoUtil.settStandardfelterUtvidet(behandling, behandlingsresultat, dto, erBehandlingMedGjeldendeVedtak, vedtaksDato);
+        BehandlingDtoUtil.settStandardfelterUtvidet(behandling, getBehandlingsresultat(behandling.getId()), dto, erBehandlingMedGjeldendeVedtak, vedtaksDato);
         dto.setSpråkkode(getSpråkkode(behandling, søknadRepository, behandlingRepository));
         var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
@@ -277,6 +283,7 @@ public class BehandlingDtoTjeneste {
 
         var uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(AksjonspunktRestTjeneste.AKSJONSPUNKT_V2_PATH, "aksjonspunkter", uuidDto));
+        dto.setAksjonspunktene(AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling)));
         if (!dto.isErAktivPapirsoknad()) {
             dto.leggTil(get(VilkårRestTjeneste.VILKÅR_V2_PATH, "vilkar", uuidDto));
         }
@@ -328,6 +335,8 @@ public class BehandlingDtoTjeneste {
     private UtvidetBehandlingDto utvideBehandlingDto(Behandling behandling, UtvidetBehandlingDto dto) {
         var uuidDto = new UuidDto(behandling.getUuid());
         // mapping ved hjelp av tjenester
+        dto.setHarRegisterdata(behandlingRepository.hentSistOppdatertTidspunkt(behandling.getId()).isPresent());
+        dto.setHarSøknad(søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).isPresent());
         dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "soknad", uuidDto));
         dto.leggTil(get(SøknadRestTjeneste.SOKNAD_BACKEND_PATH, "soknad-backend", uuidDto));
         dto.leggTil(get(DokumentRestTjeneste.MOTTATT_DOKUMENTER_PATH, "mottattdokument", uuidDto));
@@ -353,9 +362,16 @@ public class BehandlingDtoTjeneste {
             dto.leggTil(get(OpptjeningRestTjeneste.UTLAND_DOK_STATUS_PATH, "utland-dok-status", uuidDto));
         }
 
+        var harSimuleringAksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VURDER_FEILUTBETALING).isPresent();
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
+            var beregning =  Optional.ofNullable(getBehandlingsresultat(behandling.getId()))
+                .map(Behandlingsresultat::getBeregningResultat)
+                .flatMap(LegacyESBeregningsresultat::getSisteBeregning)
+                .isPresent();
+            dto.setSjekkSimuleringResultat(beregning || harSimuleringAksjonspunkt);
             dto.leggTil(get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad", uuidDto));
         } else {
+            dto.setSjekkSimuleringResultat(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).isPresent() || harSimuleringAksjonspunkt);
             dto.leggTil(get(YtelsefordelingRestTjeneste.YTELSESFORDELING_PATH, "ytelsefordeling", uuidDto));
             dto.leggTil(get(OpptjeningRestTjeneste.OPPTJENING_PATH, "opptjening", uuidDto));
             dto.leggTil(get(FeriepengegrunnlagRestTjeneste.FERIEPENGER_PATH, "feriepengegrunnlag", uuidDto));
@@ -393,6 +409,9 @@ public class BehandlingDtoTjeneste {
                     dto.leggTil(get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger", uuidDto));
                 }
             } else {
+                var harSattEndringsdato = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
+                    .flatMap(YtelseFordelingAggregat::getAvklarteDatoer).map(AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato).isPresent();
+                dto.setHarSattEndringsdato(harSattEndringsdato);
                 dto.leggTil(get(UttakRestTjeneste.SAMMENHENGENDE_UTTAK_PATH, "krever-sammenhengende-uttak", uuidDto));
                 dto.leggTil(get(UttakRestTjeneste.UTEN_MINSTERETT_PATH, "uten-minsterett", uuidDto));
                 if (!kontrollerAktivitetskravDtoTjeneste.lagDtos(uuidDto).isEmpty()) {
@@ -487,11 +506,7 @@ public class BehandlingDtoTjeneste {
         if (!behandling.erYtelseBehandling() || behandlingsresultat.isBehandlingHenlagt()) {
             return Optional.empty();
         }
-        var skjæringstidspunktHvisUtledet = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getSkjæringstidspunktHvisUtledet();
-        if (skjæringstidspunktHvisUtledet.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(new SkjæringstidspunktDto(skjæringstidspunktHvisUtledet.get()));
+        return SkjæringstidspunktDto.fraSkjæringstidspunkt(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
     }
 
     private Optional<ResourceLink> lagSimuleringResultatLink(Behandling behandling) {
