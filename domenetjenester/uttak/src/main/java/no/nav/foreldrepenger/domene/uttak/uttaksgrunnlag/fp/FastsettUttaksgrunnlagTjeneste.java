@@ -72,7 +72,8 @@ public class FastsettUttaksgrunnlagTjeneste {
             var originalBehandlingId = ref.getOriginalBehandlingId()
                 .orElseThrow(() -> new IllegalArgumentException("Utvikler-feil: ved revurdering skal det alltid finnes en original behandling"));
             if (behandlingHarUttaksresultat(originalBehandlingId)) {
-                justertePerioder = kopierVedtaksperioderFomEndringsdato(justertePerioder, endringsdatoRevurdering, originalBehandlingId);
+                justertePerioder = kopierVedtaksperioderFomEndringsdato(justertePerioder, endringsdatoRevurdering, originalBehandlingId,
+                    input.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak());
             } else {
                 justertePerioder = oppgittePerioderFraForrigeBehandling(originalBehandlingId);
             }
@@ -147,10 +148,12 @@ public class FastsettUttaksgrunnlagTjeneste {
 
     private List<OppgittPeriodeEntitet> kopierVedtaksperioderFomEndringsdato(List<OppgittPeriodeEntitet> oppgittePerioder,
                                                                              LocalDate endringsdato,
-                                                                             Long forrigeBehandling) {
+                                                                             Long forrigeBehandling,
+                                                                             boolean kreverSammenhengendeUttak) {
         //Kopier vedtaksperioder fom endringsdato.
         var uttakResultatEntitet = fpUttakRepository.hentUttakResultat(forrigeBehandling);
-        return VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, oppgittePerioder, endringsdato);
+        return VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, oppgittePerioder, endringsdato,
+            p -> !VedtaksperioderHelper.avslåttPgaTomKonto(p) || kreverSammenhengendeUttak);
     }
 
     private record FHSøknadGjeldende(Optional<LocalDate> søknad, LocalDate gjeldende) {

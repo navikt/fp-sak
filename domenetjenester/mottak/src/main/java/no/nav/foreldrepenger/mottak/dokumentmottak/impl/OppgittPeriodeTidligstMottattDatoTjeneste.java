@@ -94,7 +94,8 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
         }
 
         var tidligstedato = nysøknad.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder()).orElseThrow();
-        List<OppgittPeriodeEntitet> perioderForrigeUttak = forrigeUttak != null ? VedtaksperioderHelper.opprettOppgittePerioder(forrigeUttak, List.of(), tidligstedato) : List.of();
+        List<OppgittPeriodeEntitet> perioderForrigeUttak = forrigeUttak != null ? VedtaksperioderHelper.opprettOppgittePerioder(forrigeUttak, List.of(), tidligstedato,
+            p -> true) : List.of();
         List<OppgittPeriodeEntitet> perioderForrigeUttakSøknad = forrigeUttak != null ?  VedtaksperiodeMottattdatoHelper.opprettOppgittePerioderSøknadverdier(forrigeUttak, tidligstedato) : List.of();
 
         // Bygg tidslinjer for uttaksperioder

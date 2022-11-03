@@ -40,10 +40,11 @@ public class VedtaksperioderHelper {
     }
 
     public static List<OppgittPeriodeEntitet> opprettOppgittePerioder(UttakResultatEntitet uttakResultatFraForrigeBehandling,
-                                                        List<OppgittPeriodeEntitet> søknadsperioder,
-                                                        LocalDate endringsdato) {
+                                                                      List<OppgittPeriodeEntitet> søknadsperioder,
+                                                                      LocalDate endringsdato,
+                                                                      Predicate<UttakResultatPeriodeEntitet> filter) {
         var førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
-        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling, endringsdato, førsteSøknadsdato, p -> true);
+        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling, endringsdato, førsteSøknadsdato, filter);
 
         List<OppgittPeriodeEntitet> søknadOgVedtaksperioder = new ArrayList<>();
         søknadsperioder.forEach(op -> søknadOgVedtaksperioder.add(OppgittPeriodeBuilder.fraEksisterende(op).build()));
