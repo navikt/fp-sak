@@ -37,10 +37,6 @@ public final class VedtaksperiodeFilter {
     private VedtaksperiodeFilter() {
     }
 
-    public static List<OppgittPeriodeEntitet> filtrerVekkPerioderSomErLikeInnvilgetUttak(Long behandlingId, List<OppgittPeriodeEntitet> nysøknad, UttakResultatEntitet uttakResultatFraForrigeBehandling) {
-        return filtrerVekkPerioderSomErLikeInnvilgetUttak(behandlingId, nysøknad, uttakResultatFraForrigeBehandling, true);
-    }
-
     public static List<OppgittPeriodeEntitet> filtrerVekkPerioderSomErLikeInnvilgetUttak(Long behandlingId,
                                                                                          List<OppgittPeriodeEntitet> nysøknad,
                                                                                          UttakResultatEntitet uttakResultatFraForrigeBehandling,

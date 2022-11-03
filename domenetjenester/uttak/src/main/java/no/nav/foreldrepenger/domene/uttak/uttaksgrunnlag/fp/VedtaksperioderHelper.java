@@ -40,10 +40,11 @@ public class VedtaksperioderHelper {
     }
 
     public static List<OppgittPeriodeEntitet> opprettOppgittePerioder(UttakResultatEntitet uttakResultatFraForrigeBehandling,
-                                                        List<OppgittPeriodeEntitet> søknadsperioder,
-                                                        LocalDate endringsdato) {
+                                                                      List<OppgittPeriodeEntitet> søknadsperioder,
+                                                                      LocalDate endringsdato,
+                                                                      Predicate<UttakResultatPeriodeEntitet> filter) {
         var førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
-        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling, endringsdato, førsteSøknadsdato, p -> true);
+        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling, endringsdato, førsteSøknadsdato, filter);
 
         List<OppgittPeriodeEntitet> søknadOgVedtaksperioder = new ArrayList<>();
         søknadsperioder.forEach(op -> søknadOgVedtaksperioder.add(OppgittPeriodeBuilder.fraEksisterende(op).build()));
@@ -76,7 +77,9 @@ public class VedtaksperioderHelper {
         }
 
         //avslått perioder med null trekk dager skal filtreres bort
-        if (avslåttPgaAvTaptPeriodeTilAnnenpart(periode)) {
+        // Fra før: avslått pga tap til annenpart
+        // Legger til avslått med 4002 som er en vanlig kilde til uttaks-aksjonspunkt
+        if (avslåttPgaAvTaptPeriodeTilAnnenpart(periode) || avslåttPgaTomKonto(periode)) {
             return false;
         }
 
@@ -90,6 +93,13 @@ public class VedtaksperioderHelper {
 
     public static boolean avslåttPgaAvTaptPeriodeTilAnnenpart(UttakResultatPeriodeEntitet periode) {
         return PeriodeResultatÅrsak.årsakerTilAvslagPgaAnnenpart().contains(periode.getResultatÅrsak())
+            && PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) && periode.getAktiviteter()
+            .stream()
+            .allMatch(aktivitet -> aktivitet.getTrekkdager().equals(Trekkdager.ZERO));
+    }
+
+    public static boolean avslåttPgaTomKonto(UttakResultatPeriodeEntitet periode) {
+        return PeriodeResultatÅrsak.IKKE_STØNADSDAGER_IGJEN.equals(periode.getResultatÅrsak())
             && PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) && periode.getAktiviteter()
             .stream()
             .allMatch(aktivitet -> aktivitet.getTrekkdager().equals(Trekkdager.ZERO));
