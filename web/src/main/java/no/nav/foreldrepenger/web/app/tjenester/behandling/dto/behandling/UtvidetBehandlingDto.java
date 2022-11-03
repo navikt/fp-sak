@@ -18,6 +18,9 @@ public class UtvidetBehandlingDto extends BehandlingDto {
     @JsonProperty("aksjonspunktene")
     private Set<AksjonspunktDto> aksjonspunktene;
 
+    @JsonProperty("aksjonspunkt")
+    private Set<AksjonspunktDto> aksjonspunkt;
+
     @JsonProperty("harSøknad")
     private boolean harSøknad;
 
@@ -46,6 +49,10 @@ public class UtvidetBehandlingDto extends BehandlingDto {
         return aksjonspunktene;
     }
 
+    public Set<AksjonspunktDto> getAksjonspunkt() {
+        return aksjonspunkt;
+    }
+
     public boolean getHarSøknad() {
         return harSøknad;
     }
@@ -72,6 +79,10 @@ public class UtvidetBehandlingDto extends BehandlingDto {
 
     public void setAksjonspunktene(Set<AksjonspunktDto> aksjonspunktene) {
         this.aksjonspunktene = aksjonspunktene;
+    }
+
+    public void setAksjonspunkt(Set<AksjonspunktDto> aksjonspunkt) {
+        this.aksjonspunkt = aksjonspunkt;
     }
 
     public void setHarSøknad(boolean harSøknad) {
