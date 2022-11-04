@@ -102,21 +102,19 @@ public class SøknadGrunnlagBygger {
             .map(akp -> new LocalDateSegment<>(akp.getTidsperiode().getFomDato(), akp.getTidsperiode().getTomDato(), akp)).toList());
 
         return opTimeline.combine(dokTimeline, (interval, op, dok) -> {
-            if (op.getValue().getDokumentasjonVurdering() != null) {
-                return op;
-            }
+            var eksisterendeDokVurdering = op.getValue().getDokumentasjonVurdering();
+            var dokumentasjonVurdering = eksisterendeDokVurdering != null || dok == null ? eksisterendeDokVurdering : utledDokumentasjonVurdering(dok.getValue());
             var nyOp = OppgittPeriodeBuilder.fraEksisterende(op.getValue())
                 .medPeriode(interval.getFomDato(), interval.getTomDato())
-                .medDokumentasjonVurdering(dok == null ? null : utledDokumentasjonVurdering(dok.getValue()))
+                .medDokumentasjonVurdering(dokumentasjonVurdering)
                 .build();
             return new LocalDateSegment<>(interval, nyOp);
         }, JoinStyle.LEFT_JOIN).combine(aktKravTimeline, (interval, op, aktkravDok) -> {
-            if (op.getValue().getDokumentasjonVurdering() != null) {
-                return op;
-            }
+            var eksisterendeDokVurdering = op.getValue().getDokumentasjonVurdering();
+            var dokumentasjonVurdering = eksisterendeDokVurdering != null || aktkravDok == null ? eksisterendeDokVurdering : utledDokumentasjonVurdering(aktkravDok.getValue());
             var nyOp = OppgittPeriodeBuilder.fraEksisterende(op.getValue())
                 .medPeriode(interval.getFomDato(), interval.getTomDato())
-                .medDokumentasjonVurdering(aktkravDok == null ? null : utledDokumentasjonVurdering(aktkravDok.getValue()))
+                .medDokumentasjonVurdering(dokumentasjonVurdering)
                 .build();
             return new LocalDateSegment<>(interval, nyOp);
         }, JoinStyle.LEFT_JOIN).toSegments().stream()

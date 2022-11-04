@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
+import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering.HV_OVELSE_DOKUMENTERT;
 import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering.INNLEGGELSE_BARN_DOKUMENTERT;
 import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering.MORS_AKTIVITET_DOKUMENTERT_AKTIVITET;
 import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering.MORS_AKTIVITET_DOKUMENTERT_IKKE_AKTIVITET;
@@ -232,16 +233,24 @@ class SøknadGrunnlagByggerTest {
             .medÅrsak(UtsettelseÅrsak.SYKDOM)
             .medPeriode(fom, tom)
             .build();
+        var utsettelseHV = OppgittPeriodeBuilder.ny()
+            .medÅrsak(UtsettelseÅrsak.HV_OVELSE)
+            .medPeriode(tom.plusDays(1), tom.plusWeeks(5))
+            .build();
 
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medFordeling(new OppgittFordelingEntitet(List.of(utsettelseSykdom), true))
+            .medFordeling(new OppgittFordelingEntitet(List.of(utsettelseSykdom, utsettelseHV), true))
             .lagre(repositoryProvider);
         var dokPerioder = new PerioderUttakDokumentasjonEntitet();
         dokPerioder.leggTil(new PeriodeUttakDokumentasjonEntitet(utsettelseSykdom.getFom(), utsettelseSykdom.getTom(), UttakDokumentasjonType.SYK_SØKER));
+        dokPerioder.leggTil(new PeriodeUttakDokumentasjonEntitet(utsettelseHV.getFom(), utsettelseHV.getTom(), UttakDokumentasjonType.HV_OVELSE));
         var aktivitetskravPeriode1 = new AktivitetskravPeriodeEntitet(utsettelseSykdom.getFom(), utsettelseSykdom.getTom(),
+            KontrollerAktivitetskravAvklaring.I_AKTIVITET, "oki.");
+        var aktivitetskravPeriode2 = new AktivitetskravPeriodeEntitet(utsettelseHV.getFom().plusWeeks(1), utsettelseHV.getTom().minusWeeks(1),
             KontrollerAktivitetskravAvklaring.I_AKTIVITET, "oki.");
         var aktivitetskravPerioder = new AktivitetskravPerioderEntitet();
         aktivitetskravPerioder.leggTil(aktivitetskravPeriode1);
+        aktivitetskravPerioder.leggTil(aktivitetskravPeriode2);
         var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
             .medPerioderUttakDokumentasjon(new PerioderUttakDokumentasjonEntitet(dokPerioder))
             .medSaksbehandledeAktivitetskravPerioder(aktivitetskravPerioder)
@@ -252,10 +261,22 @@ class SøknadGrunnlagByggerTest {
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, ytelsespesifiktGrunnlag);
         var grunnlag = søknadGrunnlagBygger.byggGrunnlag(input).build();
 
-        assertThat(grunnlag.getOppgittePerioder()).hasSize(1);
+        assertThat(grunnlag.getOppgittePerioder()).hasSize(4);
         assertThat(grunnlag.getOppgittePerioder().get(0).getDokumentasjonVurdering()).isEqualTo(SYKDOM_SØKER_DOKUMENTERT);
         assertThat(grunnlag.getOppgittePerioder().get(0).getFom()).isEqualTo(utsettelseSykdom.getFom());
         assertThat(grunnlag.getOppgittePerioder().get(0).getTom()).isEqualTo(utsettelseSykdom.getTom());
+
+        assertThat(grunnlag.getOppgittePerioder().get(1).getDokumentasjonVurdering()).isEqualTo(HV_OVELSE_DOKUMENTERT);
+        assertThat(grunnlag.getOppgittePerioder().get(1).getFom()).isEqualTo(utsettelseHV.getFom());
+        assertThat(grunnlag.getOppgittePerioder().get(1).getTom()).isEqualTo(aktivitetskravPeriode2.getTidsperiode().getFomDato().minusDays(1));
+
+        assertThat(grunnlag.getOppgittePerioder().get(2).getDokumentasjonVurdering()).isEqualTo(HV_OVELSE_DOKUMENTERT);
+        assertThat(grunnlag.getOppgittePerioder().get(2).getFom()).isEqualTo(aktivitetskravPeriode2.getTidsperiode().getFomDato());
+        assertThat(grunnlag.getOppgittePerioder().get(2).getTom()).isEqualTo(aktivitetskravPeriode2.getTidsperiode().getTomDato());
+
+        assertThat(grunnlag.getOppgittePerioder().get(3).getDokumentasjonVurdering()).isEqualTo(HV_OVELSE_DOKUMENTERT);
+        assertThat(grunnlag.getOppgittePerioder().get(3).getFom()).isEqualTo(aktivitetskravPeriode2.getTidsperiode().getTomDato().plusDays(1));
+        assertThat(grunnlag.getOppgittePerioder().get(3).getTom()).isEqualTo(utsettelseHV.getTom());
     }
 
     @Test
