@@ -13,8 +13,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUtenOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -536,7 +535,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         // Act
 
-        var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
+        var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato, true);
         var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         // Assert
         var uttakResultatPerioder = resultat.getPerioder();
@@ -612,7 +611,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         // Act
 
-        var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
+        var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato, true);
         var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         // Assert
         var uttakResultatPerioder = resultat.getPerioder();

@@ -82,15 +82,16 @@ public class StønadskontoSaldoTjeneste {
         var sisteSøknadOpprettetTidspunktAnnenpart = fpGrunnlag.getAnnenpart()
             .map(Annenpart::søknadOpprettetTidspunkt)
             .orElse(null);
+        var kreverSammenhengendeUttak = uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak();
         if (stønadskontoer.isPresent() && perioderSøker.size() > 0) {
             var perioderAnnenpart = perioderAnnenpart(fpGrunnlag);
             var kontoer  = kontoerGrunnlagBygger.byggGrunnlag(uttakInput).build();
             return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(perioderSøker,
                 berørtBehandling, perioderAnnenpart, kontoer, søknadOpprettetTidspunkt,
-                sisteSøknadOpprettetTidspunktAnnenpart);
+                sisteSøknadOpprettetTidspunktAnnenpart, kreverSammenhengendeUttak);
         }
         return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(List.of(), berørtBehandling,
-            List.of(), new Kontoer.Builder().build(), søknadOpprettetTidspunkt, sisteSøknadOpprettetTidspunktAnnenpart);
+            List.of(), new Kontoer.Builder().build(), søknadOpprettetTidspunkt, sisteSøknadOpprettetTidspunktAnnenpart, kreverSammenhengendeUttak);
     }
 
     public boolean erNegativSaldoPåNoenKonto(UttakInput uttakInput) {
