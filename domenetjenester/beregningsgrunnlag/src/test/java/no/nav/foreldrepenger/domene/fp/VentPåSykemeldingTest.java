@@ -212,7 +212,7 @@ class VentPåSykemeldingTest {
             .medYtelseType(type)
             .medStatus(status)
             .medKilde(Fagsystem.INFOTRYGD)
-            .medSaksnummer(new Saksnummer("333"));
+            .medSaksnummer(new Saksnummer("3339"));
     }
 
 }

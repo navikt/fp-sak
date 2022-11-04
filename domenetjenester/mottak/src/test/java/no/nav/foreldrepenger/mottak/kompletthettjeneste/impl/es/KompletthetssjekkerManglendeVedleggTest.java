@@ -28,15 +28,15 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class KompletthetssjekkerManglendeVedleggTest {
 
-    private static final Saksnummer SAKSNUMMER  = new Saksnummer("123");
+    private static final Saksnummer SAKSNUMMER  = new Saksnummer("9999");
 
     private final DokumentArkivTjeneste dokumentArkivTjeneste = mock(DokumentArkivTjeneste.class);
     private final SøknadRepository søknadRepository = mock(SøknadRepository.class);
-    private KompletthetsjekkerImpl kompletthetssjekker = lagKompletthetssjekkerEngangsstønad(dokumentArkivTjeneste, søknadRepository);
+    private final KompletthetsjekkerImpl kompletthetssjekker = lagKompletthetssjekkerEngangsstønad(dokumentArkivTjeneste, søknadRepository);
 
-    private DokumentTypeId dokumentTypeIdDokumentasjonAvTerminEllerFødsel = DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL;
-    private DokumentTypeId dokumentTypeIdDokumentasjonAvOmsorgsovertakelse = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
-    private DokumentTypeId dokumentTypeIdUdefinert = DokumentTypeId.UDEFINERT;
+    private final DokumentTypeId dokumentTypeIdDokumentasjonAvTerminEllerFødsel = DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL;
+    private final DokumentTypeId dokumentTypeIdDokumentasjonAvOmsorgsovertakelse = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
+    private final DokumentTypeId dokumentTypeIdUdefinert = DokumentTypeId.UDEFINERT;
 
     private static KompletthetsjekkerImpl lagKompletthetssjekkerEngangsstønad(DokumentArkivTjeneste dokumentArkivTjeneste, SøknadRepository søknadRepository) {
         var repositoryProvider = mock(BehandlingRepositoryProvider.class);

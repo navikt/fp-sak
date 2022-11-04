@@ -64,7 +64,7 @@ public class SimulerOppdragTjenesteESTest {
         var behandling = Behandling.nyBehandlingFor(
             Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("123456789")),
             BehandlingType.FØRSTEGANGSSØKNAD).build();
-        behandlingId = 123L;
+        behandlingId = 1234L;
 
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
         when(behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId)).thenReturn(Optional.of(BehandlingVedtak.builder()

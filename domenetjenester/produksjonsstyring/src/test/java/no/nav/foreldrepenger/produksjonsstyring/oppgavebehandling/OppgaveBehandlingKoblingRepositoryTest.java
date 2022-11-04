@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 
 public class OppgaveBehandlingKoblingRepositoryTest extends EntityManagerAwareTest {
 
-    private static final Saksnummer DUMMY_SAKSNUMMER = new Saksnummer("123");
+    private static final Saksnummer DUMMY_SAKSNUMMER = new Saksnummer("1234123");
     private EntityManager entityManager;
 
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;

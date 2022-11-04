@@ -25,7 +25,7 @@ public class BehandlingLåsTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_finne_behandling_gitt_id() {
-        var fagsak = FagsakBuilder.nyEngangstønadForMor().medSaksnummer(new Saksnummer("2")).build();
+        var fagsak = FagsakBuilder.nyEngangstønadForMor().medSaksnummer(new Saksnummer("299999")).build();
         entityManager.persist(fagsak.getNavBruker());
         entityManager.persist(fagsak);
         entityManager.flush();

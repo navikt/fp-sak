@@ -308,7 +308,8 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
     @Test
     public void skal_ikke_opprette_køet_behandling_når_alle_henlagt() {
         // Arrange - opprette fagsak uten behandling
-        var fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("123"), fagsakRepository, fagsakRelasjonRepository);
+        var fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
+            fagsakRepository, fagsakRelasjonRepository);
 
         // Arrange - mock tjenestekall
         var behandling = mock(Behandling.class);

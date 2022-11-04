@@ -124,9 +124,9 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
             LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
 
-        var fsmock1 = lagMockFagsak(1L, new Saksnummer("1"), true);
+        var fsmock1 = lagMockFagsak(1L, new Saksnummer("1234"), true);
         lenient().when(fsmock1.getOpprettetTidspunkt()).thenReturn(LocalDateTime.now().minusMonths(9));
-        var fsmock2 = lagMockFagsak(2L, new Saksnummer("2"), true);
+        var fsmock2 = lagMockFagsak(2L, new Saksnummer("2345"), true);
         lenient().when(fsmock2.getOpprettetTidspunkt()).thenReturn(LocalDateTime.now().minusMonths(4));
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(List.of(fsmock1, fsmock2));
@@ -153,9 +153,9 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
             LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
 
-        var fsmock1 = lagMockFagsak(1L, new Saksnummer("1"), true);
+        var fsmock1 = lagMockFagsak(1L, new Saksnummer("1234"), true);
         lenient().when(fsmock1.getOpprettetTidspunkt()).thenReturn(LocalDateTime.now().minusMonths(13));
-        var fsmock2 = lagMockFagsak(2L, new Saksnummer("2"), true);
+        var fsmock2 = lagMockFagsak(2L, new Saksnummer("2345"), true);
         lenient().when(fsmock2.getOpprettetTidspunkt()).thenReturn(LocalDateTime.now().minusMonths(1));
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(List.of(fsmock1, fsmock2));
@@ -182,9 +182,9 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
             LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
 
-        var fsmock1 = lagMockFagsak(1L, new Saksnummer("1"), true);
+        var fsmock1 = lagMockFagsak(1L, new Saksnummer("1234"), true);
         lenient().when(fsmock1.getOpprettetTidspunkt()).thenReturn(LocalDateTime.now().minusMonths(33));
-        var fsmock2 = lagMockFagsak(2L, new Saksnummer("2"), true);
+        var fsmock2 = lagMockFagsak(2L, new Saksnummer("2345"), true);
         lenient().when(fsmock1.getOpprettetTidspunkt()).thenReturn(LocalDateTime.now().minusMonths(13));
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(List.of(fsmock1, fsmock2));
@@ -215,7 +215,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
             LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
 
-        var fsmock1 = lagMockFagsak(1L, new Saksnummer("1"), true);
+        var fsmock1 = lagMockFagsak(1L, new Saksnummer("1234"), true);
         lenient().when(fsmock1.getOpprettetTidspunkt()).thenReturn(LocalDateTime.now().minusMonths(13));
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(List.of(fsmock1));
@@ -240,7 +240,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
             LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
 
-        var fsmock1 = lagMockFagsak(1L, new Saksnummer("1"), true);
+        var fsmock1 = lagMockFagsak(1L, new Saksnummer("1234"), true);
         lenient().when(fsmock1.getOpprettetTidspunkt()).thenReturn(LocalDateTime.now().minusMonths(13));
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(List.of(fsmock1));

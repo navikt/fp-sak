@@ -38,7 +38,7 @@ public class EksisterendeOppdragMapperTest {
     Periode p2 = Periode.of(nå.plusDays(6), nå.plusDays(10));
     Periode p3 = Periode.of(nå.plusDays(11), nå.plusDays(11));
 
-    Saksnummer saksnummer = new Saksnummer("1");
+    Saksnummer saksnummer = new Saksnummer("12345");
 
     String frnBruker = "12345678901";
 

@@ -222,7 +222,7 @@ public class VergeTjenesteTest extends EntityManagerAwareTest {
 
     private Fagsak opprettFagsak() {
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()),
-            RelasjonsRolleType.MORA, new Saksnummer("123"));
+            RelasjonsRolleType.MORA, new Saksnummer("0123"));
         fagsakRepository.opprettNy(fagsak);
         return fagsak;
     }

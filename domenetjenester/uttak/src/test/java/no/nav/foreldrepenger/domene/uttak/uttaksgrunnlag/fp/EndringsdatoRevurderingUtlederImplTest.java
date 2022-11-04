@@ -818,7 +818,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         var aktørYtelseBuilder = iayBuilder.getAktørYtelseBuilder(
             AKTØR_ID_MOR);
         var ytelselseBuilder = aktørYtelseBuilder.getYtelselseBuilderForType(Fagsystem.FPSAK,
-            RelatertYtelseType.FORELDREPENGER, new Saksnummer("1"));
+            RelatertYtelseType.FORELDREPENGER, new Saksnummer("01"));
         ytelselseBuilder.tilbakestillAnvisteYtelser();
         var ytelse = ytelselseBuilder.medKilde(Fagsystem.FPSAK)
             .medYtelseType(RelatertYtelseType.FORELDREPENGER)

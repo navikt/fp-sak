@@ -33,7 +33,7 @@ public class OppgaveRedirectTjenesteTest {
     private final OppgaveRedirectTjeneste tjeneste = new OppgaveRedirectTjeneste(oppgaveRepo, fagsakRepo, behandlingRepository,
         redirectFactory);
 
-    private final Saksnummer saksnummer = new Saksnummer("22");
+    private final Saksnummer saksnummer = new Saksnummer("022");
 
     @BeforeEach
     public void setLoadBalancerUrl() {
@@ -74,7 +74,7 @@ public class OppgaveRedirectTjenesteTest {
         var response = tjeneste.doRedirect(new OppgaveIdDto("1"), null);
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
         assertThat(response.getLocation().toString())
-                .isEqualTo("https://erstatter.nav.no/fpsak/fagsak/22/behandling/" + behandling.getUuid().toString() + "/?punkt=default&fakta=default");
+                .isEqualTo("https://erstatter.nav.no/fpsak/fagsak/" + saksnummer.getVerdi() + "/behandling/" + behandling.getUuid().toString() + "/?punkt=default&fakta=default");
     }
 
     @Test
@@ -86,7 +86,7 @@ public class OppgaveRedirectTjenesteTest {
 
         var response = tjeneste.doRedirect(new OppgaveIdDto("1"), new SaksnummerDto(saksnummer));
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
-        assertThat(response.getLocation().toString()).isEqualTo("https://erstatter.nav.no/fpsak/fagsak/22/");
+        assertThat(response.getLocation().toString()).isEqualTo("https://erstatter.nav.no/fpsak/fagsak/" + saksnummer.getVerdi() + "/");
     }
 
     @Test
@@ -107,7 +107,7 @@ public class OppgaveRedirectTjenesteTest {
         var response = tjeneste.doRedirect(new OppgaveIdDto("1"), new SaksnummerDto(saksnummer));
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
         assertThat(response.getLocation().toString())
-                .isEqualTo("https://erstatter.nav.no/fpsak/fagsak/22/behandling/" + behandling.getUuid().toString() + "/?punkt=default&fakta=default");
+                .isEqualTo("https://erstatter.nav.no/fpsak/fagsak/" + saksnummer.getVerdi() + "/behandling/" + behandling.getUuid().toString() + "/?punkt=default&fakta=default");
     }
 
     @Test

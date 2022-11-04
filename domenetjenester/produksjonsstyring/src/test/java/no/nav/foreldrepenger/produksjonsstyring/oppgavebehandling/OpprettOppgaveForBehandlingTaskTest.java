@@ -142,7 +142,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
 
     private Fagsak opprettOgLagreFagsak() {
         var fagsak = FagsakBuilder.nyEngangstønadForMor()
-            .medSaksnummer(new Saksnummer("124"))
+            .medSaksnummer(new Saksnummer("124123123"))
             .build();
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
         return fagsak;

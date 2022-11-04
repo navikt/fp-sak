@@ -225,7 +225,7 @@ public class DokumentmottakerInntektsmeldingTest {
     @Test
     public void skal_opprette_førstegangsbehandling() {
 
-        var fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("123"),
+        var fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
                 fagsakRepository, fagsakRelasjonRepository);
         var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, 123L, "", now(), true, "123");
@@ -274,7 +274,7 @@ public class DokumentmottakerInntektsmeldingTest {
     public void skal_opprette_køet_behandling_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes() {
         // Arrange - opprette fagsak uten behandling
         var aktørId = AktørId.dummy();
-        var fagsak = DokumentmottakTestUtil.byggFagsak(aktørId, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("123"),
+        var fagsak = DokumentmottakTestUtil.byggFagsak(aktørId, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
                 fagsakRepository, fagsakRelasjonRepository);
 
         // Arrange - sett opp opprettelse av køet behandling

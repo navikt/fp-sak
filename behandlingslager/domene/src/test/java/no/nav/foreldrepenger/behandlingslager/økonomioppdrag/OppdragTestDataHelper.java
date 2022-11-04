@@ -64,7 +64,7 @@ public class OppdragTestDataHelper {
     }
 
     public static Oppdragskontroll buildOppdragskontroll() {
-        return buildOppdragskontroll(new Saksnummer("35"), 128L);
+        return buildOppdragskontroll(new Saksnummer("999999"), 128L);
     }
 
     static Oppdragskontroll buildOppdragskontroll(Saksnummer saksnummer, long behandlingId) {

@@ -230,7 +230,7 @@ public class OpprettNyFørstegangsbehandlingTest {
     public void skal_kaste_exception_når_behandling_ikke_eksisterer() {
         mockMottatteDokumentRepository(repositoryProvider);
         // Act and expect Exception
-        assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(-1L, new Saksnummer("50"), false));
+        assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(-1L, new Saksnummer("050"), false));
     }
 
     @Test

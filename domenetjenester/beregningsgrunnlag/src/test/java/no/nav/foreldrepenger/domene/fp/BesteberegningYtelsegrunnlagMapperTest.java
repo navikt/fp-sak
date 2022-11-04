@@ -1,5 +1,17 @@
 package no.nav.foreldrepenger.domene.fp;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.Test;
+
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelsegrunnlag;
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelseperiode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
@@ -20,17 +32,6 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class BesteberegningYtelsegrunnlagMapperTest {
     private static final LocalDate STP = LocalDate.of(2021,1,1);
@@ -108,7 +109,7 @@ class BesteberegningYtelsegrunnlagMapperTest {
             .medYtelseType(RelatertYtelseType.SYKEPENGER)
             .medStatus(tilstand)
             .medKilde(Fagsystem.INFOTRYGD)
-            .medSaksnummer(new Saksnummer("333"));
+            .medSaksnummer(new Saksnummer("3339"));
     }
 
     private BeregningsresultatPeriode lagFpsakResultatPeriode(BeregningsresultatEntitet beregningsresultat, LocalDate fom, LocalDate tom) {

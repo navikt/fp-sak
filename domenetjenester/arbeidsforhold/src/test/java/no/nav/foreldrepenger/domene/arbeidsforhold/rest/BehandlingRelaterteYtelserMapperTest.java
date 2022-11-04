@@ -35,9 +35,10 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class BehandlingRelaterteYtelserMapperTest {
     private static final LocalDate I_DAG = LocalDate.now();
-    private static final Saksnummer SAKSNUMMER_42 = new Saksnummer("42");
-    private NavBruker navBruker = new NavBrukerBuilder().medAktørId(AktørId.dummy()).build();
-    private Fagsak fagsakFødsel = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, navBruker, null, new Saksnummer("66"));
+    private static final Saksnummer SAKSNUMMER_9999 = new Saksnummer("9999");
+    private static final Saksnummer SAKSNUMMER_11111 = new Saksnummer("11111");
+    private final NavBruker navBruker = new NavBrukerBuilder().medAktørId(AktørId.dummy()).build();
+    private final Fagsak fagsakFødsel = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, navBruker, null, SAKSNUMMER_11111);
 
     @Test
     public void skal_returnerer_tilgrensende_ytelser_for_soker() {
@@ -89,7 +90,7 @@ public class BehandlingRelaterteYtelserMapperTest {
         assertThat(tilgrensendeYtelserDto.getStatus()).isEqualTo(FagsakStatus.AVSLUTTET.getKode());
         assertThat(tilgrensendeYtelserDto.getPeriodeTilDato()).isEqualTo(I_DAG.minusDays(5));
         assertThat(tilgrensendeYtelserDto.getPeriodeFraDato()).isEqualTo(I_DAG.minusDays(5));
-        assertThat(tilgrensendeYtelserDto.getSaksNummer()).isEqualTo("66");
+        assertThat(tilgrensendeYtelserDto.getSaksNummer()).isEqualTo(SAKSNUMMER_11111.getVerdi());
     }
 
     @Test
@@ -121,19 +122,19 @@ public class BehandlingRelaterteYtelserMapperTest {
     @Test
     public void skal_returnerer_sortert_tilgrensende_ytelser_for_soker() {
         var tilgrensendeYtelserDtos = List.of(
-                opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET,
+                opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET,
                         I_DAG.minusDays(365), I_DAG.plusDays(360)),
-                opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
+                opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
                         I_DAG.plusDays(360)),
-                opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.LØPENDE, I_DAG.minusDays(265),
+                opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.LØPENDE, I_DAG.minusDays(265),
                         I_DAG.plusDays(260)),
-                opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.LØPENDE, null, null),
-                opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(165),
+                opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.LØPENDE, null, null),
+                opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(165),
                         I_DAG.plusDays(160)),
-                opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.LØPENDE, I_DAG.minusDays(65),
+                opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.LØPENDE, I_DAG.minusDays(65),
                         I_DAG.plusDays(60)),
-                opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG.minusDays(5), null),
-                opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, RelatertYtelseTilstand.AVSLUTTET,
+                opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG.minusDays(5), null),
+                opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, RelatertYtelseTilstand.AVSLUTTET,
                         I_DAG.minusDays(500), I_DAG.plusDays(400)));
 
         var resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(tilgrensendeYtelserDtos,
@@ -158,19 +159,19 @@ public class BehandlingRelaterteYtelserMapperTest {
     @Test
     public void skal_returnerer_sortert_tilgrensende_ytelser_for_annen_forelder() {
         var tilgrensendeYtelserDtos = List.of(
-                opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
+                opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
                         I_DAG.plusDays(360)),
-                opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET,
+                opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET,
                         I_DAG.minusDays(365), I_DAG.plusDays(360)),
-                opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET,
+                opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET,
                         I_DAG.minusDays(165), I_DAG.plusDays(160)),
-                opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG.minusDays(5),
+                opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG.minusDays(5),
                         null),
-                opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG.plusMonths(5),
+                opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG.plusMonths(5),
                         null),
-                opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, null, null),
-                opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG, null),
-                opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.ENGANGSSTØNAD, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(500),
+                opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, null, null),
+                opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG, null),
+                opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.ENGANGSSTØNAD, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(500),
                         I_DAG.plusDays(400)));
 
         var resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(tilgrensendeYtelserDtos,

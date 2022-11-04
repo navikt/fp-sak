@@ -230,7 +230,7 @@ public class DokumentmottakerVedleggTest {
     @Test
     public void skal_ikke_opprette_køet_behandling_når_ingen_tidligere_behandling() {
         // Arrange - opprette fagsak uten behandling
-        var fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("123"),
+        var fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
                 repositoryProvider.getFagsakRepository(), repositoryProvider.getFagsakRelasjonRepository());
 
         // Act - send inn endringssøknad

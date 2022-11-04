@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import org.junit.jupiter.api.Test;
 
 import no.nav.abakus.iaygrunnlag.Periode;
@@ -19,6 +18,7 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -212,7 +212,7 @@ class DagpengerGirBesteberegningTest {
             .medYtelseType(type)
             .medStatus(status)
             .medKilde(Fagsystem.INFOTRYGD)
-            .medSaksnummer(new Saksnummer("333"));
+            .medSaksnummer(new Saksnummer("3339"));
     }
 
 }
