@@ -117,7 +117,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
 
     private Behandling opprettBehandling() {
         var fagsak = FagsakBuilder.nyForeldrepengerForMor()
-                .medSaksnummer(new Saksnummer("2"))
+                .medSaksnummer(new Saksnummer("29999"))
                 .medBrukerAktørId(AKTØRID).build();
 
         behandlingRepositoryProvider.getFagsakRepository().opprettNy(fagsak);

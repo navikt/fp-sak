@@ -188,7 +188,7 @@ public class AutomatiskEtterkontrollTaskTest {
         var fødseldato = LocalDate.now().minusDays(70);
 
         // --- Mors behandling
-        var morsBehandling = lagBehandling(AktørId.dummy(), RelasjonsRolleType.MORA, new Saksnummer("66"));
+        var morsBehandling = lagBehandling(AktørId.dummy(), RelasjonsRolleType.MORA, new Saksnummer("69996"));
         var virksomhetForMor = arbeidsgiver("123");
         var uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
         var uttakResultatPerioderForMor = new UttakResultatPerioderEntitet();
@@ -221,7 +221,7 @@ public class AutomatiskEtterkontrollTaskTest {
         entityManager.clear();
 
         // --- Fars behandling
-        var farsBehandling = lagBehandling(AktørId.dummy(), RelasjonsRolleType.FARA, new Saksnummer("77"));
+        var farsBehandling = lagBehandling(AktørId.dummy(), RelasjonsRolleType.FARA, new Saksnummer("7799999"));
 
         repositoryProvider.getFagsakRelasjonRepository()
                 .kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);

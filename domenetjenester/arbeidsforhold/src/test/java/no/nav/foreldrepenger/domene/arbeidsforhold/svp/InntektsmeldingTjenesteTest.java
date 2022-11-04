@@ -293,7 +293,7 @@ public class InntektsmeldingTjenesteTest {
 
     private Fagsak opprettFagsak() {
         final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID), RelasjonsRolleType.MORA,
-                new Saksnummer("123"));
+                new Saksnummer("9999"));
         fagsakRepository.opprettNy(fagsak);
         return fagsak;
     }

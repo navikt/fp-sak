@@ -53,7 +53,7 @@ public class RegistrerSøknadStegTest extends EntityManagerAwareTest {
         var aktørId = AktørId.dummy();
         var fagsakId = fagsakRepository
                 .opprettNy(
-                        new Fagsak(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(aktørId), RelasjonsRolleType.MORA, new Saksnummer("123")));
+                        new Fagsak(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(aktørId), RelasjonsRolleType.MORA, new Saksnummer("9999")));
 
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         var forrigeBehandling = Behandling.forFørstegangssøknad(fagsak)
@@ -84,7 +84,7 @@ public class RegistrerSøknadStegTest extends EntityManagerAwareTest {
         var aktørId = AktørId.dummy();
         var fagsakId = fagsakRepository
                 .opprettNy(new Fagsak(FagsakYtelseType.SVANGERSKAPSPENGER, NavBruker.opprettNyNB(aktørId), RelasjonsRolleType.MORA,
-                        new Saksnummer("124")));
+                        new Saksnummer("9999")));
 
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         var forrigeBehandling = Behandling.forFørstegangssøknad(fagsak)

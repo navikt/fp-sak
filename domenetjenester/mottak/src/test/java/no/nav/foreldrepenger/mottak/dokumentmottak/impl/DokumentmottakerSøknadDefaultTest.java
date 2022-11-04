@@ -308,7 +308,7 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     public void skal_opprette_køet_førstegangsbehandling_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes_og_ingen_tidligere_behandling_finnes() {
         // Arrange - opprette fagsak uten behandling
         var aktørId = AktørId.dummy();
-        var fagsak = DokumentmottakTestUtil.byggFagsak(aktørId, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("123"),
+        var fagsak = DokumentmottakTestUtil.byggFagsak(aktørId, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
                 fagsakRepository, fagsakRelasjonRepository);
 
         // Arrange - mock tjenestekall

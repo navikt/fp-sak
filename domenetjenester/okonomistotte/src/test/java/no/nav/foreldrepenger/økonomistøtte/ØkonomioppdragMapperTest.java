@@ -387,10 +387,10 @@ public class ØkonomioppdragMapperTest {
 
     private Oppdragskontroll buildOppdragskontroll() {
         return Oppdragskontroll.builder()
-            .medBehandlingId(154L)
-            .medSaksnummer(new Saksnummer("35"))
+            .medBehandlingId(1546L)
+            .medSaksnummer(new Saksnummer("3500"))
             .medVenterKvittering(true)
-            .medProsessTaskId(56L)
+            .medProsessTaskId(56666L)
             .build();
     }
 }

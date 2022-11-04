@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 
 public class OppgaveBehandlingKoblingTest extends EntityManagerAwareTest {
-    private static final Saksnummer SAKSNUMMER = new Saksnummer("123");
+    private static final Saksnummer SAKSNUMMER = new Saksnummer("12312312");
 
     private EntityManager entityManager;
 

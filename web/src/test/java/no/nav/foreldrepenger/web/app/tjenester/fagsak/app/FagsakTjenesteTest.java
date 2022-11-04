@@ -45,7 +45,7 @@ public class FagsakTjenesteTest {
 
     private static final String FNR = new FiktiveFnr().nesteFnr();
     private static final AktørId AKTØR_ID = AktørId.dummy();
-    private static final Saksnummer SAKSNUMMER = new Saksnummer("123");
+    private static final Saksnummer SAKSNUMMER = new Saksnummer("0123");
 
     private FagsakTjeneste tjeneste;
     @Mock

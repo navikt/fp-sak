@@ -353,10 +353,10 @@ public class GrensesnittavstemmingMapperTest {
 
     private Oppdragskontroll buildOppdragskontroll(boolean venterKvittering) {
         return oppdrkontrollBuilder
-            .medBehandlingId(154L)
-            .medSaksnummer(new Saksnummer("35"))
+            .medBehandlingId(15400L)
+            .medSaksnummer(new Saksnummer("3500"))
             .medVenterKvittering(venterKvittering)
-            .medProsessTaskId(56L)
+            .medProsessTaskId(560000L)
             .build();
     }
 }

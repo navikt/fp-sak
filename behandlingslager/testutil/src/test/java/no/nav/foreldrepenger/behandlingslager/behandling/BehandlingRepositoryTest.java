@@ -66,12 +66,12 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
     private LegacyESBeregningRepository beregningRepository;
 
-    private Saksnummer saksnummer = new Saksnummer("2");
-    private Fagsak fagsak = FagsakBuilder.nyEngangstønadForMor().medSaksnummer(saksnummer).build();
+    private final Saksnummer saksnummer = new Saksnummer("29999");
+    private final Fagsak fagsak = FagsakBuilder.nyEngangstønadForMor().medSaksnummer(saksnummer).build();
     private Behandling behandling;
 
-    private LocalDateTime imorgen = LocalDateTime.now().plusDays(1);
-    private LocalDateTime igår = LocalDateTime.now().minusDays(1);
+    private final LocalDateTime imorgen = LocalDateTime.now().plusDays(1);
+    private final LocalDateTime igår = LocalDateTime.now().minusDays(1);
 
     @BeforeEach
     public void setUp() {

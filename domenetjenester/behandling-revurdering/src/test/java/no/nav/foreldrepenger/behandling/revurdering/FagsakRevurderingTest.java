@@ -38,10 +38,10 @@ public class FagsakRevurderingTest {
     private Behandling nyesteBehandling;
     private Behandling eldreBehandling;
     private Fagsak fagsak;
-    private Saksnummer fagsakSaksnummer = new Saksnummer("1");
+    private Saksnummer fagsakSaksnummer = new Saksnummer("199999");
 
     private Fagsak fagsakMedFlereBehandlinger;
-    private Saksnummer fagsakMedFlereBehSaksnr = new Saksnummer("2");
+    private Saksnummer fagsakMedFlereBehSaksnr = new Saksnummer("299999");
 
     @BeforeEach
     public void opprettBehandlinger() {
