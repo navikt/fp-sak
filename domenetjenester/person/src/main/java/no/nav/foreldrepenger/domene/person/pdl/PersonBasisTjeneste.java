@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoVisning;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.pdl.Adressebeskyttelse;
 import no.nav.pdl.AdressebeskyttelseGradering;
 import no.nav.pdl.AdressebeskyttelseResponseProjection;
@@ -35,6 +34,7 @@ import no.nav.pdl.Navn;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 public class PersonBasisTjeneste {
@@ -140,7 +140,7 @@ public class PersonBasisTjeneste {
         return person.getNavn().stream()
             .map(PersonBasisTjeneste::mapNavn)
             .filter(Objects::nonNull)
-            .findFirst().orElseGet(() -> "Finner ikke navn i Folkeregisteret");
+            .findFirst().orElseGet(() -> isProd ? null : "Navnløs i Folkeregister");
     }
 
     private static String mapNavn(Navn navn) {
