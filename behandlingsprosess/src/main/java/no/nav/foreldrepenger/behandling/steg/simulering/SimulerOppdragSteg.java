@@ -105,8 +105,8 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     }
 
     private void startSimulering(Behandling behandling) {
-        var oppdragXmler = simulerOppdragTjeneste.simulerOppdrag(behandling.getId());
-        simuleringIntegrasjonTjeneste.startSimulering(behandling.getId(), oppdragXmler);
+        var oppdragskontroll = simulerOppdragTjeneste.hentOppdragskontrollForBehandling(behandling.getId());
+        simuleringIntegrasjonTjeneste.startSimulering(oppdragskontroll);
     }
 
     private void opprettFortsettBehandlingTask(Behandling behandling) {

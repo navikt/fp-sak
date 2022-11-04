@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
+import static no.nav.foreldrepenger.økonomistøtte.OppdragTestDataHelper.oppdragskontrollMedOppdrag;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
@@ -37,8 +38,8 @@ public class HentOppdragMedPositivKvitteringTest {
             BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandling.setId(123L);
         saksnummer = behandling.getFagsak().getSaksnummer();
-        oppdragskontroll = OppdragTestDataHelper.buildOppdragskontroll();
-        OppdragTestDataHelper.buildOppdrag110ES(oppdragskontroll, 1L);
+
+        oppdragskontroll = oppdragskontrollMedOppdrag(saksnummer, 1L);
         mockRepository(oppdragskontroll);
     }
 
@@ -179,12 +180,12 @@ public class HentOppdragMedPositivKvitteringTest {
     @Test
     public void skalKunHenteOppdrag110MedPositivKvitteringForSaksnummer() {
 
-        var oppdragskontroll = OppdragTestDataHelper.buildOppdragskontroll();
-        var oppdrag1 = OppdragTestDataHelper.buildOppdrag110ES(oppdragskontroll, 1L);
+        var oppdragskontroll = OppdragTestDataHelper.oppdragskontrollUtenOppdrag();
+        var oppdrag1 = OppdragTestDataHelper.lagOppdrag110ES(oppdragskontroll, 1L);
         OppdragKvitteringTestUtil.lagPositivKvitting(oppdrag1);
-        var oppdrag2 = OppdragTestDataHelper.buildOppdrag110ES(oppdragskontroll, 2L);
+        var oppdrag2 = OppdragTestDataHelper.lagOppdrag110ES(oppdragskontroll, 2L);
         OppdragKvitteringTestUtil.lagNegativKvitting(oppdrag2);
-        var oppdrag3 = OppdragTestDataHelper.buildOppdrag110ES(oppdragskontroll, 3L);
+        var oppdrag3 = OppdragTestDataHelper.lagOppdrag110ES(oppdragskontroll, 3L);
         OppdragKvitteringTestUtil.lagPositivKvitting(oppdrag3);
         mockRepository(oppdragskontroll);
 
@@ -196,7 +197,7 @@ public class HentOppdragMedPositivKvitteringTest {
     }
 
     private void lagToOppdrag110MedPositivOgNegativKvittering() {
-        var oppdrag110_2 = OppdragTestDataHelper.buildOppdrag110ES(oppdragskontroll, 1L);
+        var oppdrag110_2 = OppdragTestDataHelper.lagOppdrag110ES(oppdragskontroll, 1L);
         OppdragKvitteringTestUtil.lagPositivKvitting(oppdragskontroll.getOppdrag110Liste().get(0));
         OppdragKvitteringTestUtil.lagNegativKvitting(oppdrag110_2);
     }

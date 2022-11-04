@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
+import static no.nav.foreldrepenger.økonomistøtte.OppdragTestDataHelper.lagOppdrag110;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomistøtte.queue.producer.ØkonomioppdragJmsProducer;
 
@@ -36,8 +38,9 @@ public class ØkonomiOppdragKøTjenesteTest {
 
     @Test
     public void skal_sende_økonomi_oppdrag() {
-        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll();
-        ØkonomiOppdragUtils.setupOppdrag110(oppdrag, true);
+        var oppdrag = OppdragTestDataHelper.oppdragskontrollUtenOppdrag();
+        lagOppdrag110(oppdrag, 1L, KodeFagområde.FP, true, true, false);
+        lagOppdrag110(oppdrag, 1L, KodeFagområde.FP, true, true, false);
         when(økonomiRepository.finnOppdragForBehandling(behandlingId)).thenReturn(Optional.of(oppdrag));
 
         oppdragKøTjeneste.leggOppdragPåKø(behandlingId);

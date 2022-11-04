@@ -8,7 +8,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -27,16 +26,21 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.Tilbakek
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
+import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlient;
 import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpoppdragSystembrukerRestKlient;
 import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimulerOppdragDto;
 import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
 import no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste.SimuleringIntegrasjonTjeneste;
-import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
-import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
 
 @CdiDbAwareTest
 public class SimulerOppdragStegTest {
@@ -45,11 +49,9 @@ public class SimulerOppdragStegTest {
     private TilbakekrevingRepository tilbakekrevingRepository;
 
     private SimulerOppdragSteg steg;
-    private final SimulerOppdragTjeneste simulerOppdragTjenesteMock = mock(
-            SimulerOppdragTjeneste.class);
+    private final SimulerOppdragTjeneste simulerOppdragTjenesteMock = mock(SimulerOppdragTjeneste.class);
     private final FpOppdragRestKlient fpOppdragRestKlientMock = mock(FpOppdragRestKlient.class);
-    private final FpoppdragSystembrukerRestKlient fpoppdragSystembrukerRestKlientMock = mock(
-            FpoppdragSystembrukerRestKlient.class);
+    private final FpoppdragSystembrukerRestKlient fpoppdragSystembrukerRestKlientMock = mock(FpoppdragSystembrukerRestKlient.class);
     private final FptilbakeRestKlient fptilbakeRestKlientMock = mock(FptilbakeRestKlient.class);
     private SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste;
 
@@ -75,8 +77,9 @@ public class SimulerOppdragStegTest {
     @Test
     public void skal_ha_aksjonspunkter_fra_aksjonspunktutleder_når_feature_er_enabled_men_skal_kalle_på_tjeneste_og_klient() {
         // Arrange
-        when(simulerOppdragTjenesteMock.simulerOppdrag(anyLong())).thenReturn(
-                Collections.singletonList("test"));
+        var oppdragskontroll = lagOppdragKontrollMedPåkrevdeFelter(123L);
+        when(simulerOppdragTjenesteMock.hentOppdragskontrollForBehandling(anyLong())).thenReturn(
+            Optional.of(oppdragskontroll));
 
         when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
                 Optional.of(new SimuleringResultatDto(-2354L, 0L, true)));
@@ -88,7 +91,7 @@ public class SimulerOppdragStegTest {
         // Assert
         assertThat(resultat.getAksjonspunktListe()).containsOnly(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
-        verify(simulerOppdragTjenesteMock).simulerOppdrag(anyLong());
+        verify(simulerOppdragTjenesteMock).hentOppdragskontrollForBehandling(anyLong());
         verify(fpOppdragRestKlientMock).startSimulering(any(SimulerOppdragDto.class));
 
         var tilbakekrevingInntrekk = tilbakekrevingRepository.hentTilbakekrevingInntrekk(
@@ -241,5 +244,31 @@ public class SimulerOppdragStegTest {
         return new SimulerOppdragSteg(repositoryProvider, behandlingProsesseringTjeneste, simulerOppdragTjenesteMock,
                 simuleringIntegrasjonTjeneste, tilbakekrevingRepository, fpoppdragSystembrukerRestKlientMock,
                 fptilbakeRestKlientMock);
+    }
+
+    private static Oppdragskontroll lagOppdragKontrollMedPåkrevdeFelter(Long behandlingsId) {
+        var oppdragskontroll = lagOppdragskontrollMedPaakrevdeFelter(behandlingsId);
+        oppdragskontroll.getOppdrag110Liste().add(lagOppdrag110Påkrevd(behandlingsId));
+        return oppdragskontroll;
+    }
+    public static Oppdrag110 lagOppdrag110Påkrevd(Long behandlingsId) {
+        return Oppdrag110.builder()
+            .medKodeEndring(KodeEndring.ENDR)
+            .medKodeFagomrade(KodeFagområde.REFUTG)
+            .medFagSystemId(250L)
+            .medOppdragGjelderId("12345678910")
+            .medSaksbehId("Z123456")
+            .medAvstemming(Avstemming.ny())
+            .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter(behandlingsId))
+            .build();
+    }
+
+    private static Oppdragskontroll lagOppdragskontrollMedPaakrevdeFelter(Long behandlingsId) {
+        return Oppdragskontroll.builder()
+            .medBehandlingId(behandlingsId)
+            .medSaksnummer(new Saksnummer("700"))
+            .medVenterKvittering(true)
+            .medProsessTaskId(52L)
+            .build();
     }
 }

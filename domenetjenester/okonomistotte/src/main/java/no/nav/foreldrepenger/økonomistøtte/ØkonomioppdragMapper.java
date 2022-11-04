@@ -39,6 +39,7 @@ import no.nav.foreldrepenger.xmlutils.JaxbHelper;
 import no.nav.vedtak.exception.TekniskException;
 
 
+// TODO: Flyttet til fp-ws-proxy og fjernet kvittering tester
 public class ØkonomioppdragMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(ØkonomioppdragMapper.class);

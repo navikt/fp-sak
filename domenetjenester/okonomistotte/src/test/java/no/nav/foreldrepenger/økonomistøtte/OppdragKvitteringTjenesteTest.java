@@ -59,8 +59,8 @@ public class OppdragKvitteringTjenesteTest {
     }
 
     private Oppdrag110 lagOppdrag110(Alvorlighetsgrad alvorlighetsgrad) {
-        var oppdragskontroll = OppdragTestDataHelper.buildOppdragskontroll();
-        var oppdrag110 = OppdragTestDataHelper.buildOppdrag110ES(oppdragskontroll, 123L);
+        var oppdragskontroll = OppdragTestDataHelper.oppdragskontrollUtenOppdrag();
+        var oppdrag110 = OppdragTestDataHelper.lagOppdrag110ES(oppdragskontroll, 123L);
         if (alvorlighetsgrad != null) {
             lagOppdragKvittering(oppdrag110, alvorlighetsgrad);
         }
