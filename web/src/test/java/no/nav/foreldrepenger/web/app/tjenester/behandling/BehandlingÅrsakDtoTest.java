@@ -55,7 +55,6 @@ public class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
             new OpptjeningIUtlandDokStatusRepository(entityManager));
         var tilbakekrevingRepository = new TilbakekrevingRepository(entityManager);
         var behandlingDokumentRepository = new BehandlingDokumentRepository(entityManager);
-        var relatertBehandlingTjeneste = new RelatertBehandlingTjeneste(repositoryProvider);
         var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository());
         var foreldrepengerUttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
         var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, mock(HentOgLagreBeregningsgrunnlagTjeneste.class),
@@ -63,8 +62,7 @@ public class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
             new BeregningUttakTjeneste(foreldrepengerUttakTjeneste, repositoryProvider.getYtelsesFordelingRepository()));
         behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningtjeneste,
             tilbakekrevingRepository, skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste,
-            behandlingDokumentRepository, relatertBehandlingTjeneste,
-            foreldrepengerUttakTjeneste, null,
+            behandlingDokumentRepository, foreldrepengerUttakTjeneste, null,
             new KontrollerAktivitetskravDtoTjeneste(repositoryProvider.getBehandlingRepository(),
                 ytelseFordelingTjeneste, uttakInputTjeneste, foreldrepengerUttakTjeneste), mock(TotrinnTjeneste.class));
     }

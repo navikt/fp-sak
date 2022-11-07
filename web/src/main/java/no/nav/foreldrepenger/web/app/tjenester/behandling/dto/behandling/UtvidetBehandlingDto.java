@@ -30,6 +30,10 @@ public class UtvidetBehandlingDto extends BehandlingDto {
     @JsonProperty("harSattEndringsdato")
     private boolean harSattEndringsdato;
 
+    @JsonProperty("alleUttaksperioderAvslått")
+    private boolean alleUttaksperioderAvslått;
+
+    @Deprecated(forRemoval = true) // Sjekk heller om lenken "simuleringResultat" er inkludert i dto
     @JsonProperty("sjekkSimuleringResultat")
     private boolean sjekkSimuleringResultat;
 
@@ -65,6 +69,10 @@ public class UtvidetBehandlingDto extends BehandlingDto {
         return harSattEndringsdato;
     }
 
+    public boolean getAlleUttaksperioderAvslått() {
+        return alleUttaksperioderAvslått;
+    }
+
     public boolean getSjekkSimuleringResultat() {
         return sjekkSimuleringResultat;
     }
@@ -95,6 +103,10 @@ public class UtvidetBehandlingDto extends BehandlingDto {
 
     public void setHarSattEndringsdato(boolean harSattEndringsdato) {
         this.harSattEndringsdato = harSattEndringsdato;
+    }
+
+    public void setAlleUttaksperioderAvslått(boolean alleUttaksperioderAvslått) {
+        this.alleUttaksperioderAvslått = alleUttaksperioderAvslått;
     }
 
     public void setSjekkSimuleringResultat(boolean sjekkSimuleringResultat) {
