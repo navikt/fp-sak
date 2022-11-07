@@ -5,19 +5,7 @@ on:
 
 jobs:
     dispatcher:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Generate token
-              uses: navikt/github-app-token-generator@v1
-              id: get-token
-              with:
-                  private-key: ${{ secrets.FP_PRIVATE_KEY }}
-                  app-id: ${{ secrets.FP_APP_ID }}
+        name: Command
+        uses: navikt/fp-gha-workflows/.github/workflows/dispatch.yml@main
+        secrets: inherit
 
-            - name: Slash command dispatch
-              uses: peter-evans/slash-command-dispatch@v3
-              with:
-                  token: ${{ steps.get-token.outputs.token }} # Må ha PAT
-                  commands: promote # matcher repository dispatch med navent 'promote-command'
-                  issue-type: issue
-                  allow-edits: true
