@@ -13,6 +13,7 @@ jobs:
               with:
                   private-key: ${{ secrets.FP_PRIVATE_KEY }}
                   app-id: ${{ secrets.FP_APP_ID }}
+
             - name: Slash command dispatch
               uses: peter-evans/slash-command-dispatch@v3
               with:
