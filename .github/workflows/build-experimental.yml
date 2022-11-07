@@ -17,7 +17,7 @@ jobs:
         secrets: inherit
 
     create-issue:
-        name: Create issue
+        name: Issues
         if: github.ref_name == 'master' || github.ref_name == 'main'
         needs: build-app
         uses: navikt/fp-gha-workflows/.github/workflows/issues.yml@main
@@ -26,7 +26,7 @@ jobs:
         secrets: inherit
 
     trigger-autotest:
-        name: Trigger autotests
+        name: Autotest
         if: github.ref_name == 'master' || github.ref_name == 'main'
         needs: [ build-app, create-issue ]
         uses: navikt/fp-gha-workflows/.github/workflows/autotest.yml@main
