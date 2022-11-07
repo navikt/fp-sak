@@ -94,16 +94,6 @@ public class BehandlingDtoTjenesteTest {
     }
 
     @Test
-    public void skal_ha_med_simuleringsresultatURL() {
-        var behandling = lagBehandling();
-
-        var dto = tjeneste.lagUtvidetBehandlingDto(behandling, null);
-
-        assertThat(getLinkRel(dto)).contains("simuleringResultat");
-        assertThat(getLinkHref(dto)).contains(URI.create("/fpoppdrag/api/simulering/resultat-uten-inntrekk"));
-    }
-
-    @Test
     public void skal_ha_med_tilbakekrevings_link_når_det_finnes_et_resultat() {
         var behandling = lagBehandling();
 
