@@ -18,6 +18,7 @@ jobs:
         uses: navikt/fp-gha-workflows/.github/workflows/build-app.yml@main
         with:
             runs-on: 'ubuntu-latest-8-cores' # default: ubuntu-latest
+            t-2c: '-T 2C' # default:
             push: ${{ github.ref_name == 'master' }} # default: false
         secrets: inherit
 
