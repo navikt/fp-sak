@@ -44,3 +44,11 @@ jobs:
             test-repo: 'fpsak-autotest' # default: fpsak-autotest
         secrets: inherit
 
+    snyk-docker:
+        name: Snyk
+        needs: build-app
+        uses: navikt/fp-gha-workflows/.github/workflows/snyk.yml@main
+        with:
+            build-version: ${{ needs.build-app.outputs.build-version }}
+            java-version: '17' # default: 17
+        secrets: inherit
