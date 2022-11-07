@@ -14,4 +14,3 @@ jobs:
             use-oracle: true # default: true
             push: false # default: true
         secrets: inherit
-
