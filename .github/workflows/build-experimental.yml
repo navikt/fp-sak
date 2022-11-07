@@ -1,0 +1,16 @@
+name: Build and test artifact
+
+on:
+    push:
+        branches:
+            - '**'
+
+jobs:
+    build-main-and-feature-branch:
+        uses: navikt/fp-gha-workflows/.github/workflows/build-app.yml@main
+        with:
+            runs-on: 'ubuntu-latest-8-cores' # default: ubuntu-latest
+            java-version: '17' # default: 17
+            use-oracle: true # default: true
+            push: false # default: true
+        secrets: inherit
