@@ -2,112 +2,13 @@ name: Promote
 on:
   repository_dispatch:
     types: [promote-command]
-env:
-  NAMESPACE: teamforeldrepenger
-  IMAGE_BASE: ghcr.io/${{ github.repository }}
-  CLUSTER_ARG: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 }} # dev-fss eller prod-fss
 
 jobs:
-  promote:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Henter informasjon fra issuet
-        id: issue_comment
-        uses: actions/github-script@v6
+    promote:
+        name: Deploy
+        uses: navikt/fp-gha-workflows/.github/workflows/promote.yml@main
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            github.rest.issues.get( {
-              owner: context.issue.owner,
-              repo: context.issue.repo,
-              issue_number: ${{ github.event.client_payload.github.payload.issue.number }} })
-            .then(response => {
-              core.setOutput('sha', response.data.body);
-              core.setOutput('title', response.data.title);
-            });
-
-      - name: Setter IMAGE som brukes i deploy filen
-        run: echo "IMAGE=$IMAGE_BASE:$(echo ${{ steps.issue_comment.outputs.title }} | awk '{print $NF}')" >> $GITHUB_ENV
-
-      - name: Sjekk ut kode
-        uses: actions/checkout@v3.1.0
-        with:
-            ref: ${{ steps.issue_comment.outputs.sha }}
-
-      - name: Deploy fpsak til dev
-        if: env.CLUSTER_ARG == 'dev-fss' || env.CLUSTER_ARG == ''
-        id: deloy-dev
-        uses: nais/deploy/actions/deploy@v1
-        env:
-          PRINT_PAYLOAD: true
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-fss
-          RESOURCE: .deploy/naiserator.yaml
-          VARS: .deploy/dev-fss-${{ env.NAMESPACE }}.json
-
-      - name: Oppdater kommentar med deployment status ved feil mot dev
-        if: steps.deloy-dev.outcome != 'success' && (env.CLUSTER_ARG == 'dev-fss' || env.CLUSTER_ARG == '')
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const issue = { owner: context.issue.owner,
-                            repo: context.issue.repo,
-                            issue_number: ${{ github.event.client_payload.github.payload.issue.number }} }
-            github.rest.issues.createComment({...issue,
-                            body: 'promote til dev-fss ${{ env.NAMESPACE }} feilet'})
-            github.rest.issues.addLabels({...issue,
-                            labels: ['deployment-failed']})
-
-      - name: Oppdater kommentar med deployment status mot dev
-        if: steps.deloy-dev.outcome == 'success' && (env.CLUSTER_ARG == 'dev-fss' || env.CLUSTER_ARG == '')
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const issue = { owner: context.issue.owner,
-                            repo: context.issue.repo,
-                            issue_number: ${{ github.event.client_payload.github.payload.issue.number }} }
-            github.rest.issues.createComment({...issue,
-                            body: 'promote til dev-fss ${{ env.NAMESPACE }} utført'})
-            github.rest.issues.addLabels({...issue,
-                            labels: ['deployment','dev-fss-${{ env.NAMESPACE }}']})
-
-      - name: Deploy fpsak til prod
-        if: success() && (env.CLUSTER_ARG == 'prod-fss' || env.CLUSTER_ARG == '')
-        id: deloy-prod
-        uses: nais/deploy/actions/deploy@v1
-        env:
-          PRINT_PAYLOAD: true
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-fss
-          RESOURCE: .deploy/naiserator.yaml
-          VARS: .deploy/prod-fss-${{ env.NAMESPACE }}.json
-
-      - name: Oppdater kommentar med deployment status ved feil mot prod
-        if: steps.deloy-prod.outcome != 'success' && (env.CLUSTER_ARG == 'prod-fss' || env.CLUSTER_ARG == '')
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const issue = { owner: context.issue.owner,
-                            repo: context.issue.repo,
-                            issue_number: ${{ github.event.client_payload.github.payload.issue.number }} }
-            github.rest.issues.createComment({...issue,
-                            body: 'promote til prod-fss ${{ env.NAMESPACE }} feilet'})
-            github.rest.issues.addLabels({...issue,
-                            labels: ['deployment-failed']})
-
-      - name: Oppdater kommentar med deployment status mot prod
-        if: steps.deloy-prod.outcome == 'success' && (env.CLUSTER_ARG == 'prod-fss' || env.CLUSTER_ARG == '')
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const issue = { owner: context.issue.owner,
-                            repo: context.issue.repo,
-                            issue_number: ${{ github.event.client_payload.github.payload.issue.number }} }
-            github.rest.issues.createComment({...issue,
-                            body: 'promote til prod-fss ${{ env.NAMESPACE }} utført'})
-            github.rest.issues.addLabels({...issue,
-                            labels: ['deployment','prod-fss-${{ env.NAMESPACE }}']})
+            issue-number: ${{ github.event.client_payload.github.payload.issue.number }}
+            cluster: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}
+            namespace: 'teamforeldrepenger' # default: 'teamforeldrepenger'
+        secrets: inherit
