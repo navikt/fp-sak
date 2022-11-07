@@ -1,4 +1,4 @@
-name: Build and test artifact
+name: Bygg og deploy
 
 on:
     push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
     build-app:
-        name: Build app
+      - name: Build
         uses: navikt/fp-gha-workflows/.github/workflows/build-app.yml@main
         with:
             runs-on: 'ubuntu-latest-8-cores' # default: ubuntu-latest
@@ -17,7 +17,7 @@ jobs:
         secrets: inherit
 
     create-issue:
-        name: Create issue
+      - name: Create issue
         if: github.ref_name == 'master' || github.ref_name == 'main'
         needs: build-app
         uses: navikt/fp-gha-workflows/.github/workflows/issues.yml@main
@@ -26,7 +26,7 @@ jobs:
         secrets: inherit
 
     trigger-autotest:
-        name: Trigger autotests
+      - name: Trigger autotests
         if: github.ref_name == 'master' || github.ref_name == 'main'
         needs: [build-app, create-issue]
         uses: navikt/fp-gha-workflows/.github/workflows/autotest.yml@main
