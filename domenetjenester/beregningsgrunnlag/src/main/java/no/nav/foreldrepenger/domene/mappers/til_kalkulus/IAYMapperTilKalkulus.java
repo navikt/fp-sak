@@ -60,7 +60,6 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
-import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
@@ -96,11 +95,15 @@ public class IAYMapperTilKalkulus {
             Arbeidsgiver.fra(new AktørId(arbeidsgiver.getAktørId().getId()));
     }
 
-    public static InntektArbeidYtelseGrunnlagDto mapGrunnlag(InntektArbeidYtelseGrunnlag iayGrunnlag, no.nav.foreldrepenger.domene.typer.AktørId aktørId) {
+    public static InntektArbeidYtelseGrunnlagDto mapGrunnlag(InntektArbeidYtelseGrunnlag iayGrunnlag,
+                                                             List<Inntektsmelding> inntektsmeldinger,
+                                                             no.nav.foreldrepenger.domene.typer.AktørId aktørId) {
         var builder = InntektArbeidYtelseGrunnlagDtoBuilder.nytt();
         iayGrunnlag.getRegisterVersjon().ifPresent(aggregat -> builder.medData(mapAggregat(aggregat, VersjonTypeDto.REGISTER, aktørId, iayGrunnlag.getArbeidsforholdOverstyringer())));
         iayGrunnlag.getSaksbehandletVersjon().ifPresent(aggregat -> builder.medData(mapAggregat(aggregat, VersjonTypeDto.SAKSBEHANDLET, aktørId, iayGrunnlag.getArbeidsforholdOverstyringer())));
-        iayGrunnlag.getInntektsmeldinger().ifPresent(aggregat -> builder.setInntektsmeldinger(mapInntektsmelding(aggregat, iayGrunnlag.getArbeidsforholdInformasjon())));
+        if (!inntektsmeldinger.isEmpty()) {
+            builder.setInntektsmeldinger(mapInntektsmelding(inntektsmeldinger, iayGrunnlag.getArbeidsforholdInformasjon()));
+        }
         iayGrunnlag.getArbeidsforholdInformasjon().ifPresent(arbeidsforholdInformasjon -> builder.medInformasjon(mapArbeidsforholdInformasjon(arbeidsforholdInformasjon)));
         iayGrunnlag.getOppgittOpptjening().ifPresent(oppgittOpptjening -> builder.medOppgittOpptjening(mapOppgittOpptjening(oppgittOpptjening)));
         builder.medErAktivtGrunnlag(iayGrunnlag.isAktiv());
@@ -170,9 +173,10 @@ public class IAYMapperTilKalkulus {
             mapArbeidsforholdEksternRef(arbeidsforholdReferanse.getEksternReferanse()));
     }
 
-    public static InntektsmeldingAggregatDto mapInntektsmelding(InntektsmeldingAggregat aggregat, Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjon) {
+    public static InntektsmeldingAggregatDto mapInntektsmelding(List<Inntektsmelding> inntektsmeldinger,
+                                                                Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjon) {
         var builder = InntektsmeldingAggregatDto.InntektsmeldingAggregatDtoBuilder.ny();
-        aggregat.getAlleInntektsmeldinger().forEach(inntektsmelding -> builder.leggTil(mapInntektsmeldingDto(inntektsmelding)));
+        inntektsmeldinger.forEach(inntektsmelding -> builder.leggTil(mapInntektsmeldingDto(inntektsmelding)));
         arbeidsforholdInformasjon.ifPresent(info -> builder.medArbeidsforholdInformasjonDto(mapArbeidsforholdInformasjon(info)));
         return builder.build();
     }

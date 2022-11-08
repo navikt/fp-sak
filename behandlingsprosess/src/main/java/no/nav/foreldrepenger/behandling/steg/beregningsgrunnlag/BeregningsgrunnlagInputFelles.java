@@ -89,7 +89,8 @@ public abstract class BeregningsgrunnlagInputFelles {
         if (opptjeningAktiviteter.isEmpty()) {
             throw new IllegalStateException("No value present: Fant ikke forventet OpptjeningAktiviteter for behandling.");
         }
-        var iayGrunnlagDto = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, ref.aktørId());
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, ref.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
+        var iayGrunnlagDto = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, inntektsmeldinger, ref.aktørId());
 
         List<KravperioderPrArbeidsforholdDto> kravperioder = mapKravperioder(ref, iayGrunnlag);
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
