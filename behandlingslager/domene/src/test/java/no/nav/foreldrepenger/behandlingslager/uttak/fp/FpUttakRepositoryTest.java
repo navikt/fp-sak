@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -59,8 +60,9 @@ public class FpUttakRepositoryTest extends EntityManagerAwareTest {
         assertThat(resultat.get(0).getResultatType()).isEqualTo(resultatType);
         assertThat(resultat.get(0).getAktiviteter().get(0).getTrekkonto()).isEqualTo(stønadskontoType);
         assertThat(resultat.get(0).getDokRegel()).isNotNull();
-        assertThat(resultat.get(0).getPeriodeSøknad()).isNotNull();
+        assertThat(resultat.get(0).getPeriodeSøknad()).isNotEmpty();
         assertThat(resultat.get(0).getAktiviteter().get(0).getUttakAktivitet()).isNotNull();
+        assertThat(resultat.get(0).getPeriodeSøknad().orElseThrow().getDokumentasjonVurdering()).isEqualTo(DokumentasjonVurdering.INNLEGGELSE_SØKER_DOKUMENTERT);
     }
 
     @Test
@@ -210,6 +212,7 @@ public class FpUttakRepositoryTest extends EntityManagerAwareTest {
             .medGraderingArbeidsprosent(graderingArbeidsprosent)
             .medSamtidigUttak(true)
             .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
+            .medDokumentasjonVurdering(DokumentasjonVurdering.INNLEGGELSE_SØKER_DOKUMENTERT)
             .build();
         var dokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling()
             .medRegelInput(" ")

@@ -11,6 +11,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
@@ -142,6 +143,7 @@ public class VedtaksperioderHelper {
             .medPeriodeKilde(FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
 
         finnMorsAktivitet(up).ifPresent(builder::medMorsAktivitet);
+        finnDokumentasjonVurdering(up).ifPresent(builder::medDokumentasjonVurdering);
         finnGraderingArbeidsprosent(up).ifPresent(builder::medArbeidsprosent);
         finnUtsettelsesÅrsak(up).ifPresent(builder::medÅrsak);
         finnGradertArbeidsgiver(up).ifPresent(builder::medArbeidsgiver);
@@ -167,6 +169,10 @@ public class VedtaksperioderHelper {
 
     static Optional<MorsAktivitet> finnMorsAktivitet(UttakResultatPeriodeEntitet up) {
         return up.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMorsAktivitet);
+    }
+
+    static Optional<DokumentasjonVurdering> finnDokumentasjonVurdering(UttakResultatPeriodeEntitet up) {
+        return up.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getDokumentasjonVurdering);
     }
 
     static Optional<Arbeidsgiver> finnGradertArbeidsgiver(UttakResultatPeriodeEntitet up) {
