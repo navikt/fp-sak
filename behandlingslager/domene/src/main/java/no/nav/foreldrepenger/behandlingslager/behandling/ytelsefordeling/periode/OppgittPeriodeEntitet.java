@@ -15,7 +15,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
@@ -127,8 +126,8 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     @Column(name = "tidligst_mottatt_dato")
     private LocalDate tidligstMottattDato;
 
-    //TODO lagre i DB, denne brukes nå bare som en mellomlagring før migrering
-    @Transient
+    @Column(name = "DOKUMENTASJON_VURDERING")
+    @Convert(converter = DokumentasjonVurdering.KodeverdiConverter.class)
     private DokumentasjonVurdering dokumentasjonVurdering;
 
     protected OppgittPeriodeEntitet() {

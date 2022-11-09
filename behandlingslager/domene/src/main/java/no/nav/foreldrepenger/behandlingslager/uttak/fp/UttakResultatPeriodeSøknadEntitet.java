@@ -16,6 +16,7 @@ import javax.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
@@ -55,6 +56,10 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
     @Convert(converter = MorsAktivitet.KodeverdiConverter.class)
     private MorsAktivitet morsAktivitet = MorsAktivitet.UDEFINERT;
 
+    @Column(name = "DOKUMENTASJON_VURDERING")
+    @Convert(converter = DokumentasjonVurdering.KodeverdiConverter.class)
+    private DokumentasjonVurdering dokumentasjonVurdering;
+
     public Long getId() {
         return id;
     }
@@ -87,6 +92,9 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
         return morsAktivitet;
     }
 
+    public DokumentasjonVurdering getDokumentasjonVurdering() {
+        return dokumentasjonVurdering;
+    }
 
     @Override
     public String toString() {
@@ -99,6 +107,7 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
             ", mottattDato=" + mottattDato +
             ", tidligstMottattDato=" + tidligstMottattDato +
             ", morsAktivitet=" + morsAktivitet +
+            ", dokumentasjonVurdering=" + dokumentasjonVurdering +
             '}';
     }
 
@@ -138,6 +147,11 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
 
         public Builder medMorsAktivitet(MorsAktivitet morsAktivitet) {
             kladd.morsAktivitet = morsAktivitet;
+            return this;
+        }
+
+        public Builder medDokumentasjonVurdering(DokumentasjonVurdering dokumentasjonVurdering) {
+            kladd.dokumentasjonVurdering = dokumentasjonVurdering;
             return this;
         }
 
