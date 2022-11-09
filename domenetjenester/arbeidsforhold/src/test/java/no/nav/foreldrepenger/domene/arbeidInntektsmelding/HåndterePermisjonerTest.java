@@ -178,6 +178,49 @@ class HåndterePermisjonerTest {
         assertThat(arbForholdMedPermUtenSluttdato.get(0).ref()).isEqualTo(ref);
         assertThat(arbForholdMedPermUtenSluttdato.get(0).årsak()).isEqualTo(AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO);
     }
+    @Test
+    public void har_relevant_permisjon_for_tilretteleggingFom() {
+
+        // Arrange
+        var tilretteleggingFom = LocalDate.now();
+
+        var arbeidsgiver = Arbeidsgiver.virksomhet("1");
+        var ref = InternArbeidsforholdRef.nyRef();
+
+        var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa = lagAktivitetsAvtaleBuilder(yaBuilder, tilretteleggingFom.minusYears(1), TIDENES_ENDE);
+
+        var permisjonInnenfor = byggPermisjon(yaBuilder, tilretteleggingFom, tilretteleggingFom.plusDays(1));
+        var permisjonUtenfor = byggPermisjon(yaBuilder, tilretteleggingFom.minusYears(1), tilretteleggingFom.minusMonths(1));
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
+            arbeidsgiver, ref, List.of(permisjonInnenfor, permisjonUtenfor)).build();
+
+        // Assert
+        boolean erPermisjonInnenfor = HåndterePermisjoner.harRelevantPermisjonSomOverlapperTilretteleggingFom(yrkesaktivitet_1, tilretteleggingFom);
+
+        assertThat(erPermisjonInnenfor).isTrue();
+    }
+    @Test
+    public void har_ikke_relevant_permisjon_for_tilretteleggingFom() {
+        // Arrange
+        var tilretteleggingFom = LocalDate.now();
+
+        var arbeidsgiver = Arbeidsgiver.virksomhet("1");
+        var ref = InternArbeidsforholdRef.nyRef();
+
+        var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa = lagAktivitetsAvtaleBuilder(yaBuilder, tilretteleggingFom.minusYears(1), TIDENES_ENDE);
+
+        var permisjonUtenfor1 = byggPermisjon(yaBuilder, tilretteleggingFom.minusMonths(5), tilretteleggingFom.minusMonths(1));
+        var permisjonUtenfor2 = byggPermisjon(yaBuilder, tilretteleggingFom.minusYears(1), tilretteleggingFom.minusMonths(1));
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
+            arbeidsgiver, ref, List.of(permisjonUtenfor1, permisjonUtenfor2)).build();
+
+        // Assert
+        boolean erPermisjonInnenfor = HåndterePermisjoner.harRelevantPermisjonSomOverlapperTilretteleggingFom(yrkesaktivitet_1, tilretteleggingFom);
+
+        assertThat(erPermisjonInnenfor).isFalse();
+    }
 
     private InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder lagAktørArbeidBuilder(Behandling behandling,
                                                                                         List<YrkesaktivitetBuilder> yrkesaktiviteter) {
@@ -212,7 +255,7 @@ class HåndterePermisjonerTest {
         return yrkesaktivitetBuilder.getPermisjonBuilder()
             .medProsentsats(BigDecimal.valueOf(100))
             .medPeriode(fom, tom)
-            .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
+            .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.VELFERDSPERMISJON)
             .build();
     }
     private AktivitetsAvtaleBuilder lagAktivitetsAvtaleBuilder(YrkesaktivitetBuilder yrkesaktivitetBuilder, LocalDate fom, LocalDate tom) {

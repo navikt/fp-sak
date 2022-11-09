@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
+import static no.nav.foreldrepenger.domene.arbeidInntektsmelding.HåndterePermisjoner.harRelevantPermisjonSomOverlapperTilretteleggingFom;
 import static no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval.TIDENES_ENDE;
 
 import java.util.Collections;
@@ -26,7 +27,6 @@ import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ApplicationScoped
@@ -88,7 +88,7 @@ public class SvangerskapspengerTjeneste {
         List<SvpTilretteleggingEntitet> tilrettelegginger = tilretteleggingFilter.getAktuelleTilretteleggingerUfiltrert();
         tilrettelegginger.forEach(tilr -> {
             SvpArbeidsforholdDto tilretteleggingDto = mapTilretteleggingsinfo(tilr);
-            tilretteleggingDto.setVelferdspermisjoner(finnVelferdspermisjoner(tilr, filter, saksbehandletFilter));
+            tilretteleggingDto.setVelferdspermisjoner(finnRelevanteVelferdspermisjoner(tilr, filter, saksbehandletFilter));
             finnEksternRef(tilr, arbeidsforholdInformasjon).ifPresent(tilretteleggingDto::setEksternArbeidsforholdReferanse);
             tilretteleggingDto.setKanTilrettelegges(erTilgjengeligForBeregning(tilr, filter));
             dto.leggTilArbeidsforhold(tilretteleggingDto);
@@ -144,18 +144,22 @@ public class SvangerskapspengerTjeneste {
         });
     }
 
-    private List<VelferdspermisjonDto> finnVelferdspermisjoner(SvpTilretteleggingEntitet svpTilrettelegging, YrkesaktivitetFilter filter, YrkesaktivitetFilter saksbehandletFilter) {
+    private List<VelferdspermisjonDto> finnRelevanteVelferdspermisjoner(SvpTilretteleggingEntitet svpTilrettelegging, YrkesaktivitetFilter filter, YrkesaktivitetFilter saksbehandletFilter) {
         return svpTilrettelegging.getArbeidsgiver().map(a -> mapVelferdspermisjoner(svpTilrettelegging, filter, a, saksbehandletFilter)).orElse(Collections.emptyList());
     }
 
     private List<VelferdspermisjonDto> mapVelferdspermisjoner(SvpTilretteleggingEntitet svpTilrettelegging, YrkesaktivitetFilter filter, Arbeidsgiver arbeidsgiver, YrkesaktivitetFilter saksbehandletFilter) {
         return filter.getYrkesaktiviteter().stream()
-            .filter(ya -> ya.getArbeidsgiver() != null && ya.getArbeidsgiver().getIdentifikator().equals(arbeidsgiver.getIdentifikator())
-                    && svpTilrettelegging.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()).gjelderFor(ya.getArbeidsforholdRef()))
+            .filter(ya -> erSammeArbeidsgiver(ya, arbeidsgiver, svpTilrettelegging))
+            .filter( ya -> harRelevantPermisjonSomOverlapperTilretteleggingFom(ya, svpTilrettelegging.getBehovForTilretteleggingFom() ))
             .flatMap(ya -> ya.getPermisjon().stream())
-            .filter(p -> p.getPermisjonsbeskrivelseType().equals(PermisjonsbeskrivelseType.VELFERDSPERMISJON))
             .map(p -> mapPermisjon(p, saksbehandletFilter))
             .collect(Collectors.toList());
+    }
+
+    private boolean erSammeArbeidsgiver(Yrkesaktivitet yrkesaktivitet, Arbeidsgiver arbeidsgiver, SvpTilretteleggingEntitet svpTilrettelegging) {
+        return yrkesaktivitet.getArbeidsgiver() != null && yrkesaktivitet.getArbeidsgiver().getIdentifikator().equals(arbeidsgiver.getIdentifikator())
+            && svpTilrettelegging.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()).gjelderFor(yrkesaktivitet.getArbeidsforholdRef());
     }
 
     private VelferdspermisjonDto mapPermisjon(Permisjon p, YrkesaktivitetFilter saksbehandletFilter) {
