@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 
 public class UttakYrkesaktiviteter {
@@ -112,6 +113,24 @@ public class UttakYrkesaktiviteter {
 
         return sum;
     }
+
+    public BigDecimal summerStillingsprosentAlleYrkesaktiviteter(LocalDate dato) {
+        var grunnlag = input.getIayGrunnlag();
+        if (grunnlag == null) {
+            return BigDecimal.ZERO;
+        }
+        var ref = input.getBehandlingReferanse();
+        var skjæringstidspunkt = ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
+
+        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
+            grunnlag.getAktørArbeidFraRegister(ref.aktørId())).etter(skjæringstidspunkt);
+
+        return filter.getYrkesaktiviteter().stream()
+            .map(y -> y.getStillingsprosentFor(dato).map(Stillingsprosent::getVerdi).orElse(BigDecimal.ZERO))
+            .reduce(BigDecimal::add)
+            .orElse(BigDecimal.valueOf(100));
+    }
+
 
     private List<Yrkesaktivitet> yaMedAnsettelsesperiodePåDato(YrkesaktivitetFilter filter,
                                                                Arbeidsgiver arbeidsgiver,
