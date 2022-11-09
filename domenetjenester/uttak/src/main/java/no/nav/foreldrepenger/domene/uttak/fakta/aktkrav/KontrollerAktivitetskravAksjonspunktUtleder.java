@@ -53,7 +53,7 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
 
     public List<AksjonspunktDefinisjon> utledFor(UttakInput uttakInput) {
         ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        if (skalKontrollereAktivitetskrav(uttakInput.getBehandlingReferanse(),
+        if (!uttakInput.isSkalBrukeNyFaktaOmUttak() && skalKontrollereAktivitetskrav(uttakInput.getBehandlingReferanse(),
             ytelsespesifiktGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse(), ytelsespesifiktGrunnlag)) {
             return List.of(AksjonspunktDefinisjon.KONTROLLER_AKTIVITETSKRAV);
         }

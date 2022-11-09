@@ -79,7 +79,7 @@ public class BehandlingRestTjenesteESTest {
         var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste,
             tilbakekrevingRepository, skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste,
             behandlingDokumentRepository, relatertBehandlingTjeneste,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), null, null, mock(TotrinnTjeneste.class));
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), null, null, null, mock(TotrinnTjeneste.class));
 
         henleggBehandlingTjeneste = mock(HenleggBehandlingTjeneste.class);
         behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningTjeneste, behandlingsoppretterTjeneste,

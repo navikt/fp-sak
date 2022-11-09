@@ -43,7 +43,7 @@ public class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
         var periode_12 = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now().minusDays(10).plusDays(1), LocalDate.now())
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_DOKUMENTERT_AKTIVITET)
+            .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
             .build();
         var periode_22 = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now().minusDays(20).plusDays(1), LocalDate.now().minusDays(10))
@@ -67,7 +67,7 @@ public class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
         assertThat(aggregat.getOverstyrtFordeling().get().getOppgittePerioder()).hasSize(2);
 
         assertThat(aggregat.getOverstyrtFordeling().get().getOppgittePerioder().get(0).getDokumentasjonVurdering())
-            .isEqualTo(DokumentasjonVurdering.MORS_AKTIVITET_DOKUMENTERT_AKTIVITET);
+            .isEqualTo(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT);
 
     }
 

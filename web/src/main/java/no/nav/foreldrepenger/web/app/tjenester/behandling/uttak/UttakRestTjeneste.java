@@ -19,9 +19,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
@@ -30,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaUttakArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAktivitetskravDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerFaktaPeriodeTjeneste;
@@ -38,6 +36,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.Svangerskaps
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.UttakPerioderDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerAktivitetskravPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerFaktaDataDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KreverSammenhengendeUttakDto;
@@ -77,8 +76,8 @@ public class UttakRestTjeneste {
     public static final String SAMMENHENGENDE_UTTAK_PATH = BASE_PATH + SAMMENHENGENDE_UTTAK_PART_PATH;
     private static final String UTEN_MINSTERETT_PART_PATH = "/uten-minsterett";
     public static final String UTEN_MINSTERETT_PATH = BASE_PATH + UTEN_MINSTERETT_PART_PATH;
-
-    private static final Logger LOG = LoggerFactory.getLogger(UttakRestTjeneste.class);
+    private static final String VURDER_DOKUMENTASJON_PART_PATH = "/vurder-dokumentasjon";
+    public static final String VURDER_DOKUMENTASJON_PATH = BASE_PATH + VURDER_DOKUMENTASJON_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
     private SaldoerDtoTjeneste saldoerDtoTjeneste;
@@ -88,6 +87,7 @@ public class UttakRestTjeneste {
     private UttakInputTjeneste uttakInputTjeneste;
     private KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste;
 
     @Inject
     public UttakRestTjeneste(BehandlingRepository behandlingRepository,
@@ -97,7 +97,8 @@ public class UttakRestTjeneste {
                              SvangerskapspengerUttakResultatDtoTjeneste svpUttakResultatDtoTjeneste,
                              UttakInputTjeneste uttakInputTjeneste,
                              KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste,
-                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                             DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.kontrollerFaktaPeriodeTjeneste = kontrollerFaktaPeriodeTjeneste;
@@ -106,6 +107,7 @@ public class UttakRestTjeneste {
         this.svpUttakResultatDtoTjeneste = svpUttakResultatDtoTjeneste;
         this.kontrollerAktivitetskravDtoTjeneste = kontrollerAktivitetskravDtoTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.dokumentasjonVurderingBehovDtoTjeneste = dokumentasjonVurderingBehovDtoTjeneste;
     }
 
     public UttakRestTjeneste() {
@@ -218,6 +220,14 @@ public class UttakRestTjeneste {
         var behandling = hentBehandling(uuidDto);
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         return new UtenMinsterettDto(skjæringstidspunkt.utenMinsterett());
+    }
+
+    @GET
+    @Path(VURDER_DOKUMENTASJON_PART_PATH)
+    @Operation(description = "Hent perioder med behov for dokumentasjon", tags = "uttak")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    public List<DokumentasjonVurderingBehovDto> hentDokumentasjonVurderingBehov(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        return dokumentasjonVurderingBehovDtoTjeneste.lagDtos(uuidDto);
     }
 
     private Behandling hentBehandling(UuidDto uuidDto) {

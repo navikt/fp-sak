@@ -81,6 +81,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.svp.Svangerskapspenger
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.SøknadRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.TilbakekrevingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAktivitetskravDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjeneste;
@@ -115,6 +116,7 @@ public class BehandlingDtoTjeneste {
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
     private String fpoppdragOverrideProxyUrl;
     private KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste;
+    private DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste;
     private TotrinnTjeneste totrinnTjeneste;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
 
@@ -129,6 +131,7 @@ public class BehandlingDtoTjeneste {
                                  ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                                  @KonfigVerdi(value = "fpoppdrag.override.proxy.url", required = false) String fpoppdragOverrideProxyUrl,
                                  KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste,
+                                 DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste,
                                  TotrinnTjeneste totrinnTjeneste) {
 
         this.beregningTjeneste = beregningTjeneste;
@@ -148,6 +151,7 @@ public class BehandlingDtoTjeneste {
         this.kontrollerAktivitetskravDtoTjeneste = kontrollerAktivitetskravDtoTjeneste;
         this.totrinnTjeneste = totrinnTjeneste;
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        this.dokumentasjonVurderingBehovDtoTjeneste = dokumentasjonVurderingBehovDtoTjeneste;
     }
 
     BehandlingDtoTjeneste() {
@@ -418,6 +422,9 @@ public class BehandlingDtoTjeneste {
                 dto.leggTil(get(UttakRestTjeneste.UTEN_MINSTERETT_PATH, "uten-minsterett", uuidDto));
                 if (!kontrollerAktivitetskravDtoTjeneste.lagDtos(uuidDto).isEmpty()) {
                     dto.leggTil(get(UttakRestTjeneste.KONTROLLER_AKTIVTETSKRAV_PATH, "uttak-kontroller-aktivitetskrav", uuidDto));
+                }
+                if (!dokumentasjonVurderingBehovDtoTjeneste.lagDtos(uuidDto).isEmpty()) {
+                    dto.leggTil(get(UttakRestTjeneste.VURDER_DOKUMENTASJON_PATH, "uttak-vurder-dokumentasjon", uuidDto));
                 }
                 var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
                 var stønadskontoberegning = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())

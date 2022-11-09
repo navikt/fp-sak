@@ -34,10 +34,13 @@ import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjenest
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class UttakInputTjeneste {
+
+    private static final Environment ENV = Environment.current();
 
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -88,13 +91,13 @@ public class UttakInputTjeneste {
         var søknadOpprettetTidspunkt = søknadEntitet.map(SøknadEntitet::getOpprettetTidspunkt).orElse(null);
         var ytelsespesifiktGrunnlag = lagYtelsesspesifiktGrunnlag(ref);
         var årsaker = finnÅrsaker(ref);
-        var input = new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag)
-                .medMedlemskapOpphørsdato(medlemskapOpphørsdato)
-                .medSøknadMottattDato(søknadMottattDato)
-                .medSøknadOpprettetTidspunkt(søknadOpprettetTidspunkt)
-                .medBehandlingÅrsaker(map(årsaker))
-                .medBehandlingManueltOpprettet(erManueltOpprettet(årsaker))
-                .medErOpplysningerOmDødEndret(erOpplysningerOmDødEndret(ref));
+        var input = new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag).medMedlemskapOpphørsdato(medlemskapOpphørsdato)
+            .medSøknadMottattDato(søknadMottattDato)
+            .medSøknadOpprettetTidspunkt(søknadOpprettetTidspunkt)
+            .medBehandlingÅrsaker(map(årsaker))
+            .medBehandlingManueltOpprettet(erManueltOpprettet(årsaker))
+            .medSkalBrukeNyFaktaOmUttak(ENV.isLocal())
+            .medErOpplysningerOmDødEndret(erOpplysningerOmDødEndret(ref));
         var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(ref.behandlingId());
         if (beregningsgrunnlag.isPresent()) {
             var bgStatuser = lagBeregningsgrunnlagStatuser(beregningsgrunnlag.get());
