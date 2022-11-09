@@ -46,6 +46,7 @@ public class VedtaksperiodeMottattdatoHelper {
             .medPeriodeKilde(FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
 
         VedtaksperioderHelper.finnMorsAktivitet(up).ifPresent(builder::medMorsAktivitet);
+        VedtaksperioderHelper.finnDokumentasjonVurdering(up).ifPresent(builder::medDokumentasjonVurdering);
         finnGraderingArbeidsprosentSøknad(up).ifPresent(builder::medArbeidsprosent);
         VedtaksperioderHelper.finnUtsettelsesÅrsak(up).ifPresent(builder::medÅrsak);
         VedtaksperioderHelper.finnGradertArbeidsgiver(up).ifPresent(builder::medArbeidsgiver);
