@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
-import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering.HV_OVELSE_DOKUMENTERT;
-import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering.INNLEGGELSE_BARN_DOKUMENTERT;
-import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering.MORS_AKTIVITET_DOKUMENTERT_AKTIVITET;
-import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering.MORS_AKTIVITET_DOKUMENTERT_IKKE_AKTIVITET;
+import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering.HV_OVELSE_GODKJENT;
+import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering.INNLEGGELSE_BARN_GODKJENT;
+import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT;
+import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering.MORS_AKTIVITET_IKKE_GODKJENT;
 import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering.MORS_AKTIVITET_IKKE_DOKUMENTERT;
-import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering.SYKDOM_SØKER_DOKUMENTERT;
-import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering.TIDLIG_OPPSTART_FEDREKVOTE_DOKUMENTERT;
+import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering.SYKDOM_SØKER_GODKJENT;
+import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.DokumentasjonVurdering.TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -99,7 +99,7 @@ class SøknadGrunnlagByggerTest {
         assertThat(perioderMedAvklartMorsAktivitet).hasSize(5);
         assertThat(perioderMedAvklartMorsAktivitet.get(0).getFom()).isEqualTo(aktivitetskravPeriode1.getTidsperiode().getFomDato());
         assertThat(perioderMedAvklartMorsAktivitet.get(0).getTom()).isEqualTo(aktivitetskravPeriode1.getTidsperiode().getTomDato());
-        assertThat(perioderMedAvklartMorsAktivitet.get(0).getDokumentasjonVurdering()).isEqualTo(MORS_AKTIVITET_DOKUMENTERT_IKKE_AKTIVITET);
+        assertThat(perioderMedAvklartMorsAktivitet.get(0).getDokumentasjonVurdering()).isEqualTo(MORS_AKTIVITET_IKKE_GODKJENT);
 
         assertThat(perioderMedAvklartMorsAktivitet.get(1).getFom()).isEqualTo(søknadsperiode2.getFom());
         assertThat(perioderMedAvklartMorsAktivitet.get(1).getTom()).isEqualTo(aktivitetskravPeriode2.getTidsperiode().getFomDato().minusDays(1));
@@ -107,7 +107,7 @@ class SøknadGrunnlagByggerTest {
 
         assertThat(perioderMedAvklartMorsAktivitet.get(2).getFom()).isEqualTo(aktivitetskravPeriode2.getTidsperiode().getFomDato());
         assertThat(perioderMedAvklartMorsAktivitet.get(2).getTom()).isEqualTo(aktivitetskravPeriode2.getTidsperiode().getTomDato());
-        assertThat(perioderMedAvklartMorsAktivitet.get(2).getDokumentasjonVurdering()).isEqualTo(MORS_AKTIVITET_DOKUMENTERT_AKTIVITET);
+        assertThat(perioderMedAvklartMorsAktivitet.get(2).getDokumentasjonVurdering()).isEqualTo(MORS_AKTIVITET_GODKJENT);
 
         assertThat(perioderMedAvklartMorsAktivitet.get(3).getFom()).isEqualTo(aktivitetskravPeriode2.getTidsperiode().getTomDato().plusDays(1));
         assertThat(perioderMedAvklartMorsAktivitet.get(3).getTom()).isEqualTo(aktivitetskravPeriode3.getTidsperiode().getFomDato().minusDays(1));
@@ -151,7 +151,7 @@ class SøknadGrunnlagByggerTest {
         assertThat(perioderMedAvklartMorsAktivitet).hasSize(5);
         assertThat(perioderMedAvklartMorsAktivitet.get(0).getFom()).isEqualTo(aktivitetskravPeriode1.getTidsperiode().getFomDato());
         assertThat(perioderMedAvklartMorsAktivitet.get(0).getTom()).isEqualTo(aktivitetskravPeriode1.getTidsperiode().getTomDato());
-        assertThat(perioderMedAvklartMorsAktivitet.get(0).getDokumentasjonVurdering()).isEqualTo(MORS_AKTIVITET_DOKUMENTERT_IKKE_AKTIVITET);
+        assertThat(perioderMedAvklartMorsAktivitet.get(0).getDokumentasjonVurdering()).isEqualTo(MORS_AKTIVITET_IKKE_GODKJENT);
 
         assertThat(perioderMedAvklartMorsAktivitet.get(1).getFom()).isEqualTo(søknadsperiode2.getFom());
         assertThat(perioderMedAvklartMorsAktivitet.get(1).getTom()).isEqualTo(aktivitetskravPeriode2.getTidsperiode().getFomDato().minusDays(1));
@@ -159,7 +159,7 @@ class SøknadGrunnlagByggerTest {
 
         assertThat(perioderMedAvklartMorsAktivitet.get(2).getFom()).isEqualTo(aktivitetskravPeriode2.getTidsperiode().getFomDato());
         assertThat(perioderMedAvklartMorsAktivitet.get(2).getTom()).isEqualTo(aktivitetskravPeriode2.getTidsperiode().getTomDato());
-        assertThat(perioderMedAvklartMorsAktivitet.get(2).getDokumentasjonVurdering()).isEqualTo(MORS_AKTIVITET_DOKUMENTERT_AKTIVITET);
+        assertThat(perioderMedAvklartMorsAktivitet.get(2).getDokumentasjonVurdering()).isEqualTo(MORS_AKTIVITET_GODKJENT);
 
         assertThat(perioderMedAvklartMorsAktivitet.get(3).getFom()).isEqualTo(aktivitetskravPeriode2.getTidsperiode().getTomDato().plusDays(1));
         assertThat(perioderMedAvklartMorsAktivitet.get(3).getTom()).isEqualTo(aktivitetskravPeriode3.getTidsperiode().getFomDato().minusDays(1));
@@ -204,19 +204,19 @@ class SøknadGrunnlagByggerTest {
         var grunnlag = søknadGrunnlagBygger.byggGrunnlag(input).build();
 
         assertThat(grunnlag.getOppgittePerioder()).hasSize(5);
-        assertThat(grunnlag.getOppgittePerioder().get(0).getDokumentasjonVurdering()).isEqualTo(SYKDOM_SØKER_DOKUMENTERT);
+        assertThat(grunnlag.getOppgittePerioder().get(0).getDokumentasjonVurdering()).isEqualTo(SYKDOM_SØKER_GODKJENT);
         assertThat(grunnlag.getOppgittePerioder().get(0).getFom()).isEqualTo(utsettelseSykdom.getFom());
         assertThat(grunnlag.getOppgittePerioder().get(0).getTom()).isEqualTo(utsettelseSykdom.getTom());
         assertThat(grunnlag.getOppgittePerioder().get(1).getDokumentasjonVurdering()).isNull();
         assertThat(grunnlag.getOppgittePerioder().get(1).getFom()).isEqualTo(utsettelseInnleggelse.getFom());
         assertThat(grunnlag.getOppgittePerioder().get(1).getTom()).isEqualTo(utsettelseInnleggelse.getFom().plusWeeks(1).minusDays(1));
-        assertThat(grunnlag.getOppgittePerioder().get(2).getDokumentasjonVurdering()).isEqualTo(INNLEGGELSE_BARN_DOKUMENTERT);
+        assertThat(grunnlag.getOppgittePerioder().get(2).getDokumentasjonVurdering()).isEqualTo(INNLEGGELSE_BARN_GODKJENT);
         assertThat(grunnlag.getOppgittePerioder().get(2).getFom()).isEqualTo(utsettelseInnleggelse.getFom().plusWeeks(1));
         assertThat(grunnlag.getOppgittePerioder().get(2).getTom()).isEqualTo(utsettelseInnleggelse.getFom().plusWeeks(2));
         assertThat(grunnlag.getOppgittePerioder().get(3).getDokumentasjonVurdering()).isNull();
         assertThat(grunnlag.getOppgittePerioder().get(3).getFom()).isEqualTo(utsettelseInnleggelse.getFom().plusWeeks(2).plusDays(1));
         assertThat(grunnlag.getOppgittePerioder().get(3).getTom()).isEqualTo(utsettelseInnleggelse.getFom().plusWeeks(3).minusDays(1));
-        assertThat(grunnlag.getOppgittePerioder().get(4).getDokumentasjonVurdering()).isEqualTo(INNLEGGELSE_BARN_DOKUMENTERT);
+        assertThat(grunnlag.getOppgittePerioder().get(4).getDokumentasjonVurdering()).isEqualTo(INNLEGGELSE_BARN_GODKJENT);
         assertThat(grunnlag.getOppgittePerioder().get(4).getFom()).isEqualTo(utsettelseInnleggelse.getFom().plusWeeks(3));
         assertThat(grunnlag.getOppgittePerioder().get(4).getTom()).isEqualTo(utsettelseInnleggelse.getTom());
     }
@@ -262,19 +262,19 @@ class SøknadGrunnlagByggerTest {
         var grunnlag = søknadGrunnlagBygger.byggGrunnlag(input).build();
 
         assertThat(grunnlag.getOppgittePerioder()).hasSize(4);
-        assertThat(grunnlag.getOppgittePerioder().get(0).getDokumentasjonVurdering()).isEqualTo(SYKDOM_SØKER_DOKUMENTERT);
+        assertThat(grunnlag.getOppgittePerioder().get(0).getDokumentasjonVurdering()).isEqualTo(SYKDOM_SØKER_GODKJENT);
         assertThat(grunnlag.getOppgittePerioder().get(0).getFom()).isEqualTo(utsettelseSykdom.getFom());
         assertThat(grunnlag.getOppgittePerioder().get(0).getTom()).isEqualTo(utsettelseSykdom.getTom());
 
-        assertThat(grunnlag.getOppgittePerioder().get(1).getDokumentasjonVurdering()).isEqualTo(HV_OVELSE_DOKUMENTERT);
+        assertThat(grunnlag.getOppgittePerioder().get(1).getDokumentasjonVurdering()).isEqualTo(HV_OVELSE_GODKJENT);
         assertThat(grunnlag.getOppgittePerioder().get(1).getFom()).isEqualTo(utsettelseHV.getFom());
         assertThat(grunnlag.getOppgittePerioder().get(1).getTom()).isEqualTo(aktivitetskravPeriode2.getTidsperiode().getFomDato().minusDays(1));
 
-        assertThat(grunnlag.getOppgittePerioder().get(2).getDokumentasjonVurdering()).isEqualTo(HV_OVELSE_DOKUMENTERT);
+        assertThat(grunnlag.getOppgittePerioder().get(2).getDokumentasjonVurdering()).isEqualTo(HV_OVELSE_GODKJENT);
         assertThat(grunnlag.getOppgittePerioder().get(2).getFom()).isEqualTo(aktivitetskravPeriode2.getTidsperiode().getFomDato());
         assertThat(grunnlag.getOppgittePerioder().get(2).getTom()).isEqualTo(aktivitetskravPeriode2.getTidsperiode().getTomDato());
 
-        assertThat(grunnlag.getOppgittePerioder().get(3).getDokumentasjonVurdering()).isEqualTo(HV_OVELSE_DOKUMENTERT);
+        assertThat(grunnlag.getOppgittePerioder().get(3).getDokumentasjonVurdering()).isEqualTo(HV_OVELSE_GODKJENT);
         assertThat(grunnlag.getOppgittePerioder().get(3).getFom()).isEqualTo(aktivitetskravPeriode2.getTidsperiode().getTomDato().plusDays(1));
         assertThat(grunnlag.getOppgittePerioder().get(3).getTom()).isEqualTo(utsettelseHV.getTom());
     }
@@ -301,7 +301,7 @@ class SøknadGrunnlagByggerTest {
         var grunnlag = søknadGrunnlagBygger.byggGrunnlag(input).build();
 
         assertThat(grunnlag.getOppgittePerioder()).hasSize(1);
-        assertThat(grunnlag.getOppgittePerioder().get(0).getDokumentasjonVurdering()).isEqualTo(TIDLIG_OPPSTART_FEDREKVOTE_DOKUMENTERT);
+        assertThat(grunnlag.getOppgittePerioder().get(0).getDokumentasjonVurdering()).isEqualTo(TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT);
         assertThat(grunnlag.getOppgittePerioder().get(0).getFom()).isEqualTo(fedrekvote.getFom());
         assertThat(grunnlag.getOppgittePerioder().get(0).getTom()).isEqualTo(fedrekvote.getTom());
     }

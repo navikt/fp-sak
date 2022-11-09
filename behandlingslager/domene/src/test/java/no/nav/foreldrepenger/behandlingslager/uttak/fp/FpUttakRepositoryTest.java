@@ -62,7 +62,7 @@ public class FpUttakRepositoryTest extends EntityManagerAwareTest {
         assertThat(resultat.get(0).getDokRegel()).isNotNull();
         assertThat(resultat.get(0).getPeriodeSøknad()).isNotEmpty();
         assertThat(resultat.get(0).getAktiviteter().get(0).getUttakAktivitet()).isNotNull();
-        assertThat(resultat.get(0).getPeriodeSøknad().orElseThrow().getDokumentasjonVurdering()).isEqualTo(DokumentasjonVurdering.INNLEGGELSE_SØKER_DOKUMENTERT);
+        assertThat(resultat.get(0).getPeriodeSøknad().orElseThrow().getDokumentasjonVurdering()).isEqualTo(DokumentasjonVurdering.INNLEGGELSE_SØKER_GODKJENT);
     }
 
     @Test
@@ -212,7 +212,7 @@ public class FpUttakRepositoryTest extends EntityManagerAwareTest {
             .medGraderingArbeidsprosent(graderingArbeidsprosent)
             .medSamtidigUttak(true)
             .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
-            .medDokumentasjonVurdering(DokumentasjonVurdering.INNLEGGELSE_SØKER_DOKUMENTERT)
+            .medDokumentasjonVurdering(DokumentasjonVurdering.INNLEGGELSE_SØKER_GODKJENT)
             .build();
         var dokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling()
             .medRegelInput(" ")
