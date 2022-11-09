@@ -69,6 +69,10 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
     private DokumentasjonVurdering mapVurdering(DokumentasjonVurderingBehovDto dto) {
         return switch (dto.type()) {
             case UTSETTELSE -> mapUtsettelseVurdering(dto.årsak(), dto.vurdering());
+            //TODO TFP-4873
+            case TIDLIG_OPPSTART_FAR -> null;
+            case OVERFØRING -> null;
+            case AKTIVITETSKRAV -> null;
         };
     }
 
