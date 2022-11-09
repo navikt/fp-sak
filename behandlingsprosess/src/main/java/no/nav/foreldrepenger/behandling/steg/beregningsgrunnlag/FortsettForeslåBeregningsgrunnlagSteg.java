@@ -24,21 +24,21 @@ import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjenest
 @BehandlingStegRef(BehandlingStegType.FORTSETT_FORESLÅ_BEREGNINGSGRUNNLAG)
 @BehandlingTypeRef
 @ApplicationScoped
-public class ForeslåBeregningsgrunnlag2Steg implements BeregningsgrunnlagSteg {
+public class FortsettForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
     private HentOgLagreBeregningsgrunnlagTjeneste hentOgLagreBeregningsgrunnlagTjeneste;
 
-    protected ForeslåBeregningsgrunnlag2Steg() {
+    protected FortsettForeslåBeregningsgrunnlagSteg() {
         // for CDI proxy
     }
 
     @Inject
-    public ForeslåBeregningsgrunnlag2Steg(BehandlingRepository behandlingRepository,
-                                          BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-                                          BeregningsgrunnlagInputProvider inputTjenesteProvider,
-                                          HentOgLagreBeregningsgrunnlagTjeneste hentOgLagreBeregningsgrunnlagTjeneste) {
+    public FortsettForeslåBeregningsgrunnlagSteg(BehandlingRepository behandlingRepository,
+                                                 BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
+                                                 BeregningsgrunnlagInputProvider inputTjenesteProvider,
+                                                 HentOgLagreBeregningsgrunnlagTjeneste hentOgLagreBeregningsgrunnlagTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
