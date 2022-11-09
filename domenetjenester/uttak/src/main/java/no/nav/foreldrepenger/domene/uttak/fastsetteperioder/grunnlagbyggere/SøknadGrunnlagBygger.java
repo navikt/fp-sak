@@ -1,17 +1,17 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.ALENEOMSORG_DOKUMENTERT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.BARE_SØKER_RETT_DOKUMENTERT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.HV_OVELSE_DOKUMENTERT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_ANNEN_FORELDER_DOKUMENTERT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_BARN_DOKUMENTERT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_SØKER_DOKUMENTERT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.MORS_AKTIVITET_DOKUMENTERT_AKTIVITET;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.MORS_AKTIVITET_DOKUMENTERT_IKKE_AKTIVITET;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.ALENEOMSORG_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.BARE_SØKER_RETT_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.HV_OVELSE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_ANNEN_FORELDER_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_BARN_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_SØKER_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.MORS_AKTIVITET_IKKE_DOKUMENTERT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.NAV_TILTAK_DOKUMENTERT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.SYKDOM_ANNEN_FORELDER_DOKUMENTERT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.SYKDOM_SØKER_DOKUMENTERT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.MORS_AKTIVITET_IKKE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.NAV_TILTAK_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.SYKDOM_ANNEN_FORELDER_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.SYKDOM_SØKER_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType.FRILANS;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE;
 import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.map;
@@ -123,7 +123,7 @@ public class SøknadGrunnlagBygger {
                 if (RelasjonsRolleType.erFarEllerMedmor(relasjonsRolleType) && op.getDokumentasjonVurdering() == null
                     && tidligOppstartFedrekvoteAvklart(op)) {
                     return OppgittPeriodeBuilder.fraEksisterende(op)
-                        .medDokumentasjonVurdering(DokumentasjonVurdering.TIDLIG_OPPSTART_FEDREKVOTE_DOKUMENTERT)
+                        .medDokumentasjonVurdering(DokumentasjonVurdering.TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT)
                         .build();
                 }
                 return op;
@@ -138,23 +138,23 @@ public class SøknadGrunnlagBygger {
 
     private DokumentasjonVurdering utledDokumentasjonVurdering(AktivitetskravPeriodeEntitet aktKravPeriode) {
         return switch (aktKravPeriode.getAvklaring()) {
-            case I_AKTIVITET -> MORS_AKTIVITET_DOKUMENTERT_AKTIVITET;
+            case I_AKTIVITET -> MORS_AKTIVITET_GODKJENT;
             case IKKE_I_AKTIVITET_IKKE_DOKUMENTERT -> MORS_AKTIVITET_IKKE_DOKUMENTERT;
-            case IKKE_I_AKTIVITET_DOKUMENTERT -> MORS_AKTIVITET_DOKUMENTERT_IKKE_AKTIVITET;
+            case IKKE_I_AKTIVITET_DOKUMENTERT -> MORS_AKTIVITET_IKKE_GODKJENT;
         };
     }
 
     private DokumentasjonVurdering utledDokumentasjonVurdering(PeriodeUttakDokumentasjonEntitet dok) {
         return switch (dok.getDokumentasjonType()) {
-            case SYK_SØKER -> SYKDOM_SØKER_DOKUMENTERT;
-            case INNLAGT_SØKER -> INNLEGGELSE_SØKER_DOKUMENTERT;
-            case INNLAGT_BARN -> INNLEGGELSE_BARN_DOKUMENTERT;
-            case INSTITUSJONSOPPHOLD_ANNEN_FORELDRE -> INNLEGGELSE_ANNEN_FORELDER_DOKUMENTERT;
-            case SYKDOM_ANNEN_FORELDER -> SYKDOM_ANNEN_FORELDER_DOKUMENTERT;
-            case IKKE_RETT_ANNEN_FORELDER -> BARE_SØKER_RETT_DOKUMENTERT;
-            case ALENEOMSORG_OVERFØRING -> ALENEOMSORG_DOKUMENTERT;
-            case HV_OVELSE -> HV_OVELSE_DOKUMENTERT;
-            case NAV_TILTAK -> NAV_TILTAK_DOKUMENTERT;
+            case SYK_SØKER -> SYKDOM_SØKER_GODKJENT;
+            case INNLAGT_SØKER -> INNLEGGELSE_SØKER_GODKJENT;
+            case INNLAGT_BARN -> INNLEGGELSE_BARN_GODKJENT;
+            case INSTITUSJONSOPPHOLD_ANNEN_FORELDRE -> INNLEGGELSE_ANNEN_FORELDER_GODKJENT;
+            case SYKDOM_ANNEN_FORELDER -> SYKDOM_ANNEN_FORELDER_GODKJENT;
+            case IKKE_RETT_ANNEN_FORELDER -> BARE_SØKER_RETT_GODKJENT;
+            case ALENEOMSORG_OVERFØRING -> ALENEOMSORG_GODKJENT;
+            case HV_OVELSE -> HV_OVELSE_GODKJENT;
+            case NAV_TILTAK -> NAV_TILTAK_GODKJENT;
             default -> throw new IllegalArgumentException("Ikke gyldig doktype " + dok.getDokumentasjonType());
         };
     }
