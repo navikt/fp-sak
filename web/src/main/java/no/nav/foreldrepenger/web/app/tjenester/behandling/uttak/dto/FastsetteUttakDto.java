@@ -44,6 +44,34 @@ public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
 
     }
 
+    @JsonTypeName(AksjonspunktKodeDefinisjon.VURDER_UTTAK_STORTINGSREPRESENTANT_KODE)
+    public static class FastsetteUttakStortingsrepresentantDto extends FastsetteUttakDto {
+
+        @SuppressWarnings("unused") // NOSONAR
+        private FastsetteUttakStortingsrepresentantDto() {
+            // For Jackson
+        }
+
+        public FastsetteUttakStortingsrepresentantDto(List<UttakResultatPeriodeLagreDto> perioder) {
+            super(perioder);
+        }
+
+    }
+
+    @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_ANNENPART_EØS_KODE)
+    public static class FastsetteUttakKontrollerAnnenpartEØSDto extends FastsetteUttakDto {
+
+        @SuppressWarnings("unused") // NOSONAR
+        private FastsetteUttakKontrollerAnnenpartEØSDto() {
+            // For Jackson
+        }
+
+        public FastsetteUttakKontrollerAnnenpartEØSDto(List<UttakResultatPeriodeLagreDto> perioder) {
+            super(perioder);
+        }
+
+    }
+
 
     @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE_KODE)
     public static class FastsetteUttakKontrollerRealitetsBehandlingEllerKlageDto extends FastsetteUttakDto {

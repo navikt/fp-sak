@@ -221,6 +221,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     FASTSETT_UTTAKPERIODER(AksjonspunktKodeDefinisjon.FASTSETT_UTTAKPERIODER_KODE,
             AksjonspunktType.MANUELL, "Fastsett uttaksperioder manuelt", BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR,
             SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP)),
+    FASTSETT_UTTAK_STORTINGSREPRESENTANT(AksjonspunktKodeDefinisjon.VURDER_UTTAK_STORTINGSREPRESENTANT_KODE, AksjonspunktType.MANUELL, "Søker er stortingsrepresentant",
+        BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP)),
+    KONTROLLER_ANNENPART_EØS(AksjonspunktKodeDefinisjon.KONTROLLER_ANNENPART_EØS_KODE, AksjonspunktType.MANUELL, "Kontroller annen forelders uttak i EØS",
+        BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP)),
     KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE(
             AksjonspunktKodeDefinisjon.KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE_KODE, AksjonspunktType.MANUELL, "Kontroller realitetsbehandling/klage",
             BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
@@ -394,8 +398,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     _5048("5048", AksjonspunktType.MANUELL, "Kontroller den automatiske besteberegningen."),
     @Deprecated
     _5050("5050", AksjonspunktType.MANUELL, "Vurder gradering på andel uten beregningsgrunnlag"),
-    @Deprecated
-    _5072("5072", AksjonspunktType.MANUELL, "Søker er stortingsrepresentant/administrativt ansatt i Stortinget"),
     @Deprecated
     _5078("5078", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser innvilget"),
     @Deprecated
