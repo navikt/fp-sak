@@ -6,7 +6,7 @@ on:
 jobs:
     promote:
         name: Deploy
-        uses: navikt/fp-gha-workflows/.github/workflows/promote.yml@main
+        uses: navikt/fp-gha-workflows/.github/workflows/promote-all-fss.yml@main
         with:
             issue-number: ${{ github.event.client_payload.github.payload.issue.number }}
             cluster: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}
