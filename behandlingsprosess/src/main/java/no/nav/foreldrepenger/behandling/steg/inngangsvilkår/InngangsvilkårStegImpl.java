@@ -6,6 +6,7 @@ import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTrans
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -154,12 +155,7 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType hoppesTilSteg,
             BehandlingStegType hoppesFraSteg) {
-        if (!erVilkårOverstyrt(kontekst.getBehandlingId())) {
-            var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-            var ryddVilkårTyper = new RyddVilkårTyper(repositoryProvider, behandling, kontekst);
-            ryddVilkårTyper.ryddVedTilbakeføring(vilkårHåndtertAvSteg(), BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()));
-            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        }
+        ryddVilkårTilbakeHopp(kontekst, b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getType()));
     }
 
     @Override
@@ -170,6 +166,15 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
             var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
             var ryddVilkårTyper = new RyddVilkårTyper(repositoryProvider, behandling, kontekst);
             ryddVilkårTyper.ryddVedOverhoppFramover(vilkårHåndtertAvSteg());
+            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+        }
+    }
+
+    protected void ryddVilkårTilbakeHopp(BehandlingskontrollKontekst kontekst, Predicate<Behandling> filter) {
+        if (!erVilkårOverstyrt(kontekst.getBehandlingId())) {
+            var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+            var ryddVilkårTyper = new RyddVilkårTyper(repositoryProvider, behandling, kontekst);
+            ryddVilkårTyper.ryddVedTilbakeføring(vilkårHåndtertAvSteg(), filter.test(behandling));
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         }
     }
