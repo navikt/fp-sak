@@ -124,7 +124,7 @@ public class UttakYrkesaktiviteter {
 
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
             grunnlag.getAktørArbeidFraRegister(ref.aktørId())).etter(skjæringstidspunkt);
-        
+
         return filter.getYrkesaktiviteter().stream()
             .map(y -> stillingsprosentForYrkesaktivitet(filter, y, dato))
             .reduce(BigDecimal::add)
@@ -133,7 +133,8 @@ public class UttakYrkesaktiviteter {
 
     private BigDecimal stillingsprosentForYrkesaktivitet(YrkesaktivitetFilter filter, Yrkesaktivitet yrkesaktivitet, LocalDate dato) {
         return filter.getAktivitetsAvtalerForArbeid(yrkesaktivitet).stream()
-            .filter(aa -> !aa.getPeriode().getFomDato().isAfter(dato))
+            .filter(aa -> aa.getPeriode().inkluderer(dato))
+            .filter(aa -> aa.getProsentsats() != null)
             .max(Comparator.comparing(aa -> aa.getPeriode().getFomDato()))
             .map(AktivitetsAvtale::getProsentsats)
             .map(Stillingsprosent::getVerdi)
