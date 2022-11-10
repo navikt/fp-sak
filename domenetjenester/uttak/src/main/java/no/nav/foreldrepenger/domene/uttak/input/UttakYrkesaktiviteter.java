@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.input;
 
-import static java.time.temporal.ChronoUnit.DAYS;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -167,17 +165,11 @@ public class UttakYrkesaktiviteter {
             return overlapper;
         }
 
-        var førDato = aktuelleAvtaler.stream().anyMatch(aa -> aa.getPeriode().getFomDato().isBefore(dato));
-        var etterDato = aktuelleAvtaler.stream().anyMatch(aa -> aa.getPeriode().getFomDato().isAfter(dato));
-        if (førDato && etterDato) {
-            // Velger den avtalen med fom nærmest dato
-            return aktuelleAvtaler.stream().min(Comparator.comparing(aa -> Math.abs(DAYS.between(dato, aa.getPeriode().getFomDato()))));
-        } else if (førDato) {
-            return aktuelleAvtaler.stream().max(Comparator.comparing(aa -> aa.getPeriode().getFomDato()));
-        } else if (etterDato) {
+        var førDato = aktuelleAvtaler.stream().filter(aa -> aa.getPeriode().getFomDato().isBefore(dato)).toList();
+        if (førDato.isEmpty()) {
             return aktuelleAvtaler.stream().min(Comparator.comparing(aa -> aa.getPeriode().getFomDato()));
         } else {
-            return Optional.empty();
+            return førDato.stream().max(Comparator.comparing(aa -> aa.getPeriode().getFomDato()));
         }
     }
 
