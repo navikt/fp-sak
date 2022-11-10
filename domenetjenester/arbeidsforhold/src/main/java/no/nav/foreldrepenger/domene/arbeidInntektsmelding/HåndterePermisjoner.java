@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.AA_REGISTER_TYPER;
 import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,8 +24,7 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseTyp
 
 public class HåndterePermisjoner {
     private static final int PERMISJON_PROSENTSATS_NØDVENDIG_FOR_Å_UTLØSTE_AKSJONSPUNKT = 100;
-    private static final Set<PermisjonsbeskrivelseType> PERMISJONTYPER_SOM_IKKE_ER_RELEVANTE = Set.of(
-        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON,
+    private static final Set<PermisjonsbeskrivelseType> PERMISJONTYPER_SOM_IKKE_ER_RELEVANTE = Set.of(PermisjonsbeskrivelseType.UTDANNINGSPERMISJON,
         PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER);
 
     public static List<ArbeidsforholdMangel> finnArbForholdMedPermisjonUtenSluttdatoMangel(BehandlingReferanse behandlingReferanse,
@@ -53,7 +53,7 @@ public class HåndterePermisjoner {
             .filter(HåndterePermisjoner::har100ProsentPermisjonEllerMer)
             .filter(p -> fomErFørStp(stp, p) && tomErLikEllerEtterStp(stp, p))
             .filter(p -> !PERMISJONTYPER_SOM_IKKE_ER_RELEVANTE.contains(p.getPermisjonsbeskrivelseType()))
-            .anyMatch(p-> p.getTilOgMed() == null || TIDENES_ENDE.equals(p.getTilOgMed()));
+            .anyMatch(p -> p.getTilOgMed() == null || TIDENES_ENDE.equals(p.getTilOgMed()));
     }
 
     public static boolean harRelevantPermisjonSomOverlapperSkjæringstidspunkt(Yrkesaktivitet yrkesaktivitet, LocalDate stp) {
@@ -63,35 +63,60 @@ public class HåndterePermisjoner {
             .anyMatch(p -> !PERMISJONTYPER_SOM_IKKE_ER_RELEVANTE.contains(p.getPermisjonsbeskrivelseType()));
     }
 
+    public static boolean harRelevantPermisjonSomOverlapperTilretteleggingFom(Yrkesaktivitet yrkesaktivitet, LocalDate tilretteleggingBehovFom) {
+        return yrkesaktivitet.getPermisjon()
+            .stream()
+            .filter(HåndterePermisjoner::harMerEnnNullProsentPermisjon)
+            .filter(p -> PermisjonsbeskrivelseType.VELFERDSPERMISJON.equals(p.getPermisjonsbeskrivelseType()))
+            .anyMatch(permisjon -> erPeriodenInnenfortilretteleggingFom(permisjon, tilretteleggingBehovFom));
+    }
 
 
-    public static Optional<PermisjonOgMangelDto> hentPermisjonOgMangel(Yrkesaktivitet yrkesaktivitet, LocalDate stp, AksjonspunktÅrsak årsak, BekreftetPermisjonStatus status) {
+    public static Optional<PermisjonOgMangelDto> hentPermisjonOgMangel(Yrkesaktivitet yrkesaktivitet,
+                                                                       LocalDate stp,
+                                                                       AksjonspunktÅrsak årsak,
+                                                                       BekreftetPermisjonStatus status) {
         return yrkesaktivitet.getPermisjon().stream()
             .filter(HåndterePermisjoner::har100ProsentPermisjonEllerMer)
             .filter(p -> fomErFørStp(stp, p) && tomErLikEllerEtterStp(stp, p))
             .filter(p -> !PERMISJONTYPER_SOM_IKKE_ER_RELEVANTE.contains(p.getPermisjonsbeskrivelseType()))
             .max(Comparator.comparing(Permisjon::getPeriode))
-            .map(p -> byggPermisjonOgMangelDto(p, årsak, status ));
+            .map(p -> byggPermisjonOgMangelDto(p, årsak, status));
     }
 
     private static boolean harAnsettelsesPerioderSomInkludererStp(YrkesaktivitetFilter filter, LocalDate stp, Yrkesaktivitet ya) {
         return filter.getAnsettelsesPerioder(ya).stream().anyMatch(avtale -> avtale.getPeriode().inkluderer(stp));
     }
+
     private static PermisjonOgMangelDto byggPermisjonOgMangelDto(Permisjon permisjon, AksjonspunktÅrsak årsak, BekreftetPermisjonStatus bekreftetPermisjonStatus) {
-        return new PermisjonOgMangelDto(
-            permisjon.getFraOgMed(),
+        return new PermisjonOgMangelDto(permisjon.getFraOgMed(),
             (permisjon.getTilOgMed() == null) || TIDENES_ENDE.equals(permisjon.getTilOgMed()) ? null : permisjon.getTilOgMed(),
-            permisjon.getPermisjonsbeskrivelseType(),
-            årsak,
-            bekreftetPermisjonStatus);
+            permisjon.getPermisjonsbeskrivelseType(), årsak, bekreftetPermisjonStatus);
     }
+
     private static boolean har100ProsentPermisjonEllerMer(Permisjon p) {
         return PERMISJON_PROSENTSATS_NØDVENDIG_FOR_Å_UTLØSTE_AKSJONSPUNKT <= p.getProsentsats().getVerdi().intValue();
     }
+
+    private static boolean harMerEnnNullProsentPermisjon(Permisjon p) {
+        return p.getProsentsats().getVerdi().compareTo(BigDecimal.ZERO) > 0;
+    }
+
     private static boolean fomErFørStp(LocalDate stp, Permisjon p) {
         return p.getFraOgMed().isBefore(stp);
     }
+
     private static boolean tomErLikEllerEtterStp(LocalDate stp, Permisjon p) {
         return (p.getTilOgMed() == null) || p.getTilOgMed().isAfter(stp) || p.getTilOgMed().isEqual(stp);
+    }
+
+
+    private static boolean erPeriodenInnenfortilretteleggingFom(Permisjon p, LocalDate tilretteleggingBehovFom) {
+        if (p.getTilOgMed() != null) {
+            return p.getPeriode().getFomDato().isEqual(tilretteleggingBehovFom)
+                || p.getPeriode().getFomDato().isEqual(tilretteleggingBehovFom)
+                || (tilretteleggingBehovFom.isAfter(p.getFraOgMed()) && tilretteleggingBehovFom.isBefore(p.getTilOgMed()));
+        }
+        return false;
     }
 }
