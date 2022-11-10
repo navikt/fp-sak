@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakReposito
 public class UttakYrkesaktiviteterTest {
 
     @Test
-    public void stillingsprosent_ved_flere_overlappende_aktivitetsavtaler_på_dato_skal_velge_stilling_med_maks() {
+    public void stillingsprosent_ved_flere_overlappende_aktivitetsavtaler_på_dato_skal_velge_stilling_med_seneste_fom() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(new UttakRepositoryStubProvider());
         var dato = LocalDate.of(2020, 5, 4);
@@ -60,7 +60,7 @@ public class UttakYrkesaktiviteterTest {
             .medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, arbeidsgiver, null)));
         var uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
 
-        assertThat(uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, null, dato)).isEqualTo(aktivStillingsprosent);
+        assertThat(uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, null, dato)).isEqualTo(BigDecimal.valueOf(30));
     }
 
     @Test

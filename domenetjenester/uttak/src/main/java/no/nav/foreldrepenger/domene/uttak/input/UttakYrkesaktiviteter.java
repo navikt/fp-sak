@@ -95,23 +95,27 @@ public class UttakYrkesaktiviteter {
         var filter = new YrkesaktivitetFilter(null, yaMedAnsettelsesperiodePåDato).etter(
             skjæringstidspunkt.getUtledetSkjæringstidspunkt());
 
-        var sum = BigDecimal.ZERO;
-        for (var ya : filter.getAlleYrkesaktiviteter()) {
-            var aktivitetsAvtaler = filter.getAktivitetsAvtalerForArbeid(ya);
-            if (ArbeidType.FORENKLET_OPPGJØRSORDNING.equals(ya.getArbeidType()) && aktivitetsAvtaler.isEmpty()) {
+        return filter.getAlleYrkesaktiviteter().stream()
+            .filter(ya -> skalYrkesaktivitetTellesMhpProsent(filter, ya, dato))
+            .map(ya -> finnStillingsprosent(filter.getAktivitetsAvtalerForArbeid(ya), dato))
+            .reduce(BigDecimal::add)
+            .orElse(BigDecimal.ZERO);
+    }
+
+    private boolean skalYrkesaktivitetTellesMhpProsent(YrkesaktivitetFilter filter, Yrkesaktivitet yrkesaktivitet, LocalDate dato) {
+        var aktivitetsAvtaler = filter.getAktivitetsAvtalerForArbeid(yrkesaktivitet);
+        if (aktivitetsAvtaler.isEmpty()) {
+            if (ArbeidType.FORENKLET_OPPGJØRSORDNING.equals(yrkesaktivitet.getArbeidType())) {
                 // Forekommer i halvparten av tilfellene pga rapportertingsmåte. Antar 0% i disse tilfellene.
-                continue;
-            }
-            if (aktivitetsAvtaler.isEmpty()) {
+                return false;
+            } else {
                 var melding = "Forventer minst en aktivitetsavtale ved dato " + dato.toString() + " i yrkesaktivitet"
-                    + ya.toString() + " med ansettelsesperioder " + filter.getAnsettelsesPerioder(ya).toString()
-                    + " og alle aktivitetsavtaler " + aktivitetsAvtaler.toString();
+                    + yrkesaktivitet + " med ansettelsesperioder " + filter.getAnsettelsesPerioder(yrkesaktivitet).toString()
+                    + " og alle aktivitetsavtaler " + aktivitetsAvtaler;
                 throw new IllegalStateException(melding);
             }
-            sum = sum.add(finnStillingsprosent(aktivitetsAvtaler, dato));
         }
-
-        return sum;
+        return true;
     }
 
     public BigDecimal summerStillingsprosentAlleYrkesaktiviteter(LocalDate dato) {
@@ -126,11 +130,11 @@ public class UttakYrkesaktiviteter {
             grunnlag.getAktørArbeidFraRegister(ref.aktørId())).etter(skjæringstidspunkt);
 
         return filter.getYrkesaktiviteter().stream()
-            .map(y -> y.getStillingsprosentFor(dato).map(Stillingsprosent::getVerdi).orElse(BigDecimal.ZERO))
+            .filter(ya -> !filter.getAktivitetsAvtalerForArbeid(ya).isEmpty() || !ArbeidType.FORENKLET_OPPGJØRSORDNING.equals(ya.getArbeidType()))
+            .map(y -> finnStillingsprosent(filter.getAktivitetsAvtalerForArbeid(y), dato))
             .reduce(BigDecimal::add)
-            .orElse(BigDecimal.valueOf(100));
+            .orElse(BigDecimal.ZERO);
     }
-
 
     private List<Yrkesaktivitet> yaMedAnsettelsesperiodePåDato(YrkesaktivitetFilter filter,
                                                                Arbeidsgiver arbeidsgiver,
@@ -146,36 +150,27 @@ public class UttakYrkesaktiviteter {
     }
 
     private BigDecimal finnStillingsprosent(Collection<AktivitetsAvtale> aktivitetsAvtaler, LocalDate dato) {
-        var aktivitetPåDato = finnAktivitetPåDato(aktivitetsAvtaler, dato);
-        if (aktivitetPåDato.getProsentsats() == null) {
-            return BigDecimal.ZERO;
-        }
-        return aktivitetPåDato.getProsentsats().getVerdi();
+        return finnAktivitetPåDato(aktivitetsAvtaler, dato)
+            .map(AktivitetsAvtale::getProsentsats)
+            .map(Stillingsprosent::getVerdi)
+            .orElse(BigDecimal.ZERO);
     }
 
-    private AktivitetsAvtale finnAktivitetPåDato(Collection<AktivitetsAvtale> aktivitetsAvtaler, LocalDate dato) {
-        var overlapper = aktivitetsAvtaler.stream()
+    private Optional<AktivitetsAvtale> finnAktivitetPåDato(Collection<AktivitetsAvtale> aktivitetsAvtaler, LocalDate dato) {
+        var aktuelleAvtaler = aktivitetsAvtaler.stream().filter(aa -> aa.getProsentsats() != null).toList();
+        var overlapper = aktuelleAvtaler.stream()
             .filter(aa -> riktigDato(dato, aa))
-            .max(Comparator.comparing(o -> {
-                if (o.getProsentsats() == null) {
-                    return BigDecimal.ZERO;
-                }
-                return o.getProsentsats().getVerdi();
-            }));
+            .max(Comparator.comparing(aa -> aa.getPeriode().getFomDato()));
         if (overlapper.isPresent()) {
-            return overlapper.get();
+            return overlapper;
         }
 
-        // Ingen avtaler finnes på dato. Bruker nærmeste avtale. Kommer av dårlig datakvalitet i registerne
-        var sortert = sortertPåDato(aktivitetsAvtaler);
-        var førsteAktivitetsavtale = sortert.get(0);
-        // Hull i starten av ansettelsesperioden
-        if (dato.isBefore(førsteAktivitetsavtale.getPeriode().getFomDato())) {
-            return førsteAktivitetsavtale;
+        var førDato = aktuelleAvtaler.stream().filter(aa -> aa.getPeriode().getFomDato().isBefore(dato)).toList();
+        if (førDato.isEmpty()) {
+            return aktuelleAvtaler.stream().min(Comparator.comparing(aa -> aa.getPeriode().getFomDato()));
+        } else {
+            return førDato.stream().max(Comparator.comparing(aa -> aa.getPeriode().getFomDato()));
         }
-        // Hull på slutten av ansettelsesperioden
-        return sortert.get(aktivitetsAvtaler.size() - 1);
-
     }
 
     private List<AktivitetsAvtale> sortertPåDato(Collection<AktivitetsAvtale> aktivitetsAvtaler) {
@@ -197,8 +192,7 @@ public class UttakYrkesaktiviteter {
     }
 
     private boolean riktigDato(LocalDate dato, AktivitetsAvtale avtale) {
-        return (avtale.getPeriode().getFomDato().isEqual(dato) || avtale.getPeriode().getFomDato().isBefore(dato)) &&
-            (avtale.getPeriode().getTomDato().isEqual(dato) || avtale.getPeriode().getTomDato().isAfter(dato));
+        return avtale.getPeriode().inkluderer(dato);
     }
 
     public Optional<LocalDate> finnStartdato(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
