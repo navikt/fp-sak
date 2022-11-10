@@ -124,11 +124,20 @@ public class UttakYrkesaktiviteter {
 
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
             grunnlag.getAktørArbeidFraRegister(ref.aktørId())).etter(skjæringstidspunkt);
-
+        
         return filter.getYrkesaktiviteter().stream()
-            .map(y -> y.getStillingsprosentFor(dato).map(Stillingsprosent::getVerdi).orElse(BigDecimal.ZERO))
+            .map(y -> stillingsprosentForYrkesaktivitet(filter, y, dato))
             .reduce(BigDecimal::add)
             .orElse(BigDecimal.valueOf(100));
+    }
+
+    private BigDecimal stillingsprosentForYrkesaktivitet(YrkesaktivitetFilter filter, Yrkesaktivitet yrkesaktivitet, LocalDate dato) {
+        return filter.getAktivitetsAvtalerForArbeid(yrkesaktivitet).stream()
+            .filter(aa -> !aa.getPeriode().getFomDato().isAfter(dato))
+            .max(Comparator.comparing(aa -> aa.getPeriode().getFomDato()))
+            .map(AktivitetsAvtale::getProsentsats)
+            .map(Stillingsprosent::getVerdi)
+            .orElse(BigDecimal.ZERO);
     }
 
 
