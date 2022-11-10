@@ -23,7 +23,6 @@ import javax.ws.rs.Path;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
@@ -78,9 +77,6 @@ public class BehandlingDtoTjenesteTest {
     private BehandlingDokumentRepository behandlingDokumentRepository;
 
     @Inject
-    private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
-
-    @Inject
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
 
     @Inject
@@ -93,18 +89,8 @@ public class BehandlingDtoTjenesteTest {
     @BeforeEach
     public void setUp() {
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
-                opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste, foreldrepengerUttakTjeneste, null,
+                opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, foreldrepengerUttakTjeneste, null,
                 kontrollerAktivitetskravDtoTjeneste, mock(TotrinnTjeneste.class));
-    }
-
-    @Test
-    public void skal_ha_med_simuleringsresultatURL() {
-        var behandling = lagBehandling();
-
-        var dto = tjeneste.lagUtvidetBehandlingDto(behandling, null);
-
-        assertThat(getLinkRel(dto)).contains("simuleringResultat");
-        assertThat(getLinkHref(dto)).contains(URI.create("/fpoppdrag/api/simulering/resultat-uten-inntrekk"));
     }
 
     @Test

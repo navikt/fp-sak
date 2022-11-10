@@ -101,7 +101,7 @@ public class MedlemDtoTjeneste {
             dto.setOpphold(mapOppholdstillatelser(behandlingId));
             dto.setFom(mapMedlemV2Fom(behandling, ref, personopplysningerAggregat, medlemskapOpt).orElse(null));
 
-            if (behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP).isPresent()) {
+            if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP)) {
                 mapAndrePerioder(dto, medlemskapOpt.flatMap(MedlemskapAggregat::getVurderingLøpendeMedlemskap)
                     .map(VurdertMedlemskapPeriodeEntitet::getPerioder).orElse(Collections.emptySet()), ref);
             }

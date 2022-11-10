@@ -79,6 +79,6 @@ public class VarselRevurderingStegImpl implements VarselRevurderingSteg {
     }
 
     private boolean harUtførtVentRevurdering(Behandling behandling) {
-        return behandling.getAksjonspunktMedDefinisjonOptional(AUTO_SATT_PÅ_VENT_REVURDERING).map(Aksjonspunkt::erUtført).orElse(Boolean.FALSE);
+        return behandling.getAksjonspunktMedDefinisjonOptional(AUTO_SATT_PÅ_VENT_REVURDERING).filter(Aksjonspunkt::erUtført).isPresent();
     }
 }

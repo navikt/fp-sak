@@ -59,7 +59,7 @@ public class FaktaUttakSaksbehandlerOverstyringshåndterer extends AbstractOvers
     }
 
     private boolean aksjonspunktFinnesFraFør(Behandling behandling) {
-        return behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING).isPresent();
+        return behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING);
     }
 
     private boolean kanIkkeFinnesAksjonspunktFaktaUttak(Behandling behandling) {
