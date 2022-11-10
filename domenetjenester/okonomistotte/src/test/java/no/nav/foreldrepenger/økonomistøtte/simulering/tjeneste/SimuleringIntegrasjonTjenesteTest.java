@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste;
 
+import static no.nav.foreldrepenger.økonomistøtte.OppdragTestDataHelper.oppdragskontrollUtenOppdrag;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
@@ -8,12 +10,19 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.kontrakter.simulering.request.OppdragskontrollDto;
+import no.nav.foreldrepenger.økonomistøtte.OppdragTestDataHelper;
 import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlient;
 import no.nav.vedtak.exception.TekniskException;
 
@@ -31,24 +40,32 @@ public class SimuleringIntegrasjonTjenesteTest {
     }
 
     @Test
-    public void test_skalFeileVedBehandlingIdNull() {
-        assertThrows(NullPointerException.class, () -> integrasjonTjeneste.startSimulering(null, null));
+    void test_skalFeileVedBehandlingIdNull() {
+        var oppdragskontroll = mock(Oppdragskontroll.class);
+        when(oppdragskontroll.getBehandlingId()).thenReturn(null);
+        when(oppdragskontroll.getOppdrag110Liste()).thenReturn(List.of());
+        assertThrows(NullPointerException.class, () -> integrasjonTjeneste.startSimulering(Optional.of(oppdragskontroll)));
     }
 
     @Test
-    public void test_skalFeileVedOppdraglisteNull() {
-        assertThrows(NullPointerException.class, () -> integrasjonTjeneste.startSimulering(BEHANDLING_ID, null));
+    void test_skalFeileVedOppdraglisteNull() {
+        var oppdragskontroll = mock(Oppdragskontroll.class);
+        when(oppdragskontroll.getBehandlingId()).thenReturn(BEHANDLING_ID);
+        when(oppdragskontroll.getOppdrag110Liste()).thenReturn(null);
+        assertThrows(NullPointerException.class, () -> integrasjonTjeneste.startSimulering(Optional.of(oppdragskontroll)));
     }
 
     @Test
-    public void test_skalSendeRequestTilRestKlient() {
-        integrasjonTjeneste.startSimulering(BEHANDLING_ID, Collections.singletonList("test"));
+    void test_skalSendeRequestTilRestKlientNårOppdragskontrollHarBådeBehandlingsIdOgOppdrag() {
+        var oppdragskontroll = OppdragTestDataHelper.oppdragskontrollMedOppdrag(new Saksnummer("123456"), BEHANDLING_ID);
+        integrasjonTjeneste.startSimulering(Optional.of(oppdragskontroll));
         verify(restKlientMock, atLeastOnce()).startSimulering(any());
     }
 
     @Test
-    public void test_skalIkkeStartSimuleringNårOppdraglisteEmpty() {
-        integrasjonTjeneste.startSimulering(BEHANDLING_ID, Collections.emptyList());
+    void test_skalIkkeStartSimuleringNårOppdraglisteEmpty() {
+        var oppdragskontroll = oppdragskontrollUtenOppdrag(new Saksnummer("123456"), 1L, 123L);
+        integrasjonTjeneste.startSimulering(Optional.of(oppdragskontroll));
         verify(restKlientMock, never()).startSimulering(any());
     }
 
@@ -56,8 +73,15 @@ public class SimuleringIntegrasjonTjenesteTest {
     public void test_skalFeileNårOppdragsystemKasterException() {
         doThrow(SimulerOppdragIntegrasjonTjenesteFeil.startSimuleringFeiletMedFeilmelding(BEHANDLING_ID, new RuntimeException()))
             .when(restKlientMock).startSimulering(any());
-        assertThatThrownBy(() -> integrasjonTjeneste.startSimulering(BEHANDLING_ID, Collections.singletonList("test")))
+        assertThatThrownBy(() -> integrasjonTjeneste.startSimuleringOLD(BEHANDLING_ID, Collections.singletonList("test")))
             .isInstanceOf(TekniskException.class)
             .hasMessageContaining("FP-423523");
+    }
+
+    @Test
+    void test_skalIkkeFeileNårFpWsProxyKasterException() {
+        doThrow(SimulerOppdragIntegrasjonTjenesteFeil.startSimuleringFeiletMedFeilmelding(BEHANDLING_ID, new RuntimeException()))
+            .when(restKlientMock).startSimuleringFpWsProxy(any());
+        assertDoesNotThrow(() -> integrasjonTjeneste.startSimuleringViaFpWsProxyOgSammenlingFailsafe(new OppdragskontrollDto(BEHANDLING_ID, List.of())));
     }
 }

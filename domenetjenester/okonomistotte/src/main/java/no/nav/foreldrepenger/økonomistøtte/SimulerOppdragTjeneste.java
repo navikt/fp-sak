@@ -1,14 +1,19 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+import no.nav.foreldrepenger.kontrakter.simulering.request.OppdragskontrollDto;
+import no.nav.foreldrepenger.økonomistøtte.simulering.fpwsproxy.mapper.OppdragsKontrollDtoMapper;
 
 @ApplicationScoped
 @ActivateRequestContext
@@ -31,17 +36,26 @@ public class SimulerOppdragTjeneste {
     }
 
     /**
-     * Generer XMLene som skal sendes over til oppdrag for simulering. Det lages en XML per Oppdrag110.
-     * Vi har en Oppdrag110-linje per oppdragsmottaker.
-     *
-     * @param behandlingId   behandling.id
-     * @return En liste med XMLer som kan sendes over til oppdrag
+     * Henter ut oppdragskontroll for en gitt behandlingsid
+     * @param behandlingId
+     * @return
      */
-    public List<String> simulerOppdrag(Long behandlingId) {
+    public Optional<Oppdragskontroll> hentOppdragskontrollForBehandling(Long behandlingId) {
         LOG.info("Simulerer behandlingId: {}", behandlingId);
         var input = oppdragInputTjeneste.lagSimuleringInput(behandlingId);
-        var oppdragskontrollOpt = oppdragskontrollTjeneste.simulerOppdrag(input);
+        return oppdragskontrollTjeneste.simulerOppdrag(input);
+    }
 
-        return oppdragskontrollOpt.map(new ØkonomioppdragMapper()::generateOppdragXML).orElse(Collections.emptyList());
+    /**
+     * Generer XMLene som skal sendes over til oppdrag for simulering fra oppdragskontroll. Det lages en XML per Oppdrag110.
+     * Vi har en Oppdrag110-linje per oppdragsmottaker.
+     * @return En liste med XMLer som kan sendes over til oppdrag
+     */
+    public static List<String> tilOppdragXml(@NotNull Oppdragskontroll oppdragskontroll) {
+        return new ØkonomioppdragMapper().generateOppdragXML(oppdragskontroll);
+    }
+
+    public static OppdragskontrollDto tilOppdragKontrollDto(@NotNull Oppdragskontroll oppdragskontroll) {
+        return OppdragsKontrollDtoMapper.tilDto(oppdragskontroll);
     }
 }

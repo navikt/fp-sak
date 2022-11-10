@@ -151,7 +151,7 @@ public class Oppdrag110EntityTest {
 
     }
 
-    private Oppdrag110.Builder lagBuilderMedPaakrevdeFelter() {
+    private static Oppdrag110.Builder lagBuilderMedPaakrevdeFelter() {
         return Oppdrag110.builder()
                 .medKodeEndring(KODEENDRING)
                 .medKodeFagomrade(KODEFAGOMRADE)
@@ -162,7 +162,7 @@ public class Oppdrag110EntityTest {
                 .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build());
     }
 
-    private Oppdragskontroll.Builder lagOppdragskontrollMedPaakrevdeFelter() {
+    private static Oppdragskontroll.Builder lagOppdragskontrollMedPaakrevdeFelter() {
         return Oppdragskontroll.builder()
                 .medBehandlingId(BEHANDLINGID)
                 .medSaksnummer(SAKSID)

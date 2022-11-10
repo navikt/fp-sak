@@ -51,8 +51,8 @@ public class SimulerInntrekkSjekkeTjeneste {
         }
         var tilbakekrevingValg = tilbakekrevingRepository.hent(behandling.getId());
         if (tilbakekrevingValg.filter(valg -> valg.getVidereBehandling().equals(TilbakekrevingVidereBehandling.INNTREKK)).isPresent()) {
-            var oppdragXmler = simulerOppdragTjeneste.simulerOppdrag(behandling.getId());
-            simuleringIntegrasjonTjeneste.startSimulering(behandling.getId(), oppdragXmler);
+            var oppdragskontroll = simulerOppdragTjeneste.hentOppdragskontrollForBehandling(behandling.getId());
+            simuleringIntegrasjonTjeneste.startSimulering(oppdragskontroll);
 
             var simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId());
             if (simuleringResultatDto.isPresent() && simuleringResultatDto.get().harFeilutbetaling()) {

@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.UriBuilder;
 
+import no.nav.foreldrepenger.kontrakter.simulering.request.OppdragskontrollDto;
 import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimulerOppdragDto;
 import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
@@ -21,17 +22,20 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 public class FpOppdragRestKlient {
 
     private static final String FPOPPDRAG_START_SIMULERING = "/api/simulering/start";
+    private static final String FPOPPDRAG_START_SIMULERING_V2 = "/api/simulering/start/v2";
     private static final String FPOPPDRAG_HENT_RESULTAT = "/api/simulering/resultat";
 
     private final RestClient restClient;
     private final RestConfig restConfig;
     private final URI uriStartSimulering;
+    private final URI uriStartSimuleringV2;
     private final URI uriHentResultat;
 
     public FpOppdragRestKlient() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(this.getClass());
         this.uriStartSimulering = UriBuilder.fromUri(restConfig.fpContextPath()).path(FPOPPDRAG_START_SIMULERING).build();
+        this.uriStartSimuleringV2 = UriBuilder.fromUri(restConfig.fpContextPath()).path(FPOPPDRAG_START_SIMULERING_V2).build();
         this.uriHentResultat = UriBuilder.fromUri(restConfig.fpContextPath()).path(FPOPPDRAG_HENT_RESULTAT).build();
     }
 
@@ -41,6 +45,15 @@ public class FpOppdragRestKlient {
      */
     public void startSimulering(SimulerOppdragDto request) {
         var rrequest = RestRequest.newPOSTJson(request, uriStartSimulering, restConfig).timeout(Duration.ofSeconds(30));
+        restClient.sendReturnOptional(rrequest, String.class);
+    }
+
+    /**
+     * Starter en simulering for gitt behandling med oppdrag fra oppdragskontroll
+     * @param request med OppdragskontrollDto
+     */
+    public void startSimuleringFpWsProxy(OppdragskontrollDto request) {
+        var rrequest = RestRequest.newPOSTJson(request, uriStartSimuleringV2, restConfig).timeout(Duration.ofSeconds(30));
         restClient.sendReturnOptional(rrequest, String.class);
     }
 

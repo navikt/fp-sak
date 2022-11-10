@@ -91,7 +91,8 @@ public class SimulerOppdragTjenesteESTest {
     @Test
     public void simulerOppdrag_uten_behandling_vedtak_ES() {
         // Act
-        var resultat = simulerOppdragTjeneste.simulerOppdrag(behandlingId);
+        var oppdragskontroll = simulerOppdragTjeneste.hentOppdragskontrollForBehandling(behandlingId);
+        var resultat = SimulerOppdragTjeneste.tilOppdragXml(oppdragskontroll.get());
 
         // Assert
         assertThat(resultat).hasSize(1);

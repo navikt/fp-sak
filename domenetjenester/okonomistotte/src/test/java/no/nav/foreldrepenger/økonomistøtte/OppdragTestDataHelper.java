@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -17,63 +19,128 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-
 public class OppdragTestDataHelper {
 
-    static Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110) {
-        var oppdrLinje150Builder = Oppdragslinje150.builder();
+    private OppdragTestDataHelper() {
+    }
 
-        return oppdrLinje150Builder
-            .medKodeEndringLinje(KodeEndringLinje.ENDR)
-            .medKodeStatusLinje(KodeStatusLinje.OPPH)
-            .medDatoStatusFom(LocalDate.now())
-            .medVedtakId("456")
-            .medDelytelseId(64L)
-            .medKodeKlassifik(KodeKlassifik.ES_FØDSEL)
-            .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
-            .medSats(Sats.på(61122L))
-            .medTypeSats(TypeSats.DAG)
-            .medUtbetalesTilId("123456789")
-            .medOppdrag110(oppdrag110)
-            .medUtbetalingsgrad(Utbetalingsgrad._100)
+
+    public static Oppdragskontroll oppdragskontrollMedOppdrag(Saksnummer saksnummer, Long behandlingsId) {
+        var oppdragskontroll = oppdragskontrollUtenOppdrag(saksnummer, behandlingsId);
+        lagOppdrag110FPArbeidsgiver(oppdragskontroll, 2L);
+        return oppdragskontroll;
+    }
+
+    public static Oppdragskontroll oppdragskontrollUtenOppdrag() {
+        return oppdragskontrollUtenOppdrag(new Saksnummer("3544"), 1L);
+    }
+
+    public static Oppdragskontroll oppdragskontrollUtenOppdrag(Saksnummer saksnummer, Long behandlingsId) {
+        return Oppdragskontroll.builder()
+            .medBehandlingId(behandlingsId)
+            .medSaksnummer(saksnummer)
+            .medVenterKvittering(true)
+            .medProsessTaskId(52L)
             .build();
-
     }
 
-    public static Oppdrag110 buildOppdrag110ES(Oppdragskontroll oppdragskontroll, Long fagsystemId) {
-        return buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.REFUTG);
+    public static Oppdragskontroll oppdragskontrollUtenOppdrag(Saksnummer saksnummer, Long behandlingsId, Long prosesstaskId) {
+        return Oppdragskontroll.builder()
+            .medBehandlingId(behandlingsId)
+            .medSaksnummer(saksnummer)
+            .medVenterKvittering(true)
+            .medProsessTaskId(prosesstaskId)
+            .build();
     }
 
-    public static Oppdrag110 buildOppdrag110FPBruker(Oppdragskontroll oppdragskontroll, Long fagsystemId) {
-        return buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.FP);
+
+    public static Oppdrag110 lagOppdrag110ES(Oppdragskontroll oppdragskontroll, Long fagsystemId) {
+        return lagOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.REFUTG, false, false, false);
     }
 
-    public static Oppdrag110 buildOppdrag110FPArbeidsgiver(Oppdragskontroll oppdragskontroll, Long fagsystemId) {
-        var oppdrag110 = buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.FPREF);
-        var oppdrag150 = OppdragTestDataHelper.buildOppdragslinje150(oppdrag110);
-        OppdragTestDataHelper.buildRefusjonsinfo156(oppdrag150);
-        return oppdrag110;
+    public static Oppdrag110 lagOppdrag110FPBruker(Oppdragskontroll oppdragskontroll, Long fagsystemId) {
+        return lagOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.FP, false, false, false);
     }
 
-    private static Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll, Long fagsystemId, KodeFagområde økonomiKodeFagområde) {
-        var oppdr110Builder = Oppdrag110.builder();
+    public static Oppdrag110 lagOppdrag110FPArbeidsgiver(Oppdragskontroll oppdragskontroll, Long fagsystemId) {
+        return lagOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.FPREF, true, true, false);
+    }
 
-        var oppdrag110Builder = oppdr110Builder
+    public static Oppdrag110 lagOppdrag110(Oppdragskontroll oppdragskontroll, Long fagsystemId, KodeFagområde kodeFagområde,
+                                           boolean medOppdraglinje150, boolean refusjon, boolean feriepenger) {
+        return lagOppdrag110(oppdragskontroll, fagsystemId, kodeFagområde, medOppdraglinje150, false, refusjon, feriepenger);
+    }
+    public static Oppdrag110 lagOppdrag110(Oppdragskontroll oppdragskontroll, Long fagsystemId, KodeFagområde kodeFagområde,
+                                           boolean medOppdraglinje150, boolean medOmpostering, boolean refusjon, boolean feriepenger) {
+        var oppdrag110 = Oppdrag110.builder()
             .medKodeEndring(KodeEndring.NY)
-            .medKodeFagomrade(økonomiKodeFagområde)
+            .medKodeFagomrade(kodeFagområde)
             .medFagSystemId(fagsystemId)
             .medOppdragGjelderId("12345678901")
             .medSaksbehId("J5624215")
             .medAvstemming(Avstemming.ny())
-            .medOppdragskontroll(oppdragskontroll);
-        return oppdrag110Builder
+            .medOppdragskontroll(oppdragskontroll)
+            .medOmpostering116(medOmpostering ? new Ompostering116.Builder()
+                .medOmPostering(true)
+                .medDatoOmposterFom(LocalDate.now())
+                .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
+                .build() : null)
             .build();
+        if (medOppdraglinje150) {
+            lagOppdragslinje150(oppdrag110, refusjon);
+        }
+        if (feriepenger) {
+            lagOppdragslinje150FeriePenger(oppdrag110, refusjon);
+        }
+        return oppdrag110;
     }
 
-    static void buildRefusjonsinfo156(Oppdragslinje150 oppdragslinje150) {
-        var refusjonsinfo156Builder = Refusjonsinfo156.builder();
+    private static void lagOppdragslinje150FeriePenger(Oppdrag110 oppdrag110, boolean refusjon) {
+        var kodeKlassifik = oppdrag110.getKodeFagomrade().equals(KodeFagområde.FP) ? KodeKlassifik.FERIEPENGER_BRUKER : KodeKlassifik.FPF_FERIEPENGER_AG;
+        var oppdragslinje150 = lagOppdragsLinjeMinimal(oppdrag110, 100L)
+            .medKodeKlassifik(kodeKlassifik)
+            .medTypeSats(TypeSats.ENG)
+            .build();
+        if (refusjon && oppdrag110.getKodeFagomrade().equals(KodeFagområde.FPREF)) {
+            lagRefusjonsinfo156(oppdragslinje150);
+        }
+    }
 
-        refusjonsinfo156Builder
+    public static void lagOppdragslinje150(Oppdrag110 oppdrag110, boolean refusjon) {
+        lagOppdragslinje150(oppdrag110, 62L, refusjon);
+    }
+
+    public static void lagOppdragslinje150(Oppdrag110 oppdrag110, Long delytelseId, boolean refusjon) {
+        var kodeKlassifik = switch (oppdrag110.getKodeFagomrade()) {
+            case FP, FPREF -> refusjon ? KodeKlassifik.FPF_FERIEPENGER_AG : KodeKlassifik.FERIEPENGER_BRUKER;
+            default -> KodeKlassifik.ES_FØDSEL;
+        };
+        var oppdragslinje150 = lagOppdragsLinjeMinimal(oppdrag110, delytelseId)
+            .medKodeKlassifik(kodeKlassifik)
+            .medTypeSats(TypeSats.DAG)
+            .build();
+        if (refusjon && oppdrag110.getKodeFagomrade().equals(KodeFagområde.FPREF)) {
+            lagRefusjonsinfo156(oppdragslinje150);
+        }
+    }
+
+
+    private static Oppdragslinje150.Builder lagOppdragsLinjeMinimal(Oppdrag110 oppdrag110, Long delytelseId) {
+        return Oppdragslinje150.builder()
+            .medKodeEndringLinje(KodeEndringLinje.ENDR)
+            .medKodeStatusLinje(KodeStatusLinje.OPPH)
+            .medDatoStatusFom(LocalDate.now())
+            .medVedtakId("456")
+            .medDelytelseId(delytelseId)
+            .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
+            .medSats(Sats.på(61122L))
+            .medUtbetalesTilId("123456789")
+            .medUtbetalingsgrad(Utbetalingsgrad._100)
+            .medOppdrag110(oppdrag110);
+    }
+
+    private static Refusjonsinfo156 lagRefusjonsinfo156(Oppdragslinje150 oppdragslinje150) {
+        return Refusjonsinfo156.builder()
             .medMaksDato(LocalDate.now())
             .medDatoFom(LocalDate.now())
             .medRefunderesId("123456789")
@@ -81,22 +148,4 @@ public class OppdragTestDataHelper {
             .build();
     }
 
-    public static Oppdragskontroll buildOppdragskontroll() {
-        return buildOppdragskontroll(new Saksnummer("3544"), 1280L);
-    }
-
-    static Oppdragskontroll buildOppdragskontroll(Saksnummer saksnummer, long behandlingId) {
-        return buildOppdragskontroll(saksnummer, behandlingId, 5600L);
-    }
-
-    static Oppdragskontroll buildOppdragskontroll(Saksnummer saksnummer, long behandlingId, long prosessTaskId) {
-        var oppdrkontrollBuilder = Oppdragskontroll.builder();
-
-        return oppdrkontrollBuilder
-            .medBehandlingId(behandlingId)
-            .medSaksnummer(saksnummer)
-            .medVenterKvittering(Boolean.TRUE)
-            .medProsessTaskId(prosessTaskId)
-            .build();
-    }
 }

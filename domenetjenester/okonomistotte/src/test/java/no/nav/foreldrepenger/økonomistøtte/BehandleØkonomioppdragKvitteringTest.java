@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
+import static no.nav.foreldrepenger.økonomistøtte.OppdragTestDataHelper.lagOppdrag110;
+import static no.nav.foreldrepenger.økonomistøtte.OppdragTestDataHelper.oppdragskontrollUtenOppdrag;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -93,8 +95,8 @@ public class BehandleØkonomioppdragKvitteringTest {
     @Test
     public void skal_motta_hendelse_når_positiv_kvittering_ES() {
         // Arrange
-        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("3500"), BEHANDLINGID_ES, PROSESSTASKID);
-        ØkonomiOppdragUtils.setupOppdrag110(oppdrag, false);
+        var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_ES, PROSESSTASKID);
+        lagOppdrag110(oppdrag, 1L, KodeFagområde.REFUTG, true, true, false);
 
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_ES)).thenReturn(oppdrag.getOppdrag110Liste().get(0));
         when(taskTjeneste.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
@@ -113,8 +115,8 @@ public class BehandleØkonomioppdragKvitteringTest {
     @Test
     public void skal_ikke_motta_hendelse_når_negativ_kvittering_ES() {
         // Arrange
-        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("3500"), BEHANDLINGID_ES, PROSESSTASKID);
-        ØkonomiOppdragUtils.setupOppdrag110(oppdrag, false);
+        var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_ES, PROSESSTASKID);
+        lagOppdrag110(oppdrag, 1L, KodeFagområde.REFUTG, true, true, false);
 
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_ES)).thenReturn(oppdrag.getOppdrag110Liste().get(0));
         when(taskTjeneste.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
@@ -133,9 +135,9 @@ public class BehandleØkonomioppdragKvitteringTest {
     @Test
     public void skal_motta_hendelse_når_positiv_kvittering_FP() {
         // Arrange
-        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
-        var oppdragBruker = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
-        var oppdragAg = OppdragTestDataHelper.buildOppdrag110FPArbeidsgiver(oppdrag, FAGSYSTEMID_ARBEIDSGIVER);
+        var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
+        var oppdragBruker = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        var oppdragAg = OppdragTestDataHelper.lagOppdrag110FPArbeidsgiver(oppdrag, FAGSYSTEMID_ARBEIDSGIVER);
 
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragBruker);
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_ARBEIDSGIVER, BEHANDLINGID_FP)).thenReturn(oppdragAg);
@@ -161,9 +163,9 @@ public class BehandleØkonomioppdragKvitteringTest {
     @Test
     public void skal_kaste_exception_hvis_ingen_opp110_uten_kvittering_finnes_FP() {
         // Arrange
-        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
+        var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
 
-        var oppdrag110 = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        var oppdrag110 = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         OppdragKvittering.builder().medAlvorlighetsgrad(KVITTERING_OK).medOppdrag110(oppdrag110).build();
 
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdrag110);
@@ -179,12 +181,12 @@ public class BehandleØkonomioppdragKvitteringTest {
     @Test
     public void skal_finne_riktig_oppdrag_hvis_to_med_identisk_fagsystemid_finnes_men_kun_en_uten_kvittering_FP() {
         // Arrange
-        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
+        var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
 
-        var oppdrag110 = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        var oppdrag110 = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         oppdrag110.setOpprettetTidspunkt(LocalDateTime.now().minusDays(1));
         OppdragKvittering.builder().medAlvorlighetsgrad(KVITTERING_OK).medOppdrag110(oppdrag110).build();
-        var oppdragBruker2 = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        var oppdragBruker2 = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         oppdragBruker2.setOpprettetTidspunkt(LocalDateTime.now());
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragBruker2);
         var kvittering_1 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
@@ -206,9 +208,9 @@ public class BehandleØkonomioppdragKvitteringTest {
     @Test
     public void skal_kaste_exception_hvis_flere_opp110_med_samme_fagsystemId_uten_kvittering_finnes_FP() {
         // Arrange
-        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
-        var oppdragBruker1 = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
-        OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
+        var oppdragBruker1 = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
 
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragBruker1);
         when(taskTjeneste.finn(PROSESSTASKID)).thenReturn(prosessTaskData);
@@ -225,9 +227,9 @@ public class BehandleØkonomioppdragKvitteringTest {
     @Test
     public void skal_ikke_motta_hendelse_når_negativ_kvittering_FP() {
         // Arrange
-        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
-        var oppdragBruker = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
-        var oppdragAg = OppdragTestDataHelper.buildOppdrag110FPArbeidsgiver(oppdrag, FAGSYSTEMID_ARBEIDSGIVER);
+        var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
+        var oppdragBruker = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        var oppdragAg = OppdragTestDataHelper.lagOppdrag110FPArbeidsgiver(oppdrag, FAGSYSTEMID_ARBEIDSGIVER);
 
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragBruker);
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_ARBEIDSGIVER, BEHANDLINGID_FP)).thenReturn(oppdragAg);
@@ -249,11 +251,11 @@ public class BehandleØkonomioppdragKvitteringTest {
 
     @Test
     void testEttersendingAvOppdragSomHarFåttNegativKvittering_ok() {
-        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
-        var oppdragNegativ = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
+        var oppdragNegativ = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         oppdragNegativ.setOpprettetTidspunkt(LocalDateTime.now().minusDays(1));
         OppdragKvittering.builder().medOppdrag110(oppdragNegativ).medBeskrMelding(KVITTERING_MELDING_FEIL).medAlvorlighetsgrad(KVITTERING_FEIL).build();
-        var oppdragPositiv = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        var oppdragPositiv = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         oppdragPositiv.setOpprettetTidspunkt(LocalDateTime.now());
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragPositiv);
         var kvittering_2 = opprettKvittering(KVITTERING_OK, null, null, FAGSYSTEMID_BRUKER, true);
@@ -271,11 +273,11 @@ public class BehandleØkonomioppdragKvitteringTest {
 
     @Test
     void testEttersendingAvOppdragSomHarFåttNegativKvittering_nok() {
-        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
-        var oppdragNegativ = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
+        var oppdragNegativ = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         oppdragNegativ.setOpprettetTidspunkt(LocalDateTime.now().minusDays(1));
         OppdragKvittering.builder().medOppdrag110(oppdragNegativ).medBeskrMelding(KVITTERING_MELDING_FEIL).medAlvorlighetsgrad(KVITTERING_FEIL).build();
-        var oppdragNegativ2 = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        var oppdragNegativ2 = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         oppdragNegativ2.setOpprettetTidspunkt(LocalDateTime.now());
 
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragNegativ2);
@@ -295,9 +297,9 @@ public class BehandleØkonomioppdragKvitteringTest {
     @Test
     public void skal_ikke_motta_hendelse_når_negativ_kvittering_bruker_og_arbeidsgiver_FP() {
         // Arrange
-        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
-        var oppdragBruker = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
-        var oppdragAg = OppdragTestDataHelper.buildOppdrag110FPArbeidsgiver(oppdrag, FAGSYSTEMID_ARBEIDSGIVER);
+        var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
+        var oppdragBruker = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        var oppdragAg = OppdragTestDataHelper.lagOppdrag110FPArbeidsgiver(oppdrag, FAGSYSTEMID_ARBEIDSGIVER);
 
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragBruker);
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_ARBEIDSGIVER, BEHANDLINGID_FP)).thenReturn(oppdragAg);
