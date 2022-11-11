@@ -1,26 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.Mockito.when;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import javax.persistence.EntityManager;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -29,10 +8,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGr
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
@@ -52,6 +31,27 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.tilganger.InnloggetNavAnsattDto;
 import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import javax.persistence.EntityManager;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
@@ -147,6 +147,24 @@ public class BekreftSvangerskapspengerOppdatererTest {
         var resultat = oppdaterer.oppdater(dto, param);
 
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
+    }
+    @Test
+    public void ikke_totrinn_hvis_ingen_endring() {
+        var behandling = behandlingMedTilretteleggingAP();
+
+        var register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
+            VersjonType.REGISTER);
+        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), register);
+
+        var svpGrunnlag = byggSøknadsgrunnlag(behandling);
+        var dto = byggDto(BEHOV_DATO, LocalDate.now().plusDays(40),
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            new SvpTilretteleggingDatoDto(BEHOV_DATO, TilretteleggingType.INGEN_TILRETTELEGGING, null));
+        var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
+
+        var resultat = oppdaterer.oppdater(dto, param);
+
+        assertThat(resultat.kreverTotrinnsKontroll()).isFalse();
     }
 
     @Test
@@ -272,7 +290,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
     }
 
     private Behandling behandlingMedTilretteleggingAP() {
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING,
             BehandlingStegType.VURDER_TILRETTELEGGING);
         scenario.medDefaultBekreftetTerminbekreftelse();
@@ -301,9 +319,6 @@ public class BekreftSvangerskapspengerOppdatererTest {
             .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
             .medMottattTidspunkt(LocalDateTime.now())
             .medKopiertFraTidligereBehandling(false)
-            .medTilretteleggingFom(new TilretteleggingFOM.Builder().medFomDato(BEHOV_DATO)
-                .medTilretteleggingType(TilretteleggingType.INGEN_TILRETTELEGGING)
-                .build())
             .build();
         var svpGrunnlag = new SvpGrunnlagEntitet.Builder().medBehandlingId(behandling.getId())
             .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))

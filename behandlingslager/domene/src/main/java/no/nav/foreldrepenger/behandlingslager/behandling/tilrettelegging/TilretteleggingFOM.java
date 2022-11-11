@@ -67,6 +67,22 @@ public class TilretteleggingFOM extends BaseEntitet implements IndexKey {
         return IndexKey.createKey(id);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        TilretteleggingFOM that = (TilretteleggingFOM) o;
+        return type == that.type && Objects.equals(fomDato, that.fomDato) && Objects.equals(stillingsprosent, that.stillingsprosent)
+            && Objects.equals(overstyrtUtbetalingsgrad, that.overstyrtUtbetalingsgrad);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, fomDato, stillingsprosent, overstyrtUtbetalingsgrad);
+    }
+
     public static class Builder {
 
         private TilretteleggingFOM mal;

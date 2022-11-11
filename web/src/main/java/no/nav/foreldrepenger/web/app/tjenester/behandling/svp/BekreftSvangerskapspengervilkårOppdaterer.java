@@ -36,10 +36,8 @@ public class BekreftSvangerskapspengervilkårOppdaterer implements AksjonspunktO
         var vilkårOppfylt = dto.getAvslagskode() == null;
         lagHistorikkinnslag(dto.getBegrunnelse(), vilkårOppfylt);
         if (vilkårOppfylt) {
-            //TODO ikke gå til totrinn når innvilgesbrev fungerer
             return OppdateringResultat.utenTransisjon()
-                .leggTilManueltOppfyltVilkår(VilkårType.SVANGERSKAPSPENGERVILKÅR)
-                .medTotrinn().build();
+                .leggTilManueltOppfyltVilkår(VilkårType.SVANGERSKAPSPENGERVILKÅR).build();
         } else {
             var avslagsårsak = Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
                 .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
