@@ -29,10 +29,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGr
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
@@ -132,9 +132,8 @@ public class BekreftSvangerskapspengerOppdatererTest {
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
     }
 
-
     @Test
-    public void skal_sette_totrinn_ved_endring() {
+    public void skal_sette_totrinn_ved_endring_tilretteleggingFoms() {
         var behandling = behandlingMedTilretteleggingAP();
 
         var register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
@@ -150,6 +149,63 @@ public class BekreftSvangerskapspengerOppdatererTest {
         var resultat = oppdaterer.oppdater(dto, param);
 
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
+    }
+
+    @Test
+    public void skal_sette_totrinn_ved_endring_skalBrukes() {
+        var behandling = behandlingMedTilretteleggingAP();
+
+        var register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
+            VersjonType.REGISTER);
+        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), register);
+
+        var svpGrunnlag = byggSøknadsgrunnlag(behandling);
+        var dto = byggDto(BEHOV_DATO, TERMINDATO,
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            false,
+            new SvpTilretteleggingDatoDto(BEHOV_DATO, TilretteleggingType.INGEN_TILRETTELEGGING, null));
+        var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
+
+        var resultat = oppdaterer.oppdater(dto, param);
+
+        assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
+    }
+
+    @Test
+    public void skal_sette_totrinn_ved_endring_behovForTlrFom() {
+        var behandling = behandlingMedTilretteleggingAP();
+
+        var register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
+            VersjonType.REGISTER);
+        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), register);
+
+        var svpGrunnlag = byggSøknadsgrunnlag(behandling);
+        var dto = byggDto(BEHOV_DATO.minusDays(1), TERMINDATO,
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            new SvpTilretteleggingDatoDto(BEHOV_DATO, TilretteleggingType.INGEN_TILRETTELEGGING, null));
+        var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
+
+        var resultat = oppdaterer.oppdater(dto, param);
+
+        assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
+    }
+    @Test
+    public void ikke_totrinn_hvis_ingen_endring() {
+        var behandling = behandlingMedTilretteleggingAP();
+
+        var register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
+            VersjonType.REGISTER);
+        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), register);
+
+        var svpGrunnlag = byggSøknadsgrunnlag(behandling);
+        var dto = byggDto(BEHOV_DATO, LocalDate.now().plusDays(40),
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            new SvpTilretteleggingDatoDto(BEHOV_DATO, TilretteleggingType.INGEN_TILRETTELEGGING, null));
+        var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
+
+        var resultat = oppdaterer.oppdater(dto, param);
+
+        assertThat(resultat.kreverTotrinnsKontroll()).isFalse();
     }
 
     @Test
@@ -275,7 +331,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
     }
 
     private Behandling behandlingMedTilretteleggingAP() {
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING,
             BehandlingStegType.VURDER_TILRETTELEGGING);
         scenario.medDefaultBekreftetTerminbekreftelse();
@@ -304,9 +360,6 @@ public class BekreftSvangerskapspengerOppdatererTest {
             .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
             .medMottattTidspunkt(LocalDateTime.now())
             .medKopiertFraTidligereBehandling(false)
-            .medTilretteleggingFom(new TilretteleggingFOM.Builder().medFomDato(BEHOV_DATO)
-                .medTilretteleggingType(TilretteleggingType.INGEN_TILRETTELEGGING)
-                .build())
             .build();
         var svpGrunnlag = new SvpGrunnlagEntitet.Builder().medBehandlingId(behandling.getId())
             .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))

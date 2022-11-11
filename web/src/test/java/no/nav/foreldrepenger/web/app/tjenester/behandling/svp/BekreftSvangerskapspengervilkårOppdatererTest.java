@@ -50,21 +50,6 @@ public class BekreftSvangerskapspengervilkårOppdatererTest {
     }
 
     @Test
-    public void skal_ha_totrinn_ved_innvilgelse() {
-        var oppdaterer = oppdaterer();
-        var dto = new BekreftSvangerskapspengervilkårDto("begrunnelse", null);
-
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET,
-            BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR);
-        var behandling = scenario.lagre(repositoryProvider);
-        var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
-        var resultat = oppdaterer.oppdater(dto, param);
-
-        assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
-    }
-
-    @Test
     public void skal_avslå_vilkår() {
         var oppdaterer = oppdaterer();
         var dto = new BekreftSvangerskapspengervilkårDto("begrunnelse",

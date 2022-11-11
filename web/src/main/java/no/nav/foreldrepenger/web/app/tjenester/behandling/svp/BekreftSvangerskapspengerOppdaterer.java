@@ -258,7 +258,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         historikkAdapter.tekstBuilder().medSkjermlenke(SkjermlenkeType.PUNKT_FOR_SVP_INNGANG);
 
         var overstyrtTilretteleggingEntitet = nyTilretteleggingEntitetBuilder.build();
-        var erEndret = oppdaterVedEndretTilretteleggingFOM(eksisterendeTilretteleggingEntitet, overstyrtTilretteleggingEntitet);
+        var erEndret = oppdaterHistorikkHvisTilretteleggingErEndret(eksisterendeTilretteleggingEntitet, overstyrtTilretteleggingEntitet);
 
         if (erEndret) {
             oppdatertTilretteleggingListe.add(overstyrtTilretteleggingEntitet);
@@ -279,8 +279,8 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     }
 
 
-    private boolean oppdaterVedEndretTilretteleggingFOM(SvpTilretteleggingEntitet eksisterendeTilrettelegging,
-                                                        SvpTilretteleggingEntitet overstyrtTilrettelegging) {
+    private boolean oppdaterHistorikkHvisTilretteleggingErEndret(SvpTilretteleggingEntitet eksisterendeTilrettelegging,
+                                                                 SvpTilretteleggingEntitet overstyrtTilrettelegging) {
 
         var fjernet = eksisterendeTilrettelegging.getTilretteleggingFOMListe().stream()
             .filter(fom -> !overstyrtTilrettelegging.getTilretteleggingFOMListe().contains(fom))
@@ -289,10 +289,6 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             .filter(fom -> !eksisterendeTilrettelegging.getTilretteleggingFOMListe().contains(fom))
             .toList();
 
-        if (fjernet.isEmpty() && lagtTil.isEmpty()) {
-            return false;
-        }
-
         for (var fomFjernet : fjernet) {
             historikkAdapter.tekstBuilder().medEndretFelt(finnHistorikkFeltType(fomFjernet.getType()), formaterForHistorikk(fomFjernet), "fjernet");
         }
@@ -300,8 +296,18 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             historikkAdapter.tekstBuilder().medEndretFelt(finnHistorikkFeltType(fomLagtTil.getType()), null, formaterForHistorikk(fomLagtTil));
         }
 
-        return true;
+        var erEndretBehovFom =  !Objects.equals(eksisterendeTilrettelegging.getBehovForTilretteleggingFom(), overstyrtTilrettelegging.getBehovForTilretteleggingFom());
+        if (erEndretBehovFom) {
+            historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.TILRETTELEGGING_BEHOV_FOM, eksisterendeTilrettelegging.getBehovForTilretteleggingFom(), overstyrtTilrettelegging.getBehovForTilretteleggingFom());
+        }
 
+        var erEndretSkalBrukes = eksisterendeTilrettelegging.getSkalBrukes() != overstyrtTilrettelegging.getSkalBrukes();
+
+        if (erEndretSkalBrukes) {
+            historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.TILRETTELEGGING_SKAL_BRUKES, eksisterendeTilrettelegging.getSkalBrukes() ? "JA" : "NEI", overstyrtTilrettelegging.getSkalBrukes() ? "JA" : "NEI");
+        }
+
+        return !fjernet.isEmpty() || !lagtTil.isEmpty() || erEndretBehovFom || erEndretSkalBrukes;
     }
 
     private String formaterForHistorikk(TilretteleggingFOM fom) {

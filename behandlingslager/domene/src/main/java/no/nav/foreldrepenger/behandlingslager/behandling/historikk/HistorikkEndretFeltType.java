@@ -129,6 +129,7 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     STILLINGSPROSENT("STILLINGSPROSENT", "Stillingsprosent"),
     SLUTTE_ARBEID_FOM("SLUTTE_ARBEID_FOM", "Slutte arbeid FOM"),
     TILRETTELEGGING_BEHOV_FOM("TILRETTELEGGING_BEHOV_FOM", "Tilrettelegging behov FOM"),
+    TILRETTELEGGING_SKAL_BRUKES("TILRETTELEGGING_SKAL_BRUKES", "Avgjør om tilrettelegging skal brukes"),
     FARESIGNALER("FARESIGNALER", "Faresignaler"),
     MILITÆR_ELLER_SIVIL("MILITÆR_ELLER_SIVIL", "Militær- eller siviltjeneste"),
     NY_REFUSJONSFRIST("NY_REFUSJONSFRIST", "Ny refusjonsfrist"),

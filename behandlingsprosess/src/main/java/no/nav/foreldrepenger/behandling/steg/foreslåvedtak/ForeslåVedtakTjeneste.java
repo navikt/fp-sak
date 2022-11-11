@@ -95,7 +95,7 @@ class ForeslåVedtakTjeneste {
 
     private boolean skalOppretteForeslåVedtakManuelt(Behandling behandling) {
         return BehandlingType.REVURDERING.equals(behandling.getType()) &&
-                !erRevurderingEtterFødselHendelseES(behandling) && behandling.erManueltOpprettet();
+                !erRevurderingEtterFødselHendelseES(behandling) && behandling.erManueltOpprettet() || FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType());
     }
 
     private boolean skalUtføreTotrinnsbehandling(Behandling behandling) {
