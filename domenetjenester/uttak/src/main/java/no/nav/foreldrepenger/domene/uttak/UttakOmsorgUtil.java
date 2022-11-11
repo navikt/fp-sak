@@ -36,7 +36,7 @@ public final class UttakOmsorgUtil {
         return uføretrygdGrunnlag != null && uføretrygdGrunnlag.annenForelderMottarUføretrygd();
     }
 
-    public static Boolean avklartAnnenForelderHarRettEØS(YtelseFordelingAggregat ytelseFordelingAggregat) {
+    public static boolean avklartAnnenForelderHarRettEØS(YtelseFordelingAggregat ytelseFordelingAggregat) {
         return TRUE.equals(ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring());
     }
 

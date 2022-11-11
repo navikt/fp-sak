@@ -120,6 +120,8 @@ public class AksjonspunktKodeDefinisjon {
     public static final String OVERSTYRING_AV_UTTAKPERIODER_KODE = "6008";
     public static final String AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT_KODE = "5086";
 
+    public static final String KONTROLLER_ANNENPART_EØS_KODE = "5069";
+    public static final String VURDER_UTTAK_STORTINGSREPRESENTANT_KODE = "5072";
     public static final String KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE_KODE = "5073";
     public static final String KONTROLLER_OPPLYSNINGER_OM_FORDELING_AV_STØNADSPERIODEN_KODE = "5075";
     public static final String KONTROLLER_OPPLYSNINGER_OM_DØD_KODE = "5076";
@@ -158,7 +160,7 @@ public class AksjonspunktKodeDefinisjon {
     //  "5036"
     //  "5042"  "5045"  "5048"
     //  "5050"
-    //  "5072"  "5078"  "5079"
+    //  "5078"  "5079"
     //  "5080"  "5083"  "5088"
     //  "5090"  "5093"  "5094"
     //

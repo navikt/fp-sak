@@ -1,6 +1,9 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder;
 
+import static no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval.TIDENES_ENDE;
+
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -10,8 +13,19 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.Spesialnummer;
+import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
+import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -19,11 +33,15 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 @ApplicationScoped
 public class FastsettUttakManueltAksjonspunktUtleder {
 
+    private static Arbeidsgiver STORTINGET = Arbeidsgiver.virksomhet(Spesialnummer.STORTINGET.getOrgnummer());
+
     private FpUttakRepository fpUttakRepository;
+    private YtelsesFordelingRepository ytelsesFordelingRepository;
 
     @Inject
     FastsettUttakManueltAksjonspunktUtleder(UttakRepositoryProvider repositoryProvider){
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
+        this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
     }
 
     FastsettUttakManueltAksjonspunktUtleder() {
@@ -37,7 +55,9 @@ public class FastsettUttakManueltAksjonspunktUtleder {
         List<AksjonspunktResultat> aksjonspunkter = new ArrayList<>();
 
         utledAksjonspunktForManuellBehandlingFraRegler(behandlingId).ifPresent(aksjonspunkter::add);
+        utledAksjonspunktForStortingsrepresentant(input).ifPresent(aksjonspunkter::add);
         utledAksjonspunktForDødtBarn(input.getYtelsespesifiktGrunnlag()).ifPresent(aksjonspunkter::add);
+        utledAksjonspunktForAnnenpartEØS(behandlingId).ifPresent(aksjonspunkter::add);
 
         return aksjonspunkter.stream().distinct().collect(Collectors.toList());
     }
@@ -52,11 +72,36 @@ public class FastsettUttakManueltAksjonspunktUtleder {
         return Optional.empty();
     }
 
+    private Optional<AksjonspunktResultat> utledAksjonspunktForStortingsrepresentant(UttakInput input) {
+        var intervall = uttaksIntervall(input.getBehandlingReferanse().behandlingId()).orElse(null);
+        if (intervall == null) {
+            return Optional.empty();
+        }
+        var aktørArbeid = input.getIayGrunnlag().getAktørArbeidFraRegister(input.getBehandlingReferanse().aktørId());
+        var filter = new YrkesaktivitetFilter(aktørArbeid.map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(List.of()));
+        var representantVedUttak = filter.getFrilansOppdrag().stream()
+            .filter(ya -> STORTINGET.equals(ya.getArbeidsgiver()))
+            .anyMatch(ya -> filter.getAnsettelsesPerioderFrilans(ya).stream().map(AktivitetsAvtale::getPeriode).anyMatch(intervall::overlapper));
+
+        // TODO: Vurder å sjekke input sione beregningsgrunnlagStatuser - så ikke avgåtte får AP. Men ett tilfelle har "ansettelse" til 30/9-21
+        // TODO: Avklar om hvordan tilkommet Stortingsrepresentant skal håndteres og om de er synlig i beregning.
+        if (representantVedUttak) {
+            return Optional.of(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.FASTSETT_UTTAK_STORTINGSREPRESENTANT));
+        }
+        return Optional.empty();
+    }
+
     private Optional<AksjonspunktResultat> utledAksjonspunktForDødtBarn(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
         if (finnesDødsdatoIRegistertEllerOverstyrtVersjon(foreldrepengerGrunnlag)) {
             return Optional.of(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD));
         }
         return Optional.empty();
+    }
+
+    private Optional<AksjonspunktResultat> utledAksjonspunktForAnnenpartEØS(Long behandlingId) {
+        return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
+            .filter(yfa -> UttakOmsorgUtil.avklartAnnenForelderHarRettEØS(yfa))
+            .map(yfa -> AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.KONTROLLER_ANNENPART_EØS));
     }
 
     private boolean finnesDødsdatoIRegistertEllerOverstyrtVersjon(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
@@ -69,6 +114,14 @@ public class FastsettUttakManueltAksjonspunktUtleder {
 
     private AksjonspunktResultat fastsettUttakAksjonspunkt() {
         return AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER);
+    }
+
+    private Optional<DatoIntervallEntitet> uttaksIntervall(Long behandlingId) {
+        var uttakPerioder = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId)
+            .map(UttakResultatEntitet::getGjeldendePerioder).map(UttakResultatPerioderEntitet::getPerioder).orElse(List.of());
+        var min = uttakPerioder.stream().map(UttakResultatPeriodeEntitet::getFom).min(Comparator.naturalOrder());
+        var max = uttakPerioder.stream().map(UttakResultatPeriodeEntitet::getTom).max(Comparator.naturalOrder());
+        return min.map(fom -> DatoIntervallEntitet.fraOgMedTilOgMed(fom, max.orElse(TIDENES_ENDE)));
     }
 
 }
