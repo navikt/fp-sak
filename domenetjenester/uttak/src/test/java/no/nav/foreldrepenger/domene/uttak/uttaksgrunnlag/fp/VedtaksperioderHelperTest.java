@@ -60,7 +60,7 @@ public class VedtaksperioderHelperTest {
             mock(Behandlingsresultat.class)).medOpprinneligPerioder(uttakResultatPerioderEntitet).build();
 
         var perioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, List.of(),
-            fødselsdato.plusWeeks(10), p -> true);
+            fødselsdato.plusWeeks(10), false);
 
         assertThat(perioder).hasSize(1);
         assertThat(perioder.get(0).getPeriodeType()).isEqualTo(UttakPeriodeType.FELLESPERIODE);
@@ -85,7 +85,7 @@ public class VedtaksperioderHelperTest {
             mock(Behandlingsresultat.class)).medOpprinneligPerioder(uttakResultatPerioderEntitet).build();
 
         var perioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, List.of(),
-            fødselsdato.minusWeeks(3), p -> true);
+            fødselsdato.minusWeeks(3), false);
 
         assertThat(perioder).hasSize(3);
         assertThat(perioder.get(0).getPeriodeType()).isEqualTo(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
@@ -118,7 +118,7 @@ public class VedtaksperioderHelperTest {
             mock(Behandlingsresultat.class)).medOpprinneligPerioder(uttakResultatPerioderEntitet).build();
 
         var perioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, List.of(),
-            fødselsdato.minusWeeks(3), p -> true);
+            fødselsdato.minusWeeks(3), false);
 
         assertThat(perioder).hasSize(3);
         assertThat(perioder.get(0).getPeriodeType()).isEqualTo(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
@@ -166,7 +166,7 @@ public class VedtaksperioderHelperTest {
 
         //Kjør tjeneste for å opprette søknadsperioder for revurdering.
         var perioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, List.of(utsettelseAvFp, fp),
-            fødselsdato.minusWeeks(3), p -> true);
+            fødselsdato.minusWeeks(3), false);
 
         //Verifiser resultat
         assertThat(perioder).hasSize(4);
@@ -220,7 +220,7 @@ public class VedtaksperioderHelperTest {
 
         //Kjør tjeneste for å opprette søknadsperioder for revurdering.
         var perioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, List.of(fp),
-            fødselsdato.plusWeeks(10), p -> true);
+            fødselsdato.plusWeeks(10), false);
 
         //Verifiser resultat
         assertThat(perioder).hasSize(1);
@@ -259,7 +259,7 @@ public class VedtaksperioderHelperTest {
 
         //Kjør tjeneste for å opprette søknadsperioder for revurdering.
         var perioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, List.of(mk),
-            fødselsdato.plusWeeks(10), p -> true);
+            fødselsdato.plusWeeks(10), false);
 
         //Verifiser resultat
         assertThat(perioder).hasSize(2);
@@ -298,7 +298,7 @@ public class VedtaksperioderHelperTest {
             .build();
 
         //Kjør tjeneste for å opprette søknadsperioder for revurdering.
-        var perioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, List.of(mk), fødselsdato, p -> true);
+        var perioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, List.of(mk), fødselsdato, false);
 
         //Verifiser resultat
         assertThat(perioder).hasSize(2);
@@ -352,7 +352,7 @@ public class VedtaksperioderHelperTest {
 
         //Kjør tjeneste for å opprette søknadsperioder for revurdering.
         var perioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, List.of(),
-            fødselsdato.minusWeeks(3), p -> true);
+            fødselsdato.minusWeeks(3), false);
 
         //Verifiser resultat
         assertThat(perioder).hasSize(3);
@@ -400,7 +400,7 @@ public class VedtaksperioderHelperTest {
 
         //Kjør tjeneste for å opprette søknadsperioder for revurdering.
         var perioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, List.of(),
-            fødselsdato.minusWeeks(3), p -> true);
+            fødselsdato.minusWeeks(3), false);
 
         //Verifiser resultat
         assertThat(perioder).hasSize(3);
@@ -668,7 +668,7 @@ public class VedtaksperioderHelperTest {
             mock(Behandlingsresultat.class)).medOpprinneligPerioder(uttakResultatPerioderEntitet).build();
 
         var perioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, List.of(),
-            fødselsdato.minusWeeks(3), p -> true);
+            fødselsdato.minusWeeks(3), false);
 
         assertThat(perioder).hasSize(1);
 
@@ -687,7 +687,7 @@ public class VedtaksperioderHelperTest {
         var uttakResultatEntitet = new UttakResultatEntitet.Builder(
             mock(Behandlingsresultat.class)).medOpprinneligPerioder(uttakResultatPerioderEntitet).build();
 
-        var perioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, List.of(), fødselsdato, p -> true);
+        var perioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, List.of(), fødselsdato, false);
 
         assertThat(perioder).hasSize(1);
         assertThat(perioder.get(0).getFom()).isEqualTo(uttakResultatPeriode.getFom());
@@ -707,7 +707,7 @@ public class VedtaksperioderHelperTest {
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .build();
 
-        var perioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, List.of(mk), null, p -> true);
+        var perioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, List.of(mk), null, false);
 
         assertThat(perioder).hasSize(1);
         assertThat(perioder.get(0).getFom()).isEqualTo(mk.getFom());

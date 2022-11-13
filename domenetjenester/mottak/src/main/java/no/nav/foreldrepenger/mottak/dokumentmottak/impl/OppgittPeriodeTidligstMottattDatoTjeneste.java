@@ -11,6 +11,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -21,14 +22,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.VedtaksperiodeFilter;
-import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.VedtaksperiodeMottattdatoHelper;
-import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.VedtaksperioderHelper;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -41,15 +39,18 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private FpUttakRepository uttakRepository;
+    private BehandlingRepository behandlingRepository;
     private UtsettelseBehandling2021 utsettelseBehandling;
 
     @Inject
     public OppgittPeriodeTidligstMottattDatoTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                                      FpUttakRepository uttakRepository,
+                                                     BehandlingRepository behandlingRepository,
                                                      UtsettelseBehandling2021 utsettelseBehandling) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.uttakRepository = uttakRepository;
         this.utsettelseBehandling = utsettelseBehandling;
+        this.behandlingRepository = behandlingRepository;
     }
 
     OppgittPeriodeTidligstMottattDatoTjeneste() {
@@ -76,68 +77,81 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
             return nysøknad;
         }
 
-        var forrigesøknad = behandling.getOriginalBehandlingId()
-            .map(ytelseFordelingTjeneste::hentAggregat)
-            .map(YtelseFordelingAggregat::getGjeldendeSøknadsperioder)
-            .map(OppgittFordelingEntitet::getOppgittePerioder).orElse(List.of());
-
-        // Vedtaksperioder fra forrige uttaksresultat
-        var forrigeUttak = behandling.getOriginalBehandlingId()
-            .flatMap(uttakRepository::hentUttakResultatHvisEksisterer).orElse(null);
-
-        return oppdaterTidligstMottattDato(mottattDato, nysøknad, forrigesøknad, forrigeUttak);
-    }
-
-    static List<OppgittPeriodeEntitet> oppdaterTidligstMottattDato(LocalDate mottattDato, List<OppgittPeriodeEntitet> nysøknad, List<OppgittPeriodeEntitet> forrigesøknad, UttakResultatEntitet forrigeUttak) {
-        if (nysøknad.isEmpty()) {
-            return nysøknad;
-        }
-
-        var tidligstedato = nysøknad.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder()).orElseThrow();
-        List<OppgittPeriodeEntitet> perioderForrigeUttak = forrigeUttak != null ? VedtaksperioderHelper.opprettOppgittePerioder(forrigeUttak, List.of(), tidligstedato,
-            p -> true) : List.of();
-        List<OppgittPeriodeEntitet> perioderForrigeUttakSøknad = forrigeUttak != null ?  VedtaksperiodeMottattdatoHelper.opprettOppgittePerioderSøknadverdier(forrigeUttak, tidligstedato) : List.of();
-
-        // Bygg tidslinjer for uttaksperioder
-        var tidslinjeSammenlignNy =  new LocalDateTimeline<>(fraOppgittePerioder(nysøknad));
-        var tidslinjeSammenlignForrigeSøknad =  new LocalDateTimeline<>(fraOppgittePerioder(forrigesøknad));
-        var tidslinjeSammenlignForrigeUttak =  new LocalDateTimeline<>(fraOppgittePerioder(perioderForrigeUttak));
-        var tidslinjeSammenlignForrigeUttakSøknad =  new LocalDateTimeline<>(fraOppgittePerioder(perioderForrigeUttakSøknad));
-
-        // Finn sammenfallende perioder - søkt likt innen samme peride
-        var tidslinjeSammenfallForrigeSøknad = tidslinjeSammenlignNy.combine(tidslinjeSammenlignForrigeSøknad, OppgittPeriodeTidligstMottattDatoTjeneste::leftIfEqualsRight, LocalDateTimeline.JoinStyle.INNER_JOIN);
-        var tidslinjeSammenfallForrigeUttak = tidslinjeSammenlignNy.combine(tidslinjeSammenlignForrigeUttak, OppgittPeriodeTidligstMottattDatoTjeneste::leftIfEqualsRight, LocalDateTimeline.JoinStyle.INNER_JOIN);
-        var tidslinjeSammenfallForrigeUttakSøknad = tidslinjeSammenlignNy.combine(tidslinjeSammenlignForrigeUttakSøknad, OppgittPeriodeTidligstMottattDatoTjeneste::leftIfEqualsRight, LocalDateTimeline.JoinStyle.INNER_JOIN);
-
-        // Bygg tidslinjer over tidligst mottatt - men kun de som finnes for sammenfallende (like nok) perioder
-        var tidslinjeTidligstMottattForrigeSøknad = new LocalDateTimeline<>(tidligstMottattFraOppgittePerioderJusterHelg(forrigesøknad), StandardCombinators::min).intersection(tidslinjeSammenfallForrigeSøknad);
-        var tidslinjeTidligstMottattForrigeUttak = new LocalDateTimeline<>(tidligstMottattFraOppgittePerioderJusterHelg(perioderForrigeUttak), StandardCombinators::min).intersection(tidslinjeSammenfallForrigeUttak);
-        var tidslinjeTidligstMottattForrigeUttakSøknad = new LocalDateTimeline<>(tidligstMottattFraOppgittePerioderJusterHelg(perioderForrigeUttakSøknad), StandardCombinators::min).intersection(tidslinjeSammenfallForrigeUttakSøknad);
-
-        // Slå sammen de 3 tidslinjene over tidligst mottatt for sammenfallende perioder - som potensielt har tidligere dato og beholder de som er før mottattDatoSøknad
-        var oppdatertTidligstMottattUttak = tidslinjeTidligstMottattForrigeUttak.combine(tidslinjeTidligstMottattForrigeUttakSøknad, StandardCombinators::min, LocalDateTimeline.JoinStyle.CROSS_JOIN);
-        var oppdatertTidligstMottatt = oppdatertTidligstMottattUttak.combine(tidslinjeTidligstMottattForrigeSøknad, StandardCombinators::min, LocalDateTimeline.JoinStyle.CROSS_JOIN)
-            .filterValue(v -> v != null && v.isBefore(mottattDato))
-            .compress();
-
         // Først sett mottatt dato
         nysøknad.forEach(p -> p.setMottattDato(mottattDato));
         nysøknad.forEach(p -> p.setTidligstMottattDato(mottattDato));
-        var alleSøknadsPerioderSegmenter = nysøknad.stream().map(p -> new LocalDateSegment<>(new LocalDateInterval(p.getFom(), p.getTom()), p)).toList();
-        var alleSøknadsPerioderTidslinje = new LocalDateTimeline<>(alleSøknadsPerioderSegmenter, new OppgittPeriodeSplitter());
 
-        var oppdatertTidslinje = alleSøknadsPerioderTidslinje.combine(oppdatertTidligstMottatt, OppgittPeriodeTidligstMottattDatoTjeneste::oppdaterMedTidligsMottatt, LocalDateTimeline.JoinStyle.LEFT_JOIN);
+        var tidligstedato = nysøknad.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder()).orElseThrow();
+        var tidslinjeSammenlignNysøknad =  lagSammenligningTimeline(nysøknad);
+        var nysøknadTidslinje = lagSøknadsTimeline(nysøknad);
 
-        return oppdatertTidslinje.toSegments().stream().map(LocalDateSegment::getValue).filter(Objects::nonNull).collect(Collectors.toList());
+        var alleBehandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsakId()).stream()
+            .filter(Behandling::erYtelseBehandling)
+            .filter(b -> !b.getId().equals(behandling.getId()))
+            .toList();
+        for (Behandling b : alleBehandlinger) {
+            var perioder = perioderForBehandling(b, mottattDato, tidligstedato);
+            if (!perioder.isEmpty()) {
+                nysøknadTidslinje = oppdaterTidligstMottattDato(nysøknadTidslinje, tidslinjeSammenlignNysøknad, perioder);
+            }
+        }
+
+        return nysøknadTidslinje.toSegments().stream().map(LocalDateSegment::getValue).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
-    private static class OppgittPeriodeSplitter implements LocalDateTimeline.SegmentSplitter<OppgittPeriodeEntitet> {
-        private OppgittPeriodeSplitter() {
+    private List<OppgittPeriodeEntitet> perioderForBehandling(Behandling behandling, LocalDate mottattDato, LocalDate tidligstedato) {
+        return ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId())
+            .map(YtelseFordelingAggregat::getGjeldendeSøknadsperioder)
+            .map(OppgittFordelingEntitet::getOppgittePerioder).orElse(List.of()).stream()
+            .filter(op -> !op.getTom().isBefore(tidligstedato))
+            .filter(p -> p.getTidligstMottattDato().orElseGet(p::getMottattDato) != null)
+            .filter(p -> p.getTidligstMottattDato().orElseGet(p::getMottattDato).isBefore(mottattDato))
+            .toList();
+    }
+
+    static LocalDateTimeline<OppgittPeriodeEntitet> oppdaterTidligstMottattDato(LocalDateTimeline<OppgittPeriodeEntitet> tidslinje,
+                                                                                LocalDateTimeline<SammenligningPeriodeForMottatt> sammenlignTidslinje,
+                                                                                List<OppgittPeriodeEntitet> perioder) {
+
+        if (perioder.isEmpty()) {
+            return tidslinje;
         }
 
-        public LocalDateSegment<OppgittPeriodeEntitet> apply(LocalDateInterval di, LocalDateSegment<OppgittPeriodeEntitet> seg) {
-            return di.equals(seg.getLocalDateInterval()) ? seg : new LocalDateSegment<>(di, OppgittPeriodeBuilder.fraEksisterende(seg.getValue()).medPeriode(di.getFomDato(), di.getTomDato()).build());
+        // Bygg tidslinjer for uttaksperioder
+        var tidslinjeSammenlignForrigeSøknad =  new LocalDateTimeline<>(fraOppgittePerioder(perioder));
+
+        // Finn sammenfallende perioder - søkt likt innen samme peride
+        var tidslinjeSammenfallForrigeSøknad = sammenlignTidslinje.combine(tidslinjeSammenlignForrigeSøknad, OppgittPeriodeTidligstMottattDatoTjeneste::leftIfEqualsRight, LocalDateTimeline.JoinStyle.INNER_JOIN);
+
+        // Bygg tidslinjer over tidligst mottatt - men kun de som finnes for sammenfallende (like nok) perioder
+        var tidslinjeTidligstMottattForrigeSøknad = new LocalDateTimeline<>(tidligstMottattFraOppgittePerioderJusterHelg(perioder), StandardCombinators::min)
+            .intersection(tidslinjeSammenfallForrigeSøknad).filterValue(Objects::nonNull).compress();
+
+        if (tidslinjeTidligstMottattForrigeSøknad.isEmpty()) {
+            return tidslinje;
         }
+
+        var oppdatertTidslinje = tidslinje.combine(tidslinjeTidligstMottattForrigeSøknad,
+            OppgittPeriodeTidligstMottattDatoTjeneste::oppdaterMedTidligsMottatt, LocalDateTimeline.JoinStyle.LEFT_JOIN);
+        return new LocalDateTimeline<>(oppdatertTidslinje.toSegments(), OppgittPeriodeTidligstMottattDatoTjeneste::oppgittPeriodeSplitter);
+    }
+
+    static List<OppgittPeriodeEntitet> tilPerioder(LocalDateTimeline<OppgittPeriodeEntitet> tidslinje) {
+        return tidslinje.toSegments().stream().map(LocalDateSegment::getValue).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    static LocalDateTimeline<OppgittPeriodeEntitet> lagSøknadsTimeline(List<OppgittPeriodeEntitet> søknad) {
+        var nysøknadSegmenter = søknad.stream().map(p -> new LocalDateSegment<>(new LocalDateInterval(p.getFom(), p.getTom()), p)).toList();
+        return new LocalDateTimeline<>(nysøknadSegmenter, OppgittPeriodeTidligstMottattDatoTjeneste::oppgittPeriodeSplitter);
+    }
+
+    static LocalDateTimeline<SammenligningPeriodeForMottatt> lagSammenligningTimeline(List<OppgittPeriodeEntitet> søknad) {
+        return new LocalDateTimeline<>(fraOppgittePerioder(søknad));
+    }
+
+    private static LocalDateSegment<OppgittPeriodeEntitet> oppgittPeriodeSplitter(LocalDateInterval di, LocalDateSegment<OppgittPeriodeEntitet> seg) {
+        return di.equals(seg.getLocalDateInterval()) ? seg : new LocalDateSegment<>(di,
+            OppgittPeriodeBuilder.fraEksisterende(seg.getValue()).medPeriode(di.getFomDato(), di.getTomDato()).build());
     }
 
     // Combinator som oppdaterer tidligst mottatt dato
