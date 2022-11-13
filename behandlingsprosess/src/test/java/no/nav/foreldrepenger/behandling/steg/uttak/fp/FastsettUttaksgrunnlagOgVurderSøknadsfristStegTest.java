@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -103,8 +104,8 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
         var relevanteArbeidsforholdTjeneste = new RelevanteArbeidsforholdTjeneste(
             fpUttakRepository);
         var saldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
-        var endringsdatoRevurderingUtleder = new EndringsdatoRevurderingUtlederImpl(uttakRepositoryProvider, mock(BehandlingRepository.class), dekningsgradTjeneste,
-            relevanteArbeidsforholdTjeneste, saldoTjeneste);
+        var endringsdatoRevurderingUtleder = new EndringsdatoRevurderingUtlederImpl(uttakRepositoryProvider, mock(BehandlingRepository.class),
+            mock(BehandlingVedtakRepository.class), dekningsgradTjeneste, relevanteArbeidsforholdTjeneste, saldoTjeneste);
         var fastsettUttaksgrunnlagTjeneste = new FastsettUttaksgrunnlagTjeneste(uttakRepositoryProvider, endringsdatoFørstegangsbehandlingUtleder,
                 endringsdatoRevurderingUtleder);
         var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(ytelsesFordelingRepository);
