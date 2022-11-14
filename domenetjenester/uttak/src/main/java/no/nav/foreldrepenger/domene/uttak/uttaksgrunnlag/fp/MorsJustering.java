@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
+import static no.nav.foreldrepenger.domene.uttak.TidsperiodeForbeholdtMor.tilOgMed;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.erHelg;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.flyttFraHelgTilFredag;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.flyttFraHelgTilMandag;
@@ -20,7 +21,7 @@ import java.util.stream.Stream;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 class MorsJustering implements ForelderFødselJustering {
 
@@ -36,11 +37,17 @@ class MorsJustering implements ForelderFødselJustering {
     public List<OppgittPeriodeEntitet> justerVedFødselEtterTermin(List<OppgittPeriodeEntitet> oppgittePerioder) {
         oppgittePerioder = fyllHull(oppgittePerioder);
         var ikkeFlyttbarePerioder = ikkeFlyttbarePerioder(oppgittePerioder);
+        var hullPåSluttenAvTidsperiodeForbeholdtMor = ikkeFlyttbarePerioder.stream()
+            .filter(p -> p instanceof JusterPeriodeHull)
+            .filter(p -> tilOgMed(gammelFamiliehendelse.plusDays(1)).isEqual(p.getFom()))
+            .findFirst();
         var virkedagerSomSkalSkyves = beregnAntallLedigeVirkedager(gammelFamiliehendelse, nyFamiliehendelse, ikkeFlyttbarePerioder);
 
         List<OppgittPeriodeEntitet> justertePerioder = new ArrayList<>();
         for (var oppgittPeriode : oppgittePerioder) {
-            var justert = flyttPeriodeTilHøyre(oppgittPeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
+            var virkedagerSomSkalSkyvePeriode = hullPåSluttenAvTidsperiodeForbeholdtMor.map(p -> oppgittPeriode.getTom().isBefore(p.getFom())).orElse(true)
+                ? virkedagerSomSkalSkyves : virkedagerSomSkalSkyves - beregnAntallVirkedager(hullPåSluttenAvTidsperiodeForbeholdtMor.get().getFom(), hullPåSluttenAvTidsperiodeForbeholdtMor.get().getTom());
+            var justert = flyttPeriodeTilHøyre(oppgittPeriode, virkedagerSomSkalSkyvePeriode, ikkeFlyttbarePerioder);
             justertePerioder.addAll(justert);
         }
         justertePerioder = sorterEtterFom(justertePerioder);
@@ -105,7 +112,7 @@ class MorsJustering implements ForelderFødselJustering {
     private List<OppgittPeriodeEntitet> flyttPeriodeTilHøyre(OppgittPeriodeEntitet oppgittPeriode,
                                                              int antallVirkedagerSomSkalSkyves,
                                                              List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
-        if (!erPeriodeFlyttbar(oppgittPeriode)) {
+        if (!erPeriodeFlyttbar(oppgittPeriode) || antallVirkedagerSomSkalSkyves <= 0) {
             return Collections.singletonList(kopier(oppgittPeriode, oppgittPeriode.getFom(), oppgittPeriode.getTom()));
         }
 
@@ -312,9 +319,13 @@ class MorsJustering implements ForelderFødselJustering {
         return !justertePerioder.get(0).getFom().isEqual(oppgittePerioder.get(0).getFom());
     }
 
-
     private boolean erLedigVirkedager(List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder, LocalDate nyFom) {
-        return finnOverlappendePeriode(nyFom, ikkeFlyttbarePerioder).isEmpty();
+        var overlappendeIkkeFlyttbar = finnOverlappendePeriode(nyFom, ikkeFlyttbarePerioder);
+        if (overlappendeIkkeFlyttbar.isEmpty()) {
+            return true;
+        }
+        return overlappendeIkkeFlyttbar.get() instanceof JusterPeriodeHull &&
+            overlappendeIkkeFlyttbar.get().getFom().isEqual(tilOgMed(gammelFamiliehendelse.plusDays(1)));
     }
 
     private List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder(List<OppgittPeriodeEntitet> oppgittePerioder) {
@@ -327,8 +338,14 @@ class MorsJustering implements ForelderFødselJustering {
             var nesteVirkedag = plusVirkedager(oppgittePerioder.get(i - 1).getTom(), 1);
             var startDatoNestePeriode = oppgittePerioder.get(i).getFom();
             if (!nesteVirkedag.isEqual(startDatoNestePeriode)) {
-                hull.add(new JusterPeriodeHull(nesteVirkedag,
-                    Virkedager.plusVirkedager(nesteVirkedag, beregnAntallVirkedager(nesteVirkedag, startDatoNestePeriode) - 2)));
+                var tom = plusVirkedager(nesteVirkedag, beregnAntallVirkedager(nesteVirkedag, startDatoNestePeriode) - 2);
+                var tomForbeholdtMor = tilOgMed(nyFamiliehendelse);
+                if (new LocalDateInterval(nesteVirkedag, tom).contains(tomForbeholdtMor) && !tom.isEqual(tomForbeholdtMor)) {
+                    hull.add(new JusterPeriodeHull(nesteVirkedag, tomForbeholdtMor));
+                    hull.add(new JusterPeriodeHull(tomForbeholdtMor.plusDays(1), tom));
+                } else {
+                    hull.add(new JusterPeriodeHull(nesteVirkedag, tom));
+                }
             }
         }
         return hull;
