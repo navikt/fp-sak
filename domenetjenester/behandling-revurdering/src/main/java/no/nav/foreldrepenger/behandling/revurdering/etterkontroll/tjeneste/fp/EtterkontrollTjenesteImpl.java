@@ -88,7 +88,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
                     fagsak.getId());
             var denneStarterUttakFørst = denneForelderHarTidligstUttak(behandling, behandlingMedforelder.get());
 
-            if (denneStarterUttakFørst) {
+            if (denneStarterUttakFørst || BehandlingÅrsakType.RE_HENDELSE_FØDSEL.equals(årsak)) { // Først eller etterregistrerte foreldre
                 behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
             } else {
                 enkøBehandling(revurdering);
@@ -113,6 +113,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
         if (antallBarnRegister == 0) {
             return Optional.of(BehandlingÅrsakType.RE_MANGLER_FØDSEL);
         }
+        // Tilfelle av etterregistrert far/medmor, eller avvik i antall barn
         return antallBarnSakBekreftet == 0 ? Optional.of(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
                 : Optional.of(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN);
     }
