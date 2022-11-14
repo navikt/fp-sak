@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.kontrakter.simulering.request.OppdragskontrollDto;
 import no.nav.foreldrepenger.økonomistøtte.OppdragTestDataHelper;
 import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlient;
 import no.nav.vedtak.exception.TekniskException;
@@ -70,7 +69,7 @@ public class SimuleringIntegrasjonTjenesteTest {
     }
 
     @Test
-    public void test_skalFeileNårOppdragsystemKasterException() {
+    void test_skalFeileNårOppdragsystemKasterException() {
         doThrow(SimulerOppdragIntegrasjonTjenesteFeil.startSimuleringFeiletMedFeilmelding(BEHANDLING_ID, new RuntimeException()))
             .when(restKlientMock).startSimulering(any());
         assertThatThrownBy(() -> integrasjonTjeneste.startSimuleringOLD(BEHANDLING_ID, Collections.singletonList("test")))
@@ -82,6 +81,9 @@ public class SimuleringIntegrasjonTjenesteTest {
     void test_skalIkkeFeileNårFpWsProxyKasterException() {
         doThrow(SimulerOppdragIntegrasjonTjenesteFeil.startSimuleringFeiletMedFeilmelding(BEHANDLING_ID, new RuntimeException()))
             .when(restKlientMock).startSimuleringFpWsProxy(any());
-        assertDoesNotThrow(() -> integrasjonTjeneste.startSimuleringViaFpWsProxyOgSammenlingFailsafe(new OppdragskontrollDto(BEHANDLING_ID, List.of())));
+        var oppdragskontroll = OppdragTestDataHelper.oppdragskontrollMedOppdrag(new Saksnummer("123456"), BEHANDLING_ID);
+        assertThrows(TekniskException.class, () -> integrasjonTjeneste.startSimuleringViaFpWsProxy(any()));
+        assertDoesNotThrow(() -> integrasjonTjeneste.startSimulering(Optional.of(oppdragskontroll)));
+
     }
 }

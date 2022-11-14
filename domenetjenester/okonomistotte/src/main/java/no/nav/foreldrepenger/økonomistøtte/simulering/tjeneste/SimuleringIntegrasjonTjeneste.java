@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.kontrakter.simulering.request.OppdragskontrollDto;
 import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlient;
 import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimulerOppdragDto;
@@ -26,7 +25,6 @@ import no.nav.vedtak.exception.IntegrasjonException;
 public class SimuleringIntegrasjonTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimuleringIntegrasjonTjeneste.class);
-    private static final Environment ENV = Environment.current();
 
     private FpOppdragRestKlient restKlient;
 
@@ -44,9 +42,11 @@ public class SimuleringIntegrasjonTjeneste {
             var oppdragskontroll = oppdragskontrollOpt.get();
             startSimuleringOLD(oppdragskontroll.getBehandlingId(), tilOppdragXml(oppdragskontroll));
 
-            if (ENV.isDev()) {
-                // Kjører simulering av samme oppdragskontroll, men uten persistering i databasen, logger avvik og er failsafe
-                startSimuleringViaFpWsProxyOgSammenlingFailsafe(tilOppdragKontrollDto(oppdragskontroll));
+            // Kjører simulering av samme oppdragskontroll, men uten persistering i databasen, logger avvik og er failsafe
+            try {
+                startSimuleringViaFpWsProxy(tilOppdragKontrollDto(oppdragskontroll));
+            } catch (Exception e) {
+                LOG.info("Simulering via fp-ws-proxy feilet. Sjekk secure logg til fpoppdrag/fp-ws-proxy");
             }
 
         } else {
@@ -73,13 +73,8 @@ public class SimuleringIntegrasjonTjeneste {
         }
     }
 
-    protected void startSimuleringViaFpWsProxyOgSammenlingFailsafe(OppdragskontrollDto oppdragskontrollDto) {
-        try {
-            restKlient.startSimuleringFpWsProxy(oppdragskontrollDto);
-        } catch (Exception e) {
-            LOG.info("Simulering via fp-ws-proxy feilet. Sjekk secure logg til fpoppdrag/fp-ws-proxy");
-        }
-
+    protected void startSimuleringViaFpWsProxy(OppdragskontrollDto oppdragskontrollDto) {
+        restKlient.startSimuleringFpWsProxy(oppdragskontrollDto);
     }
 
     public Optional<SimuleringResultatDto> hentResultat(Long behandlingId) {
