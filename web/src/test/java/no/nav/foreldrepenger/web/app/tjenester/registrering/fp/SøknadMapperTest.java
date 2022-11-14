@@ -104,7 +104,7 @@ public class SøknadMapperTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         oppgittPeriodeMottattDato = new OppgittPeriodeTidligstMottattDatoTjeneste(new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()),
-            new FpUttakRepository(entityManager),
+            new FpUttakRepository(entityManager), repositoryProvider.getBehandlingRepository(),
             new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusYears(1)), repositoryProvider));
 
         kvinne = new PersoninfoKjønn.Builder().medAktørId(STD_KVINNE_AKTØR_ID)

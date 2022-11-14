@@ -152,8 +152,7 @@ public class FastsettUttaksgrunnlagTjeneste {
                                                                              boolean kreverSammenhengendeUttak) {
         //Kopier vedtaksperioder fom endringsdato.
         var uttakResultatEntitet = fpUttakRepository.hentUttakResultat(forrigeBehandling);
-        return VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, oppgittePerioder, endringsdato,
-            p -> !VedtaksperioderHelper.avslåttPgaTomKonto(p) || kreverSammenhengendeUttak);
+        return VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, oppgittePerioder, endringsdato, kreverSammenhengendeUttak);
     }
 
     private record FHSøknadGjeldende(Optional<LocalDate> søknad, LocalDate gjeldende) {

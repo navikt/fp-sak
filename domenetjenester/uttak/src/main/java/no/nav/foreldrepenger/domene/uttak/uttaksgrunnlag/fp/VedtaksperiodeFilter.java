@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
-import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.VedtaksperiodeFilterHelper.opprettOppgittePerioderKunInnvilget;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -127,6 +125,18 @@ public final class VedtaksperiodeFilter {
         // Første segment med ulikhet
         var førsteNyhet = ulike.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(null);
         return førsteNyhet;
+    }
+
+    private static List<OppgittPeriodeEntitet> opprettOppgittePerioderKunInnvilget(UttakResultatEntitet uttakResultatFraForrigeBehandling, LocalDate perioderFom) {
+        return uttakResultatFraForrigeBehandling.getGjeldendePerioder()
+            .getPerioder()
+            .stream()
+            .filter(UttakResultatPeriodeEntitet::isInnvilget)
+            .filter(p -> !p.getTom().isBefore(perioderFom))
+            .filter(p -> p.getPeriodeSøknad().isPresent()) // Tja - ta med evt utsettelse pleiepenger?
+            .filter(p -> !p.getTidsperiode().erHelg())
+            .map(VedtaksperioderHelper::konverter)
+            .toList();
     }
 
     private static LocalDateSegment<SammenligningPeriodeForOppgitt> segmentForOppgittPeriode(OppgittPeriodeEntitet periode) {

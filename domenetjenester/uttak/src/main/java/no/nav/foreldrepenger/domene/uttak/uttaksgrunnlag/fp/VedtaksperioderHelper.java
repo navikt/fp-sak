@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
@@ -43,9 +42,9 @@ public class VedtaksperioderHelper {
     public static List<OppgittPeriodeEntitet> opprettOppgittePerioder(UttakResultatEntitet uttakResultatFraForrigeBehandling,
                                                                       List<OppgittPeriodeEntitet> søknadsperioder,
                                                                       LocalDate endringsdato,
-                                                                      Predicate<UttakResultatPeriodeEntitet> filter) {
+                                                                      boolean kreverSammenhengendeUttak) {
         var førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
-        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling, endringsdato, førsteSøknadsdato, filter);
+        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling, endringsdato, førsteSøknadsdato, kreverSammenhengendeUttak);
 
         List<OppgittPeriodeEntitet> søknadOgVedtaksperioder = new ArrayList<>();
         søknadsperioder.forEach(op -> søknadOgVedtaksperioder.add(OppgittPeriodeBuilder.fraEksisterende(op).build()));
@@ -53,37 +52,23 @@ public class VedtaksperioderHelper {
         return OppgittPeriodeUtil.sorterEtterFom(søknadOgVedtaksperioder);
     }
 
-    private static List<OppgittPeriodeEntitet> lagVedtaksperioder(UttakResultatEntitet uttakResultat,
-                                                                  LocalDate endringsdato,
-                                                                  Optional<LocalDate> førsteSøknadsdato, Predicate<UttakResultatPeriodeEntitet> filter) {
+    private static List<OppgittPeriodeEntitet> lagVedtaksperioder(UttakResultatEntitet uttakResultat, LocalDate endringsdato,
+                                                                  Optional<LocalDate> førsteSøknadsdato, boolean kreverSammenhengendeUttak) {
         return uttakResultat.getGjeldendePerioder()
             .getPerioder()
             .stream()
-            .filter(filter)
-            .filter(p -> filtrerUttaksperioder(p, endringsdato, førsteSøknadsdato))
+            .filter(p -> !p.getTom().isBefore(endringsdato))
+            .filter(p -> kreverSammenhengendeUttak || !avslåttIngenTrekkdager(p))
+            .filter(p -> !avslåttPgaAvTaptPeriodeTilAnnenpart(p))
+            .filter(p -> filtrerFørsteSøknadsdato(p, førsteSøknadsdato))
             .filter(VedtaksperioderHelper::erPeriodeFraSøknad)
             .map(VedtaksperioderHelper::konverter)
             .flatMap(p -> klipp(p, endringsdato, førsteSøknadsdato))
             .toList();
     }
 
-    private static boolean filtrerUttaksperioder(UttakResultatPeriodeEntitet periode,
-                                          LocalDate endringsdato,
-                                          Optional<LocalDate> førsteSøknadsdatoOptional) {
-        Objects.requireNonNull(endringsdato);
 
-        if (periode.getTom().isBefore(endringsdato)) {
-            //Perioder før endringsdato skal filtreres bort
-            return false;
-        }
-
-        //avslått perioder med null trekk dager skal filtreres bort
-        // Fra før: avslått pga tap til annenpart
-        // Legger til avslått med 4002 som er en vanlig kilde til uttaks-aksjonspunkt
-        if (avslåttPgaAvTaptPeriodeTilAnnenpart(periode) || avslåttPgaTomKonto(periode)) {
-            return false;
-        }
-
+    private static boolean filtrerFørsteSøknadsdato(UttakResultatPeriodeEntitet periode, Optional<LocalDate> førsteSøknadsdatoOptional) {
         if (førsteSøknadsdatoOptional.isPresent()) {
             var førsteSøknadsdato = førsteSøknadsdatoOptional.get();
             //Perioder som starter på eller etter første søknadsdato skal filtreres bort
@@ -99,11 +84,9 @@ public class VedtaksperioderHelper {
             .allMatch(aktivitet -> aktivitet.getTrekkdager().equals(Trekkdager.ZERO));
     }
 
-    public static boolean avslåttPgaTomKonto(UttakResultatPeriodeEntitet periode) {
-        return PeriodeResultatÅrsak.IKKE_STØNADSDAGER_IGJEN.equals(periode.getResultatÅrsak())
-            && PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) && periode.getAktiviteter()
-            .stream()
-            .allMatch(aktivitet -> aktivitet.getTrekkdager().equals(Trekkdager.ZERO));
+    public static boolean avslåttIngenTrekkdager(UttakResultatPeriodeEntitet periode) {
+        return PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) &&
+            periode.getAktiviteter().stream().allMatch(aktivitet -> aktivitet.getTrekkdager().equals(Trekkdager.ZERO));
     }
 
     private static boolean erPeriodeFraSøknad(UttakResultatPeriodeEntitet periode) {
@@ -212,6 +195,13 @@ public class VedtaksperioderHelper {
         //Oppholdsperiode har ingen aktiviteter
         if (uttakResultatPeriode.isOpphold()) {
             return UttakPeriodeType.ANNET;
+        }
+        var harTrekkdager = uttakResultatPeriode.getAktiviteter().stream()
+            .map(UttakResultatPeriodeAktivitetEntitet::getTrekkdager)
+            .anyMatch(Trekkdager::merEnn0);
+        // Utsettelse kommer normalt uten konto, mens det ofte er satt i overstyrt UR, selv uten trekkdager
+        if (uttakResultatPeriode.isUtsettelse() && !harTrekkdager) {
+            return UttakPeriodeType.UDEFINERT;
         }
         var stønadskontoType = uttakResultatPeriode.getAktiviteter()
             .stream()
