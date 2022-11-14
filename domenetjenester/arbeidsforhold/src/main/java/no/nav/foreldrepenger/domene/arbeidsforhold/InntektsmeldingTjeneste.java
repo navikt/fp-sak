@@ -64,8 +64,6 @@ public class InntektsmeldingTjeneste {
      * @return Liste med inntektsmeldinger {@link Inntektsmelding}
      */
     public List<Inntektsmelding> hentInntektsmeldinger(BehandlingReferanse ref, LocalDate skjæringstidspunktForOpptjening) {
-        var behandlingId = ref.behandlingId();
-        var aktørId = ref.aktørId();
         return iayTjeneste.finnGrunnlag(ref.behandlingId())
             .map(g -> hentInntektsmeldinger(ref, skjæringstidspunktForOpptjening, g, true))
             .orElse(Collections.emptyList());
