@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.YtelsesesspesifiktGrunnlagTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -108,6 +109,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
             .medOppgittAnnenForelderHarEngangsstønadForSammeBarn(harAnnenForelderES)
             .medOriginalBehandling(originalBehandling.orElse(null))
             .medPleiepengerGrunnlag(pleiepengerGrunnlag(ref).orElse(null))
+            .medOppdagetPleiepengerOverlappendeUtbetaling(behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER))
             .medUføretrygdGrunnlag(uføretrygdGrunnlag(ref).orElse(null))
             .medNesteSakGrunnlag(nesteSakGrunnlag(ref).orElse(null));
         if (fagsakRelasjon.isPresent()) {

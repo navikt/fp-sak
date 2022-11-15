@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
+import no.nav.foreldrepenger.domene.iay.modell.AktørYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -39,19 +40,12 @@ final class PleiepengerJustering {
             LOG.info("Oppgitte perioder er empty. Justerer ikke for pleiepenger");
             return oppgittePerioder;
         }
-        var aktørYtelseFraRegister = inntektArbeidYtelseGrunnlag.getAktørYtelseFraRegister(aktørId);
-        if (aktørYtelseFraRegister.isEmpty()) {
-            LOG.info("Mangler ytelser fra register");
+
+        var pleiepengerUtsettelser = pleiepengerUtsettelser(aktørId, inntektArbeidYtelseGrunnlag);
+        if (pleiepengerUtsettelser.isEmpty()) {
+            LOG.info("Ingen pleiepenger fra register");
             return oppgittePerioder;
         }
-
-        var pleiepengerUtsettelser = aktørYtelseFraRegister.get().getAlleYtelser().stream()
-            .filter(ytelse1 -> K9SAK.equals(ytelse1.getKilde()))
-            .filter(ytelse1 -> ytelse1.getRelatertYtelseType().equals(RelatertYtelseType.PLEIEPENGER_SYKT_BARN))
-            .flatMap(ytelse -> ytelse.getYtelseAnvist().stream()
-                .filter(ya -> !ya.getUtbetalingsgradProsent().orElse(Stillingsprosent.ZERO).erNulltall())
-                .map(ya -> new PleiepengerUtsettelse(ytelse.getVedtattTidspunkt(), map(ya))))
-            .toList();
 
         exceptionHvisOverlapp(pleiepengerUtsettelser);
         if (finnesOverlapp(oppgittePerioder)) {
@@ -65,6 +59,17 @@ final class PleiepengerJustering {
         }
 
         return combine(pleiepengerUtsettelser, oppgittePerioder);
+    }
+
+    static List<PleiepengerUtsettelse> pleiepengerUtsettelser(AktørId aktørId, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
+        return inntektArbeidYtelseGrunnlag.getAktørYtelseFraRegister(aktørId)
+            .map(AktørYtelse::getAlleYtelser).orElse(List.of()).stream()
+            .filter(ytelse1 -> K9SAK.equals(ytelse1.getKilde()))
+            .filter(ytelse1 -> ytelse1.getRelatertYtelseType().equals(RelatertYtelseType.PLEIEPENGER_SYKT_BARN))
+            .flatMap(ytelse -> ytelse.getYtelseAnvist().stream()
+                .filter(ya -> !ya.getUtbetalingsgradProsent().orElse(Stillingsprosent.ZERO).erNulltall())
+                .map(ya -> new PleiepengerUtsettelse(ytelse.getVedtattTidspunkt(), map(ya))))
+            .toList();
     }
 
     private static void exceptionHvisOverlapp(List<PleiepengerUtsettelse> pleiepengerUtsettelser) {

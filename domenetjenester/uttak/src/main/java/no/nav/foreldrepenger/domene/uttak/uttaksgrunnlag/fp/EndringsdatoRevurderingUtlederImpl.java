@@ -132,6 +132,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         adopsjonEndringsdato(fpGrunnlag).ifPresent(endringsdatoTypeEnumSet::add);
         forrigeBehandlingUtenUttakEndringsdato(ref).ifPresent(endringsdatoTypeEnumSet::add);
         nesteSakEndringstype(ref, fpGrunnlag).ifPresent(endringsdatoTypeEnumSet::add);
+        pleiepengerEndringstype(fpGrunnlag).ifPresent(endringsdatoTypeEnumSet::add);
 
         return endringsdatoTypeEnumSet;
     }
@@ -169,6 +170,10 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         return fpGrunnlag.getNesteSakGrunnlag()
             .filter(neste -> sisteUttakdato.filter(d -> neste.getStartdato().isBefore(d)).isPresent())
             .isPresent() ? Optional.of(EndringsdatoType.NESTE_STØNADSPERIODE) : Optional.empty();
+    }
+
+    private Optional<EndringsdatoType> pleiepengerEndringstype(ForeldrepengerGrunnlag fpGrunnlag) {
+        return fpGrunnlag.isOppdagetPleiepengerOverlappendeUtbetaling() ? Optional.of(EndringsdatoType.VEDTAK_PLEIEPENGER) : Optional.empty();
     }
 
     private Optional<LocalDate> finnNesteStønadsperiode(ForeldrepengerGrunnlag fpGrunnlag) {
@@ -320,6 +325,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
                     .ifPresent(datoer::add);
                 case FØRSTE_UTTAKSDATO_SØKNAD_FORRIGE_BEHANDLING -> finnFørsteUttaksdatoSøknadForrigeBehandling(ref).ifPresent(datoer::add);
                 case NESTE_STØNADSPERIODE -> finnNesteStønadsperiode(fpGrunnlag).ifPresent(datoer::add);
+                case VEDTAK_PLEIEPENGER -> førsteDatoMedPleiepenger(uttakInput).ifPresent(datoer::add);
             }
         }
 
@@ -340,6 +346,13 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         var endringsdato = sisteUttakdato.filter(sud -> førsteSøknadsdato.filter(fsd -> fsd.isBefore(sud)).isEmpty())
             .or(() -> førsteSøknadsdato);
         endringsdato.ifPresent(datoer::add);
+    }
+
+    private Optional<LocalDate> førsteDatoMedPleiepenger(UttakInput input) {
+        return PleiepengerJustering.pleiepengerUtsettelser(input.getBehandlingReferanse().aktørId(), input.getIayGrunnlag()).stream()
+            .map(PleiepengerJustering.PleiepengerUtsettelse::oppgittPeriode)
+            .map(OppgittPeriodeEntitet::getFom)
+            .min(Comparator.naturalOrder());
     }
 
     private void finnEndringsdatoForBerørtBehandling(BehandlingReferanse ref,
