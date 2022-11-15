@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -44,13 +45,15 @@ import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.EndringsdatoRevurderingUtleder;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.FastsettUttaksgrunnlagFeil;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.fpsak.tidsserie.StandardCombinators;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderingUtleder {
 
     private static final Logger LOG = LoggerFactory.getLogger(EndringsdatoRevurderingUtlederImpl.class);
-    private static final Comparator<LocalDate> LOCAL_DATE_COMPARATOR = Comparator.comparing(LocalDate::toEpochDay);
 
     private FpUttakRepository fpUttakRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
@@ -238,20 +241,25 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private Optional<LocalDate> finnFørsteUttaksdato(Long behandlingId) {
-        var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId);
-        if (uttakResultat.isEmpty()) {
-            return Optional.empty();
-        }
-        var uttakPerioder = uttakResultat.get().getGjeldendePerioder().getPerioder();
-        var førsteDatoSomIkkeErTaptTilAnnenpart = uttakPerioder.stream()
+        var uttakPerioder = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId)
+            .map(UttakResultatEntitet::getGjeldendePerioder).map(UttakResultatPerioderEntitet::getPerioder).orElse(List.of());
+        return uttakPerioder.stream()
             .filter(p -> !VedtaksperioderHelper.avslåttPgaAvTaptPeriodeTilAnnenpart(p))
-            .min(Comparator.comparing(UttakResultatPeriodeEntitet::getFom))
-            .map(UttakResultatPeriodeEntitet::getFom);
-        // Alle perioder er tapt til annenpart
-        if (førsteDatoSomIkkeErTaptTilAnnenpart.isEmpty()) {
-            return uttakPerioder.stream().map(UttakResultatPeriodeEntitet::getFom).min(Comparator.naturalOrder());
-        }
-        return førsteDatoSomIkkeErTaptTilAnnenpart;
+            .map(UttakResultatPeriodeEntitet::getFom)
+            .min(Comparator.naturalOrder())
+            .or(() -> uttakPerioder.stream()
+                .map(UttakResultatPeriodeEntitet::getFom)
+                .min(Comparator.naturalOrder()));
+    }
+
+    private LocalDateTimeline<Boolean> tidslinjeUttakMedUtbetaling(Long behandlingId) {
+        var utbetalt = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId)
+            .map(UttakResultatEntitet::getGjeldendePerioder)
+            .map(UttakResultatPerioderEntitet::getPerioder).orElse(List.of()).stream()
+            .filter(p -> p.getAktiviteter().stream().anyMatch(a -> a.getUtbetalingsgrad().harUtbetaling() && a.getTrekkdager().merEnn0()))
+            .map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), Boolean.TRUE))
+            .toList();
+        return new LocalDateTimeline<>(utbetalt, StandardCombinators::alwaysTrueForMatch);
     }
 
     private Optional<LocalDate> finnSisteUttaksdatoGjeldendeVedtak(Long revurderingId) {
@@ -268,7 +276,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
             .getOppgittePerioder()
             .stream()
             .map(OppgittPeriodeEntitet::getFom)
-            .min(LOCAL_DATE_COMPARATOR);
+            .min(Comparator.naturalOrder());
     }
 
     private Optional<LocalDate> finnEndringsdato(Long behandlingId) {
@@ -325,11 +333,11 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
                     .ifPresent(datoer::add);
                 case FØRSTE_UTTAKSDATO_SØKNAD_FORRIGE_BEHANDLING -> finnFørsteUttaksdatoSøknadForrigeBehandling(ref).ifPresent(datoer::add);
                 case NESTE_STØNADSPERIODE -> finnNesteStønadsperiode(fpGrunnlag).ifPresent(datoer::add);
-                case VEDTAK_PLEIEPENGER -> førsteDatoMedPleiepenger(uttakInput).ifPresent(datoer::add);
+                case VEDTAK_PLEIEPENGER -> førsteDatoMedOverlappPleiepenger(uttakInput).ifPresent(datoer::add);
             }
         }
 
-        var tidligst = datoer.stream().min(LOCAL_DATE_COMPARATOR);
+        var tidligst = datoer.stream().min(Comparator.naturalOrder());
         return tidligst.orElseThrow(
             () -> new IllegalStateException("Finner ikke endringsdato. " + endringsdatoer)); // NOSONAR
     }
@@ -348,11 +356,27 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         endringsdato.ifPresent(datoer::add);
     }
 
-    private Optional<LocalDate> førsteDatoMedPleiepenger(UttakInput input) {
-        return PleiepengerJustering.pleiepengerUtsettelser(input.getBehandlingReferanse().aktørId(), input.getIayGrunnlag()).stream()
-            .map(PleiepengerJustering.PleiepengerUtsettelse::oppgittPeriode)
-            .map(OppgittPeriodeEntitet::getFom)
-            .min(Comparator.naturalOrder());
+    private Optional<LocalDate> førsteDatoMedOverlappPleiepenger(UttakInput input) {
+        var tidslinjeUtbetalt = tidslinjeUttakMedUtbetaling(finnForrigeBehandling(input.getBehandlingReferanse()));
+        var segmentPleiepenger = PleiepengerJustering.pleiepengerUtsettelser(input.getBehandlingReferanse().aktørId(), input.getIayGrunnlag()).stream()
+            .map(p -> new LocalDateSegment<>(p.oppgittPeriode().getFom(), p.oppgittPeriode().getTom(), Boolean.TRUE))
+            .toList();
+        var tidslinjePleiepenger = new LocalDateTimeline<>(segmentPleiepenger, StandardCombinators::alwaysTrueForMatch);
+        var tidslinjeOverlapp = tidslinjeUtbetalt.intersection(tidslinjePleiepenger);
+        Optional<LocalDate> førsteOverlapp = !tidslinjeOverlapp.isEmpty() ? Optional.of(tidslinjeOverlapp.getMinLocalDate()) : Optional.empty();
+        var søknadsPerioder = ytelsesFordelingRepository.hentAggregatHvisEksisterer(input.getBehandlingReferanse().behandlingId())
+            .map(YtelseFordelingAggregat::getOppgittFordeling)
+            .map(OppgittFordelingEntitet::getOppgittePerioder).orElse(List.of()).stream()
+            .filter(p -> !p.isOpphold() && !p.isUtsettelse())
+            .map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), Boolean.TRUE))
+            .toList();
+        if (!søknadsPerioder.isEmpty()) {
+            var overlappSøknadTidslinje = new LocalDateTimeline<>(søknadsPerioder, StandardCombinators::alwaysTrueForMatch).intersection(tidslinjePleiepenger);
+            if (!overlappSøknadTidslinje.isEmpty() && førsteOverlapp.filter(fo -> fo.isBefore(overlappSøknadTidslinje.getMinLocalDate())).isEmpty()) {
+                førsteOverlapp = Optional.of(overlappSøknadTidslinje.getMinLocalDate());
+            }
+        }
+        return førsteOverlapp;
     }
 
     private void finnEndringsdatoForBerørtBehandling(BehandlingReferanse ref,
