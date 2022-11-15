@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.fakta.aktkrav;
 
+import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -206,7 +207,9 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
 
     private static boolean erTilfelleAv150ProsentSamtidig(BehandlingReferanse ref, OppgittPeriodeEntitet periode, List<ForeldrepengerUttakPeriode> annenpartFullMK) {
         var samtidigEllerGradert = Optional.ofNullable(periode.getSamtidigUttaksprosent())
-            .or(() -> Optional.ofNullable(periode.getArbeidsprosent()).map(SamtidigUttaksprosent::new));
+            .or(() -> Optional.ofNullable(periode.getArbeidsprosent())
+                .map(ap -> BigDecimal.valueOf(100).subtract(ap)) // Antar at samtidiguttak% = 100 - Arbeidsprosent
+                .map(SamtidigUttaksprosent::new));
         if (UttakPeriodeType.FELLESPERIODE.equals(periode.getPeriodeType()) && !annenpartFullMK.isEmpty() &&
             samtidigEllerGradert.filter(pct -> pct.compareTo(new SamtidigUttaksprosent(50)) <= 0).isPresent()) {
             var oppgittIntervall = new LocalDateInterval(periode.getFom(), periode.getTom());
