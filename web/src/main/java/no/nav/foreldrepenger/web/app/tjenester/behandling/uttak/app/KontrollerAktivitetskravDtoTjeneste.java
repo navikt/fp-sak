@@ -68,15 +68,19 @@ public class KontrollerAktivitetskravDtoTjeneste {
         var uttakInput = uttakInputTjeneste.lagInput(behandlingReferanse.behandlingId());
         ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var familieHendelse = ytelsespesifiktGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
-        var annenForelderHarRett = harAnnenForelderRett(ytelseFordelingAggregat, ytelsespesifiktGrunnlag);
+        var annenpartUttak = ytelsespesifiktGrunnlag.getAnnenpart()
+            .map(Annenpart::gjeldendeVedtakBehandlingId)
+            .flatMap(foreldrepengerUttakTjeneste::hentUttakHvisEksisterer);
+        var annenForelderHarRett = UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartUttak);
+        var annenForelderFullMK = KontrollerAktivitetskravAksjonspunktUtleder.annenpartsHundreprosentMødrekvote(annenpartUttak);
 
         var result = new ArrayList<KontrollerAktivitetskravPeriodeDto>();
         for (var søknadsperiode : ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder()) {
             var avklaringsresultat = KontrollerAktivitetskravAksjonspunktUtleder.skalKontrollereAktivitetskrav(
-                behandlingReferanse, søknadsperiode, ytelseFordelingAggregat, familieHendelse, annenForelderHarRett);
-            if (avklaringsresultat.isKravTilAktivitet()) {
+                behandlingReferanse, søknadsperiode, ytelseFordelingAggregat, familieHendelse, annenForelderHarRett, annenForelderFullMK);
+            if (avklaringsresultat.kravTilAktivitet()) {
                 if (avklaringsresultat.isAvklart()) {
-                    var avklartePerioder = avklaringsresultat.getAvklartePerioder();
+                    var avklartePerioder = avklaringsresultat.avklartePerioder();
                     for (var avklartPeriode : avklartePerioder) {
                         var dto = new KontrollerAktivitetskravPeriodeDto();
                         dto.setAvklaring(avklartPeriode.getAvklaring());
@@ -115,15 +119,6 @@ public class KontrollerAktivitetskravDtoTjeneste {
         return avklartPeriode.getTidsperiode().equals(p.getTidsperiode()) && avklartPeriode.getAvklaring()
             .equals(p.getAvklaring()) && avklartPeriode.getBegrunnelse().equals(p.getBegrunnelse());
     }
-
-    private boolean harAnnenForelderRett(YtelseFordelingAggregat ytelseFordelingAggregat,
-                                         ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
-        var annenpartUttak = ytelsespesifiktGrunnlag.getAnnenpart()
-            .map(Annenpart::gjeldendeVedtakBehandlingId)
-            .flatMap(foreldrepengerUttakTjeneste::hentUttakHvisEksisterer);
-        return UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartUttak);
-    }
-
 
     private static LocalDate min(LocalDate a, LocalDate b) {
         return a.isBefore(b) ? a : b;
