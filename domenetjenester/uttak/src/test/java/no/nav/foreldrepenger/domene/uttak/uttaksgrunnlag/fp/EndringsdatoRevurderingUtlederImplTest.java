@@ -102,7 +102,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     private final UttakRevurderingTestUtil testUtil = new UttakRevurderingTestUtil(repositoryProvider, iayTjeneste);
     private final StønadskontoSaldoTjeneste saldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
     private final EndringsdatoRevurderingUtlederImpl utleder = new EndringsdatoRevurderingUtlederImpl(
-        repositoryProvider, mock(BehandlingRepository.class), mock(BehandlingVedtakRepository.class),
+        repositoryProvider, mock(BehandlingRepository.class),
         dekningsgradTjeneste, new RelevanteArbeidsforholdTjeneste(repositoryProvider.getFpUttakRepository()), saldoTjeneste);
 
     @Test

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -25,8 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -62,13 +59,11 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private BehandlingVedtakRepository vedtakRepository;
     private BehandlingRepository behandlingRepository; // Kun for logging
 
     @Inject
     public EndringsdatoRevurderingUtlederImpl(UttakRepositoryProvider repositoryProvider,
                                               BehandlingRepository behandlingRepository,
-                                              BehandlingVedtakRepository vedtakRepository,
                                               DekningsgradTjeneste dekningsgradTjeneste,
                                               RelevanteArbeidsforholdTjeneste relevanteArbeidsforholdTjeneste,
                                               StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste) {
@@ -80,7 +75,6 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingRepository = behandlingRepository;
-        this.vedtakRepository = vedtakRepository;
     }
 
     EndringsdatoRevurderingUtlederImpl() {
@@ -138,7 +132,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         adopsjonEndringsdato(fpGrunnlag).ifPresent(endringsdatoTypeEnumSet::add);
         forrigeBehandlingUtenUttakEndringsdato(ref).ifPresent(endringsdatoTypeEnumSet::add);
         nesteSakEndringstype(ref, fpGrunnlag).ifPresent(endringsdatoTypeEnumSet::add);
-        pleiepengerEndringstype(ref, input, årsaker).ifPresent(endringsdatoTypeEnumSet::add);
+        pleiepengerEndringstype(årsaker).ifPresent(endringsdatoTypeEnumSet::add);
 
         return endringsdatoTypeEnumSet;
     }
@@ -178,12 +172,8 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
             .isPresent() ? Optional.of(EndringsdatoType.NESTE_STØNADSPERIODE) : Optional.empty();
     }
 
-    private Optional<EndringsdatoType> pleiepengerEndringstype(BehandlingReferanse ref, UttakInput input, Set<BehandlingÅrsakType> årsaker) {
-        if (årsaker.contains(BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER)) {
-            return Optional.of(EndringsdatoType.VEDTAK_PLEIEPENGER);
-        }
-        var pleiepenger = PleiepengerJustering.pleiepengerUtsettelser(ref.aktørId(), input.getIayGrunnlag());
-        return pleiepenger.isEmpty() ? Optional.empty() : Optional.of(EndringsdatoType.VEDTAK_PLEIEPENGER);
+    private Optional<EndringsdatoType> pleiepengerEndringstype(Set<BehandlingÅrsakType> årsaker) {
+        return årsaker.contains(BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER) ? Optional.of(EndringsdatoType.VEDTAK_PLEIEPENGER) : Optional.empty();
     }
 
     private Optional<LocalDate> finnNesteStønadsperiode(ForeldrepengerGrunnlag fpGrunnlag) {
@@ -359,19 +349,10 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private Optional<LocalDate> finnNyeVedtakPleiepenger(UttakInput input) {
-        var forrigeVedtaksTidspunkt = input.getBehandlingReferanse().getOriginalBehandlingId()
-            .flatMap(vedtakRepository::hentForBehandlingHvisEksisterer)
-            .map(BehandlingVedtak::getVedtakstidspunkt).orElse(null);
         return PleiepengerJustering.pleiepengerUtsettelser(input.getBehandlingReferanse().aktørId(), input.getIayGrunnlag()).stream()
-            // Ta med de PSB-periodene som har oppstått etter forrige vedtak i saken (NB: tidsvindu ifm totrinn der ting ikke oppdages).
-            .filter(u -> nyereEnnForrigeVedtak(forrigeVedtaksTidspunkt, u.vedtakstidspunkt()))
             .map(PleiepengerJustering.PleiepengerUtsettelse::oppgittPeriode)
             .map(OppgittPeriodeEntitet::getFom)
             .min(Comparator.naturalOrder());
-    }
-
-    private static boolean nyereEnnForrigeVedtak(LocalDateTime forrigeVedtak, LocalDateTime pleiepengerVedtatt) {
-        return forrigeVedtak == null || pleiepengerVedtatt.isAfter(forrigeVedtak);
     }
 
     private void finnEndringsdatoForBerørtBehandling(BehandlingReferanse ref,
