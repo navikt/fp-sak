@@ -88,7 +88,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         var årsaker = behandlingRepository.hentBehandlingHvisFinnes(ref.behandlingUuid())
             .map(Behandling::getBehandlingÅrsaker).orElse(List.of()).stream()
             .map(BehandlingÅrsak::getBehandlingÅrsakType).collect(Collectors.toSet());
-        var endringsdatoTypeEnumSet = utledEndringsdatoTyper(input, årsaker);
+        var endringsdatoTypeEnumSet = utledEndringsdatoTyper(input);
         if (endringsdatoTypeEnumSet.isEmpty()) {
             endringsdatoTypeEnumSet.add(EndringsdatoType.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
             LOG.info("Behandling behandlingId={} årsaker {} Fant ingen endringstyper. Bruker FUD",  behandlingId, årsaker);
@@ -118,7 +118,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         return Optional.of(endringsdato);
     }
 
-    private EnumSet<EndringsdatoType> utledEndringsdatoTyper(UttakInput input, Set<BehandlingÅrsakType> årsaker) {
+    private EnumSet<EndringsdatoType> utledEndringsdatoTyper(UttakInput input) {
         if (input.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
             return utledEndringsdatoTypeBerørtBehandling(input);
         }
@@ -132,7 +132,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         adopsjonEndringsdato(fpGrunnlag).ifPresent(endringsdatoTypeEnumSet::add);
         forrigeBehandlingUtenUttakEndringsdato(ref).ifPresent(endringsdatoTypeEnumSet::add);
         nesteSakEndringstype(ref, fpGrunnlag).ifPresent(endringsdatoTypeEnumSet::add);
-        pleiepengerEndringstype(årsaker).ifPresent(endringsdatoTypeEnumSet::add);
+        pleiepengerEndringstype(fpGrunnlag).ifPresent(endringsdatoTypeEnumSet::add);
 
         return endringsdatoTypeEnumSet;
     }
@@ -172,8 +172,8 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
             .isPresent() ? Optional.of(EndringsdatoType.NESTE_STØNADSPERIODE) : Optional.empty();
     }
 
-    private Optional<EndringsdatoType> pleiepengerEndringstype(Set<BehandlingÅrsakType> årsaker) {
-        return årsaker.contains(BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER) ? Optional.of(EndringsdatoType.VEDTAK_PLEIEPENGER) : Optional.empty();
+    private Optional<EndringsdatoType> pleiepengerEndringstype(ForeldrepengerGrunnlag fpGrunnlag) {
+        return fpGrunnlag.isOppdagetPleiepengerOverlappendeUtbetaling() ? Optional.of(EndringsdatoType.VEDTAK_PLEIEPENGER) : Optional.empty();
     }
 
     private Optional<LocalDate> finnNesteStønadsperiode(ForeldrepengerGrunnlag fpGrunnlag) {
@@ -325,7 +325,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
                     .ifPresent(datoer::add);
                 case FØRSTE_UTTAKSDATO_SØKNAD_FORRIGE_BEHANDLING -> finnFørsteUttaksdatoSøknadForrigeBehandling(ref).ifPresent(datoer::add);
                 case NESTE_STØNADSPERIODE -> finnNesteStønadsperiode(fpGrunnlag).ifPresent(datoer::add);
-                case VEDTAK_PLEIEPENGER -> finnNyeVedtakPleiepenger(uttakInput).ifPresent(datoer::add);
+                case VEDTAK_PLEIEPENGER -> førsteDatoMedPleiepenger(uttakInput).ifPresent(datoer::add);
             }
         }
 
@@ -348,7 +348,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         endringsdato.ifPresent(datoer::add);
     }
 
-    private Optional<LocalDate> finnNyeVedtakPleiepenger(UttakInput input) {
+    private Optional<LocalDate> førsteDatoMedPleiepenger(UttakInput input) {
         return PleiepengerJustering.pleiepengerUtsettelser(input.getBehandlingReferanse().aktørId(), input.getIayGrunnlag()).stream()
             .map(PleiepengerJustering.PleiepengerUtsettelse::oppgittPeriode)
             .map(OppgittPeriodeEntitet::getFom)

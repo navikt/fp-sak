@@ -14,8 +14,9 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     private Annenpart annenpart;
     private boolean oppgittAnnenForelderHarEngangsstønadForSammeBarn;
     private PleiepengerGrunnlagEntitet pleiepengerGrunnlag;
+    private boolean oppdagetPleiepengerOverlappendeUtbetaling;
     private UføretrygdGrunnlagEntitet uføretrygdGrunnlag;
-    private NesteSakGrunnlagEntitet nesteSakEntitet;
+    private NesteSakGrunnlagEntitet nesteSakGrunnlag;
 
     public ForeldrepengerGrunnlag() {
 
@@ -28,8 +29,9 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
         this.annenpart = foreldrepengerGrunnlag.annenpart;
         this.oppgittAnnenForelderHarEngangsstønadForSammeBarn = foreldrepengerGrunnlag.oppgittAnnenForelderHarEngangsstønadForSammeBarn;
         this.pleiepengerGrunnlag = foreldrepengerGrunnlag.pleiepengerGrunnlag;
+        this.oppdagetPleiepengerOverlappendeUtbetaling = foreldrepengerGrunnlag.oppdagetPleiepengerOverlappendeUtbetaling;
         this.uføretrygdGrunnlag = foreldrepengerGrunnlag.uføretrygdGrunnlag;
-        this.nesteSakEntitet = foreldrepengerGrunnlag.nesteSakEntitet;
+        this.nesteSakGrunnlag = foreldrepengerGrunnlag.nesteSakGrunnlag;
     }
 
     public boolean isBerørtBehandling() {
@@ -56,12 +58,16 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
         return Optional.ofNullable(pleiepengerGrunnlag);
     }
 
+    public boolean isOppdagetPleiepengerOverlappendeUtbetaling() {
+        return oppdagetPleiepengerOverlappendeUtbetaling;
+    }
+
     public Optional<UføretrygdGrunnlagEntitet> getUføretrygdGrunnlag() {
         return Optional.ofNullable(uføretrygdGrunnlag);
     }
 
     public Optional<NesteSakGrunnlagEntitet> getNesteSakGrunnlag() {
-        return Optional.ofNullable(nesteSakEntitet);
+        return Optional.ofNullable(nesteSakGrunnlag);
     }
 
     public ForeldrepengerGrunnlag medErBerørtBehandling(boolean berørtBehandling) {
@@ -100,6 +106,12 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
         return nyttGrunnlag;
     }
 
+    public ForeldrepengerGrunnlag medOppdagetPleiepengerOverlappendeUtbetaling(boolean overlapp) {
+        var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
+        nyttGrunnlag.oppdagetPleiepengerOverlappendeUtbetaling = overlapp;
+        return nyttGrunnlag;
+    }
+
     public ForeldrepengerGrunnlag medUføretrygdGrunnlag(UføretrygdGrunnlagEntitet uføretrygdGrunnlag) {
         var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
         nyttGrunnlag.uføretrygdGrunnlag = uføretrygdGrunnlag;
@@ -108,7 +120,7 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
 
     public ForeldrepengerGrunnlag medNesteSakGrunnlag(NesteSakGrunnlagEntitet nesteSakGrunnlag) {
         var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
-        nyttGrunnlag.nesteSakEntitet = nesteSakGrunnlag;
+        nyttGrunnlag.nesteSakGrunnlag = nesteSakGrunnlag;
         return nyttGrunnlag;
     }
 }
