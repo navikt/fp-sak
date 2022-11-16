@@ -45,6 +45,7 @@ import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
+import no.nav.foreldrepenger.domene.registerinnhenting.StønadsperioderInnhenter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -70,6 +71,8 @@ public class BekreftSvangerskapspengerOppdatererTest {
     private BekreftSvangerskapspengerOppdaterer oppdaterer;
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingGrunnlagRepositoryProvider grunnlagProvider;
+    @Mock
+    private StønadsperioderInnhenter stønadsperioderInnhenterMock;
 
     @BeforeEach
     public void beforeEach(EntityManager entityManager) {
@@ -78,7 +81,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
         var historikkAdapter = new HistorikkTjenesteAdapter(
             repositoryProvider.getHistorikkRepository(), null, repositoryProvider.getBehandlingRepository());
         oppdaterer = new BekreftSvangerskapspengerOppdaterer(historikkAdapter, grunnlagProvider,
-            tilgangerTjenesteMock, inntektArbeidYtelseTjeneste);
+            tilgangerTjenesteMock, inntektArbeidYtelseTjeneste, stønadsperioderInnhenterMock);
     }
 
     @Test
