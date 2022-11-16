@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.rest;
 
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.web.app.ApplicationConfig;
+import no.nav.foreldrepenger.web.app.ApiConfig;
 
 public final class ResourceLinks {
 
@@ -30,7 +30,7 @@ public final class ResourceLinks {
 
     private static String href(String path) {
         var contextPath = ENV.getProperty("context.path","/fpsak");
-        var apiUri = ApplicationConfig.API_URI;
+        var apiUri = ApiConfig.API_URI;
         return contextPath + apiUri + path;
     }
 }

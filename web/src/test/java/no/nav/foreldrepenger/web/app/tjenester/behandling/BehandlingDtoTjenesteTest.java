@@ -44,7 +44,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.web.app.ApplicationConfig;
+import no.nav.foreldrepenger.web.app.ApiConfig;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -107,7 +107,7 @@ public class BehandlingDtoTjenesteTest {
     }
 
     private String href(String path) {
-        return ENV.getProperty("context.path", "/fpsak") + ApplicationConfig.API_URI + path;
+        return ENV.getProperty("context.path", "/fpsak") + ApiConfig.API_URI + path;
     }
 
     @Test

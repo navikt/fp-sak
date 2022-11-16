@@ -28,12 +28,12 @@ import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 import no.nav.foreldrepenger.web.server.jetty.TimingFilter;
 
-@ApplicationPath(ApplicationConfig.API_URI)
-public class ApplicationConfig extends Application {
+@ApplicationPath(ApiConfig.API_URI)
+public class ApiConfig extends Application {
 
     public static final String API_URI = "/api";
 
-    public ApplicationConfig() {
+    public ApiConfig() {
         var oas = new OpenAPI();
         var info = new Info()
                 .title("FPSAK - Foreldrepenger, engangsstønad og svangerskapspenger")
@@ -65,8 +65,11 @@ public class ApplicationConfig extends Application {
         Set<Class<?>> classes = new HashSet<>();
         // eksponert grensesnitt
         classes.addAll(RestImplementationClasses.getImplementationClasses());
+        // eksterne integrasjoner
+        classes.addAll(RestImplementationClasses.getExternalIntegrationClasses());
         // forvaltning/swagger
         classes.addAll(RestImplementationClasses.getForvaltningClasses());
+
 
         // swagger
         classes.add(OpenApiResource.class);
