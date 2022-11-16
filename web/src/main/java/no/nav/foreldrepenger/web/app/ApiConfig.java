@@ -65,26 +65,11 @@ public class ApiConfig extends Application {
         Set<Class<?>> classes = new HashSet<>();
         // eksponert grensesnitt
         classes.addAll(RestImplementationClasses.getImplementationClasses());
-        // eksterne integrasjoner
-        classes.addAll(RestImplementationClasses.getExternalIntegrationClasses());
         // forvaltning/swagger
         classes.addAll(RestImplementationClasses.getForvaltningClasses());
 
-
-        // swagger
-        classes.add(OpenApiResource.class);
-
         // Applikasjonsoppsett
-        classes.add(TimingFilter.class);
-        classes.add(JacksonJsonConfig.class);
-
-        // ExceptionMappers pga de som finnes i Jackson+Jersey-media
-        classes.add(ConstraintViolationMapper.class);
-        classes.add(JsonMappingExceptionMapper.class);
-        classes.add(JsonParseExceptionMapper.class);
-
-        // Generell exceptionmapper m/logging for øvrige tilfelle
-        classes.add(GeneralRestExceptionMapper.class);
+        classes.addAll(RestImplementationClasses.getFellesConfigClasses());
 
         return Collections.unmodifiableSet(classes);
     }

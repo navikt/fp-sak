@@ -10,7 +10,6 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -28,6 +27,11 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.web.app.tjenester.gosys.finnSak.Behandlingstema;
+import no.nav.foreldrepenger.web.app.tjenester.gosys.finnSak.FinnSakListeRequest;
+import no.nav.foreldrepenger.web.app.tjenester.gosys.finnSak.FinnSakListeResponse;
+import no.nav.foreldrepenger.web.app.tjenester.gosys.finnSak.Sak;
+import no.nav.foreldrepenger.web.app.tjenester.gosys.finnSak.Saksstatus;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -40,7 +44,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
  * Erstattning for WS for å finne relevante fagsaker i VL.
  * WS dokumentasjon finnes her https://confluence.adeo.no/pages/viewpage.action?pageId=220528950"
  */
-@Path("/external/sak")
+@Path("/sak")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped

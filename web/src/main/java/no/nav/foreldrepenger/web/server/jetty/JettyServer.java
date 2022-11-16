@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
+import no.nav.foreldrepenger.web.app.EksternApiConfig;
+
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
@@ -213,7 +215,7 @@ public class JettyServer {
     }
 
     private static List<Class<?>> getWebInfClasses() {
-        return List.of(ApiConfig.class, IssoApplication.class);
+        return List.of(ApiConfig.class, EksternApiConfig.class, IssoApplication.class);
     }
 
     private Integer getServerPort() {

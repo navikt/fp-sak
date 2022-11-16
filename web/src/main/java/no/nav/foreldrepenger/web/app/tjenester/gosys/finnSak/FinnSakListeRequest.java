@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.gosys;
+package no.nav.foreldrepenger.web.app.tjenester.gosys.finnSak;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;

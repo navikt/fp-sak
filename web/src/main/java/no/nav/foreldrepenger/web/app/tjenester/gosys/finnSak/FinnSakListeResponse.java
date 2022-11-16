@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.gosys;
+package no.nav.foreldrepenger.web.app.tjenester.gosys.finnSak;
 
 import java.util.List;
 
