@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste;
 
-import static no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste.tilOppdragKontrollDto;
 import static no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste.tilOppdragXml;
 import static no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste.SimulerOppdragIntegrasjonTjenesteFeil.startSimuleringFeiletMedFeilmelding;
 
@@ -43,11 +42,11 @@ public class SimuleringIntegrasjonTjeneste {
             startSimuleringOLD(oppdragskontroll.getBehandlingId(), tilOppdragXml(oppdragskontroll));
 
             // Kjører simulering av samme oppdragskontroll, men uten persistering i databasen, logger avvik og er failsafe
-            try {
-                startSimuleringViaFpWsProxy(tilOppdragKontrollDto(oppdragskontroll));
-            } catch (Exception e) {
-                LOG.info("Simulering via fp-ws-proxy feilet. Sjekk secure logg til fpoppdrag/fp-ws-proxy");
-            }
+//            try {
+//                startSimuleringViaFpWsProxy(tilOppdragKontrollDto(oppdragskontroll));
+//            } catch (Exception e) {
+//                LOG.info("Simulering via fp-ws-proxy feilet. Sjekk secure logg til fpoppdrag/fp-ws-proxy");
+//            }
 
         } else {
             if (oppdragskontrollOpt.isPresent()) {
