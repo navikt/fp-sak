@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnYtelseTjeneste;
 
@@ -150,8 +149,7 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
 
     private boolean erRelevant(Permisjon perm, LocalDate førsteUttaksdag) {
         return !perm.getFraOgMed().isBefore(førsteUttaksdag)
-            && !PermisjonsbeskrivelseType.UTDANNINGSPERMISJONER.contains(perm.getPermisjonsbeskrivelseType())
-            && !perm.getPermisjonsbeskrivelseType().equals(PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER)
+            && perm.getPermisjonsbeskrivelseType().erRelevantForBeregningEllerArbeidsforhold()
             && perm.getProsentsats() != null && perm.getProsentsats().getVerdi().compareTo(BigDecimal.valueOf(100)) >= 0
             && varerMerEnn14Dager(perm);
     }

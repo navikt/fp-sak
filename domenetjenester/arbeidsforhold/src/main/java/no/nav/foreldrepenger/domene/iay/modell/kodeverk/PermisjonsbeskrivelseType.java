@@ -24,18 +24,6 @@ public enum PermisjonsbeskrivelseType implements Kodeverdi, MedOffisiellKode {
     PERMISJON_VED_MILITÆRTJENESTE("PERMISJON_VED_MILITÆRTJENESTE", "Permisjon ved militærtjeneste", "permisjonVedMilitaertjeneste"),
     ;
 
-    public static final Set<PermisjonsbeskrivelseType> PERMISJON_IKKE_RELEVANT_FOR_ARBEIDSFORHOLD_ELLER_BEREGNING = Set.of(
-            PermisjonsbeskrivelseType.UTDANNINGSPERMISJON,
-            PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET,
-            PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET,
-            PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER);
-
-    public static final Set<PermisjonsbeskrivelseType> UTDANNINGSPERMISJONER = Set.of(
-        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON,
-        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET,
-        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET
-    );
-
     public static final Set<PermisjonsbeskrivelseType> VELFERDSPERMISJONER = Set.of(
         PermisjonsbeskrivelseType.VELFERDSPERMISJON,
         PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET,
@@ -45,6 +33,14 @@ public enum PermisjonsbeskrivelseType implements Kodeverdi, MedOffisiellKode {
     private static final Map<String, PermisjonsbeskrivelseType> KODER = new LinkedHashMap<>();
 
     public static final String KODEVERK = "PERMISJONSBESKRIVELSE_TYPE";
+
+    private static final Set<PermisjonsbeskrivelseType> PERMISJON_IKKE_RELEVANT_FOR_ARBEIDSFORHOLD_ELLER_BEREGNING = Set.of(
+        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON,
+        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET,
+        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET,
+        PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER);
+
+
 
     static {
         for (var v : values()) {
@@ -105,7 +101,7 @@ public enum PermisjonsbeskrivelseType implements Kodeverdi, MedOffisiellKode {
         return offisiellKode;
     }
 
-    public boolean erRelevantForAvklarArbeidsforhold() {
+    public boolean erRelevantForBeregningEllerArbeidsforhold() {
         return !PERMISJON_IKKE_RELEVANT_FOR_ARBEIDSFORHOLD_ELLER_BEREGNING.contains(this);
     }
 

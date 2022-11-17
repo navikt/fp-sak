@@ -78,7 +78,6 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class IAYMapperTilKalkulus {
-    private static final Set<no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType> IKKE_RELEVANT_FOR_BEREGNING = no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType.PERMISJON_IKKE_RELEVANT_FOR_ARBEIDSFORHOLD_ELLER_BEREGNING;
 
     public static InternArbeidsforholdRefDto mapArbeidsforholdRef(InternArbeidsforholdRef arbeidsforholdRef) {
         return InternArbeidsforholdRefDto.ref(arbeidsforholdRef.getReferanse());
@@ -220,7 +219,7 @@ public class IAYMapperTilKalkulus {
     }
 
     private static boolean erRelevantForBeregning(Permisjon perm, Optional<BekreftetPermisjon> bekreftetPermisjon) {
-        if (perm.getPermisjonsbeskrivelseType() == null || IKKE_RELEVANT_FOR_BEREGNING.contains(perm.getPermisjonsbeskrivelseType())) {
+        if (perm.getPermisjonsbeskrivelseType() == null || !perm.getPermisjonsbeskrivelseType().erRelevantForBeregningEllerArbeidsforhold()) {
             return false;
         }
         return bekreftetPermisjon

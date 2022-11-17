@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.PermisjonOgMangelDto;
@@ -24,7 +23,6 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseTyp
 
 public class HåndterePermisjoner {
     private static final int PERMISJON_PROSENTSATS_NØDVENDIG_FOR_Å_UTLØSTE_AKSJONSPUNKT = 100;
-    private static final Set<PermisjonsbeskrivelseType> PERMISJONTYPER_SOM_IKKE_ER_RELEVANTE = PermisjonsbeskrivelseType.PERMISJON_IKKE_RELEVANT_FOR_ARBEIDSFORHOLD_ELLER_BEREGNING;
 
     public static List<ArbeidsforholdMangel> finnArbForholdMedPermisjonUtenSluttdatoMangel(BehandlingReferanse behandlingReferanse,
                                                                                            InntektArbeidYtelseGrunnlag iayGrunnlag) {
@@ -51,7 +49,7 @@ public class HåndterePermisjoner {
             .flatMap(Collection::stream)
             .filter(HåndterePermisjoner::har100ProsentPermisjonEllerMer)
             .filter(p -> fomErFørStp(stp, p) && tomErLikEllerEtterStp(stp, p))
-            .filter(p -> !PERMISJONTYPER_SOM_IKKE_ER_RELEVANTE.contains(p.getPermisjonsbeskrivelseType()))
+            .filter(p -> p.getPermisjonsbeskrivelseType().erRelevantForBeregningEllerArbeidsforhold())
             .anyMatch(p -> p.getTilOgMed() == null || TIDENES_ENDE.equals(p.getTilOgMed()));
     }
 
@@ -59,7 +57,7 @@ public class HåndterePermisjoner {
         return yrkesaktivitet.getPermisjon().stream()
             .filter(HåndterePermisjoner::har100ProsentPermisjonEllerMer)
             .filter(p -> fomErFørStp(stp, p) && tomErLikEllerEtterStp(stp, p))
-            .anyMatch(p -> !PERMISJONTYPER_SOM_IKKE_ER_RELEVANTE.contains(p.getPermisjonsbeskrivelseType()));
+            .anyMatch(p -> p.getPermisjonsbeskrivelseType().erRelevantForBeregningEllerArbeidsforhold());
     }
 
     public static boolean harRelevantPermisjonSomOverlapperTilretteleggingFom(Yrkesaktivitet yrkesaktivitet, LocalDate tilretteleggingBehovFom) {
@@ -78,7 +76,7 @@ public class HåndterePermisjoner {
         return yrkesaktivitet.getPermisjon().stream()
             .filter(HåndterePermisjoner::har100ProsentPermisjonEllerMer)
             .filter(p -> fomErFørStp(stp, p) && tomErLikEllerEtterStp(stp, p))
-            .filter(p -> !PERMISJONTYPER_SOM_IKKE_ER_RELEVANTE.contains(p.getPermisjonsbeskrivelseType()))
+            .filter(p -> p.getPermisjonsbeskrivelseType().erRelevantForBeregningEllerArbeidsforhold())
             .max(Comparator.comparing(Permisjon::getPeriode))
             .map(p -> byggPermisjonOgMangelDto(p, årsak, status));
     }
