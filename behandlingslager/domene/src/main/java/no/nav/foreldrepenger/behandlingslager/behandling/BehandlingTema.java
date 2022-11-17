@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -66,7 +67,7 @@ public enum BehandlingTema implements Kodeverdi, MedOffisiellKode {
     }
 
     public static BehandlingTema finnForKodeverkEiersKode(String offisiellDokumentType) {
-        return List.of(values()).stream().filter(k -> Objects.equals(k.offisiellKode, offisiellDokumentType)).findFirst().orElse(UDEFINERT);
+        return Stream.of(values()).filter(k -> Objects.equals(k.offisiellKode, offisiellDokumentType)).findFirst().orElse(UDEFINERT);
     }
 
     public static boolean gjelderEngangsstønad(BehandlingTema behandlingTema) {

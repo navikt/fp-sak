@@ -7,6 +7,8 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.jws.WebService;
 
+import no.nav.foreldrepenger.web.app.tjenester.gosys.GosysRestTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,16 +101,9 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
         var hoveddokument = journalpost.map(ArkivJournalPost::getHovedDokument);
         var journalpostYtelseType = FagsakYtelseType.UDEFINERT;
         if (hoveddokument.map(ArkivDokument::getDokumentType).filter(DokumentTypeId::erSøknadType).isPresent()) {
-            var hovedtype = hoveddokument.map(ArkivDokument::getDokumentType).orElseThrow();
-            journalpostYtelseType = switch (hovedtype) {
-                case SØKNAD_ENGANGSSTØNAD_ADOPSJON -> FagsakYtelseType.ENGANGSTØNAD;
-                case SØKNAD_ENGANGSSTØNAD_FØDSEL -> FagsakYtelseType.ENGANGSTØNAD;
-                case SØKNAD_FORELDREPENGER_ADOPSJON -> FagsakYtelseType.FORELDREPENGER;
-                case SØKNAD_FORELDREPENGER_FØDSEL -> FagsakYtelseType.FORELDREPENGER;
-                case SØKNAD_SVANGERSKAPSPENGER ->  FagsakYtelseType.SVANGERSKAPSPENGER;
-                default -> FagsakYtelseType.UDEFINERT;
-            };
-            if (behandlingTema.getFagsakYtelseType().equals(journalpostYtelseType)) return;
+            FagsakYtelseType journalpostYtelseType = GosysRestTjeneste.getFagsakYtelseType(behandlingTema, hoveddokument);
+            if (journalpostYtelseType == null)
+                return;
         } else if (hoveddokument.map(ArkivDokument::getDokumentType).filter(DokumentTypeId.INNTEKTSMELDING::equals).isPresent()) {
             var original = dokumentArkivTjeneste.hentStrukturertDokument(journalpostId, hoveddokument.map(ArkivDokument::getDokumentId).orElseThrow()).toLowerCase();
             if (original.contains("ytelse>foreldrepenger<")) {

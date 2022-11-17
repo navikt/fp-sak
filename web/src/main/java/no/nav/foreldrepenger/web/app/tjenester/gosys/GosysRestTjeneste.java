@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.gosys;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -15,9 +16,16 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -26,13 +34,23 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
+import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
+import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.web.app.exceptions.FeilDto;
+import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakOrchestrator;
 import no.nav.foreldrepenger.web.app.tjenester.gosys.finnSak.Behandlingstema;
 import no.nav.foreldrepenger.web.app.tjenester.gosys.finnSak.FinnSakListeRequest;
 import no.nav.foreldrepenger.web.app.tjenester.gosys.finnSak.FinnSakListeResponse;
 import no.nav.foreldrepenger.web.app.tjenester.gosys.finnSak.Sak;
 import no.nav.foreldrepenger.web.app.tjenester.gosys.finnSak.Saksstatus;
+import no.nav.foreldrepenger.web.app.tjenester.gosys.opprettSak.OpprettSakRequest;
+import no.nav.foreldrepenger.web.app.tjenester.gosys.opprettSak.OpprettSakResponse;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
+import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -51,19 +69,121 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Transactional
 public class GosysRestTjeneste {
 
+    private static final Logger LOG = LoggerFactory.getLogger(GosysRestTjeneste.class);
+
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private FamilieHendelseRepository familieGrunnlagRepository;
+    private OpprettSakOrchestrator opprettSakOrchestrator;
+    private DokumentArkivTjeneste dokumentArkivTjeneste;
 
     public GosysRestTjeneste() {
         // CDI
     }
 
     @Inject
-    public GosysRestTjeneste(BehandlingRepositoryProvider repositoryProvider) {
+    public GosysRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
+                             OpprettSakOrchestrator opprettSakOrchestrator,
+                             DokumentArkivTjeneste dokumentArkivTjeneste) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
+        this.opprettSakOrchestrator = opprettSakOrchestrator;
+        this.dokumentArkivTjeneste = dokumentArkivTjeneste;
+    }
+    @POST
+    @Path("/opprettSak/v1")
+    @Operation(description = "For å opprette en ny fagsak i FPSAK.", tags = "gosys", responses = {
+        @ApiResponse(responseCode = "200", description = "Sak opprettet", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = OpprettSakResponse.class))),
+        @ApiResponse(responseCode = "400", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
+        @ApiResponse(responseCode = "403", description = "Mangler tilgang", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil")
+    })
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
+    public OpprettSakResponse opprettSak(
+        @Parameter(description = "Trenger journalpostId, behandlingstema og aktørId til brukeren for å kunne opprette en ny sak i FPSAK.")
+        @NotNull @Valid @TilpassetAbacAttributt(supplierClass = OpprettSakAbacDataSupplier.class) OpprettSakRequest opprettSakRequest) {
+
+        if (opprettSakRequest.aktørId() == null) {
+            throw new TekniskException("FP-34235", lagUgyldigInputMelding("AktørId", null));
+        }
+        var aktørId = new AktørId(opprettSakRequest.aktørId());
+
+        JournalpostId journalpostId = new JournalpostId(opprettSakRequest.journalpostId());
+        validerJournalpost(journalpostId, hentBehandlingstema(opprettSakRequest.behandlingsTema()), aktørId);
+        var saksnummer = opprettSakOrchestrator.opprettSak(journalpostId, hentBehandlingstema(opprettSakRequest.behandlingsTema()), aktørId);
+
+        return lagOpprettSakResponse(saksnummer);
+    }
+
+    private OpprettSakResponse lagOpprettSakResponse(Saksnummer saksnummer) {
+        return new OpprettSakResponse(saksnummer.getVerdi());
+    }
+
+    private BehandlingTema hentBehandlingstema(String behandlingstemaOffisiellKode) {
+        var behandlingTema = BehandlingTema.finnForKodeverkEiersKode(behandlingstemaOffisiellKode);
+        if (BehandlingTema.UDEFINERT.equals(behandlingTema)) {
+            var feilMelding = lagUgyldigInputMelding("Behandlingstema", null);
+            throw new TekniskException("FP-34235", feilMelding);
+        }
+        if (FagsakYtelseType.UDEFINERT.equals(behandlingTema.getFagsakYtelseType())) {
+            var feilMelding = lagUgyldigInputMelding("Behandlingstema", behandlingstemaOffisiellKode);
+            throw new TekniskException("FP-34235", feilMelding);
+        }
+        return behandlingTema;
+    }
+
+    private void validerJournalpost(JournalpostId journalpostId, BehandlingTema behandlingTema, AktørId aktørId) {
+
+        var journalpost = dokumentArkivTjeneste.hentJournalpostForSak(journalpostId);
+        var hoveddokument = journalpost.map(ArkivJournalPost::getHovedDokument);
+        var journalpostYtelseType = FagsakYtelseType.UDEFINERT;
+        if (hoveddokument.map(ArkivDokument::getDokumentType).filter(DokumentTypeId::erSøknadType).isPresent()) {
+            journalpostYtelseType = getFagsakYtelseType(behandlingTema, hoveddokument);
+            if (journalpostYtelseType == null) {
+                return;
+            }
+        } else if (hoveddokument.map(ArkivDokument::getDokumentType).filter(DokumentTypeId.INNTEKTSMELDING::equals).isPresent()) {
+            var original = dokumentArkivTjeneste.hentStrukturertDokument(journalpostId, hoveddokument.map(ArkivDokument::getDokumentId).orElseThrow()).toLowerCase();
+            if (original.contains("ytelse>foreldrepenger<")) {
+                if (opprettSakOrchestrator.harAktivSak(aktørId, behandlingTema)) {
+                    var feilMelding = lagUgyldigInputMelding("Journalpost", "Inntektsmelding når det finnes åpen Foreldrepengesak");
+                    throw new TekniskException("FP-34235", feilMelding);
+                }
+                journalpostYtelseType = FagsakYtelseType.FORELDREPENGER;
+            } else if (original.contains("ytelse>svangerskapspenger<")) {
+                journalpostYtelseType = FagsakYtelseType.SVANGERSKAPSPENGER;
+            }
+        }
+        LOG.info("FPSAK vurdering ytelsedok {} vs ytelseoppgitt {}", journalpostYtelseType, behandlingTema.getFagsakYtelseType());
+        if (!behandlingTema.getFagsakYtelseType().equals(journalpostYtelseType)) {
+            throw new FunksjonellException("FP-785356", "Dokument og valgt ytelsetype i uoverenstemmelse",
+                "Velg ytelsetype som samstemmer med dokument");
+        }
+        if (FagsakYtelseType.UDEFINERT.equals(journalpostYtelseType)) {
+            throw new FunksjonellException("FP-785354", "Kan ikke opprette sak basert på oppgitt dokument",
+                "Journalføre dokument på annen sak");
+        }
+    }
+
+    private static FagsakYtelseType getFagsakYtelseType(BehandlingTema behandlingTema, Optional<ArkivDokument> hoveddokument) {
+        FagsakYtelseType journalpostYtelseType;
+        var hovedtype = hoveddokument.map(ArkivDokument::getDokumentType).orElseThrow();
+        journalpostYtelseType = switch (hovedtype) {
+            case SØKNAD_ENGANGSSTØNAD_ADOPSJON -> FagsakYtelseType.ENGANGSTØNAD;
+            case SØKNAD_ENGANGSSTØNAD_FØDSEL -> FagsakYtelseType.ENGANGSTØNAD;
+            case SØKNAD_FORELDREPENGER_ADOPSJON -> FagsakYtelseType.FORELDREPENGER;
+            case SØKNAD_FORELDREPENGER_FØDSEL -> FagsakYtelseType.FORELDREPENGER;
+            case SØKNAD_SVANGERSKAPSPENGER ->  FagsakYtelseType.SVANGERSKAPSPENGER;
+            default -> FagsakYtelseType.UDEFINERT;
+        };
+        if (behandlingTema.getFagsakYtelseType().equals(journalpostYtelseType))
+            return null;
+        return journalpostYtelseType;
+    }
+
+    private String lagUgyldigInputMelding(String feltnavn, String verdi) {
+        return String.format("Ugyldig input: %s med verdi: %s er ugyldig input.", feltnavn, verdi);
     }
 
     @POST
@@ -71,14 +191,14 @@ public class GosysRestTjeneste {
     @Operation(description = "For å finne relevante fagsaker i FPSAK.", tags = "gosys")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.SAKLISTE)
     public FinnSakListeResponse finnSakListe(
-        @Parameter(description = "AktørId til personen som det skal finnes saker i FPSAK.")
-        @NotNull @Valid @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FinnSakListeRequest request) {
+        @Parameter(description = "AktørId til personen som det skal finnes saker for i FPSAK.")
+        @NotNull @Valid @TilpassetAbacAttributt(supplierClass = FinnSakAbacDataSupplier.class) FinnSakListeRequest request) {
 
         var fagsaker = fagsakRepository.hentForBruker(new AktørId(request.aktørId()));
-        return lagResponse(fagsaker);
+        return lagFinnSakResponse(fagsaker);
     }
 
-    FinnSakListeResponse lagResponse(List<Fagsak> fagsaker) {
+    FinnSakListeResponse lagFinnSakResponse(List<Fagsak> fagsaker) {
         var saksliste = new ArrayList<Sak>();
         for (var fagsak : fagsaker) {
             saksliste.add(lagEksternRepresentasjon(fagsak));
@@ -132,12 +252,25 @@ public class GosysRestTjeneste {
             || FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsakYtelseType);
     }
 
-    public static class AbacDataSupplier implements Function<Object, AbacDataAttributter> {
+    public static class FinnSakAbacDataSupplier implements Function<Object, AbacDataAttributter> {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (FinnSakListeRequest) obj;
             return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
+        }
+    }
+
+    public static class OpprettSakAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (OpprettSakRequest) obj;
+            var dataAttributter = AbacDataAttributter.opprett();
+            if (req.aktørId() != null) {
+                dataAttributter = dataAttributter.leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
+            }
+            return dataAttributter;
         }
     }
 
