@@ -7,6 +7,8 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.jws.WebService;
 
+import no.nav.foreldrepenger.web.app.tjenester.gosys.GosysRestTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,6 +111,8 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
                 default -> FagsakYtelseType.UDEFINERT;
             };
             if (behandlingTema.getFagsakYtelseType().equals(journalpostYtelseType)) return;
+            if (journalpostYtelseType == null)
+                return;
         } else if (hoveddokument.map(ArkivDokument::getDokumentType).filter(DokumentTypeId.INNTEKTSMELDING::equals).isPresent()) {
             var original = dokumentArkivTjeneste.hentStrukturertDokument(journalpostId, hoveddokument.map(ArkivDokument::getDokumentId).orElseThrow()).toLowerCase();
             if (original.contains("ytelse>foreldrepenger<")) {
