@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.web.app.tjenester.behandling.svp.Svangerskap
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -18,6 +19,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
@@ -39,12 +41,14 @@ import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
+import no.nav.foreldrepenger.domene.registerinnhenting.StønadsperioderInnhenter;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftSvangerskapspengerDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -55,6 +59,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     private FamilieHendelseRepository familieHendelseRepository;
     private TilgangerTjeneste tilgangerTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    private StønadsperioderInnhenter stønadsperioderInnhenter;
 
     BekreftSvangerskapspengerOppdaterer() {
         //CDI
@@ -64,12 +69,14 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     public BekreftSvangerskapspengerOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
                                                BehandlingGrunnlagRepositoryProvider repositoryProvider,
                                                TilgangerTjeneste tilgangerTjeneste,
-                                               InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
+                                               InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                                               StønadsperioderInnhenter stønadsperioderInnhenter) {
         this.svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
         this.historikkAdapter = historikkAdapter;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.tilgangerTjeneste = tilgangerTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
+        this.stønadsperioderInnhenter = stønadsperioderInnhenter;
     }
 
     @Override
@@ -106,11 +113,12 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                                             InntektArbeidYtelseGrunnlag iayGrunnlag,
                                             InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder,
                                             SvpArbeidsforholdDto arbeidsforhold) {
-        var yrkesaktiviteter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(param.getAktørId()))
-            .getYrkesaktiviteter().stream()
+        var yrkesaktiviteter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(),
+            iayGrunnlag.getAktørArbeidFraRegister(param.getAktørId())).getYrkesaktiviteter()
+            .stream()
             .filter(ya -> ya.getArbeidsgiver() != null && ya.getArbeidsgiver().getIdentifikator().equals(arbeidsforhold.getArbeidsgiverReferanse()))
             .filter(ya -> ya.getArbeidsforholdRef().gjelderFor(InternArbeidsforholdRef.ref(arbeidsforhold.getInternArbeidsforholdReferanse())))
-            .collect(Collectors.toList());
+            .toList();
         yrkesaktiviteter.forEach(yrkesaktivitet -> {
             var velferdspermisjoner = arbeidsforhold.getVelferdspermisjoner();
             if (velferdspermisjoner != null && harEndretPermisjonForYrkesaktivitet(yrkesaktivitet, velferdspermisjoner)) {
@@ -160,7 +168,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         }
     }
 
-    private boolean oppdaterTilrettelegging(BekreftSvangerskapspengerDto dto, Behandling behandling) {
+    boolean oppdaterTilrettelegging(BekreftSvangerskapspengerDto dto, Behandling behandling) {
 
         var svpGrunnlag = svangerskapspengerRepository.hentGrunnlag(behandling.getId()).orElseThrow(() -> {
             throw kanIkkeFinneSvangerskapspengerGrunnlagForBehandling(behandling.getId());
@@ -168,6 +176,8 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         var oppdatertTilrettelegging = new ArrayList<SvpTilretteleggingEntitet>();
         var bekreftedeArbeidsforholdDtoer = dto.getBekreftetSvpArbeidsforholdList();
         var tilretteleggingerUfiltrert = new TilretteleggingFilter(svpGrunnlag).getAktuelleTilretteleggingerUfiltrert();
+
+        var erMinsteBehovFraDatoEndret = endretMinsteBehovFra(bekreftedeArbeidsforholdDtoer, tilretteleggingerUfiltrert);
 
         var erEndret = false;
         for (var arbeidsforholdDto : bekreftedeArbeidsforholdDtoer) {
@@ -183,10 +193,23 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
         if (erEndret) {
             svangerskapspengerRepository.lagreOverstyrtGrunnlag(behandling, oppdatertTilrettelegging);
+            //behov fra dato er stp i saken tidlig i prosessen, og benyttes som start dato når det sjekkes om det finnes en relevant neste sak. Dersom denne endres må utledning av neste sak gjøres på nytt.
+            if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && erMinsteBehovFraDatoEndret) {
+                stønadsperioderInnhenter.innhentNesteSak(behandling);
+            }
         }
-
         return erEndret;
+    }
 
+    private boolean endretMinsteBehovFra(List<SvpArbeidsforholdDto> bekreftedeArbeidsforholdDtoer, List<SvpTilretteleggingEntitet> tilretteleggingerUfiltrert) {
+        var minsteBehovFraDatoNy = bekreftedeArbeidsforholdDtoer.stream()
+            .map(SvpArbeidsforholdDto::getTilretteleggingBehovFom)
+            .min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
+        var minsteBehovFraDatoGammel = tilretteleggingerUfiltrert.stream()
+            .map(SvpTilretteleggingEntitet::getBehovForTilretteleggingFom)
+            .min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
+
+        return !minsteBehovFraDatoGammel.isEqual(minsteBehovFraDatoNy);
     }
 
     private boolean mapTilretteleggingHvisEndret(SvpArbeidsforholdDto arbeidsforholdDto,
