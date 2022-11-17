@@ -7,13 +7,17 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.
 import static no.nav.foreldrepenger.domene.uttak.fakta.aktkrav.KontrollerAktivitetskravAksjonspunktUtleder.skalKontrollereAktivitetskrav;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
@@ -25,7 +29,22 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -39,10 +58,11 @@ import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 public class KontrollerAktivitetskravAksjonspunktUtlederTest {
 
     private final UttakRepositoryStubProvider repositoryProvider = new UttakRepositoryStubProvider();
+    private FpUttakRepository fpUttakRepository = repositoryProvider.getFpUttakRepository();
     private final YtelseFordelingTjeneste ytelseFordelingTjeneste = new YtelseFordelingTjeneste(
         repositoryProvider.getYtelsesFordelingRepository());
     private final KontrollerAktivitetskravAksjonspunktUtleder utleder = new KontrollerAktivitetskravAksjonspunktUtleder(
-        ytelseFordelingTjeneste, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
+        ytelseFordelingTjeneste, new ForeldrepengerUttakTjeneste(fpUttakRepository));
 
     @Test
     public void utledeAPForFarSomHarSøktFellesperiode() {
@@ -69,6 +89,47 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
         var behandlingReferanse = farBehandling(søknadsperiode);
         var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
         var uttakInput = uttakInput(behandlingReferanse, familieHendelse);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).isEmpty();
+    }
+
+    // @Test - TODO (JOL) re-enable eller remove avhengig av volum
+    public void ikkeUtledeAPForFarSomHarSøktFellesperiodeMensMorTarUtFullKvote() {
+        var fødselsdato = LocalDate.of(2020, 1, 1);
+        var søknadsperiode = OppgittPeriodeBuilder.ny()
+            .medMorsAktivitet(MorsAktivitet.ARBEID)
+            .medPeriodeType(FELLESPERIODE)
+            .medPeriode(fødselsdato.plusWeeks(6), fødselsdato.plusWeeks(10))
+            .medSamtidigUttak(true)
+            .medSamtidigUttaksprosent(new SamtidigUttaksprosent(40))
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .build();
+        var behandlingReferanse = farBehandling(søknadsperiode);
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var uttakInput = uttakInputMedAnnenpart(behandlingReferanse, familieHendelse, 321L);
+        var virksomhetForMor = Arbeidsgiver.virksomhet("123");
+        var uttakAktivitetForMor = new UttakAktivitetEntitet.Builder()
+            .medArbeidsforhold(virksomhetForMor, InternArbeidsforholdRef.nyRef())
+            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .build();
+        var periode = new UttakResultatPeriodeEntitet.Builder(fødselsdato, fødselsdato.plusWeeks(15).minusDays(1))
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .build();
+
+        var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitetForMor)
+            .medTrekkdager(new Trekkdager(75))
+            .medTrekkonto(StønadskontoType.MØDREKVOTE)
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(new Utbetalingsgrad(100))
+            .build();
+        periode.leggTilAktivitet(aktivitet);
+        var uttakResultatPerioderForMor = new UttakResultatPerioderEntitet();
+        uttakResultatPerioderForMor.leggTilPeriode(periode);
+        repositoryProvider.getBehandlingsresultatRepository().lagre(321L,  Behandlingsresultat.builder()
+            .medBehandlingResultatType(BehandlingResultatType.INNVILGET).build());
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(321L, uttakResultatPerioderForMor);
+
         var ap = utleder.utledFor(uttakInput);
 
         assertThat(ap).isEmpty();
@@ -403,24 +464,24 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
         var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
         var ref = BehandlingReferanse.fra(behandling);
         var fellesperiode1Resultat = skalKontrollereAktivitetskrav(ref, fellesperiode1,
-            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true);
+            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of());
         var fellesperiode2Resultat = skalKontrollereAktivitetskrav(ref, fellesperiode2,
-            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true);
+            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of());
         var fellesperiode3Resultat = skalKontrollereAktivitetskrav(ref, fellesperiode3,
-            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true);
+            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of());
 
 
         assertThat(fellesperiode1Resultat.isAvklart()).isTrue();
-        assertThat(fellesperiode1Resultat.isKravTilAktivitet()).isTrue();
-        assertThat(fellesperiode1Resultat.getAvklartePerioder()).hasSize(1);
+        assertThat(fellesperiode1Resultat.kravTilAktivitet()).isTrue();
+        assertThat(fellesperiode1Resultat.avklartePerioder()).hasSize(1);
 
         assertThat(fellesperiode2Resultat.isAvklart()).isFalse();
-        assertThat(fellesperiode2Resultat.isKravTilAktivitet()).isTrue();
-        assertThat(fellesperiode2Resultat.getAvklartePerioder()).isEmpty();
+        assertThat(fellesperiode2Resultat.kravTilAktivitet()).isTrue();
+        assertThat(fellesperiode2Resultat.avklartePerioder()).isEmpty();
 
         assertThat(fellesperiode3Resultat.isAvklart()).isFalse();
-        assertThat(fellesperiode3Resultat.isKravTilAktivitet()).isTrue();
-        assertThat(fellesperiode3Resultat.getAvklartePerioder()).isEmpty();
+        assertThat(fellesperiode3Resultat.kravTilAktivitet()).isTrue();
+        assertThat(fellesperiode3Resultat.avklartePerioder()).isEmpty();
     }
 
     @Test
@@ -445,11 +506,11 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
         var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
         var ref = BehandlingReferanse.fra(behandling);
         var fellesperiode1Resultat = skalKontrollereAktivitetskrav(ref, fellesperiode,
-            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true);
+            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of());
 
         assertThat(fellesperiode1Resultat.isAvklart()).isFalse();
-        assertThat(fellesperiode1Resultat.isKravTilAktivitet()).isTrue();
-        assertThat(fellesperiode1Resultat.getAvklartePerioder()).isEmpty();
+        assertThat(fellesperiode1Resultat.kravTilAktivitet()).isTrue();
+        assertThat(fellesperiode1Resultat.avklartePerioder()).isEmpty();
     }
 
     @Test
@@ -475,11 +536,11 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
         var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
         var ref = BehandlingReferanse.fra(behandling);
         var fellesperiode1Resultat = skalKontrollereAktivitetskrav(ref, fellesperiode,
-            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true);
+            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of());
 
         assertThat(fellesperiode1Resultat.isAvklart()).isTrue();
-        assertThat(fellesperiode1Resultat.isKravTilAktivitet()).isTrue();
-        assertThat(fellesperiode1Resultat.getAvklartePerioder()).hasSize(1);
+        assertThat(fellesperiode1Resultat.kravTilAktivitet()).isTrue();
+        assertThat(fellesperiode1Resultat.avklartePerioder()).hasSize(1);
     }
 
     @Test
@@ -502,11 +563,11 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
         var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
         var ref = BehandlingReferanse.fra(behandling);
         var fellesperiode1Resultat = skalKontrollereAktivitetskrav(ref, fellesperiode,
-            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true);
+            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of());
 
         assertThat(fellesperiode1Resultat.isAvklart()).isFalse();
-        assertThat(fellesperiode1Resultat.isKravTilAktivitet()).isFalse();
-        assertThat(fellesperiode1Resultat.getAvklartePerioder()).isEmpty();
+        assertThat(fellesperiode1Resultat.kravTilAktivitet()).isFalse();
+        assertThat(fellesperiode1Resultat.avklartePerioder()).isEmpty();
     }
 
     @Test
@@ -530,11 +591,11 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
         var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
         var ref = BehandlingReferanse.fra(behandling);
         var fellesperiode1Resultat = skalKontrollereAktivitetskrav(ref, fellesperiode,
-            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true);
+            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of());
 
         assertThat(fellesperiode1Resultat.isAvklart()).isFalse();
-        assertThat(fellesperiode1Resultat.isKravTilAktivitet()).isFalse();
-        assertThat(fellesperiode1Resultat.getAvklartePerioder()).isEmpty();
+        assertThat(fellesperiode1Resultat.kravTilAktivitet()).isFalse();
+        assertThat(fellesperiode1Resultat.avklartePerioder()).isEmpty();
     }
 
     private OppgittPeriodeEntitet fellesperiode(LocalDate fom, LocalDate tom) {
@@ -566,6 +627,13 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
     private UttakInput uttakInput(BehandlingReferanse behandlingReferanse, FamilieHendelse familieHendelse) {
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
             new FamilieHendelser().medSøknadHendelse(familieHendelse));
+        return new UttakInput(behandlingReferanse, null, ytelsespesifiktGrunnlag);
+    }
+
+    private UttakInput uttakInputMedAnnenpart(BehandlingReferanse behandlingReferanse, FamilieHendelse familieHendelse, Long behandlingAnnenpart) {
+        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag()
+            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(familieHendelse))
+            .medAnnenpart(new Annenpart(behandlingAnnenpart, LocalDateTime.now()));
         return new UttakInput(behandlingReferanse, null, ytelsespesifiktGrunnlag);
     }
 

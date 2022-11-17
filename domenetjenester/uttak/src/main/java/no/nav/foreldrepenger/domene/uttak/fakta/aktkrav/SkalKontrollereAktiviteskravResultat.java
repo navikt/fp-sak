@@ -4,25 +4,10 @@ import java.util.Set;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPeriodeEntitet;
 
-public class SkalKontrollereAktiviteskravResultat {
-
-    private final boolean kravTilAktivitet;
-    private final Set<AktivitetskravPeriodeEntitet> avklartePerioder;
-
-    public SkalKontrollereAktiviteskravResultat(boolean kravTilAktivitet, Set<AktivitetskravPeriodeEntitet> avklartePerioder) {
-        this.kravTilAktivitet = kravTilAktivitet;
-        this.avklartePerioder = avklartePerioder;
-    }
-
-    public boolean isKravTilAktivitet() {
-        return kravTilAktivitet;
-    }
+public record SkalKontrollereAktiviteskravResultat(boolean kravTilAktivitet, Set<AktivitetskravPeriodeEntitet> avklartePerioder) {
 
     public boolean isAvklart() {
-        return !getAvklartePerioder().isEmpty();
+        return !avklartePerioder().isEmpty();
     }
 
-    public Set<AktivitetskravPeriodeEntitet> getAvklartePerioder() {
-        return avklartePerioder;
-    }
 }
