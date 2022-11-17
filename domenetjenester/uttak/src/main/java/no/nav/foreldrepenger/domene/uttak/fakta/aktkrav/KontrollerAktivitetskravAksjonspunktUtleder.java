@@ -90,8 +90,9 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
             return ikkeKontrollerer();
         }
         // Pgf 14-12 andre ledd - samtidig 100% MK + <= 50% Fellesperiode -> ikke aktivitetskrav. To be elaborated further ....
-        if (erTilfelleAv150ProsentSamtidig(behandlingReferanse, periode, annenpartFullMK)) {
-            return ikkeKontrollerer();
+        if (erTilfelleAv150ProsentSamtidig(behandlingReferanse, periode, annenpartFullMK)) { // NOSONAR
+            // Vil logge hvor vanlig dette er - mens jeg ser på  endring i uttaksregler (2 steder, liten endring)
+            //return ikkeKontrollerer();
         }
 
         var avklaring = finnAvklartePerioderSomDekkerSøknadsperiode(periode, ytelseFordelingAggregat);
