@@ -101,7 +101,16 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
         var hoveddokument = journalpost.map(ArkivJournalPost::getHovedDokument);
         var journalpostYtelseType = FagsakYtelseType.UDEFINERT;
         if (hoveddokument.map(ArkivDokument::getDokumentType).filter(DokumentTypeId::erSøknadType).isPresent()) {
-            FagsakYtelseType journalpostYtelseType = GosysRestTjeneste.getFagsakYtelseType(behandlingTema, hoveddokument);
+            var hovedtype = hoveddokument.map(ArkivDokument::getDokumentType).orElseThrow();
+            journalpostYtelseType = switch (hovedtype) {
+                case SØKNAD_ENGANGSSTØNAD_ADOPSJON -> FagsakYtelseType.ENGANGSTØNAD;
+                case SØKNAD_ENGANGSSTØNAD_FØDSEL -> FagsakYtelseType.ENGANGSTØNAD;
+                case SØKNAD_FORELDREPENGER_ADOPSJON -> FagsakYtelseType.FORELDREPENGER;
+                case SØKNAD_FORELDREPENGER_FØDSEL -> FagsakYtelseType.FORELDREPENGER;
+                case SØKNAD_SVANGERSKAPSPENGER ->  FagsakYtelseType.SVANGERSKAPSPENGER;
+                default -> FagsakYtelseType.UDEFINERT;
+            };
+            if (behandlingTema.getFagsakYtelseType().equals(journalpostYtelseType)) return;
             if (journalpostYtelseType == null)
                 return;
         } else if (hoveddokument.map(ArkivDokument::getDokumentType).filter(DokumentTypeId.INNTEKTSMELDING::equals).isPresent()) {
