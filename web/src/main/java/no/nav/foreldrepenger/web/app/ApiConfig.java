@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,9 +47,9 @@ public class ApiConfig extends Application {
             .id(ID_PREFIX + ApiConfig.class.getName())
             .openAPI(oas)
             .prettyPrint(true)
-            .scannerClass("io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner")
-            .resourcePackages(Stream.of("no.nav").collect(Collectors.toSet()))
-            .ignoredRoutes(Stream.of("/api/sak/finnSak/v1", "/api/sak/opprettSak/v1").collect(Collectors.toSet()));
+            //.scannerClass("io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner")
+            .resourceClasses(Stream.of(RestImplementationClasses.getImplementationClasses(), RestImplementationClasses.getForvaltningClasses())
+                .flatMap(Collection::stream).map(Class::getName).collect(Collectors.toSet()));
 
         try {
             new JaxrsOpenApiContextBuilder<>()

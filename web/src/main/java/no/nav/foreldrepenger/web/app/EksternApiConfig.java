@@ -44,7 +44,7 @@ public class EksternApiConfig extends Application {
             .id(ID_PREFIX + EksternApiConfig.class.getName())
             .openAPI(oas)
             .prettyPrint(true)
-            .scannerClass("io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner")
+            //.scannerClass("io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner")
             .resourceClasses(RestImplementationClasses.getExternalIntegrationClasses().stream().map(Class::getName).collect(Collectors.toSet()));
 
         try {
