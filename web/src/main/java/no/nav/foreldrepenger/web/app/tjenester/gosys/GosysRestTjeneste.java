@@ -93,7 +93,7 @@ public class GosysRestTjeneste {
     }
     @POST
     @Path("/opprettSak/v1")
-    @Operation(description = "For å opprette en ny fagsak i FPSAK.", tags = "gosys", responses = {
+    @Operation(description = "For å opprette en ny fagsak i FPSAK.", tags = "GOSYS", responses = {
         @ApiResponse(responseCode = "200", description = "Sak opprettet", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = OpprettSakResponse.class))),
         @ApiResponse(responseCode = "400", description = "Feil i request", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
         @ApiResponse(responseCode = "403", description = "Mangler tilgang", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeilDto.class))),
@@ -188,7 +188,7 @@ public class GosysRestTjeneste {
 
     @POST
     @Path("/finnSak/v1")
-    @Operation(description = "For å finne relevante fagsaker i FPSAK.", tags = "gosys")
+    @Operation(description = "For å finne relevante fagsaker i FPSAK.", tags = "GOSYS")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.SAKLISTE)
     public FinnSakListeResponse finnSakListe(
         @Parameter(description = "AktørId til personen som det skal finnes saker for i FPSAK.")

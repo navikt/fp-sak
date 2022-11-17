@@ -1,33 +1,63 @@
 package no.nav.foreldrepenger.web.app;
 
-import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
-import io.swagger.v3.oas.integration.OpenApiConfigurationException;
-import io.swagger.v3.oas.integration.SwaggerConfiguration;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.servers.Server;
-import no.nav.foreldrepenger.web.app.exceptions.ConstraintViolationMapper;
-import no.nav.foreldrepenger.web.app.exceptions.GeneralRestExceptionMapper;
-import no.nav.foreldrepenger.web.app.exceptions.JsonMappingExceptionMapper;
-import no.nav.foreldrepenger.web.app.exceptions.JsonParseExceptionMapper;
-import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
-import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
-import no.nav.foreldrepenger.web.server.jetty.TimingFilter;
-
-import org.glassfish.jersey.server.ServerProperties;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
+import io.swagger.v3.oas.integration.OpenApiConfigurationException;
+import io.swagger.v3.oas.integration.SwaggerConfiguration;
+import io.swagger.v3.oas.models.OpenAPI;
+
+import io.swagger.v3.oas.models.info.Info;
+
+import io.swagger.v3.oas.models.servers.Server;
+
+import org.glassfish.jersey.server.ServerProperties;
+
+import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 
 @ApplicationPath(EksternApiConfig.API_URI)
 public class EksternApiConfig extends Application {
 
     public static final String API_URI = "/ekstern/api";
+
+    private static final String ID_PREFIX = "openapi.context.id.servlet.";
+
+    public EksternApiConfig() {
+        var oas = new OpenAPI();
+        var info = new Info()
+            .title("FPSAK - Foreldrepenger, engangsstønad og svangerskapspenger")
+            .version("1.0")
+            .description("REST grensesnitt for FPSAK eksterne brukere. Alle kall må authentiseres med en gyldig Azure OBO eller CC token.");
+
+        oas.info(info)
+            .addServersItem(new Server()
+                .url("/fpsak"));
+        var oasConfig = new SwaggerConfiguration()
+            .id(ID_PREFIX + EksternApiConfig.class.getName())
+            .openAPI(oas)
+            .prettyPrint(true)
+            .scannerClass("io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner")
+            .resourceClasses(RestImplementationClasses.getExternalIntegrationClasses().stream().map(Class::getName).collect(Collectors.toSet()));
+
+        try {
+            new JaxrsOpenApiContextBuilder<>()
+                .ctxId(ID_PREFIX + EksternApiConfig.class.getName())
+                .application(this)
+                .openApiConfiguration(oasConfig)
+                .buildContext(true)
+                .read();
+        } catch (OpenApiConfigurationException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
 
     @Override
     public Set<Class<?>> getClasses() {

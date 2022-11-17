@@ -32,29 +32,31 @@ import no.nav.foreldrepenger.web.server.jetty.TimingFilter;
 public class ApiConfig extends Application {
 
     public static final String API_URI = "/api";
+    private static final String ID_PREFIX = "openapi.context.id.servlet.";
 
     public ApiConfig() {
         var oas = new OpenAPI();
         var info = new Info()
-                .title("FPSAK - Foreldrepenger, engangsstønad og svangerskapspenger")
-                .version("1.0")
-                .description("REST grensesnitt for FPSAK.");
+            .title("FPSAK - Foreldrepenger, engangsstønad og svangerskapspenger")
+            .version("1.0")
+            .description("REST grensesnitt for FPSAK.");
 
-        oas.info(info)
-                .addServersItem(new Server()
-                        .url("/fpsak"));
+        oas.info(info).addServersItem(new Server().url("/fpsak"));
         var oasConfig = new SwaggerConfiguration()
-                .openAPI(oas)
-                .prettyPrint(true)
-                .scannerClass("io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner")
-                .resourcePackages(Stream.of("no.nav")
-                        .collect(Collectors.toSet()));
+            .id(ID_PREFIX + ApiConfig.class.getName())
+            .openAPI(oas)
+            .prettyPrint(true)
+            .scannerClass("io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner")
+            .resourcePackages(Stream.of("no.nav").collect(Collectors.toSet()))
+            .ignoredRoutes(Stream.of("/api/sak/finnSak/v1", "/api/sak/opprettSak/v1").collect(Collectors.toSet()));
 
         try {
             new JaxrsOpenApiContextBuilder<>()
-                    .openApiConfiguration(oasConfig)
-                    .buildContext(true)
-                    .read();
+                .ctxId(ID_PREFIX + ApiConfig.class.getName())
+                .application(this)
+                .openApiConfiguration(oasConfig)
+                .buildContext(true)
+                .read();
         } catch (OpenApiConfigurationException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
