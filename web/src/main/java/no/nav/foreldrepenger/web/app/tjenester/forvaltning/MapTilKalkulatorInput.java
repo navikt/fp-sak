@@ -10,8 +10,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import no.nav.folketrygdloven.kalkulator.input.SvangerskapspengerGrunnlag;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulator.input.SvangerskapspengerGrunnlag;
 import no.nav.folketrygdloven.kalkulator.input.YtelsespesifiktGrunnlag;
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AndelGradering;
@@ -34,6 +34,7 @@ import no.nav.folketrygdloven.kalkulator.modell.typer.Beløp;
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
 import no.nav.folketrygdloven.kalkulator.modell.typer.Stillingsprosent;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
+import no.nav.folketrygdloven.kalkulus.beregning.v1.AktivitetDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.AktivitetGraderingDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.AndelGraderingDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.ForeldrepengerGrunnlag;
@@ -42,7 +43,6 @@ import no.nav.folketrygdloven.kalkulus.beregning.v1.KravperioderPrArbeidsforhold
 import no.nav.folketrygdloven.kalkulus.beregning.v1.PeriodeMedUtbetalingsgradDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.PerioderForKrav;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.Refusjonsperiode;
-import no.nav.folketrygdloven.kalkulus.beregning.v1.AktivitetDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.UtbetalingsgradPrAktivitetDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.YtelsespesifiktGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Aktør;
@@ -92,6 +92,9 @@ import no.nav.folketrygdloven.kalkulus.opptjening.v1.OpptjeningPeriodeDto;
  * Mapper beregningsgrunnlagInput til KalkulatorInput for bruk til feilsøking av saker
  */
 class MapTilKalkulatorInput {
+
+    private static final Set<PermisjonsbeskrivelseType> UTDANNINGSPERMISJONER = Set.of(PermisjonsbeskrivelseType.UTDANNINGSPERMISJON,
+        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET, PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET);
 
     public static KalkulatorInputDto map(BeregningsgrunnlagInput beregningsgrunnlagInput) {
         if (beregningsgrunnlagInput == null) {
@@ -473,7 +476,7 @@ class MapTilKalkulatorInput {
     private static List<PermisjonDto> mapPermisjoner(Set<no.nav.folketrygdloven.kalkulator.modell.iay.permisjon.PermisjonDto> permisjoner) {
         return permisjoner.stream()
             .filter(perm -> !perm.getPermisjonsbeskrivelseType().equals(PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER)
-                && !perm.getPermisjonsbeskrivelseType().equals(PermisjonsbeskrivelseType.UTDANNINGSPERMISJON))
+                && !UTDANNINGSPERMISJONER.contains(perm.getPermisjonsbeskrivelseType()))
             .map(MapTilKalkulatorInput::mapPermisjon).collect(Collectors.toList());
     }
 
@@ -485,7 +488,11 @@ class MapTilKalkulatorInput {
         return switch(permisjonsbeskrivelseType) {
             case PERMISJON -> PermisjonsbeskrivelseType.PERMISJON;
             case UTDANNINGSPERMISJON -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON;
+            case UTDANNINGSPERMISJON_LOVFESTET -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET;
+            case UTDANNINGSPERMISJON_IKKE_LOVFESTET -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET;
             case VELFERDSPERMISJON -> PermisjonsbeskrivelseType.VELFERDSPERMISJON;
+            case ANNEN_PERMISJON_LOVFESTET -> PermisjonsbeskrivelseType.ANNEN_PERMISJON_LOVFESTET;
+            case ANNEN_PERMISJON_IKKE_LOVFESTET -> PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET;
             case PERMISJON_MED_FORELDREPENGER -> PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER;
             case PERMISJON_VED_MILITÆRTJENESTE -> PermisjonsbeskrivelseType.PERMISJON_VED_MILITÆRTJENESTE;
             case PERMITTERING -> PermisjonsbeskrivelseType.PERMITTERING;

@@ -248,7 +248,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
         var permisjonBuilder = yrkesaktivitetBuilder.getPermisjonBuilder();
         var permisjonsprosent = BigDecimal.valueOf(40);
         permisjonBuilder.medProsentsats(permisjonsprosent);
-        permisjonBuilder.medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.VELFERDSPERMISJON);
+        permisjonBuilder.medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.ANNEN_PERMISJON_LOVFESTET);
         permisjonBuilder.medPeriode(BEHOV_DATO, TERMINDATO);
         aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
         register.leggTilAktørArbeid(aktørArbeidBuilder);
@@ -262,7 +262,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
         var svpArbeidsforholdDto = dto.getBekreftetSvpArbeidsforholdList().get(0);
         svpArbeidsforholdDto.setVelferdspermisjoner(List.of(
             new VelferdspermisjonDto(BEHOV_DATO, TERMINDATO, permisjonsprosent,
-                PermisjonsbeskrivelseType.VELFERDSPERMISJON, false)));
+                PermisjonsbeskrivelseType.ANNEN_PERMISJON_LOVFESTET, false)));
         var resultat = oppdaterer.oppdater(dto, param);
 
         var saksbehandletVersjon = inntektArbeidYtelseTjeneste.hentGrunnlag(

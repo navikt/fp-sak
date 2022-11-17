@@ -24,8 +24,7 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseTyp
 
 public class HåndterePermisjoner {
     private static final int PERMISJON_PROSENTSATS_NØDVENDIG_FOR_Å_UTLØSTE_AKSJONSPUNKT = 100;
-    private static final Set<PermisjonsbeskrivelseType> PERMISJONTYPER_SOM_IKKE_ER_RELEVANTE = Set.of(PermisjonsbeskrivelseType.UTDANNINGSPERMISJON,
-        PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER);
+    private static final Set<PermisjonsbeskrivelseType> PERMISJONTYPER_SOM_IKKE_ER_RELEVANTE = PermisjonsbeskrivelseType.PERMISJON_IKKE_RELEVANT_FOR_AVKLAR_ARBEIDSFORHOLD;
 
     public static List<ArbeidsforholdMangel> finnArbForholdMedPermisjonUtenSluttdatoMangel(BehandlingReferanse behandlingReferanse,
                                                                                            InntektArbeidYtelseGrunnlag iayGrunnlag) {
@@ -67,7 +66,7 @@ public class HåndterePermisjoner {
         return yrkesaktivitet.getPermisjon()
             .stream()
             .filter(HåndterePermisjoner::harMerEnnNullProsentPermisjon)
-            .filter(p -> PermisjonsbeskrivelseType.VELFERDSPERMISJON.equals(p.getPermisjonsbeskrivelseType()))
+            .filter(p -> PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(p.getPermisjonsbeskrivelseType()))
             .anyMatch(permisjon -> erPeriodenInnenfortilretteleggingFom(permisjon, tilretteleggingBehovFom));
     }
 

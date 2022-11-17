@@ -539,7 +539,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         var ansettelsesPeriode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder(periodeYA, true);
 
         var permisjon = permisjonBuilder
-                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.UTDANNINGSPERMISJON)
+                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET)
                 .medPeriode(periodeYA.getFomDato(), periodeYA.getTomDato())
                 .medProsentsats(BigDecimal.valueOf(100))
                 .build();

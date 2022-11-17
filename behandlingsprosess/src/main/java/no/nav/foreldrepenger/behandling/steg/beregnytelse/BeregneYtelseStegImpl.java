@@ -150,7 +150,7 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
 
     private boolean erRelevant(Permisjon perm, LocalDate førsteUttaksdag) {
         return !perm.getFraOgMed().isBefore(førsteUttaksdag)
-            && !perm.getPermisjonsbeskrivelseType().equals(PermisjonsbeskrivelseType.UTDANNINGSPERMISJON)
+            && !PermisjonsbeskrivelseType.UTDANNINGSPERMISJONER.contains(perm.getPermisjonsbeskrivelseType())
             && !perm.getPermisjonsbeskrivelseType().equals(PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER)
             && perm.getProsentsats() != null && perm.getProsentsats().getVerdi().compareTo(BigDecimal.valueOf(100)) >= 0
             && varerMerEnn14Dager(perm);

@@ -14,16 +14,33 @@ public enum PermisjonsbeskrivelseType implements Kodeverdi, MedOffisiellKode {
 
     UDEFINERT("-", "Ikke definert", null),
     PERMISJON("PERMISJON", "Permisjon", "permisjon"),
-    UTDANNINGSPERMISJON("UTDANNINGSPERMISJON", "Utdanningspermisjon", "utdanningspermisjon"),
-    VELFERDSPERMISJON("VELFERDSPERMISJON", "Velferdspermisjon", "velferdspermisjon"),
-    PERMISJON_MED_FORELDREPENGER("PERMISJON_MED_FORELDREPENGER", "Permisjon med foreldrepenger", "permisjonMedForeldrepenger"),
+    UTDANNINGSPERMISJON("UTDANNINGSPERMISJON", "Utdanningspermisjon", "utdanningspermisjon"), // Utgår 31/12-2022
+    UTDANNINGSPERMISJON_IKKE_LOVFESTET("UTDANNINGSPERMISJON_IKKE_LOVFESTET", "Utdanningspermisjon (Ikke lovfestet)", "utdanningspermisjonIkkeLovfestet"),
+    UTDANNINGSPERMISJON_LOVFESTET("UTDANNINGSPERMISJON_LOVFESTET", "Utdanningspermisjon (Lovfestet)", "utdanningspermisjonLovfestet"),
+    VELFERDSPERMISJON("VELFERDSPERMISJON", "Velferdspermisjon", "velferdspermisjon"), // Utgår 31/12-2022
+    ANNEN_PERMISJON_IKKE_LOVFESTET("ANNEN_PERMISJON_IKKE_LOVFESTET", "Andre ikke-lovfestede permisjoner", "andreIkkeLovfestedePermisjoner"),
+    ANNEN_PERMISJON_LOVFESTET("ANNEN_PERMISJON_LOVFESTET", "Andre lovfestede permisjoner", "andreLovfestedePermisjoner"),PERMISJON_MED_FORELDREPENGER("PERMISJON_MED_FORELDREPENGER", "Permisjon med foreldrepenger", "permisjonMedForeldrepenger"),
     PERMITTERING("PERMITTERING", "Permittering", "permittering"),
     PERMISJON_VED_MILITÆRTJENESTE("PERMISJON_VED_MILITÆRTJENESTE", "Permisjon ved militærtjeneste", "permisjonVedMilitaertjeneste"),
     ;
 
-    private static final Set<PermisjonsbeskrivelseType> PERMISJON_IKKE_RELEVANT_FOR_AVKLAR_ARBEIDSFORHOLD = Set.of(
+    public static final Set<PermisjonsbeskrivelseType> PERMISJON_IKKE_RELEVANT_FOR_AVKLAR_ARBEIDSFORHOLD = Set.of(
             PermisjonsbeskrivelseType.UTDANNINGSPERMISJON,
+            PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET,
+            PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET,
             PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER);
+
+    public static final Set<PermisjonsbeskrivelseType> UTDANNINGSPERMISJONER = Set.of(
+        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON,
+        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET,
+        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET
+    );
+
+    public static final Set<PermisjonsbeskrivelseType> VELFERDSPERMISJONER = Set.of(
+        PermisjonsbeskrivelseType.VELFERDSPERMISJON,
+        PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET,
+        PermisjonsbeskrivelseType.ANNEN_PERMISJON_LOVFESTET
+    );
 
     private static final Map<String, PermisjonsbeskrivelseType> KODER = new LinkedHashMap<>();
 
