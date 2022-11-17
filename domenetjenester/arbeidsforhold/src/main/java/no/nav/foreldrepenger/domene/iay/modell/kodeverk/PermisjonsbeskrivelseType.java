@@ -24,7 +24,7 @@ public enum PermisjonsbeskrivelseType implements Kodeverdi, MedOffisiellKode {
     PERMISJON_VED_MILITÆRTJENESTE("PERMISJON_VED_MILITÆRTJENESTE", "Permisjon ved militærtjeneste", "permisjonVedMilitaertjeneste"),
     ;
 
-    public static final Set<PermisjonsbeskrivelseType> PERMISJON_IKKE_RELEVANT_FOR_AVKLAR_ARBEIDSFORHOLD = Set.of(
+    public static final Set<PermisjonsbeskrivelseType> PERMISJON_IKKE_RELEVANT_FOR_ARBEIDSFORHOLD_ELLER_BEREGNING = Set.of(
             PermisjonsbeskrivelseType.UTDANNINGSPERMISJON,
             PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET,
             PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET,
@@ -106,7 +106,7 @@ public enum PermisjonsbeskrivelseType implements Kodeverdi, MedOffisiellKode {
     }
 
     public boolean erRelevantForAvklarArbeidsforhold() {
-        return !PERMISJON_IKKE_RELEVANT_FOR_AVKLAR_ARBEIDSFORHOLD.contains(this);
+        return !PERMISJON_IKKE_RELEVANT_FOR_ARBEIDSFORHOLD_ELLER_BEREGNING.contains(this);
     }
 
 }
