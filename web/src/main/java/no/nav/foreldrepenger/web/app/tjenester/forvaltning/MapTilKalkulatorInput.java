@@ -74,7 +74,6 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.RelatertYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.TemaUnderkategori;
@@ -92,9 +91,6 @@ import no.nav.folketrygdloven.kalkulus.opptjening.v1.OpptjeningPeriodeDto;
  * Mapper beregningsgrunnlagInput til KalkulatorInput for bruk til feilsøking av saker
  */
 class MapTilKalkulatorInput {
-
-    private static final Set<PermisjonsbeskrivelseType> UTDANNINGSPERMISJONER = Set.of(PermisjonsbeskrivelseType.UTDANNINGSPERMISJON,
-        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET, PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET);
 
     public static KalkulatorInputDto map(BeregningsgrunnlagInput beregningsgrunnlagInput) {
         if (beregningsgrunnlagInput == null) {
@@ -475,29 +471,11 @@ class MapTilKalkulatorInput {
 
     private static List<PermisjonDto> mapPermisjoner(Set<no.nav.folketrygdloven.kalkulator.modell.iay.permisjon.PermisjonDto> permisjoner) {
         return permisjoner.stream()
-            .filter(perm -> !perm.getPermisjonsbeskrivelseType().equals(PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER)
-                && !UTDANNINGSPERMISJONER.contains(perm.getPermisjonsbeskrivelseType()))
             .map(MapTilKalkulatorInput::mapPermisjon).collect(Collectors.toList());
     }
 
     private static PermisjonDto mapPermisjon(no.nav.folketrygdloven.kalkulator.modell.iay.permisjon.PermisjonDto perm) {
-        return new PermisjonDto(mapPeriode(perm.getPeriode()), perm.getProsentsats(), mapPermisjonstype(perm.getPermisjonsbeskrivelseType()));
-    }
-
-    private static PermisjonsbeskrivelseType mapPermisjonstype(PermisjonsbeskrivelseType permisjonsbeskrivelseType) {
-        return switch(permisjonsbeskrivelseType) {
-            case PERMISJON -> PermisjonsbeskrivelseType.PERMISJON;
-            case UTDANNINGSPERMISJON -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON;
-            case UTDANNINGSPERMISJON_LOVFESTET -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET;
-            case UTDANNINGSPERMISJON_IKKE_LOVFESTET -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET;
-            case VELFERDSPERMISJON -> PermisjonsbeskrivelseType.VELFERDSPERMISJON;
-            case ANNEN_PERMISJON_LOVFESTET -> PermisjonsbeskrivelseType.ANNEN_PERMISJON_LOVFESTET;
-            case ANNEN_PERMISJON_IKKE_LOVFESTET -> PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET;
-            case PERMISJON_MED_FORELDREPENGER -> PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER;
-            case PERMISJON_VED_MILITÆRTJENESTE -> PermisjonsbeskrivelseType.PERMISJON_VED_MILITÆRTJENESTE;
-            case PERMITTERING -> PermisjonsbeskrivelseType.PERMITTERING;
-            case UDEFINERT -> PermisjonsbeskrivelseType.UDEFINERT;
-        };
+        return new PermisjonDto(mapPeriode(perm.getPeriode()), perm.getProsentsats(), perm.getPermisjonsbeskrivelseType());
     }
 
     private static List<AktivitetsAvtaleDto> mapAktivitetsAvtaler(Collection<no.nav.folketrygdloven.kalkulator.modell.iay.AktivitetsAvtaleDto> alleAktivitetsAvtaler) {
