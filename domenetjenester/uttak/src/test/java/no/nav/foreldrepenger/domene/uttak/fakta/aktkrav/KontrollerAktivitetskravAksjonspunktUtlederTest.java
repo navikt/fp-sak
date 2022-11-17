@@ -94,7 +94,7 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
         assertThat(ap).isEmpty();
     }
 
-    @Test
+    // @Test - TODO (JOL) re-enable eller remove avhengig av volum
     public void ikkeUtledeAPForFarSomHarSøktFellesperiodeMensMorTarUtFullKvote() {
         var fødselsdato = LocalDate.of(2020, 1, 1);
         var søknadsperiode = OppgittPeriodeBuilder.ny()
