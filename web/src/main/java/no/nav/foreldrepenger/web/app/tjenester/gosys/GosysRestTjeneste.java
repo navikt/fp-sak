@@ -123,7 +123,7 @@ public class GosysRestTjeneste {
     private BehandlingTema hentBehandlingstema(String behandlingstemaOffisiellKode) {
         var behandlingTema = BehandlingTema.finnForKodeverkEiersKode(behandlingstemaOffisiellKode);
         if (BehandlingTema.UDEFINERT.equals(behandlingTema)) {
-            var feilMelding = lagUgyldigInputMelding("Behandlingstema", null);
+            var feilMelding = lagUgyldigInputMelding("Behandlingstema", behandlingstemaOffisiellKode);
             throw new TekniskException("FP-34235", feilMelding);
         }
         if (FagsakYtelseType.UDEFINERT.equals(behandlingTema.getFagsakYtelseType())) {
