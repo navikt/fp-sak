@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -39,6 +40,9 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.fpsak.tidsserie.StandardCombinators;
 
 @ApplicationScoped
 public class KontrollerAktivitetskravAksjonspunktUtleder {
@@ -218,9 +222,7 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
                 .map(SamtidigUttaksprosent::new));
         if (UttakPeriodeType.FELLESPERIODE.equals(periode.getPeriodeType()) && !annenpartFullMK.isEmpty() &&
             samtidigEllerGradert.filter(pct -> pct.compareTo(new SamtidigUttaksprosent(50)) <= 0).isPresent()) {
-            var oppgittIntervall = new LocalDateInterval(periode.getFom(), periode.getTom());
-            var dekkesAvFullMK = annenpartFullMK.stream()
-                .anyMatch(mk -> mk.getTidsperiode().contains(oppgittIntervall) && (mk.isSamtidigUttak() || periode.isSamtidigUttak()));
+            var dekkesAvFullMK = dekkesavSamtidigfullMK(annenpartFullMK, periode);
             if (dekkesAvFullMK) {
                 return true;
             } else {
@@ -228,6 +230,19 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
             }
         }
         return false;
+    }
+
+    private static boolean dekkesavSamtidigfullMK(List<ForeldrepengerUttakPeriode> annenpartFullMK, OppgittPeriodeEntitet periode) {
+        var segmenter = annenpartFullMK.stream()
+            .filter(p -> periode.isSamtidigUttak() || p.isSamtidigUttak())
+            .map(p -> new LocalDateSegment<>(p.getFom(), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), Boolean.TRUE))
+            .toList();
+        if (segmenter.isEmpty()) {
+            return false;
+        }
+        var oppgittIntervall = new LocalDateInterval(periode.getFom(), periode.getTom());
+        return new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch).compress().toSegments().stream()
+            .anyMatch(seg -> seg.getLocalDateInterval().contains(oppgittIntervall));
     }
 
 }
