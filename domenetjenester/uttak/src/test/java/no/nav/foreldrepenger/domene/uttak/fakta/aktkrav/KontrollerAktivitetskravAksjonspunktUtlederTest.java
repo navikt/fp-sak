@@ -464,11 +464,11 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
         var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
         var ref = BehandlingReferanse.fra(behandling);
         var fellesperiode1Resultat = skalKontrollereAktivitetskrav(ref, fellesperiode1,
-            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of());
+            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of(), false);
         var fellesperiode2Resultat = skalKontrollereAktivitetskrav(ref, fellesperiode2,
-            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of());
+            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of(), false);
         var fellesperiode3Resultat = skalKontrollereAktivitetskrav(ref, fellesperiode3,
-            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of());
+            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of(), false);
 
 
         assertThat(fellesperiode1Resultat.isAvklart()).isTrue();
@@ -506,7 +506,7 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
         var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
         var ref = BehandlingReferanse.fra(behandling);
         var fellesperiode1Resultat = skalKontrollereAktivitetskrav(ref, fellesperiode,
-            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of());
+            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of(), false);
 
         assertThat(fellesperiode1Resultat.isAvklart()).isFalse();
         assertThat(fellesperiode1Resultat.kravTilAktivitet()).isTrue();
@@ -536,7 +536,7 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
         var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
         var ref = BehandlingReferanse.fra(behandling);
         var fellesperiode1Resultat = skalKontrollereAktivitetskrav(ref, fellesperiode,
-            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of());
+            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of(), false);
 
         assertThat(fellesperiode1Resultat.isAvklart()).isTrue();
         assertThat(fellesperiode1Resultat.kravTilAktivitet()).isTrue();
@@ -563,7 +563,7 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
         var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
         var ref = BehandlingReferanse.fra(behandling);
         var fellesperiode1Resultat = skalKontrollereAktivitetskrav(ref, fellesperiode,
-            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of());
+            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of(), false);
 
         assertThat(fellesperiode1Resultat.isAvklart()).isFalse();
         assertThat(fellesperiode1Resultat.kravTilAktivitet()).isFalse();
@@ -591,7 +591,7 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
         var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
         var ref = BehandlingReferanse.fra(behandling);
         var fellesperiode1Resultat = skalKontrollereAktivitetskrav(ref, fellesperiode,
-            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of());
+            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true, List.of(), false);
 
         assertThat(fellesperiode1Resultat.isAvklart()).isFalse();
         assertThat(fellesperiode1Resultat.kravTilAktivitet()).isFalse();

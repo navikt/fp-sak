@@ -77,7 +77,7 @@ public class KontrollerAktivitetskravDtoTjeneste {
         var result = new ArrayList<KontrollerAktivitetskravPeriodeDto>();
         for (var søknadsperiode : ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder()) {
             var avklaringsresultat = KontrollerAktivitetskravAksjonspunktUtleder.skalKontrollereAktivitetskrav(
-                behandlingReferanse, søknadsperiode, ytelseFordelingAggregat, familieHendelse, annenForelderHarRett, annenForelderFullMK);
+                behandlingReferanse, søknadsperiode, ytelseFordelingAggregat, familieHendelse, annenForelderHarRett, annenForelderFullMK, false);
             if (avklaringsresultat.kravTilAktivitet()) {
                 if (avklaringsresultat.isAvklart()) {
                     var avklartePerioder = avklaringsresultat.avklartePerioder();

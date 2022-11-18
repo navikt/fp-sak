@@ -457,7 +457,7 @@ public class BehandlingDtoTjeneste {
             var originalUuidDto = new UuidDto(originalBehandling.getUuid());
 
             // Denne brukes kun av FPFORMIDLING
-            dto.leggTil(get(BehandlingRestTjenestePathHack1.BEHANDLING_PATH, "original-behandling", originalUuidDto));
+            dto.leggTil(get(BehandlingRestTjenestePathHack1.BEHANDLING_PATH, "original-behandling", originalUuidDto)); // TODO (jol) FJERNE denne etter omlegging
 
             dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_PATH, "familiehendelse-original-behandling", originalUuidDto));
             dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "soknad-original-behandling", originalUuidDto));
