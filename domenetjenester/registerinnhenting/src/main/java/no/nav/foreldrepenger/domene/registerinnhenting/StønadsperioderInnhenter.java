@@ -16,6 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
@@ -139,11 +142,12 @@ public class StønadsperioderInnhenter {
     private Set<MuligSak> utledEgneMuligeSaker(Behandling behandling, MuligSak egenSak) {
         var alleEgneSaker = getAlleEgneSaker(behandling, egenSak);
         var aktuellType = behandling.getFagsakYtelseType();
-        // SVP->SVP + FP->FP + SVP->FP. Ser ikke på FP->SVP ettersom det ikke opphører rett til FP forrige barn
+        // SVP->SVP + FP->FP + SVP->FP. Ser ikke på FP->SVP ettersom det ikke opphører rett til FP forrige barn. Skal være sak med vedtak
         Set<MuligSak> egneMuligeSaker = new HashSet<>();
         alleEgneSaker.stream()
             .filter(f -> f.getYtelseType().equals(aktuellType) ||
                 (FagsakYtelseType.SVANGERSKAPSPENGER.equals(aktuellType) && FagsakYtelseType.FORELDREPENGER.equals(f.getYtelseType())))
+            .filter(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).isPresent())
             .flatMap(f -> opprettMuligSak(behandling, f, SaksForhold.EGEN_SAK).stream())
             .forEach(egneMuligeSaker::add);
         // Finn mødres saker der bruker er implisert
@@ -154,20 +158,21 @@ public class StønadsperioderInnhenter {
     }
 
     private void leggTilMuligeSakerForAnnenPart(Behandling behandling, MuligSak egenSak, List<Fagsak> alleEgneSaker, Set<MuligSak> egneMuligeSaker) {
-        var egneFagsakerId = alleEgneSaker.stream().map(Fagsak::getId).collect(Collectors.toSet());
         // Populer med saker der bruker er oppgitt annen part eller som er koblet med brukers saker
         var fagsakerSomRefererer = new ArrayList<>(personopplysningRepository.fagsakerMedOppgittAnnenPart(behandling.getAktørId()));
         var fagsakerSomReferererId = new HashSet<>(fagsakerSomRefererer.stream().map(Fagsak::getId).toList());
         // Legg til eventuelle tilfelle der saker er koblet uten at det er oppgitt annen part
-        alleEgneSaker.stream()
-            .flatMap(f -> fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(f).flatMap(fr -> fr.getRelatertFagsak(f)).stream())
-            .filter(f -> !fagsakerSomReferererId.contains(f.getId()))
-            .forEach(f -> { fagsakerSomRefererer.add(f); fagsakerSomReferererId.add(f.getId()); });
-        // Filtrer på saker som ikke er koblet med aktuell sak, saker som er foreldrepenger og mors sak, med utbetaling
+        for (var f : alleEgneSaker) {
+            fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(f).flatMap(fr -> fr.getRelatertFagsak(f))
+                .filter(anpa -> !fagsakerSomReferererId.contains(anpa.getId()))
+                .ifPresent(anpa -> { fagsakerSomRefererer.add(anpa); fagsakerSomReferererId.add(anpa.getId()); });
+        }
+        // Filtrer på saker som ikke er koblet med aktuell sak, saker som er foreldrepenger og mors sak, saker med vedtak + uttak/utbetaling
         fagsakerSomRefererer.stream()
             .filter(f -> fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(f).flatMap(fr -> fr.getRelatertFagsak(f))
-                .filter(f2 -> egneFagsakerId.contains(f2.getId()) || f2.getSaksnummer().equals(egenSak.saksnummer())).isEmpty())
+                .filter(f2 -> f2.getSaksnummer().equals(egenSak.saksnummer())).isEmpty())
             .filter(f -> FagsakYtelseType.FORELDREPENGER.equals(f.getYtelseType()) && RelasjonsRolleType.erMor(f.getRelasjonsRolleType()))
+            .filter(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).isPresent())
             .flatMap(f -> opprettMuligSak(behandling, f, SaksForhold.ANNEN_PART_SAK).stream())
             .forEach(egneMuligeSaker::add);
     }

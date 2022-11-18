@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.registerinnhenting;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -27,6 +28,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPartType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
@@ -55,6 +60,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
+    private FagsakRelasjonRepository fagsakRelasjonRepository;
 
     @Mock
     private StønadsperiodeTjeneste stønadsperiodeTjeneste;
@@ -80,6 +86,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
+        fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         stønadsperioderInnhenter = new StønadsperioderInnhenter(repositoryProvider, grunnlagRepositoryProvider, familieHendelseTjeneste, stønadsperiodeTjeneste, skjæringstidspunktTjeneste);
     }
 
@@ -90,8 +97,9 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
      * 3. Mor SVP, finnes innvilget FP for samme barn
      * 4. Far FP, er oppgitt som annenpart i vedtatt sak for nyere barn
      * 5. Far FP, er oppgitt som annenpart i vedtatt sak for nyere barn - far søker uttak for B1 etter mor har begynt for B2
-     * 6. SVP flere saker med ulik termin for samme barn
-     * 7. adopsjon?
+     * 6. Far FP B1, er oppgitt som annenpart i vedtatt sak for B2 og Far har søkt for B2 (men ikke fått vedtak)
+     * 7. SVP flere saker med ulik termin for samme barn
+     * 8. adopsjon?
      */
 
     @Test
@@ -203,6 +211,51 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         Mockito.lenient().when(familieHendelseAktuellMock.getSkjæringstidspunkt()).thenReturn(FH_DATO);        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
         when(skjæringstidspunkt.getUtledetSkjæringstidspunkt()).thenReturn(FH_DATO_YNGRE.plusWeeks(8));
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(behandling.getFagsak())).thenReturn(Optional.of(FH_DATO_YNGRE.plusWeeks(8)));
+
+        assertThat(repositoryProvider.getPersonopplysningRepository().fagsakerMedOppgittAnnenPart(MEDF_AKTØR_ID)).isNotEmpty();
+
+        var muligSak = stønadsperioderInnhenter.finnSenereStønadsperiode(behandling);
+        assertThat(muligSak).hasValueSatisfying(v -> {
+            assertThat(v.saksnummer()).isEqualTo(nyereBehandling.getFagsak().getSaksnummer());
+            assertThat(v.startdato()).isEqualTo(FH_DATO_YNGRE.minusWeeks(3));
+        });
+    }
+
+    @Test
+    public void behandlingFarDerMorHarNySakMensFarHarSøktNySak() {
+        var nyereBehandling = lagBehandlingMor(FH_DATO_YNGRE, AKTØR_ID_MOR, MEDF_AKTØR_ID);
+        Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(nyereBehandling.getId())).thenReturn(Optional.of(fhGrunnlagAnnenMock));
+        Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
+        Mockito.lenient().when(familieHendelseAnnenMock.getSkjæringstidspunkt()).thenReturn(FH_DATO_YNGRE);
+        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyereBehandling.getFagsak())).thenReturn(Optional.of(FH_DATO_YNGRE.minusWeeks(3)));
+        avsluttBehandling(nyereBehandling);
+
+        var nyereÅpenBehandlingFar = lagBehandlingFar(FH_DATO_YNGRE, MEDF_AKTØR_ID, AKTØR_ID_MOR);
+        Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(nyereÅpenBehandlingFar.getId())).thenReturn(Optional.of(fhGrunnlagAnnenMock));
+        Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
+        Mockito.lenient().when(familieHendelseAnnenMock.getSkjæringstidspunkt()).thenReturn(FH_DATO_YNGRE.plusMonths(2));
+        lenient().when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyereÅpenBehandlingFar.getFagsak())).thenReturn(Optional.empty());
+
+        var gammelBehandlingMor = lagBehandlingFar(FH_DATO, AKTØR_ID_MOR, MEDF_AKTØR_ID);
+        Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(gammelBehandlingMor.getId())).thenReturn(Optional.of(fhGrunnlagAktuellMock));
+        Mockito.lenient().when(fhGrunnlagAktuellMock.getGjeldendeVersjon()).thenReturn(familieHendelseAktuellMock);
+        Mockito.lenient().when(familieHendelseAktuellMock.getSkjæringstidspunkt()).thenReturn(FH_DATO);
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
+        lenient().when(skjæringstidspunkt.getUtledetSkjæringstidspunkt()).thenReturn(FH_DATO.plusWeeks(34));
+        lenient().when(stønadsperiodeTjeneste.stønadsperiodeStartdato(gammelBehandlingMor.getFagsak())).thenReturn(Optional.of(FH_DATO.minusWeeks(3)));
+
+        var behandling = lagBehandlingFar(FH_DATO, MEDF_AKTØR_ID, AKTØR_ID_MOR);
+        Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(behandling.getId())).thenReturn(Optional.of(fhGrunnlagAktuellMock));
+        Mockito.lenient().when(fhGrunnlagAktuellMock.getGjeldendeVersjon()).thenReturn(familieHendelseAktuellMock);
+        Mockito.lenient().when(familieHendelseAktuellMock.getSkjæringstidspunkt()).thenReturn(FH_DATO);
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
+        when(skjæringstidspunkt.getUtledetSkjæringstidspunkt()).thenReturn(FH_DATO.plusWeeks(34));
+        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(behandling.getFagsak())).thenReturn(Optional.of(FH_DATO.plusWeeks(34)));
+
+        fagsakRelasjonRepository.opprettRelasjon(gammelBehandlingMor.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonRepository.kobleFagsaker(gammelBehandlingMor.getFagsak(), behandling.getFagsak(), gammelBehandlingMor);
+        fagsakRelasjonRepository.opprettRelasjon(nyereBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonRepository.kobleFagsaker(nyereBehandling.getFagsak(), nyereÅpenBehandlingFar.getFagsak(), nyereBehandling);
 
         assertThat(repositoryProvider.getPersonopplysningRepository().fagsakerMedOppgittAnnenPart(MEDF_AKTØR_ID)).isNotEmpty();
 
