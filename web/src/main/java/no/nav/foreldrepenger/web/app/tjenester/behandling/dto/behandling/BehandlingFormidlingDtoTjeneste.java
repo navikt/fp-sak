@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjenestePathHack1;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold.InntektArbeidYtelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.BeregningsresultatRestTjeneste;
@@ -236,14 +235,7 @@ public class BehandlingFormidlingDtoTjeneste {
             var originalUuidDto = new UuidDto(originalBehandling.getUuid());
 
             // Denne brukes kun av FPFORMIDLING
-            dto.leggTil(get(BehandlingRestTjenestePathHack1.BEHANDLING_PATH, "original-behandling", originalUuidDto));
-
-            // FIXME hvorfor ytelsspesifikke urler her?  Bør kun ha en beregningresultat
-            if (FagsakYtelseType.ENGANGSTØNAD.equals(originalBehandling.getFagsakYtelseType())) {
-                dto.leggTil(
-                    get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad-original-behandling",
-                        originalUuidDto));
-            }
+            dto.leggTil(get(FormidlingRestTjeneste.RESSURSER_PATH, "original-behandling", originalUuidDto));
         });
 
         return dto;

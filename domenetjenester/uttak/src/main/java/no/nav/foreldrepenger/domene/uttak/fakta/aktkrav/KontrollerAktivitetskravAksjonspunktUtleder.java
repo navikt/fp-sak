@@ -65,9 +65,13 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
     }
 
     public List<AksjonspunktDefinisjon> utledFor(UttakInput uttakInput) {
+        return utledFor(uttakInput, false);
+    }
+
+    public List<AksjonspunktDefinisjon> utledFor(UttakInput uttakInput, boolean logg150) {
         ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         if (skalKontrollereAktivitetskrav(uttakInput.getBehandlingReferanse(),
-            ytelsespesifiktGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse(), ytelsespesifiktGrunnlag)) {
+            ytelsespesifiktGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse(), ytelsespesifiktGrunnlag, logg150)) {
             return List.of(AksjonspunktDefinisjon.KONTROLLER_AKTIVITETSKRAV);
         }
         return List.of();
@@ -78,7 +82,8 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
                                                                                      YtelseFordelingAggregat ytelseFordelingAggregat,
                                                                                      FamilieHendelse familieHendelse,
                                                                                      boolean annenForelderHarRett,
-                                                                                     List<ForeldrepengerUttakPeriode> annenpartFullMK) {
+                                                                                     List<ForeldrepengerUttakPeriode> annenpartFullMK,
+                                                                                     boolean logg150) {
         if (helePeriodenErHelg(periode) || erMor(behandlingReferanse) || UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat) ||
             familieHendelse.erStebarnsadopsjon() || Set.of(MorsAktivitet.UFØRE, MorsAktivitet.IKKE_OPPGITT).contains(periode.getMorsAktivitet()) ||
             ytelseFordelingAggregat.getGjeldendeEndringsdatoHvisEksisterer().isEmpty()) {
@@ -90,8 +95,8 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
             return ikkeKontrollerer();
         }
         // Pgf 14-12 andre ledd - samtidig 100% MK + <= 50% Fellesperiode -> ikke aktivitetskrav. To be elaborated further ....
-        if (erTilfelleAv150ProsentSamtidig(behandlingReferanse, periode, annenpartFullMK)) { // NOSONAR
-            // Vil logge hvor vanlig dette er - mens jeg ser på  endring i uttaksregler (2 steder, liten endring)
+        if (logg150 && erTilfelleAv150ProsentSamtidig(behandlingReferanse, periode, annenpartFullMK)) {
+            LOG.info("Aktivitetskravutleder behandling {} periode fom {} dekkes av full MK", behandlingReferanse.behandlingId(), periode.getFom());
             //return ikkeKontrollerer();
         }
 
@@ -178,7 +183,7 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
 
     private boolean skalKontrollereAktivitetskrav(BehandlingReferanse behandlingReferanse,
                                                   FamilieHendelse familieHendelse,
-                                                  ForeldrepengerGrunnlag fpGrunnlag) {
+                                                  ForeldrepengerGrunnlag fpGrunnlag, boolean logg150) {
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingReferanse.behandlingId());
         var annenpartUttak = fpGrunnlag.getAnnenpart().map(Annenpart::gjeldendeVedtakBehandlingId)
             .flatMap(apVedtak -> foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(apVedtak));
@@ -186,7 +191,7 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
         var annenforelderRett = UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartUttak);
         return ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder().stream().anyMatch(p -> {
             var resultat = skalKontrollereAktivitetskrav(behandlingReferanse, p, ytelseFordelingAggregat,
-                familieHendelse, annenforelderRett, annenpartFullMK);
+                familieHendelse, annenforelderRett, annenpartFullMK, logg150);
             return resultat.kravTilAktivitet() && !resultat.isAvklart();
         });
     }
@@ -217,7 +222,6 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
             var dekkesAvFullMK = annenpartFullMK.stream()
                 .anyMatch(mk -> mk.getTidsperiode().contains(oppgittIntervall) && (mk.isSamtidigUttak() || periode.isSamtidigUttak()));
             if (dekkesAvFullMK) {
-                LOG.info("Aktivitetskravutleder behandling {} periode fom {} dekkes av full MK", ref.behandlingId(), periode.getFom());
                 return true;
             } else {
                 LOG.info("Aktivitetskravutleder behandling {} periode fom {} ikke dekket av MK", ref.behandlingId(), periode.getFom());
