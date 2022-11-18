@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -25,6 +26,9 @@ public class BehandlingFormidlingDto extends BehandlingDto {
     @JsonProperty("harAvklartAnnenForelderRett")
     private Boolean harAvklartAnnenForelderRett;
 
+    @JsonProperty("originalBehandlingUuid")
+    private UUID originalBehandlingUuid;
+
     public List<ResourceLink> getFormidlingRessurser() {
         return formidlingRessurser;
     }
@@ -43,5 +47,13 @@ public class BehandlingFormidlingDto extends BehandlingDto {
 
     public void setHarAvklartAnnenForelderRett(Boolean harAvklartAnnenForelderRett) {
         this.harAvklartAnnenForelderRett = harAvklartAnnenForelderRett;
+    }
+
+    public UUID getOriginalBehandlingUuid() {
+        return originalBehandlingUuid;
+    }
+
+    public void setOriginalBehandlingUuid(UUID originalBehandlingUuid) {
+        this.originalBehandlingUuid = originalBehandlingUuid;
     }
 }
