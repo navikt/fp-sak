@@ -100,6 +100,7 @@ public class BehandlingRestTjenestePathHack1 {
         return Redirect.tilBehandlingEllerPollStatus(request, behandling.getUuid(), prosessTaskGruppePågår.orElse(null));
     }
 
+    // TODO (JOL): rydd opp i utvidet-behandling-rotet - de fleste bruker /behandlinger (hardkodet) - ser ingen som bruker denne. Erstatt med /behandling/utvidet
     @GET
     // re-enable hvis endres til ikke-tom @Path(BEHANDLING_PART_PATH)
     @Operation(description = "Hent behandling gitt id", summary = ("Returnerer behandlingen som er tilknyttet id. Dette er resultat etter at asynkrone operasjoner er utført."), tags = "behandlinger", responses = {

@@ -38,7 +38,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold.InntektArbeidYtelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.BeregningsresultatRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.InnsynRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.KlageRestTjeneste;
@@ -231,14 +230,8 @@ public class BehandlingFormidlingDtoTjeneste {
             }
         }
 
-        behandling.getOriginalBehandlingId().ifPresent(originalBehandlingId -> {
-            var originalBehandling = behandlingRepository.hentBehandling(originalBehandlingId);
-            var originalUuidDto = new BehandlingIdDto(originalBehandling.getUuid());
-
-            // Denne brukes kun av FPFORMIDLING
-            dto.leggTil(get(FormidlingRestTjeneste.RESSURSER_PATH, "original-behandling", originalUuidDto));
-            dto.setOriginalBehandlingUuid(originalBehandling.getUuid());
-        });
+        behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling).map(Behandling::getUuid)
+            .ifPresent(dto::setOriginalBehandlingUuid);
 
         return dto;
     }
