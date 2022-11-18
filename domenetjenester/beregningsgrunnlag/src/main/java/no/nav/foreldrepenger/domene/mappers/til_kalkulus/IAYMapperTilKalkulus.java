@@ -78,9 +78,6 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class IAYMapperTilKalkulus {
-    private static final Set<no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType> IKKE_RELEVANT_FOR_BEREGNING = Set.of(
-        no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER,
-        no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType.UTDANNINGSPERMISJON);
 
     public static InternArbeidsforholdRefDto mapArbeidsforholdRef(InternArbeidsforholdRef arbeidsforholdRef) {
         return InternArbeidsforholdRefDto.ref(arbeidsforholdRef.getReferanse());
@@ -222,7 +219,7 @@ public class IAYMapperTilKalkulus {
     }
 
     private static boolean erRelevantForBeregning(Permisjon perm, Optional<BekreftetPermisjon> bekreftetPermisjon) {
-        if (perm.getPermisjonsbeskrivelseType() == null || IKKE_RELEVANT_FOR_BEREGNING.contains(perm.getPermisjonsbeskrivelseType())) {
+        if (perm.getPermisjonsbeskrivelseType() == null || !perm.getPermisjonsbeskrivelseType().erRelevantForBeregningEllerArbeidsforhold()) {
             return false;
         }
         return bekreftetPermisjon
@@ -251,7 +248,11 @@ public class IAYMapperTilKalkulus {
                 case UDEFINERT -> PermisjonsbeskrivelseType.UDEFINERT;
                 case PERMISJON -> PermisjonsbeskrivelseType.PERMISJON;
                 case UTDANNINGSPERMISJON -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON;
+                case UTDANNINGSPERMISJON_LOVFESTET -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET;
+                case UTDANNINGSPERMISJON_IKKE_LOVFESTET -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET;
                 case VELFERDSPERMISJON -> PermisjonsbeskrivelseType.VELFERDSPERMISJON;
+                case ANNEN_PERMISJON_LOVFESTET -> PermisjonsbeskrivelseType.ANNEN_PERMISJON_LOVFESTET;
+                case ANNEN_PERMISJON_IKKE_LOVFESTET -> PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET;
                 case PERMISJON_MED_FORELDREPENGER -> PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER;
                 case PERMITTERING -> PermisjonsbeskrivelseType.PERMITTERING;
                 case PERMISJON_VED_MILITÆRTJENESTE -> PermisjonsbeskrivelseType.PERMISJON_VED_MILITÆRTJENESTE;

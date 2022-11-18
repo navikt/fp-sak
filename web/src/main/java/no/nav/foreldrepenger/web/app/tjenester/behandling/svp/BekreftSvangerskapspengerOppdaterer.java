@@ -133,13 +133,13 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
     private boolean harEndretPermisjonForYrkesaktivitet(Yrkesaktivitet yrkesaktivitet, List<VelferdspermisjonDto> velferdspermisjoner) {
         return yrkesaktivitet.getPermisjon().stream()
-            .anyMatch(p -> p.getPermisjonsbeskrivelseType().equals(PermisjonsbeskrivelseType.VELFERDSPERMISJON)
+            .anyMatch(p -> PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(p.getPermisjonsbeskrivelseType())
                 && velferdspermisjoner.stream().anyMatch(vp -> vp.getPermisjonFom().isEqual(p.getFraOgMed()) && vp.getPermisjonsprosent().compareTo(p.getProsentsats().getVerdi()) == 0));
     }
 
     private List<Permisjon> finnGyldigePermisjoner(Yrkesaktivitet yrkesaktivitet, List<VelferdspermisjonDto> velferdspermisjoner) {
         return yrkesaktivitet.getPermisjon().stream()
-                    .filter(p -> !p.getPermisjonsbeskrivelseType().equals(PermisjonsbeskrivelseType.VELFERDSPERMISJON)
+                    .filter(p -> !PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(p.getPermisjonsbeskrivelseType())
                         || velferdspermisjoner.stream().noneMatch(vp -> vp.getPermisjonFom().isEqual(p.getFraOgMed()) && vp.getPermisjonsprosent().compareTo(p.getProsentsats().getVerdi()) == 0 && !vp.getErGyldig()))
                     .collect(Collectors.toList());
     }

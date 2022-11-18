@@ -89,7 +89,7 @@ public class BeregnTilrettleggingsperioderTjeneste {
                                                 : InternArbeidsforholdRef.nullRef(),
                                         a.getBehovForTilretteleggingFom())
                                 .stream()
-                                .filter(p -> p.getPermisjonsbeskrivelseType().equals(PermisjonsbeskrivelseType.VELFERDSPERMISJON))
+                                .filter(p -> PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(p.getPermisjonsbeskrivelseType()))
                                 .collect(Collectors.toList());
 
                         LOG.info("Beregner utbetalingsgrad for arbeidsgiver {} med disse aktivitetene: {}",
