@@ -44,7 +44,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.KlageRestTjenest
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.SøknadRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
@@ -130,10 +129,6 @@ public class BehandlingFormidlingDtoTjeneste {
 
         var uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(AksjonspunktRestTjeneste.AKSJONSPUNKT_V2_PATH, "aksjonspunkter", uuidDto));
-
-        if (!dto.isErAktivPapirsoknad()) {
-            dto.leggTil(get(VilkårRestTjeneste.VILKÅR_V2_PATH, "vilkar", uuidDto));
-        }
 
         if (behandlingHarVergeAksjonspunkt(behandling)) {
             dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, "verge-backend", uuidDto));
