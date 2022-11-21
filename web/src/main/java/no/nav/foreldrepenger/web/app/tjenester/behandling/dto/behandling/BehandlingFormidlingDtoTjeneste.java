@@ -219,8 +219,6 @@ public class BehandlingFormidlingDtoTjeneste {
                 }
 
                 dto.leggTil(get(FormidlingRestTjeneste.UTSATT_START_PATH, "utsatt-oppstart", uuidDto));
-                dto.leggTil(get(UttakRestTjeneste.SAMMENHENGENDE_UTTAK_PATH, "krever-sammenhengende-uttak", uuidDto));
-                dto.leggTil(get(UttakRestTjeneste.UTEN_MINSTERETT_PATH, "uten-minsterett", uuidDto));
                 dto.leggTil(get(YtelsefordelingRestTjeneste.YTELSESFORDELING_PATH, "ytelsefordeling", uuidDto));
             }
         }
