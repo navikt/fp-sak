@@ -31,8 +31,6 @@ public class FastsettUttaksgrunnlagTjeneste {
     private final EndringsdatoFørstegangsbehandlingUtleder endringsdatoFørstegangsbehandlingUtleder;
     private final EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder;
 
-    private final JusterFordelingTjeneste justerFordelingTjeneste = new JusterFordelingTjeneste();
-
     @Inject
     public FastsettUttaksgrunnlagTjeneste(UttakRepositoryProvider provider,
                                           EndringsdatoFørstegangsbehandlingUtleder endringsdatoFørstegangsbehandlingUtleder,
@@ -127,7 +125,7 @@ public class FastsettUttaksgrunnlagTjeneste {
                                                                             RelasjonsRolleType relasjonsRolleType,
                                                                             boolean ønskerJustertVedFødsel) {
         var familiehendelser = finnFamiliehendelser(fpGrunnlag);
-        return justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familiehendelser.søknad().orElse(null),
+        return JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familiehendelser.søknad().orElse(null),
                 familiehendelser.gjeldende(), relasjonsRolleType, ønskerJustertVedFødsel);
     }
 

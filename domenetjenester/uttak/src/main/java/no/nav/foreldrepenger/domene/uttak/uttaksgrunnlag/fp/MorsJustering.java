@@ -56,7 +56,7 @@ class MorsJustering implements ForelderFødselJustering {
             justertePerioder.add(0, ekstraPeriode);
             justertePerioder = fjernPerioderEtterSisteSøkteDato(justertePerioder, oppgittePerioder.get(oppgittePerioder.size() - 1).getTom());
         }
-        return justertePerioder;
+        return fjernHullPerioder(justertePerioder);
     }
 
     @Override
@@ -80,7 +80,11 @@ class MorsJustering implements ForelderFødselJustering {
             }
             sortert = fyllHullSkaptAvIkkeFlyttbarePerioder(sortert, oppgittePerioder);
         }
-        return sortert;
+        return fjernHullPerioder(sortert);
+    }
+
+    private static List<OppgittPeriodeEntitet> fjernHullPerioder(List<OppgittPeriodeEntitet> oppgittPerioder) {
+        return oppgittPerioder.stream().filter(p -> !(p instanceof JusterPeriodeHull)).collect(Collectors.toList()); //NOSONAR
     }
 
     private List<OppgittPeriodeEntitet> fyllHull(List<OppgittPeriodeEntitet> oppgittePerioder) {
@@ -325,7 +329,7 @@ class MorsJustering implements ForelderFødselJustering {
             return true;
         }
         return overlappendeIkkeFlyttbar.get() instanceof JusterPeriodeHull &&
-            overlappendeIkkeFlyttbar.get().getFom().isEqual(tilOgMed(gammelFamiliehendelse.plusDays(1)));
+            gammelFamiliehendelse.isBefore(nyFamiliehendelse) && overlappendeIkkeFlyttbar.get().getFom().isEqual(tilOgMed(gammelFamiliehendelse.plusDays(1)));
     }
 
     private List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder(List<OppgittPeriodeEntitet> oppgittePerioder) {
