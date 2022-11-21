@@ -45,6 +45,9 @@ public class KontrollerFaktaUttakTjeneste {
 
     private List<AksjonspunktDefinisjon> utledAksjonspunkter(UttakInput input,
                                                              List<FaktaUttakAksjonspunktUtleder> utledere) {
+        if (input.isSkalBrukeNyFaktaOmUttak()) {
+            return List.of();
+        }
         return utledere.stream()
             .flatMap(utleder -> utleder.utledAksjonspunkterFor(input).stream())
             .distinct()

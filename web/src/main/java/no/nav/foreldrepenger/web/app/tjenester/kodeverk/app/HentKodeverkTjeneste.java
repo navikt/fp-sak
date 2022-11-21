@@ -55,6 +55,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.KontrollerAktivitetskravAvklaring;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
@@ -166,6 +167,7 @@ public class HentKodeverkTjeneste {
         map.put(ManuellBehandlingÅrsak.class.getSimpleName(), ManuellBehandlingÅrsak.kodeMap().values());
         map.put(KontrollerAktivitetskravAvklaring.class.getSimpleName(), KontrollerAktivitetskravAvklaring.kodeMap().values());
         map.put(FaresignalVurdering.class.getSimpleName(), FaresignalVurdering.kodeMap().values());
+        map.put(FordelingPeriodeKilde.class.getSimpleName(), FordelingPeriodeKilde.kodeMap().values());
 
         Map<String, Collection<? extends Kodeverdi>> mapFiltered = new LinkedHashMap<>();
 

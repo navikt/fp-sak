@@ -147,9 +147,13 @@ public class OppdateringResultat {
         /*
          * Lar aksjonspunkt bli stående i OPPRETTET etter oppdatering
          */
-        public Builder medBeholdAksjonspunktÅpent() {
-            resultat.beholdAksjonspunktÅpent = true;
+        public Builder medBeholdAksjonspunktÅpent(boolean holdÅpent) {
+            resultat.beholdAksjonspunktÅpent = holdÅpent;
             return this;
+        }
+
+        public Builder medBeholdAksjonspunktÅpent() {
+            return medBeholdAksjonspunktÅpent(true);
         }
 
         public Builder medVilkårResultatType(VilkårResultatType vilkårResultatType) {

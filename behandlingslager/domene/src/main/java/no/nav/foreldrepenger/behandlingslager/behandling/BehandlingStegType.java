@@ -63,11 +63,14 @@ public enum BehandlingStegType implements Kodeverdi {
     FASTSETT_BEREGNINGSGRUNNLAG("FAST_BERGRUNN", "Fastsett beregningsgrunnlag", UTREDES),
     SØKNADSFRIST_FORELDREPENGER("SØKNADSFRIST_FP", "Vurder søknadsfrist foreldrepenger", UTREDES),
     KONTROLLER_FAKTA_UTTAK("KOFAKUT", "Kontroller fakta for uttak", UTREDES),
+    FAKTA_UTTAK("FAKTA_UTTAK", "Kontroller fakta for uttak", UTREDES),
+    FAKTA_UTTAK_DOKUMENTASJON("FAKTA_UTTAK_DOKUMENTASJON", "Kontroller uttak dokumentasjon", UTREDES),
     KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING("KO_ARB_IM", "Kontroller arbeidsforhold", UTREDES),
     FASTSETT_OPPTJENINGSPERIODE("VURDER_OPPTJ_PERIODE", "Vurder Opptjening Periode", UTREDES),
     KONTROLLER_LØPENDE_MEDLEMSKAP("KOFAK_LOP_MEDL", "Kontroller løpende medlemskap", UTREDES),
     HINDRE_TILBAKETREKK("BERYT_OPPDRAG", "Hindre tilbaketrekk", UTREDES),
-
+    KONTROLLER_OMSORG_RETT("KONTROLLER_OMSORG_RETT", "Kontroller aleneomsorg og rett", UTREDES),
+    KONTROLLER_AKTIVITETSKRAV("KONTROLLER_AKTIVITETSKRAV", "Kontroller aktivitetskrav", UTREDES),
 
 
     // Kun for Engangsstønad
@@ -83,8 +86,6 @@ public enum BehandlingStegType implements Kodeverdi {
     VULOMED("VULOMED", "Vurder løpende medlemskap", UTREDES),
     INREG_AVSL("INREG_AVSL", "Innhent registeropplysninger - resterende oppgaver", UTREDES),
     VURDER_OPPTJENING_FAKTA("VURDER_OPPTJ_FAKTA", "Vurder opptjeningfakta", UTREDES),
-    KONTROLLER_OMSORG_RETT("KONTROLLER_OMSORG_RETT", "Kontroller aleneomsorg og rett", UTREDES),
-    KONTROLLER_AKTIVITETSKRAV("KONTROLLER_AKTIVITETSKRAV", "Kontroller aktivitetskrav", UTREDES),
 
     @Deprecated(forRemoval=true)
     // Gammelt steg som håndterte aksjonspunkt 5080 (erstattet av 5085 og steg KO_ARB_IM)

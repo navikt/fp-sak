@@ -13,9 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
@@ -31,8 +28,6 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 final class SøknadsperiodeDokKontrollerer {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SøknadsperiodeDokKontrollerer.class);
 
     private final List<PeriodeUttakDokumentasjonEntitet> dokumentasjonPerioder;
     private final LocalDate fødselsDatoTilTidligOppstart; // Kun satt dersom far/medmor og termin/fødsel

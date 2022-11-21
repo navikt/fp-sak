@@ -23,17 +23,19 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulus.BehandlingslagerTilKalkulusMapper;
-import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.BehandlingslagerTilKalkulusMapper;
+import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDiff;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
@@ -47,14 +49,18 @@ public class UttakInputTjeneste {
     private SøknadRepository søknadRepository;
     private PersonopplysningRepository personopplysningRepository;
     private BeregningUttakTjeneste beregningUttakTjeneste;
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+    private boolean brukNyFaktaUttak;
 
     @Inject
     public UttakInputTjeneste(BehandlingRepositoryProvider repositoryProvider,
-            HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-            InntektArbeidYtelseTjeneste iayTjeneste,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            MedlemTjeneste medlemTjeneste,
-            BeregningUttakTjeneste beregningUttakTjeneste) {
+                              HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
+                              InntektArbeidYtelseTjeneste iayTjeneste,
+                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                              MedlemTjeneste medlemTjeneste,
+                              BeregningUttakTjeneste beregningUttakTjeneste,
+                              YtelseFordelingTjeneste ytelseFordelingTjeneste,
+                              @KonfigVerdi(value = "bruk.ny.fakta.uttak", defaultVerdi = "false") boolean brukNyFaktaUttak) {
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
         this.medlemTjeneste = Objects.requireNonNull(medlemTjeneste, "medlemTjeneste");
@@ -63,6 +69,8 @@ public class UttakInputTjeneste {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.beregningUttakTjeneste = beregningUttakTjeneste;
+        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
+        this.brukNyFaktaUttak = brukNyFaktaUttak;
     }
 
     UttakInputTjeneste() {
@@ -88,13 +96,13 @@ public class UttakInputTjeneste {
         var søknadOpprettetTidspunkt = søknadEntitet.map(SøknadEntitet::getOpprettetTidspunkt).orElse(null);
         var ytelsespesifiktGrunnlag = lagYtelsesspesifiktGrunnlag(ref);
         var årsaker = finnÅrsaker(ref);
-        var input = new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag)
-                .medMedlemskapOpphørsdato(medlemskapOpphørsdato)
-                .medSøknadMottattDato(søknadMottattDato)
-                .medSøknadOpprettetTidspunkt(søknadOpprettetTidspunkt)
-                .medBehandlingÅrsaker(map(årsaker))
-                .medBehandlingManueltOpprettet(erManueltOpprettet(årsaker))
-                .medErOpplysningerOmDødEndret(erOpplysningerOmDødEndret(ref));
+        var input = new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag).medMedlemskapOpphørsdato(medlemskapOpphørsdato)
+            .medSøknadMottattDato(søknadMottattDato)
+            .medSøknadOpprettetTidspunkt(søknadOpprettetTidspunkt)
+            .medBehandlingÅrsaker(map(årsaker))
+            .medBehandlingManueltOpprettet(erManueltOpprettet(årsaker))
+            .medSkalBrukeNyFaktaOmUttak(skalBrukeNyFaktaOmUttak(ref))
+            .medErOpplysningerOmDødEndret(erOpplysningerOmDødEndret(ref));
         var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(ref.behandlingId());
         if (beregningsgrunnlag.isPresent()) {
             var bgStatuser = lagBeregningsgrunnlagStatuser(beregningsgrunnlag.get());
@@ -103,6 +111,16 @@ public class UttakInputTjeneste {
                     .medFinnesAndelerMedGraderingUtenBeregningsgrunnlag(finnesAndelerMedGraderingUtenBeregningsgrunnlag);
         }
         return input;
+    }
+
+    private boolean skalBrukeNyFaktaOmUttak(BehandlingReferanse ref) {
+        return brukNyFaktaUttak && !alleredeAvklartPåGammelVersjon(ref);
+    }
+
+    private boolean alleredeAvklartPåGammelVersjon(BehandlingReferanse ref) {
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(ref.behandlingId());
+        return ytelseFordelingAggregat.map(yfa ->
+            yfa.getPerioderUttakDokumentasjon().isPresent() || yfa.getGjeldendeAktivitetskravPerioder().isPresent()).orElse(false);
     }
 
     private boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag(BehandlingReferanse ref, BeregningsgrunnlagEntitet beregningsgrunnlag) {

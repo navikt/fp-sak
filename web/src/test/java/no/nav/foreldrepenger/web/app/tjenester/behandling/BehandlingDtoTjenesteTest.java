@@ -52,6 +52,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.Behandl
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.TilbakekrevingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAktivitetskravDtoTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDtoTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDtoTjeneste;
 
 @CdiDbAwareTest
 public class BehandlingDtoTjenesteTest {
@@ -80,6 +82,12 @@ public class BehandlingDtoTjenesteTest {
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
 
     @Inject
+    private DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste;
+
+    @Inject
+    private FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste;
+
+    @Inject
     private KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste;
 
     private BehandlingDtoTjeneste tjeneste;
@@ -89,8 +97,8 @@ public class BehandlingDtoTjenesteTest {
     @BeforeEach
     public void setUp() {
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
-                opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, foreldrepengerUttakTjeneste, null,
-                kontrollerAktivitetskravDtoTjeneste, mock(TotrinnTjeneste.class));
+                opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, foreldrepengerUttakTjeneste, null, mock(TotrinnTjeneste.class),
+            kontrollerAktivitetskravDtoTjeneste, dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste);
     }
 
     @Test

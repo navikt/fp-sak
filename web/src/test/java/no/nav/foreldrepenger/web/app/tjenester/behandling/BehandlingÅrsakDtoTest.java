@@ -27,6 +27,8 @@ import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDok
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.fakta.v2.AktivitetskravDokumentasjonUtleder;
+import no.nav.foreldrepenger.domene.uttak.fakta.v2.VurderUttakDokumentasjonAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
@@ -35,6 +37,8 @@ import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAktivitetskravDtoTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDtoTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDtoTjeneste;
 
 public class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
 
@@ -59,12 +63,18 @@ public class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
         var foreldrepengerUttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
         var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, mock(HentOgLagreBeregningsgrunnlagTjeneste.class),
             new AbakusInMemoryInntektArbeidYtelseTjeneste(), skjæringstidspunktTjeneste, mock(MedlemTjeneste.class),
-            new BeregningUttakTjeneste(foreldrepengerUttakTjeneste, repositoryProvider.getYtelsesFordelingRepository()));
+            new BeregningUttakTjeneste(foreldrepengerUttakTjeneste, repositoryProvider.getYtelsesFordelingRepository()), ytelseFordelingTjeneste,
+            false);
+        var dokumentasjonVurderingBehovDtoTjeneste = new DokumentasjonVurderingBehovDtoTjeneste(repositoryProvider.getBehandlingRepository(),
+            uttakInputTjeneste, new VurderUttakDokumentasjonAksjonspunktUtleder(ytelseFordelingTjeneste, new AktivitetskravDokumentasjonUtleder(foreldrepengerUttakTjeneste)));
+        var kontrollerAktivitetskravDtoTjeneste = new KontrollerAktivitetskravDtoTjeneste(repositoryProvider.getBehandlingRepository(),
+            ytelseFordelingTjeneste, uttakInputTjeneste, foreldrepengerUttakTjeneste);
+        var faktaUttakPeriodeDtoTjeneste = new FaktaUttakPeriodeDtoTjeneste(uttakInputTjeneste, ytelseFordelingTjeneste, repositoryProvider.getBehandlingRepository());
+
         behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningtjeneste,
             tilbakekrevingRepository, skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste,
-            behandlingDokumentRepository, foreldrepengerUttakTjeneste, null,
-            new KontrollerAktivitetskravDtoTjeneste(repositoryProvider.getBehandlingRepository(),
-                ytelseFordelingTjeneste, uttakInputTjeneste, foreldrepengerUttakTjeneste), mock(TotrinnTjeneste.class));
+            behandlingDokumentRepository, foreldrepengerUttakTjeneste, null, mock(TotrinnTjeneste.class), kontrollerAktivitetskravDtoTjeneste,
+            dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste);
     }
 
     @Test

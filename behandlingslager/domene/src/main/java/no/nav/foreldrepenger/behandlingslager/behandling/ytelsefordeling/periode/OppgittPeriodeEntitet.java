@@ -148,7 +148,7 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     }
 
     void setPeriodeType(UttakPeriodeType uttakPeriodeType) {
-        this.uttakPeriodeType = uttakPeriodeType;
+        this.uttakPeriodeType = uttakPeriodeType == null ? UttakPeriodeType.UDEFINERT : uttakPeriodeType;
     }
 
     void setOppgittFordeling(OppgittFordelingEntitet oppgittFordeling) {
@@ -209,7 +209,7 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     }
 
     void setMorsAktivitet(MorsAktivitet morsAktivitet) {
-        this.morsAktivitet = morsAktivitet;
+        this.morsAktivitet = morsAktivitet == null ? MorsAktivitet.UDEFINERT : morsAktivitet;
     }
 
     public Optional<String> getBegrunnelse() {

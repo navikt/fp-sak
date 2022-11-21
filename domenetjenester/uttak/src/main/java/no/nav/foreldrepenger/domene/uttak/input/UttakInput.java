@@ -25,6 +25,7 @@ public class UttakInput {
     private boolean behandlingManueltOpprettet;
     private boolean opplysningerOmDødEndret;
     private boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag;
+    private boolean skalBrukeNyFaktaOmUttak;
 
     public UttakInput(BehandlingReferanse behandlingReferanse,
                       InntektArbeidYtelseGrunnlag iayGrunnlag,
@@ -44,6 +45,7 @@ public class UttakInput {
         this.behandlingManueltOpprettet = input.behandlingManueltOpprettet;
         this.opplysningerOmDødEndret = input.opplysningerOmDødEndret;
         this.finnesAndelerMedGraderingUtenBeregningsgrunnlag = input.finnesAndelerMedGraderingUtenBeregningsgrunnlag;
+        this.skalBrukeNyFaktaOmUttak = input.skalBrukeNyFaktaOmUttak;
     }
 
     public BehandlingReferanse getBehandlingReferanse() {
@@ -108,6 +110,10 @@ public class UttakInput {
         return behandlingÅrsaker;
     }
 
+    public boolean isSkalBrukeNyFaktaOmUttak() {
+        return skalBrukeNyFaktaOmUttak;
+    }
+
     public UttakInput medBeregningsgrunnlagStatuser(Set<BeregningsgrunnlagStatus> statuser) {
         var newInput = new UttakInput(this);
         newInput.beregningsgrunnlagStatuser = Set.copyOf(statuser);
@@ -153,6 +159,12 @@ public class UttakInput {
     public UttakInput medFinnesAndelerMedGraderingUtenBeregningsgrunnlag(boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag) {
         var newInput = new UttakInput(this);
         newInput.finnesAndelerMedGraderingUtenBeregningsgrunnlag = finnesAndelerMedGraderingUtenBeregningsgrunnlag;
+        return newInput;
+    }
+
+    public UttakInput medSkalBrukeNyFaktaOmUttak(boolean skalBrukeNyFaktaOmUttak) {
+        var newInput = new UttakInput(this);
+        newInput.skalBrukeNyFaktaOmUttak = skalBrukeNyFaktaOmUttak;
         return newInput;
     }
 }

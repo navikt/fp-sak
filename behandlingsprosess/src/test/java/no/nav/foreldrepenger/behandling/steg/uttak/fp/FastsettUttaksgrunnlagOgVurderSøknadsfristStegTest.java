@@ -89,8 +89,9 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(new FpUttakRepository(entityManager));
         var andelGraderingTjeneste = new BeregningUttakTjeneste(uttakTjeneste, ytelsesFordelingRepository);
         iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+        var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(ytelsesFordelingRepository);
         var uttakInputTjeneste = new UttakInputTjeneste(behandlingRepositoryProvider, beregningsgrunnlagTjeneste,
-                iayTjeneste, skjæringstidspunktTjeneste, mock(MedlemTjeneste.class), andelGraderingTjeneste);
+                iayTjeneste, skjæringstidspunktTjeneste, mock(MedlemTjeneste.class), andelGraderingTjeneste, ytelseFordelingTjeneste, false);
         var vurderSøknadsfristTjeneste = new VurderSøknadsfristTjeneste(behandlingRepositoryProvider);
         var uttakRepositoryProvider = new UttakRepositoryProvider(entityManager);
         var fagsakRepository = new FagsakRepository(entityManager);
@@ -108,7 +109,6 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
             dekningsgradTjeneste, relevanteArbeidsforholdTjeneste, saldoTjeneste);
         var fastsettUttaksgrunnlagTjeneste = new FastsettUttaksgrunnlagTjeneste(uttakRepositoryProvider, endringsdatoFørstegangsbehandlingUtleder,
                 endringsdatoRevurderingUtleder);
-        var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(ytelsesFordelingRepository);
         var skalKopiereUttakTjeneste = new SkalKopiereUttakTjeneste(relevanteArbeidsforholdTjeneste,
             ytelseFordelingTjeneste);
         fastsettUttaksgrunnlagOgVurderSøknadsfristSteg = new FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(

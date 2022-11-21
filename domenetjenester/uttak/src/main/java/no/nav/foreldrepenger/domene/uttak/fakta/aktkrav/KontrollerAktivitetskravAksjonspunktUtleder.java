@@ -74,7 +74,7 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
 
     public List<AksjonspunktDefinisjon> utledFor(UttakInput uttakInput, boolean logg150) {
         ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        if (skalKontrollereAktivitetskrav(uttakInput.getBehandlingReferanse(),
+        if (!uttakInput.isSkalBrukeNyFaktaOmUttak() && skalKontrollereAktivitetskrav(uttakInput.getBehandlingReferanse(),
             ytelsespesifiktGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse(), ytelsespesifiktGrunnlag, logg150)) {
             return List.of(AksjonspunktDefinisjon.KONTROLLER_AKTIVITETSKRAV);
         }
