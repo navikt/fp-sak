@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 public class JusterFordelingTjenesteTest {
 
     private final LocalDate fødselsdato = LocalDate.of(2018, 1, 1);
-    private final JusterFordelingTjeneste justerFordelingTjeneste = new JusterFordelingTjeneste();
 
     @Test
     public void normal_case_føder_på_termin() {
@@ -42,7 +41,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     private List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate familehendelse1, LocalDate familiehendelse2) {
-        return justerFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familehendelse1, familiehendelse2, RelasjonsRolleType.MORA,
+        return JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familehendelse1, familiehendelse2, RelasjonsRolleType.MORA,
             false);
     }
 
@@ -1149,26 +1148,55 @@ public class JusterFordelingTjenesteTest {
         assertThat(justertFellesperiode.getTom()).isEqualTo(fellesperiode.getTom());
     }
 
-    private OppgittPeriodeEntitet lagPeriode(UttakPeriodeType uttakPeriodeType, LocalDate fom, LocalDate tom) {
+    @Test
+    void skal_håndtere_termindato_i_helg_ved_fødsel_før_termin_og_hull_fra_uke_6() {
+        //Lørdag
+        var termindato = LocalDate.of(2022, 12, 3);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        //Fra mandag
+        var fom = LocalDate.of(2022, 12, 5);
+        var mødrekvote = lagPeriode(MØDREKVOTE, fom, fom.plusWeeks(6).minusDays(1));
+        //Hull fra uke 6
+        var fellesperiode = lagPeriode(FELLESPERIODE, fom.plusWeeks(7), fom.plusWeeks(10).minusDays(1));
+        var oppgittePerioder = List.of(fpff, mødrekvote, fellesperiode);
+
+        var fødselsdato = LocalDate.of(2022, 11, 18);
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(4);
+    }
+
+    @Test
+    void skal_håndtere_termindato_i_helg_ved_fødsel_etter_termin_og_hull_fra_uke_6() {
+        //Lørdag
+        var termindato = LocalDate.of(2022, 12, 3);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        //Fra mandag
+        var fom = LocalDate.of(2022, 12, 5);
+        var mødrekvote = lagPeriode(MØDREKVOTE, fom, fom.plusWeeks(6).minusDays(1));
+        //Hull fra uke 6
+        var fellesperiode = lagPeriode(FELLESPERIODE, fom.plusWeeks(7), fom.plusWeeks(10).minusDays(1));
+        var oppgittePerioder = List.of(fpff, mødrekvote, fellesperiode);
+
+        var fødselsdato = LocalDate.of(2022, 12, 8);
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(4);
+    }
+
+    static OppgittPeriodeEntitet lagPeriode(UttakPeriodeType uttakPeriodeType, LocalDate fom, LocalDate tom) {
         return OppgittPeriodeBuilder.ny().medPeriode(fom, tom).medPeriodeType(uttakPeriodeType).build();
     }
 
-    private OppgittPeriodeEntitet lagUtsettelse(LocalDate fom, LocalDate tom) {
+    static OppgittPeriodeEntitet lagUtsettelse(LocalDate fom, LocalDate tom) {
         return lagUtsettelse(fom, tom, FERIE);
     }
 
-    private OppgittPeriodeEntitet lagUtsettelse(LocalDate fom, LocalDate tom, UtsettelseÅrsak årsak) {
-        return OppgittPeriodeBuilder.ny()
-            .medPeriode(fom, tom)
-            .medPeriodeType(UttakPeriodeType.UDEFINERT)
-            .medÅrsak(årsak)
-            .build();
+    static OppgittPeriodeEntitet lagUtsettelse(LocalDate fom, LocalDate tom, UtsettelseÅrsak årsak) {
+        return OppgittPeriodeBuilder.ny().medPeriode(fom, tom).medPeriodeType(UttakPeriodeType.UDEFINERT).medÅrsak(årsak).build();
     }
 
-    private OppgittPeriodeEntitet lagGradering(UttakPeriodeType uttakPeriodeType,
-                                               LocalDate fom,
-                                               LocalDate tom,
-                                               BigDecimal arbeidsprosent) {
+    static OppgittPeriodeEntitet lagGradering(UttakPeriodeType uttakPeriodeType, LocalDate fom, LocalDate tom, BigDecimal arbeidsprosent) {
         return OppgittPeriodeBuilder.ny()
             .medPeriode(fom, tom)
             .medPeriodeType(uttakPeriodeType)
