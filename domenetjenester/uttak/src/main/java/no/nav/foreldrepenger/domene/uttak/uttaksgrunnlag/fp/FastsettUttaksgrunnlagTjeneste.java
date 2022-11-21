@@ -73,7 +73,7 @@ public class FastsettUttaksgrunnlagTjeneste {
                 .orElseThrow(() -> new IllegalArgumentException("Utvikler-feil: ved revurdering skal det alltid finnes en original behandling"));
             if (behandlingHarUttaksresultat(originalBehandlingId)) {
                 justertePerioder = kopierVedtaksperioderFomEndringsdato(justertePerioder, endringsdatoRevurdering, originalBehandlingId,
-                    input.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak());
+                    input.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak() || input.isBehandlingManueltOpprettet());
             } else {
                 justertePerioder = oppgittePerioderFraForrigeBehandling(originalBehandlingId);
             }
