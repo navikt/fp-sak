@@ -14,9 +14,10 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum FordelingPeriodeKilde implements Kodeverdi {
 
-    SØKNAD("SØKNAD", "Kilde er søknad"),
-    TIDLIGERE_VEDTAK("TIDLIGERE_VEDTAK", "Kilde er tidligere vedtatt behandling."),
-    ANDRE_NAV_VEDTAK("ANDRE_NAV_VEDTAK", "Kilde er andre vedtak i nav")
+    SØKNAD("SØKNAD", "Søknad"),
+    TIDLIGERE_VEDTAK("TIDLIGERE_VEDTAK", "Vedtak"),
+    ANDRE_NAV_VEDTAK("ANDRE_NAV_VEDTAK", "Vedtak andre ytelser")
+    //TODO TFP-4873
     ;
     private static final Map<String, FordelingPeriodeKilde> KODER = new LinkedHashMap<>();
 

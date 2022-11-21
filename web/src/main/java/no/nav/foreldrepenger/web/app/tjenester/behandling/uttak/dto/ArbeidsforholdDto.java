@@ -15,4 +15,9 @@ public record ArbeidsforholdDto(String arbeidsgiverReferanse, UttakArbeidType ar
     public static ArbeidsforholdDto selvstendigNæringsdrivende() {
         return new ArbeidsforholdDto(null, UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE);
     }
+
+    @Override
+    public String toString() {
+        return arbeidType == null ? null : arbeidType.name();
+    }
 }

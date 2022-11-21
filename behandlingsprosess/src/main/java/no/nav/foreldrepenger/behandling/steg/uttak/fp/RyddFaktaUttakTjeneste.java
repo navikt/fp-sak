@@ -23,6 +23,7 @@ class RyddFaktaUttakTjeneste {
     }
 
     void ryddVedHoppOverBakover(BehandlingskontrollKontekst kontekst) {
+        //TODO TFP-4873 ikke rydde overstyrt hvis nytt fakta om uttak er brukt
         var opprinnelig = ytelsesFordelingRepository.hentAggregatHvisEksisterer(kontekst.getBehandlingId());
         if (opprinnelig.isEmpty()) {
             return;

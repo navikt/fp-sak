@@ -76,7 +76,8 @@ public class BehandlingRestTjenesteESTest {
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste,
             tilbakekrevingRepository, skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), null, null, mock(TotrinnTjeneste.class));
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), null, mock(TotrinnTjeneste.class), null, null,
+            null);
 
         henleggBehandlingTjeneste = mock(HenleggBehandlingTjeneste.class);
         behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningTjeneste, behandlingsoppretterTjeneste,

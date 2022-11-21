@@ -218,6 +218,18 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AVKLAR_FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG(AksjonspunktKodeDefinisjon.AVKLAR_FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG_KODE,
         AksjonspunktType.MANUELL, "Gradering i søknadsperiode er lagt på aktivitet uten beregningsgrunnlag", BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.INN, UTEN_VILKÅR,
         SkjermlenkeType.FAKTA_OM_UTTAK, ENTRINN, EnumSet.of(FP)),
+    FAKTA_UTTAK_INGEN_PERIODER(AksjonspunktKodeDefinisjon.FAKTA_UTTAK_INGEN_PERIODER_KODE,
+        AksjonspunktType.MANUELL, "Ingen perioder å vurdere. Vurder om behandlingen er feiloppretter og kan henlegges", BehandlingStegType.FAKTA_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR,
+        SkjermlenkeType.FAKTA_OM_UTTAK_V2, ENTRINN, EnumSet.of(FP)),
+    FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO(AksjonspunktKodeDefinisjon.FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO_KODE,
+        AksjonspunktType.MANUELL, "Første periode starter ikke på avklart startdato. Legg inn periode fra startdato", BehandlingStegType.FAKTA_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR,
+        SkjermlenkeType.FAKTA_OM_UTTAK_V2, ENTRINN, EnumSet.of(FP)),
+    FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET(AksjonspunktKodeDefinisjon.FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET_KODE,
+        AksjonspunktType.MANUELL, "Gradering av ukjent arbeidsforhold. Vurder gradering", BehandlingStegType.FAKTA_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR,
+        SkjermlenkeType.FAKTA_OM_UTTAK_V2, ENTRINN, EnumSet.of(FP)),
+    FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG(AksjonspunktKodeDefinisjon.FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG_KODE,
+        AksjonspunktType.MANUELL, "Gradering av aktivitet uten beregningsgrunnlag. Vurder gradering", BehandlingStegType.FAKTA_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR,
+        SkjermlenkeType.FAKTA_OM_UTTAK_V2, ENTRINN, EnumSet.of(FP)),
     FASTSETT_UTTAKPERIODER(AksjonspunktKodeDefinisjon.FASTSETT_UTTAKPERIODER_KODE,
             AksjonspunktType.MANUELL, "Fastsett uttaksperioder manuelt", BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR,
             SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP)),
@@ -280,6 +292,9 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     KONTROLLER_AKTIVITETSKRAV(
         AksjonspunktKodeDefinisjon.KONTROLLER_AKTIVITETSKRAV, AksjonspunktType.MANUELL, "Kontroller aktivitetskrav",
         BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.UT, UTEN_VILKÅR, FAKTA_OM_AKTIVITETSKRAV, TOTRINN, EnumSet.of(FP)),
+    VURDER_UTTAK_DOKUMENTASJON(
+        AksjonspunktKodeDefinisjon.VURDER_UTTAK_DOKUMENTASJON_KODE, AksjonspunktType.MANUELL, "Vurder dokumentasjon",
+        BehandlingStegType.FAKTA_UTTAK_DOKUMENTASJON, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.VURDER_UTTAK_DOKUMENTASJON, TOTRINN, EnumSet.of(FP)),
 
     // Gruppe : 600
 
@@ -331,6 +346,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING(AksjonspunktKodeDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING_KODE, AksjonspunktType.SAKSBEHANDLEROVERSTYRING,
             "Saksbehandler endret søknadsperioder uten aksjonspunkt", BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.INN, UTEN_VILKÅR,
             SkjermlenkeType.FAKTA_OM_UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
+
+    //TODO TFP-4873 overstyring av nye fakta uttak AP
 
     // Gruppe : 700
 

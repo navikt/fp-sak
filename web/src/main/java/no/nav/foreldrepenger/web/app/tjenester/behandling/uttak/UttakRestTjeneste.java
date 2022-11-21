@@ -19,9 +19,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
@@ -36,6 +33,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerFa
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.SaldoerDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.SvangerskapspengerUttakResultatDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.UttakPerioderDtoTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerAktivitetskravPeriodeDto;
@@ -43,6 +42,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerFa
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SvangerskapspengerUttakResultatDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPerioderDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDtoTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -65,14 +66,16 @@ public class UttakRestTjeneste {
     public static final String RESULTAT_PERIODER_PATH = BASE_PATH + RESULTAT_PERIODER_PART_PATH;
     private static final String KONTROLLER_FAKTA_PERIODER_PART_PATH = "/kontroller-fakta-perioder";
     public static final String KONTROLLER_FAKTA_PERIODER_PATH = BASE_PATH + KONTROLLER_FAKTA_PERIODER_PART_PATH;
+    private static final String KONTROLLER_FAKTA_PERIODER_V2_PART_PATH = "/kontroller-fakta-perioder-v2";
+    public static final String KONTROLLER_FAKTA_PERIODER_V2_PATH = BASE_PATH + KONTROLLER_FAKTA_PERIODER_V2_PART_PATH;
     private static final String KONTROLLER_AKTIVTETSKRAV_PART_PATH = "/kontroller-aktivitetskrav";
     public static final String  KONTROLLER_AKTIVTETSKRAV_PATH = BASE_PATH + KONTROLLER_AKTIVTETSKRAV_PART_PATH;
     private static final String STONADSKONTOER_GITT_UTTAKSPERIODER_PART_PATH = "/stonadskontoerGittUttaksperioder";
     public static final String STONADSKONTOER_GITT_UTTAKSPERIODER_PATH = BASE_PATH + STONADSKONTOER_GITT_UTTAKSPERIODER_PART_PATH;
     private static final String STONADSKONTOER_PART_PATH = "/stonadskontoer";
     public static final String STONADSKONTOER_PATH = BASE_PATH + STONADSKONTOER_PART_PATH;
-
-    private static final Logger LOG = LoggerFactory.getLogger(UttakRestTjeneste.class);
+    private static final String VURDER_DOKUMENTASJON_PART_PATH = "/vurder-dokumentasjon";
+    public static final String VURDER_DOKUMENTASJON_PATH = BASE_PATH + VURDER_DOKUMENTASJON_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
     private SaldoerDtoTjeneste saldoerDtoTjeneste;
@@ -82,6 +85,8 @@ public class UttakRestTjeneste {
     private UttakInputTjeneste uttakInputTjeneste;
     private KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste;
+    private FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste;
 
     @Inject
     public UttakRestTjeneste(BehandlingRepository behandlingRepository,
@@ -91,7 +96,9 @@ public class UttakRestTjeneste {
                              SvangerskapspengerUttakResultatDtoTjeneste svpUttakResultatDtoTjeneste,
                              UttakInputTjeneste uttakInputTjeneste,
                              KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste,
-                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                             DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste,
+                             FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.kontrollerFaktaPeriodeTjeneste = kontrollerFaktaPeriodeTjeneste;
@@ -100,6 +107,8 @@ public class UttakRestTjeneste {
         this.svpUttakResultatDtoTjeneste = svpUttakResultatDtoTjeneste;
         this.kontrollerAktivitetskravDtoTjeneste = kontrollerAktivitetskravDtoTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.dokumentasjonVurderingBehovDtoTjeneste = dokumentasjonVurderingBehovDtoTjeneste;
+        this.faktaUttakPeriodeDtoTjeneste = faktaUttakPeriodeDtoTjeneste;
     }
 
     public UttakRestTjeneste() {
@@ -190,6 +199,23 @@ public class UttakRestTjeneste {
         return svpUttakResultatDtoTjeneste.mapFra(behandling).orElse(null);
     }
 
+
+    @GET
+    @Path(VURDER_DOKUMENTASJON_PART_PATH)
+    @Operation(description = "Hent perioder med behov for dokumentasjon", tags = "uttak")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    public List<DokumentasjonVurderingBehovDto> hentDokumentasjonVurderingBehov(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        return dokumentasjonVurderingBehovDtoTjeneste.lagDtos(uuidDto);
+    }
+
+    @GET
+    @Path(KONTROLLER_FAKTA_PERIODER_V2_PART_PATH)
+    @Operation(description = "Hent perioder for fakta om uttak", tags = "uttak")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    public List<FaktaUttakPeriodeDto> hentFaktaUttakPerioderV2(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
+                                                              @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        return faktaUttakPeriodeDtoTjeneste.lagDtos(uuidDto);
+    }
 
     private Behandling hentBehandling(UuidDto uuidDto) {
         return behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());

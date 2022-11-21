@@ -521,7 +521,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         scenarioAvslBeh.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioAvslBeh.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now().minusMonths(1))
-            .medVedtakResultatType(VedtakResultatType.INNVILGET);;
+            .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
         var behandlingSVP = scenarioAvslBeh.lagre(repositoryProvider);
         avsluttBehandlingOgFagsak(behandlingSVP);

@@ -195,7 +195,7 @@ public class AvsluttBehandlingTest {
     }
 
     private void verifiserIkkeKallTilFortsettBehandling(Behandling behandling) {
-        verify(behandlingProsesseringTjeneste, times(0)).opprettTasksForFortsettBehandling(eq(behandling));;
+        verify(behandlingProsesseringTjeneste, times(0)).opprettTasksForFortsettBehandling(eq(behandling));
     }
 
 

@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -32,6 +33,9 @@ public class KontrollerFaktaPeriodeTjeneste {
 
     public KontrollerFaktaDataDto hentKontrollerFaktaPerioder(Long behandlingId) {
         var input = uttakInputTjeneste.lagInput(behandlingId);
+        if (input.isSkalBrukeNyFaktaOmUttak()) {
+            return new KontrollerFaktaDataDto(List.of());
+        }
         return mapTilDto(tjeneste.hentKontrollerFaktaPerioder(input));
     }
 

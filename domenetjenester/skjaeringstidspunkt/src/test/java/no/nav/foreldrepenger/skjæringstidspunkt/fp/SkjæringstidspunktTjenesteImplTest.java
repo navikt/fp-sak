@@ -317,7 +317,7 @@ public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest 
         revurderingScenario.medSøknadHendelse().medFødselsDato(skjæringstidspunktOriginal.minusMonths(6), 1);
         revurderingScenario.medBekreftetHendelse().medFødselsDato(skjæringstidspunktOriginal.minusMonths(6), 1);
 
-        var revurdering = revurderingScenario.lagre(repositoryProvider);;
+        var revurdering = revurderingScenario.lagre(repositoryProvider);
 
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(revurdering.getId());
         assertThat(stp.getFørsteUttaksdato()).isEqualTo(skjæringstidspunktOriginal.plusWeeks(2));
