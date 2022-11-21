@@ -11,7 +11,6 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
@@ -45,7 +44,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
 
 @CdiDbAwareTest
-class FaktaUttakOppdatererTest {
+class FaktaUttakFellesTjenesteTest {
 
     @Inject
     private FaktaUttakAksjonspunktUtleder faktaUttakAksjonspunktUtleder;
@@ -82,8 +81,7 @@ class FaktaUttakOppdatererTest {
             null, OverføringÅrsak.SYKDOM_ANNEN_FORELDER, null, null, null, null, false, null, FordelingPeriodeKilde.ANDRE_NAV_VEDTAK);
         var samtidigUttak = new FaktaUttakPeriodeDto(overføringDto.tom().plusDays(1), overføringDto.tom().plusWeeks(1), UttakPeriodeType.FELLESPERIODE,
             null, null, null, null, null, SamtidigUttaksprosent.TEN, true, null, FordelingPeriodeKilde.SØKNAD);
-        dto.setPerioder(List.of(mødrekvoteDto, utsettelseDto, oppholdDto, overføringDto, samtidigUttak));
-        var resultat = kjørOppdaterer(behandling, dto);
+        var resultat = kjørOppdaterer(behandling, List.of(mødrekvoteDto, utsettelseDto, oppholdDto, overføringDto, samtidigUttak));
         var yfa = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
         var lagretPerioder = yfa.getGjeldendeFordeling().getPerioder();
 
@@ -153,18 +151,14 @@ class FaktaUttakOppdatererTest {
         assertThat(lagretPerioder.get(4).getÅrsak()).isEqualTo(Årsak.UKJENT);
     }
 
-    private OppdateringResultat kjørOppdaterer(Behandling behandling, FaktaUttakDto dto) {
+    private OppdateringResultat kjørOppdaterer(Behandling behandling, List<FaktaUttakPeriodeDto> perioder) {
         var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider,
             new HentOgLagreBeregningsgrunnlagTjeneste(repositoryProvider.getEntityManager()), new AbakusInMemoryInntektArbeidYtelseTjeneste(),
             skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste,
             new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), true);
 
-        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        var faktaUttakOppdaterer = new FaktaUttakOppdaterer(uttakInputTjeneste, faktaUttakAksjonspunktUtleder, ytelseFordelingTjeneste,
+        var tjeneste = new FaktaUttakFellesTjeneste(uttakInputTjeneste, faktaUttakAksjonspunktUtleder, ytelseFordelingTjeneste,
             ytelsesFordelingRepository);
-        return faktaUttakOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling,
-            behandling.getAksjonspunktFor(AksjonspunktDefinisjon.FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO),
-            stp, "begrunnelse"));
+        return tjeneste.oppdater(perioder, behandling.getId());
     }
-
 }

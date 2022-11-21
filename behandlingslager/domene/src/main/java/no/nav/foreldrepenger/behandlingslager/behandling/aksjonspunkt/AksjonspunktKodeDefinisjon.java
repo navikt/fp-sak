@@ -115,6 +115,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AVKLAR_FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG_KODE = "5098";
     public static final String AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING_KODE = "6070";
     public static final String OVERSTYRING_AV_FAKTA_UTTAK_KODE = "6013";
+    public static final String OVERSTYRING_FAKTA_UTTAK_KODE = "6063";
     public static final String FASTSETT_UTTAKPERIODER_KODE = "5071";
     public static final String AVKLAR_FØRSTE_UTTAKSDATO_KODE = "5081";
     public static final String OVERSTYRING_AV_UTTAKPERIODER_KODE = "6008";
