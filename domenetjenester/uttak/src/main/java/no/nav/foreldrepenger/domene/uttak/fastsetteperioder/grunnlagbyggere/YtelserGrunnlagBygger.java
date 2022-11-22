@@ -64,7 +64,7 @@ public class YtelserGrunnlagBygger {
     private Stream<YtelseAnvist> pleiepengerAnvistePerioderMedUtbetaling(AktørYtelse aktørYtelseFraRegister) {
         return aktørYtelseFraRegister.getAlleYtelser().stream()
             .filter(y -> K9SAK.equals(y.getKilde()))
-            .filter(y -> y.getRelatertYtelseType().equals(RelatertYtelseType.PLEIEPENGER_SYKT_BARN))
+            .filter(y -> RelatertYtelseType.PLEIEPENGER.contains(y.getRelatertYtelseType()))
             .flatMap(ytelse -> ytelse.getYtelseAnvist().stream()
                 .filter(ya -> !ya.getUtbetalingsgradProsent().orElse(Stillingsprosent.ZERO).erNulltall()));
     }

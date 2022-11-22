@@ -65,7 +65,7 @@ final class PleiepengerJustering {
         return inntektArbeidYtelseGrunnlag.getAktørYtelseFraRegister(aktørId)
             .map(AktørYtelse::getAlleYtelser).orElse(List.of()).stream()
             .filter(ytelse1 -> K9SAK.equals(ytelse1.getKilde()))
-            .filter(ytelse1 -> ytelse1.getRelatertYtelseType().equals(RelatertYtelseType.PLEIEPENGER_SYKT_BARN))
+            .filter(ytelse1 -> RelatertYtelseType.PLEIEPENGER.contains(ytelse1.getRelatertYtelseType()))
             .flatMap(ytelse -> ytelse.getYtelseAnvist().stream()
                 .filter(ya -> !ya.getUtbetalingsgradProsent().orElse(Stillingsprosent.ZERO).erNulltall())
                 .map(ya -> new PleiepengerUtsettelse(ytelse.getVedtattTidspunkt(), map(ya))))

@@ -51,6 +51,8 @@ public class VedtaksHendelseHåndterer {
     private static final Logger LOG = LoggerFactory.getLogger(VedtaksHendelseHåndterer.class);
 
     private static final Set<FagsakYtelseType> VURDER_OVERLAPP = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
+    private static final Set<Ytelser> EKSTERNE_HÅNDTERES = Set.of(Ytelser.PLEIEPENGER_SYKT_BARN, Ytelser.PLEIEPENGER_NÆRSTÅENDE);
+    private static final Set<Ytelser> EKSTERNE_LOGGES = Set.of(Ytelser.FRISINN, Ytelser.OMSORGSPENGER);
 
     private FagsakTjeneste fagsakTjeneste;
     private LoggOverlappEksterneYtelserTjeneste eksternOverlappLogger;
@@ -111,7 +113,7 @@ public class VedtaksHendelseHåndterer {
         }
         if (skalLoggeOverlappDB(ytelse)) {
             loggVedtakOverlapp(ytelse, fagsaker);
-        } else if (Ytelser.PLEIEPENGER_SYKT_BARN.equals(ytelse.getYtelse())) {
+        } else if (EKSTERNE_HÅNDTERES.contains(ytelse.getYtelse())) {
             var callID = UUID.randomUUID();
             fagsakerMedVedtakOverlapp(ytelse, fagsaker).forEach(f -> opprettHåndterOverlappTaskPleiepenger(f, callID));
         } else {
@@ -133,7 +135,7 @@ public class VedtaksHendelseHåndterer {
     }
 
     private boolean skalLoggeOverlappDB(YtelseV1 ytelse) {
-        return Set.of(Ytelser.FRISINN, Ytelser.OMSORGSPENGER).contains(ytelse.getYtelse());
+        return EKSTERNE_LOGGES.contains(ytelse.getYtelse());
     }
 
     private void lagreMottattVedtak(YtelseV1 ytelse) {
