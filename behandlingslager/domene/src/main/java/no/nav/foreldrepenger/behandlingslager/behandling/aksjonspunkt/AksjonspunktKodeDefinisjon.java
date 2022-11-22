@@ -115,15 +115,15 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AVKLAR_FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG_KODE = "5098";
     public static final String AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING_KODE = "6070";
     public static final String OVERSTYRING_AV_FAKTA_UTTAK_KODE = "6013";
-    public static final String OVERSTYRING_FAKTA_UTTAK_KODE = "6063";
+    public static final String OVERSTYRING_FAKTA_UTTAK_KODE = "6065";
     public static final String FASTSETT_UTTAKPERIODER_KODE = "5071";
     public static final String AVKLAR_FØRSTE_UTTAKSDATO_KODE = "5081";
     public static final String OVERSTYRING_AV_UTTAKPERIODER_KODE = "6008";
     public static final String AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT_KODE = "5086";
     public static final String VURDER_UTTAK_DOKUMENTASJON_KODE = "5074";
-    public static final String FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO_KODE = "5063";
+    public static final String FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET_KODE = "5063";
     public static final String FAKTA_UTTAK_INGEN_PERIODER_KODE = "5064";
-    public static final String FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET_KODE = "5065";
+    public static final String FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO_KODE = "5065";
     public static final String FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG_KODE = "5066";
 
     public static final String KONTROLLER_ANNENPART_EØS_KODE = "5069";
