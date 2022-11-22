@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov;
 
@@ -20,16 +19,11 @@ public record DokumentasjonVurderingBehovDto(@NotNull LocalDate fom,
                                              @NotNull LocalDate tom,
                                              @NotNull DokumentasjonVurderingBehov.Behov.Type type,
                                              @NotNull @JsonDeserialize(using = ÅrsakDeserializer.class) DokumentasjonVurderingBehov.Behov.Årsak årsak,
-                                             @NotNull Vurdering vurdering,
-                                             MorsAktivitet morsAktivitet) {
+                                             @NotNull Vurdering vurdering) {
 
     static DokumentasjonVurderingBehovDto from(DokumentasjonVurderingBehov o) {
         return new DokumentasjonVurderingBehovDto(o.oppgittPeriode().getFom(), o.oppgittPeriode().getTom(), o.behov().type(),
-            o.behov().årsak(), Vurdering.from(o.vurdering()), mapMorsAktivitet(o));
-    }
-
-    private static MorsAktivitet mapMorsAktivitet(DokumentasjonVurderingBehov o) {
-        return MorsAktivitet.UDEFINERT.equals(o.oppgittPeriode().getMorsAktivitet()) ? null : o.oppgittPeriode().getMorsAktivitet();
+            o.behov().årsak(), Vurdering.from(o.vurdering()));
     }
 
     enum Vurdering {
