@@ -80,9 +80,7 @@ public class PersonopplysningRepository {
 
     public Optional<PersonopplysningGrunnlagEntitet> hentPersonopplysningerHvisEksisterer(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
-        var pbg = getAktivtGrunnlag(behandlingId);
-        var entitet = pbg.orElse(null);
-        return Optional.ofNullable(entitet);
+        return getAktivtGrunnlag(behandlingId);
     }
 
     public Optional<OppgittAnnenPartEntitet> hentOppgittAnnenPartHvisEksisterer(Long behandlingId) {

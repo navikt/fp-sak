@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -16,11 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -104,6 +102,17 @@ public class StønadsperioderInnhenter {
         } else {
             nesteSakRepository.fjernEventuellNesteSak(behandling.getId());
         }
+    }
+
+    public EndringsresultatSnapshot finnAktivGrunnlagId(Long behandlingId) {
+        var funnetId = nesteSakRepository.hentGrunnlag(behandlingId).map(NesteSakGrunnlagEntitet::getId);
+        return funnetId
+            .map(id -> EndringsresultatSnapshot.medSnapshot(NesteSakGrunnlagEntitet.class, id))
+            .orElse(EndringsresultatSnapshot.utenSnapshot(NesteSakGrunnlagEntitet.class));
+    }
+
+    public NesteSakGrunnlagEntitet hentGrunnlagPåId(Long grunnlagId) {
+        return nesteSakRepository.hentGrunnlagPåId(grunnlagId);
     }
 
     Optional<MuligSak> finnSenereStønadsperiode(Behandling behandling) {

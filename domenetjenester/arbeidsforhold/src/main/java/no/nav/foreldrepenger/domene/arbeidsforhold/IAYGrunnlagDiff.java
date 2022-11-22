@@ -18,6 +18,8 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class IAYGrunnlagDiff {
     private static final Set<RelatertYtelseType> EKSLUSIVE_TYPER = Set.of(RelatertYtelseType.FORELDREPENGER, RelatertYtelseType.ENGANGSSTØNAD);
+    private static final Set<RelatertYtelseType> PLEIEPENGER_TYPER = Set.of(RelatertYtelseType.PLEIEPENGER_SYKT_BARN, RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE);
+
     private InntektArbeidYtelseGrunnlag grunnlag1;
     private InntektArbeidYtelseGrunnlag grunnlag2;
 
@@ -85,8 +87,7 @@ public class IAYGrunnlagDiff {
         }
         var eksisterendeInntektFilter = new InntektFilter(eksisterende).før(skjæringstidspunkt);
         var nyeInntektFilter = new InntektFilter(nye).før(skjæringstidspunkt);
-        // TODO - raffinere med tanke på Startpunkt BEREGNING. Kan sjekke på diff
-        // pensjonsgivende, beregning og Sigrun
+        // TODO - raffinere med tanke på Startpunkt BEREGNING. Kan sjekke på diff pensjonsgivende, beregning og Sigrun
         if (eksisterendeInntektFilter.getFiltrertInntektsposter().size() != nyeInntektFilter.getFiltrertInntektsposter().size()) {
             return true;
         }
@@ -121,5 +122,23 @@ public class IAYGrunnlagDiff {
         return filter.getFiltrertYtelser().stream()
                 .filter(predikatYtelseskilde)
                 .collect(Collectors.toList());
+    }
+
+    public boolean erEndringPleiepengerEtterStp(LocalDate skjæringstidspunkt, AktørId aktørId) {
+        Predicate<Ytelse> predikatPleiepenger = ytelse -> PLEIEPENGER_TYPER.contains(ytelse.getRelatertYtelseType());
+
+        var førYtelserEkstern = hentYtelserForAktørEtterStp(grunnlag1, skjæringstidspunkt, aktørId, predikatPleiepenger);
+        var nåYtelserEkstern = hentYtelserForAktørEtterStp(grunnlag2, skjæringstidspunkt, aktørId, predikatPleiepenger);
+        var erPleiepengerEndret = !new IAYDiffsjekker().getDiffEntity().diff(førYtelserEkstern, nåYtelserEkstern).isEmpty();
+
+        return erPleiepengerEndret;
+    }
+
+    private List<Ytelse> hentYtelserForAktørEtterStp(InntektArbeidYtelseGrunnlag grunnlag, LocalDate skjæringstidspunkt, AktørId aktørId,
+                                             Predicate<Ytelse> predikatYtelseskilde) {
+        var filter = new YtelseFilter(grunnlag.getAktørYtelseFraRegister(aktørId)).etter(skjæringstidspunkt);
+        return filter.getFiltrertYtelser().stream()
+            .filter(predikatYtelseskilde)
+            .collect(Collectors.toList());
     }
 }
