@@ -90,7 +90,7 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         }
 
         var automatiskEtterkontrollTjeneste = FagsakYtelseTypeRef.Lookup
-            .find(EtterkontrollTjeneste.class, behandling.getFagsak().getYtelseType()).orElseThrow();
+                .find(EtterkontrollTjeneste.class, behandling.getFagsak().getYtelseType()).orElseThrow();
         var revurderingsÅrsak = automatiskEtterkontrollTjeneste.utledRevurderingÅrsak(behandling, familieHendelseGrunnlag,
                 barnFødtIPeriode);
 
