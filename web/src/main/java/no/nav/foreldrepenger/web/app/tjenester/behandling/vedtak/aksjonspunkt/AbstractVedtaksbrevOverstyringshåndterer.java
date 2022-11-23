@@ -113,20 +113,27 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
 
     void opprettHistorikkinnslag(Behandling behandling) {
         var vedtakResultatType = vedtakTjeneste.utledVedtakResultatType(behandling);
+        var historikkInnslagType = utledHistorikkInnslag(behandling);
 
         var tekstBuilder = new HistorikkInnslagTekstBuilder()
                 .medResultat(vedtakResultatType)
                 .medSkjermlenke(SkjermlenkeType.VEDTAK)
-                .medHendelse(BehandlingType.INNSYN.equals(behandling.getType()) ? HistorikkinnslagType.FORSLAG_VEDTAK_UTEN_TOTRINN
-                        : HistorikkinnslagType.FORSLAG_VEDTAK);
+                .medHendelse(historikkInnslagType);
 
         var innslag = new Historikkinnslag();
-        innslag.setType(BehandlingType.INNSYN.equals(behandling.getType()) ? HistorikkinnslagType.FORSLAG_VEDTAK_UTEN_TOTRINN
-                : HistorikkinnslagType.FORSLAG_VEDTAK);
+        innslag.setType(historikkInnslagType);
         innslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
         innslag.setBehandlingId(behandling.getId());
         tekstBuilder.build(innslag);
         historikkApplikasjonTjeneste.lagInnslag(innslag);
+    }
+
+    private HistorikkinnslagType utledHistorikkInnslag(Behandling behandling) {
+        var harToTrinn = behandling.harAksjonspunktMedTotrinnskontroll();
+        if (BehandlingType.INNSYN.equals(behandling.getType()) || !harToTrinn) {
+            return HistorikkinnslagType.FORSLAG_VEDTAK_UTEN_TOTRINN;
+        }
+        return HistorikkinnslagType.FORSLAG_VEDTAK;
     }
 
     BehandlingDokumentEntitet.Builder getBehandlingDokumentBuilder(long behandlingId) {
