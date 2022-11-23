@@ -31,6 +31,8 @@ public enum RelatertYtelseType implements Kodeverdi {
     UDEFINERT("-", "Ikke definert"),
     ;
 
+    public static final Set<RelatertYtelseType> PLEIEPENGER = Set.of(PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE);
+
     private static final Set<RelatertYtelseType> OPPTJENING_RELATERTYTELSE_FELLES = Set.of(SYKEPENGER, SVANGERSKAPSPENGER, FORELDREPENGER,
         PÅRØRENDESYKDOM, PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OMSORGSPENGER, OPPLÆRINGSPENGER, FRISINN, DAGPENGER);
 

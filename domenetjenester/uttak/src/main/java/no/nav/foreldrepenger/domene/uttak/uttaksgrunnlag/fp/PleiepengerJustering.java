@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.AktørYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
@@ -65,10 +66,10 @@ final class PleiepengerJustering {
         return inntektArbeidYtelseGrunnlag.getAktørYtelseFraRegister(aktørId)
             .map(AktørYtelse::getAlleYtelser).orElse(List.of()).stream()
             .filter(ytelse1 -> K9SAK.equals(ytelse1.getKilde()))
-            .filter(ytelse1 -> ytelse1.getRelatertYtelseType().equals(RelatertYtelseType.PLEIEPENGER_SYKT_BARN))
+            .filter(ytelse1 -> RelatertYtelseType.PLEIEPENGER.contains(ytelse1.getRelatertYtelseType()))
             .flatMap(ytelse -> ytelse.getYtelseAnvist().stream()
                 .filter(ya -> !ya.getUtbetalingsgradProsent().orElse(Stillingsprosent.ZERO).erNulltall())
-                .map(ya -> new PleiepengerUtsettelse(ytelse.getVedtattTidspunkt(), map(ya))))
+                .map(ya -> new PleiepengerUtsettelse(ytelse.getVedtattTidspunkt(), map(ytelse, ya))))
             .toList();
     }
 
@@ -129,10 +130,12 @@ final class PleiepengerJustering {
         return new LocalDateTimeline<>(segments);
     }
 
-    private static OppgittPeriodeEntitet map(YtelseAnvist periodeMedUtbetaltPleiepenger) {
+    private static OppgittPeriodeEntitet map(Ytelse ytelse, YtelseAnvist periodeMedUtbetaltPleiepenger) {
+        var utsettelseÅrsak = RelatertYtelseType.PLEIEPENGER_SYKT_BARN.equals(ytelse.getRelatertYtelseType()) ?
+            UtsettelseÅrsak.INSTITUSJON_BARN : UtsettelseÅrsak.FRI;
         return OppgittPeriodeBuilder.ny()
             .medPeriode(periodeMedUtbetaltPleiepenger.getAnvistFOM(), periodeMedUtbetaltPleiepenger.getAnvistTOM())
-            .medÅrsak(UtsettelseÅrsak.INSTITUSJON_BARN)
+            .medÅrsak(utsettelseÅrsak)
             .medPeriodeKilde(FordelingPeriodeKilde.ANDRE_NAV_VEDTAK)
             .build();
     }
