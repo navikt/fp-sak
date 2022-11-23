@@ -8,6 +8,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -55,7 +56,8 @@ public class VurderUttakDokumentasjonAksjonspunktUtleder {
         var familiehendelse = finnGjeldendeFamiliehendelse(input);
         var behandlingReferanse = input.getBehandlingReferanse();
         var kreverSammenhengendeUttak = behandlingReferanse.getSkjæringstidspunkt().kreverSammenhengendeUttak();
-        var utsettelseDokBehov = UtsettelseDokumentasjonUtleder.utledBehov(oppgittPeriode, familiehendelse, kreverSammenhengendeUttak);
+        var utsettelseDokBehov = UtsettelseDokumentasjonUtleder.utledBehov(oppgittPeriode, familiehendelse, kreverSammenhengendeUttak,
+            finnPerioderMedPleiepengerInnleggelse(input));
         if (utsettelseDokBehov.isPresent()) {
             return new DokumentasjonVurderingBehov(oppgittPeriode, utsettelseDokBehov.get(), tidligereVurdering);
         }
@@ -71,7 +73,18 @@ public class VurderUttakDokumentasjonAksjonspunktUtleder {
         var tidligOppstartFarBehov = TidligOppstartFarDokumentasjonUtleder.utledBehov(oppgittPeriode, input, ytelseFordelingAggregat);
         return tidligOppstartFarBehov.map(behov -> new DokumentasjonVurderingBehov(oppgittPeriode, behov, tidligereVurdering))
             .orElseGet(() -> new DokumentasjonVurderingBehov(oppgittPeriode, null, null));
+    }
 
+    private static List<PleiepengerInnleggelseEntitet> finnPerioderMedPleiepengerInnleggelse(UttakInput input) {
+        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = input.getYtelsespesifiktGrunnlag();
+        var pleiepengerGrunnlag = ytelsespesifiktGrunnlag.getPleiepengerGrunnlag();
+        if (pleiepengerGrunnlag.isPresent()) {
+            var perioderMedInnleggelse = pleiepengerGrunnlag.get().getPerioderMedInnleggelse();
+            if (perioderMedInnleggelse.isPresent()) {
+                return perioderMedInnleggelse.get().getInnleggelser();
+            }
+        }
+        return List.of();
     }
 
     private static LocalDate finnGjeldendeFamiliehendelse(UttakInput input) {

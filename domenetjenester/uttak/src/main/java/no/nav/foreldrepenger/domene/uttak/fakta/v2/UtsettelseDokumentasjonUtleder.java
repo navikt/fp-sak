@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.domene.uttak.fakta.v2;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
@@ -17,12 +19,12 @@ final class UtsettelseDokumentasjonUtleder {
 
     static Optional<DokumentasjonVurderingBehov.Behov> utledBehov(OppgittPeriodeEntitet oppgittPeriode,
                                                                   LocalDate gjeldendeFamilieHendelse,
-                                                                  boolean kreverSammenhengendeUttak) {
-        //TODO TFP-4873 pleiepenger
+                                                                  boolean kreverSammenhengendeUttak,
+                                                                  List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
         if (!oppgittPeriode.isUtsettelse()) {
             return Optional.empty();
         }
-        var årsak = utledBehovÅrsak(oppgittPeriode, gjeldendeFamilieHendelse, kreverSammenhengendeUttak);
+        var årsak = utledBehovÅrsak(oppgittPeriode, gjeldendeFamilieHendelse, kreverSammenhengendeUttak, pleiepengerInnleggelser);
         if (årsak == null) {
             return Optional.empty();
         }
@@ -31,37 +33,45 @@ final class UtsettelseDokumentasjonUtleder {
 
     private static DokumentasjonVurderingBehov.Behov.Årsak utledBehovÅrsak(OppgittPeriodeEntitet oppgittPeriode,
                                                                            LocalDate gjeldendeFamilieHendelse,
-                                                                           boolean kreverSammenhengendeUttak) {
+                                                                           boolean kreverSammenhengendeUttak,
+                                                                           List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
         if (kreverSammenhengendeUttak) {
-            return utledBehovÅrsakForSammenhengendeUttak(oppgittPeriode);
+            return utledBehovÅrsakForSammenhengendeUttak(oppgittPeriode, pleiepengerInnleggelser);
         }
-        return utledBehovÅrsakForFrittUttak(oppgittPeriode, gjeldendeFamilieHendelse);
+        return utledBehovÅrsakForFrittUttak(oppgittPeriode, gjeldendeFamilieHendelse, pleiepengerInnleggelser);
     }
 
     private static DokumentasjonVurderingBehov.Behov.Årsak utledBehovÅrsakForFrittUttak(OppgittPeriodeEntitet oppgittPeriode,
-                                                                                        LocalDate gjeldendeFamilieHendelse) {
+                                                                                        LocalDate gjeldendeFamilieHendelse,
+                                                                                        List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
         if (søktPeriodeInnenforTidsperiodeForbeholdtMor(oppgittPeriode, gjeldendeFamilieHendelse)) {
             var årsak = (UtsettelseÅrsak) oppgittPeriode.getÅrsak();
             return switch (årsak) {
                 case SYKDOM -> DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.SYKDOM_SØKER;
                 case INSTITUSJON_SØKER -> DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.INNLEGGELSE_SØKER;
-                case INSTITUSJON_BARN -> DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.INNLEGGELSE_BARN;
+                case INSTITUSJON_BARN -> utledBehovÅrsakForInnlagtBarn(oppgittPeriode, pleiepengerInnleggelser);
                 case FERIE, ARBEID, FRI, UDEFINERT, NAV_TILTAK, HV_OVELSE -> null;
             };
         }
         return null;
     }
 
-    private static DokumentasjonVurderingBehov.Behov.Årsak utledBehovÅrsakForSammenhengendeUttak(OppgittPeriodeEntitet oppgittPeriode) {
+    private static DokumentasjonVurderingBehov.Behov.Årsak utledBehovÅrsakForSammenhengendeUttak(OppgittPeriodeEntitet oppgittPeriode,
+                                                                                                 List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
         var årsak = (UtsettelseÅrsak) oppgittPeriode.getÅrsak();
         return switch (årsak) {
             case SYKDOM -> DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.SYKDOM_SØKER;
             case INSTITUSJON_SØKER -> DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.INNLEGGELSE_SØKER;
-            case INSTITUSJON_BARN -> DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.INNLEGGELSE_BARN;
+            case INSTITUSJON_BARN -> utledBehovÅrsakForInnlagtBarn(oppgittPeriode, pleiepengerInnleggelser);
             case HV_OVELSE -> DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.HV_ØVELSE;
             case NAV_TILTAK -> DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.NAV_TILTAK;
             case FERIE, ARBEID, FRI, UDEFINERT -> null;
         };
+    }
+
+    private static DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak utledBehovÅrsakForInnlagtBarn(OppgittPeriodeEntitet utsettelseInnlagtBarn,
+                                                                                                   List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
+        return erAvklartAvVedtakOmPleiepenger(utsettelseInnlagtBarn, pleiepengerInnleggelser) ? null : DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.INNLEGGELSE_BARN;
     }
 
     static boolean søktPeriodeInnenforTidsperiodeForbeholdtMor(OppgittPeriodeEntitet søknadsperiode, LocalDate familiehendelse) {
@@ -73,5 +83,10 @@ final class UtsettelseDokumentasjonUtleder {
 
     private static LocalDate fomTidsperiodeForbeholdtMor(LocalDate familiehendelse) {
         return familiehendelse.minusWeeks(Konfigurasjon.STANDARD.getParameter(Parametertype.UTTAK_FELLESPERIODE_FØR_FØDSEL_UKER, familiehendelse));
+    }
+
+    private static boolean erAvklartAvVedtakOmPleiepenger(OppgittPeriodeEntitet søknadsperiode, List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
+        return pleiepengerInnleggelser.stream()
+            .anyMatch(i -> søknadsperiode.getTidsperiode().erOmsluttetAv(i.getPeriode()));
     }
 }
