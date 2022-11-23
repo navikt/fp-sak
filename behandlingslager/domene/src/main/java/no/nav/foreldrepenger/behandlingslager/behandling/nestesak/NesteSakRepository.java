@@ -65,6 +65,14 @@ public class NesteSakRepository {
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
+    public NesteSakGrunnlagEntitet hentGrunnlagPåId(Long grunnlagId) {
+        final var query = entityManager
+            .createQuery("FROM NestesakGrunnlag n WHERE n.id = :grunnlagId", NesteSakGrunnlagEntitet.class)
+            .setParameter("grunnlagId", grunnlagId);
+
+        return query.getResultStream().findFirst().orElse(null);
+    }
+
     public void kopierGrunnlagFraEksisterendeBehandling(Long orginalBehandlingId, Long nyBehandlingId) {
         var eksisterendeGrunnlag = hentGrunnlag(orginalBehandlingId);
         eksisterendeGrunnlag.ifPresent(g -> {

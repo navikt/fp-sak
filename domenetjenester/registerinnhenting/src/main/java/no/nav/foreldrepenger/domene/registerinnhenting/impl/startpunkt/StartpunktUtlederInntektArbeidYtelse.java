@@ -94,7 +94,12 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         var erInntektsmeldingEndret = iayGrunnlagDiff.erEndringPåInntektsmelding();
 
         var saksnummer = ref.saksnummer();
+
+        // Endringer før STP, eller rundt STP der man har søkt både ES og FP
         var aktørYtelseEndringForSøker = iayGrunnlagDiff.endringPåAktørYtelseForAktør(saksnummer, skjæringstidspunkt, ref.aktørId());
+
+        // Endringer etter STP for ytelser der vi normalt skal vike (innvilge utsettelse)
+        var erEndringPleiepengerEtterStp = iayGrunnlagDiff.erEndringPleiepengerEtterStp(skjæringstidspunkt, ref.aktørId());
 
         if (vurderArbeidsforhold) {
             var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId()); // TODO burde ikke være nødvendig (bør velge grunnlagId1, grunnlagId2)
@@ -122,6 +127,9 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         }
         if (aktørYtelseEndringForSøker.erAndreYtelserEndret()) {
             leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, defaultStartpunktForRegisterEndringer, "aktør ytelse andre tema");
+        }
+        if (erEndringPleiepengerEtterStp) {
+            leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, StartpunktType.UTTAKSVILKÅR, "pleiepenger under uttaket");
         }
         if (erAktørInntektEndretForSøker) {
             leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, defaultStartpunktForRegisterEndringer, "aktør inntekt");

@@ -23,9 +23,11 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 /*
  * Grunnlag med livssyklus gitt av saker som innvilger ny stønadsperiode som påvirker aktuell saks stønadsperiode
  */
-@Entity(name = "NestesakGrunnlag")
+@Entity(name = NesteSakGrunnlagEntitet.GRUNNLAG_NAME)
 @Table(name = "GR_NESTESAK")
 public class NesteSakGrunnlagEntitet extends BaseEntitet {
+
+    public static final String GRUNNLAG_NAME = "NestesakGrunnlag";
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_GR_NESTESAK")
@@ -59,7 +61,7 @@ public class NesteSakGrunnlagEntitet extends BaseEntitet {
         this.hendelsedato = grunnlag.hendelsedato;
     }
 
-    Long getId() {
+    public Long getId() {
         return id;
     }
 

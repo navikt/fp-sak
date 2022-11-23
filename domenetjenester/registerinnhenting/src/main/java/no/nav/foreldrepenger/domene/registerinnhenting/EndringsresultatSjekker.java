@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapsho
 import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
@@ -30,18 +31,21 @@ public class EndringsresultatSjekker {
     private MedlemTjeneste medlemTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+    private StønadsperioderInnhenter stønadsperioderInnhenter;
 
     @Inject
     public EndringsresultatSjekker(PersonopplysningTjeneste personopplysningTjeneste,
                                    FamilieHendelseTjeneste familieHendelseTjeneste,
                                    MedlemTjeneste medlemTjeneste,
                                    InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                   YtelseFordelingTjeneste ytelseFordelingTjeneste) {
+                                   YtelseFordelingTjeneste ytelseFordelingTjeneste,
+                                   StønadsperioderInnhenter stønadsperioderInnhenter) {
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.medlemTjeneste = medlemTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
+        this.stønadsperioderInnhenter = stønadsperioderInnhenter;
     }
 
     EndringsresultatSjekker() {
@@ -61,6 +65,7 @@ public class EndringsresultatSjekker {
 
         snapshot.leggTil(iaySnapshot);
         snapshot.leggTil(ytelseFordelingTjeneste.finnAktivAggregatId(behandlingId));
+        snapshot.leggTil(stønadsperioderInnhenter.finnAktivGrunnlagId(behandlingId));
 
         return snapshot;
     }
@@ -73,16 +78,18 @@ public class EndringsresultatSjekker {
 
         // Del 2: Transformer diff på grunnlagets id til diff på grunnlagets sporede endringer (@ChangeTracked)
         var sporedeEndringerDiff = EndringsresultatDiff.opprettForSporingsendringer();
-        idDiff.hentDelresultat(PersonInformasjonEntitet.class).ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring,
-                () -> diffResultatPersonopplysninger(idEndring)));
-        idDiff.hentDelresultat(FamilieHendelseGrunnlagEntitet.class).ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring,
-                () -> diffResultatFamilieHendelse(idEndring)));
-        idDiff.hentDelresultat(MedlemskapAggregat.class).ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring,
-                () -> diffResultatMedslemskap(idEndring)));
-        idDiff.hentDelresultat(InntektArbeidYtelseGrunnlag.class).ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring,
-                () -> diffResultatIay(behandlingId, idEndring)));
-        idDiff.hentDelresultat(YtelseFordelingAggregat.class).ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring,
-                () -> diffResultatYf(idEndring)));
+        idDiff.hentDelresultat(PersonInformasjonEntitet.class)
+            .ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring, () -> diffResultatPersonopplysninger(idEndring)));
+        idDiff.hentDelresultat(FamilieHendelseGrunnlagEntitet.class)
+            .ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring, () -> diffResultatFamilieHendelse(idEndring)));
+        idDiff.hentDelresultat(MedlemskapAggregat.class)
+            .ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring, () -> diffResultatMedslemskap(idEndring)));
+        idDiff.hentDelresultat(InntektArbeidYtelseGrunnlag.class)
+            .ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring, () -> diffResultatIay(behandlingId, idEndring)));
+        idDiff.hentDelresultat(YtelseFordelingAggregat.class)
+            .ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring, () -> diffResultatYf(idEndring)));
+        idDiff.hentDelresultat(NesteSakGrunnlagEntitet.class)
+            .ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring, () -> diffResultatNesteSak(idEndring)));
         return sporedeEndringerDiff;
     }
 
@@ -125,6 +132,15 @@ public class EndringsresultatSjekker {
             .orElseThrow(() -> new IllegalStateException("GrunnlagId1 må være oppgitt"));
         var grunnlag2 = ytelseFordelingTjeneste.hentGrunnlagPåId((Long) idDiff.getGrunnlagId2())
             .orElseThrow(() -> new IllegalStateException("GrunnlagId2 må være oppgitt"));
+        return new RegisterdataDiffsjekker(true).getDiffEntity().diff(grunnlag1, grunnlag2);
+    }
+
+    private DiffResult diffResultatNesteSak(EndringsresultatDiff idDiff) {
+        Objects.requireNonNull(idDiff.getGrunnlagId1(), "kan ikke diffe når id1 ikke er oppgitt");
+        Objects.requireNonNull(idDiff.getGrunnlagId2(), "kan ikke diffe når id2 ikke er oppgitt");
+
+        var grunnlag1 = stønadsperioderInnhenter.hentGrunnlagPåId((Long) idDiff.getGrunnlagId1());
+        var grunnlag2 = stønadsperioderInnhenter.hentGrunnlagPåId((Long) idDiff.getGrunnlagId2());
         return new RegisterdataDiffsjekker(true).getDiffEntity().diff(grunnlag1, grunnlag2);
     }
 }
