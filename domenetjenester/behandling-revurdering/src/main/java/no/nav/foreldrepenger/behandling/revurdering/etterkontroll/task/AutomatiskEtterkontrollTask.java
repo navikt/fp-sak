@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
@@ -43,6 +44,7 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private EtterkontrollRepository etterkontrollRepository;
     private RevurderingHistorikk revurderingHistorikk;
+    private FagsakRelasjonRepository fagsakRelasjonRepository;
 
     AutomatiskEtterkontrollTask() {
         // for CDI proxy
@@ -64,6 +66,7 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         this.revurderingHistorikk = new RevurderingHistorikk(historikkRepository);
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.etterkontrollRepository = etterkontrollRepository;
+        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
     }
 
     @Override
@@ -71,6 +74,14 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         LOG.info("Etterkontrollerer fagsak med fagsakId = {}", fagsakId);
 
         var behandling = behandlingRepository.hentBehandling(behandlingId);
+
+        var automatiskEtterkontrollTjeneste = FagsakYtelseTypeRef.Lookup
+            .find(EtterkontrollTjeneste.class, behandling.getFagsak().getYtelseType()).orElseThrow();
+
+        var skalAnnenpartEtterkontrolleres = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())
+            .flatMap(r -> r.getRelatertFagsak(behandling.getFagsak()))
+            .map(ap -> etterkontrollRepository.finnEtterkontrollForFagsak(ap.getId(), KontrollType.MANGLENDE_FØDSEL)).orElse(List.of()).stream()
+            .anyMatch(ek -> !ek.isBehandlet());
 
         etterkontrollRepository.avflaggDersomEksisterer(fagsakId, KontrollType.MANGLENDE_FØDSEL);
 
@@ -89,15 +100,13 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
             }
         }
 
-        var automatiskEtterkontrollTjeneste = FagsakYtelseTypeRef.Lookup
-                .find(EtterkontrollTjeneste.class, behandling.getFagsak().getYtelseType()).orElseThrow();
         var revurderingsÅrsak = automatiskEtterkontrollTjeneste.utledRevurderingÅrsak(behandling, familieHendelseGrunnlag,
                 barnFødtIPeriode);
 
         revurderingsÅrsak.ifPresent(årsak -> {
             var enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());
 
-            automatiskEtterkontrollTjeneste.opprettRevurdering(behandling, årsak, enhet);
+            automatiskEtterkontrollTjeneste.opprettRevurdering(behandling, skalAnnenpartEtterkontrolleres, årsak, enhet);
         });
     }
 

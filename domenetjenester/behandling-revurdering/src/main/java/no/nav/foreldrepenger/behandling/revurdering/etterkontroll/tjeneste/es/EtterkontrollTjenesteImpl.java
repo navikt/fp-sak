@@ -67,7 +67,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     @Override
-    public void opprettRevurdering(Behandling behandling, BehandlingÅrsakType årsak, OrganisasjonsEnhet enhetForRevurdering) {
+    public void opprettRevurdering(Behandling behandling, boolean skalAnnenpartEtterkontrolleres, BehandlingÅrsakType årsak, OrganisasjonsEnhet enhetForRevurdering) {
         var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(behandling.getFagsak(), årsak, enhetForRevurdering);
         behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
     }

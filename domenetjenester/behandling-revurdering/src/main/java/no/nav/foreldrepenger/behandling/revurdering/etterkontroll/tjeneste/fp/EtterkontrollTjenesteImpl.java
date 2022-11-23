@@ -75,14 +75,14 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     @Override
-    public void opprettRevurdering(Behandling behandling, BehandlingÅrsakType årsak, OrganisasjonsEnhet enhetForRevurdering) {
+    public void opprettRevurdering(Behandling behandling, boolean skalAnnenpartEtterkontrolleres, BehandlingÅrsakType årsak, OrganisasjonsEnhet enhetForRevurdering) {
         var fagsak = behandling.getFagsak();
         var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, årsak, enhetForRevurdering);
 
         var behandlingMedforelder = behandlingRevurderingRepository
                 .finnSisteInnvilgetBehandlingForMedforelder(behandling.getFagsak());
 
-        if (behandlingMedforelder.isPresent()) {
+        if (behandlingMedforelder.isPresent() && skalAnnenpartEtterkontrolleres) {
             // For dette tilfellet vil begge sakene etterkontrolleres samtidig.
             LOG.info("Etterkontroll har funnet fagsak (id={}) på medforelder for fagsak med fagsakId={}", behandlingMedforelder.get().getFagsakId(),
                     fagsak.getId());
