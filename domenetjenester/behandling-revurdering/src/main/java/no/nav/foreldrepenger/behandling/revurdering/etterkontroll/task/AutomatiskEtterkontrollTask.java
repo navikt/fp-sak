@@ -78,11 +78,6 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         var automatiskEtterkontrollTjeneste = FagsakYtelseTypeRef.Lookup
             .find(EtterkontrollTjeneste.class, behandling.getFagsak().getYtelseType()).orElseThrow();
 
-        var skalAnnenpartEtterkontrolleres = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())
-            .flatMap(r -> r.getRelatertFagsak(behandling.getFagsak()))
-            .map(ap -> etterkontrollRepository.finnEtterkontrollForFagsak(ap.getId(), KontrollType.MANGLENDE_FØDSEL)).orElse(List.of()).stream()
-            .anyMatch(ek -> !ek.isBehandlet());
-
         etterkontrollRepository.avflaggDersomEksisterer(fagsakId, KontrollType.MANGLENDE_FØDSEL);
 
         if (behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsakId)) {
@@ -106,7 +101,7 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         revurderingsÅrsak.ifPresent(årsak -> {
             var enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());
 
-            automatiskEtterkontrollTjeneste.opprettRevurdering(behandling, skalAnnenpartEtterkontrolleres, årsak, enhet);
+            automatiskEtterkontrollTjeneste.opprettRevurdering(behandling, årsak, enhet);
         });
     }
 
