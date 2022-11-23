@@ -8,14 +8,13 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 
 @ApplicationScoped
-@GrunnlagRef(NesteSakGrunnlagEntitet.GRUNNLAG_NAME)
-class BehandlingÅrsakUtlederYtelseFordeling implements BehandlingÅrsakUtleder {
+@GrunnlagRef(GrunnlagRef.YTELSE_FORDELING_GRUNNLAG)
+class BehandlingÅrsakUtlederNesteSak implements BehandlingÅrsakUtleder {
 
     @Inject
-    public BehandlingÅrsakUtlederYtelseFordeling() {
+    public BehandlingÅrsakUtlederNesteSak() {
         //For CDI
     }
 
