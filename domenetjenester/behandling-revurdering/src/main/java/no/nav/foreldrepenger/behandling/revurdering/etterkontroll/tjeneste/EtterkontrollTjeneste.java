@@ -14,6 +14,7 @@ public interface EtterkontrollTjeneste {
     Optional<BehandlingÅrsakType> utledRevurderingÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag,
             List<FødtBarnInfo> barnFraRegister);
 
-    void opprettRevurdering(Behandling behandling, BehandlingÅrsakType årsak, OrganisasjonsEnhet enhetForRevurdering);
+    void opprettRevurdering(Behandling behandling, BehandlingÅrsakType årsak,
+                            OrganisasjonsEnhet enhetForRevurdering);
 
 }

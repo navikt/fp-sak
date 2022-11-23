@@ -80,15 +80,18 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
         var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, årsak, enhetForRevurdering);
 
         var behandlingMedforelder = behandlingRevurderingRepository
-                .finnSisteInnvilgetBehandlingForMedforelder(behandling.getFagsak());
+            .finnSisteInnvilgetBehandlingForMedforelder(behandling.getFagsak());
+        var åpenBehandlingMedforelder = behandlingRevurderingRepository.finnFagsakPåMedforelder(behandling.getFagsak())
+            .flatMap(fmf -> behandlingRevurderingRepository.finnÅpenYtelsesbehandling(fmf.getId()))
+            .isPresent();
 
         if (behandlingMedforelder.isPresent()) {
-            // For dette tilfellet vil begge sakene etterkontrolleres samtidig.
+            // For dette tilfellet vil enten begge sakene etterkontrolleres samtidig - eller bare ene forelder mangler registrering.
             LOG.info("Etterkontroll har funnet fagsak (id={}) på medforelder for fagsak med fagsakId={}", behandlingMedforelder.get().getFagsakId(),
                     fagsak.getId());
             var denneStarterUttakFørst = denneForelderHarTidligstUttak(behandling, behandlingMedforelder.get());
 
-            if (denneStarterUttakFørst || BehandlingÅrsakType.RE_HENDELSE_FØDSEL.equals(årsak)) { // Først eller etterregistrerte foreldre
+            if (denneStarterUttakFørst || !åpenBehandlingMedforelder || BehandlingÅrsakType.RE_HENDELSE_FØDSEL.equals(årsak)) { // Først eller etterregistrerte foreldre
                 behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
             } else {
                 enkøBehandling(revurdering);

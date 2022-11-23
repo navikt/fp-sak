@@ -21,7 +21,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.Etterkontroll;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollRepository;
+import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.KontrollType;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.task.AutomatiskEtterkontrollTask;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -107,6 +109,7 @@ public class AutomatiskEtterkontrollTaskTest {
         var navBruker = new NavBrukerBuilder().medAktørId(aktørId).build();
         entityManager.persist(navBruker);
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, relasjonsRolleType, saksnummer);
+        repositoryProvider.getFagsakRepository().opprettNy(fagsak);
         final var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         Behandlingsresultat.opprettFor(behandling);
         entityManager.persist(behandling.getFagsak());
@@ -183,7 +186,7 @@ public class AutomatiskEtterkontrollTaskTest {
     }
 
     @Test
-    public void skal_opprette_revurderingsbehandling_med_årsak_fødsel_mangler_og_køe_berørt_behandling_dersom_fødsel_mangler_i_tps() {
+    public void skal_opprette_revurderingsbehandling_med_årsak_fødsel_mangler_og_køe_etterkontroll_dersom_fødsel_mangler_i_tps() {
 
         var fødseldato = LocalDate.now().minusDays(70);
 
@@ -289,6 +292,111 @@ public class AutomatiskEtterkontrollTaskTest {
         createTask();
         task.doTask(prosessTaskDataFar);
         assertKøetRevurdering(farsBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
+    }
+
+    @Test
+    public void skal_opprette_revurderingsbehandling_med_årsak_fødsel_mangler_og_starte_behandling_dersom_bare_far_skal_etterkontrolleres() {
+
+        var fødseldato = LocalDate.now().minusDays(70);
+
+        // --- Mors behandling
+        var morsBehandling = lagBehandling(AktørId.dummy(), RelasjonsRolleType.MORA, new Saksnummer("69996"));
+        var virksomhetForMor = arbeidsgiver("123");
+        var uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
+        var uttakResultatPerioderForMor = new UttakResultatPerioderEntitet();
+
+        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
+            StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
+        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1),
+            StønadskontoType.MØDREKVOTE);
+        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.plusWeeks(6),
+            fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE);
+
+        var behandlingsresultatForMor = morsBehandling.getBehandlingsresultat();
+        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor)
+            .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        entityManager.persist(behandlingsresultatForMor);
+        var behandlingVedtak = BehandlingVedtak.builder()
+            .medBehandlingsresultat(behandlingsresultatForMor)
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .medAnsvarligSaksbehandler("Saksbehadlersen")
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .build();
+        entityManager.persist(behandlingVedtak);
+
+        repositoryProvider.getFpUttakRepository()
+            .lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
+        morsBehandling.avsluttBehandling();
+        repositoryProvider.getBehandlingRepository()
+            .lagre(morsBehandling, repositoryProvider.getBehandlingLåsRepository().taLås(morsBehandling.getId()));
+        entityManager.flush();
+        entityManager.clear();
+
+        // --- Fars behandling
+        var farsBehandling = lagBehandling(AktørId.dummy(), RelasjonsRolleType.FARA, new Saksnummer("7799999"));
+
+        repositoryProvider.getFagsakRelasjonRepository()
+            .kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
+        var virksomhetForFar = arbeidsgiver("456");
+        var uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
+        var uttakResultatPerioderForFar = new UttakResultatPerioderEntitet();
+
+        lagPeriode(uttakResultatPerioderForFar, uttakAktivitetForFar, fødseldato.plusWeeks(16),
+            fødseldato.plusWeeks(31).minusDays(1), StønadskontoType.FEDREKVOTE);
+
+        var behandlingsresultatForFar = farsBehandling.getBehandlingsresultat();
+        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForFar)
+            .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        entityManager.persist(behandlingsresultatForFar);
+        var behandlingVedtakFar = BehandlingVedtak.builder()
+            .medBehandlingsresultat(behandlingsresultatForFar)
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .medAnsvarligSaksbehandler("Saksbehadlersen")
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .build();
+        entityManager.persist(behandlingVedtakFar);
+
+        repositoryProvider.getFpUttakRepository()
+            .lagreOpprinneligUttakResultatPerioder(farsBehandling.getId(), uttakResultatPerioderForFar);
+
+        farsBehandling.avsluttBehandling();
+        repositoryProvider.getBehandlingRepository()
+            .lagre(farsBehandling, repositoryProvider.getBehandlingLåsRepository().taLås(farsBehandling.getId()));
+        entityManager.flush();
+        entityManager.clear();
+
+        when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(
+            Collections.emptyList());
+
+        var termindato = LocalDate.now().minusDays(70);
+
+        var familieHendelseBuilder = repositoryProvider.getFamilieHendelseRepository()
+            .opprettBuilderFor(morsBehandling);
+        final var søknadHendelse = familieHendelseBuilder.medAntallBarn(1)
+            .medTerminbekreftelse(familieHendelseBuilder.getTerminbekreftelseBuilder()
+                .medTermindato(termindato).medUtstedtDato(LocalDate.now()).medNavnPå("Doktor"));
+        repositoryProvider.getFamilieHendelseRepository().lagre(morsBehandling, søknadHendelse);
+        var familieHendelseBuilderFødsel = repositoryProvider.getFamilieHendelseRepository()
+            .opprettBuilderFor(morsBehandling);
+        final var bekreftetHendelse = familieHendelseBuilderFødsel.medAntallBarn(1)
+            .medFødselsDato(termindato);
+        repositoryProvider.getFamilieHendelseRepository().lagreRegisterHendelse(morsBehandling, bekreftetHendelse);
+
+        var familieHendelseBuilderFar = repositoryProvider.getFamilieHendelseRepository()
+            .opprettBuilderFor(farsBehandling);
+        final var søknadHendelseFar = familieHendelseBuilderFar.medAntallBarn(1)
+            .medTerminbekreftelse(familieHendelseBuilderFar.getTerminbekreftelseBuilder()
+                .medTermindato(termindato).medUtstedtDato(LocalDate.now()).medNavnPå("Doktor"));
+        repositoryProvider.getFamilieHendelseRepository().lagre(farsBehandling, søknadHendelseFar);
+
+        var prosessTaskDataFar = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
+        prosessTaskDataFar.setBehandling(farsBehandling.getFagsakId(), farsBehandling.getId(),
+            farsBehandling.getAktørId().getId());
+        prosessTaskDataFar.setSekvens("1");
+
+        createTask();
+        task.doTask(prosessTaskDataFar);
+        assertRevurdering(farsBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
     }
 
     private void assertRevurdering(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
