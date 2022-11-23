@@ -8,6 +8,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
@@ -113,7 +114,8 @@ public class FastsettePerioderTjeneste {
             var matchendeOpprinneligAktivitet = matchendeOpprinneligAktivitet(opprinneligPeriode,
                 nyAktivitet.getUttakAktivitet());
             var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periodeEntitet,
-                matchendeOpprinneligAktivitet.getUttakAktivitet()).medTrekkonto(nyAktivitet.getTrekkonto())
+                matchendeOpprinneligAktivitet.getUttakAktivitet())
+                .medTrekkonto(nyPeriode.isInnvilgetUtsettelse() ? StønadskontoType.UDEFINERT : nyAktivitet.getTrekkonto())
                 .medTrekkdager(nyAktivitet.getTrekkdager())
                 .medArbeidsprosent(nyAktivitet.getArbeidsprosent())
                 .medUtbetalingsgrad(nyAktivitet.getUtbetalingsgrad())
