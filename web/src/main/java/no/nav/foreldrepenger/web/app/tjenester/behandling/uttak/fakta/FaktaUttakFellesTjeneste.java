@@ -92,7 +92,9 @@ class FaktaUttakFellesTjeneste {
             .medDokumentasjonVurdering(null)
             .medMorsAktivitet(dto.morsAktivitet())
             .medFlerbarnsdager(dto.flerbarnsdager())
-            .medPeriodeType(dto.uttakPeriodeType());
+            .medPeriodeType(dto.uttakPeriodeType())
+            .medSamtidigUttaksprosent(dto.samtidigUttaksprosent())
+            .medSamtidigUttak(dto.samtidigUttaksprosent() != null);
 
         if (dto.utsettelseÅrsak() != null) {
             builder = builder.medÅrsak(dto.utsettelseÅrsak())
@@ -101,9 +103,6 @@ class FaktaUttakFellesTjeneste {
             builder = builder.medÅrsak(dto.overføringÅrsak());
         } else if (dto.oppholdÅrsak() != null) {
             builder = builder.medÅrsak(dto.oppholdÅrsak());
-        } else if (dto.samtidigUttaksprosent() != null) {
-            builder = builder.medSamtidigUttaksprosent(dto.samtidigUttaksprosent())
-                .medSamtidigUttak(true);
         } else if (dto.arbeidstidsprosent() != null && dto.arbeidstidsprosent().compareTo(BigDecimal.ZERO) > 0) {
             builder = builder.medArbeidsgiver(mapArbeidsgiver(dto.arbeidsforhold()))
                 .medGraderingAktivitetType(mapAktivitetType(dto.arbeidsforhold()))
