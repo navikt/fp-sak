@@ -75,8 +75,8 @@ public class UføreInnhenter {
         }
 
         var yfAggregat = yfRepository.hentAggregatHvisEksisterer(behandling.getId());
-        var finnesPerioderMedMorAktivitetUfør = yfAggregat.map(YtelseFordelingAggregat::getGjeldendeSøknadsperioder)
-            .map(OppgittFordelingEntitet::getOppgittePerioder).orElse(List.of()).stream()
+        var finnesPerioderMedMorAktivitetUfør = yfAggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling)
+            .map(OppgittFordelingEntitet::getPerioder).orElse(List.of()).stream()
             .filter(p -> UttakPeriodeType.FORELDREPENGER.equals(p.getPeriodeType()))
             .anyMatch(p -> MorsAktivitet.UFØRE.equals(p.getMorsAktivitet()));
         var oppgittRettighetMorUfør = yfAggregat.map(YtelseFordelingAggregat::getOppgittRettighet)
@@ -99,8 +99,8 @@ public class UføreInnhenter {
 
     private LocalDate førsteUttaksdag(Behandling behandling, Optional<YtelseFordelingAggregat> ytelseFordeling) {
 
-        final var førsteUttaksdagSøknad = ytelseFordeling.map(YtelseFordelingAggregat::getGjeldendeSøknadsperioder)
-            .map(OppgittFordelingEntitet::getOppgittePerioder).orElse(Collections.emptyList()).stream()
+        final var førsteUttaksdagSøknad = ytelseFordeling.map(YtelseFordelingAggregat::getGjeldendeFordeling)
+            .map(OppgittFordelingEntitet::getPerioder).orElse(Collections.emptyList()).stream()
             .map(OppgittPeriodeEntitet::getFom)
             .min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
 

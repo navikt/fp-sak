@@ -78,7 +78,7 @@ public class KontrollerAktivitetskravDtoTjeneste {
         var annenForelderFullMK = KontrollerAktivitetskravAksjonspunktUtleder.annenpartsHundreprosentMødrekvote(annenpartUttak);
 
         var result = new ArrayList<KontrollerAktivitetskravPeriodeDto>();
-        for (var søknadsperiode : ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder()) {
+        for (var søknadsperiode : ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder()) {
             var avklaringsresultat = KontrollerAktivitetskravAksjonspunktUtleder.skalKontrollereAktivitetskrav(
                 behandlingReferanse, søknadsperiode, ytelseFordelingAggregat, familieHendelse, annenForelderHarRett, annenForelderFullMK, false);
             if (avklaringsresultat.kravTilAktivitet()) {

@@ -83,7 +83,7 @@ public class YtelseFordelingAggregat {
         return getPerioderAnnenForelderRettEØS().map(p -> !p.getPerioder().isEmpty()).orElse(null);
     }
 
-    public OppgittFordelingEntitet getGjeldendeSøknadsperioder() {
+    public OppgittFordelingEntitet getGjeldendeFordeling() {
         return getOverstyrtFordeling().or(this::getJustertFordeling).orElseGet(this::getOppgittFordeling);
     }
 

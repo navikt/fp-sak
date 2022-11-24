@@ -48,7 +48,7 @@ public class FaktaUttakAksjonspunktUtleder {
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(input.getBehandlingReferanse().behandlingId());
 
         var list = new ArrayList<AksjonspunktDefinisjon>();
-        if (ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder().isEmpty()) {
+        if (ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder().isEmpty()) {
             list.add(FAKTA_UTTAK_INGEN_PERIODER);
         }
         if (input.finnesAndelerMedGraderingUtenBeregningsgrunnlag()) {
@@ -70,13 +70,13 @@ public class FaktaUttakAksjonspunktUtleder {
     }
 
     private static Optional<OppgittPeriodeEntitet> førsteSøkteDag(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder()
+        return ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder()
             .stream()
             .min(Comparator.comparing(OppgittPeriodeEntitet::getFom));
     }
 
     private static boolean graderingPåUkjentAktivitet(Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser, YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder().stream()
+        return ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder().stream()
             .filter(periode -> periode.isGradert())
             .anyMatch(periode -> gradererUkjentAktivitet(periode, beregningsgrunnlagStatuser));
     }

@@ -92,7 +92,7 @@ public class SøknadGrunnlagBygger {
     }
 
     private List<OppgittPeriodeEntitet> splitPåDokumentasjon(YtelseFordelingAggregat ytelseFordelingAggregat, RelasjonsRolleType relasjonsRolleType) {
-        var gjeldendePerioder = ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder();
+        var gjeldendePerioder = ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder();
         var opTimeline = new LocalDateTimeline<>(gjeldendePerioder.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), p)).toList());
         var dokPerioder = ytelseFordelingAggregat.getPerioderUttakDokumentasjon().map(d -> d.getPerioder()).orElse(List.of());
         var dokTimeline = new LocalDateTimeline<>(

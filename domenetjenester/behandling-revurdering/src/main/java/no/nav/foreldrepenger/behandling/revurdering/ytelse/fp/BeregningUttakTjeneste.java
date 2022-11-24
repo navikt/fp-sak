@@ -73,7 +73,7 @@ public class BeregningUttakTjeneste {
     }
 
     private Optional<LocalDate> finnSisteSøkteUttaksdag(YtelseFordelingAggregat yfAggregat) {
-        return yfAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder()
+        return yfAggregat.getGjeldendeFordeling().getPerioder()
             .stream()
             .map(OppgittPeriodeEntitet::getTom)
             .max(Comparator.naturalOrder());
@@ -88,14 +88,14 @@ public class BeregningUttakTjeneste {
         if (!ytelseFordelingAggregat.isPresent()) {
             return List.of();
         }
-        var søknadsperioder = ytelseFordelingAggregat.get().getGjeldendeSøknadsperioder();
-        var perioderMedGradering = fraSøknad(søknadsperioder.getOppgittePerioder());
+        var søknadsperioder = ytelseFordelingAggregat.get().getGjeldendeFordeling();
+        var perioderMedGradering = fraSøknad(søknadsperioder.getPerioder());
 
         if (ref.erRevurdering()) {
             var originalBehandling = ref.getOriginalBehandlingId()
                     .orElseThrow(() -> new IllegalStateException("Forventer original behandling i revurdering"));
             // Første periode i søknad kan starte midt i periode i vedtak
-            var førsteDatoSøknad = førsteDatoSøknad(søknadsperioder.getOppgittePerioder());
+            var førsteDatoSøknad = førsteDatoSøknad(søknadsperioder.getPerioder());
             var perioderMedGraderingFraVedtak = fraVedtak(førsteDatoSøknad, originalBehandling);
             perioderMedGradering.addAll(perioderMedGraderingFraVedtak);
         }

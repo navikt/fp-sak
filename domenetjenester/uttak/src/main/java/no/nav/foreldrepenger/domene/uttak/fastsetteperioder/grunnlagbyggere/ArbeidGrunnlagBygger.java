@@ -54,7 +54,7 @@ public class ArbeidGrunnlagBygger {
             arbeid.arbeidsforhold(arbeidsforhold);
         });
 
-        ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder().stream()
+        ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder().stream()
             .map(OppgittPeriodeEntitet::getFom)
             .forEach(fom -> {
                 var sumStillingsprosent =  uttakYrkesaktiviteter.summerStillingsprosentAlleYrkesaktiviteter(fom);

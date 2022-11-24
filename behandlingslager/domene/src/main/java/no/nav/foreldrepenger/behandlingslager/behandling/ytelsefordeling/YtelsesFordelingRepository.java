@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
@@ -111,15 +110,15 @@ public class YtelsesFordelingRepository {
         }
         if (grunnlag.getOppgittFordeling() != null) {
             entityManager.persist(grunnlag.getOppgittFordeling());
-            lagrePeriode(grunnlag.getOppgittFordeling().getOppgittePerioder());
+            lagrePeriode(grunnlag.getOppgittFordeling().getPerioder());
         }
         if (grunnlag.getJustertFordeling() != null) {
             entityManager.persist(grunnlag.getJustertFordeling());
-            lagrePeriode(grunnlag.getJustertFordeling().getOppgittePerioder());
+            lagrePeriode(grunnlag.getJustertFordeling().getPerioder());
         }
         if (grunnlag.getOverstyrtFordeling() != null) {
             entityManager.persist(grunnlag.getOverstyrtFordeling());
-            lagrePeriode(grunnlag.getOverstyrtFordeling().getOppgittePerioder());
+            lagrePeriode(grunnlag.getOverstyrtFordeling().getPerioder());
         }
         if (grunnlag.getAvklarteUttakDatoer() != null) {
             entityManager.persist(grunnlag.getAvklarteUttakDatoer());

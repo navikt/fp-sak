@@ -85,7 +85,7 @@ class FaktaUttakOppdatererTest {
         dto.setPerioder(List.of(mødrekvoteDto, utsettelseDto, oppholdDto, overføringDto, samtidigUttak));
         var resultat = kjørOppdaterer(behandling, dto);
         var yfa = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
-        var lagretPerioder = yfa.getGjeldendeSøknadsperioder().getOppgittePerioder();
+        var lagretPerioder = yfa.getGjeldendeFordeling().getPerioder();
 
         //Endrer endringsdato pga første periode som lagres starter før opprinnelig endringsdato
         assertThat(yfa.getGjeldendeEndringsdato()).isEqualTo(mødrekvoteDto.fom());

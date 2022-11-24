@@ -115,7 +115,7 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
         }
 
         List<ManglendeVedlegg> manglendeVedlegg = new ArrayList<>();
-        var oppgittePerioder = oppgittFordeling.get().getOppgittePerioder();
+        var oppgittePerioder = oppgittFordeling.get().getPerioder();
 
         oppgittePerioder.stream().map(OppgittPeriodeEntitet::getÅrsak).forEach(årsak -> {
             if (UtsettelseÅrsak.SYKDOM.equals(årsak) && !dokumentTypeIdSet.contains(DokumentTypeId.LEGEERKLÆRING)) {

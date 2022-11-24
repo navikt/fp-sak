@@ -43,8 +43,8 @@ public class VurderUttakDokumentasjonAksjonspunktUtleder {
         }
         var behandlingId = input.getBehandlingReferanse().behandlingId();
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
-        return ytelseFordelingAggregat.getGjeldendeSøknadsperioder()
-            .getOppgittePerioder()
+        return ytelseFordelingAggregat.getGjeldendeFordeling()
+            .getPerioder()
             .stream()
             .map(p -> dokumentasjonVurderingBehov(p, input))
             .toList();

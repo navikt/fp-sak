@@ -110,8 +110,8 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
 
     private List<OppgittPeriodeEntitet> perioderForBehandling(Behandling behandling, LocalDate mottattDato, LocalDate tidligstedato) {
         return ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId())
-            .map(YtelseFordelingAggregat::getGjeldendeSøknadsperioder)
-            .map(OppgittFordelingEntitet::getOppgittePerioder).orElse(List.of()).stream()
+            .map(YtelseFordelingAggregat::getGjeldendeFordeling)
+            .map(OppgittFordelingEntitet::getPerioder).orElse(List.of()).stream()
             .filter(op -> !op.getTom().isBefore(tidligstedato))
             .filter(p -> p.getTidligstMottattDato().orElseGet(p::getMottattDato) != null)
             .filter(p -> p.getTidligstMottattDato().orElseGet(p::getMottattDato).isBefore(mottattDato))

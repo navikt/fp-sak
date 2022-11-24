@@ -110,21 +110,21 @@ public class UtsettelseCore2021 {
     }
 
     public static Optional<LocalDate> finnFørsteDatoFraSøknad(Optional<OppgittFordelingEntitet> oppgittFordeling, boolean kreverSammenhengendeUttak) {
-        return oppgittFordeling.map(OppgittFordelingEntitet::getOppgittePerioder).orElse(Collections.emptyList()).stream()
+        return oppgittFordeling.map(OppgittFordelingEntitet::getPerioder).orElse(Collections.emptyList()).stream()
             .filter(p -> kreverSammenhengendeUttak || frittUttakErPeriodeMedUttak(p))
             .map(OppgittPeriodeEntitet::getFom)
             .min(Comparator.naturalOrder());
     }
 
     public static Optional<LocalDate> finnFørsteUtsettelseDatoFraSøknad(Optional<OppgittFordelingEntitet> oppgittFordeling, boolean kreverSammenhengendeUttak) {
-        return oppgittFordeling.map(OppgittFordelingEntitet::getOppgittePerioder).orElse(Collections.emptyList()).stream()
+        return oppgittFordeling.map(OppgittFordelingEntitet::getPerioder).orElse(Collections.emptyList()).stream()
             .filter(p -> !kreverSammenhengendeUttak && !frittUttakErPeriodeMedUttak(p))
             .map(OppgittPeriodeEntitet::getFom)
             .min(Comparator.naturalOrder());
     }
 
     public static Optional<LocalDate> finnSisteDatoFraSøknad(Optional<OppgittFordelingEntitet> oppgittFordeling, boolean kreverSammenhengendeUttak) {
-        return oppgittFordeling.map(OppgittFordelingEntitet::getOppgittePerioder).orElse(Collections.emptyList()).stream()
+        return oppgittFordeling.map(OppgittFordelingEntitet::getPerioder).orElse(Collections.emptyList()).stream()
             .filter(p -> kreverSammenhengendeUttak || frittUttakErPeriodeMedUttak(p))
             .map(OppgittPeriodeEntitet::getTom)
             .max(Comparator.naturalOrder());

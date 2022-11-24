@@ -78,7 +78,7 @@ public class TapteDagerFpffTjeneste {
         if (yf.isEmpty() || yf.get().getOppgittFordeling() == null) {
             return false;
         }
-        return yf.get().getOppgittFordeling().getOppgittePerioder().stream()
+        return yf.get().getOppgittFordeling().getPerioder().stream()
             .anyMatch(p -> Objects.equals(p.getPeriodeType(), UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL));
     }
 

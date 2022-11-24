@@ -160,7 +160,7 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
 
     private static boolean inneholderNyePerioder(YtelseFordelingAggregat ytelseFordelingAggregat) {
         return ytelseFordelingAggregat.getOppgittFordeling() != null && !ytelseFordelingAggregat.getOppgittFordeling()
-            .getOppgittePerioder()
+            .getPerioder()
             .isEmpty();
     }
 
@@ -193,7 +193,7 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
             .flatMap(apVedtak -> foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(apVedtak));
         var annenpartFullMK = annenpartsHundreprosentMødrekvote(annenpartUttak);
         var annenforelderRett = UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartUttak);
-        return ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder().stream().anyMatch(p -> {
+        return ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder().stream().anyMatch(p -> {
             var resultat = skalKontrollereAktivitetskrav(behandlingReferanse, p, ytelseFordelingAggregat,
                 familieHendelse, annenforelderRett, annenpartFullMK, logg150);
             return resultat.kravTilAktivitet() && !resultat.isAvklart();

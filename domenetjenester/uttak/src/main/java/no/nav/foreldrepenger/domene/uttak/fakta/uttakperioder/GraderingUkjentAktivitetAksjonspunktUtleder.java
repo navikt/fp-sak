@@ -52,7 +52,7 @@ public class GraderingUkjentAktivitetAksjonspunktUtleder implements FaktaUttakAk
             return false;
         }
         var beregningsgrunnlagStatuser = input.getBeregningsgrunnlagStatuser();
-        return yf.get().getGjeldendeSøknadsperioder().getOppgittePerioder().stream()
+        return yf.get().getGjeldendeFordeling().getPerioder().stream()
             .filter(periode -> periode.isGradert())
             .anyMatch(periode -> gradererUkjentAktivitet(periode, beregningsgrunnlagStatuser));
     }

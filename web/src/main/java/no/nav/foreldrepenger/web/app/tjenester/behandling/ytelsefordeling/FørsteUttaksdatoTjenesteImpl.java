@@ -46,8 +46,8 @@ public class FørsteUttaksdatoTjenesteImpl implements FørsteUttaksdatoTjeneste 
 
     private Optional<LocalDate> finnFørsteUttaksdatoFørstegangsbehandling(Behandling behandling) {
         var oppgittePerioder = ytelseFordelingTjeneste.hentAggregat(behandling.getId())
-            .getGjeldendeSøknadsperioder()
-            .getOppgittePerioder();
+            .getGjeldendeFordeling()
+            .getPerioder();
         if (oppgittePerioder.isEmpty()) {
             return Optional.empty();
         }

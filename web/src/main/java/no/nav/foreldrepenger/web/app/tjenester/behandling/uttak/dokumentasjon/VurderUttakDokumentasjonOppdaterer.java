@@ -71,7 +71,7 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
 
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(param.getBehandlingId());
 
-        var gjeldendePerioder = ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder();
+        var gjeldendePerioder = ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder();
 
         var vurderingTimeline = new LocalDateTimeline<>(
             dto.getVurderingBehov().stream().map(vb -> new LocalDateSegment<>(vb.fom(), vb.tom(), vb)).toList());

@@ -106,7 +106,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
         assertThat(ytelseFordelingAggregat).isPresent();
         var aggregat = ytelseFordelingAggregat.get();
         assertThat(aggregat.getOppgittFordeling()).isNotNull();
-        assertThat(aggregat.getOppgittFordeling().getOppgittePerioder()).isEmpty();
+        assertThat(aggregat.getOppgittFordeling().getPerioder()).isEmpty();
         assertThat(aggregat.getOppgittFordeling().getErAnnenForelderInformert()).isTrue();
     }
 
@@ -135,7 +135,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
 
         var ytelseFordelingAggregat = repositoryProvider.getYtelsesFordelingRepository()
                 .hentAggregat(revurdering.getId());
-        assertThat(ytelseFordelingAggregat.getOppgittFordeling().getOppgittePerioder()).isNotEmpty();
+        assertThat(ytelseFordelingAggregat.getOppgittFordeling().getPerioder()).isNotEmpty();
         assertThat(ytelseFordelingAggregat.getOppgittFordeling().getErAnnenForelderInformert()).isTrue();
     }
 
@@ -168,7 +168,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
 
         var ytelseFordelingAggregat = repositoryProvider.getYtelsesFordelingRepository()
                 .hentAggregat(revurdering.getId());
-        assertThat(ytelseFordelingAggregat.getOppgittFordeling().getOppgittePerioder()).isNotEmpty();
+        assertThat(ytelseFordelingAggregat.getOppgittFordeling().getPerioder()).isNotEmpty();
     }
 
     @Test
@@ -191,10 +191,10 @@ public class KontrollerFaktaRevurderingStegImplTest {
         assertThat(ytelseFordelingAggregat).isPresent();
         var aggregat = ytelseFordelingAggregat.get();
         assertThat(aggregat.getOppgittFordeling()).isNotNull();
-        assertThat(aggregat.getOppgittFordeling().getOppgittePerioder()).isNotEmpty();
-        assertThat(aggregat.getOppgittFordeling().getOppgittePerioder()).size().isEqualTo(1);
-        assertThat(aggregat.getOppgittFordeling().getOppgittePerioder().get(0).getFom()).isEqualTo(fom);
-        assertThat(aggregat.getOppgittFordeling().getOppgittePerioder().get(0).getTom()).isEqualTo(tom);
+        assertThat(aggregat.getOppgittFordeling().getPerioder()).isNotEmpty();
+        assertThat(aggregat.getOppgittFordeling().getPerioder()).size().isEqualTo(1);
+        assertThat(aggregat.getOppgittFordeling().getPerioder().get(0).getFom()).isEqualTo(fom);
+        assertThat(aggregat.getOppgittFordeling().getPerioder().get(0).getTom()).isEqualTo(tom);
         assertThat(aggregat.getOppgittFordeling().getErAnnenForelderInformert()).isTrue();
     }
 

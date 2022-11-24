@@ -114,7 +114,7 @@ public class VurderSøknadsfristOppdatererTjenesteFPTest {
         tjeneste.oppdater(dto, aksjonspunktParam(behandling, dto));
 
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
-        var justertFordelingSortert = ytelseFordelingAggregat.getJustertFordeling().orElseThrow().getOppgittePerioder().stream()
+        var justertFordelingSortert = ytelseFordelingAggregat.getJustertFordeling().orElseThrow().getPerioder().stream()
                 .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
                 .collect(Collectors.toList());
         // Skal ikke oppdatere vedtaksperioder

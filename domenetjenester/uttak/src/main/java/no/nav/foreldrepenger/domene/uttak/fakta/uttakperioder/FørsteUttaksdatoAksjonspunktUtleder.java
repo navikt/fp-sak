@@ -57,7 +57,7 @@ public class FørsteUttaksdatoAksjonspunktUtleder implements FaktaUttakAksjonspu
     }
 
     private Optional<OppgittPeriodeEntitet> førsteSøknadsperiode(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder()
+        return ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder()
             .stream()
             .min(Comparator.comparing(OppgittPeriodeEntitet::getFom));
     }

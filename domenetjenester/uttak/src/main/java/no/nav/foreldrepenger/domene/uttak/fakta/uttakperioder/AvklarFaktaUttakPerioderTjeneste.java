@@ -77,8 +77,8 @@ public class AvklarFaktaUttakPerioderTjeneste {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId);
         if (ytelseFordelingAggregat.isPresent()) {
             var ytelseFordeling = ytelseFordelingAggregat.get();
-            var perioder = ytelseFordeling.getGjeldendeSøknadsperioder()
-                .getOppgittePerioder()
+            var perioder = ytelseFordeling.getGjeldendeFordeling()
+                .getPerioder()
                 .stream()
                 .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
                 .toList();
@@ -95,13 +95,13 @@ public class AvklarFaktaUttakPerioderTjeneste {
     }
 
     private List<UttakPeriodeEndringDto> finnEndringMellomOppgittOgGjeldendePerioder(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        var oppgittePerioder = ytelseFordelingAggregat.getOppgittFordeling().getOppgittePerioder()
+        var oppgittePerioder = ytelseFordelingAggregat.getOppgittFordeling().getPerioder()
             .stream()
             .map(UttakPeriodeEditDistance::new)
             .sorted(Comparator.comparing(p -> p.getPeriode().getFom()))
             .collect(Collectors.toList());
 
-        var gjeldendePerioder = ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder()
+        var gjeldendePerioder = ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder()
             .stream()
             .map(this::mapPeriode)
             .sorted(Comparator.comparing(u -> u.getPeriode().getFom()))

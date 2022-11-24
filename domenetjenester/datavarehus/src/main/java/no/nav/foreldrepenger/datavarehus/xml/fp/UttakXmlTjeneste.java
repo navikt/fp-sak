@@ -83,7 +83,7 @@ public class UttakXmlTjeneste {
     }
 
     private void setFordelingPerioder(UttakForeldrepenger uttakForeldrepenger, Behandling behandling) {
-        ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId()).ifPresent(ytelseFordelingAggregat -> setUttakFordelingPerioder(uttakForeldrepenger, ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder()));
+        ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId()).ifPresent(ytelseFordelingAggregat -> setUttakFordelingPerioder(uttakForeldrepenger, ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder()));
     }
 
     private void setUttakFordelingPerioder(UttakForeldrepenger uttakForeldrepenger, List<OppgittPeriodeEntitet> perioderDomene) {

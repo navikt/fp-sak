@@ -51,7 +51,7 @@ public class FaktaUttakPeriodeDtoTjeneste {
         }
         //TODO TFP-4873 perioder før endringsdato burde vises
 
-        return ytelseFordelingAggregatOpt.get().getGjeldendeSøknadsperioder().getOppgittePerioder()
+        return ytelseFordelingAggregatOpt.get().getGjeldendeFordeling().getPerioder()
             .stream()
             .map(p -> tilDto(p))
             .toList();
