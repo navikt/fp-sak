@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.control.ActivateRequestContext;
@@ -42,6 +41,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.log.util.LoggerUtils;
+
+import static java.util.stream.Collectors.toList;
 
 @ApplicationScoped
 @ActivateRequestContext
@@ -120,12 +121,12 @@ public class VedtaksHendelseHåndterer {
             LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getKildesystem(),
                 ytelse.getSaksnummer(), ytelse.getYtelse());
             LOG.info("Vedtatt-Ytelse VL har disse sakene for bruker med vedtak {} - saker {}",
-                ytelse.getYtelse(), fagsaker.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList()));
+                ytelse.getYtelse(), fagsaker.stream().map(Fagsak::getSaksnummer).collect(toList()));
 
             var fagsakerMedOverlapp = fagsakerMedVedtakOverlapp(ytelse, fagsaker);
             if (!fagsakerMedOverlapp.isEmpty()) {
                 var overlappSaksnummerList =
-                    fagsakerMedOverlapp.stream().map(Fagsak::getSaksnummer).map(Saksnummer::getVerdi).collect(Collectors.toList());
+                    fagsakerMedOverlapp.stream().map(Fagsak::getSaksnummer).map(Saksnummer::getVerdi).collect(toList());
                 var beskrivelse = String.format("Vedtak om %s sak %s overlapper saker i VL: %s",
                     ytelse.getYtelse(), ytelse.getSaksnummer(), String.join(", ", overlappSaksnummerList));
                 LOG.warn("Vedtatt-Ytelse KONTAKT PRODUKTEIER UMIDDELBART! - {}", beskrivelse);
@@ -171,7 +172,7 @@ public class VedtaksHendelseHåndterer {
         var ytelsesegments = ytelse.getAnvist().stream()
                 // .filter(p -> p.utbetalingsgrad().getVerdi().compareTo(BigDecimal.ZERO) >  0)
                 .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), Boolean.TRUE))
-                .collect(Collectors.toList());
+                .collect(toList());
         if (ytelsesegments.isEmpty() || fagsaker.isEmpty())
             return List.of();
 
@@ -180,16 +181,15 @@ public class VedtaksHendelseHåndterer {
 
         var behandlinger = fagsaker.stream()
                 .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
-                .filter(b -> sjekkOverlappFor(minYtelseDato, ytelseTidslinje, b))
-                .collect(Collectors.toList());
+                .filter(b -> sjekkOverlappFor(minYtelseDato, ytelseTidslinje, b));
 
-        return behandlinger.stream().map(Behandling::getFagsak).collect(Collectors.toList());
+        return behandlinger.map(Behandling::getFagsak).collect(toList());
     }
 
     private List<Fagsak> getFagsakerFor(YtelseV1 ytelse) {
         return fagsakTjeneste.finnFagsakerForAktør(new AktørId(ytelse.getAktør().getVerdi())).stream()
                 .filter(f -> VURDER_OVERLAPP.contains(f.getYtelseType()))
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     private boolean sjekkOverlappFor(LocalDate minYtelseDato, LocalDateTimeline<Boolean> ytelseTidslinje, Behandling behandling) {
@@ -198,7 +198,7 @@ public class VedtaksHendelseHåndterer {
                 .filter(p -> p.getDagsats() > 0)
                 .filter(p -> p.getBeregningsresultatPeriodeTom().isAfter(minYtelseDato.minusDays(1)))
                 .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), Boolean.TRUE))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         if (fpsegments.isEmpty())
             return false;
