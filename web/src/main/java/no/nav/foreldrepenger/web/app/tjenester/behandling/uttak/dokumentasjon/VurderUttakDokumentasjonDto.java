@@ -19,6 +19,14 @@ class VurderUttakDokumentasjonDto extends BekreftetAksjonspunktDto {
     @Size(min = 1, max = 200)
     private List<DokumentasjonVurderingBehovDto> vurderingBehov;
 
+    public VurderUttakDokumentasjonDto() {
+    }
+
+    public VurderUttakDokumentasjonDto(String begrunnelse, List<DokumentasjonVurderingBehovDto> vurderingBehov) {
+        super(begrunnelse);
+        this.vurderingBehov = vurderingBehov;
+    }
+
     List<DokumentasjonVurderingBehovDto> getVurderingBehov() {
         return vurderingBehov == null ? List.of() : vurderingBehov;
     }

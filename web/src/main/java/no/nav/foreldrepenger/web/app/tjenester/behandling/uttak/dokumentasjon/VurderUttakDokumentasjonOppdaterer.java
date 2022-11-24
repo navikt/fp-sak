@@ -49,13 +49,16 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private VurderUttakDokumentasjonAksjonspunktUtleder utleder;
     private UttakInputTjeneste uttakInputTjeneste;
+    private VurderUttakDokumentasjonHistorikkinnslagTjeneste historikkinnslagTjeneste;
 
     @Inject
     VurderUttakDokumentasjonOppdaterer(YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                        VurderUttakDokumentasjonAksjonspunktUtleder utleder,
+                                       VurderUttakDokumentasjonHistorikkinnslagTjeneste historikkinnslagTjeneste,
                                        UttakInputTjeneste uttakInputTjeneste) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.utleder = utleder;
+        this.historikkinnslagTjeneste = historikkinnslagTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
     }
 
@@ -92,7 +95,7 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
         }), LocalDateTimeline.JoinStyle.LEFT_JOIN).toSegments().stream().map(s -> s.getValue()).toList();
 
         ytelseFordelingTjeneste.overstyrSøknadsperioder(param.getBehandlingId(), nyFordeling, List.of());
-        //TODO TFP-4873 historikkinnslag, totrinn
+        historikkinnslagTjeneste.opprettHistorikkinnslag(dto, gjeldendePerioder);
         return OppdateringResultat.utenTransisjon().medBeholdAksjonspunktÅpent(!harLøstAksjonspunktet(param)).build();
     }
 
@@ -101,7 +104,7 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
         return utleder.utledAksjonspunkterFor(input).isEmpty();
     }
 
-    private DokumentasjonVurdering mapVurdering(DokumentasjonVurderingBehovDto dto) {
+    static DokumentasjonVurdering mapVurdering(DokumentasjonVurderingBehovDto dto) {
         return switch (dto.type()) {
             case UTSETTELSE -> mapUtsettelseVurdering((DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak) dto.årsak(), dto.vurdering());
             case UTTAK -> mapUttak((DokumentasjonVurderingBehov.Behov.UttakÅrsak) dto.årsak(), dto.vurdering());
@@ -109,7 +112,7 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
         };
     }
 
-    private DokumentasjonVurdering mapUttak(DokumentasjonVurderingBehov.Behov.UttakÅrsak årsak, DokumentasjonVurderingBehovDto.Vurdering vurdering) {
+    private static DokumentasjonVurdering mapUttak(DokumentasjonVurderingBehov.Behov.UttakÅrsak årsak, DokumentasjonVurderingBehovDto.Vurdering vurdering) {
         return switch (årsak) {
             case AKTIVITETSKRAV_INNLAGT, AKTIVITETSKRAV_IKKE_OPPGITT, AKTIVITETSKRAV_ARBEID_OG_UTDANNING, AKTIVITETSKRAV_ARBEID,
                 AKTIVITETSKRAV_INTROPROG, AKTIVITETSKRAV_KVALPROG, AKTIVITETSKRAV_UTDANNING, AKTIVITETSKRAV_TRENGER_HJELP ->
@@ -126,8 +129,11 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
     }
 
     @SuppressWarnings("DuplicatedCode")
-    private DokumentasjonVurdering mapOverføringVurdering(DokumentasjonVurderingBehov.Behov.OverføringÅrsak årsak,
+    private static DokumentasjonVurdering mapOverføringVurdering(DokumentasjonVurderingBehov.Behov.OverføringÅrsak årsak,
                                                           DokumentasjonVurderingBehovDto.Vurdering vurdering) {
+        if (vurdering == null) {
+            return null;
+        }
         return switch (årsak) {
             case INNLEGGELSE_ANNEN_FORELDER -> switch (vurdering) {
                 case GODKJENT -> INNLEGGELSE_ANNEN_FORELDER_GODKJENT;
@@ -149,7 +155,7 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
     }
 
     @SuppressWarnings("DuplicatedCode")
-    private DokumentasjonVurdering mapUtsettelseVurdering(DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak årsak,
+    private static DokumentasjonVurdering mapUtsettelseVurdering(DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak årsak,
                                                           DokumentasjonVurderingBehovDto.Vurdering vurdering) {
         return switch (årsak) {
             case INNLEGGELSE_SØKER -> switch (vurdering) {

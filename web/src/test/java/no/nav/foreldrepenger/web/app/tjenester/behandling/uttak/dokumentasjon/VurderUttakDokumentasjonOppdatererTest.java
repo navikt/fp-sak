@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,7 +22,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -38,6 +42,7 @@ import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjenest
 import no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov;
 import no.nav.foreldrepenger.domene.uttak.fakta.v2.VurderUttakDokumentasjonAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @CdiDbAwareTest
@@ -59,6 +64,9 @@ class VurderUttakDokumentasjonOppdatererTest {
     @Inject
     private BeregningUttakTjeneste beregningUttakTjeneste;
 
+    @Inject
+    private HistorikkTjenesteAdapter historikkTjenesteAdapter;
+
     @Test
     void skal_oppdatere_vurderinger_i_yf() {
         var eksisterendeUtsettelse = OppgittPeriodeBuilder.ny()
@@ -74,17 +82,27 @@ class VurderUttakDokumentasjonOppdatererTest {
 
         var behandling = behandlingMedAp(List.of(eksisterendeUtsettelse, eksisterendeUttak));
 
-        var dto = new VurderUttakDokumentasjonDto();
+
         var vurdering1 = new DokumentasjonVurderingBehovDto(eksisterendeUtsettelse.getFom(), eksisterendeUtsettelse.getFom().plusWeeks(1).minusDays(1),
             DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE, DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.SYKDOM_SØKER,
             DokumentasjonVurderingBehovDto.Vurdering.GODKJENT);
         var vurdering2 = new DokumentasjonVurderingBehovDto(vurdering1.tom().plusDays(1), eksisterendeUtsettelse.getTom(), DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE,
             DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.SYKDOM_SØKER, DokumentasjonVurderingBehovDto.Vurdering.IKKE_GODKJENT);
-        dto.setVurderingBehov(List.of(vurdering1, vurdering2));
+        var dto = new VurderUttakDokumentasjonDto("begrunnelse", List.of(vurdering1, vurdering2));
+
 
         var resultat = kjørOppdatering(behandling, dto);
 
+        historikkTjenesteAdapter.opprettHistorikkInnslag(behandling.getId(), HistorikkinnslagType.FAKTA_ENDRET);
+
         var lagretPerioder = hentLagretPerioder(behandling);
+
+        var historikk = repositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId());
+        var historikkDeler = historikk.stream()
+            .map(h -> h.getHistorikkinnslagDeler())
+            .flatMap(Collection::stream)
+            .toList();
+        var historikkEndretFelt = historikkDeler.stream().map(d -> d.getEndredeFelt()).flatMap(Collection::stream).toList();
 
         assertThat(resultat.skalUtføreAksjonspunkt()).isTrue();
         assertThat(lagretPerioder).hasSize(3);
@@ -97,6 +115,13 @@ class VurderUttakDokumentasjonOppdatererTest {
         assertThat(lagretPerioder.get(1).getDokumentasjonVurdering()).isEqualTo(DokumentasjonVurdering.SYKDOM_SØKER_IKKE_GODKJENT);
 
         assertThat(lagretPerioder.get(2)).isEqualTo(eksisterendeUttak);
+
+        assertThat(historikkDeler).hasSize(1);
+        assertThat(historikkDeler.get(0).getSkjermlenke()).hasValueSatisfying(s -> assertThat(SkjermlenkeType.VURDER_UTTAK_DOKUMENTASJON.getKode()).isEqualTo(s));
+        assertThat(historikkDeler.get(0).getBegrunnelse()).hasValueSatisfying(s -> assertThat("begrunnelse".equals(s)).isTrue());
+        assertThat(historikkEndretFelt).hasSize(2);
+        assertThat(historikkEndretFelt.stream().map(HistorikkinnslagFelt::getTilVerdi).anyMatch(til -> DokumentasjonVurdering.SYKDOM_SØKER_GODKJENT.getNavn().equals(til))).isTrue();
+        assertThat(historikkEndretFelt.stream().map(HistorikkinnslagFelt::getTilVerdi).anyMatch(til -> DokumentasjonVurdering.SYKDOM_SØKER_IKKE_GODKJENT.getNavn().equals(til))).isTrue();
     }
 
     @Test
@@ -184,7 +209,7 @@ class VurderUttakDokumentasjonOppdatererTest {
     private OppdateringResultat kjørOppdatering(Behandling behandling, VurderUttakDokumentasjonDto dto) {
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var oppdaterer = new VurderUttakDokumentasjonOppdaterer(new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()),
-            uttakDokumentasjonAksjonspunktUtleder,
+            uttakDokumentasjonAksjonspunktUtleder, new VurderUttakDokumentasjonHistorikkinnslagTjeneste(historikkTjenesteAdapter),
             new UttakInputTjeneste(repositoryProvider, new HentOgLagreBeregningsgrunnlagTjeneste(repositoryProvider.getEntityManager()),
                 new AbakusInMemoryInntektArbeidYtelseTjeneste(), skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste,
                 new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), true));
