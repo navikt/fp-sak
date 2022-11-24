@@ -34,8 +34,8 @@ final class OverstyrUttakValideringFeil {
             "Trekkdager for periodene overskrider maks tilgjengelige dager på konto");
     }
 
-    static TekniskException perioderFørEndringsdatoKanIkkeEndres() {
-        return new TekniskException("FP-999187", "Perioder før endringsdato kan ikke endres");
+    static TekniskException perioderFørEndringsdatoKanIkkeEndres(LocalDateInterval tidsperiode) {
+        return new TekniskException("FP-999187", "Perioder før endringsdato kan ikke endres " + tidsperiode);
     }
 
     static TekniskException trekkerDagerFraSøktKontoVedAvslagAvOverføring(ForeldrepengerUttakPeriode periode) {

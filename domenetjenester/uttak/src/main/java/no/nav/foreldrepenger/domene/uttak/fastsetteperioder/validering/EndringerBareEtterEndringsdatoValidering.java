@@ -20,7 +20,7 @@ class EndringerBareEtterEndringsdatoValidering implements OverstyrUttakPerioderV
     public void utfør(List<ForeldrepengerUttakPeriode> nyePerioder) {
         nyePerioder.forEach(p -> {
             if (p.getTom().isBefore(endringsdato) && harEndring(p)) {
-                throw OverstyrUttakValideringFeil.perioderFørEndringsdatoKanIkkeEndres();
+                throw OverstyrUttakValideringFeil.perioderFørEndringsdatoKanIkkeEndres(p.getTidsperiode());
             }
         });
     }
