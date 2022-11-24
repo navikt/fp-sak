@@ -69,7 +69,7 @@ public class NøkkeltallBehandlingRepositoryTest {
     private LocalDate finnFørsteUttakMånedDato(ScenarioMorSøkerForeldrepenger søknad) {
         return repositoryProvider.getYtelsesFordelingRepository()
             .hentAggregat(søknad.getBehandling().getId())
-            .getOppgittFordeling().getOppgittePerioder().stream()
+            .getOppgittFordeling().getPerioder().stream()
             .map(OppgittPeriodeEntitet::getFom)
             .min(LocalDate::compareTo)
             .map(d -> d.with(TemporalAdjusters.firstDayOfMonth()))

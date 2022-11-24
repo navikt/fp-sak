@@ -51,7 +51,7 @@ public class FastsettUttaksgrunnlagTjeneste {
             endringsdato = endringsdatoRevurdering;
         } else {
             endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(input.getBehandlingReferanse().behandlingId(),
-                    justertFordeling.getOppgittePerioder());
+                    justertFordeling.getPerioder());
         }
         var avklarteUttakDatoer = avklarteDatoerMedEndringsdato(behandlingId, endringsdato);
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
@@ -65,7 +65,7 @@ public class FastsettUttaksgrunnlagTjeneste {
         var behandlingId = ref.behandlingId();
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
         var fordeling = ytelseFordelingAggregat.getOppgittFordeling();
-        var justertePerioder = ytelseFordelingAggregat.getOppgittFordeling().getOppgittePerioder();
+        var justertePerioder = ytelseFordelingAggregat.getOppgittFordeling().getPerioder();
         if (ref.erRevurdering()) {
             var originalBehandlingId = ref.getOriginalBehandlingId()
                 .orElseThrow(() -> new IllegalArgumentException("Utvikler-feil: ved revurdering skal det alltid finnes en original behandling"));
@@ -131,7 +131,7 @@ public class FastsettUttaksgrunnlagTjeneste {
 
     private List<OppgittPeriodeEntitet> oppgittePerioderFraForrigeBehandling(Long forrigeBehandling) {
         var forrigeBehandlingYtelseFordeling = ytelsesFordelingRepository.hentAggregat(forrigeBehandling);
-        return forrigeBehandlingYtelseFordeling.getOppgittFordeling().getOppgittePerioder();
+        return forrigeBehandlingYtelseFordeling.getOppgittFordeling().getPerioder();
     }
 
     private boolean behandlingHarUttaksresultat(Long forrigeBehandlingId) {

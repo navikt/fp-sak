@@ -195,7 +195,7 @@ public class InntektArbeidYtelseRestTjeneste {
 
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId())
-                .map(YtelseFordelingAggregat::getOppgittFordeling).map(OppgittFordelingEntitet::getOppgittePerioder).orElse(Collections.emptyList()).stream()
+                .map(YtelseFordelingAggregat::getOppgittFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(Collections.emptyList()).stream()
                 .map(OppgittPeriodeEntitet::getArbeidsgiver).filter(Objects::nonNull).forEach(arbeidsgivere::add);
         }
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {

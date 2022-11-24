@@ -60,13 +60,13 @@ public class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
         assertThat(aggregat.getOppgittDekningsgrad()).isNotNull();
         assertThat(aggregat.getOppgittRettighet()).isNotNull();
         assertThat(aggregat.getOppgittFordeling()).isNotNull();
-        assertThat(aggregat.getOppgittFordeling().getOppgittePerioder()).isNotEmpty();
-        assertThat(aggregat.getOppgittFordeling().getOppgittePerioder()).hasSize(3);
+        assertThat(aggregat.getOppgittFordeling().getPerioder()).isNotEmpty();
+        assertThat(aggregat.getOppgittFordeling().getPerioder()).hasSize(3);
         assertThat(aggregat.getOverstyrtFordeling()).isNotNull();
-        assertThat(aggregat.getOverstyrtFordeling().orElseThrow().getOppgittePerioder()).isNotEmpty();
-        assertThat(aggregat.getOverstyrtFordeling().get().getOppgittePerioder()).hasSize(2);
+        assertThat(aggregat.getOverstyrtFordeling().orElseThrow().getPerioder()).isNotEmpty();
+        assertThat(aggregat.getOverstyrtFordeling().get().getPerioder()).hasSize(2);
 
-        assertThat(aggregat.getOverstyrtFordeling().get().getOppgittePerioder().get(0).getDokumentasjonVurdering())
+        assertThat(aggregat.getOverstyrtFordeling().get().getPerioder().get(0).getDokumentasjonVurdering())
             .isEqualTo(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT);
 
     }

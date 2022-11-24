@@ -63,7 +63,7 @@ public class OppgittFordelingEntitet extends BaseEntitet {
         this(søknadsPerioder, erAnnenForelderInformert, false);
     }
 
-    public List<OppgittPeriodeEntitet> getOppgittePerioder() {
+    public List<OppgittPeriodeEntitet> getPerioder() {
         return new ArrayList<>(søknadsPerioder);
     }
 

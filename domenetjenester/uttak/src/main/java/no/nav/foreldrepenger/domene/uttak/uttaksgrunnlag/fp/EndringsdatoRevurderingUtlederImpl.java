@@ -273,7 +273,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     private Optional<LocalDate> finnFørsteUttaksdatoSøknad(Long behandlingId) {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
         return ytelseFordelingAggregat.getOppgittFordeling()
-            .getOppgittePerioder()
+            .getPerioder()
             .stream()
             .map(OppgittPeriodeEntitet::getFom)
             .min(Comparator.naturalOrder());
@@ -366,7 +366,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         Optional<LocalDate> førsteOverlapp = !tidslinjeOverlapp.isEmpty() ? Optional.of(tidslinjeOverlapp.getMinLocalDate()) : Optional.empty();
         var søknadsPerioder = ytelsesFordelingRepository.hentAggregatHvisEksisterer(input.getBehandlingReferanse().behandlingId())
             .map(YtelseFordelingAggregat::getOppgittFordeling)
-            .map(OppgittFordelingEntitet::getOppgittePerioder).orElse(List.of()).stream()
+            .map(OppgittFordelingEntitet::getPerioder).orElse(List.of()).stream()
             .filter(p -> !p.isOpphold() && !p.isUtsettelse())
             .map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), Boolean.TRUE))
             .toList();

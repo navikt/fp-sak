@@ -68,9 +68,9 @@ public class FastsettUttaksgrunnlagTjenesteTest {
                 .hentAggregat(førstegangsbehandling.getId());
         var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(revurderingBehandling.getId());
 
-        assertThat(resultat.getOppgittFordeling().getOppgittePerioder()).isEmpty();
-        assertThat(resultat.getGjeldendeSøknadsperioder().getOppgittePerioder()).isEqualTo(
-                forrigeBehandlingFordeling.getOppgittFordeling().getOppgittePerioder());
+        assertThat(resultat.getOppgittFordeling().getPerioder()).isEmpty();
+        assertThat(resultat.getGjeldendeFordeling().getPerioder()).isEqualTo(
+                forrigeBehandlingFordeling.getOppgittFordeling().getPerioder());
         assertThat(resultat.getOppgittFordeling().getErAnnenForelderInformert()).isEqualTo(
                 forrigeBehandlingFordeling.getOppgittFordeling().getErAnnenForelderInformert());
     }
@@ -135,7 +135,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
 
         var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
-        assertThat(resultat.getGjeldendeSøknadsperioder().getOppgittePerioder().get(0).getFom()).isEqualTo(søknadFom);
+        assertThat(resultat.getGjeldendeFordeling().getPerioder().get(0).getFom()).isEqualTo(søknadFom);
     }
 
     @Test
@@ -174,7 +174,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
 
         var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
-        var oppgittePerioder = resultat.getGjeldendeSøknadsperioder().getOppgittePerioder();
+        var oppgittePerioder = resultat.getGjeldendeFordeling().getPerioder();
         assertThat(oppgittePerioder).hasSize(3);
         assertThat(oppgittePerioder.get(0).getFom()).isEqualTo(periode1.getFom());
         assertThat(oppgittePerioder.get(1).getFom()).isEqualTo(opphold1.getFom());
@@ -205,7 +205,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
 
         var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
-        var oppgittePerioder = resultat.getGjeldendeSøknadsperioder().getOppgittePerioder();
+        var oppgittePerioder = resultat.getGjeldendeFordeling().getPerioder();
         assertThat(oppgittePerioder).hasSize(2);
     }
 
@@ -230,7 +230,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
 
         var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
-        var oppgittePerioder = resultat.getGjeldendeSøknadsperioder().getOppgittePerioder();
+        var oppgittePerioder = resultat.getGjeldendeFordeling().getPerioder();
         assertThat(oppgittePerioder).hasSize(1);
         assertThat(oppgittePerioder.get(0).getFom()).isEqualTo(søknadsperiode.getFom());
         assertThat(oppgittePerioder.get(0).getTom()).isEqualTo(søknadsperiode.getTom());
@@ -268,7 +268,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
 
         var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
-        var oppgittePerioder = resultat.getGjeldendeSøknadsperioder().getOppgittePerioder();
+        var oppgittePerioder = resultat.getGjeldendeFordeling().getPerioder();
         assertThat(oppgittePerioder).hasSize(2);
         assertThat(oppgittePerioder.get(0).getFom()).isEqualTo(periode1.getFom());
         assertThat(oppgittePerioder.get(1).getFom()).isEqualTo(periode2.getFom());

@@ -198,7 +198,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
             var oppgittPerioder = ytelsesFordelingRepository.hentAggregatHvisEksisterer(revurdering.getId())
                     .map(YtelseFordelingAggregat::getOppgittFordeling)
-                    .map(OppgittFordelingEntitet::getOppgittePerioder).orElse(Collections.emptyList());
+                    .map(OppgittFordelingEntitet::getPerioder).orElse(Collections.emptyList());
             var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
             return oppgittPerioder.stream()
                     .anyMatch(oppgittPeriode -> oppgittPeriode.getFom().isBefore(skjæringstidspunkt));

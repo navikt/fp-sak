@@ -121,7 +121,7 @@ public class FastsettePerioderRegelResultatKonverterer {
     }
 
     private List<PeriodeSøknad> lagPeriodeSøknader(OppgittFordelingEntitet oppgittFordeling) {
-        return oppgittFordeling.getOppgittePerioder()
+        return oppgittFordeling.getPerioder()
             .stream()
             .map(oppgittPeriode -> lagPeriodeSøknad(oppgittPeriode))
             .collect(Collectors.toList());
@@ -273,7 +273,7 @@ public class FastsettePerioderRegelResultatKonverterer {
     }
 
     private OppgittFordelingEntitet hentOppgittFordeling(Long behandlingId) {
-        return ytelsesfordelingRepository.hentAggregat(behandlingId).getGjeldendeSøknadsperioder();
+        return ytelsesfordelingRepository.hentAggregat(behandlingId).getGjeldendeFordeling();
     }
 
     private UttakResultatDokRegelEntitet lagDokRegel(FastsettePeriodeResultat resultat) {

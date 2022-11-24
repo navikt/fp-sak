@@ -62,7 +62,7 @@ final class SøknadsperiodeDokKontrollerer {
             fødselsDatoTilTidligOppstart, utledUtsettelseKontrollerer(uttakInput),
             finnPerioderMedPleiepengerInnleggelse(uttakInput), farUttakRundtFødsel);
         return kontrollerer.kontrollerSøknadsperioder(
-            ytelseFordeling.getGjeldendeSøknadsperioder().getOppgittePerioder());
+            ytelseFordeling.getGjeldendeFordeling().getPerioder());
     }
 
     private static List<PleiepengerInnleggelseEntitet> finnPerioderMedPleiepengerInnleggelse(UttakInput input) {

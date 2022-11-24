@@ -46,8 +46,8 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
         var søknadMottattDato = søknadRepository.hentSøknadHvisEksisterer(behandlingId)
             .map(SøknadEntitet::getMottattDato).orElse(null);
         var perioder = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
-            .map(YtelseFordelingAggregat::getGjeldendeSøknadsperioder)
-            .map(OppgittFordelingEntitet::getOppgittePerioder)
+            .map(YtelseFordelingAggregat::getGjeldendeFordeling)
+            .map(OppgittFordelingEntitet::getPerioder)
             .map(p -> perioderSkalVurderes(p, søknadMottattDato))
             .orElseGet(List::of);
         var min = perioder.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder());

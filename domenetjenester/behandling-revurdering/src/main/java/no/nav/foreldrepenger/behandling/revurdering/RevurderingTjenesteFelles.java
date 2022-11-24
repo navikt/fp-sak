@@ -84,7 +84,7 @@ public class RevurderingTjenesteFelles {
     }
 
     public OppgittFordelingEntitet kopierOppgittFordelingFraForrigeBehandling(OppgittFordelingEntitet forrigeBehandlingFordeling) {
-        var kopiertFordeling = forrigeBehandlingFordeling.getOppgittePerioder().stream()
+        var kopiertFordeling = forrigeBehandlingFordeling.getPerioder().stream()
                 .map(periode -> OppgittPeriodeBuilder.fraEksisterende(periode).build())
                 .collect(Collectors.toList());
         return new OppgittFordelingEntitet(kopiertFordeling, forrigeBehandlingFordeling.getErAnnenForelderInformert(),

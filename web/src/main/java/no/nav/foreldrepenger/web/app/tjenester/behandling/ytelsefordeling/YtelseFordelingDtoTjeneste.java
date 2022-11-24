@@ -45,7 +45,7 @@ public class YtelseFordelingDtoTjeneste {
                 .ifPresent(uenOmsorg -> dtoBuilder.medIkkeOmsorgPerioder(PeriodeKonverter.mapUtenOmsorgperioder(uenOmsorg.getPerioder())));
             yfa.getAvklarteDatoer().ifPresent(avklarteUttakDatoer -> dtoBuilder.medEndringsdato(avklarteUttakDatoer.getGjeldendeEndringsdato()));
             leggTilFørsteUttaksdato(behandling, dtoBuilder);
-            dtoBuilder.medØnskerJustertVedFødsel(yfa.getGjeldendeSøknadsperioder().ønskerJustertVedFødsel());
+            dtoBuilder.medØnskerJustertVedFødsel(yfa.getGjeldendeFordeling().ønskerJustertVedFødsel());
             dtoBuilder.medRettigheterAnnenforelder(lagAnnenforelderRettDto(behandling, yfa));
         });
         var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak());

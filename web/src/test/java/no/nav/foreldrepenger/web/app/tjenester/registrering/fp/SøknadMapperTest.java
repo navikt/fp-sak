@@ -431,7 +431,7 @@ public class SøknadMapperTest {
         assertThat(ytelseFordelingAggregat.getOppgittRettighet()).isNotNull();
         assertThat(ytelseFordelingAggregat.getOppgittRettighet().getHarAnnenForeldreRett()).isTrue();
         assertThat(ytelseFordelingAggregat.getOppgittFordeling()).isNotNull();
-        assertThat(ytelseFordelingAggregat.getOppgittFordeling().getOppgittePerioder()).isNotEmpty();
+        assertThat(ytelseFordelingAggregat.getOppgittFordeling().getPerioder()).isNotEmpty();
     }
 
     @Test
@@ -486,14 +486,14 @@ public class SøknadMapperTest {
         assertThat(ytelseFordeling.getOppgittRettighet().getHarAleneomsorgForBarnet()).isTrue();
 
         assertThat(ytelseFordeling.getOppgittFordeling()).isNotNull();
-        assertThat(ytelseFordeling.getOppgittFordeling().getOppgittePerioder()).isNotEmpty();
+        assertThat(ytelseFordeling.getOppgittFordeling().getPerioder()).isNotEmpty();
         // Foreldrepenger før fødsel, mødrekvote og utsettelse
-        assertThat(ytelseFordeling.getOppgittFordeling().getOppgittePerioder()).hasSize(3);
-        assertThat(ytelseFordeling.getOppgittFordeling().getOppgittePerioder()).anySatisfy(
+        assertThat(ytelseFordeling.getOppgittFordeling().getPerioder()).hasSize(3);
+        assertThat(ytelseFordeling.getOppgittFordeling().getPerioder()).anySatisfy(
             periode -> assertThat(periode.getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL));
-        assertThat(ytelseFordeling.getOppgittFordeling().getOppgittePerioder()).anySatisfy(
+        assertThat(ytelseFordeling.getOppgittFordeling().getPerioder()).anySatisfy(
             periode -> assertThat(periode.getPeriodeType()).isEqualTo(MØDREKVOTE));
-        assertThat(ytelseFordeling.getOppgittFordeling().getOppgittePerioder().stream().map(OppgittPeriodeEntitet::getÅrsak).filter(u -> u instanceof UtsettelseÅrsak).toList()).anySatisfy(
+        assertThat(ytelseFordeling.getOppgittFordeling().getPerioder().stream().map(OppgittPeriodeEntitet::getÅrsak).filter(u -> u instanceof UtsettelseÅrsak).toList()).anySatisfy(
             årsak -> assertThat((UtsettelseÅrsak)årsak).isEqualTo(UtsettelseÅrsak.FERIE));
     }
 

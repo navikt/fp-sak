@@ -54,8 +54,8 @@ public class KontrollerOppgittFordelingTjenesteTest extends EntityManagerAwareTe
 
         assertThat(ytelseFordelingAggregat).isNotNull();
         var gjeldendeFordeling = ytelseFordelingAggregat
-            .getGjeldendeSøknadsperioder()
-            .getOppgittePerioder();
+            .getGjeldendeFordeling()
+            .getPerioder();
 
         assertThat(gjeldendeFordeling).isNotEmpty();
         assertThat(gjeldendeFordeling).hasSize(3);
@@ -78,8 +78,8 @@ public class KontrollerOppgittFordelingTjenesteTest extends EntityManagerAwareTe
 
         assertThat(ytelseFordelingAggregat).isNotNull();
         var gjeldendeFordeling = ytelseFordelingAggregat
-            .getGjeldendeSøknadsperioder()
-            .getOppgittePerioder();
+            .getGjeldendeFordeling()
+            .getPerioder();
 
         assertThat(gjeldendeFordeling).isNotEmpty();
         assertThat(gjeldendeFordeling).hasSize(3);

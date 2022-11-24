@@ -118,7 +118,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         familieHendelseGrunnlag.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
             .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
             .ifPresent(builder::medBekreftetFamiliehendelsedato);
-        hentYtelseFordelingAggregatFor(behandling.getId()).map(YtelseFordelingAggregat::getGjeldendeSøknadsperioder)
+        hentYtelseFordelingAggregatFor(behandling.getId()).map(YtelseFordelingAggregat::getGjeldendeFordeling)
             .map(OppgittFordelingEntitet::ønskerJustertVedFødsel)
             .map(valg -> valg && !utenMinsterett)
             .ifPresent(builder::medUttakSkalJusteresTilFødselsdato);
@@ -168,7 +168,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         familieHendelseGrunnlag.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
             .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
             .ifPresent(builder::medBekreftetFamiliehendelsedato);
-        hentYtelseFordelingAggregatFor(behandling.getId()).map(YtelseFordelingAggregat::getGjeldendeSøknadsperioder)
+        hentYtelseFordelingAggregatFor(behandling.getId()).map(YtelseFordelingAggregat::getGjeldendeFordeling)
             .map(OppgittFordelingEntitet::ønskerJustertVedFødsel)
             .map(valg -> valg && !utenMinsterett)
             .ifPresent(builder::medUttakSkalJusteresTilFødselsdato);
@@ -199,7 +199,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
     private Optional<LocalDate> stpForFlyttbareFedreOgMedmødre(Behandling behandling, Optional<YtelseFordelingAggregat> aggregat, Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag, boolean utenMinsterett) {
         if (utenMinsterett || RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType()) || aggregat.isEmpty() ||
-            !aggregat.get().getGjeldendeSøknadsperioder().ønskerJustertVedFødsel() || fhGrunnlag.isEmpty()) {
+            !aggregat.get().getGjeldendeFordeling().ønskerJustertVedFødsel() || fhGrunnlag.isEmpty()) {
             return Optional.empty();
         }
         return fhGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).flatMap(FamilieHendelseEntitet::getFødselsdato).map(VirkedagUtil::fomVirkedag);
@@ -220,7 +220,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             if (førsteUttaksdagIForrigeVedtak.isEmpty() && førsteØnskedeUttaksdagIBehandling.isEmpty()) {
                 var ytelseFordelingForOriginalBehandling = hentYtelseFordelingAggregatFor(originalBehandling(behandling));
                 return UtsettelseCore2021.finnFørsteDatoFraSøknad(ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getOppgittFordeling), kreverSammenhengendeUttak)
-                    .or(() -> UtsettelseCore2021.finnFørsteDatoFraSøknad(ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getGjeldendeSøknadsperioder), kreverSammenhengendeUttak))
+                    .or(() -> UtsettelseCore2021.finnFørsteDatoFraSøknad(ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getGjeldendeFordeling), kreverSammenhengendeUttak))
                     .orElseThrow(() -> finnerIkkeStpException(behandling.getId()));
             }
             // Sjekk utsettelse av startdato og returner da første uttaksdato i ny søknad
@@ -289,7 +289,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             if (sisteUttaksdagIForrigeVedtak.isEmpty() && sisteØnskedeUttaksdagIBehandling.isEmpty()) {
                 var ytelseFordelingForOriginalBehandling = hentYtelseFordelingAggregatFor(originalBehandling(behandling));
                 return UtsettelseCore2021.finnSisteDatoFraSøknad(ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getOppgittFordeling), kreverSammenhengendeUttak)
-                    .or(() -> UtsettelseCore2021.finnSisteDatoFraSøknad(ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getGjeldendeSøknadsperioder), kreverSammenhengendeUttak))
+                    .or(() -> UtsettelseCore2021.finnSisteDatoFraSøknad(ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getGjeldendeFordeling), kreverSammenhengendeUttak))
                     .orElse(skjæringsTidspunkt);
             }
             final var sistedato = utledSeneste(sisteØnskedeUttaksdagIBehandling.orElse(Tid.TIDENES_BEGYNNELSE),

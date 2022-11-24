@@ -121,7 +121,7 @@ public class BeregningUttakTjenesteTest {
 
     private void medFordeling(Behandling behandling, OppgittFordelingEntitet fordeling) {
         var ytelseFordelingAggregat = Mockito.mock(YtelseFordelingAggregat.class);
-        when(ytelseFordelingAggregat.getGjeldendeSøknadsperioder()).thenReturn(fordeling);
+        when(ytelseFordelingAggregat.getGjeldendeFordeling()).thenReturn(fordeling);
         when(ytelsesRepo.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(ytelseFordelingAggregat));
 
     }

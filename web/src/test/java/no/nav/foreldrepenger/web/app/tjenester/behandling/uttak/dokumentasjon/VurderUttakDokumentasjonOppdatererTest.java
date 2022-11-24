@@ -169,8 +169,8 @@ class VurderUttakDokumentasjonOppdatererTest {
     private List<OppgittPeriodeEntitet> hentLagretPerioder(Behandling behandling) {
         return repositoryProvider.getYtelsesFordelingRepository()
             .hentAggregat(behandling.getId())
-            .getGjeldendeSøknadsperioder()
-            .getOppgittePerioder();
+            .getGjeldendeFordeling()
+            .getPerioder();
     }
 
     private Behandling behandlingMedAp(List<OppgittPeriodeEntitet> fordeling) {

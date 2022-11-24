@@ -180,7 +180,7 @@ public class FaktaUttakOppdatererTest {
         faktaUttakOppdaterer.oppdater(avklarFaktaDto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, avklarFaktaDto));
 
         var lagretPerioder = behandlingRepositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId())
-                .getGjeldendeSøknadsperioder().getOppgittePerioder();
+                .getGjeldendeFordeling().getPerioder();
         assertThat(lagretPerioder).hasSize(1);
         assertThat(lagretPerioder.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(arbeidsgiverDto.getAktørId().getId());
         assertThat(lagretPerioder.get(0).getArbeidsgiver().getAktørId().getId()).isEqualTo(arbeidsgiverDto.getAktørId().getId());

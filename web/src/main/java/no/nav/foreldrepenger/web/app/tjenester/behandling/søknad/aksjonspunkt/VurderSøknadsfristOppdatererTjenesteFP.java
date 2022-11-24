@@ -45,7 +45,7 @@ public class VurderSøknadsfristOppdatererTjenesteFP extends VurderSøknadsfrist
     private void oppdaterYtelseFordelingMedMottattDato(Long behandlingId, LocalDate mottattDato) {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
         var eksisterendeJustertFordeling = ytelseFordelingAggregat.getJustertFordeling().orElseThrow();
-        var nyeJustertFordelingPerioder = eksisterendeJustertFordeling.getOppgittePerioder().stream()
+        var nyeJustertFordelingPerioder = eksisterendeJustertFordeling.getPerioder().stream()
             .map(p -> {
                 var builder = OppgittPeriodeBuilder.fraEksisterende(p);
                 if (Objects.equals(p.getPeriodeKilde(), FordelingPeriodeKilde.SØKNAD)) {

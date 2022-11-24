@@ -356,7 +356,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     public OppgittFordelingEntitet mockOppgittFordeling() {
         return new OppgittFordelingEntitet() {
             @Override
-            public List<OppgittPeriodeEntitet> getOppgittePerioder() {
+            public List<OppgittPeriodeEntitet> getPerioder() {
                 return Collections.singletonList(OppgittPeriodeBuilder.ny()
                         .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(6))
                         .medPeriodeType(UttakPeriodeType.MØDREKVOTE).build());

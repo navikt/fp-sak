@@ -71,7 +71,7 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
 
 
     private boolean erStartpunktBeregning(BehandlingReferanse nyBehandlingRef){
-        var perioderFraSøknad = ytelsesFordelingRepository.hentAggregat(nyBehandlingRef.behandlingId()).getOppgittFordeling().getOppgittePerioder();
+        var perioderFraSøknad = ytelsesFordelingRepository.hentAggregat(nyBehandlingRef.behandlingId()).getOppgittFordeling().getPerioder();
         var gradertePerioderFraSøknad = finnGradertePerioder(perioderFraSøknad);
 
         if (gradertePerioderFraSøknad.isEmpty()){
