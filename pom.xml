@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>0.3.7</version>
+        <version>0.3.10</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -35,7 +35,7 @@
 
         <fp-uttak.version>14.3.1</fp-uttak.version>
         <svp-uttak.version>2.3.4</svp-uttak.version>
-        <felles.version>4.2.12</felles.version>
+        <felles.version>4.2.13</felles.version>
         <prosesstask.version>3.1.13</prosesstask.version>
         <fp-jms.version>2.2.0</fp-jms.version>
 
