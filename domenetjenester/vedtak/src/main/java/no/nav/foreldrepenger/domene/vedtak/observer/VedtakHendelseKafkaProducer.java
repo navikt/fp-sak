@@ -46,7 +46,7 @@ public class VedtakHendelseKafkaProducer {
         LOG.info("Opprette producer for topic='{}'", topicName);
     }
 
-    void sendJson(String nøkkel, String json) {
+    void sendJson(String json) {
         runProducerWithSingleJson(new ProducerRecord<>(topicName, json));
     }
 
