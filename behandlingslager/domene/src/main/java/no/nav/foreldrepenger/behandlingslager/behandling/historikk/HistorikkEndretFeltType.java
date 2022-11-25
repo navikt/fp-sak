@@ -138,7 +138,9 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     ORGANISASJONSNUMMER("ORGANISASJONSNUMMER", "Organisasjonsnummer"),
     ARBEIDSFORHOLD_BEKREFTET_TOM_DATO("ARBEIDSFORHOLD_BEKREFTET_TOM_DATO", "Til og med dato fastsatt av saksbehandler"),
     ANKE_AVVIST_ÅRSAK("ANKE_AVVIST_ÅRSAK", "Årsak til avvist anke"),
-    AKTIVITETSKRAV_AVKLARING("AKTIVITETSKRAV_AVKLARING", "Avklaring om mor er i aktivitet");
+    AKTIVITETSKRAV_AVKLARING("AKTIVITETSKRAV_AVKLARING", "Avklaring om mor er i aktivitet"),
+    UTTAKPERIODE_DOK_AVKLARING("UTTAKPERIODE_DOK_AVKLARING", "Avklart dokumentasjon for periode"),
+    ;
 
     private static final Map<String, HistorikkEndretFeltType> KODER = new LinkedHashMap<>();
 
