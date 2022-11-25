@@ -72,7 +72,7 @@ public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
                 if (IS_PROD) {
                     producer.sendJson(payload);
                 } else {
-                    aivenProducer.sendJson(payload);
+                    aivenProducer.sendJson(b.getFagsak().getSaksnummer().getVerdi(), payload);
                 }
             });
     }

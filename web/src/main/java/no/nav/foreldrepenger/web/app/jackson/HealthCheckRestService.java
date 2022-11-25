@@ -60,9 +60,7 @@ public class HealthCheckRestService {
     @Operation(hidden = true)
     @Path("/isAlive")
     public Response isAlive() {
-        // TODO: legg til kall til selftests isKafkaAlive. StreamsConsumer dør av og til
-        // (auth, feil, etc)
-        if (isContextStartupReady) {
+        if (isContextStartupReady && selftests.isKafkaAlive()) {
             return Response
                     .ok(RESPONSE_OK, MediaType.TEXT_PLAIN_TYPE)
                     .header(RESPONSE_CACHE_KEY, RESPONSE_CACHE_VAL)
