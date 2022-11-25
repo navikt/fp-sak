@@ -50,15 +50,22 @@ public class FørsteLovligeUttaksdatoTjeneste {
             .filter(grenseMottattDato -> grenseMottattDato.isBefore(søknadMottattDato))
             .orElse(søknadMottattDato);
 
+        //Henter første fra dato og dens tidligste mottatt dato fra tilretteleggingsgrunnlaget, tidligst mottat dato ble lagt inn i okt 2022 - hvis den er null, så må vi bruke brukperiodegrense
+        var datoerSøknadsfrist = svangerskapspengerRepository.hentGrunnlag(behandlingId)
+            .flatMap(SøknadsperiodeFristTjenesteImpl::utledFørsteSøknadsperiodeFomFraGrunnlag);
+
+        var førsteUttaksDato = datoerSøknadsfrist.map(SøknadsperiodeFristTjenesteImpl.DatoerSøknadsfrist::førsteUttakDato);
+        var tidligstMottattDato = datoerSøknadsfrist.map(SøknadsperiodeFristTjenesteImpl.DatoerSøknadsfrist::tidligstMottatt)
+            .filter(d-> d.isBefore(brukperiodegrense))
+            .orElse(brukperiodegrense);
+
         //Lagre søknadsfristresultat - obs brukes i svp-uttak-regler og må ta hensyn til revurdering med eldre tilretteleggingFom
-        var uttaksperiodegrense = new Uttaksperiodegrense(brukperiodegrense);
+        var uttaksperiodegrense = new Uttaksperiodegrense(tidligstMottattDato);
         uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense);
 
-        final var tidligsteLovligeUttakDato = Søknadsfrister.tidligsteDatoDagytelse(brukperiodegrense);
-        var førsteUttaksdato = svangerskapspengerRepository.hentGrunnlag(behandlingId)
-            .flatMap(SøknadsperiodeFristTjenesteImpl::utledNettoSøknadsperiodeFomFraGrunnlag);
+        final var tidligsteLovligeUttakDato = Søknadsfrister.tidligsteDatoDagytelse(tidligstMottattDato);
 
-        var forTidligUttak = førsteUttaksdato.filter(fud -> fud.isBefore(tidligsteLovligeUttakDato)).isPresent();
+        var forTidligUttak = førsteUttaksDato.filter(fud -> fud.isBefore(tidligsteLovligeUttakDato)).isPresent();
         return forTidligUttak ? Optional.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST) : Optional.empty();
     }
 

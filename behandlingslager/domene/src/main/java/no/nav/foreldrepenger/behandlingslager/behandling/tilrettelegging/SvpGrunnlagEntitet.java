@@ -49,6 +49,14 @@ public class SvpGrunnlagEntitet extends BaseEntitet {
         return overstyrteTilrettelegginger;
     }
 
+    public SvpTilretteleggingerEntitet getGjeldendeVersjon() {
+
+        if (getOverstyrteTilrettelegginger() != null && !getOverstyrteTilrettelegginger().getTilretteleggingListe().isEmpty()) {
+            return overstyrteTilrettelegginger;
+        }
+        return opprinneligeTilrettelegginger;
+    }
+
     public Long getBehandlingId() {
         return behandlingId;
     }

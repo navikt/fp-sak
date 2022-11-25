@@ -408,7 +408,10 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         }
 
         //I mangel på endringssøknad forsøker vi å flette eventuelle eksisterende tilrettelegginger med nye hvis mulig
-        var eksisterendeTilrettelegginger = finnGjeldendeTilrettelegginger(behandling);
+        var eksisterendeTilrettelegginger = svangerskapspengerRepository.hentGrunnlag(behandling.getId())
+            .map(SvpGrunnlagEntitet::getGjeldendeVersjon)
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
+            .orElse(Collections.emptyList());
         List<SvpTilretteleggingEntitet> nyeOgEksisterendeTilrettelegginger = new ArrayList<>();
 
         if (!eksisterendeTilrettelegginger.isEmpty()) {
@@ -474,21 +477,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         return SvpTilretteleggingEntitet.Builder.fraEksisterende(eksisterendeTlr)
             .medBehovForTilretteleggingFom(nyFomListe.stream().map(TilretteleggingFOM::getFomDato).min(LocalDate::compareTo).orElse(null))
             .medTilretteleggingFraDatoer(nyFomListe).build();
-    }
-
-     private List<SvpTilretteleggingEntitet> finnGjeldendeTilrettelegginger(Behandling behandling) {
-        var overstyrteTirettelegginger =  svangerskapspengerRepository.hentGrunnlag(behandling.getId())
-            .map(SvpGrunnlagEntitet::getOverstyrteTilrettelegginger)
-            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
-            .orElse(Collections.emptyList());
-
-        if (overstyrteTirettelegginger.isEmpty()) {
-            return svangerskapspengerRepository.hentGrunnlag(behandling.getId())
-                .map(SvpGrunnlagEntitet::getOpprinneligeTilrettelegginger)
-                .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
-                .orElse(Collections.emptyList());
-        }
-        return overstyrteTirettelegginger;
     }
 
     private void oversettArbeidsforhold(SvpTilretteleggingEntitet.Builder builder, Arbeidsforhold arbeidsforhold) {

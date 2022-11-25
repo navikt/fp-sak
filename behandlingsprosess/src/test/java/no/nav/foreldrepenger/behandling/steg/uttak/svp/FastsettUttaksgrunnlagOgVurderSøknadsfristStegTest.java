@@ -63,12 +63,13 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
 
     @Test
     public void ingen_aksjonspunkt_når_søkt_i_tide(EntityManager em) {
-        var jordsmorsdato = LocalDate.of(2019, Month.MAY, 5);
-        var mottatdato = jordsmorsdato;
+        var behovFraDato = LocalDate.of(2019, Month.MAY, 5);
+        var tidligstMottattDato = behovFraDato;
+        var mottatdato = behovFraDato;
         var termindato = LocalDate.of(2019, Month.JULY, 1);
         svpHelper.lagreTerminbekreftelse(behandling, termindato);
-        svpHelper.lagreIngenTilrettelegging(behandling, jordsmorsdato);
-        var søknad = opprettSøknad(behandling, jordsmorsdato, mottatdato);
+        svpHelper.lagreIngenTilrettelegging(behandling, behovFraDato, tidligstMottattDato);
+        var søknad = opprettSøknad(behandling, behovFraDato, mottatdato);
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
         em.flush();
         em.clear();
@@ -95,12 +96,13 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
 
     @Test
     public void aksjonspunkt_når_søkt_for_sent(EntityManager em) {
-        var jordsmorsdato = LocalDate.of(2019, Month.MAY, 5);
-        var mottatdato = LocalDate.of(2019, Month.SEPTEMBER, 3);
+        var behovFraDato = LocalDate.of(2019, Month.MAY, 5);
+        var søknadMotattt = LocalDate.of(2019, Month.NOVEMBER, 3);
+        var tidligstMottatt = LocalDate.of(2019, Month.SEPTEMBER, 3);;
         var termindato = LocalDate.of(2019, Month.JULY, 1);
         svpHelper.lagreTerminbekreftelse(behandling, termindato);
-        svpHelper.lagreIngenTilrettelegging(behandling, jordsmorsdato);
-        var søknad = opprettSøknad(behandling, jordsmorsdato, mottatdato);
+        svpHelper.lagreIngenTilrettelegging(behandling, behovFraDato, tidligstMottatt);
+        var søknad = opprettSøknad(behandling, behovFraDato, søknadMotattt);
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
         em.flush();
         em.clear();
@@ -122,7 +124,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
             .hentHvisEksisterer(behandling.getId());
         assertThat(gjeldendeUttaksperiodegrense).hasValueSatisfying(upg -> {
             assertThat(upg).isNotNull();
-            assertThat(upg.getMottattDato()).isEqualTo(mottatdato);
+            assertThat(upg.getMottattDato()).isEqualTo(tidligstMottatt);
             assertThat(Søknadsfrister.tidligsteDatoDagytelse(upg.getMottattDato())).isEqualTo(LocalDate.of(2019, Month.JUNE, 1));
         });
     }

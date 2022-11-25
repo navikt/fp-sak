@@ -251,6 +251,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                 .medFomDato(datoDto.getFom())
                 .medStillingsprosent(datoDto.getStillingsprosent())
                 .medOverstyrtUtbetalingsgrad(datoDto.getOverstyrtUtbetalingsgrad())
+                .medTidligstMottattDato(utledTidligstMotattFraEks(datoDto, eksisterendeTilretteleggingEntitet))
                 .build();
             nyTilretteleggingEntitetBuilder.medTilretteleggingFom(tilretteleggingFOM);
         }
@@ -267,6 +268,19 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         }
 
         return erEndret;
+    }
+
+    private LocalDate utledTidligstMotattFraEks(SvpTilretteleggingDatoDto datoDto, SvpTilretteleggingEntitet eksisterendeTilretteleggingEntitet) {
+        var eksisterendeTilrettleggingFoms = eksisterendeTilretteleggingEntitet.getTilretteleggingFOMListe();
+        var tidligstMotattDato = eksisterendeTilrettleggingFoms.stream()
+            .map(TilretteleggingFOM::getTidligstMotattDato)
+            .min(LocalDate::compareTo)
+            .orElse(eksisterendeTilretteleggingEntitet.getMottattTidspunkt().toLocalDate());
+
+        return  eksisterendeTilrettleggingFoms.stream()
+            .filter(eksFraDato -> datoDto.getFom().isEqual(eksFraDato.getFomDato()))
+            .findFirst().map(TilretteleggingFOM::getTidligstMotattDato)
+            .orElse(tidligstMotattDato);
     }
 
     private boolean delvisTilretteleggingUtenStillingsprosent(SvpTilretteleggingDatoDto dto) {
