@@ -14,7 +14,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.security.auth.SecurityProtocol;
-import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.StreamsConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class VedtakHendelseKafkaProducer {
         LOG.info("Opprette producer for topic='{}'", topicName);
     }
 
-    void sendJson(String json) {
+    void sendJson(String nøkkel, String json) {
         runProducerWithSingleJson(new ProducerRecord<>(topicName, json));
     }
 
@@ -96,8 +96,8 @@ public class VedtakHendelseKafkaProducer {
         }
 
         // Serde
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, Serdes.String().getClass());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, Serdes.String().getClass());
+        props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
         return props;
     }
