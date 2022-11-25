@@ -1,8 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde.ANDRE_NAV_VEDTAK;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde.SØKNAD;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FEDREKVOTE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.MØDREKVOTE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.UDEFINERT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -11,41 +17,36 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fakta.v2.FaktaUttakAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.FørsteUttaksdatoTjenesteImpl;
 
 @CdiDbAwareTest
-class FaktaUttakOppdatererTest {
+class FaktaUttakFellesTjenesteTest {
 
     @Inject
     private FaktaUttakAksjonspunktUtleder faktaUttakAksjonspunktUtleder;
@@ -66,24 +67,24 @@ class FaktaUttakOppdatererTest {
     void skal_lagre_perioder() {
         var opprinneligFom = LocalDate.now();
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFordeling(new OppgittFordelingEntitet(List.of(), true))
-            .leggTilAksjonspunkt(AksjonspunktDefinisjon.FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO, BehandlingStegType.FAKTA_UTTAK)
-            .medBekreftetHendelse(FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.BEKREFTET).medFødselsDato(opprinneligFom))
-            .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(opprinneligFom).build())
+            .medFordeling(new OppgittFordelingEntitet(List.of(OppgittPeriodeBuilder.ny()
+                    .medPeriodeType(MØDREKVOTE)
+                    .medPeriodeKilde(SØKNAD)
+                    .medPeriode(opprinneligFom, opprinneligFom.plusWeeks(5))
+                .build()), true))
+            .medBekreftetHendelse(familiehendelse(opprinneligFom))
+            .medAvklarteUttakDatoer(avklarteUttakDatoer(opprinneligFom))
             .lagre(repositoryProvider);
-        var dto = new FaktaUttakDto.ManueltSattStartdatoDto();
-        var mødrekvoteDto = new FaktaUttakPeriodeDto(opprinneligFom.minusWeeks(1), opprinneligFom.plusWeeks(2).minusDays(1), UttakPeriodeType.MØDREKVOTE, null, null, null,
-            BigDecimal.TEN, new ArbeidsforholdDto("000000000", UttakArbeidType.ORDINÆRT_ARBEID), null, false, null, FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
+        var mødrekvoteDto = mødrekvote(opprinneligFom, opprinneligFom.plusWeeks(2));
         var utsettelseDto = new FaktaUttakPeriodeDto(mødrekvoteDto.tom().plusDays(1), mødrekvoteDto.tom().plusWeeks(1), null, UtsettelseÅrsak.SYKDOM,
-            null, null, null, null, null, false, MorsAktivitet.ARBEID, FordelingPeriodeKilde.SØKNAD);
+            null, null, null, null, null, false, MorsAktivitet.ARBEID, SØKNAD);
         var oppholdDto = new FaktaUttakPeriodeDto(utsettelseDto.tom().plusDays(1), utsettelseDto.tom().plusWeeks(1), null, null,
-            null, OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER, null, null, null, false, null, FordelingPeriodeKilde.SØKNAD);
-        var overføringDto = new FaktaUttakPeriodeDto(oppholdDto.tom().plusDays(1), oppholdDto.tom().plusWeeks(1), UttakPeriodeType.FEDREKVOTE,
-            null, OverføringÅrsak.SYKDOM_ANNEN_FORELDER, null, null, null, null, false, null, FordelingPeriodeKilde.ANDRE_NAV_VEDTAK);
-        var samtidigUttak = new FaktaUttakPeriodeDto(overføringDto.tom().plusDays(1), overføringDto.tom().plusWeeks(1), UttakPeriodeType.FELLESPERIODE,
-            null, null, null, null, null, SamtidigUttaksprosent.TEN, true, null, FordelingPeriodeKilde.SØKNAD);
-        dto.setPerioder(List.of(mødrekvoteDto, utsettelseDto, oppholdDto, overføringDto, samtidigUttak));
-        var resultat = kjørOppdaterer(behandling, dto);
+            null, OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER, null, null, null, false, null, SØKNAD);
+        var overføringDto = new FaktaUttakPeriodeDto(oppholdDto.tom().plusDays(1), oppholdDto.tom().plusWeeks(1), FEDREKVOTE,
+            null, OverføringÅrsak.SYKDOM_ANNEN_FORELDER, null, null, null, null, false, null, ANDRE_NAV_VEDTAK);
+        var samtidigUttak = new FaktaUttakPeriodeDto(overføringDto.tom().plusDays(1), overføringDto.tom().plusWeeks(1), FELLESPERIODE,
+            null, null, null, null, null, SamtidigUttaksprosent.TEN, true, null, SØKNAD);
+        var resultat = kjørOppdaterer(behandling, List.of(mødrekvoteDto, utsettelseDto, oppholdDto, overføringDto, samtidigUttak));
         var yfa = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
         var lagretPerioder = yfa.getGjeldendeFordeling().getPerioder();
 
@@ -94,10 +95,10 @@ class FaktaUttakOppdatererTest {
 
         assertThat(lagretPerioder.get(0).getFom()).isEqualTo(mødrekvoteDto.fom());
         assertThat(lagretPerioder.get(0).getTom()).isEqualTo(mødrekvoteDto.tom());
-        assertThat(lagretPerioder.get(0).getGraderingAktivitetType()).isEqualTo(GraderingAktivitetType.ARBEID);
+        assertThat(lagretPerioder.get(0).getGraderingAktivitetType()).isNull();
         assertThat(lagretPerioder.get(0).getArbeidsprosent()).isEqualTo(mødrekvoteDto.arbeidstidsprosent());
         assertThat(lagretPerioder.get(0).getDokumentasjonVurdering()).isNull();
-        assertThat(lagretPerioder.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(mødrekvoteDto.arbeidsforhold().arbeidsgiverReferanse());
+        assertThat(lagretPerioder.get(0).getArbeidsgiver()).isNull();
         assertThat(lagretPerioder.get(0).getPeriodeKilde()).isEqualTo(mødrekvoteDto.periodeKilde());
         assertThat(lagretPerioder.get(0).getSamtidigUttaksprosent()).isEqualTo(mødrekvoteDto.samtidigUttaksprosent());
         assertThat(lagretPerioder.get(0).getPeriodeType()).isEqualTo(mødrekvoteDto.uttakPeriodeType());
@@ -112,7 +113,7 @@ class FaktaUttakOppdatererTest {
         assertThat(lagretPerioder.get(1).getArbeidsgiver()).isNull();
         assertThat(lagretPerioder.get(1).getPeriodeKilde()).isEqualTo(utsettelseDto.periodeKilde());
         assertThat(lagretPerioder.get(1).getSamtidigUttaksprosent()).isNull();
-        assertThat(lagretPerioder.get(1).getPeriodeType()).isEqualTo(UttakPeriodeType.UDEFINERT);
+        assertThat(lagretPerioder.get(1).getPeriodeType()).isEqualTo(UDEFINERT);
         assertThat(lagretPerioder.get(1).isFlerbarnsdager()).isEqualTo(utsettelseDto.flerbarnsdager());
         assertThat(lagretPerioder.get(1).getÅrsak()).isEqualTo(utsettelseDto.utsettelseÅrsak());
 
@@ -124,7 +125,7 @@ class FaktaUttakOppdatererTest {
         assertThat(lagretPerioder.get(2).getArbeidsgiver()).isNull();
         assertThat(lagretPerioder.get(2).getPeriodeKilde()).isEqualTo(oppholdDto.periodeKilde());
         assertThat(lagretPerioder.get(2).getSamtidigUttaksprosent()).isNull();
-        assertThat(lagretPerioder.get(2).getPeriodeType()).isEqualTo(UttakPeriodeType.UDEFINERT);
+        assertThat(lagretPerioder.get(2).getPeriodeType()).isEqualTo(UDEFINERT);
         assertThat(lagretPerioder.get(2).isFlerbarnsdager()).isEqualTo(oppholdDto.flerbarnsdager());
         assertThat(lagretPerioder.get(2).getÅrsak()).isEqualTo(oppholdDto.oppholdÅrsak());
 
@@ -153,18 +154,63 @@ class FaktaUttakOppdatererTest {
         assertThat(lagretPerioder.get(4).getÅrsak()).isEqualTo(Årsak.UKJENT);
     }
 
-    private OppdateringResultat kjørOppdaterer(Behandling behandling, FaktaUttakDto dto) {
+    @Test
+    void gir_exception_hvis_det_lagres_uttak_som_starter_før_gyldig_første_uttaksdag() {
+        var opprinneligFom = LocalDate.now();
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(OppgittPeriodeBuilder.ny()
+                .medPeriodeType(MØDREKVOTE)
+                .medPeriodeKilde(SØKNAD)
+                .medPeriode(opprinneligFom, opprinneligFom.plusWeeks(5))
+                .build()), true))
+            .medBekreftetHendelse(familiehendelse(opprinneligFom))
+            .lagre(repositoryProvider);
+        var mødrekvoteDto = mødrekvote(opprinneligFom.minusWeeks(1), opprinneligFom.plusWeeks(2));
+        assertThatThrownBy(() -> kjørOppdaterer(behandling, List.of(mødrekvoteDto))).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void gir_ikke_exception_hvis_det_lagres_utsettelse_som_starter_før_gyldig_første_uttaksdag() {
+        var opprinneligFom = LocalDate.now();
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(OppgittPeriodeBuilder.ny()
+                .medPeriodeType(MØDREKVOTE)
+                .medPeriodeKilde(SØKNAD)
+                .medPeriode(opprinneligFom, opprinneligFom.plusWeeks(5))
+                .build()), true))
+            .medBekreftetHendelse(familiehendelse(opprinneligFom))
+            .lagre(repositoryProvider);
+        var mødrekvoteDto = mødrekvote(opprinneligFom, opprinneligFom.plusWeeks(2));
+        var utsettelseDto = new FaktaUttakPeriodeDto(opprinneligFom.minusWeeks(2), mødrekvoteDto.fom().minusDays(1),
+            null, UtsettelseÅrsak.SYKDOM, null, null, null, null, null, false, null, SØKNAD);
+        kjørOppdaterer(behandling, List.of(mødrekvoteDto, utsettelseDto));
+
+        var lagretPerioder = ytelseFordelingTjeneste.hentAggregat(behandling.getId()).getGjeldendeFordeling().getPerioder();
+        assertThat(lagretPerioder).hasSize(2);
+    }
+
+    private static FaktaUttakPeriodeDto mødrekvote(LocalDate fom, LocalDate tom) {
+        return new FaktaUttakPeriodeDto(fom, tom, MØDREKVOTE, null, null, null, null,
+            null, null, false, null, SØKNAD);
+    }
+
+    private static AvklarteUttakDatoerEntitet avklarteUttakDatoer(LocalDate endringsdato) {
+        return new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(endringsdato.plusWeeks(2)).build();
+    }
+
+    private static FamilieHendelseBuilder familiehendelse(LocalDate fødselsdato) {
+        return FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.BEKREFTET).medFødselsDato(fødselsdato);
+    }
+
+    private OppdateringResultat kjørOppdaterer(Behandling behandling, List<FaktaUttakPeriodeDto> perioder) {
         var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider,
             new HentOgLagreBeregningsgrunnlagTjeneste(repositoryProvider.getEntityManager()), new AbakusInMemoryInntektArbeidYtelseTjeneste(),
             skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste,
             new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), true);
 
-        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        var faktaUttakOppdaterer = new FaktaUttakOppdaterer(uttakInputTjeneste, faktaUttakAksjonspunktUtleder, ytelseFordelingTjeneste,
-            ytelsesFordelingRepository);
-        return faktaUttakOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling,
-            behandling.getAksjonspunktFor(AksjonspunktDefinisjon.FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO),
-            stp, "begrunnelse"));
+        var tjeneste = new FaktaUttakFellesTjeneste(uttakInputTjeneste, faktaUttakAksjonspunktUtleder, ytelseFordelingTjeneste,
+            ytelsesFordelingRepository, new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste,
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())), repositoryProvider.getBehandlingRepository());
+        return tjeneste.oppdater(perioder, behandling.getId());
     }
-
 }

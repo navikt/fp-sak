@@ -333,6 +333,9 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     OVERSTYRING_AV_FAKTA_UTTAK(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_FAKTA_UTTAK_KODE, AksjonspunktType.OVERSTYRING,
             "Overstyr søknadsperioder", BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.INN,
             UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
+    OVERSTYRING_FAKTA_UTTAK(AksjonspunktKodeDefinisjon.OVERSTYRING_FAKTA_UTTAK_KODE, AksjonspunktType.OVERSTYRING,
+        "Overstyr fakta om uttak", BehandlingStegType.FAKTA_UTTAK, VurderingspunktType.UT,
+        UTEN_VILKÅR, SkjermlenkeType.FAKTA_UTTAK, TOTRINN, EnumSet.of(FP)),
     OVERSTYRING_AV_BEREGNINGSAKTIVITETER(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_BEREGNINGSAKTIVITETER_KODE, AksjonspunktType.OVERSTYRING,
             "Overstyring av beregningsaktiviteter", BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT,
             UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_BEREGNING, TOTRINN, EnumSet.of(FP, SVP)),
@@ -346,8 +349,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING(AksjonspunktKodeDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING_KODE, AksjonspunktType.SAKSBEHANDLEROVERSTYRING,
             "Saksbehandler endret søknadsperioder uten aksjonspunkt", BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.INN, UTEN_VILKÅR,
             SkjermlenkeType.FAKTA_OM_UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
-
-    //TODO TFP-4873 overstyring av nye fakta uttak AP
 
     // Gruppe : 700
 
