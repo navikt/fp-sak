@@ -1,8 +1,11 @@
 package no.nav.foreldrepenger.mottak.vedtak.kafka;
 
 
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import java.util.Properties;
+import java.util.UUID;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
 
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -15,23 +18,20 @@ import org.apache.kafka.streams.errors.LogAndFailExceptionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-
-import java.util.Properties;
-import java.util.UUID;
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @Dependent
 public class VedtakStreamKafkaProperties {
 
     private static final Logger LOG = LoggerFactory.getLogger(VedtakStreamKafkaProperties.class);
     private static final Environment ENV = Environment.current();
+    private static final String PROD_APP_ID = "fpsak-vedtakfattet";
+
     private final boolean isDeployment = ENV.isProd() || ENV.isDev();
     private final String trustStorePath;
     private final String keyStoreLocation;
     private final String credStorePassword;
-    private final String applicationId;
-    private final String clientId;
     private final String bootstrapServers;
     private final String topicName;
 
@@ -45,18 +45,17 @@ public class VedtakStreamKafkaProperties {
         this.trustStorePath = trustStorePath;
         this.keyStoreLocation = keyStoreLocation;
         this.credStorePassword = credStorePassword;
-        this.applicationId = "fpsak";
-        this.clientId = "fpsak-" + UUID.randomUUID();
         this.bootstrapServers = bootstrapServers;
         this.topicName = topicName;
     }
 
     public Properties getProperties() {
+        var applicationId = getApplicationId();
+        var clientId = applicationId + "-" + UUID.randomUUID();
+
         final Properties props = new Properties();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, applicationId);
-        LOG.info("Stream APPLICATION_ID_CONFIG: {}", props.getProperty(StreamsConfig.APPLICATION_ID_CONFIG));
         props.put(StreamsConfig.CLIENT_ID_CONFIG, clientId);
-        LOG.info("Stream CLIENT_ID_CONFIG: {}", props.getProperty(StreamsConfig.CLIENT_ID_CONFIG));
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 
         if (isDeployment) {
@@ -88,12 +87,15 @@ public class VedtakStreamKafkaProperties {
         return props;
     }
 
-    public String getTopicName() {
-        return topicName;
+    private static String getApplicationId() {
+        if (!ENV.isProd()) {
+            return PROD_APP_ID + (ENV.isDev() ? "-dev" : "-vtp");
+        }
+        return PROD_APP_ID;
     }
 
-    public boolean isDeployment() {
-        return isDeployment;
+    public String getTopicName() {
+        return topicName;
     }
 
 }
