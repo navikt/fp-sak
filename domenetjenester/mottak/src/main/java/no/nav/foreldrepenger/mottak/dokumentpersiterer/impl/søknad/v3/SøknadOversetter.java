@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
@@ -442,8 +443,9 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                 .collect(Collectors.groupingBy(this::tilretteleggingNøkkel));
 
             for (var eksTilrettelegging : fletteGamleMap.entrySet()) {
+                var erRevurderingUtenNySøknad = behandling.erRevurdering() && behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
                 var nyTilrettelegging = fletteNyeMap.get(eksTilrettelegging.getKey());
-                eksTilrettelegging.getValue().forEach( eksTlr -> nyeOgEksisterendeTilrettelegginger.add(oppdaterEksisterendeTlrMedNyeFOMs(nyTilrettelegging, eksTlr)));
+                eksTilrettelegging.getValue().forEach( eksTlr -> nyeOgEksisterendeTilrettelegginger.add(oppdaterEksisterendeTlrMedNyeFOMs(nyTilrettelegging, eksTlr, erRevurderingUtenNySøknad)));
             }
         } else {
             //ingen eksisterende
@@ -459,11 +461,14 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     }
 
     private SvpTilretteleggingEntitet oppdaterEksisterendeTlrMedNyeFOMs(SvpTilretteleggingEntitet nyTlR,
-                                                                        SvpTilretteleggingEntitet eksisterendeTlr) {
+                                                                        SvpTilretteleggingEntitet eksisterendeTlr,
+                                                                        boolean erRevurderingUtenNySøknad){
         List<TilretteleggingFOM> nyFomListe = new ArrayList<>(nyTlR.getTilretteleggingFOMListe());
         var tidligsteNyFom = nyFomListe.stream().map(TilretteleggingFOM::getFomDato).min(LocalDate::compareTo).orElse(LocalDate.EPOCH);
 
-        List<TilretteleggingFOM> eksisterendeFOMSomSkalKopieres =  eksisterendeTlr.getTilretteleggingFOMListe().stream().filter(f -> f.getFomDato().isBefore(tidligsteNyFom)).toList();
+        List<TilretteleggingFOM> eksisterendeFOMSomSkalKopieres =  eksisterendeTlr.getTilretteleggingFOMListe().stream()
+            .filter(tilretteleggingFOM-> eksisterendeFomKanKopieres(tilretteleggingFOM, tidligsteNyFom, erRevurderingUtenNySøknad))
+            .toList();
 
         eksisterendeFOMSomSkalKopieres.forEach(eksFom ->
             nyFomListe.add(new TilretteleggingFOM.Builder()
@@ -477,6 +482,14 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         return SvpTilretteleggingEntitet.Builder.fraEksisterende(eksisterendeTlr)
             .medBehovForTilretteleggingFom(nyFomListe.stream().map(TilretteleggingFOM::getFomDato).min(LocalDate::compareTo).orElse(null))
             .medTilretteleggingFraDatoer(nyFomListe).build();
+    }
+
+    private boolean eksisterendeFomKanKopieres(TilretteleggingFOM tilretteleggingFOM, LocalDate tidligsteNyeFom, boolean erRevUtenSøknad) {
+        var eksFraDato = tilretteleggingFOM.getFomDato();
+        if (eksFraDato.isBefore(tidligsteNyeFom)) {
+            return true;
+        } else
+            return eksFraDato.isEqual(tidligsteNyeFom) && erRevUtenSøknad;
     }
 
     private void oversettArbeidsforhold(SvpTilretteleggingEntitet.Builder builder, Arbeidsforhold arbeidsforhold) {
