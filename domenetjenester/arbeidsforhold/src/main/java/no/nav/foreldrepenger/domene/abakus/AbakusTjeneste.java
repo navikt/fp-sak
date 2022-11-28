@@ -52,7 +52,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPABAKUS)
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPABAKUS, scopesProperty = "abakus.scopes")
 public class AbakusTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbakusTjeneste.class);
