@@ -7,6 +7,7 @@ import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordeli
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.erHullMellom;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.kopier;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.sorterEtterFom;
+import static no.nav.foreldrepenger.regler.uttak.felles.PerioderUtenHelgUtil.helgBlirFredag;
 import static no.nav.foreldrepenger.regler.uttak.felles.Virkedager.beregnAntallVirkedager;
 import static no.nav.foreldrepenger.regler.uttak.felles.Virkedager.plusVirkedager;
 
@@ -71,15 +72,10 @@ class MorsJustering implements ForelderFødselJustering {
             justertePerioder.addAll(justert);
         }
         var sortert = sorterEtterFom(justertePerioder);
-        if (førsteUttaksdatoErFlyttet(oppgittePerioder, sortert)) {
-            if (søktOmPerioderFørFamiliehendelse(oppgittePerioder, gammelFamiliehendelse)) {
-                sortert = beholdStartdatoForUttak(sortert, oppgittePerioder.get(0).getFom(), nyFamiliehendelse);
-            }
-            if (søktOmPerioderEtterFamiliehendelse(oppgittePerioder, gammelFamiliehendelse)) {
-                sortert = beholdSluttdatoForUttak(sortert, oppgittePerioder.get(oppgittePerioder.size() - 1).getTom());
-            }
-            sortert = fyllHullSkaptAvIkkeFlyttbarePerioder(sortert, oppgittePerioder);
+        if (søktOmPerioderEtterFamiliehendelse(oppgittePerioder, gammelFamiliehendelse)) {
+            sortert = beholdSluttdatoForUttak(sortert, oppgittePerioder.get(oppgittePerioder.size() - 1).getTom());
         }
+        sortert = fyllHullSkaptAvIkkeFlyttbarePerioder(sortert, oppgittePerioder);
         return fjernHullPerioder(sortert);
     }
 
@@ -239,26 +235,21 @@ class MorsJustering implements ForelderFødselJustering {
         return resultat;
     }
 
-    private boolean søktOmPerioderFørFamiliehendelse(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate gammelFamiliehendelse) {
-        return oppgittePerioder.get(0).getFom().isBefore(gammelFamiliehendelse);
-    }
-
-    private List<OppgittPeriodeEntitet> beholdStartdatoForUttak(List<OppgittPeriodeEntitet> justertePerioder,
-                                                                LocalDate startdato,
-                                                                LocalDate nyFamiliehendelse) {
-        return justertePerioder.stream().filter(p -> !p.getTom().isBefore(startdato)).map(p -> {
-            if (p.getFom().isBefore(nyFamiliehendelse) && overlapper(p, startdato)) {
-                return kopier(p, startdato, p.getTom());
-            }
-            return p;
-        }).collect(Collectors.toList());
-    }
-
     private List<OppgittPeriodeEntitet> flyttPeriodeTilVenstre(OppgittPeriodeEntitet oppgittPeriode,
                                                                int antallVirkedagerSomSkalSkyves,
                                                                List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
         if (!erPeriodeFlyttbar(oppgittPeriode)) {
-            return Collections.singletonList(kopier(oppgittPeriode, oppgittPeriode.getFom(), oppgittPeriode.getTom()));
+            return List.of(kopier(oppgittPeriode, oppgittPeriode.getFom(), oppgittPeriode.getTom()));
+        }
+        if (oppgittPeriode.getFom().isBefore(nyFamiliehendelse)) {
+            var nyTom = oppgittPeriode.getTom().isBefore(nyFamiliehendelse) ? oppgittPeriode.getTom() :
+                helgBlirFredag(nyFamiliehendelse.minusDays(1));
+            //Forkortes av fødsel
+            return List.of(kopier(oppgittPeriode, oppgittPeriode.getFom(), nyTom));
+        }
+        if (oppgittPeriode.getFom().isBefore(gammelFamiliehendelse) && oppgittPeriode.getFom().isAfter(nyFamiliehendelse)) {
+            //Hele perioden blir borte. Ligger i mellom termin og fødsel
+            return List.of();
         }
 
         var nyFom = finnNyFomVedFlyttingTilVenstre(oppgittPeriode, antallVirkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
