@@ -20,6 +20,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AUTO_VENT_PÅ_KORRIGERT_BESTEBEREGNING_KODE = "7038";
     public static final String AUTO_VENT_PÅ_KABAL_KLAGE_KODE = "7039";
     public static final String AUTO_VENT_PÅ_KABAL_ANKE_KODE = "7040";
+    public static final String AUTO_VENT_PÅ_LOVENDRING_8_41_KODE = "7041";
 
 
     public static final String AVKLAR_ADOPSJONSDOKUMENTAJON_KODE = "5004";

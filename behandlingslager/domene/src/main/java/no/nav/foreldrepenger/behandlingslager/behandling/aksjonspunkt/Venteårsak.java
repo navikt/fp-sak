@@ -28,6 +28,7 @@ public enum Venteårsak implements Kodeverdi {
     UTV_FRIST("UTV_FRIST", "Utvidet frist"), // Frontend
     VENT_INNTEKT_RAPPORTERINGSFRIST("VENT_INNTEKT_RAPPORTERINGSFRIST", "Inntekt rapporteringsfrist"), // Kalkulus
     VENT_MANGLENDE_SYKEMELDING("VENT_MANGLENDE_SYKEMELDING", "Venter på siste sykemelding for sykepenger basert på dagpenger"),
+    VENT_LOVENDRING_8_41("VENT_LOVENDRING_8_41", "Venter på vedtak om lovendring vedrørende beregning av næring i kombinasjon med arbeid eller frilans"),
     VENT_OPDT_INNTEKTSMELDING("VENT_OPDT_INNTEKTSMELDING", "Venter på inntektsmelding"), // Frontend
     VENT_OPPTJENING_OPPLYSNINGER("VENT_OPPTJENING_OPPLYSNINGER", "Venter på opptjeningsopplysninger"), // Frontend
     VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT("VENT_PÅ_SISTE_AAP_MELDEKORT", "Venter på siste meldekort for AAP eller dagpenger før første uttaksdag."), // Kalkulus + Frontend

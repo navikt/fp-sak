@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Objects;
@@ -63,6 +64,16 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandling);
+
+        var skalVentePåMuligLovendring = SkalVentePåRegelendring.kanPåvirkesAvRegelendring(input.getSkjæringstidspunktOpptjening(), input.getOpptjeningAktiviteter());
+
+        if (skalVentePåMuligLovendring) {
+            var ventepunkt = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.AUTO_VENT_PÅ_LOVENDRING_8_41,
+                Venteårsak.VENT_LOVENDRING_8_41, LocalDateTime.of(LocalDate.of(2023, 1, 3), LocalDateTime.now().toLocalTime()));
+            return BehandleStegResultat
+                .utførtMedAksjonspunktResultater(Collections.singletonList(ventepunkt));
+        }
+
         var aksjonspunktResultater = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
         var ventPåSykemeldingAksjonspunkt = skalVentePåSykemelding(behandling);
         if (aksjonspunktResultater == null) {
