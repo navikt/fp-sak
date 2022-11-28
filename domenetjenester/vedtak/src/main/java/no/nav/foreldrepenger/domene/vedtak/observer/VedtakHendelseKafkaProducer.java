@@ -34,6 +34,8 @@ public class VedtakHendelseKafkaProducer {
     private Producer<String, String> producer;
     private final String topicName;
 
+    public VedtakHendelseKafkaProducer() {
+    }
 
     @Inject
     public VedtakHendelseKafkaProducer(@KonfigVerdi("kafka.fattevedtak.aiven.topic") String topicName,
