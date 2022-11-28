@@ -46,10 +46,10 @@ class SvpHelper {
         behandlingRepositoryProvider.getFamilieHendelseRepository().lagre(behandling, familieHendelseBuilder);
     }
 
-    void lagreIngenTilrettelegging(Behandling behandling, LocalDate jordmorsdato) {
+    void lagreIngenTilrettelegging(Behandling behandling, LocalDate jordmorsdato, LocalDate tidligstMottattDato) {
         var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
                 .medBehovForTilretteleggingFom(jordmorsdato)
-                .medIngenTilrettelegging(jordmorsdato, jordmorsdato  )
+                .medIngenTilrettelegging(jordmorsdato, tidligstMottattDato)
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
                 .medMottattTidspunkt(LocalDateTime.now())

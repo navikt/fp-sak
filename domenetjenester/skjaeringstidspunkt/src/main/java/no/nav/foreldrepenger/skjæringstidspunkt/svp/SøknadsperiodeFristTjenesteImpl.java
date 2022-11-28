@@ -7,6 +7,7 @@ import java.time.Period;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -23,7 +24,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Svanger
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.skjæringstidspunkt.SøknadsperiodeFristTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -78,20 +80,43 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
     }
 
     public static Optional<LocalDate> utledNettoSøknadsperiodeFomFraGrunnlag(SvpGrunnlagEntitet grunnlag) {
-        var tilrettelegginger = grunnlag.getOpprinneligeTilrettelegginger();
+        var tilrettelegginger = grunnlag.getGjeldendeVersjon();
         return Optional.ofNullable(tilrettelegginger)
             .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
             .filter(SvpTilretteleggingEntitet::getSkalBrukes)
-            .filter(t -> !Boolean.TRUE.equals(t.getKopiertFraTidligereBehandling()))
             .map(BeregnTilrettleggingsdato::tidligstTilretteleggingFraTilrettelegging)
             .min(Comparator.naturalOrder());
     }
 
-    public static Optional<LocalDate> utledBruttoSøknadsperiodeFomFraGrunnlag(SvpGrunnlagEntitet grunnlag) {
-        return new TilretteleggingFilter(grunnlag).getAktuelleTilretteleggingerFiltrert().stream()
-            .map(BeregnTilrettleggingsdato::tidligstTilretteleggingFraTilrettelegging)
-            .min(Comparator.naturalOrder());
+    public static Optional<DatoerSøknadsfrist> utledFørsteSøknadsperiodeFomFraGrunnlag(SvpGrunnlagEntitet grunnlag) {
+        var tilrettelegginger = grunnlag.getGjeldendeVersjon();
+        return Optional.of(tilrettelegginger)
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
+            .filter(SvpTilretteleggingEntitet::getSkalBrukes)
+            .map(SøknadsperiodeFristTjenesteImpl::hentTidligsteFraDato)
+            .flatMap(Optional::stream)
+            .min(Comparator.comparing(TilretteleggingFOM::getFomDato))
+            .map(d -> new DatoerSøknadsfrist(d.getFomDato(), d.getTidligstMotattDato()));
+
     }
+
+    private static Optional<TilretteleggingFOM> hentTidligsteFraDato(SvpTilretteleggingEntitet tilrettelegging) {
+        var helTilrettelegging = tilrettelegging.getTilretteleggingFOMListe().stream()
+            .filter(tl -> tl.getType().equals(TilretteleggingType.HEL_TILRETTELEGGING))
+            .min(Comparator.comparing(TilretteleggingFOM::getFomDato));
+        var delvisTilrettelegging = tilrettelegging.getTilretteleggingFOMListe().stream()
+            .filter(tl -> tl.getType().equals(TilretteleggingType.DELVIS_TILRETTELEGGING))
+            .min(Comparator.comparing(TilretteleggingFOM::getFomDato));
+        var slutteArbeid = tilrettelegging.getTilretteleggingFOMListe().stream()
+            .filter(tl -> tl.getType().equals(TilretteleggingType.INGEN_TILRETTELEGGING))
+            .min(Comparator.comparing(TilretteleggingFOM::getFomDato));
+
+        return  Stream.of(helTilrettelegging, delvisTilrettelegging, slutteArbeid)
+            .flatMap(Optional::stream)
+            .min(Comparator.comparing(TilretteleggingFOM::getFomDato));
+    }
+
+    public record DatoerSøknadsfrist(LocalDate førsteUttakDato, LocalDate tidligstMottatt ) {}
 
     private static Optional<LocalDate> utledTilretteleggingTomFraTermin(FamilieHendelseEntitet familieHendelse) {
         var fh = Optional.ofNullable(familieHendelse).filter(FamilieHendelseEntitet::getGjelderFødsel);
