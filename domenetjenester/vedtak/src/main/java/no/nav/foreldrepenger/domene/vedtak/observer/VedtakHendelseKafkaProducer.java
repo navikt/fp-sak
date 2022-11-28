@@ -32,7 +32,7 @@ public class VedtakHendelseKafkaProducer {
     private static final String NAMESPACE = ENV.namespace();
 
     private Producer<String, String> producer;
-    private final String topicName;
+    private String topicName;
 
     public VedtakHendelseKafkaProducer() {
     }
