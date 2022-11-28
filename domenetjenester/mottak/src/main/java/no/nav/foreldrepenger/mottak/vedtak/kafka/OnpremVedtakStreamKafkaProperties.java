@@ -40,7 +40,7 @@ class OnpremVedtakStreamKafkaProperties {
 
     private static String applicationId() {
         var prefix = ENV.getProperty("nais.app.name", "fpsak");
-        return ENV.isProd() ? prefix + "-default" : prefix;
+        return prefix + "-default";
     }
 
     String getBootstrapServers() {
