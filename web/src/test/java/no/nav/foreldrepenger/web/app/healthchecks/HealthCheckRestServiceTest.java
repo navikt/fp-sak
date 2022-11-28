@@ -29,6 +29,8 @@ public class HealthCheckRestServiceTest {
     @Test
     public void test_isAlive_skal_returnere_status_200() {
 
+        when(selftests.isKafkaAlive()).thenReturn(true);
+
         restTjeneste.setIsContextStartupReady(true);
         var response = restTjeneste.isAlive();
 
@@ -52,6 +54,7 @@ public class HealthCheckRestServiceTest {
     @Test
     public void test_isReady_skal_returnere_status_delvis_når_db_feiler() {
         when(selftests.isReady()).thenReturn(false);
+        when(selftests.isKafkaAlive()).thenReturn(true);
 
         restTjeneste.setIsContextStartupReady(true);
         var responseReady = restTjeneste.isReady();
@@ -64,6 +67,7 @@ public class HealthCheckRestServiceTest {
     @Test
     public void test_isReady_skal_returnere_status_ok_når_selftester_er_ok() {
         when(selftests.isReady()).thenReturn(true);
+        when(selftests.isKafkaAlive()).thenReturn(true);
 
         restTjeneste.setIsContextStartupReady(true);
         var responseReady = restTjeneste.isReady();
