@@ -274,12 +274,14 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         var eksisterendeTilrettleggingFoms = eksisterendeTilretteleggingEntitet.getTilretteleggingFOMListe();
         var tidligstMotattDato = eksisterendeTilrettleggingFoms.stream()
             .map(TilretteleggingFOM::getTidligstMotattDato)
+            .filter(Objects::nonNull)
             .min(LocalDate::compareTo)
             .orElse(eksisterendeTilretteleggingEntitet.getMottattTidspunkt().toLocalDate());
 
         return  eksisterendeTilrettleggingFoms.stream()
             .filter(eksFraDato -> datoDto.getFom().isEqual(eksFraDato.getFomDato()))
-            .findFirst().map(TilretteleggingFOM::getTidligstMotattDato)
+            .findFirst()
+            .map(TilretteleggingFOM::getTidligstMotattDato)
             .orElse(tidligstMotattDato);
     }
 
