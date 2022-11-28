@@ -43,10 +43,10 @@ public class VedtakHendelseKafkaProducer {
                                        @KonfigVerdi("KAFKA_CREDSTORE_PASSWORD") String credStorePassword) {
         this.topicName = topicName;
         this.producer = new KafkaProducer<>(getProperties(bootstrapServers, trustStorePath, keyStoreLocation, credStorePassword));
-        LOG.info("Opprette producer for topic='{}'", topicName);
     }
 
     void sendJson(String nøkkel, String json) {
+        LOG.info("Sender vedtak med nøkkel {} på topic='{}'", nøkkel, topicName);
         runProducerWithSingleJson(new ProducerRecord<>(topicName, nøkkel, json));
     }
 
