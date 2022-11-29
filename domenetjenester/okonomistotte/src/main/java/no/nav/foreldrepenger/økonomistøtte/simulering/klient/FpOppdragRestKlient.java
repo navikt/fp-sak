@@ -1,6 +1,13 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.klient;
 
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_MULT_CHOICE;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
+import static no.nav.vedtak.mapper.json.DefaultJsonMapper.fromJson;
+
 import java.net.URI;
+import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Optional;
 
@@ -8,8 +15,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.UriBuilder;
 
 import no.nav.foreldrepenger.kontrakter.simulering.request.OppdragskontrollDto;
-import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimulerOppdragDto;
 import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
@@ -21,40 +29,19 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPOPPDRAG)
 public class FpOppdragRestKlient {
 
-    private static final String FPOPPDRAG_START_SIMULERING = "/api/simulering/start";
-    private static final String FPOPPDRAG_START_SIMULERING_V2 = "/api/simulering/start/v2";
     private static final String FPOPPDRAG_HENT_RESULTAT = "/api/simulering/resultat";
+    private static final String FPOPPDRAG_START_SIMULERING = "/api/simulering/start/v2";
 
     private final RestClient restClient;
     private final RestConfig restConfig;
     private final URI uriStartSimulering;
-    private final URI uriStartSimuleringV2;
     private final URI uriHentResultat;
 
     public FpOppdragRestKlient() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(this.getClass());
         this.uriStartSimulering = UriBuilder.fromUri(restConfig.fpContextPath()).path(FPOPPDRAG_START_SIMULERING).build();
-        this.uriStartSimuleringV2 = UriBuilder.fromUri(restConfig.fpContextPath()).path(FPOPPDRAG_START_SIMULERING_V2).build();
         this.uriHentResultat = UriBuilder.fromUri(restConfig.fpContextPath()).path(FPOPPDRAG_HENT_RESULTAT).build();
-    }
-
-    /**
-     * Starter en simulering for gitt behandling med oppdrag XMLer.
-     * @param request med behandlingId og liste med oppdrag-XMLer
-     */
-    public void startSimulering(SimulerOppdragDto request) {
-        var rrequest = RestRequest.newPOSTJson(request, uriStartSimulering, restConfig).timeout(Duration.ofSeconds(30));
-        restClient.sendReturnOptional(rrequest, String.class);
-    }
-
-    /**
-     * Starter en simulering for gitt behandling med oppdrag fra oppdragskontroll
-     * @param request med OppdragskontrollDto
-     */
-    public void startSimuleringFpWsProxy(OppdragskontrollDto request) {
-        var rrequest = RestRequest.newPOSTJson(request, uriStartSimuleringV2, restConfig).timeout(Duration.ofSeconds(30));
-        restClient.sendReturnOptional(rrequest, String.class);
     }
 
     /**
@@ -67,4 +54,48 @@ public class FpOppdragRestKlient {
         return restClient.sendReturnOptional(rrequest, SimuleringResultatDto.class);
     }
 
+    /**
+     * Starter en simulering for gitt behandling med oppdrag fra oppdragskontroll
+     * @param oppdragskontrollDto med OppdragskontrollDto
+     */
+    public void startSimulering(OppdragskontrollDto oppdragskontrollDto) {
+        var request = RestRequest.newPOSTJson(oppdragskontrollDto, uriStartSimulering, restConfig).timeout(Duration.ofSeconds(30));
+        handleResponse(restClient.sendReturnUnhandled(request));
+    }
+
+    private static void handleResponse(HttpResponse<String> response) {
+        int status = response.statusCode();
+        if (status >= HTTP_OK && status < HTTP_MULT_CHOICE) {
+            return;
+        }
+
+        if (status == HTTP_FORBIDDEN) {
+            throw new ManglerTilgangException("F-468816", "Mangler tilgang. Fikk http-kode 403 fra server");
+        } else {
+            if (status == HTTP_UNAVAILABLE && erDetForventetNedetid(response.body())) { // 503 med OPPDRAG_FORVENTET_NEDETID propages ved nedetid
+                throw new OppdragForventetNedetidException();
+            }
+            throw new IntegrasjonException("F-468817", String.format("Uventet respons %s fra FpWsProxy. Sjekk loggen til fpwsproxy for mer info.", status));
+        }
+    }
+
+    private static boolean erDetForventetNedetid(String body) {
+        try {
+            return FeilType.OPPDRAG_FORVENTET_NEDETID.equals(fromJson(body, FeilDto.class).type());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // TODO: Konsolider FeilDto fra web modul. Flytt til felles? kontrakter?
+    public record FeilDto(FeilType type) {
+    }
+
+    public enum FeilType {
+        MANGLER_TILGANG_FEIL,
+        TOMT_RESULTAT_FEIL,
+        OPPDRAG_FORVENTET_NEDETID,
+        GENERELL_FEIL,
+        ;
+    }
 }

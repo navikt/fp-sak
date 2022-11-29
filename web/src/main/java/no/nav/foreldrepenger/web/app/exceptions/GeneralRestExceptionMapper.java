@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.validering.Valideringsfeil;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingEndretException;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningException;
+import no.nav.foreldrepenger.økonomistøtte.simulering.klient.OppdragForventetNedetidException;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.felles.jpa.TomtResultatException;
@@ -50,8 +51,19 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
         if (feil instanceof Valideringsfeil vfe) {
             return valideringsfeil(vfe);
         }
+        if (feil instanceof OppdragForventetNedetidException) {
+            return oppdragNedetid(getExceptionMelding(feil));
+        }
         loggTilApplikasjonslogg(feil);
         return serverError(getExceptionFullFeilmelding(feil));
+    }
+
+    private static Response oppdragNedetid(String feilmelding) {
+        return Response
+            .status(Response.Status.SERVICE_UNAVAILABLE)
+            .entity(new FeilDto(FeilType.OPPDRAG_FORVENTET_NEDETID, feilmelding))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
     }
 
     private static Response handleTomtResultatFeil(String feilmelding) {

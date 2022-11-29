@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpoppdragSystembrukerRestKlient;
 import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
 import no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste.SimuleringIntegrasjonTjeneste;
-import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.exception.IntegrasjonException;
 
 @BehandlingStegRef(BehandlingStegType.SIMULER_OPPDRAG)
 @BehandlingTypeRef
@@ -80,7 +80,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
         try {
             startSimulering(behandling);
             return utledAksjonspunkt(behandling);
-        } catch (TekniskException e) {
+        } catch (IntegrasjonException e) {
             opprettFortsettBehandlingTask(behandling);
             return BehandleStegResultat.settPåVent();
         }

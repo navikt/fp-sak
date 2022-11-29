@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.LagOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste.OppdragskontrollTjenesteImpl;
+import no.nav.foreldrepenger.økonomistøtte.simulering.klient.OppdragsKontrollDtoMapper;
 
 @ExtendWith(MockitoExtension.class)
 public class SimulerOppdragTjenesteESTest {
@@ -92,9 +93,9 @@ public class SimulerOppdragTjenesteESTest {
     public void simulerOppdrag_uten_behandling_vedtak_ES() {
         // Act
         var oppdragskontroll = simulerOppdragTjeneste.hentOppdragskontrollForBehandling(behandlingId);
-        var resultat = SimulerOppdragTjeneste.tilOppdragXml(oppdragskontroll.get());
+        var resultat = OppdragsKontrollDtoMapper.tilDto(oppdragskontroll.get());
 
         // Assert
-        assertThat(resultat).hasSize(1);
+        assertThat(resultat.oppdrag()).hasSize(1);
     }
 }

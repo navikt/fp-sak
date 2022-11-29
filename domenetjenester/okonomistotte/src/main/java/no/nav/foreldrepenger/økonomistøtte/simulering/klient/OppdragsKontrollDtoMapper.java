@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.økonomistøtte.simulering.fpwsproxy.mapper;
+package no.nav.foreldrepenger.økonomistøtte.simulering.klient;
 
 import java.util.List;
 import java.util.Optional;

@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.OverordnetOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.OppdragInput;
+import no.nav.foreldrepenger.økonomistøtte.simulering.klient.OppdragsKontrollDtoMapper;
 
 @ExtendWith(MockitoExtension.class)
 public class SimulerOppdragTjenesteFPTest {
@@ -38,10 +39,10 @@ public class SimulerOppdragTjenesteFPTest {
 
         // Act
         var oppdragskontrollReturnert = simulerOppdragTjeneste.hentOppdragskontrollForBehandling(1L);
-        var resultat = SimulerOppdragTjeneste.tilOppdragXml(oppdragskontrollReturnert.get());
+        var resultat = OppdragsKontrollDtoMapper.tilDto(oppdragskontrollReturnert.get());
 
         // Assert
-        assertThat(resultat).hasSize(1);
+        assertThat(resultat.oppdrag()).hasSize(1);
     }
 
     private OppdragInput mockInput(final Saksnummer saksnummer) {
