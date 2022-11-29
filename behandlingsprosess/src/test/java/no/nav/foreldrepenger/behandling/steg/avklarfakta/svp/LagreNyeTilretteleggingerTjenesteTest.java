@@ -33,8 +33,7 @@ public class LagreNyeTilretteleggingerTjenesteTest extends EntityManagerAwareTes
     }
 
     @Test
-    public void skal_lagre_nye_tilrettelegginger_og_beholde_de_opprinnelige_unleash_enabled() {
-
+    public void skal_lagre_nye_tilrettelegginger_og_beholde_de_opprinnelige() {
         // Arrange
         var behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
 
@@ -65,5 +64,4 @@ public class LagreNyeTilretteleggingerTjenesteTest extends EntityManagerAwareTes
         assertThat(nyttGrunnlag.getOverstyrteTilrettelegginger().getTilretteleggingListe()).hasSize(1);
 
     }
-
 }

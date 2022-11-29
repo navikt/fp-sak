@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregat;
@@ -175,18 +174,18 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         });
         var oppdatertTilrettelegging = new ArrayList<SvpTilretteleggingEntitet>();
         var bekreftedeArbeidsforholdDtoer = dto.getBekreftetSvpArbeidsforholdList();
-        var tilretteleggingerUfiltrert = new TilretteleggingFilter(svpGrunnlag).getAktuelleTilretteleggingerUfiltrert();
+        var gjeldendeTilrettelegginger = svpGrunnlag.getGjeldendeVersjon().getTilretteleggingListe();
 
-        var erMinsteBehovFraDatoEndret = endretMinsteBehovFra(bekreftedeArbeidsforholdDtoer, tilretteleggingerUfiltrert);
+        var erMinsteBehovFraDatoEndret = endretMinsteBehovFra(bekreftedeArbeidsforholdDtoer, gjeldendeTilrettelegginger);
 
         var erEndret = false;
         for (var arbeidsforholdDto : bekreftedeArbeidsforholdDtoer) {
-            if (mapTilretteleggingHvisEndret(arbeidsforholdDto, tilretteleggingerUfiltrert, oppdatertTilrettelegging)) {
+            if (mapTilretteleggingHvisEndret(arbeidsforholdDto, gjeldendeTilrettelegginger, oppdatertTilrettelegging)) {
                 erEndret = true;
             }
         }
 
-        if (oppdatertTilrettelegging.size() != tilretteleggingerUfiltrert.size()) {
+        if (oppdatertTilrettelegging.size() != gjeldendeTilrettelegginger.size()) {
             throw new TekniskException("FP-564312", "Antall overstyrte arbeidsforhold for svangerskapspenger stemmer "
                 + "ikke overens med arbeidsforhold fra søknaden: " + behandling.getId());
         }

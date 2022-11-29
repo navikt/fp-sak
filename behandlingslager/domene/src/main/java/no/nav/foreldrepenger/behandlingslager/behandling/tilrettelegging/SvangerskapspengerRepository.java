@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -68,26 +67,19 @@ public class SvangerskapspengerRepository {
     }
 
     public void kopierSvpGrunnlagFraEksisterendeBehandling(Long orginalBehandlingId, Behandling nyBehandling) {
-        var eksisterendeGrunnlag = hentGrunnlag(orginalBehandlingId);
-        if (eksisterendeGrunnlag.isPresent()) {
-            var eksisterendeEntitet = eksisterendeGrunnlag.get();
-            var opprTilrettelegginger = opprettKopierAvTilrettelegginger(eksisterendeEntitet.getOpprinneligeTilrettelegginger());
-            var ovstTilrettelegginger = opprettKopierAvTilrettelegginger(eksisterendeEntitet.getOverstyrteTilrettelegginger());
-            var nyttGrunnlag = new SvpGrunnlagEntitet.Builder()
-                    .medBehandlingId(nyBehandling.getId())
-                    .medOpprinneligeTilrettelegginger(opprTilrettelegginger)
-                    .medOverstyrteTilrettelegginger(ovstTilrettelegginger)
-                    .build();
-            lagreOgFlush(nyttGrunnlag);
-        }
-    }
+        var kopiGjeldendeGrunnlag = hentGrunnlag(orginalBehandlingId)
+            .map(SvpGrunnlagEntitet::getGjeldendeVersjon)
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
+            .orElse(Collections.emptyList()).stream()
+            .map(ot -> new SvpTilretteleggingEntitet.Builder(ot).medKopiertFraTidligereBehandling(true).build())
+            .toList();
 
-    private List<SvpTilretteleggingEntitet> opprettKopierAvTilrettelegginger(SvpTilretteleggingerEntitet tilrettelegginger) {
-        if (tilrettelegginger == null) {
-            return Collections.emptyList();
+            if(!kopiGjeldendeGrunnlag.isEmpty()) {
+                var nyttGrunnlag = new SvpGrunnlagEntitet.Builder().medBehandlingId(nyBehandling.getId())
+                    .medOpprinneligeTilrettelegginger(kopiGjeldendeGrunnlag)
+                    .build();
+                lagreOgFlush(nyttGrunnlag);
+            }
         }
-        return tilrettelegginger.getTilretteleggingListe().stream()
-                .map(ot -> new SvpTilretteleggingEntitet.Builder(ot).medKopiertFraTidligereBehandling(true).build())
-                .collect(Collectors.toList());
-    }
+
 }
