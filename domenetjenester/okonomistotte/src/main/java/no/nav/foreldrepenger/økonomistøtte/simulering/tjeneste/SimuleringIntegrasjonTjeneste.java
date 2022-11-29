@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste;
 
-import static no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste.tilOppdragXml;
-import static no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste.SimulerOppdragIntegrasjonTjenesteFeil.startSimuleringFeiletMedFeilmelding;
+import static no.nav.foreldrepenger.økonomistøtte.simulering.klient.OppdragsKontrollDtoMapper.tilDto;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -14,11 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
-import no.nav.foreldrepenger.kontrakter.simulering.request.OppdragskontrollDto;
 import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlient;
-import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimulerOppdragDto;
 import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
-import no.nav.vedtak.exception.IntegrasjonException;
 
 @ApplicationScoped
 public class SimuleringIntegrasjonTjeneste {
@@ -38,16 +33,7 @@ public class SimuleringIntegrasjonTjeneste {
 
     public void startSimulering(Optional<Oppdragskontroll> oppdragskontrollOpt) {
         if (oppdragskontrollOpt.isPresent() && erOppdragskontrollGyldigOgHarOppdragÅSimulere(oppdragskontrollOpt.get())) {
-            var oppdragskontroll = oppdragskontrollOpt.get();
-            startSimuleringOLD(oppdragskontroll.getBehandlingId(), tilOppdragXml(oppdragskontroll));
-
-            // Kjører simulering av samme oppdragskontroll, men uten persistering i databasen, logger avvik og er failsafe
-//            try {
-//                startSimuleringViaFpWsProxy(tilOppdragKontrollDto(oppdragskontroll));
-//            } catch (Exception e) {
-//                LOG.info("Simulering via fp-ws-proxy feilet. Sjekk secure logg til fpoppdrag/fp-ws-proxy");
-//            }
-
+            restKlient.startSimulering(tilDto(oppdragskontrollOpt.get()));
         } else {
             if (oppdragskontrollOpt.isPresent()) {
                 LOG.info("Ingen oppdrag å simulere for behandling {}", oppdragskontrollOpt.get().getBehandlingId());
@@ -63,26 +49,8 @@ public class SimuleringIntegrasjonTjeneste {
         return !oppdragskontroll.getOppdrag110Liste().isEmpty();
     }
 
-    protected void startSimuleringOLD(Long behandlingId, List<String> oppdragListe) {
-        var dto = map(behandlingId, oppdragListe);
-        try {
-            restKlient.startSimulering(dto);
-        } catch (IntegrasjonException e) {
-            throw startSimuleringFeiletMedFeilmelding(behandlingId, e);
-        }
-    }
-
-    protected void startSimuleringViaFpWsProxy(OppdragskontrollDto oppdragskontrollDto) {
-        restKlient.startSimuleringFpWsProxy(oppdragskontrollDto);
-    }
-
     public Optional<SimuleringResultatDto> hentResultat(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "Utviklerfeil: behandlingId kan ikke være null");
         return restKlient.hentResultat(behandlingId);
     }
-
-    private SimulerOppdragDto map(Long behandlingId, List<String> oppdragListe) {
-        return SimulerOppdragDto.lagDto(behandlingId, oppdragListe);
-    }
-
 }
