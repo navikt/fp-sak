@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 
@@ -12,14 +13,17 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.fakta.v2.FaktaUttakAksjonspunktUtleder;
+import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.TidligstMottattOppdaterer;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.FørsteUttaksdatoTjeneste;
@@ -33,12 +37,14 @@ class FaktaUttakFellesTjeneste {
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste;
     private BehandlingRepository behandlingRepository;
+    private FpUttakRepository fpUttakRepository;
 
     @Inject
     public FaktaUttakFellesTjeneste(UttakInputTjeneste uttakInputtjeneste,
                                     FaktaUttakAksjonspunktUtleder utleder,
                                     YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                     YtelsesFordelingRepository ytelsesFordelingRepository,
+                                    FpUttakRepository fpUttakRepository,
                                     FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste,
                                     BehandlingRepository behandlingRepository) {
         this.uttakInputtjeneste = uttakInputtjeneste;
@@ -47,6 +53,7 @@ class FaktaUttakFellesTjeneste {
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
         this.førsteUttaksdatoTjeneste = førsteUttaksdatoTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.fpUttakRepository = fpUttakRepository;
     }
 
     FaktaUttakFellesTjeneste() {
@@ -57,10 +64,11 @@ class FaktaUttakFellesTjeneste {
         var overstyrtePerioder = perioder.stream().map(FaktaUttakFellesTjeneste::map).toList();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         validerFørsteUttaksdag(overstyrtePerioder, behandling);
-        ytelseFordelingTjeneste.overstyrSøknadsperioder(behandlingId, overstyrtePerioder, List.of());
-        oppdaterEndringsdato(overstyrtePerioder, behandlingId);
+        var overstyrtePerioderMedMottattDato = oppdaterMedMottattdato(behandling, overstyrtePerioder);
+        ytelseFordelingTjeneste.overstyrSøknadsperioder(behandlingId, overstyrtePerioderMedMottattDato, List.of());
+        oppdaterEndringsdato(overstyrtePerioderMedMottattDato, behandlingId);
         //TODO TFP-4873 historikk, totrinn
-        //TODO TFP-4873 periode mottatt dato?
+        
         validerReutledetAksjonspunkt(behandlingId);
         return OppdateringResultat.utenTransisjon().build();
     }
@@ -84,6 +92,15 @@ class FaktaUttakFellesTjeneste {
                     "første dag i overstyrte perioder kan ikke ligge før gyldig første uttaksdato " + førsteOverstyrt + " - " + førsteUttaksdato);
             }
         }
+    }
+
+    private List<OppgittPeriodeEntitet> oppdaterMedMottattdato(Behandling behandling, List<OppgittPeriodeEntitet> overstyrt) {
+        var gjeldendeFordelingAsList = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId())
+            .map(YtelseFordelingAggregat::getGjeldendeFordeling).stream().toList();
+        var forrigeUttak = behandling.getOriginalBehandlingId()
+            .flatMap(ob -> fpUttakRepository.hentUttakResultatHvisEksisterer(ob));
+        return TidligstMottattOppdaterer.oppdaterTidligstMottattDato(overstyrt, LocalDate.now(), gjeldendeFordelingAsList, forrigeUttak);
+
     }
 
     private static OppgittPeriodeEntitet map(FaktaUttakPeriodeDto dto) {

@@ -209,7 +209,7 @@ class FaktaUttakFellesTjenesteTest {
             new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), true);
 
         var tjeneste = new FaktaUttakFellesTjeneste(uttakInputTjeneste, faktaUttakAksjonspunktUtleder, ytelseFordelingTjeneste,
-            ytelsesFordelingRepository, new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste,
+            ytelsesFordelingRepository, repositoryProvider.getFpUttakRepository(), new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste,
             new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())), repositoryProvider.getBehandlingRepository());
         return tjeneste.oppdater(perioder, behandling.getId());
     }
