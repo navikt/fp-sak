@@ -247,7 +247,7 @@ class MorsJustering implements ForelderFødselJustering {
             //Forkortes av fødsel
             return List.of(kopier(oppgittPeriode, oppgittPeriode.getFom(), nyTom));
         }
-        if (oppgittPeriode.getFom().isBefore(gammelFamiliehendelse) && oppgittPeriode.getFom().isAfter(nyFamiliehendelse)) {
+        if (oppgittPeriode.getFom().isBefore(gammelFamiliehendelse) && !oppgittPeriode.getFom().isBefore(nyFamiliehendelse)) {
             //Hele perioden blir borte. Ligger i mellom termin og fødsel
             return List.of();
         }
