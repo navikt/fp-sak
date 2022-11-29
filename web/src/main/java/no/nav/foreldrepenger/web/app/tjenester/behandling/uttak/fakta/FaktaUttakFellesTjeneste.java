@@ -68,7 +68,7 @@ class FaktaUttakFellesTjeneste {
         ytelseFordelingTjeneste.overstyrSøknadsperioder(behandlingId, overstyrtePerioderMedMottattDato, List.of());
         oppdaterEndringsdato(overstyrtePerioderMedMottattDato, behandlingId);
         //TODO TFP-4873 historikk, totrinn
-        //TODO TFP-4873 periode mottatt dato?
+        
         validerReutledetAksjonspunkt(behandlingId);
         return OppdateringResultat.utenTransisjon().build();
     }
