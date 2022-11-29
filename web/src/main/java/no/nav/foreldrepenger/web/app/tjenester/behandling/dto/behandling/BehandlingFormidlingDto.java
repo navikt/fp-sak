@@ -26,6 +26,9 @@ public class BehandlingFormidlingDto extends BehandlingDto {
     @JsonProperty("harAvklartAnnenForelderRett")
     private Boolean harAvklartAnnenForelderRett;
 
+    @JsonProperty("kreverSammenhengendeUttak")
+    private Boolean kreverSammenhengendeUttak;
+
     @JsonProperty("originalBehandlingUuid")
     private UUID originalBehandlingUuid;
 
@@ -47,6 +50,14 @@ public class BehandlingFormidlingDto extends BehandlingDto {
 
     public void setHarAvklartAnnenForelderRett(Boolean harAvklartAnnenForelderRett) {
         this.harAvklartAnnenForelderRett = harAvklartAnnenForelderRett;
+    }
+
+    public Boolean getKreverSammenhengendeUttak() {
+        return kreverSammenhengendeUttak;
+    }
+
+    public void setKreverSammenhengendeUttak(Boolean kreverSammenhengendeUttak) {
+        this.kreverSammenhengendeUttak = kreverSammenhengendeUttak;
     }
 
     public UUID getOriginalBehandlingUuid() {
