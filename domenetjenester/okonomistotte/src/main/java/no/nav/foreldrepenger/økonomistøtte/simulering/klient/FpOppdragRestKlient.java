@@ -30,7 +30,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 public class FpOppdragRestKlient {
 
     private static final String FPOPPDRAG_HENT_RESULTAT = "/api/simulering/resultat";
-    private static final String FPOPPDRAG_START_SIMULERING = "/api/simulering/start/v2";
+    private static final String FPOPPDRAG_START_SIMULERING = "/api/simulering/start";
 
     private final RestClient restClient;
     private final RestConfig restConfig;
