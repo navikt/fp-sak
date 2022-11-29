@@ -1,11 +1,11 @@
-package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
+package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,8 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -35,10 +35,9 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.VedtaksperioderHelper;
 
 @ExtendWith(MockitoExtension.class)
-public class OppgittPeriodeTidligstMottattDatoTjenesteTest {
+public class TidligstMottattOppdatererTest {
 
     @Test
     public void skalFinneTidligstMottattDatoFraOriginalBehandlingHvisMatchendePeriode() {
@@ -56,14 +55,10 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteTest {
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fom, tom)
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
 
-        var tlsøknad = OppgittPeriodeTidligstMottattDatoTjeneste.lagSøknadsTimeline(List.of(periode));
-        var tlsammenlign = OppgittPeriodeTidligstMottattDatoTjeneste.lagSammenligningTimeline(List.of(periode));
-        var tloppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.oppdaterTidligstMottattDato(tlsøknad, tlsammenlign, originalBehandlingPerioder);
-        var oppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.tilPerioder(tloppdatert);
+        var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(periode), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
         assertThat(oppdatert).hasSize(1);
         var oppdatertperiode = oppdatert.get(0);
         assertThat(oppdatertperiode.getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
@@ -87,14 +82,11 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteTest {
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fom, tom.plusWeeks(1))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
 
-        var tlsøknad = OppgittPeriodeTidligstMottattDatoTjeneste.lagSøknadsTimeline(List.of(periode));
-        var tlsammenlign = OppgittPeriodeTidligstMottattDatoTjeneste.lagSammenligningTimeline(List.of(periode));
-        var tloppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.oppdaterTidligstMottattDato(tlsøknad, tlsammenlign, originalBehandlingPerioder);
-        var oppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.tilPerioder(tloppdatert);
+        var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(periode), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+
         assertThat(oppdatert).hasSize(2);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
         assertThat(oppdatert.get(1).getTidligstMottattDato().orElseThrow()).isEqualTo(LocalDate.now());
@@ -121,14 +113,11 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteTest {
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fom, tom.minusWeeks(1))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
 
-        var tlsøknad = OppgittPeriodeTidligstMottattDatoTjeneste.lagSøknadsTimeline(List.of(periode));
-        var tlsammenlign = OppgittPeriodeTidligstMottattDatoTjeneste.lagSammenligningTimeline(List.of(periode));
-        var tloppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.oppdaterTidligstMottattDato(tlsøknad, tlsammenlign, originalBehandlingPerioder);
-        var oppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.tilPerioder(tloppdatert);
+        var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(periode), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+
         assertThat(oppdatert).hasSize(1);
         var oppdatertperiode = oppdatert.get(0);
         assertThat(oppdatertperiode.getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
@@ -152,21 +141,16 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteTest {
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fom, tom.minusWeeks(2))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
         var periode2 = OppgittPeriodeBuilder.ny()
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(tom.minusWeeks(1).plusDays(1), tom.plusWeeks(1))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
 
-        var tlsøknad = OppgittPeriodeTidligstMottattDatoTjeneste.lagSøknadsTimeline(List.of(periode1, periode2));
-        var tlsammenlign = OppgittPeriodeTidligstMottattDatoTjeneste.lagSammenligningTimeline(List.of(periode1, periode2));
-        var tloppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.oppdaterTidligstMottattDato(tlsøknad, tlsammenlign, originalBehandlingPerioder);
-        var oppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.tilPerioder(tloppdatert);
+        var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(periode1, periode2), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
         assertThat(oppdatert.get(1).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
@@ -204,15 +188,11 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteTest {
             .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .medArbeidsgiver(arbeidsgiver)
             .medArbeidsprosent(BigDecimal.TEN)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
 
-        var tlsøknad = OppgittPeriodeTidligstMottattDatoTjeneste.lagSøknadsTimeline(List.of(søknad));
-        var tlsammenlign = OppgittPeriodeTidligstMottattDatoTjeneste.lagSammenligningTimeline(List.of(søknad));
-        var tloppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.oppdaterTidligstMottattDato(tlsøknad, tlsammenlign, originalBehandlingPerioder);
-        var oppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.tilPerioder(tloppdatert).stream()
-            .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom)).toList();
+        var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(LocalDate.now());
         assertThat(oppdatert.get(1).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
@@ -251,23 +231,17 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteTest {
             .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .medArbeidsgiver(arbeidsgiver)
             .medArbeidsprosent(BigDecimal.TEN)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
         // Ny periode
         var søknad2 = OppgittPeriodeBuilder.ny()
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(tom.plusDays(1), tom.plusWeeks(4))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
 
-        var tlsøknad = OppgittPeriodeTidligstMottattDatoTjeneste.lagSøknadsTimeline(List.of(søknad1, søknad2));
-        var tlsammenlign = OppgittPeriodeTidligstMottattDatoTjeneste.lagSammenligningTimeline(List.of(søknad1, søknad2));
-        var tloppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.oppdaterTidligstMottattDato(tlsøknad, tlsammenlign, originalBehandlingPerioder);
-        var oppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.tilPerioder(tloppdatert)
-            .stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom)).toList();
+        var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad1, søknad2), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+
         assertThat(oppdatert).hasSize(2);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
         assertThat(oppdatert.get(1).getTidligstMottattDato().orElseThrow()).isEqualTo(LocalDate.now());
@@ -294,22 +268,16 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteTest {
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fom, tom.minusWeeks(1))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
         var søknad2 = OppgittPeriodeBuilder.ny()
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(tom.plusWeeks(1), tom.plusWeeks(2))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
 
-        var tlsøknad = OppgittPeriodeTidligstMottattDatoTjeneste.lagSøknadsTimeline(List.of(søknad1, søknad2));
-        var tlsammenlign = OppgittPeriodeTidligstMottattDatoTjeneste.lagSammenligningTimeline(List.of(søknad1, søknad2));
-        var tloppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.oppdaterTidligstMottattDato(tlsøknad, tlsammenlign, originalBehandlingPerioder);
-        var oppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.tilPerioder(tloppdatert)
-            .stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom)).toList();
+        var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad1, søknad2), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+
         assertThat(oppdatert).hasSize(2);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
         assertThat(oppdatert.get(1).getTidligstMottattDato().orElseThrow()).isEqualTo(LocalDate.now());
@@ -340,31 +308,23 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteTest {
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fom, utsattFom.minusDays(1))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
         var søknad1 = OppgittPeriodeBuilder.ny()
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medÅrsak(UtsettelseÅrsak.FRI)
             .medPeriode(utsattFom, senereUttakFom.minusDays(1))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
         // Ny periode
         var søknad2 = OppgittPeriodeBuilder.ny()
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(senereUttakFom, senereUttakFom.plusDays(23))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
 
-        var tlsøknad = OppgittPeriodeTidligstMottattDatoTjeneste.lagSøknadsTimeline(List.of(søknad1, søknad2, søknad0));
-        var tlsammenlign = OppgittPeriodeTidligstMottattDatoTjeneste.lagSammenligningTimeline(List.of(søknad1, søknad2, søknad0));
-        var tloppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.oppdaterTidligstMottattDato(tlsøknad, tlsammenlign, originalBehandlingPerioder);
-        var oppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.tilPerioder(tloppdatert)
-            .stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom)).toList();
+        var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad1, søknad2, søknad0), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
         assertThat(oppdatert.get(1).getTidligstMottattDato().orElseThrow()).isEqualTo(LocalDate.now());
@@ -402,22 +362,16 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteTest {
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fom0, fom0.plusDays(1))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
         var søknad1 = OppgittPeriodeBuilder.ny()
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fom.plusDays(3), tom.plusWeeks(2))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
 
-        var tlsøknad = OppgittPeriodeTidligstMottattDatoTjeneste.lagSøknadsTimeline(List.of(søknad1, søknad0));
-        var tlsammenlign = OppgittPeriodeTidligstMottattDatoTjeneste.lagSammenligningTimeline(List.of(søknad1, søknad0));
-        var tloppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.oppdaterTidligstMottattDato(tlsøknad, tlsammenlign, originalBehandlingPerioder);
-        var oppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.tilPerioder(tloppdatert)
-            .stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom)).toList();
+        var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad1, søknad0), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato0);
         assertThat(oppdatert.get(1).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato1);
@@ -465,16 +419,12 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteTest {
             .medPeriodeType(UttakPeriodeType.UDEFINERT)
             .medÅrsak(UtsettelseÅrsak.ARBEID)
             .medMorsAktivitet(MorsAktivitet.UTDANNING)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
         var søknad1 = OppgittPeriodeBuilder.ny()
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fom2, tom2)
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medMorsAktivitet(MorsAktivitet.UTDANNING)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
         var søknad2 = OppgittPeriodeBuilder.ny()
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
@@ -482,15 +432,11 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteTest {
             .medPeriodeType(UttakPeriodeType.UDEFINERT)
             .medÅrsak(UtsettelseÅrsak.ARBEID)
             .medMorsAktivitet(MorsAktivitet.UTDANNING)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
 
-        var tlsøknad = OppgittPeriodeTidligstMottattDatoTjeneste.lagSøknadsTimeline(List.of(søknad0, søknad1, søknad2));
-        var tlsammenlign = OppgittPeriodeTidligstMottattDatoTjeneste.lagSammenligningTimeline(List.of(søknad0, søknad1, søknad2));
-        var tloppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.oppdaterTidligstMottattDato(tlsøknad, tlsammenlign, originalBehandlingPerioder);
-        var oppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.tilPerioder(tloppdatert)
-            .stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom)).toList();
+        var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad0, søknad1, søknad2), LocalDate.now(), List.of(tidligerefordeling), Optional.empty());
+
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
         assertThat(oppdatert.get(1).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
@@ -535,16 +481,10 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteTest {
             .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .medArbeidsgiver(arbeidsgiver)
             .medArbeidsprosent(BigDecimal.TEN)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
 
-        var tlsøknad = OppgittPeriodeTidligstMottattDatoTjeneste.lagSøknadsTimeline(List.of(søknad));
-        var tlsammenlign = OppgittPeriodeTidligstMottattDatoTjeneste.lagSammenligningTimeline(List.of(søknad));
-        var perioderFraUR = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultat, List.of(), fom, true);
-        var tloppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.oppdaterTidligstMottattDato(tlsøknad, tlsammenlign, perioderFraUR);
-        var oppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.tilPerioder(tloppdatert).stream()
-            .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom)).toList();
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad), LocalDate.now(), List.of(), Optional.of(uttakResultat));
+
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(LocalDate.now());
         assertThat(oppdatert.get(1).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
@@ -609,12 +549,7 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteTest {
             .medTidligstMottattDato(LocalDate.now())
             .build();
 
-        var tlsøknad = OppgittPeriodeTidligstMottattDatoTjeneste.lagSøknadsTimeline(List.of(søknad1, søknad0));
-        var tlsammenlign = OppgittPeriodeTidligstMottattDatoTjeneste.lagSammenligningTimeline(List.of(søknad1, søknad0));
-        var perioderFraUR = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultat, List.of(), fom0, true);
-        var tloppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.oppdaterTidligstMottattDato(tlsøknad, tlsammenlign, perioderFraUR);
-        var oppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.tilPerioder(tloppdatert)
-            .stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom)).toList();
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad1, søknad0), LocalDate.now(), List.of(), Optional.of(uttakResultat));
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato0);
         assertThat(oppdatert.get(1).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato1);
@@ -686,16 +621,12 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteTest {
             .medPeriodeType(UttakPeriodeType.UDEFINERT)
             .medÅrsak(UtsettelseÅrsak.ARBEID)
             .medMorsAktivitet(MorsAktivitet.UTDANNING)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
         var søknad1 = OppgittPeriodeBuilder.ny()
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fom2, tom2)
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medMorsAktivitet(MorsAktivitet.UTDANNING)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
         var søknad2 = OppgittPeriodeBuilder.ny()
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
@@ -703,16 +634,10 @@ public class OppgittPeriodeTidligstMottattDatoTjenesteTest {
             .medPeriodeType(UttakPeriodeType.UDEFINERT)
             .medÅrsak(UtsettelseÅrsak.ARBEID)
             .medMorsAktivitet(MorsAktivitet.UTDANNING)
-            .medMottattDato(LocalDate.now())
-            .medTidligstMottattDato(LocalDate.now())
             .build();
 
-        var tlsøknad = OppgittPeriodeTidligstMottattDatoTjeneste.lagSøknadsTimeline(List.of(søknad0, søknad1, søknad2));
-        var tlsammenlign = OppgittPeriodeTidligstMottattDatoTjeneste.lagSammenligningTimeline(List.of(søknad0, søknad1, søknad2));
-        var perioderFraUttak = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultat, List.of(), fom, true);
-        var tloppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.oppdaterTidligstMottattDato(tlsøknad, tlsammenlign, perioderFraUttak);
-        var oppdatert = OppgittPeriodeTidligstMottattDatoTjeneste.tilPerioder(tloppdatert)
-            .stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom)).toList();
+        var oppdatert = TidligstMottattOppdaterer.oppdaterTidligstMottattDato(List.of(søknad0, søknad1, søknad2), LocalDate.now(), List.of(), Optional.of(uttakResultat));
+
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
         assertThat(oppdatert.get(1).getTidligstMottattDato().orElseThrow()).isEqualTo(originalTidligstMottattDato);
