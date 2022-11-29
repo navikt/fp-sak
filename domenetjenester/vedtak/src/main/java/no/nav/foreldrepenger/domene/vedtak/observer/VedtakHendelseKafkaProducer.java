@@ -15,7 +15,6 @@ import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.security.auth.SecurityProtocol;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.apache.kafka.streams.StreamsConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +28,6 @@ public class VedtakHendelseKafkaProducer {
     private static final Logger LOG = LoggerFactory.getLogger(VedtakHendelseKafkaProducer.class);
     private static final Environment ENV = Environment.current();
     private static final boolean IS_DEPLOYMENT = ENV.isProd() || ENV.isDev();
-    private static final String NAMESPACE = ENV.namespace();
 
     private Producer<String, String> producer;
     private String topicName;
@@ -71,11 +69,9 @@ public class VedtakHendelseKafkaProducer {
                                     String trustStorePath,
                                     String keyStoreLocation,
                                     String credStorePassword) {
-        var applicationId = NAMESPACE + ".fpsak";
         var clientId = "KP-fpsak";
 
         final Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, applicationId);
         props.put(CommonClientConfigs.CLIENT_ID_CONFIG, clientId);
         props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 
