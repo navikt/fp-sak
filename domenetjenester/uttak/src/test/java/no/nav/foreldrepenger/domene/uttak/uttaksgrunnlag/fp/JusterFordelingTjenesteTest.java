@@ -1299,6 +1299,25 @@ public class JusterFordelingTjenesteTest {
         assertThat(justertePerioder.get(3).getTom()).isEqualTo(mk.getTom());
     }
 
+    @Test
+    void fellesperiode_før_fødsel_og_fødsel_på_startdato_av_fpff() {
+        //Saksnummer 152187602
+        var termindato = LocalDate.of(2022, 12, 19);
+        var fellesperiode1 = lagPeriode(FELLESPERIODE, LocalDate.of(2022, 11, 7), LocalDate.of(2022, 11, 25));
+        var fødselsdato = LocalDate.of(2022, 11, 28);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato, LocalDate.of(2022, 12, 16));
+        var mk = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(15).minusDays(3));
+        var oppgittePerioder = List.of(fellesperiode1, fpff, mk);
+
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(2);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fellesperiode1.getFom());
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fellesperiode1.getTom());
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(fødselsdato);
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(mk.getTom());
+    }
+
     static OppgittPeriodeEntitet lagPeriode(UttakPeriodeType uttakPeriodeType, LocalDate fom, LocalDate tom) {
         return OppgittPeriodeBuilder.ny().medPeriode(fom, tom).medPeriodeType(uttakPeriodeType).build();
     }
