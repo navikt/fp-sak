@@ -45,7 +45,7 @@ public class TidligstMottattOppdaterer {
         var nysøknadTidslinje = lagSøknadsTimeline(nysøknad);
 
         for (var f : tidligereFordelinger) {
-            var perioder = perioderForFordeling(f, mottattDato, tidligstedato);
+            var perioder = perioderForFordeling(f.getPerioder(), mottattDato, tidligstedato);
             if (!perioder.isEmpty()) {
                 nysøknadTidslinje = oppdaterTidligstMottattDato(nysøknadTidslinje, tidslinjeSammenlignNysøknad, perioder);
             }
@@ -53,7 +53,9 @@ public class TidligstMottattOppdaterer {
 
         // Vedtaksperioder fra forrige uttaksresultat - bruker sammenhengende = true for å få med avslåtte
         var perioderForrigeUttak = forrigeUttak
-            .map(uttak -> VedtaksperioderHelper.opprettOppgittePerioder(uttak, List.of(), tidligstedato, true)).orElse(List.of());
+            .map(uttak -> VedtaksperioderHelper.opprettOppgittePerioder(uttak, List.of(), tidligstedato, true))
+            .map(l -> perioderForFordeling(l, mottattDato, tidligstedato))
+            .orElse(List.of());
         if (!perioderForrigeUttak.isEmpty()) {
             nysøknadTidslinje = oppdaterTidligstMottattDato(nysøknadTidslinje, tidslinjeSammenlignNysøknad, perioderForrigeUttak);
         }
@@ -61,8 +63,8 @@ public class TidligstMottattOppdaterer {
         return nysøknadTidslinje.toSegments().stream().map(LocalDateSegment::getValue).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
-    private static List<OppgittPeriodeEntitet> perioderForFordeling(OppgittFordelingEntitet fordeling, LocalDate mottattDato, LocalDate tidligstedato) {
-        return fordeling.getPerioder().stream()
+    private static List<OppgittPeriodeEntitet> perioderForFordeling(List<OppgittPeriodeEntitet> fordeling, LocalDate mottattDato, LocalDate tidligstedato) {
+        return fordeling.stream()
             .filter(op -> !op.getTom().isBefore(tidligstedato))
             .filter(p -> p.getTidligstMottattDato().orElseGet(p::getMottattDato) != null)
             .filter(p -> p.getTidligstMottattDato().orElseGet(p::getMottattDato).isBefore(mottattDato))

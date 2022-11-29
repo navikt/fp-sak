@@ -67,7 +67,8 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
 
         var tidligereFordelinger = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsakId()).stream()
             .filter(Behandling::erYtelseBehandling)
-            .filter(b -> !b.getId().equals(behandling.getId()))
+            .map(Behandling::getId)
+            .filter(b -> !b.equals(behandling.getId()))
             .map(this::fordelingForBehandling)
             .flatMap(Optional::stream)
             .toList();
@@ -79,8 +80,8 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
         return TidligstMottattOppdaterer.oppdaterTidligstMottattDato(nysøknad, mottattDato, tidligereFordelinger, forrigeUttak);
     }
 
-    private Optional<OppgittFordelingEntitet> fordelingForBehandling(Behandling behandling) {
-        return ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId())
+    private Optional<OppgittFordelingEntitet> fordelingForBehandling(Long behandlingId) {
+        return ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId)
             .map(YtelseFordelingAggregat::getGjeldendeFordeling);
     }
 
