@@ -15,8 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -27,16 +25,12 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
 
-    private static final Environment ENV = Environment.current();
-    private static final boolean IS_PROD = ENV.isProd();
-
     public static final String KEY = "vedtattBehandlingId";
 
     private BehandlingRepository behandlingRepository;
     private VedtattYtelseTjeneste vedtakTjeneste;
-    private HendelseProducer producer;
     private Validator validator;
-    private VedtakHendelseKafkaProducer aivenProducer;
+    private VedtakHendelseKafkaProducer producer;
 
     PubliserVedtattYtelseHendelseTask() {
         // for CDI proxy
@@ -45,16 +39,10 @@ public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
     @Inject
     public PubliserVedtattYtelseHendelseTask(BehandlingRepositoryProvider repositoryProvider,
                                              VedtattYtelseTjeneste vedtakTjeneste,
-                                             VedtakHendelseKafkaProducer aivenProducer,
-                                             @KonfigVerdi("kafka.fattevedtak.topic") String topicName,
-                                             @KonfigVerdi("kafka.bootstrap.servers") String bootstrapServers,
-                                             @KonfigVerdi("kafka.schema.registry.url") String schemaRegistryUrl,
-                                             @KonfigVerdi("systembruker.username") String username,
-                                             @KonfigVerdi("systembruker.password") String password) {
+                                             VedtakHendelseKafkaProducer producer) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.vedtakTjeneste = vedtakTjeneste;
-        this.producer = new HendelseProducer(topicName, bootstrapServers, schemaRegistryUrl, username, password);
-        this.aivenProducer = aivenProducer;
+        this.producer = producer;
 
         @SuppressWarnings("resource") var factory = Validation.buildDefaultValidatorFactory();
         // hibernate validator implementations er thread-safe, trenger ikke close
@@ -69,11 +57,7 @@ public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
             .flatMap(behandlingRepository::finnUnikBehandlingForBehandlingId)
             .ifPresent(b -> {
                 final var payload = generatePayload(b);
-                if (IS_PROD) {
-                    producer.sendJson(payload);
-                } else {
-                    aivenProducer.sendJson(b.getFagsak().getSaksnummer().getVerdi(), payload);
-                }
+                producer.sendJson(b.getFagsak().getSaksnummer().getVerdi(), payload);
             });
     }
 
