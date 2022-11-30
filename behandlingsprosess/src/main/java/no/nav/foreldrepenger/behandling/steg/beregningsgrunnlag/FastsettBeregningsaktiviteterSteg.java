@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Objects;
@@ -27,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.fp.SykemeldingVentTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @FagsakYtelseTypeRef
@@ -63,6 +65,16 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandling);
+
+        // For å fortsatt kunne teste saker påvirket av 8-41 settes kun prodsaker på vent
+        var skalVentePåMuligLovendring = SkalVentePåRegelendring.kanPåvirkesAvRegelendring(input.getSkjæringstidspunktOpptjening(), input.getOpptjeningAktiviteter());
+        if (Environment.current().isProd() && skalVentePåMuligLovendring) {
+            var ventepunkt = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.AUTO_VENT_PÅ_LOVENDRING_8_41,
+                Venteårsak.VENT_LOVENDRING_8_41, LocalDateTime.of(LocalDate.of(2023, 1, 3), LocalDateTime.now().toLocalTime()));
+            return BehandleStegResultat
+                .utførtMedAksjonspunktResultater(Collections.singletonList(ventepunkt));
+        }
+
         var aksjonspunktResultater = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
         var ventPåSykemeldingAksjonspunkt = skalVentePåSykemelding(behandling);
         if (aksjonspunktResultater == null) {
