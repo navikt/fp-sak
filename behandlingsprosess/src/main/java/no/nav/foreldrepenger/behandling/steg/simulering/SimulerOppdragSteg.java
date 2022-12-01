@@ -43,7 +43,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     private static final Logger LOG = LoggerFactory.getLogger(SimulerOppdragSteg.class);
 
     private static final int ÅPNINGSTID = 7;
-    private static final int STENGETID = 21;
+    private static final int STENGETID = 19;
 
     private BehandlingRepository behandlingRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
