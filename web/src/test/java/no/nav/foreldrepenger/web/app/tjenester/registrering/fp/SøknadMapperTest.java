@@ -66,7 +66,7 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.OppgittPeriodeTidligstMottattDatoTjeneste;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.SøknadDataFraTidligereVedtakTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.AnnenPartOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadWrapper;
@@ -94,7 +94,7 @@ public class SøknadMapperTest {
     private DatavarehusTjeneste datavarehusTjeneste;
 
     private SøknadMapper ytelseSøknadMapper;
-    private OppgittPeriodeTidligstMottattDatoTjeneste oppgittPeriodeMottattDato;
+    private SøknadDataFraTidligereVedtakTjeneste oppgittPeriodeMottattDato;
     private PersoninfoKjønn kvinne;
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
@@ -103,7 +103,7 @@ public class SøknadMapperTest {
     public void before(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
-        oppgittPeriodeMottattDato = new OppgittPeriodeTidligstMottattDatoTjeneste(new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()),
+        oppgittPeriodeMottattDato = new SøknadDataFraTidligereVedtakTjeneste(new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()),
             new FpUttakRepository(entityManager), repositoryProvider.getBehandlingRepository(),
             new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusYears(1)), repositoryProvider));
 

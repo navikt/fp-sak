@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
+package no.nav.foreldrepenger.mottak.dokumentpersiterer;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -17,13 +17,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.DokVurderingKopierer;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.TidligstMottattOppdaterer;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.VedtaksperiodeFilter;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
 
 @ApplicationScoped
-public class OppgittPeriodeTidligstMottattDatoTjeneste {
+public class SøknadDataFraTidligereVedtakTjeneste {
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private FpUttakRepository uttakRepository;
@@ -31,17 +32,17 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
     private UtsettelseBehandling2021 utsettelseBehandling;
 
     @Inject
-    public OppgittPeriodeTidligstMottattDatoTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                                     FpUttakRepository uttakRepository,
-                                                     BehandlingRepository behandlingRepository,
-                                                     UtsettelseBehandling2021 utsettelseBehandling) {
+    public SøknadDataFraTidligereVedtakTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
+                                                FpUttakRepository uttakRepository,
+                                                BehandlingRepository behandlingRepository,
+                                                UtsettelseBehandling2021 utsettelseBehandling) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.uttakRepository = uttakRepository;
         this.utsettelseBehandling = utsettelseBehandling;
         this.behandlingRepository = behandlingRepository;
     }
 
-    OppgittPeriodeTidligstMottattDatoTjeneste() {
+    SøknadDataFraTidligereVedtakTjeneste() {
         //CDI
     }
 
@@ -67,7 +68,8 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
 
         var tidligereFordelinger = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsakId()).stream()
             .filter(Behandling::erYtelseBehandling)
-            .filter(b -> !b.getId().equals(behandling.getId()))
+            .map(Behandling::getId)
+            .filter(b -> !b.equals(behandling.getId()))
             .map(this::fordelingForBehandling)
             .flatMap(Optional::stream)
             .toList();
@@ -79,9 +81,22 @@ public class OppgittPeriodeTidligstMottattDatoTjeneste {
         return TidligstMottattOppdaterer.oppdaterTidligstMottattDato(nysøknad, mottattDato, tidligereFordelinger, forrigeUttak);
     }
 
-    private Optional<OppgittFordelingEntitet> fordelingForBehandling(Behandling behandling) {
-        return ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId())
+    private Optional<OppgittFordelingEntitet> fordelingForBehandling(Long behandlingId) {
+        return ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId)
             .map(YtelseFordelingAggregat::getGjeldendeFordeling);
+    }
+
+    public List<OppgittPeriodeEntitet> oppdaterMedGodkjenteDokumentasjonsVurderinger(Behandling behandling, List<OppgittPeriodeEntitet> nysøknad) {
+        if (nysøknad.isEmpty() || RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType())) {
+            return nysøknad;
+        }
+
+        // Vedtaksperioder fra forrige uttaksresultat
+        var forrigeUttak = behandling.getOriginalBehandlingId()
+            .flatMap(uttakRepository::hentUttakResultatHvisEksisterer);
+
+        // Kopier kun godkjent vurdering for søknadsperioder. Vedtaksperioder vil innholde alle vurderinger
+        return DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(nysøknad, List.of(), forrigeUttak);
     }
 
 }

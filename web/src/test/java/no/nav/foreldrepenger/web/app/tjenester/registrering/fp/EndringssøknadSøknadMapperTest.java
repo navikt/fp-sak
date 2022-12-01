@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.OppgittPeriodeTidligstMottattDatoTjeneste;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.SøknadDataFraTidligereVedtakTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.AnnenPartOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadWrapper;
@@ -67,7 +67,7 @@ public class EndringssøknadSøknadMapperTest {
         oppdaterDtoForFødsel(manuellRegistreringEndringsøknadDto, true, LocalDate.now(), 1);
         var soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringEndringsøknadDto, navBruker);
 
-        var oppgittPeriodeMottattDatoTjeneste = new OppgittPeriodeTidligstMottattDatoTjeneste(
+        var oppgittPeriodeMottattDatoTjeneste = new SøknadDataFraTidligereVedtakTjeneste(
             new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), new FpUttakRepository(repositoryProvider.getEntityManager()),
             repositoryProvider.getBehandlingRepository(), new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusYears(1)), repositoryProvider));
         var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider,

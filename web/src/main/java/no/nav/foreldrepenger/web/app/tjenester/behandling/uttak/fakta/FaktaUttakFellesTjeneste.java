@@ -15,12 +15,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.fakta.v2.FaktaUttakAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.TidligstMottattOppdaterer;
@@ -61,14 +64,16 @@ class FaktaUttakFellesTjeneste {
     }
 
     public OppdateringResultat oppdater(List<FaktaUttakPeriodeDto> perioder, Long behandlingId) {
-        var overstyrtePerioder = perioder.stream().map(FaktaUttakFellesTjeneste::map).toList();
+        var gjeldendePerioder = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId)
+            .map(YtelseFordelingAggregat::getGjeldendeFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(List.of());
+        var overstyrtePerioder = perioder.stream().map(p -> map(p, gjeldendePerioder)).toList();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         validerFørsteUttaksdag(overstyrtePerioder, behandling);
         var overstyrtePerioderMedMottattDato = oppdaterMedMottattdato(behandling, overstyrtePerioder);
         ytelseFordelingTjeneste.overstyrSøknadsperioder(behandlingId, overstyrtePerioderMedMottattDato, List.of());
         oppdaterEndringsdato(overstyrtePerioderMedMottattDato, behandlingId);
         //TODO TFP-4873 historikk, totrinn
-        
+
         validerReutledetAksjonspunkt(behandlingId);
         return OppdateringResultat.utenTransisjon().build();
     }
@@ -103,10 +108,9 @@ class FaktaUttakFellesTjeneste {
 
     }
 
-    private static OppgittPeriodeEntitet map(FaktaUttakPeriodeDto dto) {
+    private static OppgittPeriodeEntitet map(FaktaUttakPeriodeDto dto, List<OppgittPeriodeEntitet> gjeldende) {
         var builder = OppgittPeriodeBuilder.ny().medPeriode(dto.fom(), dto.tom()).medPeriodeKilde(dto.periodeKilde())
-            //TODO TFP-4873 smartere enn å bare sett null
-            .medDokumentasjonVurdering(null)
+            .medDokumentasjonVurdering(utledDokumentasjonsVurdering(dto, gjeldende))
             .medMorsAktivitet(dto.morsAktivitet())
             .medFlerbarnsdager(dto.flerbarnsdager())
             .medPeriodeType(dto.uttakPeriodeType())
@@ -161,6 +165,16 @@ class FaktaUttakFellesTjeneste {
                 ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregat);
             }
         }
+    }
+
+    // Initiell versjon. Kan utvides til erOmsluttetAv eller man kan bruke DokVurderingKopierer til å koperier alt ...
+    private static DokumentasjonVurdering  utledDokumentasjonsVurdering(FaktaUttakPeriodeDto dto, List<OppgittPeriodeEntitet> gjeldende) {
+        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(dto.fom(), dto.tom());
+        return gjeldende.stream()
+            .filter(p -> periode.equals(p.getTidsperiode()))
+            .findFirst()
+            .map(OppgittPeriodeEntitet::getDokumentasjonVurdering)
+            .orElse(null);
     }
 
 }
