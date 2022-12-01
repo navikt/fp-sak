@@ -16,6 +16,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
@@ -36,12 +37,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fakta.v2.FaktaUttakAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.FørsteUttaksdatoTjenesteImpl;
 
@@ -210,7 +213,9 @@ class FaktaUttakFellesTjenesteTest {
 
         var tjeneste = new FaktaUttakFellesTjeneste(uttakInputTjeneste, faktaUttakAksjonspunktUtleder, ytelseFordelingTjeneste,
             ytelsesFordelingRepository, repositoryProvider.getFpUttakRepository(), new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())), repositoryProvider.getBehandlingRepository());
-        return tjeneste.oppdater(perioder, behandling.getId());
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())),
+            new FaktaUttakHistorikkinnslagTjeneste(new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(), Mockito.mock(DokumentArkivTjeneste.class), repositoryProvider.getBehandlingRepository())),
+            repositoryProvider.getBehandlingRepository());
+        return tjeneste.oppdater("begrunnelse", perioder, behandling.getId());
     }
 }
