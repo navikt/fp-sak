@@ -37,7 +37,7 @@ public class VedtakStreamKafkaProperties {
 
 
     @Inject
-    public VedtakStreamKafkaProperties(@KonfigVerdi("kafka.fattevedtak.topic") String topicName,
+    public VedtakStreamKafkaProperties(@KonfigVerdi("kafka.fattevedtak.aiven.topic") String topicName,
                                        @KonfigVerdi("KAFKA_BROKERS") String bootstrapServers,
                                        @KonfigVerdi("KAFKA_TRUSTSTORE_PATH") String trustStorePath,
                                        @KonfigVerdi("KAFKA_KEYSTORE_PATH") String keyStoreLocation,
