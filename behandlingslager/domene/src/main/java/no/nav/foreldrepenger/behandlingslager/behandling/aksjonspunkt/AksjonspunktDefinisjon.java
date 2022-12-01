@@ -294,7 +294,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.UT, UTEN_VILKÅR, FAKTA_OM_AKTIVITETSKRAV, TOTRINN, EnumSet.of(FP)),
     VURDER_UTTAK_DOKUMENTASJON(
         AksjonspunktKodeDefinisjon.VURDER_UTTAK_DOKUMENTASJON_KODE, AksjonspunktType.MANUELL, "Vurder dokumentasjon",
-        BehandlingStegType.FAKTA_UTTAK_DOKUMENTASJON, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.VURDER_UTTAK_DOKUMENTASJON, TOTRINN, EnumSet.of(FP)),
+        BehandlingStegType.FAKTA_UTTAK_DOKUMENTASJON, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON, TOTRINN, EnumSet.of(FP)),
 
     // Gruppe : 600
 

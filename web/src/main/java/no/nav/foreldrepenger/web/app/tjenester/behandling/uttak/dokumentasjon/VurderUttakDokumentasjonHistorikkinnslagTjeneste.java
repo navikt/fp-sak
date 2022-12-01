@@ -36,7 +36,7 @@ public class VurderUttakDokumentasjonHistorikkinnslagTjeneste {
                                         List<OppgittPeriodeEntitet> eksisterendePerioder) {
         var builder = historikkTjenesteAdapter.tekstBuilder()
             .medBegrunnelse(dto.getBegrunnelse())
-            .medSkjermlenke(SkjermlenkeType.VURDER_UTTAK_DOKUMENTASJON);
+            .medSkjermlenke(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON);
         for (var periode : dto.getVurderingBehov()) {
             var nyvurdering = VurderUttakDokumentasjonOppdaterer.mapVurdering(periode);
             var eksisterendeVurdering = finnEksisterendePerioder(eksisterendePerioder, periode.fom(), periode.tom())

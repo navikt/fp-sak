@@ -117,7 +117,7 @@ class VurderUttakDokumentasjonOppdatererTest {
         assertThat(lagretPerioder.get(2)).isEqualTo(eksisterendeUttak);
 
         assertThat(historikkDeler).hasSize(1);
-        assertThat(historikkDeler.get(0).getSkjermlenke()).hasValueSatisfying(s -> assertThat(SkjermlenkeType.VURDER_UTTAK_DOKUMENTASJON.getKode()).isEqualTo(s));
+        assertThat(historikkDeler.get(0).getSkjermlenke()).hasValueSatisfying(s -> assertThat(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON.getKode()).isEqualTo(s));
         assertThat(historikkDeler.get(0).getBegrunnelse()).hasValueSatisfying(s -> assertThat("begrunnelse".equals(s)).isTrue());
         assertThat(historikkEndretFelt).hasSize(2);
         assertThat(historikkEndretFelt.stream().map(HistorikkinnslagFelt::getTilVerdi).anyMatch(til -> DokumentasjonVurdering.SYKDOM_SØKER_GODKJENT.getNavn().equals(til))).isTrue();
