@@ -28,8 +28,7 @@ public class DokVurderingKopierer {
 
     public static List<OppgittPeriodeEntitet> oppdaterMedDokumentasjonVurdering(List<OppgittPeriodeEntitet> nysøknad,
                                                                                 List<OppgittFordelingEntitet> tidligereFordelinger,
-                                                                                Optional<UttakResultatEntitet> forrigeUttak,
-                                                                                boolean kunGodkjentVurdering) {
+                                                                                Optional<UttakResultatEntitet> forrigeUttak) {
         if (nysøknad.isEmpty()) {
             return nysøknad;
         }
@@ -39,7 +38,7 @@ public class DokVurderingKopierer {
         var nysøknadTidslinje = lagSøknadsTimeline(nysøknad);
 
         for (var f : tidligereFordelinger) {
-            var perioder = perioderForFordeling(f.getPerioder(), tidligstedato, kunGodkjentVurdering);
+            var perioder = perioderForFordeling(f.getPerioder(), tidligstedato);
             if (!perioder.isEmpty()) {
                 nysøknadTidslinje = oppdaterDokumentasjonVurdering(nysøknadTidslinje, tidslinjeSammenlignNysøknad, perioder);
             }
@@ -49,7 +48,7 @@ public class DokVurderingKopierer {
         var perioderForrigeUttak = forrigeUttak
             .map(uttak -> VedtaksperioderHelper.opprettOppgittePerioder(uttak, List.of(), tidligstedato, true))
             .orElse(List.of());
-        var filtrertForrigeUttak = perioderForFordeling(perioderForrigeUttak, tidligstedato, kunGodkjentVurdering);
+        var filtrertForrigeUttak = perioderForFordeling(perioderForrigeUttak, tidligstedato);
         if (!filtrertForrigeUttak.isEmpty()) {
             nysøknadTidslinje = oppdaterDokumentasjonVurdering(nysøknadTidslinje, tidslinjeSammenlignNysøknad, filtrertForrigeUttak);
         }
@@ -57,11 +56,11 @@ public class DokVurderingKopierer {
         return nysøknadTidslinje.toSegments().stream().map(LocalDateSegment::getValue).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
-    private static List<OppgittPeriodeEntitet> perioderForFordeling(List<OppgittPeriodeEntitet> fordeling, LocalDate tidligstedato, boolean kunGodkjentVurdering) {
+    private static List<OppgittPeriodeEntitet> perioderForFordeling(List<OppgittPeriodeEntitet> fordeling, LocalDate tidligstedato) {
         return fordeling.stream()
             .filter(op -> !op.getTom().isBefore(tidligstedato))
             .filter(p -> p.getDokumentasjonVurdering() != null)
-            .filter(p -> !kunGodkjentVurdering || p.getDokumentasjonVurdering().erGodkjent())
+            .filter(p -> p.getDokumentasjonVurdering().erGodkjent())
             .toList();
     }
 

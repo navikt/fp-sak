@@ -70,7 +70,6 @@ public class FastsettUttaksgrunnlagTjeneste {
             var originalBehandlingId = ref.getOriginalBehandlingId()
                 .orElseThrow(() -> new IllegalArgumentException("Utvikler-feil: ved revurdering skal det alltid finnes en original behandling"));
             if (behandlingHarUttaksresultat(originalBehandlingId)) {
-                justertePerioder = oppdaterMedGodkjenteDokumentasjonsVurderinger(input, justertePerioder);
                 justertePerioder = kopierVedtaksperioderFomEndringsdato(justertePerioder, endringsdatoRevurdering, originalBehandlingId,
                     input.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak() || input.isBehandlingManueltOpprettet());
             } else {
@@ -182,18 +181,5 @@ public class FastsettUttaksgrunnlagTjeneste {
 
     private List<OppgittPeriodeEntitet> kopier(List<OppgittPeriodeEntitet> perioder) {
         return perioder.stream().map(p -> OppgittPeriodeBuilder.fraEksisterende(p).build()).collect(Collectors.toList());
-    }
-
-    public List<OppgittPeriodeEntitet> oppdaterMedGodkjenteDokumentasjonsVurderinger(UttakInput input, List<OppgittPeriodeEntitet> nysøknad) {
-        if (nysøknad.isEmpty() || RelasjonsRolleType.MORA.equals(input.getBehandlingReferanse().relasjonRolle())) {
-            return nysøknad;
-        }
-
-        // Vedtaksperioder fra forrige uttaksresultat
-        var forrigeUttak = input.getBehandlingReferanse().getOriginalBehandlingId()
-            .flatMap(fpUttakRepository::hentUttakResultatHvisEksisterer);
-
-        // Kopier kun godkjent vurdering for søknadsperioder. Vedtaksperioder vil innholde alle vurderinger
-        return DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(nysøknad, List.of(), forrigeUttak, true);
     }
 }

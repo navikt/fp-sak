@@ -61,7 +61,7 @@ public class DokVurderingKopiererTest {
             .build();
 
         var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
-        var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(periode), List.of(tidligerefordeling), Optional.empty(), true);
+        var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(periode), List.of(tidligerefordeling), Optional.empty());
         assertThat(oppdatert).hasSize(1);
         var oppdatertperiode = oppdatert.get(0);
         assertThat(oppdatertperiode.getDokumentasjonVurdering()).isEqualTo(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT);
@@ -88,7 +88,7 @@ public class DokVurderingKopiererTest {
             .build();
 
         var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
-        var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(periode), List.of(tidligerefordeling), Optional.empty(), true);
+        var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(periode), List.of(tidligerefordeling), Optional.empty());
         assertThat(oppdatert).hasSize(1);
         var oppdatertperiode = oppdatert.get(0);
         assertThat(oppdatertperiode.getDokumentasjonVurdering()).isNull();
@@ -116,7 +116,7 @@ public class DokVurderingKopiererTest {
             .build();
 
         var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
-        var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(periode), List.of(tidligerefordeling), Optional.empty(), true);
+        var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(periode), List.of(tidligerefordeling), Optional.empty());
         assertThat(oppdatert).hasSize(1);
         var oppdatertperiode = oppdatert.get(0);
         assertThat(oppdatertperiode.getDokumentasjonVurdering()).isNull();
@@ -145,7 +145,7 @@ public class DokVurderingKopiererTest {
             .build();
 
         var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
-        var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(periode), List.of(tidligerefordeling), Optional.empty(), true);
+        var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(periode), List.of(tidligerefordeling), Optional.empty());
 
         assertThat(oppdatert).hasSize(2);
         assertThat(oppdatert.get(0).getDokumentasjonVurdering()).isEqualTo(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT);
@@ -175,7 +175,7 @@ public class DokVurderingKopiererTest {
             .build();
 
         var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
-        var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(periode), List.of(tidligerefordeling), Optional.empty(), true);
+        var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(periode), List.of(tidligerefordeling), Optional.empty());
 
         assertThat(oppdatert).hasSize(1);
         var oppdatertperiode = oppdatert.get(0);
@@ -221,7 +221,7 @@ public class DokVurderingKopiererTest {
             .build();
 
         var tidligerefordeling = new OppgittFordelingEntitet(originalBehandlingPerioder, true, false);
-        var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(søknad1, søknad2), List.of(tidligerefordeling), Optional.empty(), true);
+        var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(søknad1, søknad2), List.of(tidligerefordeling), Optional.empty());
 
         assertThat(oppdatert).hasSize(2);
         assertThat(oppdatert.get(0).getDokumentasjonVurdering()).isEqualTo(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT);
@@ -285,7 +285,7 @@ public class DokVurderingKopiererTest {
             .medMorsAktivitet(MorsAktivitet.UTDANNING)
             .build();
 
-        var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(søknad0, søknad1), List.of(), Optional.of(uttakResultat), true);
+        var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(søknad0, søknad1), List.of(), Optional.of(uttakResultat));
 
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getDokumentasjonVurdering()).isNull();
@@ -382,7 +382,7 @@ public class DokVurderingKopiererTest {
             .medMorsAktivitet(MorsAktivitet.UTDANNING)
             .build();
 
-        var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(søknad0, søknad1, søknad2), List.of(), Optional.of(uttakResultat), true);
+        var oppdatert = DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(List.of(søknad0, søknad1, søknad2), List.of(), Optional.of(uttakResultat));
 
         assertThat(oppdatert).hasSize(3);
         assertThat(oppdatert.get(0).getDokumentasjonVurdering()).isEqualTo(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT);

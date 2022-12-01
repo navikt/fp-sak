@@ -78,9 +78,9 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.OppgittPeriodeTidligstMottattDatoTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.MottattDokumentOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.NamespaceRef;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.SøknadDataFraTidligereVedtakTjeneste;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
 import no.nav.vedtak.exception.TekniskException;
@@ -139,7 +139,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private FagsakRepository fagsakRepository;
-    private OppgittPeriodeTidligstMottattDatoTjeneste oppgittPeriodeTidligstMottattDatoTjeneste;
+    private SøknadDataFraTidligereVedtakTjeneste søknadDataFraTidligereVedtakTjeneste;
     private AnnenPartOversetter annenPartOversetter;
 
     @Inject
@@ -149,7 +149,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                             InntektArbeidYtelseTjeneste iayTjeneste,
                             PersoninfoAdapter personinfoAdapter,
                             DatavarehusTjeneste datavarehusTjeneste,
-                            OppgittPeriodeTidligstMottattDatoTjeneste oppgittPeriodeTidligstMottattDatoTjeneste,
+                            SøknadDataFraTidligereVedtakTjeneste søknadDataFraTidligereVedtakTjeneste,
                             AnnenPartOversetter annenPartOversetter) {
         this.iayTjeneste = iayTjeneste;
         this.familieHendelseRepository = grunnlagRepositoryProvider.getFamilieHendelseRepository();
@@ -163,7 +163,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         this.datavarehusTjeneste = datavarehusTjeneste;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.svangerskapspengerRepository = grunnlagRepositoryProvider.getSvangerskapspengerRepository();
-        this.oppgittPeriodeTidligstMottattDatoTjeneste = oppgittPeriodeTidligstMottattDatoTjeneste;
+        this.søknadDataFraTidligereVedtakTjeneste = søknadDataFraTidligereVedtakTjeneste;
         this.annenPartOversetter = annenPartOversetter;
     }
 
@@ -571,12 +571,13 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             .map(this::oversettPeriode)
             .filter(this::inneholderVirkedager)
             .toList();
-        var filtrertPerioder = oppgittPeriodeTidligstMottattDatoTjeneste.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling, oppgittPerioder);
-        var oppdatertPerioder = oppgittPeriodeTidligstMottattDatoTjeneste.oppdaterTidligstMottattDato(behandling, mottattDatoFraSøknad, filtrertPerioder);
-        if (!inneholderVirkedager(oppdatertPerioder)) {
+        var filtrertPerioder = søknadDataFraTidligereVedtakTjeneste.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling, oppgittPerioder);
+        var perioderMedTidligstMottatt = søknadDataFraTidligereVedtakTjeneste.oppdaterTidligstMottattDato(behandling, mottattDatoFraSøknad, filtrertPerioder);
+        var perioderMedGodkjentVurdering = søknadDataFraTidligereVedtakTjeneste.oppdaterMedGodkjenteDokumentasjonsVurderinger(behandling, perioderMedTidligstMottatt);
+        if (!inneholderVirkedager(perioderMedGodkjentVurdering)) {
             throw new IllegalArgumentException("Fordelingen må inneholde perioder med minst en virkedag");
         }
-        return new OppgittFordelingEntitet(oppdatertPerioder, annenForelderErInformert, Objects.equals(ønskerJustertVedFødsel, true));
+        return new OppgittFordelingEntitet(perioderMedGodkjentVurdering, annenForelderErInformert, Objects.equals(ønskerJustertVedFødsel, true));
     }
 
     private boolean inneholderVirkedager(List<OppgittPeriodeEntitet> perioder) {
