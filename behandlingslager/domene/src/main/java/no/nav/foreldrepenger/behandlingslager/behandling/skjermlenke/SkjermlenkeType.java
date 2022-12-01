@@ -43,7 +43,7 @@ public enum SkjermlenkeType implements Kodeverdi {
     FORMKRAV_KLAGE_NFP("FORMKRAV_KLAGE_NFP", "Formkrav klage NFP"),
     KLAGE_BEH_NFP("KLAGE_BEH_NFP", "Klageresultat Vedtaksinstans"),
     KLAGE_BEH_NK("KLAGE_BEH_NK", "Klageresultat Klageinstans"),
-    KONTROLL_AV_SAKSOPPLYSNINGER("KONTROLL_AV_SAKSOPPLYSNINGER", "Kontroll av saksopplysninger"),
+    KONTROLL_AV_SAKSOPPLYSNINGER("KONTROLL_AV_SAKSOPPLYSNINGER", "Fakta om saken"),
     OPPLYSNINGSPLIKT("OPPLYSNINGSPLIKT", "Opplysningsplikt"),
     PUNKT_FOR_ADOPSJON("PUNKT_FOR_ADOPSJON", "Adopsjon"),
     PUNKT_FOR_FOEDSEL("PUNKT_FOR_FOEDSEL", "Fødsel"),
@@ -61,7 +61,7 @@ public enum SkjermlenkeType implements Kodeverdi {
     UTTAK("UTTAK", "Uttak"),
     VEDTAK("VEDTAK", "Vedtak"),
     VURDER_FARESIGNALER("VURDER_FARESIGNALER", "Vurder faresignaler"),
-    VURDER_UTTAK_DOKUMENTASJON("VURDER_UTTAK_DOKUMENTASJON", "Vurder dokumentasjon"),
+    FAKTA_OM_UTTAK_DOKUMENTASJON("FAKTA_OM_UTTAK_DOKUMENTASJON", "Vurder dokumentasjon"),
     FAKTA_UTTAK("FAKTA_UTTAK", "Fakta uttak");
 
     private static final Map<String, SkjermlenkeType> KODER = new LinkedHashMap<>();

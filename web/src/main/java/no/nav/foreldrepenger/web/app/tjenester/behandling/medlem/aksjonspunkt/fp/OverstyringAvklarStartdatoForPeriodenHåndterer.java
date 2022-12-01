@@ -47,7 +47,7 @@ public class OverstyringAvklarStartdatoForPeriodenHåndterer extends AbstractOve
         if (!startdatoFraSoknad.equals(opprinneligDato)) {
             getHistorikkAdapter().tekstBuilder()
                 .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
-                .medSkjermlenke(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP)
+                .medSkjermlenke(SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER)
                 .medBegrunnelse(dto.getBegrunnelse())
                 .medEndretFelt(HistorikkEndretFeltType.STARTDATO_FRA_SOKNAD, opprinneligDato, startdatoFraSoknad);
         }
