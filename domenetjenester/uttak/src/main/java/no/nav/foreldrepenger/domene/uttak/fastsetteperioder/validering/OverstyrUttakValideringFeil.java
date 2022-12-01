@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
+import java.time.LocalDate;
+import java.util.List;
+
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
@@ -34,8 +37,8 @@ final class OverstyrUttakValideringFeil {
             "Trekkdager for periodene overskrider maks tilgjengelige dager på konto");
     }
 
-    static TekniskException perioderFørEndringsdatoKanIkkeEndres(LocalDateInterval tidsperiode) {
-        return new TekniskException("FP-999187", "Perioder før endringsdato kan ikke endres " + tidsperiode);
+    static TekniskException perioderFørEndringsdatoKanIkkeEndres(LocalDate endringsdato, ForeldrepengerUttakPeriode periode, List<ForeldrepengerUttakPeriode> opprinnelige) {
+        return new TekniskException("FP-999187", "Perioder før endringsdato " + endringsdato + " kan ikke endres " + periode + " - " + opprinnelige);
     }
 
     static TekniskException trekkerDagerFraSøktKontoVedAvslagAvOverføring(ForeldrepengerUttakPeriode periode) {
