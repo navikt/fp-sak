@@ -39,6 +39,7 @@ class FaktaUttakFellesTjeneste {
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste;
+    private FaktaUttakHistorikkinnslagTjeneste historikkinnslagTjeneste;
     private BehandlingRepository behandlingRepository;
     private FpUttakRepository fpUttakRepository;
 
@@ -49,12 +50,14 @@ class FaktaUttakFellesTjeneste {
                                     YtelsesFordelingRepository ytelsesFordelingRepository,
                                     FpUttakRepository fpUttakRepository,
                                     FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste,
+                                    FaktaUttakHistorikkinnslagTjeneste historikkinnslagTjeneste,
                                     BehandlingRepository behandlingRepository) {
         this.uttakInputtjeneste = uttakInputtjeneste;
         this.utleder = utleder;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
         this.førsteUttaksdatoTjeneste = førsteUttaksdatoTjeneste;
+        this.historikkinnslagTjeneste = historikkinnslagTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.fpUttakRepository = fpUttakRepository;
     }
@@ -63,7 +66,7 @@ class FaktaUttakFellesTjeneste {
         //CDI
     }
 
-    public OppdateringResultat oppdater(List<FaktaUttakPeriodeDto> perioder, Long behandlingId) {
+    public OppdateringResultat oppdater(String begrunnelse, List<FaktaUttakPeriodeDto> perioder, Long behandlingId) {
         var gjeldendePerioder = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId)
             .map(YtelseFordelingAggregat::getGjeldendeFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(List.of());
         var overstyrtePerioder = perioder.stream().map(p -> map(p, gjeldendePerioder)).toList();
@@ -72,7 +75,7 @@ class FaktaUttakFellesTjeneste {
         var overstyrtePerioderMedMottattDato = oppdaterMedMottattdato(behandling, overstyrtePerioder);
         ytelseFordelingTjeneste.overstyrSøknadsperioder(behandlingId, overstyrtePerioderMedMottattDato, List.of());
         oppdaterEndringsdato(overstyrtePerioderMedMottattDato, behandlingId);
-        //TODO TFP-4873 historikk, totrinn
+        historikkinnslagTjeneste.opprettHistorikkinnslag(begrunnelse, gjeldendePerioder, overstyrtePerioderMedMottattDato);
 
         validerReutledetAksjonspunkt(behandlingId);
         return OppdateringResultat.utenTransisjon().build();
