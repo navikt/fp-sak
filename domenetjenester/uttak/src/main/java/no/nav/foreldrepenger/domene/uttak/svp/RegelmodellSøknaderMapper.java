@@ -11,7 +11,6 @@ import javax.enterprise.context.ApplicationScoped;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -45,7 +44,7 @@ public class RegelmodellSøknaderMapper {
     }
 
     private List<Søknad> lagSøknader(UttakInput input, SvpGrunnlagEntitet svpGrunnlag, LocalDate termindato) {
-        return new TilretteleggingFilter(svpGrunnlag).getAktuelleTilretteleggingerFiltrert()
+        return svpGrunnlag.hentTilretteleggingerSomSkalBrukes()
             .stream()
             .map(tilrettelegging -> lagSøknad(input, tilrettelegging, termindato))
             .collect(Collectors.toList());

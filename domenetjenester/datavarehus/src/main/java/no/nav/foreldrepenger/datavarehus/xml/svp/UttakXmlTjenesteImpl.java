@@ -11,9 +11,9 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
@@ -66,9 +66,10 @@ public class UttakXmlTjenesteImpl {
         svangerskapspengerUttakOptional.ifPresent(svangerskapspengerUttak ->
             setUttakUttaksResultatArbeidsforhold(uttakSvangerskapspenger, svangerskapspengerUttak.getUttaksResultatArbeidsforhold()));
 
-        var svpGrunnlagEntitetOpt = svangerskapspengerRepository.hentGrunnlag(behandling.getId());
-        svpGrunnlagEntitetOpt.ifPresent(svpGrunnlag -> setTilrettelegginger(uttakSvangerskapspenger,
-            new TilretteleggingFilter(svpGrunnlagEntitetOpt.get()).getAktuelleTilretteleggingerFiltrert()));
+        var tilretteleggingerSomSkalBrukes = svangerskapspengerRepository.hentGrunnlag(behandling.getId())
+            .map(SvpGrunnlagEntitet::hentTilretteleggingerSomSkalBrukes);
+
+        tilretteleggingerSomSkalBrukes.ifPresent(tilr -> setTilrettelegginger(uttakSvangerskapspenger, tilr));
 
         var uttak = new Uttak();
         uttak.getAny().add(uttakObjectFactory.createUttak(uttakSvangerskapspenger));
@@ -77,14 +78,11 @@ public class UttakXmlTjenesteImpl {
 
 
     private void setTilrettelegginger(UttakSvangerskapspenger uttakSvangerskapspenger, List<SvpTilretteleggingEntitet> svpTilrettelegginger) {
-        var kontrakt = svpTilrettelegginger
-            .stream()
-            .map(svpTilrettelegging -> konverterFraDomene(svpTilrettelegging)).collect(Collectors.toList());
+        var kontrakt = svpTilrettelegginger.stream().map(this::konverterFraDomene).toList();
         uttakSvangerskapspenger.getTilrettelegging().addAll(kontrakt);
     }
 
     private Tilrettelegging konverterFraDomene(SvpTilretteleggingEntitet svpTilrettelegging) {
-        //TODO PFP-8651: tilpass til å støtte mer enn en dato av hver type
         var kontrakt = new Tilrettelegging();
 
         var behovForTilretteleggingFomOptional = VedtakXmlUtil.lagDateOpplysning(svpTilrettelegging.getBehovForTilretteleggingFom());

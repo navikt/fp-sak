@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
@@ -62,57 +62,60 @@ public class BeregnTilrettleggingsperioderTjeneste {
      *         ikke finnes datagrunnlag
      */
     public List<TilretteleggingMedUtbelingsgrad> beregnPerioder(BehandlingReferanse behandlingReferanse) {
-        var svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingReferanse.behandlingId());
-        var aktørId = behandlingReferanse.aktørId();
+        var gjeldendeTilretteleggingerSomSkalBrukes = svangerskapspengerRepository.hentGrunnlag(behandlingReferanse.behandlingId())
+            .map(SvpGrunnlagEntitet::hentTilretteleggingerSomSkalBrukes)
+            .orElse(Collections.emptyList());
 
-        if (svpGrunnlagOpt.isPresent()) {
-            var termindato = finnTermindato(behandlingReferanse.behandlingId());
-            var svpGrunnlag = svpGrunnlagOpt.get();
-            var aktuelleTilretteleggingerFiltrert = new TilretteleggingFilter(svpGrunnlag).getAktuelleTilretteleggingerFiltrert();
-            var grunnlag = iayTjeneste.finnGrunnlag(behandlingReferanse.behandlingId());
-
-            var filter = grunnlag
-                    .map(g -> new YrkesaktivitetFilter(g.getArbeidsforholdInformasjon(), finnSaksbehandletEllerRegister(aktørId, g)))
-                    .orElse(YrkesaktivitetFilter.EMPTY);
-
-            // beregner i henhold til stillingsprosent på arbeidsforholdene i AA-reg
-            var ordinæreArbeidsforhold = aktuelleTilretteleggingerFiltrert.stream()
-                    .filter(tilrettelegging -> tilrettelegging.getArbeidsgiver().isPresent()
-                            && ArbeidType.ORDINÆRT_ARBEIDSFORHOLD.equals(tilrettelegging.getArbeidType()))
-                    .map(a -> {
-                        var aktivitetsAvtalerForArbeid = filter.getAktivitetsAvtalerForArbeid(a.getArbeidsgiver().get(),
-                                a.getInternArbeidsforholdRef().isPresent() ? a.getInternArbeidsforholdRef().get() : InternArbeidsforholdRef.nullRef(),
-                                a.getBehovForTilretteleggingFom());
-                        Collection<Permisjon> velferdspermisjonerForArbeid = filter
-                                .getPermisjonerForArbeid(a.getArbeidsgiver().get(),
-                                        a.getInternArbeidsforholdRef().isPresent() ? a.getInternArbeidsforholdRef().get()
-                                                : InternArbeidsforholdRef.nullRef(),
-                                        a.getBehovForTilretteleggingFom())
-                                .stream()
-                                .filter(p -> PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(p.getPermisjonsbeskrivelseType()))
-                                .collect(Collectors.toList());
-
-                        LOG.info("Beregner utbetalingsgrad for arbeidsgiver {} med disse aktivitetene: {}",
-                            tilMaskertNummer(a.getArbeidsgiver().get().getOrgnr()), aktivitetsAvtalerForArbeid);
-                        return UtbetalingsgradBeregner.beregn(aktivitetsAvtalerForArbeid, a, termindato, velferdspermisjonerForArbeid);
-                    })
-                    .collect(Collectors.toList());
-
-            // beregner i henhold til stillingsprosent på 100% (Frilans og Selvstendig)
-            var frilansOgSelvstendigNæringsdrivende = aktuelleTilretteleggingerFiltrert.stream()
-                    .filter(tilrettelegging -> tilrettelegging.getArbeidsgiver().isEmpty()
-                            && !ArbeidType.ORDINÆRT_ARBEIDSFORHOLD.equals(tilrettelegging.getArbeidType()))
-                    .map(a -> UtbetalingsgradBeregner.beregnUtenAAreg(a, termindato)).collect(Collectors.toList());
-
-            ordinæreArbeidsforhold.addAll(frilansOgSelvstendigNæringsdrivende);
-            if (aktuelleTilretteleggingerFiltrert.size() == ordinæreArbeidsforhold.size()) {
-                return ordinæreArbeidsforhold;
-            }
-            throw new IllegalStateException(
-                    "Har ikke klart å beregne tilrettleggingsperiodene riktig for behandlingID" + behandlingReferanse.behandlingId());
+        if (gjeldendeTilretteleggingerSomSkalBrukes.isEmpty()) {
+            return Collections.emptyList();
         }
-        return Collections.emptyList();
+
+        var aktørId = behandlingReferanse.aktørId();
+        var termindato = finnTermindato(behandlingReferanse.behandlingId());
+        var grunnlag = iayTjeneste.finnGrunnlag(behandlingReferanse.behandlingId());
+
+        var filter = grunnlag
+                .map(g -> new YrkesaktivitetFilter(g.getArbeidsforholdInformasjon(), finnSaksbehandletEllerRegister(aktørId, g)))
+                .orElse(YrkesaktivitetFilter.EMPTY);
+
+        // beregner i henhold til stillingsprosent på arbeidsforholdene i AA-reg
+        var ordinæreArbeidsforhold = gjeldendeTilretteleggingerSomSkalBrukes.stream()
+                .filter(tilrettelegging -> tilrettelegging.getArbeidsgiver().isPresent()
+                        && ArbeidType.ORDINÆRT_ARBEIDSFORHOLD.equals(tilrettelegging.getArbeidType()))
+                .map(a -> {
+                    var aktivitetsAvtalerForArbeid = filter.getAktivitetsAvtalerForArbeid(a.getArbeidsgiver().get(),
+                            a.getInternArbeidsforholdRef().isPresent() ? a.getInternArbeidsforholdRef().get() : InternArbeidsforholdRef.nullRef(),
+                            a.getBehovForTilretteleggingFom());
+                    Collection<Permisjon> velferdspermisjonerForArbeid = filter
+                            .getPermisjonerForArbeid(a.getArbeidsgiver().get(),
+                                    a.getInternArbeidsforholdRef().isPresent() ? a.getInternArbeidsforholdRef().get()
+                                            : InternArbeidsforholdRef.nullRef(),
+                                    a.getBehovForTilretteleggingFom())
+                            .stream()
+                            .filter(p -> PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(p.getPermisjonsbeskrivelseType()))
+                            .collect(Collectors.toList());
+
+                    LOG.info("Beregner utbetalingsgrad for arbeidsgiver {} med disse aktivitetene: {}",
+                        tilMaskertNummer(a.getArbeidsgiver().get().getOrgnr()), aktivitetsAvtalerForArbeid);
+                    return UtbetalingsgradBeregner.beregn(aktivitetsAvtalerForArbeid, a, termindato, velferdspermisjonerForArbeid);
+                })
+                .collect(Collectors.toList());
+
+        // beregner i henhold til stillingsprosent på 100% (Frilans og Selvstendig)
+        var frilansOgSelvstendigNæringsdrivende = gjeldendeTilretteleggingerSomSkalBrukes.stream()
+            .filter(tilrettelegging -> tilrettelegging.getArbeidsgiver().isEmpty() && !ArbeidType.ORDINÆRT_ARBEIDSFORHOLD.equals(
+                tilrettelegging.getArbeidType()))
+            .map(a -> UtbetalingsgradBeregner.beregnUtenAAreg(a, termindato))
+            .toList();
+
+        ordinæreArbeidsforhold.addAll(frilansOgSelvstendigNæringsdrivende);
+        if (gjeldendeTilretteleggingerSomSkalBrukes.size() == ordinæreArbeidsforhold.size()) {
+            return ordinæreArbeidsforhold;
+        }
+        throw new IllegalStateException(
+                "Har ikke klart å beregne tilrettleggingsperiodene riktig for behandlingID" + behandlingReferanse.behandlingId());
     }
+
 
     private Optional<AktørArbeid> finnSaksbehandletEllerRegister(AktørId aktørId, InntektArbeidYtelseGrunnlag g) {
         if (g.harBlittSaksbehandlet()) {
