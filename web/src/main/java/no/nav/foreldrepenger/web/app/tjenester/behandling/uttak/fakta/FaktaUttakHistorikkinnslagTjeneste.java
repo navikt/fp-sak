@@ -7,6 +7,7 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -19,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.UttakPeriodeEndringDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -76,6 +78,35 @@ public class FaktaUttakHistorikkinnslagTjeneste {
         } else if (!erLikePerioder(lhs.getValue(), rhs.getValue())) {
             return new LocalDateSegment<>(di, new Endring(tekstIntro(di), tekstPeriodeEndret(lhs.getValue(), rhs.getValue()),
                 tekstPeriodeEndret(rhs.getValue(), lhs.getValue())));
+        } else {
+            return null;
+        }
+    }
+
+
+    public static List<UttakPeriodeEndringDto> utledPerioderMedEndring(List<OppgittPeriodeEntitet> før, List<OppgittPeriodeEntitet> etter) {
+        var førSegment = før.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), p)).toList();
+        var etterSegment = etter.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), p)).toList();
+
+        return new LocalDateTimeline<>(etterSegment).combine(new LocalDateTimeline<>(førSegment),
+            FaktaUttakHistorikkinnslagTjeneste::utledEndringDto, LocalDateTimeline.JoinStyle.CROSS_JOIN)
+            .toSegments().stream()
+            .filter(Objects::nonNull)
+            .map(LocalDateSegment::getValue)
+            .filter(Objects::nonNull)
+            .toList();
+    }
+
+    private static LocalDateSegment<UttakPeriodeEndringDto> utledEndringDto(LocalDateInterval di,
+                                                                            LocalDateSegment<OppgittPeriodeEntitet> lhs,
+                                                                            LocalDateSegment<OppgittPeriodeEntitet> rhs) {
+        var builder = new UttakPeriodeEndringDto.Builder().medPeriode(di.getFomDato(), di.getTomDato());
+        if (rhs == null) {
+            return new LocalDateSegment<>(di, builder.medTypeEndring(UttakPeriodeEndringDto.TypeEndring.LAGT_TIL).build());
+        } else if (lhs == null) {
+            return new LocalDateSegment<>(di, builder.medTypeEndring(UttakPeriodeEndringDto.TypeEndring.SLETTET).build());
+        } else if (!erLikePerioder(lhs.getValue(), rhs.getValue())) {
+            return new LocalDateSegment<>(di, builder.medTypeEndring(UttakPeriodeEndringDto.TypeEndring.ENDRET).build());
         } else {
             return null;
         }
@@ -172,7 +203,7 @@ public class FaktaUttakHistorikkinnslagTjeneste {
 
     private record Endring(String intro, String tekstFra, String tekstTil) {}
 
-    private boolean erLikePerioder(OppgittPeriodeEntitet før, OppgittPeriodeEntitet etter) {
+    private static boolean erLikePerioder(OppgittPeriodeEntitet før, OppgittPeriodeEntitet etter) {
         return Objects.equals(før, etter) || (Objects.equals(før.getPeriodeType(), etter.getPeriodeType()) &&
             Objects.equals(før.getÅrsak(), etter.getÅrsak()) &&
             Objects.equals(arbeidsprosent(før), arbeidsprosent(etter)) &&
@@ -183,13 +214,13 @@ public class FaktaUttakHistorikkinnslagTjeneste {
             Objects.equals(før.getMorsAktivitet(), etter.getMorsAktivitet()));
     }
 
-    private SamtidigUttaksprosent samtidigUttaksprosent(OppgittPeriodeEntitet periode) {
+    private static SamtidigUttaksprosent samtidigUttaksprosent(OppgittPeriodeEntitet periode) {
         return Optional.ofNullable(periode.getSamtidigUttaksprosent())
             .filter(SamtidigUttaksprosent::merEnn0)
             .orElse(null);
     }
 
-    private BigDecimal arbeidsprosent(OppgittPeriodeEntitet periode) {
+    private static BigDecimal arbeidsprosent(OppgittPeriodeEntitet periode) {
         return Optional.ofNullable(periode.getArbeidsprosent())
             .filter(arb -> arb.compareTo(BigDecimal.ZERO) > 0)
             .orElse(null);
