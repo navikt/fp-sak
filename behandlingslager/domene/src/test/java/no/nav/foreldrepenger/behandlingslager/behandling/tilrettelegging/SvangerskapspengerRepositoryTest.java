@@ -55,10 +55,8 @@ public class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe()).hasSize(1);
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getKopiertFraTidligereBehandling()).isTrue();
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getMottattTidspunkt()).isEqualTo(I_GÅR);
-        assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getBehovForTilretteleggingFom()).isEqualTo(OM_TO_DAGER);
-        assertThat(kopiertGrunnlag.get().getOverstyrteTilrettelegginger().getTilretteleggingListe().get(0).getKopiertFraTidligereBehandling()).isTrue();
-        assertThat(kopiertGrunnlag.get().getOverstyrteTilrettelegginger().getTilretteleggingListe().get(0).getMottattTidspunkt()).isEqualTo(I_GÅR);
-        assertThat(kopiertGrunnlag.get().getOverstyrteTilrettelegginger().getTilretteleggingListe().get(0).getBehovForTilretteleggingFom()).isEqualTo(OM_TRE_DAGER);
+        assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getBehovForTilretteleggingFom()).isEqualTo(OM_TRE_DAGER);
+        assertThat(kopiertGrunnlag.get().getOverstyrteTilrettelegginger()).isNull();
     }
 
     private SvpTilretteleggingEntitet opprettTilrettelegging(LocalDate fom) {
