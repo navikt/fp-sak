@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
@@ -67,9 +68,10 @@ public class FastsettePerioderRegelResultatKonvertererTest {
         var periodeTom = LocalDate.of(2020, 2, 2);
         var oppgittPeriode = OppgittPeriodeBuilder.ny()
             .medPeriode(periodeFom, periodeTom)
-            .medÅrsak(no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.ARBEID)
+            .medÅrsak(no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.SYKDOM)
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriodeType(UttakPeriodeType.UDEFINERT)
+            .medDokumentasjonVurdering(DokumentasjonVurdering.SYKDOM_SØKER_GODKJENT)
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true));
@@ -97,6 +99,7 @@ public class FastsettePerioderRegelResultatKonvertererTest {
         assertThat(utsettelse.getAktiviteter().get(0).getArbeidsprosent()).isEqualTo(stillingsprosent);
         assertThat(utsettelse.getUtsettelseType()).isEqualTo(UttakUtsettelseType.ARBEID);
         assertThat(utsettelse.getPeriodeSøknad()).isPresent();
+        assertThat(utsettelse.getPeriodeSøknad().get().getDokumentasjonVurdering()).isEqualTo(oppgittPeriode.getDokumentasjonVurdering());
     }
 
     private void byggArbeidForBehandling(Behandling behandling,

@@ -396,6 +396,7 @@ public class FastsettePerioderRegelResultatKonverterer {
             .medMottattDato(oppgittPeriode.getMottattDato())
             .medTidligstMottattDato(oppgittPeriode.getTidligstMottattDato().orElse(null))
             .medMorsAktivitet(oppgittPeriode.getMorsAktivitet())
+            .medDokumentasjonVurdering(oppgittPeriode.getDokumentasjonVurdering())
             .medSamtidigUttak(oppgittPeriode.isSamtidigUttak())
             .medSamtidigUttaksprosent(oppgittPeriode.getSamtidigUttaksprosent());
         var entitet = builder.build();
