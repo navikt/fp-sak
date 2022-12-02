@@ -124,12 +124,16 @@ class FaktaUttakFellesTjeneste {
             builder = builder.medÅrsak(dto.overføringÅrsak());
         } else if (dto.oppholdÅrsak() != null) {
             builder = builder.medÅrsak(dto.oppholdÅrsak());
-        } else if (dto.arbeidstidsprosent() != null && dto.arbeidstidsprosent().compareTo(BigDecimal.ZERO) > 0) {
+        } else if (erGradering(dto)) {
             builder = builder.medArbeidsgiver(mapArbeidsgiver(dto.arbeidsforhold()))
                 .medGraderingAktivitetType(mapAktivitetType(dto.arbeidsforhold()))
                 .medArbeidsprosent(dto.arbeidstidsprosent());
         }
         return builder.build();
+    }
+
+    private static boolean erGradering(FaktaUttakPeriodeDto dto) {
+        return dto.arbeidstidsprosent() != null && dto.arbeidstidsprosent().compareTo(BigDecimal.ZERO) > 0;
     }
 
     private static GraderingAktivitetType mapAktivitetType(ArbeidsforholdDto arbeidsforhold) {
