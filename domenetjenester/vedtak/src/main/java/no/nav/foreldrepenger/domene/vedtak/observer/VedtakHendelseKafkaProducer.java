@@ -36,7 +36,7 @@ public class VedtakHendelseKafkaProducer {
     }
 
     @Inject
-    public VedtakHendelseKafkaProducer(@KonfigVerdi("kafka.fattevedtak.aiven.topic") String topicName,
+    public VedtakHendelseKafkaProducer(@KonfigVerdi("kafka.fattevedtak.topic") String topicName,
                                        @KonfigVerdi("KAFKA_BROKERS") String bootstrapServers,
                                        @KonfigVerdi("KAFKA_TRUSTSTORE_PATH") String trustStorePath,
                                        @KonfigVerdi("KAFKA_KEYSTORE_PATH") String keyStoreLocation,
