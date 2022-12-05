@@ -32,14 +32,12 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatusTjeneste;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BeskyttAktørDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.KobleFagsakerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.OverstyrDekningsgradDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
@@ -284,22 +282,6 @@ public class ForvaltningFagsakRestTjeneste {
             fagsakRepository.oppdaterBrukerMedAktørId(fagsak.getId(), gjeldendeAktørId);
         }
         personopplysningRepository.oppdaterAktørIdFor(eksisterendeAktørId, gjeldendeAktørId);
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/fagsak/beskyttAktoerId")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Beskytt aktørid og oppdaterer nødvendige tabeller", tags = "FORVALTNING-fagsak", responses = {
-        @ApiResponse(responseCode = "200", description = "AktørId er endret."),
-        @ApiResponse(responseCode = "400", description = "AktørId er uendret."),
-        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response beskyttAktoerId(@BeanParam @Valid BeskyttAktørDto aktørDto) {
-        var aktørId = new AktørId(aktørDto.aktørId());
-        personopplysningRepository.settFortroligAdresse(aktørId);
         return Response.ok().build();
     }
 

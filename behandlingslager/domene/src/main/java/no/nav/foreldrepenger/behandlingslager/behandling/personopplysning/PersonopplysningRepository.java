@@ -113,13 +113,6 @@ public class PersonopplysningRepository {
         });
     }
 
-    public void settFortroligAdresse(AktørId aktørId) {
-        entityManager.createNativeQuery("DELETE FROM PO_ADRESSE WHERE AKTOER_ID = :aktor and postnummer not in ('0125', '9615')")
-            .setParameter("aktor", aktørId.getId())
-            .executeUpdate();
-        entityManager.flush();
-    }
-
     public void oppdaterAktørIdFor(AktørId gammel, AktørId gjeldende) {
         utførUpdate(entityManager.createNativeQuery("UPDATE PO_ADRESSE SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
         utførUpdate(entityManager.createNativeQuery("UPDATE PO_PERSONOPPLYSNING SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
