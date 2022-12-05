@@ -17,8 +17,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -72,10 +73,11 @@ public class SvangerskapspengerTjeneste {
         dto.setTermindato(terminbekreftelse.get().getTermindato());
         familieHendelseGrunnlag.get().getGjeldendeVersjon().getFødselsdato().ifPresent(dto::setFødselsdato);
 
-        var svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingId);
-        if (svpGrunnlagOpt.isEmpty()) {
-            throw SvangerskapsTjenesteFeil.kanIkkeFinneSvangerskapspengerGrunnlagForBehandling(behandlingId);
-        }
+        var gjeldendeTilrettelegginger = svangerskapspengerRepository.hentGrunnlag(behandlingId)
+            .map(SvpGrunnlagEntitet::getGjeldendeVersjon)
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
+            .orElseThrow(() -> SvangerskapsTjenesteFeil.kanIkkeFinneSvangerskapspengerGrunnlagForBehandling(behandlingId));
+
         var iayGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
         var arbeidsforholdInformasjon = iayGrunnlag.getArbeidsforholdInformasjon()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Fant ikke forventent arbeidsforholdinformasjon for behandling: " + behandlingId));
@@ -84,9 +86,7 @@ public class SvangerskapspengerTjeneste {
         var saksbehandletVersjon = iayGrunnlag.getSaksbehandletVersjon();
         var saksbehandletFilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), saksbehandletVersjon.flatMap(iay -> iay.getAktørArbeid().stream().filter(aa -> aa.getAktørId().equals(behandling.getAktørId())).findFirst()));
 
-        var tilretteleggingFilter = new TilretteleggingFilter(svpGrunnlagOpt.get());
-        List<SvpTilretteleggingEntitet> tilrettelegginger = tilretteleggingFilter.getAktuelleTilretteleggingerUfiltrert();
-        tilrettelegginger.forEach(tilr -> {
+        gjeldendeTilrettelegginger.forEach(tilr -> {
             SvpArbeidsforholdDto tilretteleggingDto = mapTilretteleggingsinfo(tilr);
             tilretteleggingDto.setVelferdspermisjoner(finnRelevanteVelferdspermisjoner(tilr, filter, saksbehandletFilter));
             finnEksternRef(tilr, arbeidsforholdInformasjon).ifPresent(tilretteleggingDto::setEksternArbeidsforholdReferanse);
@@ -111,8 +111,7 @@ public class SvangerskapspengerTjeneste {
         }
 
     /**
-     * Må se på aksjonspunkt ettersom overtsyrteTillrettelegginger (i {@link TilretteleggingFilter}
-     * ikke bare brukes av saksbehandler
+     * Må se på aksjonspunkt ettersom gjeldende tilrettelegginger ikke bare brukes av saksbehandler
      */
     private boolean harSaksbehandletTilrettelegging(Behandling behandling) {
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING);

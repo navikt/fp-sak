@@ -1,12 +1,15 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.svp;
 
 import java.time.LocalDate;
+import java.util.Collection;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
@@ -40,16 +43,15 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
 
         //Finn første tilretteleggingsbehovsdato dersom det ikke finnes uttaksperioder.
         SvangerskapspengerGrunnlag svpGrunnlag = input.getYtelsespesifiktGrunnlag();
-        var grunnlagOpt = svpGrunnlag.getGrunnlagEntitet();
-        if (grunnlagOpt.isPresent()) {
-            var førsteTilretteleggingBehovDato = new TilretteleggingFilter(
-                grunnlagOpt.get()).getFørsteTilretteleggingsbehovdatoFiltrert();
-            if (førsteTilretteleggingBehovDato.isPresent()) {
-                return førsteTilretteleggingBehovDato.get();
-            }
-        }
+        var gjeldendeTilrettelegginger = svpGrunnlag.getGrunnlagEntitet()
+            .map(SvpGrunnlagEntitet::hentTilretteleggingerSomSkalBrukes)
+            .orElseThrow(() -> FastsettUttaksgrunnlagFeil.kunneIkkeUtledeEndringsdato(behandlingId));
 
-        throw FastsettUttaksgrunnlagFeil.kunneIkkeUtledeEndringsdato(behandlingId);
+        return gjeldendeTilrettelegginger.stream()
+            .map(SvpTilretteleggingEntitet::getTilretteleggingFOMListe)
+            .flatMap(Collection::stream)
+            .map(TilretteleggingFOM::getFomDato)
+            .min(LocalDate::compareTo)
+            .orElseThrow(() -> FastsettUttaksgrunnlagFeil.kunneIkkeUtledeEndringsdato(behandlingId));
     }
-
 }

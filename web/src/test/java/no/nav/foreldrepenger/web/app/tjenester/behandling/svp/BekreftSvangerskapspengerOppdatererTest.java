@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGr
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
@@ -243,12 +243,15 @@ public class BekreftSvangerskapspengerOppdatererTest {
         var resultat = oppdaterer.oppdater(dto, param);
 
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
-        var oppdatertGrunnlag = grunnlagProvider.getSvangerskapspengerRepository().hentGrunnlag(behandling.getId());
-        var tilrettelegginger = new TilretteleggingFilter(
-            oppdatertGrunnlag.orElseThrow()).getAktuelleTilretteleggingerUfiltrert();
-        assertThat(tilrettelegginger).hasSize(1);
-        var endretTilrettelegging = tilrettelegginger.get(0);
+        var gjeldendeTilrettelegginger = grunnlagProvider.getSvangerskapspengerRepository().hentGrunnlag(behandling.getId())
+            .map(SvpGrunnlagEntitet::getGjeldendeVersjon)
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
+            .orElseThrow();
+
+        assertThat(gjeldendeTilrettelegginger).hasSize(1);
+        var endretTilrettelegging = gjeldendeTilrettelegginger.get(0);
         assertThat(endretTilrettelegging.getTilretteleggingFOMListe()).hasSize(1);
+
         var endretTilretteleggingDato = endretTilrettelegging.getTilretteleggingFOMListe().get(0);
         assertThat(endretTilretteleggingDato.getFomDato()).isEqualTo(BEHOV_DATO.plusWeeks(1));
         assertThat(endretTilretteleggingDato.getType()).isEqualTo(TilretteleggingType.DELVIS_TILRETTELEGGING);
