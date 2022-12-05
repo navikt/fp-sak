@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.datavarehus;
 
+import java.util.function.Function;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -25,10 +27,10 @@ import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.RegenererVedtaksXmlTask;
 import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -124,7 +126,7 @@ public class DatavarehusAdminRestTjeneste {
     @Operation(description = "Generer vedtaksxml på nytt for gitt behandlingid.", tags = "datavarehus")
     @Path("/regenerer_vedtaksdokument")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response regenererVedtaksXml(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+    public Response regenererVedtaksXml(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
             @Parameter(description = "Behandlingid") @QueryParam("BehandlingId") @NotNull @Valid UuidDto uuidDto) {
 
         LOG.info("Skal generere vedtakXML for behandlingid {} ", uuidDto);
@@ -150,7 +152,7 @@ public class DatavarehusAdminRestTjeneste {
     @POST
     @Operation(description = "Generer opp vedtaks xml til datavarehus på nytt for gitt behandlingid", tags = "datavarehus")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response regenererVedtaksXmlDvh(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+    public Response regenererVedtaksXmlDvh(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
             @Parameter(description = "Behandlingid") @QueryParam("BehandlingId") @NotNull @Valid UuidDto uuidDto) {
 
         LOG.info("Skal generere vedtakXML_DVH for behandlingid {} ", uuidDto);
@@ -169,6 +171,14 @@ public class DatavarehusAdminRestTjeneste {
         });
 
         return Response.ok().build();
+    }
+
+    public static class UuidAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            return AbacDataAttributter.opprett();
+        }
     }
 
 }
