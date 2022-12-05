@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.AdopsjonsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlag;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlagLegacy;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.MedlemskapsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.RegelPersonStatusType;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
@@ -59,7 +60,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         } else if (VilkårType.FØDSELSVILKÅRET_MOR.equals(vilkårFraBehandling.getVilkårType()) || VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR.equals(vilkårFraBehandling.getVilkårType())) {
             vilkaarsgrunnlag = lagVilkaarsgrunnlagForFødselsvilkåret(vilkårFraBehandling);
         } else if (VilkårType.SØKNADSFRISTVILKÅRET.equals(vilkårFraBehandling.getVilkårType())) {
-            vilkaarsgrunnlag = lagVilkaarsgrunnlagForSøknadsfristvilkåret(vilkårFraBehandling, søknad, familieHendelseDato);
+            vilkaarsgrunnlag = lagVilkaarsgrunnlagForSøknadsfristvilkåret(søknad, familieHendelseDato);
         } else if ((VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD.equals(vilkårFraBehandling.getVilkårType())) || (VilkårType.ADOPSJONSVILKARET_FORELDREPENGER.equals(vilkårFraBehandling.getVilkårType()))) {
             vilkaarsgrunnlag = lagVilkaarsgrunnlagForAdopsjonsvilkåret(vilkårFraBehandling);
         }
@@ -86,8 +87,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         return vilkårgrunnlag;
     }
 
-    private Vilkaarsgrunnlag lagVilkaarsgrunnlagForSøknadsfristvilkåret(Vilkår vilkårFraBehandling,
-                                                                        Optional<SøknadEntitet> søknadEntitet,
+    private Vilkaarsgrunnlag lagVilkaarsgrunnlagForSøknadsfristvilkåret(Optional<SøknadEntitet> søknadEntitet,
                                                                         Optional<LocalDate> familieHendelseDato) {
         var vilkårgrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagSoeknadsfrist();
         søknadEntitet.map(SøknadEntitet::getElektroniskRegistrert).ifPresent(e -> vilkårgrunnlag.setElektroniskSoeknad(VedtakXmlUtil.lagBooleanOpplysning(e)));
@@ -100,12 +100,46 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
     }
 
     private Vilkaarsgrunnlag lagVilkaarsgrunnlagForFødselsvilkåret(Vilkår vilkårFraBehandling) {
+        try {
+            return lagVilkaarsgrunnlagForFødselsvilkåretModerne(vilkårFraBehandling);
+        } catch (Exception e) {
+            return lagVilkaarsgrunnlagForFødselsvilkåretEldgammelt(vilkårFraBehandling);
+        }
+    }
+
+    private Vilkaarsgrunnlag lagVilkaarsgrunnlagForFødselsvilkåretModerne(Vilkår vilkårFraBehandling) {
         var vilkårgrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagFoedsel();
         if (vilkårFraBehandling.getRegelInput() == null) {
             return vilkårgrunnlag;
         }
         var grunnlagForVilkår = StandardJsonConfig.fromJson(
             vilkårFraBehandling.getRegelInput(), FødselsvilkårGrunnlag.class);
+
+        vilkårgrunnlag.setSokersKjoenn(VedtakXmlUtil.lagStringOpplysning(grunnlagForVilkår.søkersKjønn().name()));
+        vilkårgrunnlag.setAntallBarn(VedtakXmlUtil.lagIntOpplysning(grunnlagForVilkår.antallBarn()));
+
+        Optional.ofNullable(grunnlagForVilkår.bekreftetFødselsdato()).flatMap(VedtakXmlUtil::lagDateOpplysning)
+            .ifPresent(vilkårgrunnlag::setFoedselsdatoBarn);
+
+        Optional.ofNullable(grunnlagForVilkår.terminbekreftelseTermindato()).flatMap(VedtakXmlUtil::lagDateOpplysning)
+            .ifPresent(vilkårgrunnlag::setTermindato);
+
+        Optional.ofNullable(grunnlagForVilkår.søkerRolle()).map(RegelSøkerRolle::name)
+            .map(VedtakXmlUtil::lagStringOpplysning).ifPresent(vilkårgrunnlag::setSoekersRolle);
+
+        Optional.ofNullable(grunnlagForVilkår.behandlingsdato()).flatMap(VedtakXmlUtil::lagDateOpplysning)
+            .ifPresent(vilkårgrunnlag::setSoeknadsdato);
+
+        return vilkårgrunnlag;
+    }
+
+    private Vilkaarsgrunnlag lagVilkaarsgrunnlagForFødselsvilkåretEldgammelt(Vilkår vilkårFraBehandling) {
+        var vilkårgrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagFoedsel();
+        if (vilkårFraBehandling.getRegelInput() == null) {
+            return vilkårgrunnlag;
+        }
+        var grunnlagForVilkår = StandardJsonConfig.fromJson(
+            vilkårFraBehandling.getRegelInput(), FødselsvilkårGrunnlagLegacy.class);
 
         vilkårgrunnlag.setSokersKjoenn(VedtakXmlUtil.lagStringOpplysning(grunnlagForVilkår.søkersKjønn().name()));
         vilkårgrunnlag.setAntallBarn(VedtakXmlUtil.lagIntOpplysning(grunnlagForVilkår.antallBarn()));

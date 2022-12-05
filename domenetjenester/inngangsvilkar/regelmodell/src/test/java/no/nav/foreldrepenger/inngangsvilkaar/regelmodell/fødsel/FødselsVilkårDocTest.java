@@ -63,4 +63,49 @@ public class FødselsVilkårDocTest {
     private FødselsvilkårGrunnlag deserialiser(String s) throws JsonProcessingException {
         return DefaultJsonMapper.getObjectMapper().readValue(s, FødselsvilkårGrunnlag.class);
     }
+
+    private static String eldgammelJson = """
+        {
+          "soekersKjonn" : "KVINNE",
+          "bekreftetFoedselsdato" : {
+            "year" : 2017,
+            "month" : "AUGUST",
+            "chronology" : {
+              "calendarType" : "iso8601",
+              "id" : "ISO"
+            },
+            "dayOfMonth" : 5,
+            "dayOfWeek" : "SATURDAY",
+            "era" : "CE",
+            "dayOfYear" : 217,
+            "leapYear" : false,
+            "monthValue" : 8
+          },
+          "antallBarn" : 1,
+          "bekreftetTermindato" : null,
+          "soekerRolle" : "MORA",
+          "soeknadsdato" : {
+            "year" : 2018,
+            "month" : "FEBRUARY",
+            "chronology" : {
+              "calendarType" : "iso8601",
+              "id" : "ISO"
+            },
+            "dayOfMonth" : 5,
+            "dayOfWeek" : "MONDAY",
+            "era" : "CE",
+            "dayOfYear" : 36,
+            "leapYear" : false,
+            "monthValue" : 2
+          }
+        }
+        """;
+
+    @Test
+    public void kanSerialisereDeserialisereEldgammeltFormat() throws JsonProcessingException {
+        var grunnlag = DefaultJsonMapper.getObjectMapper().readValue(eldgammelJson, FødselsvilkårGrunnlagLegacy.class);
+        assertThat(grunnlag.behandlingsdato()).isEqualTo(LocalDate.of(2018,2,5));
+        assertThat(grunnlag.bekreftetFødselsdato()).isEqualTo(LocalDate.of(2017,8,5));
+    }
+
 }
