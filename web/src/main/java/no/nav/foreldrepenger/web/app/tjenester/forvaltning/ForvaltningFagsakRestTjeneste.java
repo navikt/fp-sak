@@ -297,7 +297,7 @@ public class ForvaltningFagsakRestTjeneste {
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response beskyttAktoerId(@NotNull @QueryParam("saksnummer") @Valid BeskyttAktørDto aktørDto) {
+    public Response beskyttAktoerId(@BeanParam @Valid BeskyttAktørDto aktørDto) {
         var aktørId = new AktørId(aktørDto.aktørId());
         personopplysningRepository.settFortroligAdresse(aktørId);
         return Response.ok().build();
