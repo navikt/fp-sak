@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde.ANDRE_NAV_VEDTAK;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde.SØKNAD;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde.TIDLIGERE_VEDTAK;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FEDREKVOTE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.MØDREKVOTE;
@@ -28,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
@@ -70,11 +72,17 @@ class FaktaUttakFellesTjenesteTest {
     void skal_lagre_perioder() {
         var opprinneligFom = LocalDate.now();
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFordeling(new OppgittFordelingEntitet(List.of(OppgittPeriodeBuilder.ny()
+            .medFordeling(new OppgittFordelingEntitet(List.of(
+                OppgittPeriodeBuilder.ny()
+                    .medPeriodeType(MØDREKVOTE)
+                    .medPeriodeKilde(TIDLIGERE_VEDTAK)
+                    .medPeriode(opprinneligFom, opprinneligFom.plusWeeks(2))
+                    .build(),
+                OppgittPeriodeBuilder.ny()
                     .medPeriodeType(MØDREKVOTE)
                     .medPeriodeKilde(SØKNAD)
-                    .medPeriode(opprinneligFom, opprinneligFom.plusWeeks(5))
-                .build()), true))
+                    .medPeriode(opprinneligFom.plusWeeks(2).plusDays(1), opprinneligFom.plusWeeks(5))
+                    .build()), true))
             .medBekreftetHendelse(familiehendelse(opprinneligFom))
             .medAvklarteUttakDatoer(avklarteUttakDatoer(opprinneligFom))
             .lagre(repositoryProvider);
@@ -102,7 +110,7 @@ class FaktaUttakFellesTjenesteTest {
         assertThat(lagretPerioder.get(0).getArbeidsprosent()).isEqualTo(mødrekvoteDto.arbeidstidsprosent());
         assertThat(lagretPerioder.get(0).getDokumentasjonVurdering()).isNull();
         assertThat(lagretPerioder.get(0).getArbeidsgiver()).isNull();
-        assertThat(lagretPerioder.get(0).getPeriodeKilde()).isEqualTo(mødrekvoteDto.periodeKilde());
+        assertThat(lagretPerioder.get(0).getPeriodeKilde()).isEqualTo(TIDLIGERE_VEDTAK);
         assertThat(lagretPerioder.get(0).getSamtidigUttaksprosent()).isEqualTo(mødrekvoteDto.samtidigUttaksprosent());
         assertThat(lagretPerioder.get(0).getPeriodeType()).isEqualTo(mødrekvoteDto.uttakPeriodeType());
         assertThat(lagretPerioder.get(0).isFlerbarnsdager()).isEqualTo(mødrekvoteDto.flerbarnsdager());
@@ -114,7 +122,7 @@ class FaktaUttakFellesTjenesteTest {
         assertThat(lagretPerioder.get(1).getArbeidsprosent()).isNull();
         assertThat(lagretPerioder.get(1).getDokumentasjonVurdering()).isNull();
         assertThat(lagretPerioder.get(1).getArbeidsgiver()).isNull();
-        assertThat(lagretPerioder.get(1).getPeriodeKilde()).isEqualTo(utsettelseDto.periodeKilde());
+        assertThat(lagretPerioder.get(1).getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.SAKSBEHANDLER);
         assertThat(lagretPerioder.get(1).getSamtidigUttaksprosent()).isNull();
         assertThat(lagretPerioder.get(1).getPeriodeType()).isEqualTo(UDEFINERT);
         assertThat(lagretPerioder.get(1).isFlerbarnsdager()).isEqualTo(utsettelseDto.flerbarnsdager());
@@ -126,7 +134,7 @@ class FaktaUttakFellesTjenesteTest {
         assertThat(lagretPerioder.get(2).getArbeidsprosent()).isNull();
         assertThat(lagretPerioder.get(2).getDokumentasjonVurdering()).isNull();
         assertThat(lagretPerioder.get(2).getArbeidsgiver()).isNull();
-        assertThat(lagretPerioder.get(2).getPeriodeKilde()).isEqualTo(oppholdDto.periodeKilde());
+        assertThat(lagretPerioder.get(2).getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.SAKSBEHANDLER);
         assertThat(lagretPerioder.get(2).getSamtidigUttaksprosent()).isNull();
         assertThat(lagretPerioder.get(2).getPeriodeType()).isEqualTo(UDEFINERT);
         assertThat(lagretPerioder.get(2).isFlerbarnsdager()).isEqualTo(oppholdDto.flerbarnsdager());
@@ -138,7 +146,7 @@ class FaktaUttakFellesTjenesteTest {
         assertThat(lagretPerioder.get(3).getArbeidsprosent()).isNull();
         assertThat(lagretPerioder.get(3).getDokumentasjonVurdering()).isNull();
         assertThat(lagretPerioder.get(3).getArbeidsgiver()).isNull();
-        assertThat(lagretPerioder.get(3).getPeriodeKilde()).isEqualTo(overføringDto.periodeKilde());
+        assertThat(lagretPerioder.get(3).getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.SAKSBEHANDLER);
         assertThat(lagretPerioder.get(3).getSamtidigUttaksprosent()).isNull();
         assertThat(lagretPerioder.get(3).getPeriodeType()).isEqualTo(overføringDto.uttakPeriodeType());
         assertThat(lagretPerioder.get(3).isFlerbarnsdager()).isEqualTo(overføringDto.flerbarnsdager());
@@ -150,7 +158,7 @@ class FaktaUttakFellesTjenesteTest {
         assertThat(lagretPerioder.get(4).getArbeidsprosent()).isNull();
         assertThat(lagretPerioder.get(4).getDokumentasjonVurdering()).isNull();
         assertThat(lagretPerioder.get(4).getArbeidsgiver()).isNull();
-        assertThat(lagretPerioder.get(4).getPeriodeKilde()).isEqualTo(samtidigUttak.periodeKilde());
+        assertThat(lagretPerioder.get(4).getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.SAKSBEHANDLER);
         assertThat(lagretPerioder.get(4).getSamtidigUttaksprosent()).isEqualTo(samtidigUttak.samtidigUttaksprosent());
         assertThat(lagretPerioder.get(4).getPeriodeType()).isEqualTo(samtidigUttak.uttakPeriodeType());
         assertThat(lagretPerioder.get(4).isFlerbarnsdager()).isEqualTo(samtidigUttak.flerbarnsdager());

@@ -16,8 +16,8 @@ public enum FordelingPeriodeKilde implements Kodeverdi {
 
     SØKNAD("SØKNAD", "Søknad"),
     TIDLIGERE_VEDTAK("TIDLIGERE_VEDTAK", "Vedtak"),
-    ANDRE_NAV_VEDTAK("ANDRE_NAV_VEDTAK", "Vedtak andre ytelser")
-    //TODO TFP-4873
+    ANDRE_NAV_VEDTAK("ANDRE_NAV_VEDTAK", "Vedtak andre ytelser"),
+    SAKSBEHANDLER("SAKSBEHANDLER", "Endret eller lagt til av saksbehandler i denne behandlingen")
     ;
     private static final Map<String, FordelingPeriodeKilde> KODER = new LinkedHashMap<>();
 
