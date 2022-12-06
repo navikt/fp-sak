@@ -36,7 +36,12 @@ class StartpunktUtlederNesteSak implements StartpunktUtleder {
             .map(NesteSakGrunnlagEntitet::getStartdato).orElse(null);
 
         // Ser kun på endring av startdato for neste stønadsperiode
-        return Objects.equals(startdato1, startdato2) ? StartpunktType.UDEFINERT : StartpunktType.UTTAKSVILKÅR;
+        if (Objects.equals(startdato1, startdato2)) {
+            return StartpunktType.UDEFINERT;
+        } else {
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "nestesak", grunnlagId1, grunnlagId2);
+            return StartpunktType.UTTAKSVILKÅR;
+        }
     }
 
 }
