@@ -7,7 +7,6 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -203,7 +202,7 @@ public class FaktaUttakHistorikkinnslagTjeneste {
 
     private record Endring(String intro, String tekstFra, String tekstTil) {}
 
-    private static boolean erLikePerioder(OppgittPeriodeEntitet før, OppgittPeriodeEntitet etter) {
+    public static boolean erLikePerioder(OppgittPeriodeEntitet før, OppgittPeriodeEntitet etter) {
         return Objects.equals(før, etter) || (Objects.equals(før.getPeriodeType(), etter.getPeriodeType()) &&
             Objects.equals(før.getÅrsak(), etter.getÅrsak()) &&
             Objects.equals(arbeidsprosent(før), arbeidsprosent(etter)) &&

@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
@@ -70,6 +71,7 @@ class FaktaUttakFellesTjeneste {
         var gjeldendePerioder = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId)
             .map(YtelseFordelingAggregat::getGjeldendeFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(List.of());
         var overstyrtePerioder = perioder.stream().map(p -> map(p, gjeldendePerioder)).toList();
+        overstyrtePerioder.forEach(p -> setPeriodeKildeForUendrete(p, gjeldendePerioder));
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         validerFørsteUttaksdag(overstyrtePerioder, behandling);
         var overstyrtePerioderMedMottattDato = oppdaterMedMottattdato(behandling, overstyrtePerioder);
@@ -112,7 +114,8 @@ class FaktaUttakFellesTjeneste {
     }
 
     private static OppgittPeriodeEntitet map(FaktaUttakPeriodeDto dto, List<OppgittPeriodeEntitet> gjeldende) {
-        var builder = OppgittPeriodeBuilder.ny().medPeriode(dto.fom(), dto.tom()).medPeriodeKilde(dto.periodeKilde())
+        var builder = OppgittPeriodeBuilder.ny().medPeriode(dto.fom(), dto.tom())
+            .medPeriodeKilde(FordelingPeriodeKilde.SAKSBEHANDLER)
             .medDokumentasjonVurdering(utledDokumentasjonsVurdering(dto, gjeldende))
             .medMorsAktivitet(dto.morsAktivitet())
             .medFlerbarnsdager(dto.flerbarnsdager())
@@ -133,6 +136,13 @@ class FaktaUttakFellesTjeneste {
                 .medArbeidsprosent(dto.arbeidstidsprosent());
         }
         return builder.build();
+    }
+
+    private static void setPeriodeKildeForUendrete(OppgittPeriodeEntitet ny, List<OppgittPeriodeEntitet> gjeldende) {
+        gjeldende.stream()
+            .filter(p -> p.getTidsperiode().equals(ny.getTidsperiode())) // Vurder arv dersom ny erOmsluttetAv p
+            .filter(p -> FaktaUttakHistorikkinnslagTjeneste.erLikePerioder(p, ny))
+            .findFirst().map(OppgittPeriodeEntitet::getPeriodeKilde).ifPresent(ny::setPeriodeKilde);
     }
 
     private static boolean erGradering(FaktaUttakPeriodeDto dto) {

@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
-public class FaktaUttakHistorikkTjenesteTest  {
+public class FaktaUttakHistorikkinnslagTjenesteTest {
 
     private static LocalDate FOM = LocalDate.of(2022,12,1);
     private static LocalDate TOM = LocalDate.of(2022,12,7);

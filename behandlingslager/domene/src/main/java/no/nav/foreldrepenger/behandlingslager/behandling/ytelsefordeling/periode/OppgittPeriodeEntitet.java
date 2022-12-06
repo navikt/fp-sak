@@ -264,7 +264,7 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         return periodeKilde;
     }
 
-    void setPeriodeKilde(FordelingPeriodeKilde periodeKilde) {
+    public void setPeriodeKilde(FordelingPeriodeKilde periodeKilde) {
         this.periodeKilde = periodeKilde;
     }
 
