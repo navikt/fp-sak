@@ -93,12 +93,18 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
         this.grunnbeløp = kopi.getGrunnbeløp();
         this.overstyrt = kopi.isOverstyrt();
         this.skjæringstidspunkt = kopi.getSkjæringstidspunkt();
-        kopi.getSammenligningsgrunnlag().map(Sammenligningsgrunnlag::new).ifPresent(this::setSammenligningsgrunnlag);
-        kopi.getBesteberegninggrunnlag().map(BesteberegninggrunnlagEntitet::new).ifPresent(this::setBesteberegninggrunnlag);
 
+        if (kopi.getSammenligningsgrunnlagPrStatusListe().isEmpty() && kopi.getSammenligningsgrunnlag().isPresent()) {
+            var nyttSG = SammenligningsgrunnlagPrStatus.byggFraGammel(kopi.getSammenligningsgrunnlag().get(),
+                kopi.getAktivitetStatuser());
+            leggTilSammenligningsgrunnlagPrStatus(nyttSG);
+        } else {
+            kopi.getSammenligningsgrunnlagPrStatusListe().stream().map(SammenligningsgrunnlagPrStatus::new).forEach(this::leggTilSammenligningsgrunnlagPrStatus);
+        }
+
+        kopi.getBesteberegninggrunnlag().map(BesteberegninggrunnlagEntitet::new).ifPresent(this::setBesteberegninggrunnlag);
         kopi.getRegelSporinger().values().stream().map(BeregningsgrunnlagRegelSporing::new)
             .forEach(this::leggTilBeregningsgrunnlagRegel);
-        kopi.getSammenligningsgrunnlagPrStatusListe().stream().map(SammenligningsgrunnlagPrStatus::new).forEach(this::leggTilSammenligningsgrunnlagPrStatus);
         kopi.faktaOmBeregningTilfeller.stream().map(BeregningsgrunnlagFaktaOmBeregningTilfelle::new).forEach(this::leggTilFaktaOmBeregningTilfelle);
         kopi.getAktivitetStatuser().stream().map(BeregningsgrunnlagAktivitetStatus::new).forEach(this::leggTilBeregningsgrunnlagAktivitetStatus);
         kopi.getBeregningsgrunnlagPerioder().stream().map(BeregningsgrunnlagPeriode::new)

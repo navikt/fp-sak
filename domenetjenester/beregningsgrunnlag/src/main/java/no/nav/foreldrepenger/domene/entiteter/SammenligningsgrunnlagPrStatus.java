@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.entiteter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
@@ -63,6 +64,13 @@ public class SammenligningsgrunnlagPrStatus extends BaseEntitet {
         this.rapportertPrÅr = sammenligningsgrunnlagPrStatus.getRapportertPrÅr();
         this.sammenligningsgrunnlagType = sammenligningsgrunnlagPrStatus.getSammenligningsgrunnlagType();
         this.sammenligningsperiode = sammenligningsgrunnlagPrStatus.sammenligningsperiode;
+    }
+
+    public SammenligningsgrunnlagPrStatus(Sammenligningsgrunnlag gammeltSG, SammenligningsgrunnlagType type) {
+        this.avvikPromille = gammeltSG.getAvvikPromille();
+        this.rapportertPrÅr = gammeltSG.getRapportertPrÅr();
+        this.sammenligningsgrunnlagType = type;
+        this.sammenligningsperiode = gammeltSG.getSammenligningsperiode();
     }
 
     private SammenligningsgrunnlagPrStatus() {
@@ -133,8 +141,24 @@ public class SammenligningsgrunnlagPrStatus extends BaseEntitet {
                 + ">"; //$NON-NLS-1$
     }
 
+    private static SammenligningsgrunnlagType finnSGType(List<BeregningsgrunnlagAktivitetStatus> aktivitetStatuser) {
+        if (aktivitetStatuser.stream().anyMatch(st -> st.getAktivitetStatus().erSelvstendigNæringsdrivende())) {
+            return SammenligningsgrunnlagType.SAMMENLIGNING_SN;
+        } else if (aktivitetStatuser.stream()
+            .anyMatch(st -> st.getAktivitetStatus().erFrilanser() || st.getAktivitetStatus().erArbeidstaker())) {
+            return SammenligningsgrunnlagType.SAMMENLIGNING_AT_FL;
+        }
+        throw new IllegalStateException("Klarte ikke utlede sammenligningstype for gammelt grunnlag. Aktivitetstatuser var " + aktivitetStatuser);
+    }
+
     public static Builder builder() {
         return new Builder();
+    }
+
+    public static SammenligningsgrunnlagPrStatus byggFraGammel(Sammenligningsgrunnlag gammeltSG,
+                                           List<BeregningsgrunnlagAktivitetStatus> aktivitetStatuser) {
+        var sgType = finnSGType(aktivitetStatuser);
+        return new SammenligningsgrunnlagPrStatus(gammeltSG, sgType);
     }
 
     public static class Builder {
