@@ -19,7 +19,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
  *             Dokumentasjon https://confluence.adeo.no/display/TREG/MEDL+-+Medlemskap+Rest
  *             Swagger: ukjent
  */
-@RestClientConfig(tokenConfig = TokenFlow.CONTEXT, endpointProperty = "medl2.rs.url", endpointDefault = "https://app.adeo.no/medl2/api/v1/medlemskapsunntak")
+@RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "medl2.rs.url", endpointDefault = "https://app.adeo.no/medl2/api/v1/medlemskapsunntak")
 @ApplicationScoped
 public class MedlemsunntakRestKlient implements Medlemskap {
 
