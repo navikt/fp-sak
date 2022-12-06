@@ -54,9 +54,9 @@ public class VedtakAvstemPeriodeTask extends GenerellProsessTask {
         var gruppe = new ProsessTaskGruppe();
         List<ProsessTaskData> tasks = new ArrayList<>();
         informasjonssakRepository.finnSakerSisteVedtakInnenIntervallMedKunUtbetalte(fom, tom, null).forEach(f -> {
-            var task = ProsessTaskDataBuilder.forProsessTask(VedtakOverlappAvstemTask.class)
-                .medProperty(VedtakOverlappAvstemTask.LOG_SAKSNUMMER_KEY, f.getSaksnummer().getVerdi())
-                .medProperty(VedtakOverlappAvstemTask.LOG_HENDELSE_KEY, OverlappVedtak.HENDELSE_AVSTEM_PERIODE)
+            var task = ProsessTaskDataBuilder.forProsessTask(VedtakOverlappAvstemSakTask.class)
+                .medProperty(VedtakOverlappAvstemSakTask.LOG_SAKSNUMMER_KEY, f.getSaksnummer().getVerdi())
+                .medProperty(VedtakOverlappAvstemSakTask.LOG_HENDELSE_KEY, OverlappVedtak.HENDELSE_AVSTEM_PERIODE)
                 .medNesteKjøringEtter(baseline.plusSeconds(Math.abs(System.nanoTime()) % 239))
                 .medCallId(callId + "_" + f.getSaksnummer().getVerdi())
                 .medPrioritet(100)

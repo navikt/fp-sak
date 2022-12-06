@@ -278,53 +278,6 @@ public class InformasjonssakRepository {
         return returnList;
     }
 
-    private static final String QUERY_AVSTEMMING_FOR = """
-            select distinct saksnummer, ytelse_type, bru.aktoer_id braid, bruker_rolle, beh.id, anpa.aktoer_id, minbrfom
-            from fagsak fs join bruker bru on fs.bruker_id = bru.id join behandling beh on fagsak_id=fs.id
-             join behandling_resultat br on (br.behandling_id=beh.id and br.behandling_resultat_type in (:restyper))
-             join (select beh1.fagsak_id fsmax, max(br1.opprettet_tid) maxbr from behandling beh1
-                  join behandling_resultat br1 on (br1.behandling_id=beh1.id and br1.behandling_resultat_type in (:restyper))
-                  where beh1.behandling_type in (:behtyper) and beh1.behandling_status in (:avsluttet) group by beh1.fagsak_id )
-                on (fsmax=beh.fagsak_id and br.opprettet_tid = maxbr)
-             left outer join gr_personopplysning grpo on (beh.id=grpo.behandling_id and grpo.aktiv='J')
-             left outer join so_annen_part anpa on (grpo.so_annen_part_id=anpa.id and anpa.aktoer_id is not null)
-             left outer join br_resultat_behandling brr on (brr.behandling_id=beh.id and brr.aktiv='J')
-             left outer join (select BEREGNINGSRESULTAT_FP_ID brpid, min(BR_PERIODE_FOM) minbrfom from br_periode brp
-                     group by BEREGNINGSRESULTAT_FP_ID
-                  ) on brpid = brr.BG_BEREGNINGSRESULTAT_FP_ID
-             left outer join (select BEREGNINGSRESULTAT_FP_ID utbbrpid, min(BR_PERIODE_FOM) utbminbrfom from br_periode brp
-                     left join br_andel ba on ba.br_periode_id = brp.id
-                     where ba.dagsats > 0  group by BEREGNINGSRESULTAT_FP_ID
-                  ) on utbbrpid = brr.BG_BEREGNINGSRESULTAT_FP_ID
-            where saksnummer = :saksnr and beh.behandling_status in (:avsluttet) and beh.behandling_type in (:behtyper)
-             and fs.til_infotrygd='N' and fs.ytelse_type in (:foreldrepenger) and minbrfom is not null
-             and ( br.behandling_resultat_type in (:innvilgetyper) or utbminbrfom is not null )
-            """;
-
-    public List<OverlappData> finnSakerSisteVedtakInnenIntervallMedSisteVedtak(String saksnummer) {
-        /*
-         * Plukker saksnummer, siste ytelsebehandling, annenpart og første uttaksdato: -
-         * Saker der det finnes et beregnignsresultat/TY med utbetalt periode - inklusive
-         * noen få opphør fom etter tidligste periode - Første uttaksdato = tidligste
-         * periode, inklusive innvilget utsettelse. - Kan gi noen tilfelle med avslått
-         * første periode
-         */
-        var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
-                .collect(Collectors.toList());
-        var query = entityManager.createNativeQuery(QUERY_AVSTEMMING_FOR)
-            .setParameter("saksnr", saksnummer)
-            .setParameter("foreldrepenger", List.of(FagsakYtelseType.FORELDREPENGER.getKode(), FagsakYtelseType.SVANGERSKAPSPENGER.getKode()))
-            .setParameter("restyper", List.of(BehandlingResultatType.INNVILGET.getKode(), BehandlingResultatType.INGEN_ENDRING.getKode(),
-                BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(), BehandlingResultatType.FORELDREPENGER_SENERE.getKode(),
-                BehandlingResultatType.AVSLÅTT.getKode(), BehandlingResultatType.OPPHØR.getKode()))
-            .setParameter("innvilgetyper", INNVILGET_TYPER)
-            .setParameter("avsluttet", avsluttendeStatus)
-            .setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode(), BehandlingType.REVURDERING.getKode())); //$NON-NLS-1$
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
-        return toOverlappData(resultatList);
-    }
-
     private List<OverlappData> toOverlappData(List<Object[]> resultatList) {
         List<OverlappData> returnList = new ArrayList<>();
         resultatList.forEach(resultat -> {
@@ -334,15 +287,14 @@ public class InformasjonssakRepository {
                     .medAktørId((String) resultat[2]) // NOSONAR
                     .medRolle((String) resultat[3]) // NOSONAR
                     .medBehandlingId(((BigDecimal) resultat[4]).longValue()) // NOSONAR
-                    .medAktørIdAnnenPart((String) resultat[5]) // NOSONAR
-                    .medTidligsteDato(((Timestamp) resultat[6]).toLocalDateTime().toLocalDate()); // NOSONAR
+                    .medTidligsteDato(((Timestamp) resultat[5]).toLocalDateTime().toLocalDate()); // NOSONAR
             returnList.add(builder.build());
         });
         return returnList;
     }
 
     private static final String QUERY_AVSTEMMING_ANDRE = """
-            select distinct saksnummer, ytelse_type, bru.aktoer_id braid, bruker_rolle, beh.id, null, minbrfom
+            select distinct saksnummer, ytelse_type, bru.aktoer_id braid, bruker_rolle, beh.id, minbrfom
             from fagsak fs join bruker bru on fs.bruker_id = bru.id join behandling beh on fagsak_id=fs.id
              join behandling_resultat br on (br.behandling_id=beh.id and br.behandling_resultat_type in (:restyper))
              join (select beh1.fagsak_id fsmax, max(br1.opprettet_tid) maxbr from behandling beh1
@@ -359,7 +311,7 @@ public class InformasjonssakRepository {
             """;
 
     private static final String QUERY_AVSTEMMING_UTBET2022 = """
-            select distinct saksnummer, ytelse_type, bru.aktoer_id braid, bruker_rolle, beh.id, null, minbrfom
+            select distinct saksnummer, ytelse_type, bru.aktoer_id braid, bruker_rolle, beh.id, minbrfom
             from fagsak fs join bruker bru on fs.bruker_id = bru.id join behandling beh on fagsak_id=fs.id
              join behandling_resultat br on (br.behandling_id=beh.id and br.behandling_resultat_type in (:restyper))
              join (select beh1.fagsak_id fsmax, max(br1.opprettet_tid) maxbr from behandling beh1
