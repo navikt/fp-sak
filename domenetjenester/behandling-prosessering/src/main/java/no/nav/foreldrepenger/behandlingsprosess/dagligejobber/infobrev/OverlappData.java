@@ -13,7 +13,6 @@ public class OverlappData {
     private FagsakYtelseType ytelseType;
     private RelasjonsRolleType rolle;
     private AktørId aktørId;
-    private AktørId annenPartAktørId;
     private LocalDate tidligsteDato;
 
     public Saksnummer getSaksnummer() {
@@ -30,10 +29,6 @@ public class OverlappData {
 
     public AktørId getAktørId() {
         return aktørId;
-    }
-
-    public AktørId getAnnenPartAktørId() {
-        return annenPartAktørId;
     }
 
     public LocalDate getTidligsteDato() {
@@ -72,11 +67,6 @@ public class OverlappData {
 
         public OverlappDataBuilder medAktørId(String aktør) {
             this.data.aktørId = new AktørId(aktør);
-            return this;
-        }
-
-        public OverlappDataBuilder medAktørIdAnnenPart(String aktør) {
-            this.data.annenPartAktørId = aktør == null ? null : new AktørId(aktør);
             return this;
         }
 

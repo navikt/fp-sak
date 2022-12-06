@@ -19,29 +19,26 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @ApplicationScoped
 @ProsessTask(value = "vedtak.overlapp.avstem", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class VedtakOverlappAvstemTask extends GenerellProsessTask {
+public class VedtakOverlappAvstemSakTask extends GenerellProsessTask {
 
-    private static final Logger LOG = LoggerFactory.getLogger(VedtakOverlappAvstemTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VedtakOverlappAvstemSakTask.class);
     public static final String LOG_SAKSNUMMER_KEY = "logsaksnummer";
     public static final String LOG_HENDELSE_KEY = "hendelse";
 
 
     private InformasjonssakRepository informasjonssakRepository;
     private LoggOverlappEksterneYtelserTjeneste syklogger;
-    private LoggHistoriskOverlappFPInfotrygdVLTjeneste loggertjeneste;
 
-    VedtakOverlappAvstemTask() {
+    VedtakOverlappAvstemSakTask() {
         // for CDI proxy
     }
 
     @Inject
-    public VedtakOverlappAvstemTask(InformasjonssakRepository informasjonssakRepository,
-                                    LoggHistoriskOverlappFPInfotrygdVLTjeneste loggertjeneste,
-                                    LoggOverlappEksterneYtelserTjeneste syklogger) {
+    public VedtakOverlappAvstemSakTask(InformasjonssakRepository informasjonssakRepository,
+                                       LoggOverlappEksterneYtelserTjeneste syklogger) {
         super();
         this.informasjonssakRepository = informasjonssakRepository;
         this.syklogger = syklogger;
-        this.loggertjeneste = loggertjeneste;
     }
 
     @Override
@@ -49,15 +46,8 @@ public class VedtakOverlappAvstemTask extends GenerellProsessTask {
         var saksnr = prosessTaskData.getPropertyValue(LOG_SAKSNUMMER_KEY);
         var hendelse = Optional.ofNullable(prosessTaskData.getPropertyValue(LOG_HENDELSE_KEY)).orElse(OverlappVedtak.HENDELSE_AVSTEM_SAK);
         if (saksnr != null) {
-            loggOverlappFOR(saksnr, hendelse);
             loggOverlappOTH(saksnr, hendelse);
         }
-    }
-
-    private void loggOverlappFOR(String saksnr, String hendelse) {
-        // Finner alle behandlinger med vedtaksdato innen intervall (evt med gitt saksnummer) - tidligste dato = Første uttaksdato
-        var saker = informasjonssakRepository.finnSakerSisteVedtakInnenIntervallMedSisteVedtak(saksnr);
-        saker.forEach(o -> loggertjeneste.vurderOglagreEventueltOverlapp(hendelse, o));
     }
 
     private void loggOverlappOTH(String saksnr, String hendelse) {
