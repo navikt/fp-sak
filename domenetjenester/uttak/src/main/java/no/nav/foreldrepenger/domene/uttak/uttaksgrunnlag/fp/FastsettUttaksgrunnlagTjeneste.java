@@ -12,11 +12,13 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -28,6 +30,7 @@ public class FastsettUttaksgrunnlagTjeneste {
 
     private final FpUttakRepository fpUttakRepository;
     private final YtelsesFordelingRepository ytelsesFordelingRepository;
+    private final UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
     private final EndringsdatoFørstegangsbehandlingUtleder endringsdatoFørstegangsbehandlingUtleder;
     private final EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder;
 
@@ -37,6 +40,7 @@ public class FastsettUttaksgrunnlagTjeneste {
                                           @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder) {
         this.fpUttakRepository = provider.getFpUttakRepository();
         this.ytelsesFordelingRepository = provider.getYtelsesFordelingRepository();
+        this.uttaksperiodegrenseRepository = provider.getUttaksperiodegrenseRepository();
         this.endringsdatoFørstegangsbehandlingUtleder = endringsdatoFørstegangsbehandlingUtleder;
         this.endringsdatoRevurderingUtleder = endringsdatoRevurderingUtleder;
     }
@@ -65,7 +69,7 @@ public class FastsettUttaksgrunnlagTjeneste {
         var behandlingId = ref.behandlingId();
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
         var fordeling = ytelseFordelingAggregat.getOppgittFordeling();
-        var justertePerioder = ytelseFordelingAggregat.getOppgittFordeling().getPerioder();
+        var justertePerioder = getSøknadsPerioderOppdatertMedMottattDato(input, ytelseFordelingAggregat);
         if (ref.erRevurdering()) {
             var originalBehandlingId = ref.getOriginalBehandlingId()
                 .orElseThrow(() -> new IllegalArgumentException("Utvikler-feil: ved revurdering skal det alltid finnes en original behandling"));
@@ -181,5 +185,26 @@ public class FastsettUttaksgrunnlagTjeneste {
 
     private List<OppgittPeriodeEntitet> kopier(List<OppgittPeriodeEntitet> perioder) {
         return perioder.stream().map(p -> OppgittPeriodeBuilder.fraEksisterende(p).build()).collect(Collectors.toList());
+    }
+
+    private List<OppgittPeriodeEntitet> getSøknadsPerioderOppdatertMedMottattDato(UttakInput input, YtelseFordelingAggregat aggregat) {
+        var periodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(input.getBehandlingReferanse().behandlingId());
+        if (periodegrense.isPresent()) {
+            var mottattDato = periodegrense.orElseThrow().getMottattDato();
+            return aggregat.getOppgittFordeling().getPerioder().stream()
+                .map(p -> OppgittPeriodeBuilder.fraEksisterende(p)
+                    .medMottattDato(utledMottattDato(p.getMottattDato(), mottattDato))
+                    .medTidligstMottattDato(utledMottattDato(p.getTidligstMottattDato().orElseGet(p::getMottattDato), mottattDato))
+                    .build())
+                .collect(Collectors.toList());
+        } else {
+            return aggregat.getOppgittFordeling().getPerioder();
+        }
+    }
+
+    private static LocalDate utledMottattDato(LocalDate datoFraPeriode, LocalDate mottattdato) {
+        return Optional.ofNullable(datoFraPeriode)
+            .filter(d -> d.isBefore(mottattdato))
+            .orElse(mottattdato);
     }
 }

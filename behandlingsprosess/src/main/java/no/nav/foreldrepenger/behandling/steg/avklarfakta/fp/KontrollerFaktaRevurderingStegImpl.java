@@ -359,14 +359,9 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     private Behandling kopierUttaksperiodegrense(Behandling revurdering, Behandling origBehandling) {
         // Kopier Uttaksperiodegrense - må alltid ha en søknadsfrist angitt
-        var funnetUttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(origBehandling.getId());
-        if (funnetUttaksperiodegrense.isPresent()) {
-            var origGrense = funnetUttaksperiodegrense.get();
-            var uttaksperiodegrense = new Uttaksperiodegrense(origGrense.getMottattDato());
-            uttaksperiodegrenseRepository.lagre(revurdering.getId(), uttaksperiodegrense);
-            return behandlingRepository.hentBehandling(revurdering.getId());
-        }
-        return revurdering;
+        uttaksperiodegrenseRepository.hentHvisEksisterer(origBehandling.getId())
+            .ifPresent(upg -> uttaksperiodegrenseRepository.lagre(revurdering.getId(), new Uttaksperiodegrense(upg.getMottattDato())));
+        return behandlingRepository.hentBehandling(revurdering.getId());
     }
 
     private Behandling kopierVilkårFørStartpunkt(Behandling origBehandling, Behandling revurdering, BehandlingskontrollKontekst kontekst) {
