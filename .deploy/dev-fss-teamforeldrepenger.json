@@ -44,16 +44,6 @@
             "cluster": "dev-gcp"
         },
         {
-            "app": "fp-frontend",
-            "namespace": "teamforeldrepenger",
-            "cluster": "dev-fss"
-        },
-        {
-            "app": "fp-frontend",
-            "namespace": "teamforeldrepenger",
-            "cluster": "dev-fss"
-        },
-        {
             "app": "fpformidling",
             "namespace": "teamforeldrepenger",
             "cluster": "dev-fss"
