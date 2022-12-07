@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt;
 
 import java.time.LocalDate;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -12,9 +11,9 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
@@ -44,25 +43,23 @@ public class VurderSøknadsfristOppdatererTjenesteFP extends VurderSøknadsfrist
 
     private void oppdaterYtelseFordelingMedMottattDato(Long behandlingId, LocalDate mottattDato) {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
-        var eksisterendeJustertFordeling = ytelseFordelingAggregat.getJustertFordeling().orElseThrow();
-        var nyeJustertFordelingPerioder = eksisterendeJustertFordeling.getPerioder().stream()
-            .map(p -> {
-                var builder = OppgittPeriodeBuilder.fraEksisterende(p);
-                if (Objects.equals(p.getPeriodeKilde(), FordelingPeriodeKilde.SØKNAD)) {
-                    builder.medMottattDato(mottattDato);
-                }
-                if (Objects.equals(p.getPeriodeKilde(), FordelingPeriodeKilde.SØKNAD) &&
-                    (p.getTidligstMottattDato().filter(d -> d.isBefore(p.getMottattDato())).isEmpty() ||
-                        p.getTidligstMottattDato().filter(d -> d.isBefore(mottattDato)).isEmpty())) {
-                    builder.medTidligstMottattDato(mottattDato);
-                }
-                return builder.build();
-            })
+        var eksisterendeOppgittFordeling = ytelseFordelingAggregat.getJustertFordeling().orElseThrow();
+        var nyOppgittFordelingPerioder = eksisterendeOppgittFordeling.getPerioder().stream()
+            .map(p -> OppgittPeriodeBuilder.fraEksisterende(p)
+                .medMottattDato(mottattDato)
+                .medTidligstMottattDato(utledTidligstMottattDato(p, mottattDato))
+                .build())
             .collect(Collectors.toList());
-        var nyJustertFordeling = new OppgittFordelingEntitet(nyeJustertFordelingPerioder, eksisterendeJustertFordeling.getErAnnenForelderInformert(),
-            eksisterendeJustertFordeling.ønskerJustertVedFødsel());
+        var nyOppgittFordeling = new OppgittFordelingEntitet(nyOppgittFordelingPerioder, eksisterendeOppgittFordeling.getErAnnenForelderInformert(),
+            eksisterendeOppgittFordeling.ønskerJustertVedFødsel());
         var yfBuilder = YtelseFordelingAggregat.oppdatere(Optional.of(ytelseFordelingAggregat))
-            .medJustertFordeling(nyJustertFordeling);
+            .medOppgittFordeling(nyOppgittFordeling);
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
+    }
+
+    private LocalDate utledTidligstMottattDato(OppgittPeriodeEntitet periode, LocalDate mottattdato) {
+        return periode.getTidligstMottattDato()
+            .filter(d -> d.isBefore(periode.getMottattDato()) && d.isBefore(mottattdato))
+            .orElse(mottattdato);
     }
 }

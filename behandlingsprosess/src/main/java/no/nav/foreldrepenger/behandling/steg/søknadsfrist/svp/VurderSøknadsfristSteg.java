@@ -22,18 +22,18 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepositor
 @BehandlingTypeRef
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @ApplicationScoped
-public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements BehandlingSteg {
+public class VurderSøknadsfristSteg implements BehandlingSteg {
 
     private FørsteLovligeUttaksdatoTjeneste førsteLovligeUttaksdatoTjeneste;
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
-    public FastsettUttaksgrunnlagOgVurderSøknadsfristSteg() {
+    public VurderSøknadsfristSteg() {
         // For CDI
     }
 
     @Inject
-    public FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(UttaksperiodegrenseRepository uttaksperiodegrenseRepository,
-                                                          FørsteLovligeUttaksdatoTjeneste førsteLovligeUttaksdatoTjeneste) {
+    public VurderSøknadsfristSteg(UttaksperiodegrenseRepository uttaksperiodegrenseRepository,
+                                  FørsteLovligeUttaksdatoTjeneste førsteLovligeUttaksdatoTjeneste) {
         this.førsteLovligeUttaksdatoTjeneste = førsteLovligeUttaksdatoTjeneste;
         this.uttaksperiodegrenseRepository = uttaksperiodegrenseRepository;
     }
