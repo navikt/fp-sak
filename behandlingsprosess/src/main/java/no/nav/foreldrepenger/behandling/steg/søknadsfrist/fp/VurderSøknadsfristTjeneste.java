@@ -43,7 +43,7 @@ public class VurderSøknadsfristTjeneste {
 
     public Optional<AksjonspunktDefinisjon> vurder(Long behandlingId) {
         var oppgittePerioder = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
-            .map(YtelseFordelingAggregat::getOppgittFordeling)
+            .map(YtelseFordelingAggregat::getGjeldendeFordeling)
             .map(OppgittFordelingEntitet::getPerioder).orElse(List.of());
         // Ingen perioder betyr behandling uten ny søknad.
         // Trenger ikke å sjekke søknadsfrist på nytt ettersom uttaksperiodegrense er kopiert fra forrige behandling
