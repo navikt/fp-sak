@@ -102,7 +102,7 @@ class FarsJustering implements ForelderFødselJustering {
     }
 
     private boolean erFedrekvoteRundtTermin(OppgittPeriodeEntitet op) {
-        return op.isSamtidigUttak() && (erFedrekvote(op) || erForeldrepenger(op)) && liggerIIntervalletRundtTermin(op) && !op.isFlerbarnsdager();
+        return op.isSamtidigUttak() && (erFedrekvote(op) || erForeldrepenger(op)) && liggerIIntervalletRundtTermin(op);
     }
 
     private Boolean liggerIIntervalletRundtTermin(OppgittPeriodeEntitet op) {
