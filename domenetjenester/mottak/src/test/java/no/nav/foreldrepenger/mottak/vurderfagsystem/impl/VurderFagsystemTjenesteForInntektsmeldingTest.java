@@ -44,6 +44,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -69,6 +75,8 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
     private FamilieHendelseRepository grunnlagRepository;
     @Mock
     private BeregningsresultatRepository beregningsresultatRepositoryMock;
+    @Mock
+    private YtelsesFordelingRepository ytelsesFordelingRepositoryMock;
 
     @Mock
     private FagsakRepository fagsakRepositoryMock;
@@ -89,6 +97,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
         lenient().when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(grunnlagRepository);
         lenient().when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepositoryMock);
         lenient().when(repositoryProvider.getBeregningsresultatRepository()).thenReturn(beregningsresultatRepositoryMock);
+        lenient().when(repositoryProvider.getYtelsesFordelingRepository()).thenReturn(ytelsesFordelingRepositoryMock);
         var mottatteDokumentTjenesteMock = Mockito.mock(MottatteDokumentTjeneste.class);
 
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any()))
@@ -228,6 +237,35 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
         when(grunnlagRepository.hentAggregatHvisEksisterer(anyLong())).thenReturn(Optional.of(grunnlag));
         when(beregningsresultatRepositoryMock.hentUtbetBeregningsresultat(behandling1.getId()))
             .thenReturn(Optional.of(lagBeregningsresultatGradert(LocalDate.now().minusMonths(12), LocalDate.now().plusMonths(2))));
+
+        var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(result.getSaksnummer()).isNotEmpty();
+    }
+
+    @Test
+    public void skalReturnereVedtaksløsningVurderingNårInnenforÅpenBehandlingMedSøknad() {
+        var fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER,
+            LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
+        fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
+
+        var fsmock1 = lagMockFagsak(1L, new Saksnummer("1234"), true);
+        lenient().when(fsmock1.getOpprettetTidspunkt()).thenReturn(LocalDateTime.now().minusMonths(13));
+
+        when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(List.of(fsmock1));
+
+        var behandling1 = lagMockBehandling(1L, fsmock1);
+        lenient().when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(fsmock1.getId())).thenReturn(Optional.of(behandling1));
+        lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling1.getId()))
+            .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now().minusMonths(12)).medUtledetSkjæringstidspunkt(LocalDate.now().minusMonths(12)).build());
+        final var grunnlag = byggFødselGrunnlag(null, null);
+        when(grunnlagRepository.hentAggregatHvisEksisterer(anyLong())).thenReturn(Optional.of(grunnlag));
+        when(ytelsesFordelingRepositoryMock.hentAggregatHvisEksisterer(behandling1.getId()))
+            .thenReturn(Optional.of(YtelseFordelingAggregat.Builder.nytt()
+                .medOppgittFordeling(new OppgittFordelingEntitet(List.of(OppgittPeriodeBuilder.ny()
+                    .medPeriode(LocalDate.now().minusWeeks(2), LocalDate.now().plusMonths(2))
+                    .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
+                    .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD).build()), true,false)).build()));
 
         var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
         assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);

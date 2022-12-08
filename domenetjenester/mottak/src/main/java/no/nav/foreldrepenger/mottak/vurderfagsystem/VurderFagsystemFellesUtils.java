@@ -34,6 +34,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -66,6 +71,7 @@ public class VurderFagsystemFellesUtils {
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BehandlingVedtakRepository behandlingVedtakRepository;
+    private YtelsesFordelingRepository ytelsesFordelingRepository;
 
     public VurderFagsystemFellesUtils(){
         //Injected normal scoped bean is now proxyable
@@ -80,6 +86,7 @@ public class VurderFagsystemFellesUtils {
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -156,6 +163,22 @@ public class VurderFagsystemFellesUtils {
         var min = tilkjent.stream().map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
             .min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE).minusWeeks(3);
         var max = tilkjent.stream().filter(b -> b.getDagsats() > 0).map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
+            .max(Comparator.naturalOrder()).orElse(Tid.TIDENES_BEGYNNELSE);
+        return referanseDato.isAfter(min) && referanseDato.isBefore(max);
+    }
+
+    public boolean erÅpenBehandlingMedSøknadRundtIM(Behandling behandling, LocalDate referanseDato) {
+        if (behandling.erSaksbehandlingAvsluttet()) {
+            return false;
+        }
+        var perioder = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .map(YtelseFordelingAggregat::getOppgittFordeling)
+            .map(OppgittFordelingEntitet::getPerioder).orElse(List.of()).stream()
+            .filter(p -> !p.isOpphold() && !(p.isUtsettelse() && UtsettelseÅrsak.FRI.equals(p.getÅrsak())))
+            .toList();
+        var min = perioder.stream().map(OppgittPeriodeEntitet::getFom)
+            .min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE).minusWeeks(3);
+        var max = perioder.stream().map(OppgittPeriodeEntitet::getTom)
             .max(Comparator.naturalOrder()).orElse(Tid.TIDENES_BEGYNNELSE);
         return referanseDato.isAfter(min) && referanseDato.isBefore(max);
     }
@@ -296,6 +319,9 @@ public class VurderFagsystemFellesUtils {
                 return SorteringSaker.GRUNNLAG_DATO_MATCH;
             }
             if (fagsak.erÅpen() && harBehandlingTilkjentRundtIM(behandling, referanseDatoForSaker)) {
+                return SorteringSaker.GRUNNLAG_MULIG_MATCH;
+            }
+            if (erÅpenBehandlingMedSøknadRundtIM(behandling, referanseDatoForSaker)) {
                 return SorteringSaker.GRUNNLAG_MULIG_MATCH;
             }
             if ((fagsak.erÅpen() && harSakOpprettetInnenIntervallForIM(List.of(fagsak), referanseDatoForSaker)) || erBehandlingAvsluttetFørOpplysningspliktIntervall(behandling)) {
