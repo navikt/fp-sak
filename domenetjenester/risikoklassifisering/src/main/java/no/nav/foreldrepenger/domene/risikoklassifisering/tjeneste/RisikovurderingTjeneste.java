@@ -62,7 +62,6 @@ public class RisikovurderingTjeneste {
 
     public void lagreVurderingAvFaresignalerForBehandling(BehandlingReferanse referanse, FaresignalVurdering vurdering) {
         Objects.requireNonNull(referanse, "referanse");
-        // Send svar til fprisk
         sendVurderingTilFprisk(referanse, vurdering);
     }
 
@@ -101,10 +100,6 @@ public class RisikovurderingTjeneste {
 
     private Optional<FaresignalWrapper> hentFaresignalerFraFprisk(BehandlingReferanse ref) {
         var request = new HentRisikovurderingDto(ref.behandlingUuid());
-        var faresignalerRespons = fpriskTjeneste.hentFaresignalerForBehandling(request);
-        if (faresignalerRespons.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(KontrollresultatMapper.fraFaresignalRespons(faresignalerRespons.get()));
+        return fpriskTjeneste.hentFaresignalerForBehandling(request).map(KontrollresultatMapper::fraFaresignalRespons);
     }
 }
