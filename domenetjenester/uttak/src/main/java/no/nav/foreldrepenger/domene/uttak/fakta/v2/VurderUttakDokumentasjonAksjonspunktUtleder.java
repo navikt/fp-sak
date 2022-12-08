@@ -42,12 +42,14 @@ public class VurderUttakDokumentasjonAksjonspunktUtleder {
             return List.of();
         }
         var behandlingId = input.getBehandlingReferanse().behandlingId();
-        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
-        return ytelseFordelingAggregat.getGjeldendeFordeling()
+        return ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId)
+            .map(yfa -> yfa
+            .getGjeldendeFordeling()
             .getPerioder()
             .stream()
             .map(p -> dokumentasjonVurderingBehov(p, input))
-            .toList();
+            .toList())
+            .orElse(List.of());
     }
 
     private DokumentasjonVurderingBehov dokumentasjonVurderingBehov(OppgittPeriodeEntitet oppgittPeriode,

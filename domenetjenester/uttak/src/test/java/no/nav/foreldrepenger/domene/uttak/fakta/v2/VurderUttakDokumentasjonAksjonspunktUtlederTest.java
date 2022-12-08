@@ -102,4 +102,20 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
 
         assertThat(behov.get(4).behov()).isNull();
     }
+
+    @Test
+    void skal_håndtere_manglende_yfa() {
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(uttakRepositoryProvider);
+
+        var familieHendelse = FamilieHendelse.forFødsel(LocalDate.now(), LocalDate.now(), List.of(), 0);
+        var fpGrunnlag = new ForeldrepengerGrunnlag()
+            .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(familieHendelse));
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, fpGrunnlag).medSkalBrukeNyFaktaOmUttak(true);
+        var aksjonspunktDefinisjon = utleder.utledAksjonspunkterFor(input);
+        var behov = utleder.utledDokumentasjonVurderingBehov(input);
+
+        assertThat(aksjonspunktDefinisjon).isEmpty();
+        assertThat(behov).isEmpty();
+    }
 }
