@@ -21,19 +21,19 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttak
 @ApplicationScoped
 public class UttakPeriodeEndringDtoTjeneste {
 
-    private static Set<AksjonspunktDefinisjon> PROSESS_UTTAK = Set.of(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER,
+    private static final Set<AksjonspunktDefinisjon> PROSESS_UTTAK = Set.of(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER,
         AksjonspunktDefinisjon.FASTSETT_UTTAK_STORTINGSREPRESENTANT, AksjonspunktDefinisjon.KONTROLLER_ANNENPART_EØS,
         AksjonspunktDefinisjon.KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE, AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST,
         AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_FORDELING_AV_STØNADSPERIODEN, AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD,
         AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER);
 
-    private static Set<AksjonspunktDefinisjon> FAKTA_OM_UTTAK = Set.of(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER,
+    private static final Set<AksjonspunktDefinisjon> FAKTA_OM_UTTAK = Set.of(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER,
         AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING, AksjonspunktDefinisjon.OVERSTYRING_AV_FAKTA_UTTAK,
         AksjonspunktDefinisjon.AVKLAR_FØRSTE_UTTAKSDATO,
         AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET,
         AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG);
 
-    private static Set<AksjonspunktDefinisjon> FAKTA_UTTAK = Set.of(AksjonspunktDefinisjon.OVERSTYRING_FAKTA_UTTAK,
+    private static final Set<AksjonspunktDefinisjon> FAKTA_UTTAK = Set.of(AksjonspunktDefinisjon.OVERSTYRING_FAKTA_UTTAK,
         AksjonspunktDefinisjon.FAKTA_UTTAK_INGEN_PERIODER, AksjonspunktDefinisjon.FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET,
         AksjonspunktDefinisjon.FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG,
         AksjonspunktDefinisjon.FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO);
@@ -49,9 +49,11 @@ public class UttakPeriodeEndringDtoTjeneste {
 
     @Inject
     public UttakPeriodeEndringDtoTjeneste(AvklarFaktaUttakPerioderTjeneste kontrollerFaktaUttakTjeneste,
-                                          FastsettePerioderEndringTjeneste fastsettePerioderEndringTjeneste) {
+                                          FastsettePerioderEndringTjeneste fastsettePerioderEndringTjeneste,
+                                          YtelseFordelingTjeneste ytelseFordelingTjeneste) {
         this.avklarFaktaUttakTjeneste = kontrollerFaktaUttakTjeneste;
         this.fastsettePerioderEndringTjeneste = fastsettePerioderEndringTjeneste;
+        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
     }
 
     public List<UttakPeriodeEndringDto> hentEndringPåUttakPerioder(Totrinnsvurdering aksjonspunkt,
