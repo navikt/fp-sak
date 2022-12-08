@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
@@ -130,6 +131,7 @@ class FaktaUttakFellesTjeneste {
             builder = builder.medÅrsak(dto.overføringÅrsak());
         } else if (dto.oppholdÅrsak() != null) {
             builder = builder.medÅrsak(dto.oppholdÅrsak());
+            builder = builder.medPeriodeType(UttakPeriodeType.ANNET);
         } else if (erGradering(dto)) {
             builder = builder.medArbeidsgiver(mapArbeidsgiver(dto.arbeidsforhold()))
                 .medGraderingAktivitetType(mapAktivitetType(dto.arbeidsforhold()))

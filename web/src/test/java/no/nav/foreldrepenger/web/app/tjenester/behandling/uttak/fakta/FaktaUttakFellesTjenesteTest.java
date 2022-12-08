@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde.ANDRE_NAV_VEDTAK;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde.SØKNAD;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde.TIDLIGERE_VEDTAK;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.ANNET;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FEDREKVOTE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.MØDREKVOTE;
@@ -136,7 +137,7 @@ class FaktaUttakFellesTjenesteTest {
         assertThat(lagretPerioder.get(2).getArbeidsgiver()).isNull();
         assertThat(lagretPerioder.get(2).getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.SAKSBEHANDLER);
         assertThat(lagretPerioder.get(2).getSamtidigUttaksprosent()).isNull();
-        assertThat(lagretPerioder.get(2).getPeriodeType()).isEqualTo(UDEFINERT);
+        assertThat(lagretPerioder.get(2).getPeriodeType()).isEqualTo(ANNET);
         assertThat(lagretPerioder.get(2).isFlerbarnsdager()).isEqualTo(oppholdDto.flerbarnsdager());
         assertThat(lagretPerioder.get(2).getÅrsak()).isEqualTo(oppholdDto.oppholdÅrsak());
 
