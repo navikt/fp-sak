@@ -2,14 +2,11 @@ package no.nav.foreldrepenger.behandling.steg.søknadsfrist.svp;
 
 import static java.util.Collections.singletonList;
 
-import java.util.Objects;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -48,11 +45,4 @@ public class VurderSøknadsfristSteg implements BehandlingSteg {
             .orElseGet(BehandleStegResultat::utførtUtenAksjonspunkter);
     }
 
-    @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
-            BehandlingStegType sisteSteg) {
-        if (!Objects.equals(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER, førsteSteg)) {
-            uttaksperiodegrenseRepository.ryddUttaksperiodegrense(kontekst.getBehandlingId());
-        }
-    }
 }

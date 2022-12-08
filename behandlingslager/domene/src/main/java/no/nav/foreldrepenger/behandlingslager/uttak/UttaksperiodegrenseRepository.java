@@ -35,6 +35,9 @@ public class UttaksperiodegrenseRepository {
         var lås = behandlingLåsRepository.taLås(behandlingId);
         var behandlingsresultat = hentBehandlingsresultat(behandlingId);
         var tidligereOpt = getAktivtUttaksperiodegrense(behandlingsresultat);
+        if (tidligereOpt.filter(tupg -> tupg.getMottattDato().equals(uttaksperiodegrense.getMottattDato())).isPresent()) {
+            return;
+        }
         tidligereOpt.ifPresent(tidligere -> {
             tidligere.setAktiv(false);
             entityManager.persist(tidligere);
