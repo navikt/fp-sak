@@ -98,20 +98,6 @@ class FarsJusteringTest {
 
     @ParameterizedTest
     @MethodSource(value = "typerStønadskonto")
-    void fødselEtterTerminFlerbarnsdagerSkalIkkeJusteres(UttakPeriodeType uttakPeriodeType) {
-        var termindato = LocalDate.of(2022, 8, 12);
-        var fødselsdato = termindato.plusWeeks(1);
-        var farsJustering = new FarsJustering(termindato, fødselsdato, true);
-
-        var søktPeriode = periodeForFarRundtFødselBuilder(termindato, termindato.plusWeeks(2).minusDays(1), uttakPeriodeType)
-            .medFlerbarnsdager(true)
-            .build();
-
-        assertThatThrownBy(() -> farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode))).isInstanceOf(IllegalStateException.class);
-    }
-
-    @ParameterizedTest
-    @MethodSource(value = "typerStønadskonto")
     void fødselLengeEtterTerminJusteresHvisIngenOverlappMedSenerePeriode(UttakPeriodeType uttakPeriodeType) {
         var termindato = LocalDate.of(2022, 8, 12);
         var fødselsdato = termindato.plusWeeks(5);
