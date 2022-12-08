@@ -110,7 +110,7 @@ public class SøknadDtoTjeneste {
         var soknadFodselDto = new SoknadFodselDto();
         var fødselsdatoer = familieHendelse.getBarna().stream()
             .collect(Collectors.toMap(UidentifisertBarn::getBarnNummer, UidentifisertBarn::getFødselsdato));
-        mapFellesSoknadDtoFelter(ref, søknad, familieHendelse.getSkjæringstidspunkt(), soknadFodselDto);
+        mapFellesSoknadDtoFelter(ref, søknad, soknadFodselDto);
         soknadFodselDto.setSoknadType(SøknadType.FØDSEL);
         soknadFodselDto.setUtstedtdato(familieHendelse.getTerminbekreftelse().map(TerminbekreftelseEntitet::getUtstedtdato).orElse(null));
         soknadFodselDto.setTermindato(familieHendelse.getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null));
@@ -130,7 +130,7 @@ public class SøknadDtoTjeneste {
         return soknadFodselDto;
     }
 
-    private void mapFellesSoknadDtoFelter(BehandlingReferanse ref, SøknadEntitet søknad, LocalDate familieHendelseDato, SoknadDto soknadDto) {
+    private void mapFellesSoknadDtoFelter(BehandlingReferanse ref, SøknadEntitet søknad, SoknadDto soknadDto) {
         soknadDto.setMottattDato(søknad.getMottattDato());
         var gjeldendeMottattDato = uttaksperiodegrenseRepository.hentHvisEksisterer(ref.behandlingId())
             .map(Uttaksperiodegrense::getMottattDato)
@@ -172,7 +172,7 @@ public class SøknadDtoTjeneste {
         var fødselsdatoer = familieHendelse.getBarna().stream()
             .collect(Collectors.toMap(UidentifisertBarn::getBarnNummer, UidentifisertBarn::getFødselsdato));
         var soknadAdopsjonDto = new SoknadAdopsjonDto();
-        mapFellesSoknadDtoFelter(ref, søknad, familieHendelse.getSkjæringstidspunkt(), soknadAdopsjonDto);
+        mapFellesSoknadDtoFelter(ref, søknad, soknadAdopsjonDto);
         soknadAdopsjonDto.setSoknadType(SøknadType.ADOPSJON);
         soknadAdopsjonDto.setOmsorgsovertakelseDato(familieHendelse.getAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato).orElse(null));
         soknadAdopsjonDto.setBarnetsAnkomstTilNorgeDato(familieHendelse.getAdopsjon().map(AdopsjonEntitet::getAnkomstNorgeDato).orElse(null));

@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -85,7 +86,8 @@ public class KontrollerOppgittFordelingTjeneste {
             return;
         }
 
-        var mottattDato = uttaksperiodegrenseRepository.hent(behandling.getId()).getMottattDato();
+        var mottattDato = uttaksperiodegrenseRepository.hentHvisEksisterer(behandling.getId())
+            .map(Uttaksperiodegrense::getMottattDato).orElseGet(LocalDate::now);
         oppgittPeriodeBuilder.medMottattDato(mottattDato);
         oppgittPeriodeBuilder.medTidligstMottattDato(mottattDato);
     }

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.uttak;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 import java.time.LocalDate;
@@ -23,27 +22,6 @@ public class UttaksperiodegrenseRepositoryTest extends EntityManagerAwareTest {
     public void setUp() {
         var entityManager = getEntityManager();
         uttaksperiodegrenseRepository = new UttaksperiodegrenseRepository(entityManager);
-    }
-
-    @Test
-    public void skal_lagre_og_sette_uttaksperiodegrense_inaktiv() {
-        // Arrange
-        var behandlingsresultat = lagBehandlingMedResultat();
-        var uttaksperiodegrense = new Uttaksperiodegrense(LocalDate.now());
-
-        // Act
-        var behandlingId = behandlingsresultat.getBehandlingId();
-        uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense);
-
-        // Assert
-        var uttaksperiodegrenseFør = uttaksperiodegrenseRepository.hent(behandlingId);
-        assertThat(uttaksperiodegrense).isEqualTo(uttaksperiodegrenseFør);
-
-        // Act
-        uttaksperiodegrenseRepository.ryddUttaksperiodegrense(behandlingId);
-
-        // Assert
-        assertThat(uttaksperiodegrenseRepository.hentHvisEksisterer(behandlingId)).isEmpty();
     }
 
     @Test

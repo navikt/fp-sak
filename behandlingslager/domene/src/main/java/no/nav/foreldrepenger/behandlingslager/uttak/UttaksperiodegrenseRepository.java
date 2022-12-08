@@ -63,19 +63,6 @@ public class UttaksperiodegrenseRepository {
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
-    public void ryddUttaksperiodegrense(Long behandlingId) {
-        var lås = behandlingLåsRepository.taLås(behandlingId);
-        var behandlingsresultat = hentBehandlingsresultat(behandlingId);
-        var aktivtAggregat = getAktivtUttaksperiodegrense(behandlingsresultat);
-        if (aktivtAggregat.isPresent()) {
-            var aggregat = aktivtAggregat.get();
-            aggregat.setAktiv(false);
-            entityManager.persist(aggregat);
-            verifiserBehandlingLås(lås);
-            entityManager.flush();
-        }
-    }
-
     private Behandlingsresultat hentBehandlingsresultat(Long behandlingId) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandlingId)
             .orElseThrow(() -> new IllegalStateException("Må ha behandlingsresultat ved lagring av uttak. Behandling "

@@ -48,14 +48,8 @@ public class VurderSøknadsfristTjeneste {
         var oppgittePerioder = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
             .map(YtelseFordelingAggregat::getOppgittFordeling)
             .map(OppgittFordelingEntitet::getPerioder).orElse(List.of());
-        // Ingen perioder betyr behandling uten ny søknad.
-        // Trenger ikke å sjekke søknadsfrist på nytt ettersom uttaksperiodegrense er kopiert fra forrige behandling
+        // Ingen perioder betyr behandling uten ny søknad, ergo ingen søknadsfrist å sjekke.
         if (oppgittePerioder.isEmpty()) {
-            if (uttaksperiodegrenseRepository.hentHvisEksisterer(behandlingId).isEmpty()) {
-                var forrigePeriodegrense = finnPeriodegrenseOriginalbehandling(behandlingId)
-                    .orElseThrow(() -> new IllegalStateException("Forventet uttaksperiodegrense i original behandling"));
-                uttaksperiodegrenseRepository.lagre(behandlingId, new Uttaksperiodegrense(forrigePeriodegrense));
-            }
             return Optional.empty();
         }
 
@@ -63,7 +57,7 @@ public class VurderSøknadsfristTjeneste {
 
         var eksisterendePeriodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(behandlingId).map(Uttaksperiodegrense::getMottattDato);
 
-        // Forkommer ved revurderinger - settes i KOFAK i tilfelle lange framhopp
+        // Midlertidig: se bort fra tilfelle som har kopiert forrige i KOFAK/revurdering
         var harKopiertPeriodegrenseFraOriginal = finnPeriodegrenseOriginalbehandling(behandlingId)
             .filter(d -> eksisterendePeriodegrense.filter(d::equals).isPresent()).isPresent();
 
@@ -75,7 +69,7 @@ public class VurderSøknadsfristTjeneste {
         var uttaksperiodegrense = new Uttaksperiodegrense(brukperiodegrense);
         uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense);
 
-        var førsteUttaksdato = finnFørsteUttaksdato(oppgittePerioder, brukperiodegrense).orElse(null);
+        var førsteUttaksdato = finnFørsteUttaksdato(oppgittePerioder, søknadMottattDato).orElse(null);
         var forTidligUttak = førsteUttaksdato != null && førsteUttaksdato.isBefore(tidligsteLovligeUttakDato);
         return forTidligUttak ? Optional.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST) : Optional.empty();
     }
