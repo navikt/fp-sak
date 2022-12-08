@@ -59,7 +59,7 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         var input = getInputTjeneste(ref.fagsakYtelseType()).lagInput(ref.behandlingId());
-        if (skalBeregnesAutomatisk(ref, input)) {
+        if (skalBeregnesAutomatisk(ref)) {
             var resultat = beregningsgrunnlagKopierOgLagreTjeneste.foreslåBesteberegning(input);
             var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList());
 
@@ -73,9 +73,8 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
         return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections.emptyList());
     }
 
-    private boolean skalBeregnesAutomatisk(BehandlingReferanse ref, BeregningsgrunnlagInput input) {
-        boolean kanBehandlesAutomatisk = besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(ref);
-        return kanBehandlesAutomatisk && input.isEnabled("automatisk-besteberegning", false);
+    private boolean skalBeregnesAutomatisk(BehandlingReferanse ref) {
+        return besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(ref);
     }
 
     @Override

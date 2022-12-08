@@ -90,7 +90,6 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
             mappetOpptjening,
             ytelseGrunnlag);
         input.medAvklaringsbehov(mapAvklaringsbehov(aksjonspunkter));
-        input.leggTilToggle("fremskyndet.regelendring.toggle", !Environment.current().isProd());
         return Optional.of(input);
     }
 
@@ -103,18 +102,18 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
 
     private Optional<AvklaringsbehovDto> mapTilAvklaringsbehov(Aksjonspunkt ap) {
         var definisjon =  switch (ap.getAksjonspunktDefinisjon()) {
-            case FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS -> AvklaringsbehovDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS;
-            case FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD -> AvklaringsbehovDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD;
-            case FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET -> AvklaringsbehovDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET;
-            case VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE -> AvklaringsbehovDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE;
-            case FORDEL_BEREGNINGSGRUNNLAG -> AvklaringsbehovDefinisjon.FORDEL_BEREGNINGSGRUNNLAG;
+            case FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS -> AvklaringsbehovDefinisjon.FASTSETT_BG_AT_FL;
+            case FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD -> AvklaringsbehovDefinisjon.FASTSETT_BG_TB_ARB;
+            case FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET -> AvklaringsbehovDefinisjon.FASTSETT_BG_SN_NY_I_ARB_LIVT;
+            case VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE -> AvklaringsbehovDefinisjon.VURDER_VARIG_ENDRT_NYOPPSTR_NAERNG_SN;
+            case FORDEL_BEREGNINGSGRUNNLAG -> AvklaringsbehovDefinisjon.FORDEL_BG;
             case AVKLAR_AKTIVITETER -> AvklaringsbehovDefinisjon.AVKLAR_AKTIVITETER;
-            case VURDER_FAKTA_FOR_ATFL_SN -> AvklaringsbehovDefinisjon.VURDER_FAKTA_FOR_ATFL_SN;
+            case VURDER_FAKTA_FOR_ATFL_SN -> AvklaringsbehovDefinisjon.VURDER_FAKTA_ATFL_SN;
             case VURDER_REFUSJON_BERGRUNN -> AvklaringsbehovDefinisjon.VURDER_REFUSJONSKRAV;
-            case OVERSTYRING_AV_BEREGNINGSAKTIVITETER -> AvklaringsbehovDefinisjon.OVERSTYRING_AV_BEREGNINGSAKTIVITETER;
-            case OVERSTYRING_AV_BEREGNINGSGRUNNLAG -> AvklaringsbehovDefinisjon.OVERSTYRING_AV_BEREGNINGSGRUNNLAG;
-            case AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST -> AvklaringsbehovDefinisjon.AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST;
-            case AUTO_VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT -> AvklaringsbehovDefinisjon.AUTO_VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT;
+            case OVERSTYRING_AV_BEREGNINGSAKTIVITETER -> AvklaringsbehovDefinisjon.OVST_BEREGNINGSAKTIVITETER;
+            case OVERSTYRING_AV_BEREGNINGSGRUNNLAG -> AvklaringsbehovDefinisjon.OVST_INNTEKT;
+            case AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST -> AvklaringsbehovDefinisjon.AUTO_VENT_PÅ_INNTKT_RAP_FRST;
+            case AUTO_VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT -> AvklaringsbehovDefinisjon.AUTO_VENT_PÅ_SISTE_AAP_DP_MELDKRT;
             default -> null; // Aksjonspunkt som ikke er relatert til beregning
         };
         if (definisjon == null) {
