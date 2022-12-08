@@ -50,7 +50,6 @@ public class OppdragsKontrollDtoMapper {
             oppdrag110s.getFagsystemId(),
             oppdrag110s.getOppdragGjelderId(),
             oppdrag110s.getSaksbehId(),
-            oppdrag110s.getAvstemming().getNøkkel(),
             tilOmpostering116Dto(oppdrag110s.getOmpostering116()),
             tilOppdragLinje150Dto(oppdrag110s.getOppdragslinje150Liste())
         );
