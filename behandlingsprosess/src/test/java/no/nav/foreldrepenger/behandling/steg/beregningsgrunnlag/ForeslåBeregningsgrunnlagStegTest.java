@@ -116,7 +116,7 @@ public class ForeslåBeregningsgrunnlagStegTest {
         // Arrange
         opprettVilkårResultatForBehandling(VilkårResultatType.INNVILGET);
         var aksjonspunktResultat = BeregningAvklaringsbehovResultat
-            .opprettFor(AvklaringsbehovDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS);
+            .opprettFor(AvklaringsbehovDefinisjon.FASTSETT_BG_AT_FL);
         when(beregningsgrunnlagRegelResultat.getAksjonspunkter()).thenReturn(Set.of(aksjonspunktResultat));
 
         // Act
