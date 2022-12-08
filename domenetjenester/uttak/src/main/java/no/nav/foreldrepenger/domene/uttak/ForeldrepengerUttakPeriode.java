@@ -45,7 +45,7 @@ public class ForeldrepengerUttakPeriode {
     }
 
     public boolean erLikBortsettFraTrekkdager(ForeldrepengerUttakPeriode periode) {
-        if (getAktiviteter().size() != aktiviteter.size()) {
+        if (periode.getAktiviteter().size() != aktiviteter.size()) {
             return false;
         }
         var likeAktivitieter = periode.getAktiviteter().stream()
