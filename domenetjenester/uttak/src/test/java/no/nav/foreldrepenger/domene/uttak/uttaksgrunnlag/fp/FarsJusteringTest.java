@@ -61,7 +61,9 @@ class FarsJusteringTest {
         var farsJustering = new FarsJustering(termindato, fødselsdato, true);
 
         var søktPeriode = periodeForFarRundtFødsel(termindato.minusDays(2), termindato.plusWeeks(2).minusDays(3), uttakPeriodeType);
-        assertThatThrownBy(() -> farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode))).isInstanceOf(IllegalStateException.class);
+        var justert = farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode));
+        assertThat(justert).hasSize(1);
+        assertThat(justert.get(0)).isEqualTo(søktPeriode);
     }
 
     @ParameterizedTest
@@ -78,8 +80,11 @@ class FarsJusteringTest {
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .build();
 
-        assertThatThrownBy(() -> farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode1, søktPeriode2, periodeEtterUke6)))
-            .isInstanceOf(IllegalStateException.class);
+        var justert = farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode1, søktPeriode2, periodeEtterUke6));
+        assertThat(justert).hasSize(3);
+        assertThat(justert.get(0)).isEqualTo(søktPeriode1);
+        assertThat(justert.get(1)).isEqualTo(søktPeriode2);
+        assertThat(justert.get(2)).isEqualTo(periodeEtterUke6);
 
     }
 
@@ -93,7 +98,10 @@ class FarsJusteringTest {
         var søktPeriode1 = periodeForFarRundtFødsel(termindato, termindato.plusWeeks(2).minusDays(1), uttakPeriodeType);
         var søktPeriode2 = periodeForFarRundtFødsel(termindato.plusWeeks(4), termindato.plusWeeks(6).minusDays(1), uttakPeriodeType);
 
-        assertThatThrownBy(() -> farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode1, søktPeriode2))).isInstanceOf(IllegalStateException.class);
+        var justert = farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode1, søktPeriode2));
+        assertThat(justert).hasSize(2);
+        assertThat(justert.get(0)).isEqualTo(søktPeriode1);
+        assertThat(justert.get(1)).isEqualTo(søktPeriode2);
     }
 
     @ParameterizedTest
