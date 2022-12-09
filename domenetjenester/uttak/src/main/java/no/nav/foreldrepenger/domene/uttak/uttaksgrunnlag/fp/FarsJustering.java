@@ -10,6 +10,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -17,6 +20,8 @@ import no.nav.foreldrepenger.domene.uttak.TidsperiodeFarRundtFødsel;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 class FarsJustering implements ForelderFødselJustering {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FarsJustering.class);
 
     private final LocalDate termindato; //termindato kan være første fødselsdato ved endring av fødselsdato
     private final LocalDate fødselsdato;
@@ -68,7 +73,7 @@ class FarsJustering implements ForelderFødselJustering {
             if (bareEnPeriodeFraTermin) {
                 return true;
             }
-            throw new IllegalStateException("Bruker ønsker justert uttak ved fødsel, men det finnes mer enn bare en periode fedrekvote fra termin");
+            LOG.warn("Kan ikke justere fars uttak rundt fødsel. Selv om bruker har søkt om justering!. Mulig feil eller usynk i søknadsdialogen");
         }
         return false;
     }
