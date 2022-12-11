@@ -221,7 +221,8 @@ class FaktaUttakFellesTjenesteTest {
             new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), true);
 
         var tjeneste = new FaktaUttakFellesTjeneste(uttakInputTjeneste, faktaUttakAksjonspunktUtleder, ytelseFordelingTjeneste,
-            ytelsesFordelingRepository, repositoryProvider.getFpUttakRepository(), new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste,
+            ytelsesFordelingRepository, repositoryProvider.getFpUttakRepository(), repositoryProvider.getUttaksperiodegrenseRepository(),
+            new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste,
             new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())),
             new FaktaUttakHistorikkinnslagTjeneste(new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(), Mockito.mock(DokumentArkivTjeneste.class), repositoryProvider.getBehandlingRepository())),
             repositoryProvider.getBehandlingRepository());

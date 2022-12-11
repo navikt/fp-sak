@@ -94,7 +94,7 @@ public class TidligstMottattOppdaterer {
         }
 
         var oppdatertTidslinje = tidslinje.combine(tidslinjeTidligstMottattForrigeSøknad,
-            TidligstMottattOppdaterer::oppdaterMedTidligsMottatt, LocalDateTimeline.JoinStyle.LEFT_JOIN);
+            TidligstMottattOppdaterer::oppdaterMedTidligstMottatt, LocalDateTimeline.JoinStyle.LEFT_JOIN);
         return new LocalDateTimeline<>(oppdatertTidslinje.toSegments(), TidligstMottattOppdaterer::oppgittPeriodeSplitter);
     }
 
@@ -113,8 +113,9 @@ public class TidligstMottattOppdaterer {
     }
 
     // Combinator som oppdaterer tidligst mottatt dato
-    private static LocalDateSegment<OppgittPeriodeEntitet> oppdaterMedTidligsMottatt(LocalDateInterval di, LocalDateSegment<OppgittPeriodeEntitet> periode, LocalDateSegment<LocalDate> dato) {
-        periode.getValue().setTidligstMottattDato(dato != null && dato.getValue() != null ? dato.getValue() : periode.getValue().getMottattDato());
+    private static LocalDateSegment<OppgittPeriodeEntitet> oppdaterMedTidligstMottatt(LocalDateInterval di, LocalDateSegment<OppgittPeriodeEntitet> periode, LocalDateSegment<LocalDate> dato) {
+        periode.getValue().setTidligstMottattDato(dato != null && dato.getValue() != null ? dato.getValue() :
+            periode.getValue().getTidligstMottattDato().orElseGet(() -> periode.getValue().getMottattDato()));
         return periode;
     }
 

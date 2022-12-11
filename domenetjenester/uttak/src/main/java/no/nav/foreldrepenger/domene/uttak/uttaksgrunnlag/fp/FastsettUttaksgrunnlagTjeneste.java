@@ -193,7 +193,6 @@ public class FastsettUttaksgrunnlagTjeneste {
             var mottattDato = periodegrense.orElseThrow().getMottattDato();
             return aggregat.getOppgittFordeling().getPerioder().stream()
                 .map(p -> OppgittPeriodeBuilder.fraEksisterende(p)
-                    .medMottattDato(utledMottattDato(p.getMottattDato(), mottattDato))
                     .medTidligstMottattDato(utledMottattDato(p.getTidligstMottattDato().orElseGet(p::getMottattDato), mottattDato))
                     .build())
                 .collect(Collectors.toList());
