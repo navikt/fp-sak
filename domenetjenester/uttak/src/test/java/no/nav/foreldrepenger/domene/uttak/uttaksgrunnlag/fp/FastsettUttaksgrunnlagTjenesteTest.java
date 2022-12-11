@@ -240,7 +240,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
         assertThat(oppgittePerioder).hasSize(1);
         assertThat(oppgittePerioder.get(0).getFom()).isEqualTo(søknadsperiode.getFom());
         assertThat(oppgittePerioder.get(0).getTom()).isEqualTo(søknadsperiode.getTom());
-        assertThat(oppgittePerioder.get(0).getMottattDato()).isEqualTo(søknadFom);
+        assertThat(oppgittePerioder.get(0).getMottattDato()).isEqualTo(søknadMottatt);
         assertThat(oppgittePerioder.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(søknadFom);
     }
 
