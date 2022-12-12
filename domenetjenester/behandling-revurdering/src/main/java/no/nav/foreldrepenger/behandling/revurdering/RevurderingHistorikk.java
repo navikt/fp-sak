@@ -58,10 +58,10 @@ public class RevurderingHistorikk {
         String fødselsdatoVerdi;
         if (barnFødtIPeriode.size() > 1) {
             SortedSet<LocalDate> fødselsdatoer = new TreeSet<>(
-                    barnFødtIPeriode.stream().map(FødtBarnInfo::getFødselsdato).collect(Collectors.toSet()));
+                    barnFødtIPeriode.stream().map(FødtBarnInfo::fødselsdato).collect(Collectors.toSet()));
             fødselsdatoVerdi = fødselsdatoer.stream().map(dateFormat::format).collect(Collectors.joining(", "));
         } else {
-            fødselsdatoVerdi = dateFormat.format(barnFødtIPeriode.get(0).getFødselsdato());
+            fødselsdatoVerdi = dateFormat.format(barnFødtIPeriode.get(0).fødselsdato());
         }
         var historieBuilder = new HistorikkInnslagTekstBuilder()
                 .medHendelse(HistorikkinnslagType.NY_INFO_FRA_TPS)

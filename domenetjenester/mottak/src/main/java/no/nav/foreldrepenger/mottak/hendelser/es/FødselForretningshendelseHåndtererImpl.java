@@ -45,12 +45,14 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
 
     @Override
     public void håndterÅpenBehandling(Behandling åpenBehandling, BehandlingÅrsakType behandlingÅrsakType) {
-        forretningshendelseHåndtererFelles.håndterÅpenBehandling(åpenBehandling, behandlingÅrsakType);
+        if (!forretningshendelseHåndtererFelles.fødselAlleredeRegistrert(åpenBehandling)) {
+            forretningshendelseHåndtererFelles.håndterÅpenBehandling(åpenBehandling, behandlingÅrsakType);
+        }
     }
 
     @Override
     public void håndterAvsluttetBehandling(Behandling avsluttetBehandling, ForretningshendelseType forretningshendelseType, BehandlingÅrsakType behandlingÅrsakType) {
-        if (erRelevantForEngangsstønadSak(avsluttetBehandling)) {
+        if (!forretningshendelseHåndtererFelles.fødselAlleredeRegistrert(avsluttetBehandling) && erRelevantForEngangsstønadSak(avsluttetBehandling)) {
             forretningshendelseHåndtererFelles.opprettRevurderingLagStartTask(avsluttetBehandling.getFagsak(), behandlingÅrsakType);
         }
     }

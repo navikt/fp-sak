@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,13 +21,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
+import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.Kompletthetskontroller;
@@ -57,11 +63,15 @@ public class FødselForretningshendelseHåndtererESTest {
     private LegacyESBeregningRepository beregningRepository;
     @Mock
     private Behandlingsoppretter behandlingsoppretter;
+    @Mock
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
+    @Mock
+    private PersoninfoAdapter personinfoAdapter;
 
     @BeforeEach
     public void setUp() {
         håndtererFelles = new ForretningshendelseHåndtererFelles(historikkinnslagTjeneste, kompletthetskontroller,
-            behandlingProsesseringTjeneste, behandlingsoppretter, køKontroller);
+            behandlingProsesseringTjeneste, behandlingsoppretter, familieHendelseTjeneste, personinfoAdapter, køKontroller);
         håndterer = new FødselForretningshendelseHåndtererImpl(håndtererFelles, Period.ofDays(60), skjæringstidspunktTjeneste, beregningRepository);
     }
 
@@ -78,6 +88,33 @@ public class FødselForretningshendelseHåndtererESTest {
 
         // Assert
         verify(kompletthetskontroller).vurderNyForretningshendelse(eq(behandling));
+    }
+
+    @Test
+    public void skal_ignorere_når_hendelse_er_fødsel_allerede_registrert() {
+        // Arrange
+        var fødselsdato = LocalDate.now().minusDays(2);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.medSøknadHendelse().medFødselsDato(fødselsdato, 2).medAntallBarn(2);
+        scenario.medBekreftetHendelse().medFødselsDato(fødselsdato,2 ).medAntallBarn(2);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_VENT_PÅ_FØDSELREGISTRERING, BehandlingStegType.KONTROLLER_FAKTA);
+        behandling = scenario.lagMocked();
+
+        håndtererFelles = new ForretningshendelseHåndtererFelles(historikkinnslagTjeneste, kompletthetskontroller, behandlingProsesseringTjeneste, behandlingsoppretter,
+            new FamilieHendelseTjeneste(null, scenario.mockBehandlingRepositoryProvider().getFamilieHendelseRepository()), personinfoAdapter, køKontroller);
+        håndterer = new FødselForretningshendelseHåndtererImpl(håndtererFelles, Period.ofDays(60), skjæringstidspunktTjeneste, beregningRepository);
+
+        when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(List.of(lagBarn(fødselsdato).build(),lagBarn(fødselsdato).build()));
+
+        // Act
+        håndterer.håndterÅpenBehandling(behandling, RE_HENDELSE_FØDSEL);
+
+        // Assert
+        verifyNoInteractions(kompletthetskontroller);
+    }
+
+    private FødtBarnInfo.Builder lagBarn(LocalDate fødselsdato) {
+        return new FødtBarnInfo.Builder().medIdent(new PersonIdent(new FiktiveFnr().nesteBarnFnr())).medFødselsdato(fødselsdato);
     }
 
     @Test

@@ -73,7 +73,7 @@ public class FødselTjeneste {
             .forEach(alleBarn::add);
 
         return alleBarn.stream()
-                .filter(fBI -> intervaller.stream().anyMatch(i -> i.encloses(fBI.getFødselsdato())))
+                .filter(fBI -> intervaller.stream().anyMatch(i -> i.encloses(fBI.fødselsdato())))
                 .collect(Collectors.toList());
     }
 
