@@ -39,7 +39,8 @@ class StartpunktUtlederNesteSak implements StartpunktUtleder {
         if (Objects.equals(startdato1, startdato2)) {
             return StartpunktType.UDEFINERT;
         } else {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "nestesak", grunnlagId1, grunnlagId2);
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "nestesak",
+                Optional.ofNullable(grunnlagId1).orElse(""), Optional.ofNullable(grunnlagId2).orElse(""));
             return StartpunktType.UTTAKSVILKÅR;
         }
     }
