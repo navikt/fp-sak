@@ -81,10 +81,9 @@ public class FpriskTjeneste {
             var rrequest = RestRequest.newPOSTJson(request, sendOppdragEndpoint, restConfig);
             restClient.sendReturnOptional(rrequest, String.class);
         } catch (Exception e) {
-            // Feil hardt her når vi har verifisert en periode i prod at ting fungerer fint
             LOG.warn("Klarte ikke sende risikovurdering til fprisk", e);
+            throw e;
         }
-
     }
 
     private URI toUri(URI endpointURI, String path) {
