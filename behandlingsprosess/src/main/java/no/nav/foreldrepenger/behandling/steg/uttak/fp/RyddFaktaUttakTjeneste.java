@@ -23,7 +23,7 @@ class RyddFaktaUttakTjeneste {
     }
 
     void ryddVedHoppOverBakover(BehandlingskontrollKontekst kontekst) {
-        //TODO TFP-4873 ikke rydde overstyrt hvis nytt fakta om uttak er brukt
+        // TODO TFP-4873 flytt nullstilling av overstyrt, vurdering og justertendringsdato til FastsettUttaksgrunnlagOgVurderSøknadsfristSteg når KontrollerFaktaUttak saneres
         var opprinnelig = ytelsesFordelingRepository.hentAggregatHvisEksisterer(kontekst.getBehandlingId());
         if (opprinnelig.isEmpty()) {
             return;

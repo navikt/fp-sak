@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -72,6 +73,7 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
 
     public static List<OppgittPeriodeEntitet> perioderSkalVurderes(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate søknadMottattDato) {
         return oppgittePerioder.stream()
+            .filter(p -> FordelingPeriodeKilde.SØKNAD.equals(p.getPeriodeKilde()))
             .filter(p -> !p.isUtsettelse())
             .filter(p -> periodeSkalVurderes(p, søknadMottattDato))
             .toList();

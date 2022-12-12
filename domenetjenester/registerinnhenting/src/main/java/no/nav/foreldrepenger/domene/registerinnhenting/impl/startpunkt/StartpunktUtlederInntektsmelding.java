@@ -104,7 +104,7 @@ class StartpunktUtlederInntektsmelding {
         if (erStartpunktForNyImBeregning(nyIm, origIm, ref)) {
             return StartpunktType.BEREGNING;
         }
-        return StartpunktType.UTTAKSVILKÅR;
+        return StartpunktType.UDEFINERT;
     }
 
     private boolean erInntektsmeldingArbeidsforholdOverstyrtIkkeVenterIM(Optional<InntektArbeidYtelseGrunnlag> grunnlag,

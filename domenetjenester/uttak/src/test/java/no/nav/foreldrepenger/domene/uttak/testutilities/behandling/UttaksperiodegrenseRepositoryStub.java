@@ -29,9 +29,4 @@ class UttaksperiodegrenseRepositoryStub extends UttaksperiodegrenseRepository {
         }
         return Optional.of(uttaksperiodegrense);
     }
-
-    @Override
-    public void ryddUttaksperiodegrense(Long behandlingId) {
-        uttaksperiodegrenseMap.remove(behandlingId);
-    }
 }

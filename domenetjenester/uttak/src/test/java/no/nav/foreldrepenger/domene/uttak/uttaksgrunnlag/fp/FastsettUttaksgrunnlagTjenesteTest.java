@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
@@ -210,17 +211,22 @@ public class FastsettUttaksgrunnlagTjenesteTest {
     }
 
     @Test
-    public void adopsjon_uten_justering() {
+    public void adopsjon_uten_justering_men_oppdatere_mottatt_dato() {
         var søknadFom = LocalDate.of(2019, 7, 31);
+        var søknadMottatt = søknadFom.plusMonths(5);
         var søknadsperiode = OppgittPeriodeBuilder.ny()
                 .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
                 .medPeriode(søknadFom.plusDays(1), søknadFom.plusDays(10))
+                .medMottattDato(søknadMottatt)
+                .medTidligstMottattDato(søknadMottatt)
                 .build();
         var fordeling = new OppgittFordelingEntitet(List.of(søknadsperiode), true);
 
         var scenario = ScenarioMorSøkerForeldrepenger.forAdopsjon().medFordeling(fordeling);
 
         var behandling = scenario.lagre(repositoryProvider);
+
+        repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandling.getId(), new Uttaksperiodegrense(søknadFom));
 
         var søknadFamilieHendelse = FamilieHendelse.forAdopsjonOmsorgsovertakelse(søknadFom, List.of(new Barn(null)), 1,
                 søknadFom.minusWeeks(2), false);
@@ -234,6 +240,8 @@ public class FastsettUttaksgrunnlagTjenesteTest {
         assertThat(oppgittePerioder).hasSize(1);
         assertThat(oppgittePerioder.get(0).getFom()).isEqualTo(søknadsperiode.getFom());
         assertThat(oppgittePerioder.get(0).getTom()).isEqualTo(søknadsperiode.getTom());
+        assertThat(oppgittePerioder.get(0).getMottattDato()).isEqualTo(søknadMottatt);
+        assertThat(oppgittePerioder.get(0).getTidligstMottattDato().orElseThrow()).isEqualTo(søknadFom);
     }
 
     @Test

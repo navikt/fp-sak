@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -21,6 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -44,6 +47,7 @@ class FaktaUttakFellesTjeneste {
     private FaktaUttakHistorikkinnslagTjeneste historikkinnslagTjeneste;
     private BehandlingRepository behandlingRepository;
     private FpUttakRepository fpUttakRepository;
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     @Inject
     public FaktaUttakFellesTjeneste(UttakInputTjeneste uttakInputtjeneste,
@@ -51,6 +55,7 @@ class FaktaUttakFellesTjeneste {
                                     YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                     YtelsesFordelingRepository ytelsesFordelingRepository,
                                     FpUttakRepository fpUttakRepository,
+                                    UttaksperiodegrenseRepository uttaksperiodegrenseRepository,
                                     FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste,
                                     FaktaUttakHistorikkinnslagTjeneste historikkinnslagTjeneste,
                                     BehandlingRepository behandlingRepository) {
@@ -62,6 +67,7 @@ class FaktaUttakFellesTjeneste {
         this.historikkinnslagTjeneste = historikkinnslagTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.fpUttakRepository = fpUttakRepository;
+        this.uttaksperiodegrenseRepository = uttaksperiodegrenseRepository;
     }
 
     FaktaUttakFellesTjeneste() {
@@ -110,14 +116,21 @@ class FaktaUttakFellesTjeneste {
             .map(YtelseFordelingAggregat::getGjeldendeFordeling).stream().toList();
         var forrigeUttak = behandling.getOriginalBehandlingId()
             .flatMap(ob -> fpUttakRepository.hentUttakResultatHvisEksisterer(ob));
-        return TidligstMottattOppdaterer.oppdaterTidligstMottattDato(overstyrt, LocalDate.now(), gjeldendeFordelingAsList, forrigeUttak);
+        var ansesMottattDato = uttaksperiodegrenseRepository.hentHvisEksisterer(behandling.getId())
+            .map(Uttaksperiodegrense::getMottattDato).orElseGet(LocalDate::now);
+        return TidligstMottattOppdaterer.oppdaterTidligstMottattDato(overstyrt, ansesMottattDato, gjeldendeFordelingAsList, forrigeUttak);
 
     }
 
     private static OppgittPeriodeEntitet map(FaktaUttakPeriodeDto dto, List<OppgittPeriodeEntitet> gjeldende) {
+        var periodeIntervall = DatoIntervallEntitet.fraOgMedTilOgMed(dto.fom(), dto.tom());
         var builder = OppgittPeriodeBuilder.ny().medPeriode(dto.fom(), dto.tom())
             .medPeriodeKilde(FordelingPeriodeKilde.SAKSBEHANDLER)
-            .medDokumentasjonVurdering(utledDokumentasjonsVurdering(dto, gjeldende))
+            .medMottattDato(gjeldendeSomOmslutter(periodeIntervall, gjeldende)
+                .map(OppgittPeriodeEntitet::getMottattDato).orElseGet(LocalDate::now))
+            .medTidligstMottattDato(gjeldendeSomOmslutter(periodeIntervall, gjeldende)
+                .flatMap(OppgittPeriodeEntitet::getTidligstMottattDato).orElse(null))
+            .medDokumentasjonVurdering(utledDokumentasjonsVurdering(periodeIntervall, gjeldende))
             .medMorsAktivitet(dto.morsAktivitet())
             .medFlerbarnsdager(dto.flerbarnsdager())
             .medPeriodeType(dto.uttakPeriodeType())
@@ -187,13 +200,19 @@ class FaktaUttakFellesTjeneste {
     }
 
     // Initiell versjon. Kan utvides til erOmsluttetAv eller man kan bruke DokVurderingKopierer til å koperier alt ...
-    private static DokumentasjonVurdering  utledDokumentasjonsVurdering(FaktaUttakPeriodeDto dto, List<OppgittPeriodeEntitet> gjeldende) {
-        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(dto.fom(), dto.tom());
+    private static DokumentasjonVurdering  utledDokumentasjonsVurdering(DatoIntervallEntitet intervall, List<OppgittPeriodeEntitet> gjeldende) {
         return gjeldende.stream()
-            .filter(p -> periode.equals(p.getTidsperiode()))
+            .filter(p -> intervall.equals(p.getTidsperiode()))
             .findFirst()
             .map(OppgittPeriodeEntitet::getDokumentasjonVurdering)
             .orElse(null);
     }
+
+    private static Optional<OppgittPeriodeEntitet> gjeldendeSomOmslutter(DatoIntervallEntitet intervall, List<OppgittPeriodeEntitet> gjeldende) {
+        return gjeldende.stream()
+            .filter(p -> intervall.erOmsluttetAv(p.getTidsperiode()))
+            .findFirst();
+    }
+
 
 }

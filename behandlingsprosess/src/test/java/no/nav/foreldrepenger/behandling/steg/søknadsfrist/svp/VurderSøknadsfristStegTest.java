@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.uttak.svp;
+package no.nav.foreldrepenger.behandling.steg.søknadsfrist.svp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,8 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.Søknadsfrister;
-import no.nav.foreldrepenger.behandling.steg.søknadsfrist.svp.FastsettUttaksgrunnlagOgVurderSøknadsfristSteg;
-import no.nav.foreldrepenger.behandling.steg.søknadsfrist.svp.FørsteLovligeUttaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -27,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepositor
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 
 @CdiDbAwareTest
-public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
+public class VurderSøknadsfristStegTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -47,7 +45,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
     private Behandling behandling;
     private SvpHelper svpHelper;
 
-    private FastsettUttaksgrunnlagOgVurderSøknadsfristSteg fastsettUttaksgrunnlagOgVurderSøknadsfristSteg;
+    private VurderSøknadsfristSteg fastsettUttaksgrunnlagOgVurderSøknadsfristSteg;
 
     @BeforeEach
     public void setup(EntityManager em) {
@@ -57,7 +55,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
         em.flush();
         em.clear();
 
-        fastsettUttaksgrunnlagOgVurderSøknadsfristSteg = new FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(uttaksperiodegrenseRepository,
+        fastsettUttaksgrunnlagOgVurderSøknadsfristSteg = new VurderSøknadsfristSteg(uttaksperiodegrenseRepository,
                 førsteLovligeUttaksdatoTjeneste);
     }
 

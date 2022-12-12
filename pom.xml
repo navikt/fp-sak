@@ -33,7 +33,7 @@
 
         <java.version>17</java.version>
 
-        <fp-uttak.version>14.3.1</fp-uttak.version>
+        <fp-uttak.version>14.3.2</fp-uttak.version>
         <svp-uttak.version>2.3.4</svp-uttak.version>
         <felles.version>4.2.13</felles.version>
         <prosesstask.version>3.1.13</prosesstask.version>

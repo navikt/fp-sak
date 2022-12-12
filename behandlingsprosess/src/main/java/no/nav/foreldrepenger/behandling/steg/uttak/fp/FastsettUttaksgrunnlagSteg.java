@@ -1,8 +1,5 @@
-package no.nav.foreldrepenger.behandling.steg.søknadsfrist.fp;
+package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
-import static java.util.Collections.singletonList;
-
-import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -28,31 +25,28 @@ import no.nav.foreldrepenger.domene.uttak.KopierForeldrepengerUttaktjeneste;
 import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.FastsettUttaksgrunnlagTjeneste;
 
-@BehandlingStegRef(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER)
+@BehandlingStegRef(BehandlingStegType.GRUNNLAG_UTTAK)
 @BehandlingTypeRef
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
-public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements BehandlingSteg {
+public class FastsettUttaksgrunnlagSteg implements BehandlingSteg {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FastsettUttaksgrunnlagOgVurderSøknadsfristSteg.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FastsettUttaksgrunnlagSteg.class);
 
     private final YtelsesFordelingRepository ytelsesFordelingRepository;
-    private final VurderSøknadsfristTjeneste vurderSøknadsfristTjeneste;
     private final FastsettUttaksgrunnlagTjeneste fastsettUttaksgrunnlagTjeneste;
     private final UttakInputTjeneste uttakInputTjeneste;
     private final SkalKopiereUttakTjeneste skalKopiereUttakTjeneste;
     private final KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste;
 
     @Inject
-    public FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(UttakInputTjeneste uttakInputTjeneste,
-                                                          YtelsesFordelingRepository ytelsesFordelingRepository,
-                                                          @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) VurderSøknadsfristTjeneste vurderSøknadsfristTjeneste,
-                                                          FastsettUttaksgrunnlagTjeneste fastsettUttaksgrunnlagTjeneste,
-                                                          SkalKopiereUttakTjeneste skalKopiereUttakTjeneste,
-                                                          KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste) {
+    public FastsettUttaksgrunnlagSteg(UttakInputTjeneste uttakInputTjeneste,
+                                      YtelsesFordelingRepository ytelsesFordelingRepository,
+                                      FastsettUttaksgrunnlagTjeneste fastsettUttaksgrunnlagTjeneste,
+                                      SkalKopiereUttakTjeneste skalKopiereUttakTjeneste,
+                                      KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
-        this.vurderSøknadsfristTjeneste = vurderSøknadsfristTjeneste;
         this.fastsettUttaksgrunnlagTjeneste = fastsettUttaksgrunnlagTjeneste;
         this.skalKopiereUttakTjeneste = skalKopiereUttakTjeneste;
         this.kopierForeldrepengerUttaktjeneste = kopierForeldrepengerUttaktjeneste;
@@ -62,17 +56,12 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandlingId = kontekst.getBehandlingId();
 
-        // Sjekk søknadsfrist for søknadsperioder
-        var søknadfristAksjonspunktDefinisjon = vurderSøknadsfristTjeneste.vurder(behandlingId);
-
         // Fastsett uttaksgrunnlag - vurder å lage input på nytt (potensiell sideeffekt fra frist)
         var input = uttakInputTjeneste.lagInput(behandlingId);
         fastsettUttaksgrunnlagTjeneste.fastsettUttaksgrunnlag(input);
 
         // Returner eventuelt aksjonspunkt ifm søknadsfrist
-        return søknadfristAksjonspunktDefinisjon
-            .map(ad -> BehandleStegResultat.utførtMedAksjonspunkter(singletonList(ad)))
-            .orElseGet(BehandleStegResultat::utførtUtenAksjonspunkter);
+        return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 
     @Override
@@ -80,13 +69,17 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
                                    BehandlingStegModell modell,
                                    BehandlingStegType førsteSteg,
                                    BehandlingStegType sisteSteg) {
-        if (!Objects.equals(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER, førsteSteg)) {
-            var opprinnelig = ytelsesFordelingRepository.hentAggregatHvisEksisterer(
-                kontekst.getBehandlingId());
-            if (opprinnelig.isPresent()) {
-                rydd(kontekst.getBehandlingId(), opprinnelig.get());
-            }
-        }
+        ytelsesFordelingRepository.hentAggregatHvisEksisterer(kontekst.getBehandlingId())
+            .ifPresent(a -> {
+                var ytelseFordelingBuilder = YtelseFordelingAggregat.Builder.oppdatere(Optional.of(a))
+                    .medJustertFordeling(null)
+                    .medOverstyrtFordeling(null)
+                    .medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder(a.getAvklarteDatoer())
+                        .medOpprinneligEndringsdato(null)
+                        .medJustertEndringsdato(null)
+                        .build());
+                ytelsesFordelingRepository.lagre(kontekst.getBehandlingId(), ytelseFordelingBuilder.build());
+            });
     }
 
     @Override
@@ -101,17 +94,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
         var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
         if (skalKopiereUttakTjeneste.skalKopiereStegResultat(uttakInput)) {
             var ref = uttakInput.getBehandlingReferanse();
-            kopierForeldrepengerUttaktjeneste.kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(ref.getOriginalBehandlingId().orElseThrow(), ref.behandlingId());
+            kopierForeldrepengerUttaktjeneste.kopierUttaksgrunnlagFraOriginalBehandling(ref.getOriginalBehandlingId().orElseThrow(), ref.behandlingId());
         }
-    }
-
-    private void rydd(Long behandlingId, YtelseFordelingAggregat ytelseFordelingAggregat) {
-        var builder = YtelseFordelingAggregat.Builder.oppdatere(
-            Optional.of(ytelseFordelingAggregat));
-        var ytelseFordeling = builder.medJustertFordeling(null)
-            .medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder(
-                ytelseFordelingAggregat.getAvklarteDatoer()).medOpprinneligEndringsdato(null).build())
-            .build();
-        ytelsesFordelingRepository.lagre(behandlingId, ytelseFordeling);
     }
 }

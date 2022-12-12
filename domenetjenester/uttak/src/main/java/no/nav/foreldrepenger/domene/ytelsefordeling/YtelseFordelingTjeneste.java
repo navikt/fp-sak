@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.ytelsefordeling;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,11 +8,14 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUtenOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenForelderRettEØSEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUtenOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingGrunnlagEntitet;
@@ -44,7 +48,14 @@ public class YtelseFordelingTjeneste {
     }
 
     public void aksjonspunktBekreftFaktaForOmsorg(Long behandlingId, boolean omsorg, List<DatoIntervallEntitet> ikkeOmsorgPerioder) {
-        new BekreftFaktaForOmsorgAksjonspunkt(ytelsesFordelingRepository).oppdater(behandlingId, omsorg, ikkeOmsorgPerioder);
+        var perioderUtenOmsorg = new PerioderUtenOmsorgEntitet();
+        if (!omsorg) {
+            ikkeOmsorgPerioder.stream().map(i ->  new PeriodeUtenOmsorgEntitet(i.getFomDato(), i.getTomDato())).forEach(perioderUtenOmsorg::leggTil);
+        }
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medPerioderUtenOmsorg(perioderUtenOmsorg)
+            .build();
+        ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregat);
     }
 
     public void aksjonspunktBekreftFaktaForAleneomsorg(Long behandlingId, boolean aleneomsorg) {
@@ -99,8 +110,15 @@ public class YtelseFordelingTjeneste {
             .orElse(EndringsresultatSnapshot.utenSnapshot(YtelseFordelingAggregat.class));
     }
 
-    public void aksjonspunktAvklarStartdatoForPerioden(Long behandlingId, BekreftStartdatoForPerioden adapter) {
-        new BekreftStartdatoForPeriodenAksjonspunkt(ytelsesFordelingRepository).oppdater(behandlingId, adapter);
+    public void aksjonspunktAvklarStartdatoForPerioden(Long behandlingId, LocalDate startdatoForPerioden) {
+        var aggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
+        var avklarteDatoer = aggregat.getAvklarteDatoer();
+
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder(avklarteDatoer)
+            .medFørsteUttaksdato(startdatoForPerioden);
+
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId).medAvklarteDatoer(avklarteUttakDatoer.build());
+        ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
     }
 
     public void endreOppgittRettighet(long behandlingId, OppgittRettighetEntitet oppgittRettighetEntitet) {

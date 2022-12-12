@@ -35,6 +35,9 @@ public class UttaksperiodegrenseRepository {
         var lås = behandlingLåsRepository.taLås(behandlingId);
         var behandlingsresultat = hentBehandlingsresultat(behandlingId);
         var tidligereOpt = getAktivtUttaksperiodegrense(behandlingsresultat);
+        if (tidligereOpt.filter(tupg -> tupg.getMottattDato().equals(uttaksperiodegrense.getMottattDato())).isPresent()) {
+            return;
+        }
         tidligereOpt.ifPresent(tidligere -> {
             tidligere.setAktiv(false);
             entityManager.persist(tidligere);
@@ -58,19 +61,6 @@ public class UttaksperiodegrenseRepository {
                 "and u.aktiv = true", Uttaksperiodegrense.class)
             .setParameter("behandlingId", behandlingId); // NOSONAR
         return HibernateVerktøy.hentUniktResultat(query);
-    }
-
-    public void ryddUttaksperiodegrense(Long behandlingId) {
-        var lås = behandlingLåsRepository.taLås(behandlingId);
-        var behandlingsresultat = hentBehandlingsresultat(behandlingId);
-        var aktivtAggregat = getAktivtUttaksperiodegrense(behandlingsresultat);
-        if (aktivtAggregat.isPresent()) {
-            var aggregat = aktivtAggregat.get();
-            aggregat.setAktiv(false);
-            entityManager.persist(aggregat);
-            verifiserBehandlingLås(lås);
-            entityManager.flush();
-        }
     }
 
     private Behandlingsresultat hentBehandlingsresultat(Long behandlingId) {

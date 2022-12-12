@@ -261,7 +261,7 @@ public class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest
         lenient().when(revurderingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(inntektsmeldingerMottattEtterVedtak);
 
         // Act/Assert
-        assertThat(utledStartpunkt(ref)).isEqualTo(StartpunktType.UTTAKSVILKÅR);
+        assertThat(utledStartpunkt(ref)).isEqualTo(StartpunktType.UDEFINERT);
     }
 
     private Behandling opprettRevurdering(Behandling førstegangsbehandling) {

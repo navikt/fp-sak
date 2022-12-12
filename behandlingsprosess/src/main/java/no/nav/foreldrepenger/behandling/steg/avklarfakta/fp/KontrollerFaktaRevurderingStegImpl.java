@@ -47,8 +47,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
@@ -80,7 +78,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private KontrollerFaktaTjeneste tjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
     private HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste;
-    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
     private StartpunktTjeneste startpunktTjeneste;
     private BehandlingÅrsakTjeneste behandlingÅrsakTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -114,7 +111,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         this.tjeneste = tjeneste;
         this.hentBeregningsgrunnlagTjeneste = hentBeregningsgrunnlagTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        this.uttaksperiodegrenseRepository = repositoryProvider.getUttaksperiodegrenseRepository();
         this.startpunktTjeneste = startpunktTjeneste;
         this.behandlingÅrsakTjeneste = behandlingÅrsakTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -298,7 +294,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                 .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
 
         revurdering = kopierVilkårFørStartpunkt(origBehandling, revurdering, kontekst);
-        revurdering = kopierUttaksperiodegrense(revurdering, origBehandling);
 
         if (StartpunktType.BEREGNING_FORESLÅ.equals(revurdering.getStartpunkt())) {
             beregningsgrunnlagKopierOgLagreTjeneste.kopierResultatForGRegulering(finnBehandlingSomHarKjørtBeregning(origBehandling).getId(),
@@ -355,18 +350,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         return revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
                 || mottatteDokumentTjeneste.harMottattDokumentSet(revurdering.getId(),
                         DokumentTypeId.getEndringSøknadTyper());
-    }
-
-    private Behandling kopierUttaksperiodegrense(Behandling revurdering, Behandling origBehandling) {
-        // Kopier Uttaksperiodegrense - må alltid ha en søknadsfrist angitt
-        var funnetUttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(origBehandling.getId());
-        if (funnetUttaksperiodegrense.isPresent()) {
-            var origGrense = funnetUttaksperiodegrense.get();
-            var uttaksperiodegrense = new Uttaksperiodegrense(origGrense.getMottattDato());
-            uttaksperiodegrenseRepository.lagre(revurdering.getId(), uttaksperiodegrense);
-            return behandlingRepository.hentBehandling(revurdering.getId());
-        }
-        return revurdering;
     }
 
     private Behandling kopierVilkårFørStartpunkt(Behandling origBehandling, Behandling revurdering, BehandlingskontrollKontekst kontekst) {

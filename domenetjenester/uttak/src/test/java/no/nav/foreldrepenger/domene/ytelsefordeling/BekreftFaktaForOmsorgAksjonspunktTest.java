@@ -18,8 +18,7 @@ public class BekreftFaktaForOmsorgAksjonspunktTest {
 
     private final UttakRepositoryStubProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-    private final BekreftFaktaForOmsorgAksjonspunkt bekreftFaktaForOmsorgAksjonspunkt = new BekreftFaktaForOmsorgAksjonspunkt(
-        ytelsesFordelingRepository);
+    private final YtelseFordelingTjeneste ytelseFordelingTjeneste = new YtelseFordelingTjeneste(ytelsesFordelingRepository);
 
     @Test
     public void skal_lagre_ned_bekreftet_aksjonspunkt_omsorg() {
@@ -30,7 +29,7 @@ public class BekreftFaktaForOmsorgAksjonspunktTest {
         var ikkeOmsorgPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(2),
             iDag.minusMonths(1));
         ikkeOmsorgPerioder.add(ikkeOmsorgPeriode);
-        bekreftFaktaForOmsorgAksjonspunkt.oppdater(behandling.getId(), false, ikkeOmsorgPerioder);
+        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandling.getId(), false, ikkeOmsorgPerioder);
 
         var perioderUtenOmsorgOpt = ytelsesFordelingRepository.hentAggregat(
             behandling.getId()).getPerioderUtenOmsorg();
@@ -40,7 +39,7 @@ public class BekreftFaktaForOmsorgAksjonspunktTest {
         assertThat(periodeUtenOmsorg.get(0).getPeriode()).isEqualTo(ikkeOmsorgPeriode);
 
         //må nullstille etter endret til har omsorg
-        bekreftFaktaForOmsorgAksjonspunkt.oppdater(behandling.getId(), true, null);
+        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandling.getId(), true, null);
         perioderUtenOmsorgOpt = ytelsesFordelingRepository.hentAggregat(behandling.getId()).getPerioderUtenOmsorg();
         assertThat(perioderUtenOmsorgOpt).isPresent();
         periodeUtenOmsorg = perioderUtenOmsorgOpt.get().getPerioder();

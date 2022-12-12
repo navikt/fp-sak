@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.uttak.svp;
+package no.nav.foreldrepenger.behandling.steg.søknadsfrist.svp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

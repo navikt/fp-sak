@@ -31,7 +31,7 @@ public class KopierForeldrepengerUttaktjeneste {
     }
 
     public void kopierUttakFraOriginalBehandling(Long originalBehandlingId, Long behandlingId) {
-        kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(originalBehandlingId, behandlingId);
+        kopierUttaksgrunnlagFraOriginalBehandling(originalBehandlingId, behandlingId);
         kopierUttaksresultatFraOriginalBehandling(originalBehandlingId, behandlingId);
     }
 
@@ -43,7 +43,7 @@ public class KopierForeldrepengerUttaktjeneste {
         fpUttakRepository.deaktivterAktivtResultat(behandlingId);
     }
 
-    public void kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(Long originalBehandlingId, Long behandlingId) {
+    public void kopierUttaksgrunnlagFraOriginalBehandling(Long originalBehandlingId, Long behandlingId) {
         LOG.info("Kopierer yfgrunnlag fra behandling {}, til behandling {}", originalBehandlingId, behandlingId);
         ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandlingForOverhoppUttak(originalBehandlingId, behandlingId);
     }
