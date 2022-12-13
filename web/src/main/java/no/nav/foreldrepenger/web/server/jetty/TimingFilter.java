@@ -1,9 +1,8 @@
 package no.nav.foreldrepenger.web.server.jetty;
 
 import static io.micrometer.core.instrument.Metrics.timer;
-import static no.nav.vedtak.log.metrics.MetricsUtil.utvidMedHistogram;
+import static no.nav.vedtak.log.metrics.MetricsUtil.utvidMedMedian;
 
-import java.io.IOException;
 import java.time.Duration;
 
 import javax.annotation.Priority;
@@ -24,7 +23,7 @@ public class TimingFilter implements ContainerRequestFilter, ContainerResponseFi
     private static final ThreadLocalTimer TIMER = new ThreadLocalTimer();
 
     public TimingFilter() {
-        utvidMedHistogram(METRIC_NAME);
+        utvidMedMedian(METRIC_NAME);
     }
 
     @Override
