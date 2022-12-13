@@ -152,10 +152,10 @@ public class RegisterdataInnhenter {
     }
 
     private void innhentPleiepenger(Behandling behandling, List<FødtBarnInfo> filtrertFødselFREG) {
-        var bekreftetFødt = filtrertFødselFREG.stream().map(FødtBarnInfo::getIdent).filter(Objects::nonNull).collect(Collectors.toSet());
+        var bekreftetFødt = filtrertFødselFREG.stream().map(FødtBarnInfo::ident).filter(Objects::nonNull).collect(Collectors.toSet());
 
         if (bekreftetFødt.isEmpty() || !FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) return;
-        var tidligstFødt = filtrertFødselFREG.stream().map(FødtBarnInfo::getFødselsdato).min(Comparator.naturalOrder()).orElseGet(LocalDate::now);
+        var tidligstFødt = filtrertFødselFREG.stream().map(FødtBarnInfo::fødselsdato).min(Comparator.naturalOrder()).orElseGet(LocalDate::now);
 
         var request = AbakusTjeneste.lagRequestForHentVedtakFom(behandling.getAktørId(), tidligstFødt.minusWeeks(25));
 

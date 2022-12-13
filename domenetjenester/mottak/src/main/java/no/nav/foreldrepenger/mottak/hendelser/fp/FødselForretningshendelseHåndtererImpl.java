@@ -33,21 +33,27 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
 
     @Override
     public void håndterÅpenBehandling(Behandling åpenBehandling, BehandlingÅrsakType behandlingÅrsakType) {
-        forretningshendelseHåndtererFelles.håndterÅpenBehandling(åpenBehandling, behandlingÅrsakType);
+        if (!forretningshendelseHåndtererFelles.fødselAlleredeRegistrert(åpenBehandling)) {
+            forretningshendelseHåndtererFelles.håndterÅpenBehandling(åpenBehandling, behandlingÅrsakType);
+        }
     }
 
     @Override
     public void håndterAvsluttetBehandling(Behandling avsluttetBehandling,
                                            ForretningshendelseType forretningshendelseType,
                                            BehandlingÅrsakType behandlingÅrsakType) {
-        var fagsak = avsluttetBehandling.getFagsak();
-        forretningshendelseHåndtererFelles.opprettRevurderingLagStartTask(fagsak, behandlingÅrsakType);
+        if (!forretningshendelseHåndtererFelles.fødselAlleredeRegistrert(avsluttetBehandling)) {
+            forretningshendelseHåndtererFelles.opprettRevurderingLagStartTask(avsluttetBehandling.getFagsak(), behandlingÅrsakType);
+        }
 
     }
 
     @Override
     public void håndterKøetBehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         var køetBehandlingOpt = behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
+        if (køetBehandlingOpt.filter(forretningshendelseHåndtererFelles::fødselAlleredeRegistrert).isPresent()) {
+            return;
+        }
         forretningshendelseHåndtererFelles.håndterKøetBehandling(fagsak, behandlingÅrsakType, køetBehandlingOpt);
     }
 }

@@ -101,7 +101,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     private boolean skalReberegneES(Behandling behandling, List<FødtBarnInfo> fødteBarn) {
-        var fødselsdato = fødteBarn.stream().map(FødtBarnInfo::getFødselsdato).max(Comparator.naturalOrder()).orElse(null);
+        var fødselsdato = fødteBarn.stream().map(FødtBarnInfo::fødselsdato).max(Comparator.naturalOrder()).orElse(null);
         return (fødselsdato != null) && esBeregningRepository.skalReberegne(behandling.getId(), fødselsdato);
     }
 
