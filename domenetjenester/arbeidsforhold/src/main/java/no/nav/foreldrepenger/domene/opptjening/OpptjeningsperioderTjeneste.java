@@ -188,11 +188,20 @@ public class OpptjeningsperioderTjeneste {
                 .medOpptjeningAktivitetType(type)
                 .medBegrunnelse(avtale.getBeskrivelse())
                 .medVurderingsStatus(vurderOpptjening.vurderStatus(type, behandlingReferanse, yr, grunnlag, grunnlag.harBlittSaksbehandlet()));
-        yr.getStillingsprosentFor(skjæringstidspunkt).ifPresent(builder::medStillingsandel);
+        getStillingsprosentVedDato(yr, skjæringstidspunkt).ifPresent(builder::medStillingsandel);
         MapYrkesaktivitetTilOpptjeningsperiodeTjeneste.settArbeidsgiverInformasjon(yr, builder);
         harSaksbehandlerVurdert(builder, type, behandlingReferanse, null, vurderOpptjening, grunnlag);
         builder.medErManueltRegistrert();
         perioder.add(builder.build());
+    }
+
+    private static Optional<Stillingsprosent> getStillingsprosentVedDato(Yrkesaktivitet yrkesaktivitet, LocalDate dato) {
+        return yrkesaktivitet.getAlleAktivitetsAvtaler()
+            .stream()
+            .filter(a -> !a.erAnsettelsesPeriode())
+            .filter(a -> a.getPeriode().inkluderer(dato))
+            .max(Comparator.comparing(a -> a.getPeriode().getFomDato()))
+            .map(AktivitetsAvtale::getProsentsats);
     }
 
     private OpptjeningsperiodeForSaksbehandling mapOppgittArbeidsforhold(OppgittArbeidsforhold oppgittArbeidsforhold,

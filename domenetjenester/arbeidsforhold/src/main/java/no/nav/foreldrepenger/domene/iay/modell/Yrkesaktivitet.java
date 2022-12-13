@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
 public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
 
@@ -150,29 +148,6 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
 
     public Collection<AktivitetsAvtale> getAlleAktivitetsAvtaler() {
         return Collections.unmodifiableSet(aktivitetsAvtale);
-    }
-
-    /**
-     * Gir stillingsprosent hvis det finnes for den gitte dagen Kaster feil hvis det
-     * blir gitt overlappene stillingsprosent
-     *
-     * @param dato {@link LocalDate}
-     * @return Stillingsprosent {@link Stillingsprosent}
-     */
-    public Optional<Stillingsprosent> getStillingsprosentFor(LocalDate dato) {
-        var avtaler = getAlleAktivitetsAvtaler()
-                .stream()
-                .filter(a -> !a.erAnsettelsesPeriode())
-                .filter(a -> a.getPeriode().inkluderer(dato))
-                .collect(Collectors.toList());
-
-        if (avtaler.isEmpty()) {
-            return Optional.empty();
-        }
-        if (avtaler.size() > 1) {
-            throw new IllegalStateException("Fant overlappende aktivitestavataler for " + this.toString());
-        }
-        return Optional.ofNullable(avtaler.get(0).getProsentsats());
     }
 
     void leggTilAktivitetsAvtale(AktivitetsAvtale aktivitetsAvtale) {
