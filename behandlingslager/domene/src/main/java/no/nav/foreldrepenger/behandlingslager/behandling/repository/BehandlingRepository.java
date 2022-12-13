@@ -5,6 +5,7 @@ import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -19,6 +20,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import org.hibernate.jpa.QueryHints;
+import org.hibernate.query.NativeQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -564,4 +566,24 @@ public class BehandlingRepository {
         return query.getResultList();
     }
 
+    @SuppressWarnings("unchecked")
+    public List<Behandling> hentBehandlingerSomFikkFeilInfoBrev() {
+        var query = (NativeQuery<Behandling>) entityManager
+            .createNativeQuery(
+                "select distinct b.id from behandling b "
+                    + " join fagsak fs on fs.id = b.fagsak_id "
+                    + " join behandling_dokument ba on ba.behandling_id = b.id "
+                    + " join fpsak.behandling_dokument_bestilt bb on BEHANDLING_DOKUMENT_ID = ba.id "
+                    + " where DOKUMENT_MAL_TYPE= :dokumentMalType "
+                    + " and b.opprettet_tid > :fraDato "
+                    + " and b.opprettet_tid < :tilDato "
+                    + " and not exists (select 1 from fpsak.MOTTATT_DOKUMENT where fagsak_id = fs.id and type like :dokumentType)",
+                Behandling.class);
+        query.setParameter("dokumentMalType", "INFOAF")
+            .setParameter("fraDato", LocalDate.of(2022, 11, 22))
+            .setParameter("tilDato", LocalDate.of(2022, 11, 30))
+            .setParameter("dokumentType", "SØKNAD%");
+
+        return query.getResultList();
+    }
 }
