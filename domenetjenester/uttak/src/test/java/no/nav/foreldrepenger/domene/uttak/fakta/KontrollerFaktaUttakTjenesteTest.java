@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.fakta.omsorg.BrukerHarOmsorgAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.AvklarFaktaUttakPerioderTjeneste;
-import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.AvklarHendelseAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.FørsteUttaksdatoAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.GraderingAktivitetUtenBGAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.GraderingUkjentAktivitetAksjonspunktUtleder;
@@ -46,7 +45,6 @@ public class KontrollerFaktaUttakTjenesteTest {
     @BeforeEach
     void setUp() {
         var personopplysninger = mock(PersonopplysningerForUttak.class);
-        var avklarHendelseAksjonspunktUtleder = new AvklarHendelseAksjonspunktUtleder();
         var brukerHarOmsorgAksjonspunktUtleder = new BrukerHarOmsorgAksjonspunktUtleder(personopplysninger);
         var førsteUttaksdatoAksjonspunktUtleder = new FørsteUttaksdatoAksjonspunktUtleder(repositoryProvider);
         var graderingAktivitetUtenBGAksjonspunktUtleder = new GraderingAktivitetUtenBGAksjonspunktUtleder();
@@ -55,8 +53,7 @@ public class KontrollerFaktaUttakTjenesteTest {
             ytelseFordelingTjeneste);
         var søknadsperioderMåKontrolleresAksjonspunktUtleder = new SøknadsperioderMåKontrolleresAksjonspunktUtleder(
             new AvklarFaktaUttakPerioderTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
-        var utledere = List.of(avklarHendelseAksjonspunktUtleder,
-            brukerHarOmsorgAksjonspunktUtleder,
+        var utledere = List.of(brukerHarOmsorgAksjonspunktUtleder,
             førsteUttaksdatoAksjonspunktUtleder, graderingAktivitetUtenBGAksjonspunktUtleder,
             graderingUkjentAktivitetAksjonspunktUtleder, søknadsperioderMåKontrolleresAksjonspunktUtleder);
         tjeneste = new KontrollerFaktaUttakTjeneste(utledere);

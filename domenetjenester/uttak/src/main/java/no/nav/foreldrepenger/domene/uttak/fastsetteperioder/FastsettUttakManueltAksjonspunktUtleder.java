@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 @ApplicationScoped
 public class FastsettUttakManueltAksjonspunktUtleder {
 
-    private static Arbeidsgiver STORTINGET = Arbeidsgiver.virksomhet(Spesialnummer.STORTINGET.getOrgnummer());
+    private static final Arbeidsgiver STORTINGET = Arbeidsgiver.virksomhet(Spesialnummer.STORTINGET.getOrgnummer());
 
     private FpUttakRepository fpUttakRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
@@ -48,21 +48,30 @@ public class FastsettUttakManueltAksjonspunktUtleder {
         //CDI
     }
 
-    public List<AksjonspunktResultat> utledAksjonspunkterFor(UttakInput input) {
+    public List<AksjonspunktDefinisjon> utledAksjonspunkterFor(UttakInput input) {
         var ref = input.getBehandlingReferanse();
         var behandlingId = ref.behandlingId();
 
-        List<AksjonspunktResultat> aksjonspunkter = new ArrayList<>();
+        List<AksjonspunktDefinisjon> aksjonspunkter = new ArrayList<>();
 
         utledAksjonspunktForManuellBehandlingFraRegler(behandlingId).ifPresent(aksjonspunkter::add);
         utledAksjonspunktForStortingsrepresentant(input).ifPresent(aksjonspunkter::add);
         utledAksjonspunktForDødtBarn(input.getYtelsespesifiktGrunnlag()).ifPresent(aksjonspunkter::add);
         utledAksjonspunktForAnnenpartEØS(behandlingId).ifPresent(aksjonspunkter::add);
-
+        if (input.harBehandlingÅrsak(BehandlingÅrsakType.RE_KLAGE_UTEN_END_INNTEKT)
+            || input.harBehandlingÅrsak(BehandlingÅrsakType.RE_KLAGE_MED_END_INNTEKT)) {
+            aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE);
+        }
+        if (input.harBehandlingÅrsakRelatertTilDød() || input.isOpplysningerOmDødEndret()) {
+            aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD);
+        }
+        if (input.harBehandlingÅrsak(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_SØKNAD_FRIST)) {
+            aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST);
+        }
         return aksjonspunkter.stream().distinct().collect(Collectors.toList());
     }
 
-    private Optional<AksjonspunktResultat> utledAksjonspunktForManuellBehandlingFraRegler(Long behandlingId) {
+    private Optional<AksjonspunktDefinisjon> utledAksjonspunktForManuellBehandlingFraRegler(Long behandlingId) {
         var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId).orElseThrow();
         for (var periode : uttakResultat.getGjeldendePerioder().getPerioder()) {
             if (periode.getResultatType().equals(PeriodeResultatType.MANUELL_BEHANDLING)){
@@ -72,7 +81,7 @@ public class FastsettUttakManueltAksjonspunktUtleder {
         return Optional.empty();
     }
 
-    private Optional<AksjonspunktResultat> utledAksjonspunktForStortingsrepresentant(UttakInput input) {
+    private Optional<AksjonspunktDefinisjon> utledAksjonspunktForStortingsrepresentant(UttakInput input) {
         var intervall = uttaksIntervall(input.getBehandlingReferanse().behandlingId()).orElse(null);
         if (intervall == null) {
             return Optional.empty();
@@ -86,22 +95,22 @@ public class FastsettUttakManueltAksjonspunktUtleder {
         // TODO: Vurder å sjekke input sione beregningsgrunnlagStatuser - så ikke avgåtte får AP. Men ett tilfelle har "ansettelse" til 30/9-21
         // TODO: Avklar om hvordan tilkommet Stortingsrepresentant skal håndteres og om de er synlig i beregning.
         if (representantVedUttak) {
-            return Optional.of(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.FASTSETT_UTTAK_STORTINGSREPRESENTANT));
+            return Optional.of(AksjonspunktDefinisjon.FASTSETT_UTTAK_STORTINGSREPRESENTANT);
         }
         return Optional.empty();
     }
 
-    private Optional<AksjonspunktResultat> utledAksjonspunktForDødtBarn(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
+    private Optional<AksjonspunktDefinisjon> utledAksjonspunktForDødtBarn(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
         if (finnesDødsdatoIRegistertEllerOverstyrtVersjon(foreldrepengerGrunnlag)) {
-            return Optional.of(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD));
+            return Optional.of(AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD);
         }
         return Optional.empty();
     }
 
-    private Optional<AksjonspunktResultat> utledAksjonspunktForAnnenpartEØS(Long behandlingId) {
+    private Optional<AksjonspunktDefinisjon> utledAksjonspunktForAnnenpartEØS(Long behandlingId) {
         return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
             .filter(yfa -> UttakOmsorgUtil.avklartAnnenForelderHarRettEØS(yfa))
-            .map(yfa -> AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.KONTROLLER_ANNENPART_EØS));
+            .map(yfa -> AksjonspunktDefinisjon.KONTROLLER_ANNENPART_EØS);
     }
 
     private boolean finnesDødsdatoIRegistertEllerOverstyrtVersjon(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
@@ -112,8 +121,8 @@ public class FastsettUttakManueltAksjonspunktUtleder {
             .anyMatch(barn -> barn.getDødsdato().isPresent());
     }
 
-    private AksjonspunktResultat fastsettUttakAksjonspunkt() {
-        return AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER);
+    private AksjonspunktDefinisjon fastsettUttakAksjonspunkt() {
+        return AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER;
     }
 
     private Optional<DatoIntervallEntitet> uttaksIntervall(Long behandlingId) {
