@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -27,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
@@ -48,12 +50,14 @@ public class ForvaltningStegRestTjeneste {
     private FamilieHendelseRepository familieHendelseRepository;
     private BehandlingRepository behandlingRepository;
     private OpptjeningRepository opptjeningRepository;
+    private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
 
     @Inject
     public ForvaltningStegRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
                                        BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                        ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
-                                       BehandlingRepositoryProvider repositoryProvider) {
+                                       BehandlingRepositoryProvider repositoryProvider,
+                                       ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
@@ -61,6 +65,7 @@ public class ForvaltningStegRestTjeneste {
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
+        this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
     }
 
     public ForvaltningStegRestTjeneste() {
@@ -88,7 +93,6 @@ public class ForvaltningStegRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response hoppTilbakeTil5085(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         hoppTilbake(dto, KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
-
         return Response.ok().build();
     }
 
@@ -149,6 +153,7 @@ public class ForvaltningStegRestTjeneste {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(dto.getBehandlingUuid());
         var behandling = getBehandling(dto);
         if (KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING.equals(tilSteg)) {
+            arbeidsforholdInntektsmeldingMangelTjeneste.ryddVekkAlleValgPåBehandling(BehandlingReferanse.fra(behandling));
             arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(behandling.getId(), behandling.getAktørId());
             resetStartpunkt(behandling);
         }

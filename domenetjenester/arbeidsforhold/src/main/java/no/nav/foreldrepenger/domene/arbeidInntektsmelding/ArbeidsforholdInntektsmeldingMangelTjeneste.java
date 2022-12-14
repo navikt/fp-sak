@@ -105,6 +105,18 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     }
 
     /**
+     * Tjeneste for å rydde vekk alle valg som er gjort i behandlingen. Skal kun brukes av forvaltningstjenester.
+     * @param ref
+     */
+    public void ryddVekkAlleValgPåBehandling(BehandlingReferanse ref) {
+        var valgPåBehandlingen = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(ref.behandlingId());
+        valgPåBehandlingen.forEach(valg -> {
+            LOG.info("Deaktiverer valg: {}", valg);
+            arbeidsforholdValgRepository.fjernValg(valg);
+        });
+    }
+
+    /**
      * Tjeneste for å rydde vekk overstyringer som ikke lenger er mulig å gjøre (overgang fra gammelt aksjonspunkt 5080)
      * @param ref
      */
