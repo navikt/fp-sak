@@ -16,34 +16,32 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @ApplicationScoped
 @ProsessTask(value = "migrering.migrertilomsorgrett", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class MigrerTilOmsorgRettTask extends BehandlingProsessTask {
+public class MigrerTilFaktaLøpendeOmsorgTask extends BehandlingProsessTask {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingsprosessTjeneste prosesseringTjeneste;
 
-    public MigrerTilOmsorgRettTask() {
+    public MigrerTilFaktaLøpendeOmsorgTask() {
         // For CDI
     }
 
     @Inject
-    public MigrerTilOmsorgRettTask(BehandlingRepositoryProvider repositoryProvider,
-                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                   BehandlingsprosessTjeneste prosesseringTjeneste) {
+    public MigrerTilFaktaLøpendeOmsorgTask(BehandlingRepositoryProvider repositoryProvider,
+                                           BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                           BehandlingsprosessTjeneste prosesseringTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.prosesseringTjeneste = prosesseringTjeneste;
     }
 
-
-
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
-        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.SØKNADSFRIST_FORELDREPENGER);
+        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.FAKTA_LØPENDE_OMSORG);
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }

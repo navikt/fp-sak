@@ -36,7 +36,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -149,39 +148,38 @@ public class ForvaltningUttrekkRestTjeneste {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Flytt tilbake til omsorgrett", tags = "FORVALTNING-uttrekk")
-    @Path("/flyttTilStartUttak")
+    @Operation(description = "Flytt tilbake til fakta om løpende omsorg", tags = "FORVALTNING-uttrekk")
+    @Path("/flyttTilFaktaLøpendeOmsorg")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response flyttTilOmsorgRett() {
+    public Response flyttTilFaktaLøpendeOmsorg() {
         var query = entityManager.createNativeQuery("""
             select saksnummer, bh.id
             from fagsak fs
             join behandling bh on bh.fagsak_id = fs.id
             join aksjonspunkt ap on ap.behandling_id = bh.id
-            where aksjonspunkt_def in (:apdef) and aksjonspunkt_status = :status and behandling_type = :btype
+            where aksjonspunkt_def in (:apdef)
+            and aksjonspunkt_status = :status
              """); //$NON-NLS-1$
-        query.setParameter("apdef", Set.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST.getKode()));
+        query.setParameter("apdef", Set.of(AksjonspunktDefinisjon.AVKLAR_LØPENDE_OMSORG.getKode()));
         query.setParameter("status", AksjonspunktStatus.OPPRETTET.getKode());
-        query.setParameter("btype", BehandlingType.REVURDERING.getKode());
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        var åpneAksjonspunkt = resultatList.stream().map(r -> new KabalFlytt((String) r[0], ((BigDecimal) r[1]).longValue())).toList();
-        åpneAksjonspunkt.forEach(this::flyttTilbakeTilOmsorgRett);
+        var åpneAksjonspunkt = resultatList.stream().map(r -> new Sak((String) r[0], ((BigDecimal) r[1]).longValue())).toList();
+        åpneAksjonspunkt.forEach(this::flyttTilbakeTilFaktaOmsorg);
         return Response.ok().build();
     }
 
-    private record KabalFlytt(String saksnummer, Long behandlingId) { }
+    private record Sak(String saksnummer, Long behandlingId) { }
 
-    private void flyttTilbakeTilOmsorgRett(KabalFlytt behandlingRef) {
+    private void flyttTilbakeTilFaktaOmsorg(Sak behandlingRef) {
         var behandling = behandlingRepository.hentBehandling(behandlingRef.behandlingId());
-        if (!BehandlingStegType.SØKNADSFRIST_FORELDREPENGER.equals(behandling.getAktivtBehandlingSteg())) {
+        if (!BehandlingStegType.KONTROLLER_FAKTA_UTTAK.equals(behandling.getAktivtBehandlingSteg())) {
             return;
         }
-        var tilKabalTask = ProsessTaskData.forProsessTask(MigrerTilOmsorgRettTask.class);
-        tilKabalTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        tilKabalTask.setCallIdFraEksisterende();
-        taskTjeneste.lagre(tilKabalTask);
-
+        var migreringTask = ProsessTaskData.forProsessTask(MigrerTilFaktaLøpendeOmsorgTask.class);
+        migreringTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        migreringTask.setCallIdFraEksisterende();
+        taskTjeneste.lagre(migreringTask);
     }
 
     private OpenAutopunkt mapFraAksjonspunktTilDto(Object[] row) {

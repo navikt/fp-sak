@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.fakta.omsorg;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_LØPENDE_OMSORG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
-public class BrukerHarOmsorgAksjonspunktUtlederTest {
+public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
 
     private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(3);
     private static final LocalDate FØDSELSDATO = LocalDate.now();
@@ -41,39 +41,33 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
 
     private UttakRepositoryProvider repositoryProvider;
 
-    private BrukerHarOmsorgAksjonspunktUtleder aksjonspunktUtleder;
+    private AvklarLøpendeOmsorgAksjonspunktUtleder aksjonspunktUtleder;
     private PersonopplysningerForUttak personopplysninger;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new UttakRepositoryStubProvider();
         personopplysninger = mock(PersonopplysningerForUttak.class);
-        aksjonspunktUtleder = new BrukerHarOmsorgAksjonspunktUtleder(personopplysninger);
+        aksjonspunktUtleder = new AvklarLøpendeOmsorgAksjonspunktUtleder(personopplysninger);
     }
 
     @Test
     public void ingen_aksjonspunkt_dersom_bruker_oppgitt_omsorg_til_barnet_men_barnet_er_ikke_født() {
-        // Arrange
         var behandling = opprettBehandling(TERMINDATO);
         var familieHendelse = FamilieHendelse.forFødsel(TERMINDATO, null, List.of(new Barn()), 1);
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
-        // Act
-        var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, familieHendelser));
+        var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunktFor(lagInput(behandling, familieHendelser));
 
-        // Assert
         assertThat(aksjonspunktResultater).isEmpty();
     }
 
     @Test
     public void aksjonspunkt_dersom_mor_søker_og_oppgitt_omsorg_til_barnet_og_fødsel_men_barn_har_ikke_sammebosted() {
-        // Arrange
         var behandling = opprettBehandling(FØDSELSDATO);
         var familieHendelser = fødselSøknadOgBekreftetStemmer();
 
-        // Act
-        var utledeteAksjonspunkter = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, familieHendelser));
-        // Assert
-        assertThat(utledeteAksjonspunkter).containsExactly(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG);
+        var ap = aksjonspunktUtleder.utledAksjonspunktFor(lagInput(behandling, familieHendelser));
+        assertThat(ap.orElseThrow()).isEqualTo(AVKLAR_LØPENDE_OMSORG);
     }
 
     private FamilieHendelser fødselSøknadOgBekreftetStemmer() {
@@ -89,43 +83,33 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
 
     @Test
     public void aksjonspunkt_dersom_far_søker_og_oppgitt_omsorg_til_barnet_og_fødsel_og_barn_har_sammebosted_med_mor_ikke_far() {
-        // Arrange
         var behandling = opprettBehandlingForFødselOgBarnBorSammenMedMorIkkeFarOgFarSøker();
         var familieHendelser = fødselSøknadOgBekreftetStemmer();
 
-        // Act
-        var utledeteAksjonspunkter = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, familieHendelser));
-        // Assert
-        assertThat(utledeteAksjonspunkter).containsExactly(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG);
+        var ap = aksjonspunktUtleder.utledAksjonspunktFor(lagInput(behandling, familieHendelser));
+        assertThat(ap.orElseThrow()).isEqualTo(AVKLAR_LØPENDE_OMSORG);
     }
 
     @Test
     public void aksjonspunkt_dersom_mor_søker_og_oppgitt_omsorg_til_barnet_og_fødsel_og_barn_har_sammebosted_med_far_ikke_mor() {
-        // Arrange
         var behandling = opprettBehandlingForFødselOgBarnBorSammenMedFarIkkeMorOgMorSøker(FØDSELSDATO);
         var familieHendelser = fødselSøknadOgBekreftetStemmer();
 
-        // Act
-        var utledeteAksjonspunkter = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, familieHendelser));
-        // Assert
-        assertThat(utledeteAksjonspunkter).containsExactly(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG);
+        var ap = aksjonspunktUtleder.utledAksjonspunktFor(lagInput(behandling, familieHendelser));
+        assertThat(ap.orElseThrow()).isEqualTo(AVKLAR_LØPENDE_OMSORG);
     }
 
     @Test
     public void ingen_aksjonspunkt_dersom_mor_søker_og_oppgitt_omsorg_til_barnet_og_fødsel_og_barn_har_sammebosted_med_mor_ikke_far() {
-        // Arrange
         var behandling = opprettBehandlingForFødselOgBarnBorSammenMedMorIkkeFarOgMorSøker(FØDSELSDATO);
         var familieHendelser = fødselSøknadOgBekreftetStemmer();
 
-        // Act
-        var utledeteAksjonspunkter = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, familieHendelser));
-        // Assert
-        assertThat(utledeteAksjonspunkter).isEmpty();
+        var ap = aksjonspunktUtleder.utledAksjonspunktFor(lagInput(behandling, familieHendelser));
+        assertThat(ap).isEmpty();
     }
 
     @Test
     public void aksjonspunkt_dersom_mor_søker_og_ikke_oppgitt_omsorg_til_barnet_med_lengre_søknadsperioden() {
-        // Arrange
         var periode1 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(FØDSELSDATO, FØDSELSDATO.plusWeeks(6))
@@ -136,69 +120,55 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
             .medPeriode(FØDSELSDATO.plusWeeks(6).plusDays(1), FØDSELSDATO.plusWeeks(10))
             .build();
         var behandling = opprettBehandlingForBekreftetFødselMedSøknadsperioder(List.of(periode1, periode2));
-        // Act
-        var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, fødselSøknadOgBekreftetStemmer()));
+        var ap = aksjonspunktUtleder.utledAksjonspunktFor(lagInput(behandling, fødselSøknadOgBekreftetStemmer()));
 
-        // Assert
-        assertThat(aksjonspunktResultater).containsExactly(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG);
+        assertThat(ap.orElseThrow()).isEqualTo(AVKLAR_LØPENDE_OMSORG);
     }
 
     @Test
     public void ingen_aksjonspunkt_dersom_barn_er_død_selvom_de_ikke_har_samme_adresse() {
-        // Arrange
         var behandling = opprettBehandling(FØDSELSDATO);
         var familieHendelser = new FamilieHendelser()
             .medSøknadHendelse(FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn()), 1))
             .medBekreftetHendelse(FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn(FØDSELSDATO)), 1));
 
-        // Act
-        var utledeteAksjonspunkter = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, familieHendelser));
+        var ap = aksjonspunktUtleder.utledAksjonspunktFor(lagInput(behandling, familieHendelser));
 
-        // Assert
-        assertThat(utledeteAksjonspunkter).isEmpty();
+        assertThat(ap).isEmpty();
     }
 
     @Test
     public void aksjonspunkt_dersom_ikke_alle_barn_er_død_fordi_det_levende_barnet_ikke_har_samme_bostedsadresse() {
-        // Arrange
         var behandling = opprettBehandling(FØDSELSDATO);
         var familieHendelse = FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn(FØDSELSDATO), new Barn()), 1);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
 
-        // Act
-        var utledeteAksjonspunkter = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, familieHendelser));
+        var ap = aksjonspunktUtleder.utledAksjonspunktFor(lagInput(behandling, familieHendelser));
 
-        // Assert
-        assertThat(utledeteAksjonspunkter).containsExactly(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG);
+        assertThat(ap.orElseThrow()).isEqualTo(AVKLAR_LØPENDE_OMSORG);
     }
 
     @Test
     public void ikke_aksjonspunkt_dersom_ett_barn_døde_og_ikke_har_samme_adresse_fordi_det_andre_barnet_lever_og_har_samme_bosted() {
-        // Arrange
         var behandling = opprettBehandlingForFødselSammeBosted(FØDSELSDATO);
         var familieHendelse = FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn(FØDSELSDATO), new Barn()), 2);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
 
-        // Act
-        var utledeteAksjonspunkter = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, familieHendelser));
+        var ap = aksjonspunktUtleder.utledAksjonspunktFor(lagInput(behandling, familieHendelser));
 
-        // Assert
-        assertThat(utledeteAksjonspunkter).isEmpty();
+        assertThat(ap).isEmpty();
     }
 
     @Test
     public void ikke_aksjonspunkt_dersom_ett_barn_døde_og_ikke_har_samme_adresse_fordi_det_andre_barnet_lever_og_har_samme_bostedsadresse() {
-        // Arrange
         var behandling = opprettBehandlingForFødselMedLikBostedsadresse(FØDSELSDATO);
         var familieHendelser = new FamilieHendelser()
             .medSøknadHendelse(FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of( new Barn(), new Barn()), 2))
             .medBekreftetHendelse(FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of( new Barn(FØDSELSDATO), new Barn()), 2));
 
-        // Act
-        var utledeteAksjonspunkter = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, familieHendelser));
+        var ap = aksjonspunktUtleder.utledAksjonspunktFor(lagInput(behandling, familieHendelser));
 
-        // Assert
-        assertThat(utledeteAksjonspunkter).isEmpty();
+        assertThat(ap).isEmpty();
     }
 
     private Behandling opprettBehandling(LocalDate førsteUttaksdato) {
