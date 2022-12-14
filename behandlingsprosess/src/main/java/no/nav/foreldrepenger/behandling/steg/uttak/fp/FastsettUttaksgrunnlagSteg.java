@@ -5,9 +5,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
@@ -30,8 +27,6 @@ import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.FastsettUttaksgrunnl
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
 public class FastsettUttaksgrunnlagSteg implements BehandlingSteg {
-
-    private static final Logger LOG = LoggerFactory.getLogger(FastsettUttaksgrunnlagSteg.class);
 
     private final YtelsesFordelingRepository ytelsesFordelingRepository;
     private final FastsettUttaksgrunnlagTjeneste fastsettUttaksgrunnlagTjeneste;
