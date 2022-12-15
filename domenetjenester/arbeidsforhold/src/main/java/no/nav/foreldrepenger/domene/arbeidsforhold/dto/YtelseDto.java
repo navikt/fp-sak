@@ -3,20 +3,11 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.dto;
 import java.util.Collections;
 import java.util.List;
 
-public class InntektArbeidYtelseDto {
+public class YtelseDto {
 
-    private List<InntektsmeldingDto> inntektsmeldinger = Collections.emptyList();
     private List<RelaterteYtelserDto> relatertTilgrensendeYtelserForSoker = Collections.emptyList();
     private List<RelaterteYtelserDto> relatertTilgrensendeYtelserForAnnenForelder = Collections.emptyList();
     private List<RelaterteYtelserDto> innvilgetRelatertTilgrensendeYtelserForAnnenForelder = Collections.emptyList();
-
-    public void setInntektsmeldinger(List<InntektsmeldingDto> inntektsmeldinger) {
-        this.inntektsmeldinger = inntektsmeldinger;
-    }
-
-    public List<InntektsmeldingDto> getInntektsmeldinger() {
-        return inntektsmeldinger;
-    }
 
     void setRelatertTilgrensendeYtelserForSoker(List<RelaterteYtelserDto> relatertTilgrensendeYtelserForSoker) {
         this.relatertTilgrensendeYtelserForSoker = relatertTilgrensendeYtelserForSoker;

@@ -6,68 +6,37 @@ import static no.nav.foreldrepenger.domene.arbeidsforhold.dto.BehandlingRelatert
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.YtelserKonsolidertTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ApplicationScoped
-public class InntektArbeidYtelseDtoMapper {
+public class YtelseDtoMapper {
 
-    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
-    private VirksomhetTjeneste virksomhetTjeneste;
     private YtelserKonsolidertTjeneste ytelseTjeneste;
 
-    public InntektArbeidYtelseDtoMapper() {
+    public YtelseDtoMapper() {
         // for CDI proxy
     }
 
     @Inject
-    public InntektArbeidYtelseDtoMapper(YtelserKonsolidertTjeneste ytelseTjeneste,
-                                        InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                        VirksomhetTjeneste virksomhetTjeneste) {
-        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
-        this.virksomhetTjeneste = virksomhetTjeneste;
+    public YtelseDtoMapper(YtelserKonsolidertTjeneste ytelseTjeneste) {
         this.ytelseTjeneste = ytelseTjeneste;
     }
 
-    public InntektArbeidYtelseDto mapFra(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag, Optional<AktørId> aktørIdAnnenPart) {
-        var dto = new InntektArbeidYtelseDto();
+    public YtelseDto mapFra(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag, Optional<AktørId> aktørIdAnnenPart) {
+        var dto = new YtelseDto();
         mapRelaterteYtelser(dto, ref, iayGrunnlag, aktørIdAnnenPart);
         return dto;
     }
 
-    public InntektsmeldingerDto mapInntektsmeldinger(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        if (!FagsakYtelseType.ENGANGSTØNAD.equals(ref.fagsakYtelseType())) {
-
-            return new InntektsmeldingerDto(lagInntektsmeldingDto(ref, iayGrunnlag));
-        } else {
-            return new InntektsmeldingerDto(List.of());
-        }
-    }
-
-    private List<InntektsmeldingDto> lagInntektsmeldingDto(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var dato = ref.getUtledetSkjæringstidspunkt();
-        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, dato, iayGrunnlag,
-            ref.getSkjæringstidspunkt().getFørsteUttaksdatoSøknad().isPresent());
-        return inntektsmeldinger.stream()
-                .map(inntektsmelding -> {
-                    var virksomhet = virksomhetTjeneste.finnOrganisasjon(inntektsmelding.getArbeidsgiver().getOrgnr());
-                    return new InntektsmeldingDto(inntektsmelding, virksomhet);
-                })
-                .collect(Collectors.toList());
-    }
-
-    private void mapRelaterteYtelser(InntektArbeidYtelseDto dto, BehandlingReferanse ref, InntektArbeidYtelseGrunnlag grunnlag,
-            Optional<AktørId> aktørIdAnnenPart) {
+    private void mapRelaterteYtelser(YtelseDto dto, BehandlingReferanse ref, InntektArbeidYtelseGrunnlag grunnlag,
+                                     Optional<AktørId> aktørIdAnnenPart) {
         dto.setRelatertTilgrensendeYtelserForSoker(mapTilDtoSøker(hentRelaterteYtelser(grunnlag, ref.aktørId())));
         aktørIdAnnenPart.ifPresent(annenPartAktørId -> {
             var hentRelaterteYtelser = hentRelaterteYtelserAnnenPart(grunnlag, annenPartAktørId);
