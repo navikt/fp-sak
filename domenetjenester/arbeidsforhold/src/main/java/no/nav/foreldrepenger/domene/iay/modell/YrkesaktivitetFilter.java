@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
@@ -233,11 +234,24 @@ public class YrkesaktivitetFilter {
     public Collection<Permisjon> getPermisjonerForArbeid(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef,
             LocalDate behovForTilretteleggingFom) {
         return getYrkesaktiviteter().stream()
-                .filter(yt -> yt.erArbeidsforholdAktivt(behovForTilretteleggingFom))
-                .filter(yt -> yt.gjelderFor(arbeidsgiver, internArbeidsforholdRef))
-                .map(Yrkesaktivitet::getPermisjon)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+            .filter(yt -> yt.erArbeidsforholdAktivt(behovForTilretteleggingFom))
+            .filter(yt -> yt.gjelderFor(arbeidsgiver, internArbeidsforholdRef))
+            .map(Yrkesaktivitet::getPermisjon)
+            .flatMap(Collection::stream)
+            .filter(perm -> !erBekreftetFjernet(perm, arbeidsgiver, internArbeidsforholdRef))
+            .collect(Collectors.toList());
+    }
+
+    private boolean erBekreftetFjernet(Permisjon perm, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef) {
+        return getArbeidsforholdOverstyringer().stream()
+            .filter(os -> Objects.equals(os.getArbeidsgiver(), arbeidsgiver) && os.getArbeidsforholdRef().gjelderFor(internArbeidsforholdRef))
+            .anyMatch(overstyring -> permisjonErFjernet(perm, overstyring));
+    }
+
+    private Boolean permisjonErFjernet(Permisjon perm, ArbeidsforholdOverstyring os) {
+        return os.getBekreftetPermisjon()
+            .map(p -> p.getPeriode().overlapper(perm.getPeriode())
+                && p.getStatus().equals(BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON)).orElse(false);
     }
 
     private Collection<AktivitetsAvtale> filterAktivitetsAvtaleOverstyring(Yrkesaktivitet ya, Collection<AktivitetsAvtale> yaAvtaler) {
