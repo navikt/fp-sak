@@ -137,9 +137,8 @@ public class BrevRestTjeneste {
     public void rebestillInfoBrev() { // NOSONAR
         var behandlingerMedMuligFeilBrev = behandlingRepository.hentBehandlingerSomFikkFeilInfoBrev();
 
-        behandlingerMedMuligFeilBrev.forEach( behandlingId -> {
-            var behandlingFar = behandlingRepository.hentBehandling(behandlingId);
-            var saksnummer = behandlingFar.getFagsak().getSaksnummer();
+        behandlingerMedMuligFeilBrev.forEach( behandling -> {
+            var saksnummer = behandling.getFagsak().getSaksnummer();
             var annenPartBehandling = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(saksnummer)
                 .flatMap(r -> saksnummer.equals(r.getFagsakNrEn().getSaksnummer()) ? r.getFagsakNrTo() : Optional.of(r.getFagsakNrEn()))
                 .map(Fagsak::getId)
@@ -148,8 +147,8 @@ public class BrevRestTjeneste {
             annenPartBehandling.ifPresent( annenPartb -> {
                     var gjeldendeFødselsdato = familieHendelseTjeneste.hentAggregat(annenPartb.getId()).finnGjeldendeFødselsdato();
                     if (!gjeldendeFødselsdato.isBefore(LocalDate.of(2021, 10, 1))) {
-                        LOG.info("Inforbrev rebestilt for saksnummer {}", saksnummer);
-                        dokumentBestillerTjeneste.bestillDokument( new BestillBrevDto(behandlingId, behandlingFar.getUuid(), DokumentMalType.FORELDREPENGER_INFO_TIL_ANNEN_FORELDER), HistorikkAktør.VEDTAKSLØSNINGEN);
+                        LOG.info("Inforbrev rebestilt på behandlingId={}", behandling);
+                        dokumentBestillerTjeneste.bestillDokument( new BestillBrevDto(behandling.getId(), behandling.getUuid(), DokumentMalType.FORELDREPENGER_INFO_TIL_ANNEN_FORELDER), HistorikkAktør.VEDTAKSLØSNINGEN);
                     }
                 });
         });

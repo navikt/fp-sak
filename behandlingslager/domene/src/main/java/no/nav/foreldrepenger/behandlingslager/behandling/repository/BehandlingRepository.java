@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -21,6 +20,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import org.hibernate.jpa.QueryHints;
+import org.hibernate.query.NativeQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -567,22 +567,23 @@ public class BehandlingRepository {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Long> hentBehandlingerSomFikkFeilInfoBrev() {
-        var query = entityManager
+    public List<Behandling> hentBehandlingerSomFikkFeilInfoBrev() {
+        var query = (NativeQuery<Behandling>) entityManager
             .createNativeQuery(
-                "select distinct b.id, fs.id from behandling b "
+                "select distinct b.id from behandling b "
                     + " join fagsak fs on fs.id = b.fagsak_id "
                     + " join behandling_dokument ba on ba.behandling_id = b.id "
                     + " join behandling_dokument_bestilt bb on BEHANDLING_DOKUMENT_ID = ba.id "
                     + " where DOKUMENT_MAL_TYPE= :dokumentMalType "
                     + " and b.opprettet_tid > :fraDato "
                     + " and b.opprettet_tid < :tilDato "
-                    + " and not exists (select 1 from MOTTATT_DOKUMENT where fagsak_id = fs.id and type like :dokumentType)");
+                    + " and not exists (select 1 from MOTTATT_DOKUMENT where fagsak_id = fs.id and type like :dokumentType)",
+                Behandling.class);
         query.setParameter("dokumentMalType", "INFOAF")
             .setParameter("fraDato", LocalDate.of(2022, 11, 22))
             .setParameter("tilDato", LocalDate.of(2022, 11, 30))
             .setParameter("dokumentType", "SØKNAD%");
-        List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(resultat-> ((BigDecimal)resultat[0]).longValue()).collect(Collectors.toList());
+
+        return query.getResultList();
     }
 }
