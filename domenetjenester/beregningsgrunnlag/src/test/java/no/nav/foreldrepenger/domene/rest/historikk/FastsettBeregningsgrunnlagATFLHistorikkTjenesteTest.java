@@ -82,7 +82,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         // Arrange
         var bg = buildOgLagreBeregningsgrunnlag(false);
 
-        //Dto
+        // Dto
         var dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse",
             Collections.singletonList(new InntektPrAndelDto(OVERSTYRT_PR_AR, 1L)), null);
 
@@ -117,7 +117,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         // Arrange
         var bg = buildOgLagreBeregningsgrunnlag(true);
 
-        //Dto
+        // Dto
         var dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse", FRILANSER_INNTEKT);
 
         // Act
