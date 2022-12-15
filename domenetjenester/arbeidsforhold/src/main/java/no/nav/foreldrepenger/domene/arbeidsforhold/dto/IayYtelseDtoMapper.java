@@ -16,26 +16,26 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ApplicationScoped
-public class YtelseDtoMapper {
+public class IayYtelseDtoMapper {
 
     private YtelserKonsolidertTjeneste ytelseTjeneste;
 
-    public YtelseDtoMapper() {
+    public IayYtelseDtoMapper() {
         // for CDI proxy
     }
 
     @Inject
-    public YtelseDtoMapper(YtelserKonsolidertTjeneste ytelseTjeneste) {
+    public IayYtelseDtoMapper(YtelserKonsolidertTjeneste ytelseTjeneste) {
         this.ytelseTjeneste = ytelseTjeneste;
     }
 
-    public YtelseDto mapFra(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag, Optional<AktørId> aktørIdAnnenPart) {
-        var dto = new YtelseDto();
+    public IAYYtelseDto mapFra(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag, Optional<AktørId> aktørIdAnnenPart) {
+        var dto = new IAYYtelseDto();
         mapRelaterteYtelser(dto, ref, iayGrunnlag, aktørIdAnnenPart);
         return dto;
     }
 
-    private void mapRelaterteYtelser(YtelseDto dto, BehandlingReferanse ref, InntektArbeidYtelseGrunnlag grunnlag,
+    private void mapRelaterteYtelser(IAYYtelseDto dto, BehandlingReferanse ref, InntektArbeidYtelseGrunnlag grunnlag,
                                      Optional<AktørId> aktørIdAnnenPart) {
         dto.setRelatertTilgrensendeYtelserForSoker(mapTilDtoSøker(hentRelaterteYtelser(grunnlag, ref.aktørId())));
         aktørIdAnnenPart.ifPresent(annenPartAktørId -> {

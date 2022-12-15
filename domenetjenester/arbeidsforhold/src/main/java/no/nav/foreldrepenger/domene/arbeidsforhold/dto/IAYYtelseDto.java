@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.dto;
 import java.util.Collections;
 import java.util.List;
 
-public class YtelseDto {
+public class IAYYtelseDto {
 
     private List<RelaterteYtelserDto> relatertTilgrensendeYtelserForSoker = Collections.emptyList();
     private List<RelaterteYtelserDto> relatertTilgrensendeYtelserForAnnenForelder = Collections.emptyList();
