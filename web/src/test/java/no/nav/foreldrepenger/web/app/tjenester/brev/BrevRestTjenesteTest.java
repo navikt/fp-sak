@@ -17,9 +17,11 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 
 public class BrevRestTjenesteTest {
@@ -28,16 +30,21 @@ public class BrevRestTjenesteTest {
     private DokumentBestillerTjeneste dokumentBestillerTjenesteMock;
     private DokumentBehandlingTjeneste dokumentBehandlingTjenesteMock;
     private BehandlingRepository behandlingRepository;
+    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
 
     @BeforeEach
     public void setUp() {
         dokumentBestillerTjenesteMock = mock(DokumentBestillerTjeneste.class);
         dokumentBehandlingTjenesteMock = mock(DokumentBehandlingTjeneste.class);
         behandlingRepository = mock(BehandlingRepository.class);
+        fagsakRelasjonRepository = mock(FagsakRelasjonRepository.class);
+        familieHendelseTjeneste = mock(FamilieHendelseTjeneste.class);
+
 
         when(behandlingRepository.hentBehandling(anyLong())).thenReturn(mock(Behandling.class));
 
-        brevRestTjeneste = new BrevRestTjeneste(dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, behandlingRepository);
+        brevRestTjeneste = new BrevRestTjeneste(dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, behandlingRepository, fagsakRelasjonRepository, familieHendelseTjeneste);
     }
 
     @Test
@@ -66,5 +73,5 @@ public class BrevRestTjenesteTest {
         verify(dokumentBehandlingTjenesteMock).erDokumentBestilt(any(), any());
         assertThat(harSendt).isTrue();
     }
-    
+
 }

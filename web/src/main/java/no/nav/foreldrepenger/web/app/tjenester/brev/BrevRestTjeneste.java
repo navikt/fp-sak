@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.brev;
 
+import java.time.LocalDate;
+import java.util.Optional;
 import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -23,10 +25,13 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
@@ -47,6 +52,7 @@ public class BrevRestTjeneste {
     private static final String VARSEL_REVURDERING_PART_PATH = "/varsel/revurdering";
     public static final String VARSEL_REVURDERING_PATH = BASE_PATH + VARSEL_REVURDERING_PART_PATH;
     private static final String BREV_BESTILL_PART_PATH = "/bestill";
+    private static final String BREV_REBESTILL_INFOBREV_PATH = "/rebestillInfobrev";
     public static final String BREV_BESTILL_PATH = BASE_PATH + BREV_BESTILL_PART_PATH;
     private static final String BREV_MALER_PART_PATH = "/maler";
     public static final String BREV_MALER_PATH = BASE_PATH + BREV_MALER_PART_PATH;
@@ -54,6 +60,8 @@ public class BrevRestTjeneste {
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private BehandlingRepository behandlingRepository;
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private FagsakRelasjonRepository fagsakRelasjonRepository;
 
     public BrevRestTjeneste() {
         // For Rest-CDI
@@ -62,10 +70,14 @@ public class BrevRestTjeneste {
     @Inject
     public BrevRestTjeneste(DokumentBestillerTjeneste dokumentBestillerTjeneste,
                             DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
-                            BehandlingRepository behandlingRepository) {
+                            BehandlingRepository behandlingRepository,
+                            FagsakRelasjonRepository fagsakRelasjonRepository,
+                            FamilieHendelseTjeneste familieHendelseTjeneste) {
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.fagsakRelasjonRepository = fagsakRelasjonRepository;
+        this.familieHendelseTjeneste = familieHendelseTjeneste;
     }
 
     @POST
@@ -116,6 +128,30 @@ public class BrevRestTjeneste {
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING); // NOSONAR
+    }
+
+    @POST
+    @Path(BREV_REBESTILL_INFOBREV_PATH)
+    @Operation(description = "Rebestiller informasjonsbrev for utvalgte brukere - jobb", tags = "brev")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public void rebestillInfoBrev() { // NOSONAR
+        var behandlingerMedMuligFeilBrev = behandlingRepository.hentBehandlingerSomFikkFeilInfoBrev();
+
+        behandlingerMedMuligFeilBrev.forEach( behandling -> {
+            var saksnummer = behandling.getFagsak().getSaksnummer();
+            var annenPartBehandling = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(saksnummer)
+                .flatMap(r -> saksnummer.equals(r.getFagsakNrEn().getSaksnummer()) ? r.getFagsakNrTo() : Optional.of(r.getFagsakNrEn()))
+                .map(Fagsak::getId)
+                .flatMap(behandlingRepository::hentSisteYtelsesBehandlingForFagsakId);
+
+            annenPartBehandling.ifPresent( annenPartb -> {
+                    var gjeldendeFødselsdato = familieHendelseTjeneste.hentAggregat(annenPartb.getId()).finnGjeldendeFødselsdato();
+                    if (!gjeldendeFødselsdato.isBefore(LocalDate.of(2021, 10, 1))) {
+                        LOG.info("Inforbrev rebestilt på behandlingId={}", behandling);
+                        dokumentBestillerTjeneste.bestillDokument( new BestillBrevDto(behandling.getId(), behandling.getUuid(), DokumentMalType.FORELDREPENGER_INFO_TIL_ANNEN_FORELDER), HistorikkAktør.VEDTAKSLØSNINGEN);
+                    }
+                });
+        });
     }
 
     public static class BestillBrevAbacDataSupplier implements Function<Object, AbacDataAttributter> {
