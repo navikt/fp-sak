@@ -9,7 +9,6 @@ public class InntektArbeidYtelseDto {
     private List<RelaterteYtelserDto> relatertTilgrensendeYtelserForSoker = Collections.emptyList();
     private List<RelaterteYtelserDto> relatertTilgrensendeYtelserForAnnenForelder = Collections.emptyList();
     private List<RelaterteYtelserDto> innvilgetRelatertTilgrensendeYtelserForAnnenForelder = Collections.emptyList();
-    private List<ArbeidsforholdDto> arbeidsforhold = Collections.emptyList();
 
     public void setInntektsmeldinger(List<InntektsmeldingDto> inntektsmeldinger) {
         this.inntektsmeldinger = inntektsmeldinger;
@@ -41,13 +40,5 @@ public class InntektArbeidYtelseDto {
 
     public List<RelaterteYtelserDto> getInnvilgetRelatertTilgrensendeYtelserForAnnenForelder() {
         return innvilgetRelatertTilgrensendeYtelserForAnnenForelder;
-    }
-
-    public List<ArbeidsforholdDto> getArbeidsforhold() {
-        return arbeidsforhold;
-    }
-
-    public void setArbeidsforhold(List<ArbeidsforholdDto> arbeidsforhold) {
-        this.arbeidsforhold = arbeidsforhold;
     }
 }
