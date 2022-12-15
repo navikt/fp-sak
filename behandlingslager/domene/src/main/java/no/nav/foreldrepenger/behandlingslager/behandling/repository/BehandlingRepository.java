@@ -573,11 +573,11 @@ public class BehandlingRepository {
                 "select distinct b.id from behandling b "
                     + " join fagsak fs on fs.id = b.fagsak_id "
                     + " join behandling_dokument ba on ba.behandling_id = b.id "
-                    + " join fpsak.behandling_dokument_bestilt bb on BEHANDLING_DOKUMENT_ID = ba.id "
+                    + " join behandling_dokument_bestilt bb on BEHANDLING_DOKUMENT_ID = ba.id "
                     + " where DOKUMENT_MAL_TYPE= :dokumentMalType "
                     + " and b.opprettet_tid > :fraDato "
                     + " and b.opprettet_tid < :tilDato "
-                    + " and not exists (select 1 from fpsak.MOTTATT_DOKUMENT where fagsak_id = fs.id and type like :dokumentType)",
+                    + " and not exists (select 1 from MOTTATT_DOKUMENT where fagsak_id = fs.id and type like :dokumentType)",
                 Behandling.class);
         query.setParameter("dokumentMalType", "INFOAF")
             .setParameter("fraDato", LocalDate.of(2022, 11, 22))
