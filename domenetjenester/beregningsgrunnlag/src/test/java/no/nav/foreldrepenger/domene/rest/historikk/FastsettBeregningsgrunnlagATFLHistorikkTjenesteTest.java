@@ -74,7 +74,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         fastsettBeregningsgrunnlagATFLHistorikkTjeneste = new FastsettBeregningsgrunnlagATFLHistorikkTjeneste(
             lagMockHistory(), arbeidsgiverHistorikkinnslagTjeneste, inntektArbeidYtelseTjeneste);
         virk = new Virksomhet.Builder().medOrgnr(NAV_ORGNR).medNavn("AF1").build();
-        when(virksomhetTjeneste.hentOrganisasjon(NAV_ORGNR)).thenReturn(new Virksomhet.Builder().medOrgnr(NAV_ORGNR).medNavn("AF1").build());
+        when(virksomhetTjeneste.hentOrganisasjon(NAV_ORGNR)).thenReturn(Virksomhet.getBuilder().medOrgnr(NAV_ORGNR).medNavn("AF1").build());
     }
 
     @Test
