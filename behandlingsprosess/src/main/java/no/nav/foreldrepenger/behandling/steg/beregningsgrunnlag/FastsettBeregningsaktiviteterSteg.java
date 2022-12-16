@@ -70,7 +70,7 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         var skalVentePåMuligLovendring = SkalVentePåRegelendring.kanPåvirkesAvRegelendring(input.getSkjæringstidspunktOpptjening(), input.getOpptjeningAktiviteter());
         if (Environment.current().isProd() && skalVentePåMuligLovendring) {
             var ventepunkt = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.AUTO_VENT_PÅ_LOVENDRING_8_41,
-                Venteårsak.VENT_LOVENDRING_8_41, LocalDateTime.of(LocalDate.of(2023, 1, 3), LocalDateTime.now().toLocalTime()));
+                Venteårsak.VENT_LOVENDRING_8_41, LocalDateTime.of(LocalDate.of(2023, 1, 10), LocalDateTime.now().toLocalTime()));
             return BehandleStegResultat
                 .utførtMedAksjonspunktResultater(Collections.singletonList(ventepunkt));
         }
