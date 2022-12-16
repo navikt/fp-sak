@@ -49,6 +49,14 @@ public class Utbetalingsgrad implements Comparable<Utbetalingsgrad> {
         return compareTo(Utbetalingsgrad.ZERO) > 0;
     }
 
+    public boolean erRedusert() {
+        return harUtbetaling() && !erFull();
+    }
+
+    public boolean erFull() {
+        return compareTo(Utbetalingsgrad.FULL) >= 0;
+    }
+
     public BigDecimal decimalValue() {
         return scale(verdi);
     }

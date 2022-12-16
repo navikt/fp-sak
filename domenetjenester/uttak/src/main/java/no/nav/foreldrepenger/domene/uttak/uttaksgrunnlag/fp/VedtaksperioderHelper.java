@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
@@ -138,27 +139,36 @@ public class VedtaksperioderHelper {
         return builder.build();
     }
 
-    static Optional<Årsak> finnOverføringÅrsak(UttakResultatPeriodeEntitet up) {
+    private static Optional<Årsak> finnOverføringÅrsak(UttakResultatPeriodeEntitet up) {
         if (up.isOverføring()) {
             return Optional.of(up.getOverføringÅrsak());
         }
         return Optional.empty();
     }
 
-    static Optional<SamtidigUttaksprosent> finnSamtidigUttaksprosent(UttakResultatPeriodeEntitet up) {
+    private static Optional<SamtidigUttaksprosent> finnSamtidigUttaksprosent(UttakResultatPeriodeEntitet up) {
         return Optional.ofNullable(up.getSamtidigUttaksprosent())
             .or(() -> up.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getSamtidigUttaksprosent));
     }
 
-    static Optional<MorsAktivitet> finnMorsAktivitet(UttakResultatPeriodeEntitet up) {
+    private static Optional<MorsAktivitet> finnMorsAktivitet(UttakResultatPeriodeEntitet up) {
         return up.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMorsAktivitet);
     }
 
-    static Optional<DokumentasjonVurdering> finnDokumentasjonVurdering(UttakResultatPeriodeEntitet up) {
+    private static Optional<DokumentasjonVurdering> finnDokumentasjonVurdering(UttakResultatPeriodeEntitet up) {
+        if (morDelvisArbeid(up)) {
+            return Optional.empty();
+        }
         return up.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getDokumentasjonVurdering);
     }
 
-    static Optional<Arbeidsgiver> finnGradertArbeidsgiver(UttakResultatPeriodeEntitet up) {
+    private static boolean morDelvisArbeid(UttakResultatPeriodeEntitet up) {
+        return up.getPeriodeSøknad()
+            .filter(s -> Set.of(MorsAktivitet.ARBEID, MorsAktivitet.ARBEID_OG_UTDANNING).contains(s.getMorsAktivitet()) && up.getAktiviteter().stream().anyMatch(a -> a.getUtbetalingsgrad().erRedusert()))
+            .isPresent();
+    }
+
+    private static Optional<Arbeidsgiver> finnGradertArbeidsgiver(UttakResultatPeriodeEntitet up) {
         return up.getAktiviteter().stream()
             .filter(UttakResultatPeriodeAktivitetEntitet::isSøktGradering)
             .findFirst()
@@ -166,32 +176,32 @@ public class VedtaksperioderHelper {
             .flatMap(UttakAktivitetEntitet::getArbeidsgiver);
     }
 
-    static GraderingAktivitetType finnGradertAktivitetType(UttakResultatPeriodeEntitet up) {
+    private static GraderingAktivitetType finnGradertAktivitetType(UttakResultatPeriodeEntitet up) {
         return GraderingAktivitetType.from(erArbeidstaker(up), erFrilans(up), erSelvstendig(up));
     }
 
-    static boolean erArbeidstaker(UttakResultatPeriodeEntitet up) {
+    private static boolean erArbeidstaker(UttakResultatPeriodeEntitet up) {
         return up.getAktiviteter()
             .stream()
             .filter(UttakResultatPeriodeAktivitetEntitet::isSøktGradering)
             .anyMatch(a -> UttakArbeidType.ORDINÆRT_ARBEID.equals(a.getUttakArbeidType()));
     }
 
-    static boolean erFrilans(UttakResultatPeriodeEntitet up) {
+    private static boolean erFrilans(UttakResultatPeriodeEntitet up) {
         return up.getAktiviteter()
             .stream()
             .filter(UttakResultatPeriodeAktivitetEntitet::isSøktGradering)
             .anyMatch(a -> UttakArbeidType.FRILANS.equals(a.getUttakArbeidType()));
     }
 
-    static boolean erSelvstendig(UttakResultatPeriodeEntitet up) {
+    private static boolean erSelvstendig(UttakResultatPeriodeEntitet up) {
         return up.getAktiviteter()
             .stream()
             .filter(UttakResultatPeriodeAktivitetEntitet::isSøktGradering)
             .anyMatch(a -> UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(a.getUttakArbeidType()));
     }
 
-    static UttakPeriodeType finnPeriodetype(UttakResultatPeriodeEntitet uttakResultatPeriode) {
+    private static UttakPeriodeType finnPeriodetype(UttakResultatPeriodeEntitet uttakResultatPeriode) {
         //Oppholdsperiode har ingen aktiviteter
         if (uttakResultatPeriode.isOpphold()) {
             return UttakPeriodeType.ANNET;
@@ -213,14 +223,14 @@ public class VedtaksperioderHelper {
         throw new IllegalStateException("Uttaksperiode mangler stønadskonto");
     }
 
-    static Optional<UtsettelseÅrsak> finnUtsettelsesÅrsak(UttakResultatPeriodeEntitet uttakResultatPeriode) {
+    private static Optional<UtsettelseÅrsak> finnUtsettelsesÅrsak(UttakResultatPeriodeEntitet uttakResultatPeriode) {
         if (erInnvilgetUtsettelse(uttakResultatPeriode)) {
             return UttakEnumMapper.mapTilYf(uttakResultatPeriode.getUtsettelseType());
         }
         return Optional.empty();
     }
 
-    static boolean erInnvilgetUtsettelse(UttakResultatPeriodeEntitet uttakResultatPeriode) {
+    private static boolean erInnvilgetUtsettelse(UttakResultatPeriodeEntitet uttakResultatPeriode) {
         var utsettelseType = uttakResultatPeriode.getUtsettelseType();
         if (utsettelseType != null && !UttakUtsettelseType.UDEFINERT.equals(utsettelseType)) {
             return uttakResultatPeriode.getAktiviteter()
@@ -230,14 +240,14 @@ public class VedtaksperioderHelper {
         return false;
     }
 
-    static Optional<OppholdÅrsak> finnOppholdsÅrsak(UttakResultatPeriodeEntitet uttakResultatPeriode) {
+    private static Optional<OppholdÅrsak> finnOppholdsÅrsak(UttakResultatPeriodeEntitet uttakResultatPeriode) {
         if (uttakResultatPeriode.isOpphold()) {
             return Optional.of(uttakResultatPeriode.getOppholdÅrsak());
         }
         return Optional.empty();
     }
 
-    static Optional<BigDecimal> finnGraderingArbeidsprosent(UttakResultatPeriodeEntitet up) {
+    private static Optional<BigDecimal> finnGraderingArbeidsprosent(UttakResultatPeriodeEntitet up) {
         if (up.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getGraderingArbeidsprosent).isEmpty()) {
             return Optional.empty();
         }
