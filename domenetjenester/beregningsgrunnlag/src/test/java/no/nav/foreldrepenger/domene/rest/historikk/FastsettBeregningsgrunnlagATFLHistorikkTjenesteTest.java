@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -37,6 +38,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilde
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
+import no.nav.foreldrepenger.domene.rest.dto.InntektPrAndelDto;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
@@ -72,10 +74,10 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         fastsettBeregningsgrunnlagATFLHistorikkTjeneste = new FastsettBeregningsgrunnlagATFLHistorikkTjeneste(
             lagMockHistory(), arbeidsgiverHistorikkinnslagTjeneste, inntektArbeidYtelseTjeneste);
         virk = new Virksomhet.Builder().medOrgnr(NAV_ORGNR).medNavn("AF1").build();
-        when(virksomhetTjeneste.hentOrganisasjon(NAV_ORGNR)).thenReturn(virk);
+        when(virksomhetTjeneste.hentOrganisasjon(NAV_ORGNR)).thenReturn(Virksomhet.getBuilder().medOrgnr(NAV_ORGNR).medNavn("AF1").build());
     }
 
- /*   @Test
+    @Test
     public void skal_generere_historikkinnslag_ved_fastsettelse_av_brutto_beregningsgrunnlag_AT() {
         // Arrange
         var bg = buildOgLagreBeregningsgrunnlag(false);
@@ -100,15 +102,12 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         assertThat(feltList.get(0)).satisfies(felt -> {
             assertThat(felt.getNavn()).as("navn")
                 .isEqualTo(HistorikkEndretFeltType.INNTEKT_FRA_ARBEIDSFORHOLD.getKode());
-            assertThat(felt.getNavnVerdi()).as("navnVerdi")
-                .contains("AF1 (" + NAV_ORGNR + ") ..." + ARBEIDSFORHOLD_ID.getReferanse()
-                    .substring(ARBEIDSFORHOLD_ID.getReferanse().length() - 4));
             assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
             assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo("200000");
         });
         assertThat(del.getBegrunnelse()).hasValueSatisfying(
             begrunnelse -> assertThat(begrunnelse).isEqualTo("begrunnelse"));
-    }*/
+    }
 
     @Test
     public void skal_generere_historikkinnslag_ved_fastsettelse_av_brutto_beregningsgrunnlag_FL() {
@@ -169,8 +168,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
     }
 
     private void leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPeriode.Builder beregningsgrunnlagPeriodeBuilder,
-                                                          Virksomhet virksomheten,
-                                                          boolean erFrilans) {
+                                                          Virksomhet virksomheten, boolean erFrilans) {
 
         var builder = BeregningsgrunnlagPrStatusOgAndel.builder()
             .medAndelsnr(1L)
