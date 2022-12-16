@@ -73,14 +73,14 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
             InntektArbeidYtelseGrunnlagBuilder.nytt().build());
         fastsettBeregningsgrunnlagATFLHistorikkTjeneste = new FastsettBeregningsgrunnlagATFLHistorikkTjeneste(
             lagMockHistory(), arbeidsgiverHistorikkinnslagTjeneste, inntektArbeidYtelseTjeneste);
-        virk = new Virksomhet.Builder().medOrgnr(NAV_ORGNR).medNavn("AF1").build();
-        when(virksomhetTjeneste.hentOrganisasjon(NAV_ORGNR)).thenReturn(virk);
     }
 
     @Test
     public void skal_generere_historikkinnslag_ved_fastsettelse_av_brutto_beregningsgrunnlag_AT() {
         // Arrange
         var bg = buildOgLagreBeregningsgrunnlag(false);
+        virk = new Virksomhet.Builder().medOrgnr(NAV_ORGNR).medNavn("AF1").build();
+        when(virksomhetTjeneste.hentOrganisasjon(NAV_ORGNR)).thenReturn(virk);
 
         //Dto
         var dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse",
