@@ -102,9 +102,6 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         assertThat(feltList.get(0)).satisfies(felt -> {
             assertThat(felt.getNavn()).as("navn")
                 .isEqualTo(HistorikkEndretFeltType.INNTEKT_FRA_ARBEIDSFORHOLD.getKode());
-            assertThat(felt.getNavnVerdi()).as("navnVerdi")
-                .contains("AF1 (" + NAV_ORGNR + ") ..." + ARBEIDSFORHOLD_ID.getReferanse()
-                    .substring(ARBEIDSFORHOLD_ID.getReferanse().length() - 4));
             assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
             assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo("200000");
         });
@@ -171,8 +168,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
     }
 
     private void leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPeriode.Builder beregningsgrunnlagPeriodeBuilder,
-                                                          Virksomhet virksomheten,
-                                                          boolean erFrilans) {
+                                                          Virksomhet virksomheten, boolean erFrilans) {
 
         var builder = BeregningsgrunnlagPrStatusOgAndel.builder()
             .medAndelsnr(1L)
