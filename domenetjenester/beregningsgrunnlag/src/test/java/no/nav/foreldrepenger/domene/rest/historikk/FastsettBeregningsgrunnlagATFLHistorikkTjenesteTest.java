@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -37,6 +38,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilde
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
+import no.nav.foreldrepenger.domene.rest.dto.InntektPrAndelDto;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
@@ -75,7 +77,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         when(virksomhetTjeneste.hentOrganisasjon(NAV_ORGNR)).thenReturn(virk);
     }
 
- /*   @Test
+    @Test
     public void skal_generere_historikkinnslag_ved_fastsettelse_av_brutto_beregningsgrunnlag_AT() {
         // Arrange
         var bg = buildOgLagreBeregningsgrunnlag(false);
@@ -108,7 +110,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         });
         assertThat(del.getBegrunnelse()).hasValueSatisfying(
             begrunnelse -> assertThat(begrunnelse).isEqualTo("begrunnelse"));
-    }*/
+    }
 
     @Test
     public void skal_generere_historikkinnslag_ved_fastsettelse_av_brutto_beregningsgrunnlag_FL() {
