@@ -11,6 +11,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -805,6 +807,49 @@ public class VedtaksperioderHelperTest {
         var konvertetPeriode = VedtaksperioderHelper.konverter(uttaksperiode);
         assertThat(konvertetPeriode.getMottattDato()).isEqualTo(
             uttaksperiode.getPeriodeSøknad().orElseThrow().getMottattDato());
+    }
+
+    @Test
+    public void skalIkkeKopiereMedDokumentasjonsVurderingHvisInnvilgetRedusertUttakPgaMorDelvisArbeid() {
+        var uttaksperiode1 = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2018, Month.JULY, 3),
+            LocalDate.of(2018, Month.JULY, 10)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.FORELDREPENGER_FELLESPERIODE_TIL_FAR)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
+                .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
+                .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE)
+                .medMorsAktivitet(MorsAktivitet.ARBEID)
+                .build())
+            .build();
+        uttaksperiode1.leggTilAktivitet(
+            UttakResultatPeriodeAktivitetEntitet.builder(uttaksperiode1, opprettArbeidstakerUttakAktivitet("123"))
+                .medTrekkonto(StønadskontoType.FELLESPERIODE)
+                .medTrekkdager(new Trekkdager(2))
+                //Mor 50% i arbeid
+                .medUtbetalingsgrad(new Utbetalingsgrad(50))
+                .medArbeidsprosent(BigDecimal.ZERO)
+                .build());
+
+        var uttaksperiode2 = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2020, Month.JULY, 3),
+            LocalDate.of(2020, Month.JULY, 10)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.FORELDREPENGER_FELLESPERIODE_TIL_FAR)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()
+                .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
+                .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE)
+                .medMorsAktivitet(MorsAktivitet.ARBEID)
+                .build())
+            .build();
+        uttaksperiode2.leggTilAktivitet(
+            UttakResultatPeriodeAktivitetEntitet.builder(uttaksperiode2, opprettArbeidstakerUttakAktivitet("123"))
+                .medTrekkonto(StønadskontoType.FELLESPERIODE)
+                .medTrekkdager(new Trekkdager(2))
+                //Mor 100% i arbeid
+                .medUtbetalingsgrad(Utbetalingsgrad.FULL)
+                .medArbeidsprosent(BigDecimal.ZERO)
+                .build());
+
+        var konvertetPeriode1 = VedtaksperioderHelper.konverter(uttaksperiode1);
+        assertThat(konvertetPeriode1.getDokumentasjonVurdering()).isNull();
+
+        var konvertetPeriode2 = VedtaksperioderHelper.konverter(uttaksperiode2);
+        assertThat(konvertetPeriode2.getDokumentasjonVurdering()).isEqualTo(uttaksperiode2.getPeriodeSøknad().orElseThrow().getDokumentasjonVurdering());
     }
 
     private UttakAktivitetEntitet opprettArbeidstakerUttakAktivitet(String arbeidsgiverIdentifikator) {
