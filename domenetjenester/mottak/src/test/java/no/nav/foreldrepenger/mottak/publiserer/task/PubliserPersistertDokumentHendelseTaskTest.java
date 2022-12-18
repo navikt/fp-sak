@@ -105,7 +105,7 @@ public class PubliserPersistertDokumentHendelseTaskTest extends EntityManagerAwa
         publiserPersistertDokumentHendelseTask.doTask(prosessTask);
 
         // Assert
-        verify(dialogHendelseProducer).sendJsonMedNøkkel(eq(REFERANSE), captor.capture());
+        verify(dialogHendelseProducer).sendJsonMedNøkkel(eq(AKTØR_ID.getId()), captor.capture());
         assertThat(captor.getValue()).contains("\"hendelse\" : \"INNTEKTSMELDING_NY\"");
         assertThat(captor.getValue()).contains("\"saksnummer\" : \"" + SAKSNUMMER.getVerdi() + "\"");
         assertThat(captor.getValue()).contains("\"startDato\" : \"" + STARTDATO.toString() + "\"");
