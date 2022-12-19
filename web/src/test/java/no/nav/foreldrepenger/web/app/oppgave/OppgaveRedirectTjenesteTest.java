@@ -36,8 +36,8 @@ public class OppgaveRedirectTjenesteTest {
     private final Saksnummer saksnummer = new Saksnummer("022");
 
     @BeforeEach
-    public void setLoadBalancerUrl() {
-        redirectFactory.setLoadBalancerUrl("https://erstatter.nav.no");
+    public void setRedirectBaseUrl() {
+        redirectFactory.setRedirectBaseUrl("https://erstatter.nav.no");
     }
 
     @Test
@@ -46,7 +46,7 @@ public class OppgaveRedirectTjenesteTest {
 
         var feilmelding = "Sak+kan+ikke+%C3%A5pnes%2C+da+referanse+mangler.";
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
-        assertThat(response.getLocation().toString()).isEqualTo("https://erstatter.nav.no/fpsak/#?errormessage=" + feilmelding);
+        assertThat(response.getLocation().toString()).isEqualTo("https://erstatter.nav.no/#?errormessage=" + feilmelding);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class OppgaveRedirectTjenesteTest {
         var response = tjeneste.doRedirect(new OppgaveIdDto("1"), new SaksnummerDto("2"));
         var feilmelding = "Det+finnes+ingen+sak+med+dette+saksnummeret%3A+2";
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
-        assertThat(response.getLocation().toString()).isEqualTo("https://erstatter.nav.no/fpsak/#?errormessage=" + feilmelding);
+        assertThat(response.getLocation().toString()).isEqualTo("https://erstatter.nav.no/#?errormessage=" + feilmelding);
     }
 
     @Test
@@ -74,7 +74,7 @@ public class OppgaveRedirectTjenesteTest {
         var response = tjeneste.doRedirect(new OppgaveIdDto("1"), null);
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
         assertThat(response.getLocation().toString())
-                .isEqualTo("https://erstatter.nav.no/fpsak/fagsak/" + saksnummer.getVerdi() + "/behandling/" + behandling.getUuid().toString() + "/?punkt=default&fakta=default");
+                .isEqualTo("https://erstatter.nav.no/fagsak/" + saksnummer.getVerdi() + "/behandling/" + behandling.getUuid().toString() + "/?punkt=default&fakta=default");
     }
 
     @Test
@@ -86,7 +86,7 @@ public class OppgaveRedirectTjenesteTest {
 
         var response = tjeneste.doRedirect(new OppgaveIdDto("1"), new SaksnummerDto(saksnummer));
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
-        assertThat(response.getLocation().toString()).isEqualTo("https://erstatter.nav.no/fpsak/fagsak/" + saksnummer.getVerdi() + "/");
+        assertThat(response.getLocation().toString()).isEqualTo("https://erstatter.nav.no/fagsak/" + saksnummer.getVerdi() + "/");
     }
 
     @Test
@@ -107,7 +107,7 @@ public class OppgaveRedirectTjenesteTest {
         var response = tjeneste.doRedirect(new OppgaveIdDto("1"), new SaksnummerDto(saksnummer));
         assertThat(response.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
         assertThat(response.getLocation().toString())
-                .isEqualTo("https://erstatter.nav.no/fpsak/fagsak/" + saksnummer.getVerdi() + "/behandling/" + behandling.getUuid().toString() + "/?punkt=default&fakta=default");
+                .isEqualTo("https://erstatter.nav.no/fagsak/" + saksnummer.getVerdi() + "/behandling/" + behandling.getUuid().toString() + "/?punkt=default&fakta=default");
     }
 
     @Test
@@ -118,7 +118,7 @@ public class OppgaveRedirectTjenesteTest {
 
         var responseSnr = tjeneste.doRedirect(null, new SaksnummerDto(saksnummer));
         assertThat(responseSnr.getStatus()).isEqualTo(Response.Status.TEMPORARY_REDIRECT.getStatusCode());
-        assertThat(responseSnr.getLocation().toString()).isEqualTo("https://erstatter.nav.no/fpsak/fagsak/22/");
+        assertThat(responseSnr.getLocation().toString()).isEqualTo("https://erstatter.nav.no/fagsak/22/");
 
     }
 }
