@@ -51,7 +51,7 @@ public class DialogHendelseProducer {
         var callId = MDCOperations.getCallId() != null ? MDCOperations.getCallId() : MDCOperations.generateCallId();
         var producerRecord = new ProducerRecord<>(topic, nøkkel, json);
         producerRecord.headers().add(MDCOperations.NAV_CALL_ID, callId.getBytes());
-        LOG.info("Sender vedtak med nøkkel {} på topic='{}'", nøkkel, topic);
+        LOG.info("Sender inntektsmelding på topic={}", topic);
         runProducerWithSingleJson(new ProducerRecord<>(topic, nøkkel, json));
     }
 
