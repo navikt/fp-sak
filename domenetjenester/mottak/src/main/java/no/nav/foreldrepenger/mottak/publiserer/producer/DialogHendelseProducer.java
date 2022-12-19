@@ -68,7 +68,7 @@ public class DialogHendelseProducer {
     }
 
     private IntegrasjonException kafkaPubliseringException(Exception e) {
-        return new IntegrasjonException("FP-HENDELSE-925469", "Uventet feil ved sending til Kafka, topic " + topic, e);
+        return new IntegrasjonException("FP-HENDELSE-925475", "Uventet feil ved sending til Kafka, topic " + topic, e);
     }
 
     private Properties getProperties(String bootstrapServers,
