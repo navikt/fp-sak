@@ -41,8 +41,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.InntektArbeidYtelseDto;
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.InntektArbeidYtelseDtoMapper;
+import no.nav.foreldrepenger.domene.arbeidsforhold.dto.AlleInntektsmeldingerDtoMapper;
+import no.nav.foreldrepenger.domene.arbeidsforhold.dto.IAYYtelseDto;
+import no.nav.foreldrepenger.domene.arbeidsforhold.dto.IayYtelseDtoMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.InntektsmeldingerDto;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
@@ -88,12 +89,13 @@ public class InntektArbeidYtelseRestTjeneste {
     public static final String ARBEIDSGIVERE_OPPLYSNINGER_PATH = BASE_PATH + ARBEIDSGIVERE_OPPLYSNINGER_PART_PATH; // NOSONAR TFP-2234
 
     private BehandlingRepository behandlingRepository;
-    private InntektArbeidYtelseDtoMapper dtoMapper;
+    private IayYtelseDtoMapper ytelseMapper;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private SvangerskapspengerRepository svangerskapspengerRepository;
+    private AlleInntektsmeldingerDtoMapper alleInntektsmeldingerMapper;
 
     private InntektArbeidYtelseTjeneste iayTjeneste;
 
@@ -103,49 +105,51 @@ public class InntektArbeidYtelseRestTjeneste {
 
     @Inject
     public InntektArbeidYtelseRestTjeneste(BehandlingRepository behandlingRepository,
-            InntektArbeidYtelseDtoMapper dtoMapper,
-            PersonopplysningTjeneste personopplysningTjeneste,
-            InntektArbeidYtelseTjeneste iayTjeneste,
-            ArbeidsgiverTjeneste arbeidsgiverTjeneste,
-            YtelseFordelingTjeneste ytelseFordelingTjeneste,
-            SvangerskapspengerRepository svangerskapspengerRepository,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                           IayYtelseDtoMapper ytelseMapper,
+                                           PersonopplysningTjeneste personopplysningTjeneste,
+                                           InntektArbeidYtelseTjeneste iayTjeneste,
+                                           ArbeidsgiverTjeneste arbeidsgiverTjeneste,
+                                           YtelseFordelingTjeneste ytelseFordelingTjeneste,
+                                           SvangerskapspengerRepository svangerskapspengerRepository,
+                                           SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                           AlleInntektsmeldingerDtoMapper alleInntektsmeldingerMapper) {
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.iayTjeneste = iayTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = behandlingRepository;
-        this.dtoMapper = dtoMapper;
+        this.ytelseMapper = ytelseMapper;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.svangerskapspengerRepository = svangerskapspengerRepository;
+        this.alleInntektsmeldingerMapper = alleInntektsmeldingerMapper;
     }
 
     @GET
     @Path(INNTEKT_ARBEID_YTELSE_PART_PATH)
     @Operation(description = "Hent informasjon om innhentet og avklart inntekter, arbeid og ytelser", summary = ("Returnerer info om innhentet og avklart inntekter/arbeid og ytelser for bruker, inkludert hva bruker har vedlagt søknad."), tags = "inntekt-arbeid-ytelse", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer InntektArbeidYtelseDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = InntektArbeidYtelseDto.class)))
+            @ApiResponse(responseCode = "200", description = "Returnerer InntektArbeidYtelseDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = IAYYtelseDto.class)))
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public InntektArbeidYtelseDto getInntektArbeidYtelser(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+    public IAYYtelseDto getInntektArbeidYtelser(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        return getInntektArbeidYtelserFraBehandling(behandling);
+        return getYtelserFraBehandling(behandling);
     }
 
-    private InntektArbeidYtelseDto getInntektArbeidYtelserFraBehandling(Behandling behandling) {
+    private IAYYtelseDto getYtelserFraBehandling(Behandling behandling) {
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
 
         if (erSkjæringstidspunktIkkeUtledet(skjæringstidspunkt)) {
             // Tilfelle papirsøknad før registrering
-            return new InntektArbeidYtelseDto();
+            return new IAYYtelseDto();
         }
 
         // finn annen part
         var annenPartAktørId = getAnnenPart(behandling.getId());
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         return iayTjeneste.finnGrunnlag(behandling.getId())
-            .map(iayg -> dtoMapper.mapFra(ref, iayg, annenPartAktørId))
-            .orElseGet(InntektArbeidYtelseDto::new);
+            .map(iayg -> ytelseMapper.mapFra(ref, iayg, annenPartAktørId))
+            .orElseGet(IAYYtelseDto::new);
     }
 
     private Optional<AktørId> getAnnenPart(Long behandlingId) {
@@ -168,7 +172,7 @@ public class InntektArbeidYtelseRestTjeneste {
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         return iayTjeneste.finnGrunnlag(behandling.getId())
-            .map(g -> dtoMapper.mapInntektsmeldinger(ref, g))
+            .map(g -> alleInntektsmeldingerMapper.mapInntektsmeldinger(ref, g))
             .orElseGet(() -> new InntektsmeldingerDto(List.of()));
     }
 

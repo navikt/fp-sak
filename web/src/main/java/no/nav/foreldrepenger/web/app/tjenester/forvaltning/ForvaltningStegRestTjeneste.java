@@ -98,18 +98,6 @@ public class ForvaltningStegRestTjeneste {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Fjern aktiviteter lagt til i opptjening", tags = "FORVALTNING-steg-hopp")
-    @Path("/fjern-opptjening-extra-aktivitet")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response fjerneAlleNyeAktiviteterFraOpptjening(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandlingId = getBehandling(dto).getId();
-        arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandlerOpptjening(behandlingId);
-
-        return Response.ok().build();
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Fjerner overstyring av familiehendelse og hopper tilbake til KOFAK", tags = "FORVALTNING-steg-hopp")
     @Path("/fjernFHValgHoppTilbake")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
