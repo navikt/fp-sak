@@ -4,6 +4,8 @@ package no.nav.foreldrepenger.mottak.publiserer.task;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.mottak.publiserer.producer.DialogHendelseProducer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +17,6 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendin
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
-import no.nav.foreldrepenger.mottak.publiserer.producer.DialogHendelseProducer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.hendelser.inntektsmelding.v1.InntektsmeldingV1;
@@ -39,10 +40,10 @@ public class PubliserPersistertDokumentHendelseTask extends GenerellProsessTask 
     }
 
     @Inject
-    public PubliserPersistertDokumentHendelseTask(FagsakRepository fagsakRepository,  // NOSONAR
-                                                      MottatteDokumentTjeneste mottatteDokumentTjeneste,
-                                                      InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                                      DialogHendelseProducer producer) { // NOSONAR
+    public PubliserPersistertDokumentHendelseTask(FagsakRepository fagsakRepository, // NOSONAR
+                                                  MottatteDokumentTjeneste mottatteDokumentTjeneste,
+                                                  InntektsmeldingTjeneste inntektsmeldingTjeneste,
+                                                  DialogHendelseProducer producer) { // NOSONAR
         super();
         this.fagsakRepository = fagsakRepository;
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
@@ -71,7 +72,7 @@ public class PubliserPersistertDokumentHendelseTask extends GenerellProsessTask 
                 .medSaksnummer(fagsak.getSaksnummer().getVerdi())
                 .build();
             var json = StandardJsonConfig.toJson(hendelse);
-            producer.sendJsonMedNøkkel(inntektsmelding.getKanalreferanse(), json);
+            producer.sendJsonMedNøkkel(data.getAktørId(), json);
         }));
     }
 }
