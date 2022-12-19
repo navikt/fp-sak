@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @BehandlingTypeRef
 @ApplicationScoped
 public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg {
+    private static final LocalDate VENTEFRIST_REGELENDRING = LocalDate.of(2023, 1, 3);
 
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
@@ -68,9 +69,9 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
 
         // For å fortsatt kunne teste saker påvirket av 8-41 settes kun prodsaker på vent
         var skalVentePåMuligLovendring = SkalVentePåRegelendring.kanPåvirkesAvRegelendring(input.getSkjæringstidspunktOpptjening(), input.getOpptjeningAktiviteter());
-        if (Environment.current().isProd() && skalVentePåMuligLovendring) {
+        if (Environment.current().isProd() && skalVentePåMuligLovendring && LocalDate.now().isBefore(VENTEFRIST_REGELENDRING)) {
             var ventepunkt = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.AUTO_VENT_PÅ_LOVENDRING_8_41,
-                Venteårsak.VENT_LOVENDRING_8_41, LocalDateTime.of(LocalDate.of(2023, 1, 3), LocalDateTime.now().toLocalTime()));
+                Venteårsak.VENT_LOVENDRING_8_41, LocalDateTime.of(VENTEFRIST_REGELENDRING, LocalDateTime.now().toLocalTime()));
             return BehandleStegResultat
                 .utførtMedAksjonspunktResultater(Collections.singletonList(ventepunkt));
         }
