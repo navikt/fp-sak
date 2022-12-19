@@ -52,7 +52,6 @@ public class SendInformasjonsbrevBatchTjenesteTest {
     private ProsessTaskTjeneste taskTjenesteMock;
 
     private SendInformasjonsbrevBatchTjeneste tjeneste;
-    private SendInformasjonsbrevOppholdBatchTjeneste tjenesteOpphold;
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -63,11 +62,8 @@ public class SendInformasjonsbrevBatchTjenesteTest {
     private LocalDate fom = LocalDate.now();
     private LocalDate tom = fom.plusDays(3);
     private LocalDate uttakFom = fom.minusWeeks(10);
-    LocalDate fomOpphold = LocalDate.of(2021, 1, 1);
-    LocalDate tomOpphold = LocalDate.of(2021, 1, 1).plusWeeks(5);
-    private LocalDate uttakFomOpphold = LocalDate.of(2021, 1, 1).minusWeeks(4);
+
     SendInformasjonsbrevBatchArguments batchArgs;
-    SendInformasjonsbrevBatchArguments batchArgsOpphold;
 
     @BeforeEach
     public void setUp() {
@@ -77,12 +73,7 @@ public class SendInformasjonsbrevBatchTjenesteTest {
         arguments.put(SendInformasjonsbrevBatchArguments.TOM_KEY, tom.format(ofPattern(DATE_PATTERN)));
         batchArgs = new SendInformasjonsbrevBatchArguments(arguments, 4);
 
-        tjenesteOpphold = new SendInformasjonsbrevOppholdBatchTjeneste(repository, taskTjenesteMock);
-        Map<String, String> argumentsOpphold = new HashMap<>();
-        argumentsOpphold.put(SendInformasjonsbrevBatchArguments.FOM_KEY, fomOpphold.format((ofPattern(DATE_PATTERN))));
-        argumentsOpphold.put(SendInformasjonsbrevBatchArguments.TOM_KEY, tomOpphold.format((ofPattern(DATE_PATTERN))));
-        batchArgsOpphold = new SendInformasjonsbrevBatchArguments(argumentsOpphold, 4);
-    }
+   }
 
     @Test
     public void skal_ikke_finne_saker_til_revurdering(EntityManager em) {
@@ -97,21 +88,6 @@ public class SendInformasjonsbrevBatchTjenesteTest {
         opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, uttakFom, false);
         var svar = tjeneste.launch(batchArgs);
         assertThat(svar).isEqualTo(SendInformasjonsbrevBatchTjeneste.BATCHNAVN + "-1");
-    }
-
-    @Test
-    public void skal_ikke_finne_saker_til_revurdering_med_opphold(EntityManager em) {
-        opprettRevurderingsKandidat(em, BehandlingStatus.UTREDES, uttakFom, true);
-        opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, uttakFom.minusWeeks(4), true);
-        var svar = tjenesteOpphold.launch(batchArgsOpphold);
-        assertThat(svar).isEqualTo(SendInformasjonsbrevOppholdBatchTjeneste.BATCHNAVN + "-0");
-    }
-
-    @Test
-    public void skal_finne_en_sak_til_revurdering_med_opphold(EntityManager em) {
-        opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, uttakFomOpphold, true);
-        var svar = tjenesteOpphold.launch(batchArgsOpphold);
-        assertThat(svar).isEqualTo(SendInformasjonsbrevOppholdBatchTjeneste.BATCHNAVN + "-1");
     }
 
     private Behandling opprettRevurderingsKandidat(EntityManager em, BehandlingStatus status, LocalDate uttakFom, boolean medOpphold) {

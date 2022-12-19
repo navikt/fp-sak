@@ -51,7 +51,6 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
             new BatchConfig(6, 48, AVSTEMMING, "fagomrade=FP, "),
             new BatchConfig(6, 49, AVSTEMMING, "fagomrade=FPREF, "),
             new BatchConfig(7, 3, "BVL008", ""), // Infobrev far - 7min spread
-            new BatchConfig(7, 10, "BVL009", ""), // Infobrev opphold far - 3 min spread
             new BatchConfig(7, 13, "BVL011", "") // Infobrev far påminnelse - 7min spread
     );
 

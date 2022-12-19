@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
@@ -120,70 +119,6 @@ public class InformasjonssakRepository {
         query.setParameter("restyper", INNVILGET_TYPER); //$NON-NLS-1$
         query.setParameter("seneretyper", SENERE_TYPER); //$NON-NLS-1$
         query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
-        return toInformasjonssakData(resultatList);
-    }
-
-    private static final String QUERY_INFORMASJONSBREV_OPPHOLD = """
-        select distinct fs.id, trunc(fs.opprettet_tid), anpa.aktoer_id, minfdato, beh.behandlende_enhet, beh.behandlende_enhet_navn from fagsak fs
-          join fagsak_relasjon fr on (fs.id in (fr.fagsak_en_id , fr.fagsak_to_id) and fr.aktiv='J' and fr.fagsak_to_id is null)
-          join behandling beh on beh.fagsak_id = fs.id
-          join behandling_resultat br on (br.behandling_id=beh.id and br.behandling_resultat_type in (:restyper))
-          join uttak_resultat ur on (ur.behandling_resultat_id=br.id and ur.aktiv='J')
-          join (select uttak_resultat_perioder_id urpid, min(fom) from uttak_resultat_periode urp
-                where periode_resultat_type=:uttakinnvilget and opphold_aarsak in (:oppholdsaarsaker)
-                group by uttak_resultat_perioder_id having min(fom) >= :fomdato and min(fom) <= :tomdato
-                ) on urpid=nvl(overstyrt_perioder_id, opprinnelig_perioder_id)
-          join gr_personopplysning grpo on (beh.id=grpo.behandling_id and grpo.aktiv='J')
-          join so_annen_part anpa on (grpo.so_annen_part_id=anpa.id and anpa.aktoer_id is not null)
-          join gr_familie_hendelse grfh on (beh.id=grfh.behandling_id and grfh.aktiv='J')
-          join (select familie_hendelse_id sfhid, min(foedsel_dato) minfdato from fh_uidentifisert_barn ub
-                where ub.doedsdato is null and ub.foedsel_dato <= :frittUttakDato group by familie_hendelse_id ) on sfhid=grfh.bekreftet_familie_hendelse_id
-        where beh.behandling_status in (:avsluttet)
-          and fs.ytelse_type = :foreldrepenger
-          and fs.bruker_rolle = :relrolle
-          and fs.til_infotrygd='N'
-          and not exists (select * from behandling bh1 join behandling_resultat br1 on br1.behandling_id=bh1.id
-                 where bh1.fagsak_id=beh.fagsak_id
-                   and br1.behandling_resultat_type in (:seneretyper)
-                   and br1.opprettet_tid>br.opprettet_tid and bh1.behandling_status in (:avsluttet) )
-          and not exists ( select * from behandling bh2 join gr_familie_hendelse grfh2 on (bh2.id=grfh2.behandling_id and grfh2.aktiv='J')
-                    join fh_uidentifisert_barn ub2 on (ub2.familie_hendelse_id in (grfh2.bekreftet_familie_hendelse_id, grfh2.overstyrt_familie_hendelse_id) and ub2.doedsdato is not null )
-                  where bh2.fagsak_id = beh.fagsak_id
-                     and grfh2.opprettet_tid > grfh.opprettet_tid )
-          and not exists (select * from fagsak fs1 join bruker bru1 on fs1.bruker_id=bru1.id
-                    join behandling beh1 on beh1.fagsak_id = fs1.id
-                    join behandling_arsak ba1 on ba1.behandling_id=beh1.id
-                  where bru1.aktoer_id=anpa.aktoer_id
-                    and ba1.behandling_arsak_type in (:infobrev)
-                    and fs1.opprettet_tid > fs.opprettet_tid )
-        """;
-
-
-    public List<InformasjonssakData> finnSakerMedMinsteInnvilgetOppholdperiodeInnenIntervall(LocalDate fom, LocalDate tom) {
-        /*
-         * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene: - Saker
-         * (Foreldrepenger, Mors sak, Ikke Stengt) med avsluttet behandling som har
-         * minst en innvilget oppholdsperiode i gitt intervall - Begrenset til ikke
-         * aleneomsorg - Begrenset til levende barn - Begrenset til at det er oppgitt
-         * annen part
-         */
-        var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
-                .collect(Collectors.toList());
-        var query = entityManager.createNativeQuery(QUERY_INFORMASJONSBREV_OPPHOLD);
-        query.setParameter("tomdato", tom); //$NON-NLS-1$
-        query.setParameter("fomdato", fom); //$NON-NLS-1$
-        query.setParameter("uttakinnvilget", PeriodeResultatType.INNVILGET.getKode()); //$NON-NLS-1$
-        query.setParameter("foreldrepenger", FagsakYtelseType.FORELDREPENGER.getKode()); //$NON-NLS-1$
-        query.setParameter("relrolle", RelasjonsRolleType.MORA.getKode()); //$NON-NLS-1$
-        query.setParameter("infobrev", INFOBREV_TYPER); //$NON-NLS-1$
-        query.setParameter("restyper", INNVILGET_TYPER); //$NON-NLS-1$
-        query.setParameter("seneretyper", SENERE_TYPER); //$NON-NLS-1$
-        query.setParameter("frittUttakDato", LocalDate.of(2021, 10, 1)); //$NON-NLS-1$
-        query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
-        query.setParameter("oppholdsaarsaker", List.of(OppholdÅrsak.KVOTE_FELLESPERIODE_ANNEN_FORELDER.getKode(),
-                OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER.getKode(), OppholdÅrsak.KVOTE_FORELDREPENGER_ANNEN_FORELDER.getKode()));
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return toInformasjonssakData(resultatList);
@@ -358,6 +293,4 @@ public class InformasjonssakRepository {
         List<Object[]> resultatList = query.getResultList();
         return toOverlappData(resultatList);
     }
-
-
 }

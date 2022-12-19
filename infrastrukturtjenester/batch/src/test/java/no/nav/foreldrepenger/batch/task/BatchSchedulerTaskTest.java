@@ -39,7 +39,7 @@ public class BatchSchedulerTaskTest {
                 .collect(Collectors.toList());
         if (props.size() > 1) {
             System.out.println(matches);
-            assertThat(matches).hasSize(8); // Antall dagsensitive batcher.
+            assertThat(matches).hasSize(7); // Antall dagsensitive batcher.
         }
     }
 
