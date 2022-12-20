@@ -14,7 +14,9 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.UriBuilder;
 
-import no.nav.foreldrepenger.kontrakter.simulering.request.OppdragskontrollDto;
+import no.nav.foreldrepenger.kontrakter.fpwsproxy.error.FeilDto;
+import no.nav.foreldrepenger.kontrakter.fpwsproxy.error.FeilType;
+import no.nav.foreldrepenger.kontrakter.fpwsproxy.simulering.request.OppdragskontrollDto;
 import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.ManglerTilgangException;
@@ -85,17 +87,5 @@ public class FpOppdragRestKlient {
         } catch (Exception e) {
             return false;
         }
-    }
-
-    // TODO: Konsolider FeilDto fra web modul. Flytt til felles? kontrakter?
-    public record FeilDto(FeilType type) {
-    }
-
-    public enum FeilType {
-        MANGLER_TILGANG_FEIL,
-        TOMT_RESULTAT_FEIL,
-        OPPDRAG_FORVENTET_NEDETID,
-        GENERELL_FEIL,
-        ;
     }
 }
