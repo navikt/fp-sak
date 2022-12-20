@@ -348,7 +348,7 @@ public class FamilieHendelseRepository {
     /*
      * Til Forvaltningsbruk der det er oppgitt feil termindato i søknad
      */
-    public int oppdaterGjeldendeTermindatoForBehandling(Long behandlingId, LocalDate termindato, String begrunnelse) {
+    public int oppdaterGjeldendeTermindatoForBehandling(Long behandlingId, LocalDate termindato, LocalDate utstedtdato, String begrunnelse) {
         var fhIds = new HashSet<>();
         var grunnlag = hentAggregat(behandlingId);
 
@@ -364,8 +364,9 @@ public class FamilieHendelseRepository {
         if (fhIds.isEmpty())
             return 0;
         var antall = entityManager.createNativeQuery(
-            "UPDATE FH_TERMINBEKREFTELSE SET TERMINDATO = :termin, endret_av = :begr WHERE FAMILIE_HENDELSE_ID in :fhid")
+            "UPDATE FH_TERMINBEKREFTELSE SET TERMINDATO = :termin, utstedt_dato = :utstedt, endret_av = :begr WHERE FAMILIE_HENDELSE_ID in :fhid")
             .setParameter("termin", termindato)
+            .setParameter("utstedt", utstedtdato)
             .setParameter("fhid", fhIds)
             .setParameter("begr", begrunnelse)
             .executeUpdate(); //$NON-NLS-1$
