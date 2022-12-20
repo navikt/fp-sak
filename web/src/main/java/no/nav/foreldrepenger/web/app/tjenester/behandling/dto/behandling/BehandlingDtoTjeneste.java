@@ -437,18 +437,20 @@ public class BehandlingDtoTjeneste {
                     dto.leggTil(get(UttakRestTjeneste.RESULTAT_SVANGERSKAPSPENGER_PATH, "uttaksresultat-svangerskapspenger", uuidDto));
                 }
             } else {
-                var harSattEndringsdato = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
+                var yfAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId());
+                var harSattEndringsdato = yfAggregat
                     .flatMap(YtelseFordelingAggregat::getAvklarteDatoer).map(AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato).isPresent();
                 dto.setHarSattEndringsdato(harSattEndringsdato);
-                if (!kontrollerAktivitetskravDtoTjeneste.lagDtos(uuidDto).isEmpty()) {
-                    dto.leggTil(get(UttakRestTjeneste.KONTROLLER_AKTIVTETSKRAV_PATH, "uttak-kontroller-aktivitetskrav", uuidDto));
-                }
-                if (!dokumentasjonVurderingBehovDtoTjeneste.lagDtos(uuidDto).isEmpty()) {
-                    dto.leggTil(get(UttakRestTjeneste.VURDER_DOKUMENTASJON_PATH, "uttak-vurder-dokumentasjon", uuidDto));
-                }
-                if (!faktaUttakPeriodeDtoTjeneste.lagDtos(uuidDto).isEmpty()
-                    || behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.FAKTA_UTTAK_INGEN_PERIODER)) {
-                    dto.leggTil(get(UttakRestTjeneste.KONTROLLER_FAKTA_PERIODER_V2_PATH, "uttak-kontroller-fakta-perioder-v2", uuidDto));
+                if (yfAggregat.isPresent()) {
+                    if (!kontrollerAktivitetskravDtoTjeneste.lagDtos(uuidDto).isEmpty()) {
+                        dto.leggTil(get(UttakRestTjeneste.KONTROLLER_AKTIVTETSKRAV_PATH, "uttak-kontroller-aktivitetskrav", uuidDto));
+                    }
+                    if (!dokumentasjonVurderingBehovDtoTjeneste.lagDtos(uuidDto).isEmpty()) {
+                        dto.leggTil(get(UttakRestTjeneste.VURDER_DOKUMENTASJON_PATH, "uttak-vurder-dokumentasjon", uuidDto));
+                    }
+                    if (!faktaUttakPeriodeDtoTjeneste.lagDtos(uuidDto).isEmpty() || behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.FAKTA_UTTAK_INGEN_PERIODER)) {
+                        dto.leggTil(get(UttakRestTjeneste.KONTROLLER_FAKTA_PERIODER_V2_PATH, "uttak-kontroller-fakta-perioder-v2", uuidDto));
+                    }
                 }
                 var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
                 var stønadskontoberegning = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())
