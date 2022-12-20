@@ -30,14 +30,21 @@ public class SaksnummerTermindatoDto implements AbacDto {
     @Pattern(regexp = DATO_PATTERN)
     private String termindato;
 
+    @NotNull
+    @Parameter(description = "Utstedt dato (YYYY-MM-DD)")
+    @QueryParam("utstedtdato")
+    @Pattern(regexp = DATO_PATTERN)
+    private String utstedtdato;
+
     @Parameter(description = "Begrunnelse, fx FAGSYSTEM-nr")
     @FormParam("begrunnelse")
     @Pattern(regexp = FRITEKST)
     private String begrunnelse;
 
-    public SaksnummerTermindatoDto(@NotNull String saksnummer, @NotNull String termindato, String begrunnelse) {
+    public SaksnummerTermindatoDto(@NotNull String saksnummer, @NotNull String termindato, @NotNull String utstedtdato, String begrunnelse) {
         this.saksnummer = saksnummer;
         this.termindato = termindato;
+        this.utstedtdato = utstedtdato;
         this.begrunnelse = begrunnelse;
     }
 
@@ -56,6 +63,10 @@ public class SaksnummerTermindatoDto implements AbacDto {
 
     public LocalDate getTermindato() {
         return LocalDate.parse(termindato);
+    }
+
+    public LocalDate getUtstedtdato() {
+        return LocalDate.parse(utstedtdato);
     }
 
     public String getBegrunnelse() {

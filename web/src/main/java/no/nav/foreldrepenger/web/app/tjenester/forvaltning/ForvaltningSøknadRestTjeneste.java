@@ -75,7 +75,7 @@ public class ForvaltningSøknadRestTjeneste {
                 .filter(SpesialBehandling::erIkkeSpesialBehandling)
                 .findFirst().orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
         var antall = familieHendelseRepository.oppdaterGjeldendeTermindatoForBehandling(behandling.getId(), dto.getTermindato(),
-                dto.getBegrunnelse());
+                dto.getUtstedtdato(), dto.getBegrunnelse());
 
         return Response.ok(antall).build();
     }
@@ -96,6 +96,7 @@ public class ForvaltningSøknadRestTjeneste {
         var hendelsebuilder = familieHendelseRepository.opprettBuilderFor(behandling);
         var terminbuilder = hendelsebuilder.getTerminbekreftelseBuilder()
             .medTermindato(dto.getTermindato())
+            .medUtstedtDato(dto.getUtstedtdato())
             .medNavnPå(dto.getBegrunnelse());
         familieHendelseRepository.lagre(behandling, hendelsebuilder.medTerminbekreftelse(terminbuilder));
 
