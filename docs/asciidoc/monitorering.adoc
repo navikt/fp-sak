@@ -28,7 +28,7 @@ Utføring av skriveoperasjon. Det logges brukerident for brukeren, hvilken skriv
 
 |/var/log/apps/<appnavn>_sporing.log
 
-|Sikkerhetslogg |NB: Håndteres kun av OpenAM
+|Sikkerhetslogg |
 
 Sikkerhetsrelatert informasjon: pålogging av bruker, endring av tilgang, forsøk å få tilgang etc
 |/var/log/apps/<appnavn>_sikkerhet.log

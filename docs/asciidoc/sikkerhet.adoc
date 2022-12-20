@@ -146,7 +146,6 @@ image::https://confluence.adeo.no/rest/gliffy/1.0/embeddedDiagrams/727acb43-794a
 
 === Beskrivelse av intern single sign on
 Intern single sign on baserer seg på følgende:
-* Kerberos/SPNEGO-pålogging mot OpenAM
 * http://openid.net/specs/openid-connect-core-1_0.html[OpenID Connect Core 1.0], spesifikt brukes Authorization Code flow. OpenID Connect bygger på toppen av OAuth 2.0 (RFC-6749).
 * SAML-token brukes mot 3.generasjons tjenester. SAML-token hentes fra STS på Datapower ved å sende OIDC-token dit.
 
@@ -158,26 +157,17 @@ image::https://confluence.adeo.no/rest/gliffy/1.0/embeddedDiagrams/edc1c590-b2ac
 - Når det er klart at serveren har et gyldig token fra brukeren, vil den gjennom sin egen PEP spørre PDP om aktuell operasjon er tillat å gjennomføre for brukeren. Dersom det ikke lar seg gjøre å få et gyldig token, skal serveren avbryte forespørselen umiddelbart.
 - PDP vil da svare ja eller nei. Dersom aktuell operasjon ikke er lovlig, skal serveren avbryte forespørselsen umiddelbart.
 1. Håndtering av manglende OIDC-token
-- Serveren lager en authorization request og sender denne til OpenAM ved å sende en redirect av nettleseren til OpenAMs påloggingsside
-- Brukeren blir automatisk logget på med kerberos, alternativt oppgir brukernavn og passord.
-- OpenAM svarer med en authorization_code, som den sender til serveren ved å gjøre redirect av nettleseren
-- Serveren sender authorization_code til OpenAM
-- Serveren får tilbake et OIDC-token og et refresh-token. Både OIDC-token og refresh-token settes som http-only cookie i nettleseren.
+- Sender 401
 1. Kall til andre REST-tjenester
-- OIDC sendes med, slik at neste tjeneste kan gjøre sikkerhetssjekker
+- OIDC sendes med i auth-header, evt etter OBO, slik at neste tjeneste kan gjøre sikkerhetssjekker
 1. Kall til 3.generasjons webtjenester
 - OIDC sendes til Secure Token Service (STS) for å byttes til et SAML-token
 - SAML dyttes inn SOAP-meldingen som så sendes til web-service.
 1. Håndtering av utløpt eller ikke-validerende OIDC-token
-- Dersom det finnes et refresh-token, sendes det til OpenAM.
-- OpenAM sender tilbake et nytt OIDC-token dersom refresh-tokenet er gyldig.
+- Sender 401
 
 === Flyt av tokens og autentiseringsinformasjon
 image::https://confluence.adeo.no/rest/gliffy/1.0/embeddedDiagrams/e72e3607-6814-48a1-9a50-3554e9eb7cc7.png[Autentisering,opts=interactive,height=337,width=735]
-
-=== Sertifikathåndtering
-Applikasjonen trenger sertifikatet som OpenAM benytter for å signere OIDC. Dette henter
-applikasjonen fra OpenAM ved å gjøre HTTP-kall til riktig side.
 
 === Oppsett av web.xml
 I web.xml settes det opp hvilke sider som er beskyttet og hvilke sider som er åpne for alle.
