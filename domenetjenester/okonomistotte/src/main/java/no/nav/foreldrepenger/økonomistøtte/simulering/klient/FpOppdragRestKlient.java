@@ -14,7 +14,7 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.UriBuilder;
 
-import no.nav.foreldrepenger.kontrakter.simulering.request.OppdragskontrollDto;
+import no.nav.foreldrepenger.kontrakter.fpwsproxy.simulering.request.OppdragskontrollDto;
 import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.ManglerTilgangException;

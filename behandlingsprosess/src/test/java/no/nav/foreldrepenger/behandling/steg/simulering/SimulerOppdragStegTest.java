@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområ
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.kontrakter.simulering.request.OppdragskontrollDto;
+import no.nav.foreldrepenger.kontrakter.fpwsproxy.simulering.request.OppdragskontrollDto;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlient;
