@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 
-@JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG_KODE)
+@JsonTypeName(AksjonspunktKodeDefinisjon.AVKLAR_LØPENDE_OMSORG)
 public class BekreftFaktaForOmsorgVurderingDto extends BekreftetAksjonspunktDto {
 
     @NotNull

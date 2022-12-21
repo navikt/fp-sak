@@ -54,6 +54,7 @@ public enum BehandlingStegType implements Kodeverdi {
     FORESLÅ_BESTEBEREGNING("FORS_BESTEBEREGNING", "Foreslå besteberegning", UTREDES),
     KONTROLLER_OMSORG_RETT("KONTROLLER_OMSORG_RETT", "Kontroller aleneomsorg og rett", UTREDES),
     VULOMED("VULOMED", "Vurder løpende medlemskap", UTREDES), // Hvorfor kun FP ?
+    FAKTA_LØPENDE_OMSORG("FAKTA_LØPENDE_OMSORG", "Fakta om omsorg", UTREDES),
     GRUNNLAG_UTTAK("GRUNNLAG_UTTAK", "Etabler grunnlag for uttak", UTREDES),
     KONTROLLER_FAKTA_UTTAK("KOFAKUT", "Kontroller fakta for uttak", UTREDES),
     KONTROLLER_AKTIVITETSKRAV("KONTROLLER_AKTIVITETSKRAV", "Kontroller aktivitetskrav", UTREDES),

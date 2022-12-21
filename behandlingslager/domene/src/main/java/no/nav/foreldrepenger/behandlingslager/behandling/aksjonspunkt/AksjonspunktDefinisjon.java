@@ -202,9 +202,9 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG_KODE, AksjonspunktType.MANUELL,
             "Manuell kontroll av om bruker har aleneomsorg", BehandlingStegType.KONTROLLER_OMSORG_RETT, VurderingspunktType.UT, UTEN_VILKÅR,
             SkjermlenkeType.FAKTA_OMSORG_OG_RETT, ENTRINN, EnumSet.of(FP)),
-    MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG(
-            AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG_KODE, AksjonspunktType.MANUELL, "Manuell kontroll av om bruker har omsorg",
-            BehandlingStegType.KONTROLLER_FAKTA_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_FOR_OMSORG, ENTRINN, EnumSet.of(FP)),
+    AVKLAR_LØPENDE_OMSORG(
+            AksjonspunktKodeDefinisjon.AVKLAR_LØPENDE_OMSORG, AksjonspunktType.MANUELL, "Manuell kontroll av om bruker har omsorg",
+            BehandlingStegType.FAKTA_LØPENDE_OMSORG, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_FOR_OMSORG, ENTRINN, EnumSet.of(FP)),
     AUTOMATISK_MARKERING_AV_UTENLANDSSAK(
             AksjonspunktKodeDefinisjon.AUTOMATISK_MARKERING_AV_UTENLANDSSAK_KODE, AksjonspunktType.MANUELL,
             "Innhent dokumentasjon fra utenlandsk trygdemyndighet",
