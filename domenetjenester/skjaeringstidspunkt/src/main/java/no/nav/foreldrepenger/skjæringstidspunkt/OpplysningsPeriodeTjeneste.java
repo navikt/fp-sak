@@ -8,8 +8,8 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
-import no.nav.vedtak.exception.TekniskException;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class OpplysningsPeriodeTjeneste {
@@ -68,7 +68,7 @@ public class OpplysningsPeriodeTjeneste {
     private SimpleLocalDateInterval beregning(Long behandlingId, FagsakYtelseType ytelseType, boolean tilOgMedIdag) {
         final var skjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
         if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
-            return beregnIntervalFP(skjæringstidspunkt, tilOgMedIdag);
+            return beregnIntervalFP(behandlingId, skjæringstidspunkt, tilOgMedIdag);
         }
         if (FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
             return beregnIntervalES(skjæringstidspunkt, tilOgMedIdag);
@@ -83,8 +83,10 @@ public class OpplysningsPeriodeTjeneste {
         return beregnInterval(skjæringstidspunkt.minus(periodeFørES), skjæringstidspunkt.plus(periodeEtterES), tilOgMedIdag);
     }
 
-    private SimpleLocalDateInterval beregnIntervalFP(LocalDate skjæringstidspunkt, boolean tilOgMedIdag) {
-        return beregnInterval(skjæringstidspunkt.minus(periodeFørFP), skjæringstidspunkt.plus(periodeEtterFP), tilOgMedIdag);
+    private SimpleLocalDateInterval beregnIntervalFP(Long behandlingId, LocalDate skjæringstidspunkt, boolean tilOgMedIdag) {
+        var intervall = beregnInterval(skjæringstidspunkt.minus(periodeFørFP), skjæringstidspunkt.plus(periodeEtterFP), tilOgMedIdag);
+        // Ekstra padding der man begynner sent ift familiehendelsedato
+        return skjæringstidspunktTjeneste.vurderOverstyrtStartdatoForRegisterInnhenting(behandlingId, intervall);
     }
 
     private SimpleLocalDateInterval beregnIntervalSVP(LocalDate skjæringstidspunkt, boolean tilOgMedIdag) {

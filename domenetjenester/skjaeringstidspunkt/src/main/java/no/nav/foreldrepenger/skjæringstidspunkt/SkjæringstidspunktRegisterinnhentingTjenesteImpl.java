@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 
 /** Brukes som factory for å gi spesifikk tjeneste avh. av ytelse. */
 public class SkjæringstidspunktRegisterinnhentingTjenesteImpl implements SkjæringstidspunktRegisterinnhentingTjeneste {
@@ -46,6 +47,13 @@ public class SkjæringstidspunktRegisterinnhentingTjenesteImpl implements Skjær
         }
         throw new IllegalStateException("Utvikler-feil: har ikke " + SkjæringstidspunktRegisterinnhentingTjeneste.class.getName() + " for behandling "
             + behandlingId + ", ytelseType=" + ytelseType);
+    }
+
+    @Override
+    public SimpleLocalDateInterval vurderOverstyrtStartdatoForRegisterInnhenting(Long behandlingId, SimpleLocalDateInterval intervall) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var ytelseType = behandling.getFagsakYtelseType();
+        return FagsakYtelseType.FORELDREPENGER.equals(ytelseType) ? foreldrepenger.vurderOverstyrtStartdatoForRegisterInnhenting(behandlingId, intervall) : intervall;
     }
 
 }
