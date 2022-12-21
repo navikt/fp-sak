@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.nokkeltall;
+package no.nav.foreldrepenger.web.app.tjenester.los;
 
 import java.util.List;
 
