@@ -30,17 +30,15 @@ public class RegelmodellSøknaderMapper {
 
     public List<Søknad> hentSøknader(UttakInput input) {
         SvangerskapspengerGrunnlag svpInput = input.getYtelsespesifiktGrunnlag();
-        var svpGrunnlagOptional = svpInput.getGrunnlagEntitet();
-        if (svpGrunnlagOptional.isEmpty()) {
-            return List.of();
-        }
         var termindato = finnTermindato(svpInput);
-        return lagSøknader(input, svpGrunnlagOptional.get(), termindato);
+        return svpInput.getGrunnlagEntitet()
+            .map(gr -> lagSøknader(input, gr, termindato))
+            .orElse(List.of());
     }
 
     private LocalDate finnTermindato(SvangerskapspengerGrunnlag svpGrunnlag) {
-        var termindato = svpGrunnlag.getFamilieHendelse().getTermindato();
-        return termindato.orElseThrow(() -> new IllegalStateException("Det skal alltid være termindato på svangerskapspenger søknad."));
+        return svpGrunnlag.getFamilieHendelse().getTermindato()
+            .orElseThrow(() -> new IllegalStateException("Det skal alltid være termindato på svangerskapspenger søknad."));
     }
 
     private List<Søknad> lagSøknader(UttakInput input, SvpGrunnlagEntitet svpGrunnlag, LocalDate termindato) {

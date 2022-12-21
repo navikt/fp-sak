@@ -18,6 +18,7 @@ public class FastsettUttaksresultatTjeneste {
     private AvklarteDatoerTjeneste avklarteDatoerTjeneste;
     private UttaksresultatMapper uttaksresultatMapper;
     private RegelmodellSøknaderMapper regelmodellSøknaderMapper;
+    private InngangsvilkårSvpBygger inngangsvilkårSvpBygger;
     private final FastsettPerioderTjeneste fastsettPerioderTjeneste = new FastsettPerioderTjeneste();
 
     public FastsettUttaksresultatTjeneste() {
@@ -28,22 +29,25 @@ public class FastsettUttaksresultatTjeneste {
     public FastsettUttaksresultatTjeneste(UttakRepositoryProvider behandlingRepositoryProvider,
                                           AvklarteDatoerTjeneste avklarteDatoerTjeneste,
                                           UttaksresultatMapper uttaksresultatMapper,
-                                          RegelmodellSøknaderMapper regelmodellSøknaderMapper) {
+                                          RegelmodellSøknaderMapper regelmodellSøknaderMapper,
+                                          InngangsvilkårSvpBygger inngangsvilkårSvpBygger) {
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.svangerskapspengerUttakResultatRepository = behandlingRepositoryProvider.getSvangerskapspengerUttakResultatRepository();
         this.avklarteDatoerTjeneste = avklarteDatoerTjeneste;
         this.uttaksresultatMapper = uttaksresultatMapper;
         this.regelmodellSøknaderMapper = regelmodellSøknaderMapper;
+        this.inngangsvilkårSvpBygger = inngangsvilkårSvpBygger;
     }
 
     public SvangerskapspengerUttakResultatEntitet fastsettUttaksresultat(UttakInput input) {
-        var nyeSøknader = regelmodellSøknaderMapper.hentSøknader(input);
-        var avklarteDatoer = avklarteDatoerTjeneste.finn(input);
-
-        var uttaksperioder = fastsettPerioderTjeneste.fastsettePerioder(nyeSøknader, avklarteDatoer);
-
         var behandlingId = input.getBehandlingReferanse().behandlingId();
         var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
+        var nyeSøknader = regelmodellSøknaderMapper.hentSøknader(input);
+        var avklarteDatoer = avklarteDatoerTjeneste.finn(input);
+        var inngangsvilkår = inngangsvilkårSvpBygger.byggInngangsvilårSvp(behandlingsresultat.getVilkårResultat());
+
+        var uttaksperioder = fastsettPerioderTjeneste.fastsettePerioder(nyeSøknader, avklarteDatoer, inngangsvilkår);
+
         var svangerskapspengerUttakResultatEntitet = uttaksresultatMapper.tilEntiteter(behandlingsresultat, uttaksperioder);
         svangerskapspengerUttakResultatRepository.lagre(behandlingId, svangerskapspengerUttakResultatEntitet);
         return svangerskapspengerUttakResultatEntitet;
