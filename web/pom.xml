@@ -52,7 +52,10 @@
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>fp-feed-vedtak-tjenestespesifikasjon</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>no.nav.foreldrepenger.kontrakter.topics</groupId>
+            <artifactId>hendelser-behandling</artifactId>
+        </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>abonnent-v2</artifactId>
