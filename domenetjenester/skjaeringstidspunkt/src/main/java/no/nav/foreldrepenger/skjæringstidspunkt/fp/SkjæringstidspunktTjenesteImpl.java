@@ -33,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -90,6 +91,18 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         final var familieHendelseAggregat = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
 
         return familieHendelseAggregat.map(utlederUtils::utledSkjæringstidspunktRegisterinnhenting).orElse(LocalDate.now());
+    }
+
+    @Override
+    public SimpleLocalDateInterval vurderOverstyrtStartdatoForRegisterInnhenting(Long behandlingId, SimpleLocalDateInterval intervall) {
+        var overstyrtStartdato = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
+            .flatMap(YtelseFordelingAggregat::getAvklarteDatoer)
+            .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato).orElse(null);
+        if (overstyrtStartdato != null && intervall.getTomDato().isBefore(overstyrtStartdato.plusYears(1))) {
+            return SimpleLocalDateInterval.fraOgMedTomNotNull(intervall.getFomDato(), overstyrtStartdato.plusYears(1));
+        } else {
+            return intervall;
+        }
     }
 
     @Override
