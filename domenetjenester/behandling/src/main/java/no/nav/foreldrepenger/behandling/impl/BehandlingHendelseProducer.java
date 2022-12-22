@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.publiserer.producer;
+package no.nav.foreldrepenger.behandling.impl;
 
 import java.util.Properties;
 
@@ -23,30 +23,30 @@ import no.nav.vedtak.exception.IntegrasjonException;
 
 
 @ApplicationScoped
-public class DialogHendelseProducer {
+public class BehandlingHendelseProducer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DialogHendelseProducer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BehandlingHendelseProducer.class);
     private static final Environment ENV = Environment.current();
     private static final boolean IS_DEPLOYMENT = ENV.isProd() || ENV.isDev();
 
     private Producer<String, String> producer;
     private String topic;
 
-    public DialogHendelseProducer() {
+    public BehandlingHendelseProducer() {
     }
 
     @Inject
-    public DialogHendelseProducer(@KonfigVerdi("kafka.inntektsmelding.innsendinghendelse.topic") String topic,
-                                  @KonfigVerdi("KAFKA_BROKERS") String bootstrapServers,
-                                  @KonfigVerdi("KAFKA_TRUSTSTORE_PATH") String trustStorePath,
-                                  @KonfigVerdi("KAFKA_KEYSTORE_PATH") String keyStoreLocation,
-                                  @KonfigVerdi("KAFKA_CREDSTORE_PASSWORD") String credStorePassword) {
+    public BehandlingHendelseProducer(@KonfigVerdi(value = "kafka.behandlinghendelse.topic", defaultVerdi = "teamforeldrepenger.behandling-hendelse-v1") String topic,
+                                      @KonfigVerdi("KAFKA_BROKERS") String bootstrapServers,
+                                      @KonfigVerdi("KAFKA_TRUSTSTORE_PATH") String trustStorePath,
+                                      @KonfigVerdi("KAFKA_KEYSTORE_PATH") String keyStoreLocation,
+                                      @KonfigVerdi("KAFKA_CREDSTORE_PASSWORD") String credStorePassword) {
         this.topic = topic;
         this.producer = new KafkaProducer<>(getProperties(bootstrapServers, trustStorePath, keyStoreLocation, credStorePassword));
     }
 
     public void sendJsonMedNøkkel(String nøkkel, String json) {
-        LOG.info("Sender inntektsmelding på topic={}", topic);
+        LOG.info("Sender vedtak med nøkkel {} på topic='{}'", nøkkel, topic);
         runProducerWithSingleJson(new ProducerRecord<>(topic, nøkkel, json));
     }
 
