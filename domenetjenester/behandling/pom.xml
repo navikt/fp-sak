@@ -43,6 +43,10 @@
             <artifactId>fp-topics-behandlingsprosess</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.nav.foreldrepenger.kontrakter.topics</groupId>
+            <artifactId>hendelser-behandling</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
         </dependency>

@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.impl;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +18,7 @@ import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.felles.integrasjon.kafka.BehandlingProsessEventDto;
 import no.nav.vedtak.felles.integrasjon.kafka.EventHendelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -26,6 +26,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class BehandlingskontrollEventObserver {
+
+    private static final boolean IS_PROD = Environment.current().isProd();
 
     private static final Logger LOG = LoggerFactory.getLogger(BehandlingskontrollEventObserver.class);
 
@@ -82,18 +84,30 @@ public class BehandlingskontrollEventObserver {
     }
 
     private ProsessTaskData opprettProsessTask(Long behandlingId, EventHendelse eventHendelse) {
-        var taskData = ProsessTaskData.forProsessTask(PubliserEventTask.class);
-        taskData.setCallIdFraEksisterende();
-        taskData.setPrioritet(90);
+        if (IS_PROD) {
+            var taskData = ProsessTaskData.forProsessTask(PubliserEventTask.class);
+            taskData.setCallIdFraEksisterende();
+            taskData.setPrioritet(90);
 
-        var behandling = behandlingRepository.finnUnikBehandlingForBehandlingId(behandlingId);
+            var behandling = behandlingRepository.finnUnikBehandlingForBehandlingId(behandlingId);
 
-        var behandlingProsessEventDto = getProduksjonstyringEventDto(eventHendelse, behandling.get());
+            var behandlingProsessEventDto = getProduksjonstyringEventDto(eventHendelse, behandling.get());
 
-        var json = StandardJsonConfig.toJson(behandlingProsessEventDto);
-        taskData.setPayload(json);
-        taskData.setProperty(PubliserEventTask.PROPERTY_KEY, behandlingId.toString());
-        return taskData;
+            var json = StandardJsonConfig.toJson(behandlingProsessEventDto);
+            taskData.setPayload(json);
+            taskData.setProperty(PubliserEventTask.PROPERTY_KEY, behandlingId.toString());
+            return taskData;
+        } else {
+            var behandling = behandlingRepository.hentBehandling(behandlingId);
+            var hendelseBehandling = EventHendelse.AKSJONSPUNKT_HAR_ENDRET_BEHANDLENDE_ENHET.equals(eventHendelse) ?
+                HendelseForBehandling.ENHET : ( EventHendelse.BEHANDLINGSKONTROLL_EVENT.equals(eventHendelse) ? HendelseForBehandling.ANNET : HendelseForBehandling.AKSJONSPUNKT) ;
+            var prosessTaskData = ProsessTaskData.forProsessTask(PubliserBehandlingHendelseTask.class);
+            prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+            prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, hendelseBehandling.name());
+            prosessTaskData.setCallIdFraEksisterende();
+            prosessTaskData.setPrioritet(90);
+            return prosessTaskData;
+        }
     }
 
     private BehandlingProsessEventDto getProduksjonstyringEventDto(EventHendelse eventHendelse, Behandling behandling) {
