@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 public class BekreftOmsorgOppdatererTest extends EntityManagerAwareTest {
 
-    private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG;
+    private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.AVKLAR_LØPENDE_OMSORG;
 
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
 

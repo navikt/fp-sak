@@ -105,7 +105,7 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String MANUELL_VURDERING_AV_SØKNADSFRIST_KODE = "5043";
 
-    public static final String MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG_KODE = "5061";
+    public static final String AVKLAR_LØPENDE_OMSORG = "5061";
 
     public static final String MANUELL_KONTROLL_AV_BESTEBEREGNING_KODE = "5062";
 

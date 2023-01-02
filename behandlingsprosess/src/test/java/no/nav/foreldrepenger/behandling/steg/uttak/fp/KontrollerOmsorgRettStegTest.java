@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -36,13 +35,11 @@ import no.nav.foreldrepenger.domene.uttak.fakta.OmsorgRettUttakTjeneste;
 @CdiDbAwareTest
 public class KontrollerOmsorgRettStegTest {
 
-    private static AktørId FAR_AKTØR_ID = AktørId.dummy();
+    private static final AktørId FAR_AKTØR_ID = AktørId.dummy();
 
     private Behandling behandling;
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
-    @Inject
-    private BehandlingRepository behandlingRepository;
 
     @Inject
     private RyddOmsorgRettTjeneste ryddOmsorgRettTjeneste;
