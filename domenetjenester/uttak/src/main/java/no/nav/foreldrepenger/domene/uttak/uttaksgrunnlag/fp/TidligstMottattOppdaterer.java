@@ -66,6 +66,7 @@ public class TidligstMottattOppdaterer {
     private static List<OppgittPeriodeEntitet> perioderForFordeling(List<OppgittPeriodeEntitet> fordeling, LocalDate mottattDato, LocalDate tidligstedato) {
         return fordeling.stream()
             .filter(op -> !op.getTom().isBefore(tidligstedato))
+            .filter(p -> !p.isOpphold())
             .filter(p -> p.getTidligstMottattDato().orElseGet(p::getMottattDato) != null)
             .filter(p -> p.getTidligstMottattDato().orElseGet(p::getMottattDato).isBefore(mottattDato))
             .toList();
@@ -80,7 +81,7 @@ public class TidligstMottattOppdaterer {
         }
 
         // Bygg tidslinjer for uttaksperioder
-        var tidslinjeSammenlignForrigeSøknad =  new LocalDateTimeline<>(fraOppgittePerioder(perioder));
+        var tidslinjeSammenlignForrigeSøknad =  lagSammenligningTimeline(perioder);
 
         // Finn sammenfallende perioder - søkt likt innen samme peride
         var tidslinjeSammenfallForrigeSøknad = sammenlignTidslinje.combine(tidslinjeSammenlignForrigeSøknad, TidligstMottattOppdaterer::leftIfEqualsRight, LocalDateTimeline.JoinStyle.INNER_JOIN);
@@ -128,13 +129,6 @@ public class TidligstMottattOppdaterer {
 
     private static List<LocalDateSegment<SammenligningPeriodeForMottatt>> fraOppgittePerioder(List<OppgittPeriodeEntitet> perioder) {
         return perioder.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), new SammenligningPeriodeForMottatt(p))).toList();
-    }
-
-    // Flyr ikke så bra med autotest
-    private static List<LocalDateSegment<SammenligningPeriodeForMottatt>> fraOppgittePerioderJusterHelg(List<OppgittPeriodeEntitet> perioder) {
-        return perioder.stream()
-            .map(p -> new LocalDateSegment<>(VirkedagUtil.lørdagSøndagTilMandag(p.getFom()), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), new SammenligningPeriodeForMottatt(p)))
-            .toList();
     }
 
     private static List<LocalDateSegment<LocalDate>> tidligstMottattFraOppgittePerioderJusterHelg(List<OppgittPeriodeEntitet> perioder) {
