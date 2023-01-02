@@ -220,8 +220,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     @Override
     public void lagreIayAggregat(Long behandlingId, InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder) {
         var iayGrunnlagBuilder = getGrunnlagBuilder(behandlingId, inntektArbeidYtelseAggregatBuilder);
-
-        konverterOgLagre(behandlingId, iayGrunnlagBuilder.build());
+        konverterOgLagreOverstyring(behandlingId, iayGrunnlagBuilder.build());
     }
 
     @Override
@@ -301,7 +300,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
             if (iayGrunnlag.getSaksbehandletVersjon().isPresent()) {
                 iayGrunnlag.fjernSaksbehandlet();
-                lagreGrunnlag(iayGrunnlag, behandlingId);
+                lagreOverstyrtGrunnlag(iayGrunnlag, behandlingId);
             }
         }
     }
@@ -470,24 +469,6 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         return InntektArbeidYtelseGrunnlagBuilder.oppdatere(inntektArbeidGrunnlag);
     }
 
-    private void konverterOgLagre(Long behandlingId, InntektArbeidYtelseGrunnlag nyttGrunnlag) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
-        if (nyttGrunnlag == null) {
-            return;
-        }
-
-        var tidligereAggregat = finnGrunnlag(behandlingId);
-        if (tidligereAggregat.isPresent()) {
-            var tidligereGrunnlag = tidligereAggregat.get();
-            if (new IAYDiffsjekker(false).getDiffEntity().diff(tidligereGrunnlag, nyttGrunnlag).isEmpty()) {
-                return;
-            }
-            lagreGrunnlag(nyttGrunnlag, behandlingId);
-        } else {
-            lagreGrunnlag(nyttGrunnlag, behandlingId);
-        }
-    }
-
     private void konverterOgLagreOverstyring(Long behandlingId, InntektArbeidYtelseGrunnlag nyttGrunnlag) {
         Objects.requireNonNull(behandlingId, "behandlingId");
         if (nyttGrunnlag == null) {
@@ -504,12 +485,6 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         } else {
             lagreOverstyrtGrunnlag(nyttGrunnlag, behandlingId);
         }
-    }
-
-
-    private void lagreGrunnlag(InntektArbeidYtelseGrunnlag nyttGrunnlag, Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        lagreGrunnlag(konverterTilDto(behandling, nyttGrunnlag));
     }
 
     private void lagreOverstyrtGrunnlag(InntektArbeidYtelseGrunnlag nyttGrunnlag, Long behandlingId) {
@@ -545,14 +520,6 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
             throw t;
         }
         return grunnlagDto;
-    }
-
-    private void lagreGrunnlag(InntektArbeidYtelseGrunnlagDto grunnlagDto) {
-        try {
-            abakusTjeneste.lagreGrunnlag(grunnlagDto);
-        } catch (IOException e) {
-            throw feilVedKallTilAbakus("Kunne ikke lagre grunnlag i Abakus: " + e.getMessage(), e);
-        }
     }
 
     private static TekniskException feilVedKallTilAbakus(String feilmelding, Throwable t) {
