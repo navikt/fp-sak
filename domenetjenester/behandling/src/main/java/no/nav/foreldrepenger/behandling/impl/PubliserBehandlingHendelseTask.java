@@ -55,7 +55,12 @@ class PubliserBehandlingHendelseTask extends GenerellProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var hendelseType = utledHendelse(behandling, HendelseForBehandling.valueOf(prosessTaskData.getPropertyValue(HENDELSE_TYPE)));
+        var hendelseForBehandling = HendelseForBehandling.valueOf(prosessTaskData.getPropertyValue(HENDELSE_TYPE));
+        var hendelseType = utledHendelse(behandling, hendelseForBehandling);
+        if (hendelseType == null) {
+            LOG.info("Publiser ikke behandlingshendelse for behandling {} hendelse {}", behandling.getId(), hendelseForBehandling);
+            return;
+        }
         var hendelse = new BehandlingHendelseV1.Builder().medHendelse(hendelseType)
             .medHendelseUuid(UUID.randomUUID())
             .medBehandlingUuid(behandling.getUuid())
@@ -76,12 +81,14 @@ class PubliserBehandlingHendelseTask extends GenerellProsessTask {
             return behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD) ? Hendelse.MANGLERSØKNAD : Hendelse.VENTETILSTAND;
         } else if (!behandling.getÅpneAksjonspunkter(PAPIR).isEmpty()) {
             return Hendelse.PAPIRSØKNAD;
-        } else if (BehandlingStatus.OPPRETTET.equals(behandling.getStatus()) && behandling.getAksjonspunkter().isEmpty()) {
+        } else if (HendelseForBehandling.OPPRETTET.equals(oppgittHendelse)) {
             return Hendelse.OPPRETTET;
         } else if (BehandlingStatus.AVSLUTTET.equals(behandling.getStatus())) {
             return Hendelse.AVSLUTTET;
-        } else {
+        } else if (!behandling.getAksjonspunkter().isEmpty()) {
             return Hendelse.AKSJONSPUNKT;
+        } else {
+            return null;
         }
     }
 
