@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.fakta.aktkrav;
 
-import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -25,12 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
@@ -39,10 +32,6 @@ import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
-import no.nav.fpsak.tidsserie.LocalDateSegment;
-import no.nav.fpsak.tidsserie.LocalDateTimeline;
-import no.nav.fpsak.tidsserie.StandardCombinators;
 
 @ApplicationScoped
 public class KontrollerAktivitetskravAksjonspunktUtleder {
@@ -69,13 +58,9 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
     }
 
     public List<AksjonspunktDefinisjon> utledFor(UttakInput uttakInput) {
-        return utledFor(uttakInput, false);
-    }
-
-    public List<AksjonspunktDefinisjon> utledFor(UttakInput uttakInput, boolean logg150) {
         ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         if (!uttakInput.isSkalBrukeNyFaktaOmUttak() && skalKontrollereAktivitetskrav(uttakInput.getBehandlingReferanse(),
-            ytelsespesifiktGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse(), ytelsespesifiktGrunnlag, logg150)) {
+            ytelsespesifiktGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse(), ytelsespesifiktGrunnlag)) {
             return List.of(AksjonspunktDefinisjon.KONTROLLER_AKTIVITETSKRAV);
         }
         return List.of();
@@ -85,9 +70,7 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
                                                                                      OppgittPeriodeEntitet periode,
                                                                                      YtelseFordelingAggregat ytelseFordelingAggregat,
                                                                                      FamilieHendelse familieHendelse,
-                                                                                     boolean annenForelderHarRett,
-                                                                                     List<ForeldrepengerUttakPeriode> annenpartFullMK,
-                                                                                     boolean logg150) {
+                                                                                     boolean annenForelderHarRett) {
         if (helePeriodenErHelg(periode) || erMor(behandlingReferanse) || UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat) ||
             familieHendelse.erStebarnsadopsjon() || Set.of(MorsAktivitet.UFØRE, MorsAktivitet.IKKE_OPPGITT).contains(periode.getMorsAktivitet()) ||
             ytelseFordelingAggregat.getGjeldendeEndringsdatoHvisEksisterer().isEmpty()) {
@@ -97,11 +80,6 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
             (UTTAK_MED_AKTIVITETSKRAV.contains(periode.getPeriodeType()) || bareFarHarRettOgSøkerUtsettelse(periode, annenForelderHarRett));
         if (!harKravTilAktivitet) {
             return ikkeKontrollerer();
-        }
-        // Pgf 14-12 andre ledd - samtidig 100% MK + <= 50% Fellesperiode -> ikke aktivitetskrav. To be elaborated further ....
-        if (logg150 && erTilfelleAv150ProsentSamtidig(behandlingReferanse, periode, annenpartFullMK)) {
-            LOG.info("Aktivitetskravutleder behandling {} periode fom {} dekkes av full MK", behandlingReferanse.behandlingId(), periode.getFom());
-            //return ikkeKontrollerer();
         }
 
         var avklaring = finnAvklartePerioderSomDekkerSøknadsperiode(periode, ytelseFordelingAggregat);
@@ -187,62 +165,20 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
 
     private boolean skalKontrollereAktivitetskrav(BehandlingReferanse behandlingReferanse,
                                                   FamilieHendelse familieHendelse,
-                                                  ForeldrepengerGrunnlag fpGrunnlag, boolean logg150) {
+                                                  ForeldrepengerGrunnlag fpGrunnlag) {
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingReferanse.behandlingId());
         var annenpartUttak = fpGrunnlag.getAnnenpart().map(Annenpart::gjeldendeVedtakBehandlingId)
             .flatMap(apVedtak -> foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(apVedtak));
-        var annenpartFullMK = annenpartsHundreprosentMødrekvote(annenpartUttak);
         var annenforelderRett = UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartUttak);
         return ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder().stream().anyMatch(p -> {
             var resultat = skalKontrollereAktivitetskrav(behandlingReferanse, p, ytelseFordelingAggregat,
-                familieHendelse, annenforelderRett, annenpartFullMK, logg150);
+                familieHendelse, annenforelderRett);
             return resultat.kravTilAktivitet() && !resultat.isAvklart();
         });
     }
 
     private static boolean erMor(BehandlingReferanse behandlingReferanse) {
         return RelasjonsRolleType.erMor(behandlingReferanse.relasjonRolle());
-    }
-
-    public static List<ForeldrepengerUttakPeriode> annenpartsHundreprosentMødrekvote(Optional<ForeldrepengerUttak> uttak) {
-        return uttak.map(ForeldrepengerUttak::getGjeldendePerioder).orElse(List.of()).stream()
-            .filter(KontrollerAktivitetskravAksjonspunktUtleder::periodeErHundreprosentMødrekvote)
-            .toList();
-    }
-
-    private static boolean periodeErHundreprosentMødrekvote(ForeldrepengerUttakPeriode periode) {
-        return periode.getAktiviteter().stream()
-            .allMatch(a -> StønadskontoType.MØDREKVOTE.equals(a.getTrekkonto()) && a.getUtbetalingsgrad().compareTo(Utbetalingsgrad.HUNDRED) >= 0);
-    }
-
-    private static boolean erTilfelleAv150ProsentSamtidig(BehandlingReferanse ref, OppgittPeriodeEntitet periode, List<ForeldrepengerUttakPeriode> annenpartFullMK) {
-        var samtidigEllerGradert = Optional.ofNullable(periode.getSamtidigUttaksprosent())
-            .or(() -> Optional.ofNullable(periode.getArbeidsprosent())
-                .map(ap -> BigDecimal.valueOf(100).subtract(ap)) // Antar at samtidiguttak% = 100 - Arbeidsprosent
-                .map(SamtidigUttaksprosent::new));
-        if (UttakPeriodeType.FELLESPERIODE.equals(periode.getPeriodeType()) && !annenpartFullMK.isEmpty() &&
-            samtidigEllerGradert.filter(pct -> pct.compareTo(new SamtidigUttaksprosent(50)) <= 0).isPresent()) {
-            var dekkesAvFullMK = dekkesavSamtidigfullMK(annenpartFullMK, periode);
-            if (dekkesAvFullMK) {
-                return true;
-            } else {
-                LOG.info("Aktivitetskravutleder behandling {} periode fom {} ikke dekket av MK", ref.behandlingId(), periode.getFom());
-            }
-        }
-        return false;
-    }
-
-    private static boolean dekkesavSamtidigfullMK(List<ForeldrepengerUttakPeriode> annenpartFullMK, OppgittPeriodeEntitet periode) {
-        var segmenter = annenpartFullMK.stream()
-            .filter(p -> periode.isSamtidigUttak() || p.isSamtidigUttak())
-            .map(p -> new LocalDateSegment<>(p.getFom(), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), Boolean.TRUE))
-            .toList();
-        if (segmenter.isEmpty()) {
-            return false;
-        }
-        var oppgittIntervall = new LocalDateInterval(periode.getFom(), periode.getTom());
-        return new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch).compress().toSegments().stream()
-            .anyMatch(seg -> seg.getLocalDateInterval().contains(oppgittIntervall));
     }
 
 }

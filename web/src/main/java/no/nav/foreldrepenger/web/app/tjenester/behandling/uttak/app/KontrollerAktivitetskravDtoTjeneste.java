@@ -75,12 +75,11 @@ public class KontrollerAktivitetskravDtoTjeneste {
             .map(Annenpart::gjeldendeVedtakBehandlingId)
             .flatMap(foreldrepengerUttakTjeneste::hentUttakHvisEksisterer);
         var annenForelderHarRett = UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartUttak);
-        var annenForelderFullMK = KontrollerAktivitetskravAksjonspunktUtleder.annenpartsHundreprosentMødrekvote(annenpartUttak);
 
         var result = new ArrayList<KontrollerAktivitetskravPeriodeDto>();
         for (var søknadsperiode : ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder()) {
             var avklaringsresultat = KontrollerAktivitetskravAksjonspunktUtleder.skalKontrollereAktivitetskrav(
-                behandlingReferanse, søknadsperiode, ytelseFordelingAggregat, familieHendelse, annenForelderHarRett, annenForelderFullMK, false);
+                behandlingReferanse, søknadsperiode, ytelseFordelingAggregat, familieHendelse, annenForelderHarRett);
             if (avklaringsresultat.kravTilAktivitet()) {
                 if (avklaringsresultat.isAvklart()) {
                     var avklartePerioder = avklaringsresultat.avklartePerioder();
