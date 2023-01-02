@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -314,11 +313,8 @@ public class ForeslåVedtakTjenesteTest {
 
     private void leggTilAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon, boolean totrinnsbehandling) {
         var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
-        aksjonspunkt.setStatus(AksjonspunktStatus.UTFØRT, "");
+        AksjonspunktTestSupport.setTilUtført(aksjonspunkt, "");
         aksjonspunkt.setToTrinnsBehandling(totrinnsbehandling);
-        // Whitebox.setInternalState(aksjonspunkt, "status", AksjonspunktStatus.UTFØRT);
-        // Whitebox.setInternalState(aksjonspunkt, "toTrinnsBehandling",
-        // totrinnsbehandling);
     }
 
 }
