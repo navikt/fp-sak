@@ -43,7 +43,7 @@ public class KontrollerAktivitetskravSteg implements UttakSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
-        return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktUtleder.utledFor(uttakInput, true));
+        return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktUtleder.utledFor(uttakInput));
     }
 
     @Override

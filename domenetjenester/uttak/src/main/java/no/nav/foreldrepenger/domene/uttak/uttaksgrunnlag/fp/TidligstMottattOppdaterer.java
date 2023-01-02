@@ -7,6 +7,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
@@ -24,6 +27,8 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
 
 public class TidligstMottattOppdaterer {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TidligstMottattOppdaterer.class);
 
     private TidligstMottattOppdaterer() {
     }
@@ -47,7 +52,11 @@ public class TidligstMottattOppdaterer {
         for (var f : tidligereFordelinger) {
             var perioder = perioderForFordeling(f.getPerioder(), mottattDato, tidligstedato);
             if (!perioder.isEmpty()) {
-                nysøknadTidslinje = oppdaterTidligstMottattDato(nysøknadTidslinje, tidslinjeSammenlignNysøknad, perioder);
+                try {
+                    nysøknadTidslinje = oppdaterTidligstMottattDato(nysøknadTidslinje, tidslinjeSammenlignNysøknad, perioder);
+                } catch (Exception e) {
+                    LOG.warn("TidligstMottatt: Feil ved sjekk av tidligere fordeling {} - se bort fra enkelttilfelle, varsle dersom mange", f.getId());
+                }
             }
         }
 

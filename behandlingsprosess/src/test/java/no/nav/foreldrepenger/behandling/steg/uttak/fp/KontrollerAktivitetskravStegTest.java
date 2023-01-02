@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +39,7 @@ public class KontrollerAktivitetskravStegTest {
         var utleder = mock(KontrollerAktivitetskravAksjonspunktUtleder.class);
         var uttakInputTjeneste = mock(UttakInputTjeneste.class);
         List<AksjonspunktDefinisjon> forventetAksjonspunkter = forventet == null ? List.of() : List.of(forventet);
-        when(utleder.utledFor(any(), anyBoolean())).thenReturn(forventetAksjonspunkter);
+        when(utleder.utledFor(any())).thenReturn(forventetAksjonspunkter);
         var steg = new KontrollerAktivitetskravSteg(utleder, uttakInputTjeneste, null);
         return steg.utførSteg(new BehandlingskontrollKontekst(1L, AktørId.dummy(), mock(BehandlingLås.class)));
     }
