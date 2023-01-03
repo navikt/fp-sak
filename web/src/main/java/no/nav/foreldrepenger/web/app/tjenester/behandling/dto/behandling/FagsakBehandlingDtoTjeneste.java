@@ -101,27 +101,24 @@ public class FagsakBehandlingDtoTjeneste {
         var behandlingMedGjeldendeVedtak = gjeldendeVedtak.map(BehandlingVedtak::getBehandlingsresultat).map(Behandlingsresultat::getBehandlingId).map(behandlingRepository::hentBehandling);
         return behandlinger.stream().map(behandling -> {
             var erBehandlingMedGjeldendeVedtak = erBehandlingMedGjeldendeVedtak(behandling, behandlingMedGjeldendeVedtak);
-            var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
+            var behandlingsresultat = getBehandlingsresultat(behandling.getId());
             var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
                 .map(BehandlingVedtak::getVedtaksdato).orElse(null);
-            return lagBehandlingDto(behandling, behandlingsresultatDto, erBehandlingMedGjeldendeVedtak,
-                søknadRepository, vedtaksdato, behandlingRepository);
+            return lagBehandlingDto(behandling, behandlingsresultat, erBehandlingMedGjeldendeVedtak, vedtaksdato);
         }).collect(Collectors.toList());
     }
 
 
 
     private FagsakBehandlingDto lagBehandlingDto(Behandling behandling,
-                                           Optional<BehandlingsresultatDto> behandlingsresultatDto,
-                                           boolean erBehandlingMedGjeldendeVedtak,
-                                           SøknadRepository søknadRepository,
-                                           LocalDate vedtaksdato,
-                                           BehandlingRepository behandlingRepository) {
+                                           Behandlingsresultat behandlingsresultat,
+                                           boolean erBehandlingMedGjeldendeVedtak, LocalDate vedtaksdato) {
         var dto = new FagsakBehandlingDto();
         var uuidDto = new UuidDto(behandling.getUuid());
-        BehandlingDtoUtil.setStandardfelterMedGjeldendeVedtak(behandling, getBehandlingsresultat(behandling.getId()), dto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
-        dto.setSpråkkode(getSpråkkode(behandling, søknadRepository, behandlingRepository));
-        dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
+
+        BehandlingDtoUtil.setStandardfelterMedGjeldendeVedtak(behandling, behandlingsresultat, dto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
+        dto.setSpråkkode(getSpråkkode(behandling));
+        dto.setBehandlingsresultat(lagBehandlingsresultatDto(behandling, behandlingsresultat).orElse(null));
 
         // Felles for alle behandlingstyper
         dto.setBehandlingTillatteOperasjoner(lovligeOperasjoner(behandling));
@@ -132,7 +129,7 @@ public class FagsakBehandlingDtoTjeneste {
         }
 
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
-            AksjonspunktDtoMapper.lagAksjonspunktDtoFor(behandling, AksjonspunktDefinisjon.VURDER_FARESIGNALER).ifPresent(dto::setRisikoAksjonspunkt);
+            AksjonspunktDtoMapper.lagAksjonspunktDtoFor(behandling, behandlingsresultat, AksjonspunktDefinisjon.VURDER_FARESIGNALER).ifPresent(dto::setRisikoAksjonspunkt);
             kontrollDtoTjeneste.lagKontrollresultatForBehandling(BehandlingReferanse.fra(behandling)).ifPresent(dto::setKontrollResultat);
         }
 
@@ -148,11 +145,11 @@ public class FagsakBehandlingDtoTjeneste {
         if (!BehandlingType.INNSYN.equals(behandling.getType())) {
             // Totrinnsbehandling
             if (BehandlingStatus.FATTER_VEDTAK.equals(behandling.getStatus())) {
-                dto.setTotrinnskontrollÅrsaker(totrinnskontrollTjeneste.hentTotrinnsSkjermlenkeContext(behandling));
+                dto.setTotrinnskontrollÅrsaker(totrinnskontrollTjeneste.hentTotrinnsSkjermlenkeContext(behandling, behandlingsresultat));
                 dto.setTotrinnskontrollReadonly(false);
                 dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_PATH, "bekreft-totrinnsaksjonspunkt", uuidDto));
             } else if (BehandlingStatus.UTREDES.equals(behandling.getStatus())) {
-                dto.setTotrinnskontrollÅrsaker(totrinnskontrollTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling));
+                dto.setTotrinnskontrollÅrsaker(totrinnskontrollTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling, behandlingsresultat));
             }
         }
 
@@ -163,7 +160,7 @@ public class FagsakBehandlingDtoTjeneste {
         return dto;
     }
 
-    private static Språkkode getSpråkkode(Behandling behandling, SøknadRepository søknadRepository, BehandlingRepository behandlingRepository) {
+    private Språkkode getSpråkkode(Behandling behandling) {
         if (!behandling.erYtelseBehandling()) {
             return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(behandling.getFagsakId())
                 .flatMap(s -> søknadRepository.hentSøknadHvisEksisterer(s.getId()))
@@ -177,8 +174,7 @@ public class FagsakBehandlingDtoTjeneste {
         return behandlingMedGjeldendeVedtak.filter(b -> b.getId().equals(behandling.getId())).isPresent();
     }
 
-    private Optional<BehandlingsresultatDto> lagBehandlingsresultatDto(Behandling behandling) {
-        var behandlingsresultat = getBehandlingsresultat(behandling.getId());
+    private Optional<BehandlingsresultatDto> lagBehandlingsresultatDto(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         if (behandlingsresultat == null) {
             return Optional.empty();
         }

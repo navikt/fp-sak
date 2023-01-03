@@ -100,7 +100,7 @@ public class BehandlingFormidlingDtoTjeneste {
         return lagDto(behandling);
     }
 
-    private static Språkkode getSpråkkode(Behandling behandling, SøknadRepository søknadRepository, BehandlingRepository behandlingRepository) {
+    private Språkkode getSpråkkode(Behandling behandling) {
         if (!behandling.erYtelseBehandling()) {
             return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(behandling.getFagsakId())
                 .flatMap(s -> søknadRepository.hentSøknadHvisEksisterer(s.getId()))
@@ -115,7 +115,7 @@ public class BehandlingFormidlingDtoTjeneste {
             .map(BehandlingVedtak::getVedtaksdato)
             .orElse(null);
         BehandlingDtoUtil.setStandardfelter(behandling, getBehandlingsresultat(behandling.getId()), dto, vedtaksDato);
-        dto.setSpråkkode(getSpråkkode(behandling, søknadRepository, behandlingRepository));
+        dto.setSpråkkode(getSpråkkode(behandling));
         var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
     }

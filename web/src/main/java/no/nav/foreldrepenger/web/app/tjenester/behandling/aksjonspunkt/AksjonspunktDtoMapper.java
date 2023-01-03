@@ -9,9 +9,11 @@ import java.util.stream.Collectors;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.VurderÅrsakTotrinnsvurdering;
@@ -21,29 +23,29 @@ public class AksjonspunktDtoMapper {
     private AksjonspunktDtoMapper() {
     }
 
-    public static Optional<AksjonspunktDto> lagAksjonspunktDtoFor(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+    public static Optional<AksjonspunktDto> lagAksjonspunktDtoFor(Behandling behandling, Behandlingsresultat behandlingsresultat, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         return behandling.getAksjonspunkter().stream()
             .filter(a -> aksjonspunktDefinisjon.equals(a.getAksjonspunktDefinisjon()))
             .filter(aksjonspunkt -> !aksjonspunkt.erAvbrutt())
-            .map(aksjonspunkt -> mapFra(aksjonspunkt, behandling, List.of()))
+            .map(aksjonspunkt -> mapFra(aksjonspunkt, behandling, behandlingsresultat, List.of()))
             .findFirst();
     }
 
-    public static Set<AksjonspunktDto> lagAksjonspunktDto(Behandling behandling, Collection<Totrinnsvurdering> ttVurderinger) {
+    public static Set<AksjonspunktDto> lagAksjonspunktDto(Behandling behandling, Behandlingsresultat behandlingsresultat, Collection<Totrinnsvurdering> ttVurderinger) {
         return behandling.getAksjonspunkter().stream()
                 .filter(aksjonspunkt -> !aksjonspunkt.erAvbrutt())
-                .map(aksjonspunkt -> mapFra(aksjonspunkt, behandling, ttVurderinger))
+                .map(aksjonspunkt -> mapFra(aksjonspunkt, behandling, behandlingsresultat, ttVurderinger))
                 .collect(Collectors.toSet());
     }
 
-    private static AksjonspunktDto mapFra(Aksjonspunkt aksjonspunkt, Behandling behandling, Collection<Totrinnsvurdering> ttVurderinger) {
+    private static AksjonspunktDto mapFra(Aksjonspunkt aksjonspunkt, Behandling behandling, Behandlingsresultat behandlingsresultat, Collection<Totrinnsvurdering> ttVurderinger) {
         var aksjonspunktDefinisjon = aksjonspunkt.getAksjonspunktDefinisjon();
 
         var dto = new AksjonspunktDto();
         dto.setDefinisjon(aksjonspunktDefinisjon);
         dto.setStatus(aksjonspunkt.getStatus());
         dto.setBegrunnelse(aksjonspunkt.getBegrunnelse());
-        dto.setVilkarType(finnVilkårType(aksjonspunkt, behandling));
+        dto.setVilkarType(finnVilkårType(aksjonspunkt, behandlingsresultat));
         dto.setToTrinnsBehandling(aksjonspunkt.isToTrinnsBehandling() || aksjonspunktDefinisjon.getDefaultTotrinnBehandling());
         dto.setFristTid(aksjonspunkt.getFristTid());
         dto.setEndretAv(aksjonspunkt.getEndretAv());
@@ -66,11 +68,13 @@ public class AksjonspunktDtoMapper {
 
     // AKsjonspunkt 5031 og 5032 er ikke knyttet til et bestemt vilkår da de skal ha 5 forskjellige.
     //TODO(OJR) modellen burde utvides til å støtte dette...
-    private static VilkårType finnVilkårType(Aksjonspunkt aksjonspunkt, Behandling behandling) {
+    private static VilkårType finnVilkårType(Aksjonspunkt aksjonspunkt, Behandlingsresultat behandlingsresultat) {
         var aksjonspunktDefinisjon = aksjonspunkt.getAksjonspunktDefinisjon();
         if (AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon) ||
                 AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon)) {
-            return behandling.getVilkårTypeForRelasjonTilBarnet().orElse(null);
+            return Optional.ofNullable(behandlingsresultat)
+                .map(Behandlingsresultat::getVilkårResultat)
+                .flatMap(VilkårResultat::getVilkårForRelasjonTilBarn).orElse(null);
         }
         return aksjonspunktDefinisjon.getVilkårType();
     }

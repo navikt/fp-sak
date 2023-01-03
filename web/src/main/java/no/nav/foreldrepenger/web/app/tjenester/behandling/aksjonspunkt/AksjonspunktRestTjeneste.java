@@ -34,6 +34,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktKode;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
@@ -68,6 +69,7 @@ public class AksjonspunktRestTjeneste {
 
     private AksjonspunktTjeneste applikasjonstjeneste;
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingsutredningTjeneste behandlingutredningTjeneste;
     private TotrinnTjeneste totrinnTjeneste;
 
@@ -79,10 +81,12 @@ public class AksjonspunktRestTjeneste {
     public AksjonspunktRestTjeneste(
         AksjonspunktTjeneste aksjonpunktApplikasjonTjeneste,
         BehandlingRepository behandlingRepository,
+        BehandlingsresultatRepository behandlingsresultatRepository,
         BehandlingsutredningTjeneste behandlingutredningTjeneste, TotrinnTjeneste totrinnTjeneste) {
 
         this.applikasjonstjeneste = aksjonpunktApplikasjonTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.behandlingutredningTjeneste = behandlingutredningTjeneste;
         this.totrinnTjeneste = totrinnTjeneste;
     }
@@ -97,8 +101,9 @@ public class AksjonspunktRestTjeneste {
     public Response getAksjonspunkter(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
         var ttVurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
-        var dto = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, ttVurderinger);
+        var dto = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, behandlingsresultat, ttVurderinger);
         var cc = new CacheControl();
         cc.setNoCache(true);
         cc.setNoStore(true);

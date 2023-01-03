@@ -94,6 +94,13 @@ public class VilkårResultat extends BaseEntitet {
         return Collections.unmodifiableList(new ArrayList<>(vilkårne));
     }
 
+    public Optional<VilkårType> getVilkårForRelasjonTilBarn() {
+        return vilkårne.stream()
+            .map(Vilkår::getVilkårType)
+            .filter(VilkårType::gjelderRelasjonTilBarn)
+            .findFirst();
+    }
+
     public boolean erOverstyrt() {
         return erOverstyrt;
     }

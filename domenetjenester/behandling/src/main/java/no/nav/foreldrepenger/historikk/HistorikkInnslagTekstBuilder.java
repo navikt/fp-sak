@@ -140,7 +140,7 @@ public class HistorikkInnslagTekstBuilder {
     }
 
     public HistorikkInnslagTekstBuilder medSkjermlenke(SkjermlenkeType skjermlenkeType) {
-        if ((skjermlenkeType == null) || SkjermlenkeType.UDEFINERT.equals(skjermlenkeType)) {
+        if (!SkjermlenkeType.totrinnsSkjermlenke(skjermlenkeType)) {
             return this;
         }
         validerKodeverdi(skjermlenkeType);

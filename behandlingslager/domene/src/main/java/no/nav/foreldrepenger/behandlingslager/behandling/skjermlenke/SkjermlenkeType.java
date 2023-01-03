@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -10,7 +11,9 @@ import javax.persistence.Converter;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
@@ -122,15 +125,20 @@ public enum SkjermlenkeType implements Kodeverdi {
         return KODEVERK;
     }
 
+    public static boolean totrinnsSkjermlenke(SkjermlenkeType skjermlenkeType) {
+        return skjermlenkeType != null && !SkjermlenkeType.UDEFINERT.equals(skjermlenkeType);
+    }
+
     /**
      * Returnerer skjermlenketype for eit aksjonspunkt. Inneheld logikk for spesialbehandling av aksjonspunkt som ikkje ligg på aksjonspunktdefinisjonen.
      * @deprecated Brukes kun i totrinnskontroll og foreslå vedtak, bør også fjernes derfra og heller lagres på Aksjonspunktet (ikke definisjonen)
      */
     @Deprecated
-    public static SkjermlenkeType finnSkjermlenkeType(AksjonspunktDefinisjon aksjonspunktDefinisjon, Behandling behandling) {
+    public static SkjermlenkeType finnSkjermlenkeType(AksjonspunktDefinisjon aksjonspunktDefinisjon, Behandling behandling,
+                                                      Behandlingsresultat behandlingsresultat) {
         if (AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon) ||
             AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon)) {
-            return getSkjermlenkeTypeForMottattStotte(behandling.getVilkårTypeForRelasjonTilBarnet().orElse(null));
+            return getSkjermlenkeTypeForMottattStotte(behandlingsresultat);
         }
         if (AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE.equals(aksjonspunktDefinisjon) ){
             return getSkjermlenkeTypeForOmsorgsovertakelse(behandling);
@@ -144,6 +152,13 @@ public enum SkjermlenkeType implements Kodeverdi {
             return  SkjermlenkeType.FAKTA_OM_OMSORG_OG_FORELDREANSVAR;
         }
         return SkjermlenkeType.FAKTA_FOR_OMSORG;
+    }
+
+    public static SkjermlenkeType getSkjermlenkeTypeForMottattStotte(Behandlingsresultat behandlingsresultat) {
+        var vilkårType = Optional.ofNullable(behandlingsresultat)
+            .map(Behandlingsresultat::getVilkårResultat)
+            .flatMap(VilkårResultat::getVilkårForRelasjonTilBarn).orElse(null);
+        return getSkjermlenkeTypeForMottattStotte(vilkårType);
     }
 
     public static SkjermlenkeType getSkjermlenkeTypeForMottattStotte(VilkårType vilkårType) {

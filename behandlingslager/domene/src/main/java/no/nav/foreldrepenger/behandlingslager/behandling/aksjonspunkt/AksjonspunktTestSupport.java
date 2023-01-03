@@ -5,7 +5,6 @@ import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 
 /**
  * Skal kun brukes av tester som av en eller annen grunn må tukle
@@ -42,7 +41,7 @@ public final class AksjonspunktTestSupport {
 
     public static void setToTrinnsBehandlingKreves(Aksjonspunkt aksjonspunkt) {
         var apDef = aksjonspunkt.getAksjonspunktDefinisjon();
-        if (apDef.getSkjermlenkeType() == null || SkjermlenkeType.UDEFINERT.equals(apDef.getSkjermlenkeType())) {
+        if (!apDef.kanSetteTotrinnBehandling()) {
             if (AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL.equals(apDef) || AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.equals(apDef)) {
                 return;
             }
