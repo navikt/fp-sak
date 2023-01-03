@@ -390,12 +390,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AUTO_VENT_PÅ_SYKEMELDING(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_SYKEMELDING_KODE, AksjonspunktType.AUTOPUNKT,
         "Vent på siste sykemelding fra søker som mottar sykepenger basert på dagpenger", BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR,
         UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP)),
-    AUTO_VENT_PÅ_LOVENDRING_8_41(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_LOVENDRING_8_41_KODE, AksjonspunktType.AUTOPUNKT,
-        "Vent på vedtak om lovendring vedrørende beregning av næring i kombinasjon med arbeid eller frilans", BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR,
-        UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
-    AUTO_VENT_PÅ_KORRIGERT_BESTEBERERGNING(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_KORRIGERT_BESTEBEREGNING_KODE, AksjonspunktType.AUTOPUNKT,
-        "Vent på korrigering / feilretting av besteberegningen", BehandlingStegType.FORESLÅ_BESTEBEREGNING, VurderingspunktType.UT, VilkårType.BEREGNINGSGRUNNLAGVILKÅR,
-        UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP)),
     AUTO_VENT_PÅ_KABAL_KLAGE(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE_KODE, AksjonspunktType.AUTOPUNKT, "Vent på klagebehandling hos NAV Klageinstans",
         BehandlingStegType.KLAGE_NK, VurderingspunktType.INN, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(ES, FP, SVP)),
     AUTO_VENT_PÅ_KABAL_ANKE(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE_KODE, AksjonspunktType.AUTOPUNKT, "Vent på ankebehandling hos NAV Klageinstans",
@@ -477,9 +471,11 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     _7035("7035", AksjonspunktType.AUTOPUNKT, "Autopunkt potensielt feil i endringssøknad, kontakt bruker"),
     @Deprecated
     _7036("7036", AksjonspunktType.AUTOPUNKT, "Autopunkt vent manglende arbeidsforhold ifm kommunereform 2020."),
-
+    @Deprecated
+    _7038("7038", AksjonspunktType.AUTOPUNKT, "Vent på korrigering / feilretting av besteberegningen."),
+    @Deprecated
+    _7041("7041", AksjonspunktType.AUTOPUNKT, "Vent på vedtak om lovendring vedrørende beregning av næring i kombinasjon med arbeid eller frilans"),
     ;
-
     static final String KODEVERK = "AKSJONSPUNKT_DEF";
 
     private static final Map<String, AksjonspunktDefinisjon> KODER = new LinkedHashMap<>();
