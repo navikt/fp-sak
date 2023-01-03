@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import static java.util.Arrays.asList;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -49,8 +47,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -764,25 +760,6 @@ public class Behandling extends BaseEntitet {
 
     public boolean erYtelseBehandling() {
         return getType().erYtelseBehandlingType();
-    }
-
-    public Optional<VilkårType> getVilkårTypeForRelasjonTilBarnet() {
-        var resultat = getBehandlingsresultat();
-        if (resultat == null) {
-            return Optional.empty();
-        }
-        var vilkårResultat = resultat.getVilkårResultat();
-        if (vilkårResultat == null) {
-            return Optional.empty();
-        }
-        var vilkårTyper = asList(VilkårType.FØDSELSVILKÅRET_MOR, VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
-                VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, VilkårType.ADOPSJONSVILKARET_FORELDREPENGER,
-                VilkårType.OMSORGSVILKÅRET, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
-
-        return vilkårResultat.getVilkårene().stream()
-                .filter(v -> vilkårTyper.contains(v.getVilkårType()))
-                .findFirst()
-                .map(Vilkår::getVilkårType);
     }
 
     public boolean harSattStartpunkt() {

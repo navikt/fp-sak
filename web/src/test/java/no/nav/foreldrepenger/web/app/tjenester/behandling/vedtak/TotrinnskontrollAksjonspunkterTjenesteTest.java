@@ -19,6 +19,7 @@ import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -44,6 +45,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     private TotrinnTjeneste totrinnTjeneste = Mockito.mock(TotrinnTjeneste.class);
     private TotrinnsaksjonspunktDtoTjeneste totrinnsaksjonspunktDtoTjeneste = Mockito.mock(TotrinnsaksjonspunktDtoTjeneste.class);
     private Behandling behandling;
+    private Behandlingsresultat behandlingsresultat;
     private Totrinnresultatgrunnlag totrinnresultatgrunnlag;
 
     @BeforeEach
@@ -61,7 +63,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.empty(), Optional.empty());
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.emptyList());
         // Act
-        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling, behandlingsresultat);
         // Assert
         assertThat(context).isEmpty();
     }
@@ -74,7 +76,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.empty(), Optional.empty());
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.emptyList());
         // Act
-        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling, behandlingsresultat);
         // Assert
         assertThat(context).isEmpty();
     }
@@ -95,7 +97,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
 
         // Act
-        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling, behandlingsresultat);
         // Assert
         assertThat(context).isEmpty();
 
@@ -116,7 +118,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
 
         // Act
-        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling, behandlingsresultat);
         // Assert
         assertThat(context).isEmpty();
     }
@@ -138,7 +140,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
 
         // Act
-        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling, behandlingsresultat);
 
         // Assert
         assertThat(context).hasSize(1);
@@ -186,7 +188,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
                 setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
 
                 // Act
-                var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+                var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling, behandlingsresultat);
 
                 // Arrange
                 assertThat(context).hasSize(1);
@@ -233,7 +235,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
             setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
 
             // Act
-            var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+            var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling, behandlingsresultat);
 
             // Arrange
             assertThat(context).hasSize(1);
@@ -282,7 +284,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
                 setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
 
                 // Act
-                var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+                var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling, behandlingsresultat);
                 // Arrange
                 assertThat(context).isEmpty();
 
@@ -307,7 +309,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.emptyList());
 
         // Act
-        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling, behandlingsresultat);
 
         // Assert
         assertThat(context).hasSize(1);
@@ -336,7 +338,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttvFraBehandling));
 
         // Act
-        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling, behandlingsresultat);
 
         // Assert
         assertThat(context).hasSize(1);
@@ -368,7 +370,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
 
         // Act
-        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling, behandlingsresultat);
 
         // Assert
         assertThat(context).isEmpty();
@@ -390,7 +392,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
 
         // Act
-        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling, behandlingsresultat);
 
         // Assert
         assertThat(context).isEmpty();
@@ -403,7 +405,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         opprettBehandlingForFP(Optional.empty());
         when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling)).thenReturn(Collections.emptyList());
         // Act
-        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling, behandlingsresultat);
         // Assert
         assertThat(context).isEmpty();
     }
@@ -444,7 +446,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
                 .thenReturn(totrinnskontrollAksjonspunkterDto2);
 
             // Act
-            var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling);
+            var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling, behandlingsresultat);
 
             // Arrange
             assertThat(context).hasSize(1);
@@ -475,6 +477,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         vilkårTypeOpt.ifPresent(vt -> scenario.leggTilVilkår(vt, VilkårUtfallType.IKKE_VURDERT));
         behandling = scenario.lagMocked();
+        behandlingsresultat = scenario.mockBehandlingRepositoryProvider().getBehandlingsresultatRepository().hentHvisEksisterer(behandling.getId()).orElse(null);
     }
 
     private void opprettBehandlingForEngangsstønad() {

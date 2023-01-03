@@ -81,9 +81,9 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
                                        AksjonspunktOppdaterParameter param) {
         var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
         var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
-        return new HistorikkAksjonspunktAdapter(
-            behandling, historikkAdapter, param).håndterAksjonspunkt(
-            aksjonspunktDefinisjon, vilkår, dto.getErVilkarOk(), dto.getBegrunnelse(), historikkEndretFeltType);
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
+        return new HistorikkAksjonspunktAdapter(behandlingsresultat, historikkAdapter, param)
+            .håndterAksjonspunkt(aksjonspunktDefinisjon, vilkår, dto.getErVilkarOk(), dto.getBegrunnelse(), historikkEndretFeltType);
     }
 
     private HistorikkEndretFeltType finnTekstForFelt(Vilkår vilkår) {

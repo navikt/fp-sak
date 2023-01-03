@@ -23,6 +23,7 @@ import org.mockito.ArgumentMatchers;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
@@ -47,6 +48,7 @@ public class AksjonspunktRestTjenesteTest {
     private AksjonspunktTjeneste aksjonspunktTjenesteMock = mock(AksjonspunktTjeneste.class);
     private BehandlingsutredningTjeneste behandlingsutredningTjenesteMock = mock(BehandlingsutredningTjeneste.class);
     private BehandlingRepository behandlingRepository = mock(BehandlingRepository.class);
+    private BehandlingsresultatRepository behandlingsresultatRepository = mock(BehandlingsresultatRepository.class);
     private Behandling behandling = mock(Behandling.class);
     private TotrinnTjeneste totrinnTjeneste = mock(TotrinnTjeneste.class);
 
@@ -58,7 +60,7 @@ public class AksjonspunktRestTjenesteTest {
         when(behandling.getStatus()).thenReturn(BehandlingStatus.OPPRETTET);
         doNothing().when(behandlingsutredningTjenesteMock).kanEndreBehandling(any(), anyLong());
         aksjonspunktRestTjeneste = new AksjonspunktRestTjeneste(aksjonspunktTjenesteMock, behandlingRepository,
-            behandlingsutredningTjenesteMock, totrinnTjeneste);
+            behandlingsresultatRepository, behandlingsutredningTjenesteMock, totrinnTjeneste);
 
     }
 

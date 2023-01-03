@@ -45,7 +45,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat.Builder;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -451,10 +450,8 @@ public class AksjonspunktTjeneste {
     }
 
     private boolean aksjonspunktStøtterTotrinn(Aksjonspunkt aksjonspunkt) {
-        var aksjonspunktSkjermlenkeType = aksjonspunkt.getAksjonspunktDefinisjon().getSkjermlenkeType();
         return !VEDTAK_AP.contains(aksjonspunkt.getAksjonspunktDefinisjon())
             // Aksjonspunkter må ha SkjermlenkeType for å støtte totrinnskontroll
-            && aksjonspunktSkjermlenkeType != null
-            && !SkjermlenkeType.UDEFINERT.equals(aksjonspunktSkjermlenkeType);
+            && aksjonspunkt.getAksjonspunktDefinisjon().kanSetteTotrinnBehandling();
     }
 }

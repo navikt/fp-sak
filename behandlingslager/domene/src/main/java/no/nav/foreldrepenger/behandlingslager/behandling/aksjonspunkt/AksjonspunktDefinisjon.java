@@ -616,6 +616,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         return defaultTotrinnBehandling;
     }
 
+    public boolean kanSetteTotrinnBehandling() {
+        return SkjermlenkeType.totrinnsSkjermlenke(skjermlenkeType);
+    }
+
     public String getFristPeriode() {
         return fristPeriode;
     }

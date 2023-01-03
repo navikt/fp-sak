@@ -173,14 +173,11 @@ public class BehandlingDtoTjeneste {
 
     private BehandlingDto lagBehandlingDto(Behandling behandling,
                                            Optional<BehandlingsresultatDto> behandlingsresultatDto,
-                                           boolean erBehandlingMedGjeldendeVedtak,
-                                           SøknadRepository søknadRepository,
-                                           LocalDate vedtaksdato,
-                                           BehandlingRepository behandlingRepository) {
+                                           boolean erBehandlingMedGjeldendeVedtak, LocalDate vedtaksdato) {
         var dto = new BehandlingDto();
         var uuidDto = new UuidDto(behandling.getUuid());
         BehandlingDtoUtil.setStandardfelterMedGjeldendeVedtak(behandling, getBehandlingsresultat(behandling.getId()), dto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
-        dto.setSpråkkode(getSpråkkode(behandling, søknadRepository, behandlingRepository));
+        dto.setSpråkkode(getSpråkkode(behandling));
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
 
         if (behandling.erYtelseBehandling()) {
@@ -205,7 +202,7 @@ public class BehandlingDtoTjeneste {
         return dto;
     }
 
-    private static Språkkode getSpråkkode(Behandling behandling, SøknadRepository søknadRepository, BehandlingRepository behandlingRepository) {
+    private Språkkode getSpråkkode(Behandling behandling) {
         if (!behandling.erYtelseBehandling()) {
             return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(behandling.getFagsakId())
                 .flatMap(s -> søknadRepository.hentSøknadHvisEksisterer(s.getId()))
@@ -226,8 +223,7 @@ public class BehandlingDtoTjeneste {
             var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
             var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
                 .map(BehandlingVedtak::getVedtaksdato).orElse(null);
-            return lagBehandlingDto(behandling, behandlingsresultatDto, erBehandlingMedGjeldendeVedtak,
-                søknadRepository, vedtaksdato, behandlingRepository);
+            return lagBehandlingDto(behandling, behandlingsresultatDto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
         }).collect(Collectors.toList());
     }
 
@@ -249,7 +245,7 @@ public class BehandlingDtoTjeneste {
             .map(BehandlingVedtak::getVedtaksdato)
             .orElse(null);
         BehandlingDtoUtil.settStandardfelterUtvidet(behandling, getBehandlingsresultat(behandling.getId()), dto, erBehandlingMedGjeldendeVedtak, vedtaksDato);
-        dto.setSpråkkode(getSpråkkode(behandling, søknadRepository, behandlingRepository));
+        dto.setSpråkkode(getSpråkkode(behandling));
         var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
     }
@@ -290,7 +286,8 @@ public class BehandlingDtoTjeneste {
 
         var uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(AksjonspunktRestTjeneste.AKSJONSPUNKT_V2_PATH, "aksjonspunkter", uuidDto));
-        var aksjonspunkt = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling));
+        var aksjonspunkt = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, getBehandlingsresultat(behandling.getId()),
+            totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling));
         dto.setAksjonspunktene(aksjonspunkt);
         dto.setAksjonspunkt(aksjonspunkt);
 

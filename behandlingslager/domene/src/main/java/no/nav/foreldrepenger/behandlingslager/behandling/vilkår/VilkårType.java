@@ -127,6 +127,10 @@ public enum VilkårType implements Kodeverdi {
 
     ;
 
+    private static final Set<VilkårType> RELASJON_TIL_BARN = Set.of(VilkårType.FØDSELSVILKÅRET_MOR, VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
+        VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, VilkårType.ADOPSJONSVILKARET_FORELDREPENGER,
+        VilkårType.OMSORGSVILKÅRET, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
+
     private static final Map<String, VilkårType> KODER = new LinkedHashMap<>();
     private static final Map<VilkårType, Set<Avslagsårsak>> INDEKS_VILKÅR_AVSLAGSÅRSAKER = new LinkedHashMap<>(); // NOSONAR
     private static final Map<Avslagsårsak, Set<VilkårType>> INDEKS_AVSLAGSÅRSAK_VILKÅR = new LinkedHashMap<>(); // NOSONAR
@@ -164,6 +168,10 @@ public enum VilkårType implements Kodeverdi {
     @Override
     public String getNavn() {
         return navn;
+    }
+
+    public boolean gjelderRelasjonTilBarn() {
+        return RELASJON_TIL_BARN.contains(this);
     }
 
     public static Map<String, VilkårType> kodeMap() {

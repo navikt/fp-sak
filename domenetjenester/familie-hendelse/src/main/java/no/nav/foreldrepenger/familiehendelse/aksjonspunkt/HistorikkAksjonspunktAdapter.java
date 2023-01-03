@@ -1,16 +1,18 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import org.jboss.weld.exceptions.UnsupportedOperationException;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
@@ -21,12 +23,13 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 class HistorikkAksjonspunktAdapter {
 
     private HistorikkTjenesteAdapter historikkTjenesteAdapter;
-    private Behandling behandling;
+    private final Behandlingsresultat behandlingsresultat;
     private AksjonspunktOppdaterParameter param;
 
-    public HistorikkAksjonspunktAdapter(Behandling behandling, HistorikkTjenesteAdapter historikkTjenesteAdapter,
+    public HistorikkAksjonspunktAdapter(Behandlingsresultat behandlingsresultat,
+                                        HistorikkTjenesteAdapter historikkTjenesteAdapter,
                                         AksjonspunktOppdaterParameter param) {
-        this.behandling = behandling;
+        this.behandlingsresultat = behandlingsresultat;
         this.historikkTjenesteAdapter = historikkTjenesteAdapter;
         this.param = param;
     }
@@ -42,7 +45,9 @@ class HistorikkAksjonspunktAdapter {
                 erVilkarOk ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT);
         }
 
-        var vilkårType = behandling.getVilkårTypeForRelasjonTilBarnet().orElse(null);
+        var vilkårType = Optional.ofNullable(behandlingsresultat)
+            .map(Behandlingsresultat::getVilkårResultat)
+            .flatMap(VilkårResultat::getVilkårForRelasjonTilBarn).orElse(null);
         historikkTjenesteAdapter.tekstBuilder()
             .medBegrunnelse(begrunnelse, param.erBegrunnelseEndret())
             .medSkjermlenke(getSkjermlenkeType(vilkårType, aksjonspunktDefinisjon));

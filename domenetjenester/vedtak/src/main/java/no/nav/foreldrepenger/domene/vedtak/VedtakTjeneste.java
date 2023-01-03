@@ -130,8 +130,9 @@ public class VedtakTjeneste {
             var totrinnsVurdering = lagHistorikkinnslagTotrinnsvurdering(ttv);
             var sistEndret = ttv.getEndretTidspunkt() != null ? ttv.getEndretTidspunkt() : ttv.getOpprettetTidspunkt();
             totrinnsVurdering.setAksjonspunktSistEndret(sistEndret);
-            var skjermlenkeType = SkjermlenkeType.finnSkjermlenkeType(ttv.getAksjonspunktDefinisjon(), behandling);
-            if (skjermlenkeType != null && !SkjermlenkeType.UDEFINERT.equals(skjermlenkeType)) {
+            var skjermlenkeType = SkjermlenkeType.finnSkjermlenkeType(ttv.getAksjonspunktDefinisjon(), behandling,
+                behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null));
+            if (SkjermlenkeType.totrinnsSkjermlenke(skjermlenkeType)) {
                 vurdering.computeIfAbsent(skjermlenkeType, k -> new ArrayList<>()).add(totrinnsVurdering);
             } else {
                 vurderingUtenLenke.add(totrinnsVurdering);
