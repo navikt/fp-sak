@@ -220,7 +220,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Fortsetter behandlinger som står på vent grunnet regelendring 8-41", tags = "FORVALTNING-beregning")
     @Path("/fortsettBehandling841")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response fortsettBehandling841() {
         var query = entityManager.createNativeQuery("""
             select saksnummer, bh.id
