@@ -232,30 +232,6 @@ public class AbakusTjeneste {
         }
     }
 
-    @Deprecated
-    public void lagreGrunnlag(InntektArbeidYtelseGrunnlagDto dto) throws IOException {
-
-        var json = iayJsonWriter.writeValueAsString(dto);
-
-        var method = new RestRequest.Method(RestRequest.WebMethod.PUT, HttpRequest.BodyPublishers.ofString(json));
-        var request = RestRequest.newRequest(method, endpointGrunnlag, restConfig);
-
-        LOG.info("Lagre IAY grunnlag (behandlingUUID={}) i Abakus", dto.getKoblingReferanse());
-
-        var rawResponse = restClient.sendReturnUnhandled(request);
-        var responseCode = rawResponse.statusCode();
-        if (responseCode != HttpURLConnection.HTTP_OK) {
-            var responseBody = rawResponse.body();
-            var feilmelding = String.format("Kunne ikke lagre IAY grunnlag: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
-                dto.getGrunnlagReferanse(), endpointGrunnlag, responseCode, responseBody);
-
-            if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
-                throw feilKallTilAbakus(feilmelding);
-            }
-            throw feilVedKallTilAbakus(feilmelding);
-        }
-    }
-
     public void lagreOverstyrtGrunnlag(OverstyrtInntektArbeidYtelseDto overstyrtDto) throws IOException {
         var json = iayJsonWriter.writeValueAsString(overstyrtDto);
 
