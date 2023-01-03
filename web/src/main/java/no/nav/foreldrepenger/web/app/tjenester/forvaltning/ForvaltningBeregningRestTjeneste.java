@@ -1,16 +1,13 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -34,17 +31,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.revurdering.satsregulering.AutomatiskGrunnbelopReguleringTask;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -66,26 +59,17 @@ public class ForvaltningBeregningRestTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(ForvaltningBeregningRestTjeneste.class);
 
     private FagsakRepository fagsakRepository;
-    private EntityManager entityManager;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private ProsessTaskTjeneste taskTjeneste;
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
     private BeregningsresultatRepository beregningsresultatRepository;
 
     @Inject
-    public ForvaltningBeregningRestTjeneste(EntityManager entityManager,
-                                            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                            BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                                            ProsessTaskTjeneste taskTjeneste,
+    public ForvaltningBeregningRestTjeneste(ProsessTaskTjeneste taskTjeneste,
                                             BehandlingRepository behandlingRepository,
                                             BeregningsresultatRepository beregningsresultatRepository,
                                             FagsakRepository fagsakRepository,
                                             BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider) {
-        this.entityManager = entityManager;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.taskTjeneste = taskTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
@@ -213,49 +197,6 @@ public class ForvaltningBeregningRestTjeneste {
             return Response.noContent().build();
         }
         return Response.ok(kalkulatorInputDto).build();
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Fortsetter behandlinger som står på vent grunnet regelendring 8-41", tags = "FORVALTNING-beregning")
-    @Path("/fortsettBehandling841")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response fortsettBehandling841() {
-        var query = entityManager.createNativeQuery("""
-            select saksnummer, bh.id
-            from fagsak fs
-            join behandling bh on bh.fagsak_id = fs.id
-            join aksjonspunkt ap on ap.behandling_id = bh.id
-            where aksjonspunkt_def in (:apdef)
-            and aksjonspunkt_status = :status
-             """); //$NON-NLS-1$
-        query.setParameter("apdef", Set.of(AksjonspunktDefinisjon.AUTO_VENT_PÅ_LOVENDRING_8_41.getKode()));
-        query.setParameter("status", AksjonspunktStatus.OPPRETTET.getKode());
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
-        var sakBehandlinger = resultatList.stream().map(r -> new SakBehandling((String) r[0], ((BigDecimal) r[1]).longValue())).toList();
-        // For å bare ta 10 om gangen
-        int maxAntallSakerOmGangen = Math.min(sakBehandlinger.size(), 10);
-        List<String> åpnedeSaksnummer = new ArrayList<>();
-        for (var i = 0; i < maxAntallSakerOmGangen; i++) {
-            var sakOgBehandling = sakBehandlinger.get(i);
-            gjennopptaBehandling(sakOgBehandling.behandlingId);
-            åpnedeSaksnummer.add(sakOgBehandling.saksnummer);
-        }
-        return Response.ok(åpnedeSaksnummer).build();
-    }
-
-    private record SakBehandling(String saksnummer, long behandlingId){};
-
-    private void gjennopptaBehandling(Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (!behandling.isBehandlingPåVent() || behandling.erAvsluttet()) {
-            return;
-        }
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
-        behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
-        behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 
 }
