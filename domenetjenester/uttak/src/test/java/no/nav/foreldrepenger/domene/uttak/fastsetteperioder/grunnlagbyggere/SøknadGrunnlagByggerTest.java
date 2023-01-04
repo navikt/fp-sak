@@ -91,7 +91,7 @@ class SøknadGrunnlagByggerTest {
             .medAktivitetskravPerioder(List.of(aktivitetskravPeriode1, aktivitetskravPeriode2, aktivitetskravPeriode3))
             .lagre(repositoryProvider);
         var ytelsespesifiktGrunnlag = fpGrunnlag(søknadsperiode1.getFom());
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, ytelsespesifiktGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, ytelsespesifiktGrunnlag).medSkalBrukeNyFaktaOmUttak(false);
         var grunnlag = søknadGrunnlagBygger.byggGrunnlag(input).build();
 
         var perioderMedAvklartMorsAktivitet = grunnlag.getOppgittePerioder();
@@ -143,7 +143,7 @@ class SøknadGrunnlagByggerTest {
             .medAktivitetskravPerioder(List.of(aktivitetskravPeriode1, aktivitetskravPeriode2, aktivitetskravPeriode3))
             .lagre(repositoryProvider);
         var ytelsespesifiktGrunnlag = fpGrunnlag(søknadsperiode1.getFom());
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, ytelsespesifiktGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, ytelsespesifiktGrunnlag).medSkalBrukeNyFaktaOmUttak(false);
         var grunnlag = søknadGrunnlagBygger.byggGrunnlag(input).build();
 
         var perioderMedAvklartMorsAktivitet = grunnlag.getOppgittePerioder();
@@ -200,7 +200,7 @@ class SøknadGrunnlagByggerTest {
         ytelsesFordelingRepository.lagre(behandling.getId(), ytelseFordelingAggregat);
 
         var ytelsespesifiktGrunnlag = fpGrunnlag(fom);
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, ytelsespesifiktGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, ytelsespesifiktGrunnlag).medSkalBrukeNyFaktaOmUttak(false);
         var grunnlag = søknadGrunnlagBygger.byggGrunnlag(input).build();
 
         assertThat(grunnlag.getOppgittePerioder()).hasSize(5);
@@ -258,7 +258,7 @@ class SøknadGrunnlagByggerTest {
         ytelsesFordelingRepository.lagre(behandling.getId(), ytelseFordelingAggregat);
 
         var ytelsespesifiktGrunnlag = fpGrunnlag(fom);
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, ytelsespesifiktGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, ytelsespesifiktGrunnlag).medSkalBrukeNyFaktaOmUttak(false);
         var grunnlag = søknadGrunnlagBygger.byggGrunnlag(input).build();
 
         assertThat(grunnlag.getOppgittePerioder()).hasSize(4);
@@ -297,7 +297,7 @@ class SøknadGrunnlagByggerTest {
             .lagre(repositoryProvider);
 
         var ytelsespesifiktGrunnlag = fpGrunnlag(fødselsdato);
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, ytelsespesifiktGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, ytelsespesifiktGrunnlag).medSkalBrukeNyFaktaOmUttak(false);
         var grunnlag = søknadGrunnlagBygger.byggGrunnlag(input).build();
 
         assertThat(grunnlag.getOppgittePerioder()).hasSize(1);
