@@ -40,7 +40,7 @@ public class SendBrevForAutopunkt {
         this.søknadRepository = provider.getSøknadRepository();
     }
 
-    public void sendBrevForSøknadIkkeMottatt(Behandling behandling, Aksjonspunkt ap) {
+    public void sendBrevForSøknadIkkeMottatt(Behandling behandling) {
         var dokumentMalType = DokumentMalType.IKKE_SØKT;
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_BEHANDLING)
             || behandling.harBehandlingÅrsak(INFOBREV_OPPHOLD) || behandling.harBehandlingÅrsak(INFOBREV_PÅMINNELSE)) {
@@ -52,7 +52,7 @@ public class SendBrevForAutopunkt {
         }
     }
 
-    public void sendBrevForTidligSøknad(Behandling behandling, Aksjonspunkt ap) {
+    public void sendBrevForTidligSøknad(Behandling behandling) {
         if (!harSendtBrevForMal(behandling.getId(), DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_TIDLIG) && erSøktPåPapir(behandling)) {
             var bestillBrevDto = opprettBestillBrevDto(behandling, DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_TIDLIG);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN);

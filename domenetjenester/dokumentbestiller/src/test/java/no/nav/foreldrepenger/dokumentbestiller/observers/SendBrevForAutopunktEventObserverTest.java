@@ -84,23 +84,23 @@ public class SendBrevForAutopunktEventObserverTest {
 
         observer.sendBrevForAutopunkt(event);
 
-        verify(sendBrevForAutopunkt, times(0)).sendBrevForSøknadIkkeMottatt(any(), any());
+        verify(sendBrevForAutopunkt, times(0)).sendBrevForSøknadIkkeMottatt(any());
         verify(sendBrevForAutopunkt, times(0)).sendBrevForVenterPåFødsel(any(), any());
-        verify(sendBrevForAutopunkt, times(0)).sendBrevForTidligSøknad(any(), any());
+        verify(sendBrevForAutopunkt, times(0)).sendBrevForTidligSøknad(any());
     }
 
     @Test
     public void skalSendeBrevForSøknadIkkeMottatt() {
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunktIngenSøknad), null);
         observer.sendBrevForAutopunkt(event);
-        verify(sendBrevForAutopunkt, times(1)).sendBrevForSøknadIkkeMottatt(any(), any());
+        verify(sendBrevForAutopunkt, times(1)).sendBrevForSøknadIkkeMottatt(any());
     }
 
     @Test
     public void skalSendeBrevForTidligSøknad() {
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunktTidligSøknad), null);
         observer.sendBrevForAutopunkt(event);
-        verify(sendBrevForAutopunkt, times(1)).sendBrevForTidligSøknad(any(), any());
+        verify(sendBrevForAutopunkt, times(1)).sendBrevForTidligSøknad(any());
     }
 
     @Test
