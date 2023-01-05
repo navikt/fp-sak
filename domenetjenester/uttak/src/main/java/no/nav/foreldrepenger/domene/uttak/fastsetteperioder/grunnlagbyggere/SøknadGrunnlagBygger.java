@@ -83,7 +83,8 @@ public class SøknadGrunnlagBygger {
     }
 
     private List<OppgittPeriode> oppgittePerioder(UttakInput input, YtelseFordelingAggregat ytelseFordelingAggregat) {
-        var oppgittePerioder = splitPåDokumentasjon(ytelseFordelingAggregat, input.getBehandlingReferanse().relasjonRolle());
+        var oppgittePerioder = input.isSkalBrukeNyFaktaOmUttak() ? ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder()
+            : splitPåDokumentasjon(ytelseFordelingAggregat, input.getBehandlingReferanse().relasjonRolle());
         validerIkkeOverlappOppgittePerioder(oppgittePerioder);
 
         return oppgittePerioder.stream()
@@ -102,8 +103,7 @@ public class SøknadGrunnlagBygger {
             .map(akp -> new LocalDateSegment<>(akp.getTidsperiode().getFomDato(), akp.getTidsperiode().getTomDato(), akp)).toList());
 
         return opTimeline.combine(dokTimeline, (interval, op, dok) -> {
-            var eksisterendeDokVurdering = op.getValue().getDokumentasjonVurdering();
-            var dokumentasjonVurdering = eksisterendeDokVurdering != null || dok == null ? eksisterendeDokVurdering : utledDokumentasjonVurdering(dok.getValue());
+            var dokumentasjonVurdering = dok == null ? null : utledDokumentasjonVurdering(dok.getValue());
             var nyOp = OppgittPeriodeBuilder.fraEksisterende(op.getValue())
                 .medPeriode(interval.getFomDato(), interval.getTomDato())
                 .medDokumentasjonVurdering(dokumentasjonVurdering)
