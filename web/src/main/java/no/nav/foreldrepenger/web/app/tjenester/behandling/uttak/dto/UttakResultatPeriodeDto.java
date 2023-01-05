@@ -34,7 +34,6 @@ public class UttakResultatPeriodeDto {
     private UttakUtsettelseType utsettelseType;
     private OppholdÅrsak oppholdÅrsak;
     private LocalDate mottattDato;
-    private LocalDate tidligstMottattDato;
 
     private UttakResultatPeriodeDto() {
 
@@ -123,10 +122,6 @@ public class UttakResultatPeriodeDto {
         return mottattDato;
     }
 
-    public LocalDate getTidligstMottattDato() {
-        return tidligstMottattDato;
-    }
-
     public static class Builder {
 
         private final UttakResultatPeriodeDto kladd = new UttakResultatPeriodeDto();
@@ -199,11 +194,6 @@ public class UttakResultatPeriodeDto {
 
         public Builder medMottattDato(LocalDate mottattDato) {
             kladd.mottattDato = mottattDato;
-            return this;
-        }
-
-        public Builder medTidligstMottattDato(LocalDate tidligstMottattDato) {
-            kladd.tidligstMottattDato = tidligstMottattDato;
             return this;
         }
 
