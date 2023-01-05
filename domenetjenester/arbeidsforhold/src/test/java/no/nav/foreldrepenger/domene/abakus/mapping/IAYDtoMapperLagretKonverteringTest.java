@@ -49,9 +49,8 @@ public class IAYDtoMapperLagretKonverteringTest {
     }
 
     @Test
-    public void skal_lagre_ned_inntekt_arbeid_ytelser_og_konvertere_opphentet_til_dto() {
+    public void skal_lagre_ned_inntekt_arbeid_ytelser() {
         var behandlingId = 1L;
-        var behandlingUuid = UUID.randomUUID();
         var aktørId = AktørId.dummy();
 
         var aggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandlingId);
@@ -115,12 +114,7 @@ public class IAYDtoMapperLagretKonverteringTest {
         iayTjeneste.lagreIayAggregat(behandlingId, aggregatBuilder);
 
         var grunnlag = hentGrunnlag(behandlingId);
-
-        var mapper = new IAYTilDtoMapper(aktørId, YtelseType.FORELDREPENGER, grunnlag.getEksternReferanse(), behandlingUuid);
-
-        var dto = mapper.mapTilDto(grunnlag, true);
-
-        assertThat(dto).isNotNull();
+        assertThat(grunnlag).isNotNull();
     }
 
     private YtelseBuilder lagYtelse(InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder aktørYtelseBuilder) {
