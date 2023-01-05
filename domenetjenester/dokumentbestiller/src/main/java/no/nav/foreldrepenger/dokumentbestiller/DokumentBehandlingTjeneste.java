@@ -16,11 +16,14 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentBestiltEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -111,23 +114,19 @@ public class DokumentBehandlingTjeneste {
 
     public void utvidBehandlingsfristManuelt(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        oppdaterBehandlingMedNyFrist(behandling, finnNyFristManuelt(behandling));
+        oppdaterBehandlingMedNyFrist(behandling, finnNyFristManuelt(behandling.getType()));
+    }
+
+    public void utvidBehandlingsfristManueltMedlemskap(Long behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        oppdaterBehandlingMedNyFrist(behandling, utledFristMedlemskap(behandling));
+
     }
 
     void oppdaterBehandlingMedNyFrist(Behandling behandling, LocalDate nyFrist) {
         var lås = behandlingRepository.taSkriveLås(behandling);
         behandling.setBehandlingstidFrist(nyFrist);
         behandlingRepository.lagre(behandling, lås);
-    }
-
-    LocalDate finnNyFristManuelt(Behandling behandling) {
-        return LocalDate.now().plusWeeks(behandling.getType().getBehandlingstidFristUker());
-    }
-
-    public void utvidBehandlingsfristManueltMedlemskap(Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        oppdaterBehandlingMedNyFrist(behandling, utledFristMedlemskap(behandling, finnAksjonspunktperiodeForVentPåFødsel()));
-
     }
 
     public void kvitterBrevSent(DokumentProdusertDto kvittering) {
@@ -148,31 +147,21 @@ public class DokumentBehandlingTjeneste {
         }, () -> LOG.warn("Fant ikke dokument bestilling for bestillingUuid: {}.", bestillingUuid) );
     }
 
-    private Period finnAksjonspunktperiodeForVentPåFødsel() {
-        var ventPåFødsel = AksjonspunktDefinisjon.VENT_PÅ_FØDSEL;
-        return Period.parse(ventPåFødsel.getFristPeriode());
+    LocalDate utledFristMedlemskap(Behandling behandling) {
+        var vanligFrist = finnNyFristManuelt(behandling.getType());
+        return beregnTerminFrist(behandling)
+            .filter(f -> f.isAfter(vanligFrist) && f.isAfter(LocalDate.now()))
+            .orElse(vanligFrist);
     }
 
-    LocalDate utledFristMedlemskap(Behandling behandling, Period aksjonspunktPeriode) {
-        var vanligFrist = finnNyFristManuelt(behandling);
-        var terminFrist = beregnTerminFrist(behandling, aksjonspunktPeriode);
-        if (terminFrist.isPresent() && vanligFrist.isAfter(terminFrist.get()) && iFremtiden(terminFrist.get())) {
-            return terminFrist.get();
-        }
-        return vanligFrist;
+    LocalDate finnNyFristManuelt(BehandlingType behandlingType) {
+        return LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker());
     }
 
-    private boolean iFremtiden(LocalDate dato) {
-        return dato.isAfter(LocalDate.now());
-    }
-
-    private Optional<LocalDate> beregnTerminFrist(Behandling behandling, Period aksjonspunktPeriode) {
-        var gjeldendeTerminBekreftelse = familieHendelseRepository.hentAggregat(behandling.getId())
-                .getGjeldendeTerminbekreftelse();
-        if (gjeldendeTerminBekreftelse.isPresent()) {
-            var oppgittTermindato = gjeldendeTerminBekreftelse.get().getTermindato();
-            return Optional.of(oppgittTermindato.plus(aksjonspunktPeriode));
-        }
-        return Optional.empty();
+    private Optional<LocalDate> beregnTerminFrist(Behandling behandling) {
+        return familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+            .map(t -> t.plusWeeks(behandling.getType().getBehandlingstidFristUker()));
     }
 }

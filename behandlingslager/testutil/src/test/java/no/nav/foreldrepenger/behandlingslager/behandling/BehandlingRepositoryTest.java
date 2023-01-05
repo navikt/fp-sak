@@ -457,63 +457,6 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
         assertThat(liste).contains(behandling2, behandling3);
     }
 
-
-    @Test
-    public void skal_finne_førstegangsbehandling_naar_frist_er_utgatt() {
-        // Arrange
-        var tidsfrist = LocalDate.now().minusDays(1);
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-            .medBehandlingstidFrist(tidsfrist);
-        var familieHendelseBuilder = scenario.medSøknadHendelse();
-        familieHendelseBuilder.medAntallBarn(1)
-            .medFødselsDato(LocalDate.now());
-        scenario.lagre(repositoryProvider);
-
-        // Act
-        var liste = behandlingKandidaterRepository.finnBehandlingerMedUtløptBehandlingsfrist();
-
-        // Assert
-        assertThat(liste).hasSize(1);
-    }
-
-    @Test
-    public void skal_ikke_finne_revurderingsbehandling() {
-        // Arrange
-        var behandling = opprettRevurderingsKandidat(REVURDERING_DAGER_TILBAKE + 2);
-
-        var tidsfrist = LocalDate.now().minusDays(1);
-        var revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-            .medBehandlingstidFrist(tidsfrist).build();
-        //Tidsfristen blir overstyrt
-        revurderingsBehandling.setBehandlingstidFrist(tidsfrist);
-        behandlingRepository.lagre(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
-
-        // Act
-        var liste = behandlingKandidaterRepository.finnBehandlingerMedUtløptBehandlingsfrist();
-
-        // Assert
-        assertThat(liste).isEmpty();
-    }
-
-    @Test
-    public void skal_finne_revurderingsbehandling_med_endringssøknad() {
-        // Arrange
-        var behandling = opprettRevurderingsKandidat(REVURDERING_DAGER_TILBAKE + 2);
-
-        var tidsfrist = LocalDate.now().minusDays(1);
-        var revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-            .medBehandlingstidFrist(tidsfrist)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
-            .build();
-        //Tidsfristen blir overstyrt
-        revurderingsBehandling.setBehandlingstidFrist(tidsfrist);
-        behandlingRepository.lagre(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
-        // Act
-        var liste = behandlingKandidaterRepository.finnBehandlingerMedUtløptBehandlingsfrist();
-        // Assert
-        assertThat(liste).hasSize(1);
-    }
-
     @Test
     public void skal_opprettholde_id_etter_endringer() {
 

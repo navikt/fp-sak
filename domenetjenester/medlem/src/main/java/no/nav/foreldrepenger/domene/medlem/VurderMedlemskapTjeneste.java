@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.medlem;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,7 +8,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -72,8 +72,9 @@ public class VurderMedlemskapTjeneste {
     }
 
     public LocalDate beregnVentPåFødselFristTid(BehandlingReferanse ref) {
-        return familieHendelseRepository.hentAggregat(ref.behandlingId())
-            .getGjeldendeTerminbekreftelse().orElseThrow(IllegalStateException::new)
-            .getTermindato().plus(Period.parse(AksjonspunktDefinisjon.VENT_PÅ_FØDSEL.getFristPeriode()));
+        return familieHendelseRepository.hentAggregatHvisEksisterer(ref.behandlingId())
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt).orElseGet(LocalDate::now)
+            .plusWeeks(ref.behandlingType().getBehandlingstidFristUker());
     }
 }

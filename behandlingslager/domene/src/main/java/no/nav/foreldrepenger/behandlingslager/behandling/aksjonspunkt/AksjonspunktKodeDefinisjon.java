@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt;
 
+import java.time.Period;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 
@@ -153,7 +155,9 @@ public class AksjonspunktKodeDefinisjon {
     // Andre koder
     public static final SkjermlenkeType UTEN_SKJERMLENKE = null;
     public static final VilkårType UTEN_VILKÅR = null;
-    public static final String UTEN_FRIST = null;
+    public static final Period UTEN_FRIST = null;
+    public static final boolean UTVID_BEHFRIST = true;
+    public static final boolean SAMME_BEHFRIST = false;
     public static final boolean TOTRINN = true;
     public static final boolean ENTRINN = false;
     public static final boolean TILBAKE = true;

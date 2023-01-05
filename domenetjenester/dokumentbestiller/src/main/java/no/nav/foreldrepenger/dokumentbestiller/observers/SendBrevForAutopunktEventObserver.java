@@ -38,9 +38,9 @@ public class SendBrevForAutopunktEventObserver {
         var aksjonspunkter = event.getAksjonspunkter();
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.VENT_PÅ_SØKNAD)
-            .ifPresent(ap -> sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling, ap));
+            .ifPresent(ap -> sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling));
         finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)
-            .ifPresent(ap -> sendBrevForAutopunkt.sendBrevForTidligSøknad(behandling, ap));
+            .ifPresent(ap -> sendBrevForAutopunkt.sendBrevForTidligSøknad(behandling));
         finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.VENT_PÅ_FØDSEL)
             .ifPresent(ap -> sendBrevForAutopunkt.sendBrevForVenterPåFødsel(behandling, ap));
         finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING)

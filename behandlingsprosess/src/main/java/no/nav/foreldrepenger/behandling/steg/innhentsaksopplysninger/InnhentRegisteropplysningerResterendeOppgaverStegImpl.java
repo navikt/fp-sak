@@ -79,7 +79,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
             // Utført på/etter frist antas automatisk gjenopptak.
             if (!etterlysIM.erFristUtløpt() && !autopunktAlleredeUtført(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, behandling)) {
                 return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(opprettForAksjonspunktMedFrist(AUTO_VENT_ETTERLYST_INNTEKTSMELDING,
-                    Venteårsak.VENT_OPDT_INNTEKTSMELDING, etterlysIM.getVentefrist())));
+                    Venteårsak.VENT_OPDT_INNTEKTSMELDING, etterlysIM.ventefrist())));
             }
         }
 

@@ -42,43 +42,36 @@ public class AksjonspunktKontrollRepository {
             if (!aksjonspunkt.erOpprettet()) {
                 this.setReåpnet(aksjonspunkt);
             }
-            this.setFrist(aksjonspunkt, fristTid, venteårsak);
+            this.setFrist(behandling, aksjonspunkt, fristTid, venteårsak);
         } else {
             // nytt aksjonspunkt
-            aksjonspunkt = this.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon, Optional.empty(),
-                Optional.ofNullable(fristTid), Optional.ofNullable(venteårsak), Optional.empty());
+            aksjonspunkt = this.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon, null, fristTid, venteårsak);
         }
         aksjonspunkt.setBehandlingSteg(stegType);
         return aksjonspunkt;
     }
 
     private Aksjonspunkt leggTilAksjonspunkt(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon,
-                                             Optional<BehandlingStegType> behandlingStegType, Optional<LocalDateTime> frist, Optional<Venteårsak> venteÅrsak,
-                                             Optional<Boolean> toTrinnskontroll) {
+                                             BehandlingStegType behandlingStegType, LocalDateTime frist, Venteårsak venteÅrsak) {
         // sjekk at alle parametere er spesifisert
         Objects.requireNonNull(behandling, "behandling");
         Objects.requireNonNull(aksjonspunktDefinisjon, "aksjonspunktDefinisjon");
-        Objects.requireNonNull(behandlingStegType, "behandlingStegType");
-        Objects.requireNonNull(frist, "frist");
-        Objects.requireNonNull(venteÅrsak, "venteÅrsak");
-        Objects.requireNonNull(toTrinnskontroll, "toTrinnskontroll");
 
         // slå opp for å få riktig konfigurasjon.
-        var adBuilder = behandlingStegType.map(stegType -> new Aksjonspunkt.Builder(aksjonspunktDefinisjon, stegType)).orElseGet(() -> new Aksjonspunkt.Builder(aksjonspunktDefinisjon));
+        var adBuilder = Optional.ofNullable(behandlingStegType)
+            .map(stegType -> new Aksjonspunkt.Builder(aksjonspunktDefinisjon, stegType))
+            .orElseGet(() -> new Aksjonspunkt.Builder(aksjonspunktDefinisjon));
 
-        if (frist.isPresent()) {
-            adBuilder.medFristTid(frist.get());
+        if (frist != null) {
+            adBuilder.medFristTid(frist);
         } else if (aksjonspunktDefinisjon.getFristPeriod() != null) {
             adBuilder.medFristTid(LocalDateTime.now().plus(aksjonspunktDefinisjon.getFristPeriod()));
         }
 
-        if (venteÅrsak.isPresent()) {
-            adBuilder.medVenteårsak(venteÅrsak.get());
-        } else {
-            adBuilder.medVenteårsak(Venteårsak.UDEFINERT);
-        }
+        adBuilder.medVenteårsak(venteÅrsak != null ? venteÅrsak : Venteårsak.UDEFINERT);
 
         var aksjonspunkt = adBuilder.buildFor(behandling);
+        utvidBehandlingsfristVedBehov(behandling, aksjonspunkt);
         LOG.info("Legger til aksjonspunkt: {}", aksjonspunktDefinisjon);
         return aksjonspunkt;
     }
@@ -86,13 +79,11 @@ public class AksjonspunktKontrollRepository {
     public Aksjonspunkt leggTilAksjonspunkt(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon,
                                             BehandlingStegType behandlingStegType) {
         Objects.requireNonNull(behandlingStegType, "behandlingStegType");
-        return leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon, Optional.ofNullable(behandlingStegType), Optional.empty(), Optional.empty(),
-            Optional.empty());
+        return leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon, behandlingStegType, null, null);
     }
 
     public Aksjonspunkt leggTilAksjonspunkt(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        return leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon, Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.empty());
+        return leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon, null, null, null);
     }
 
     public void setReåpnet(Aksjonspunkt aksjonspunkt) {
@@ -118,9 +109,21 @@ public class AksjonspunktKontrollRepository {
         return aksjonspunkt.setStatus(AksjonspunktStatus.UTFØRT, begrunnelse);
     }
 
-    public void setFrist(Aksjonspunkt ap, LocalDateTime fristTid, Venteårsak venteårsak) {
+    public void setFrist(Behandling behandling, Aksjonspunkt ap, LocalDateTime fristTid, Venteårsak venteårsak) {
         ap.setFristTid(fristTid);
         ap.setVenteårsak(venteårsak);
+        utvidBehandlingsfristVedBehov(behandling, ap);
+    }
+
+    private void utvidBehandlingsfristVedBehov(Behandling behandling, Aksjonspunkt aksjonspunkt) {
+        if (aksjonspunkt.getFristTid() != null && aksjonspunkt.getAksjonspunktDefinisjon().utviderBehandlingsfrist()) {
+            var eksisterendeFrist = behandling.getBehandlingstidFrist();
+            var fristFraAksjonspunkt = aksjonspunkt.getFristTid().toLocalDate().plusWeeks(behandling.getType().getBehandlingstidFristUker());
+            if (eksisterendeFrist == null || fristFraAksjonspunkt.isAfter(eksisterendeFrist)) {
+                behandling.setBehandlingstidFrist(fristFraAksjonspunkt);
+            }
+        }
+
     }
 
 }

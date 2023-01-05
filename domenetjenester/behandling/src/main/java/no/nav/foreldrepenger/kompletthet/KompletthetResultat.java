@@ -4,17 +4,7 @@ import java.time.LocalDateTime;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 
-public class KompletthetResultat {
-
-    private boolean erOppfylt;
-    private LocalDateTime ventefrist;
-    private Venteårsak venteårsak;
-
-    private KompletthetResultat(boolean erOppfylt, LocalDateTime ventefrist, Venteårsak venteårsak) {
-        this.erOppfylt = erOppfylt;
-        this.ventefrist = ventefrist;
-        this.venteårsak = venteårsak;
-    }
+public record KompletthetResultat(boolean erOppfylt, LocalDateTime ventefrist, Venteårsak venteårsak) {
 
     public static KompletthetResultat oppfylt() {
         return new KompletthetResultat(true, null, null);
@@ -28,19 +18,7 @@ public class KompletthetResultat {
         return new KompletthetResultat(false, null, null);
     }
 
-    public LocalDateTime getVentefrist() {
-        return ventefrist;
-    }
-
-    public Venteårsak getVenteårsak() {
-        return venteårsak;
-    }
-
-    public boolean erOppfylt() {
-        return erOppfylt;
-    }
-
     public boolean erFristUtløpt() {
-        return !erOppfylt && (ventefrist == null);
+        return !erOppfylt() && (ventefrist() == null);
     }
 }

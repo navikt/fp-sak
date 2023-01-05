@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.dokumentbestiller.autopunkt;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
@@ -65,7 +64,7 @@ public class SendBrevForAutopunktTest {
 
     @Test
     public void sendBrevForSøknadIkkeMottattFørsteGang() {
-        sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling, aksjonspunkt);
+        sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling);
         Mockito.verify(dokumentBestillerTjeneste, times(1)).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN));
     }
 
@@ -82,7 +81,7 @@ public class SendBrevForAutopunktTest {
         doReturn(false).when(dokumentBehandlingTjeneste).erDokumentBestilt(Mockito.eq(behandling.getId()), Mockito.any());
         doNothing().when(dokumentBestillerTjeneste).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN));
 
-        sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling, autopunkt);
+        sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling);
         Mockito.verify(dokumentBestillerTjeneste, times(1)).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN));
     }
 
@@ -99,7 +98,7 @@ public class SendBrevForAutopunktTest {
         doReturn(false).when(dokumentBehandlingTjeneste).erDokumentBestilt(Mockito.eq(behandling.getId()), Mockito.any());
         doNothing().when(dokumentBestillerTjeneste).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN));
 
-        sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling, autopunkt);
+        sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling);
         Mockito.verify(dokumentBestillerTjeneste, times(1)).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN));
     }
 
@@ -113,22 +112,20 @@ public class SendBrevForAutopunktTest {
         var autopunkt = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD).get();
         AksjonspunktTestSupport.setFrist(autopunkt, LocalDate.now().plusWeeks(3).atStartOfDay(), Venteårsak.AVV_DOK);
         doReturn(true).when(dokumentBehandlingTjeneste).erDokumentBestilt(behandling.getId(), DokumentMalType.IKKE_SØKT);
-        sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling, autopunkt);
+        sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling);
         Mockito.verify(dokumentBestillerTjeneste, times(0)).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN));
     }
 
     @Test
     public void sendBrevForTidligSøknadFørsteGang() {
-        sendBrevForAutopunkt.sendBrevForTidligSøknad(behandling, aksjonspunkt);
+        sendBrevForAutopunkt.sendBrevForTidligSøknad(behandling);
         Mockito.verify(dokumentBestillerTjeneste, times(1)).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN));
-        assertThat(behandling.getBehandlingstidFrist())
-                .isEqualTo(LocalDate.from(aksjonspunkt.getFristTid().toLocalDate().plusWeeks(behandling.getType().getBehandlingstidFristUker())));
     }
 
     @Test
     public void sendBrevForTidligSøknadBareEnGang() {
         doReturn(true).when(dokumentBehandlingTjeneste).erDokumentBestilt(behandling.getId(), DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_TIDLIG);
-        sendBrevForAutopunkt.sendBrevForTidligSøknad(behandling, aksjonspunkt);
+        sendBrevForAutopunkt.sendBrevForTidligSøknad(behandling);
         Mockito.verify(dokumentBestillerTjeneste, times(0)).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN));
     }
 
@@ -137,7 +134,6 @@ public class SendBrevForAutopunktTest {
         var spyAp = Mockito.spy(aksjonspunkt);
         sendBrevForAutopunkt.sendBrevForVenterPåFødsel(behandling, spyAp);
         Mockito.verify(dokumentBestillerTjeneste, times(1)).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN));
-        assertThat(behandling.getBehandlingstidFrist()).isAfter(LocalDate.now());
     }
 
     @Test
