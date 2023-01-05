@@ -91,7 +91,7 @@ public class Kompletthetskontroller {
                 // Et av kompletthetskriteriene er ikke oppfylt, og evt. brev er sendt ut. Logger historikk og avbryter
                 if (!kompletthetResultat.erFristUtløpt()) {
                     dokumentmottakerFelles.opprettHistorikkinnslagForVenteFristRelaterteInnslag(behandling,
-                        HistorikkinnslagType.BEH_VENT, kompletthetResultat.getVentefrist(), kompletthetResultat.getVenteårsak());
+                        HistorikkinnslagType.BEH_VENT, kompletthetResultat.ventefrist(), kompletthetResultat.venteårsak());
                 }
                 return;
             }

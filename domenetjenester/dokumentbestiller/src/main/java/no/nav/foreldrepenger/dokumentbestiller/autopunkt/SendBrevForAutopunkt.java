@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
@@ -26,7 +25,6 @@ public class SendBrevForAutopunkt {
 
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
-    private BehandlingRepository behandlingRepository;
     private SøknadRepository søknadRepository;
 
     public SendBrevForAutopunkt() {
@@ -40,7 +38,6 @@ public class SendBrevForAutopunkt {
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.søknadRepository = provider.getSøknadRepository();
-        this.behandlingRepository = provider.getBehandlingRepository();
     }
 
     public void sendBrevForSøknadIkkeMottatt(Behandling behandling, Aksjonspunkt ap) {
@@ -60,7 +57,6 @@ public class SendBrevForAutopunkt {
             var bestillBrevDto = opprettBestillBrevDto(behandling, DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_TIDLIG);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN);
         }
-        oppdaterBehandlingMedNyFrist(behandling.getId(), beregnBehandlingstidsfrist(ap, behandling));
     }
 
     private BestillBrevDto opprettBestillBrevDto(Behandling behandling,
@@ -75,11 +71,6 @@ public class SendBrevForAutopunkt {
             var bestillBrevDto = opprettBestillBrevDto(behandling, DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN);
         }
-        oppdaterBehandlingMedNyFrist(behandling.getId(), beregnBehandlingstidsfrist(ap, behandling));
-    }
-
-    public void oppdaterBehandlingsfristForVenterPåOpptjening(Behandling behandling, Aksjonspunkt ap) {
-        oppdaterBehandlingMedNyFrist(behandling.getId(), beregnBehandlingstidsfrist(ap, behandling));
     }
 
     public void sendBrevForEtterkontroll(Behandling behandling) {
@@ -99,14 +90,4 @@ public class SendBrevForAutopunkt {
         return dokumentBehandlingTjeneste.erDokumentBestilt(behandlingId, malType);
     }
 
-    private LocalDate beregnBehandlingstidsfrist(Aksjonspunkt ap, Behandling behandling) {
-        return LocalDate.from(ap.getFristTid().plusWeeks(behandling.getType().getBehandlingstidFristUker()));
-    }
-
-    void oppdaterBehandlingMedNyFrist(long behandlingId, LocalDate nyFrist) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var lås = behandlingRepository.taSkriveLås(behandling);
-        behandling.setBehandlingstidFrist(nyFrist);
-        behandlingRepository.lagre(behandling, lås);
-    }
 }

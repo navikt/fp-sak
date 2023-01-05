@@ -51,8 +51,8 @@ class AksjonspunktResultatOppretter {
 
     private List<Aksjonspunkt> fjernGjensidigEkskluderendeAksjonspunkter(List<AksjonspunktResultat> nyeApResultater) {
         List<Aksjonspunkt> avbrutteAksjonspunkter = new ArrayList<>();
-        var nyeApDef = nyeApResultater.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).map(AksjonspunktDefinisjon::getKode)
-                .collect(toSet());
+        var nyeApDef = nyeApResultater.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(toSet());
+        // Avbryt eksisterende aksjonspunkt dersom det skal opprettes nytt som er i konflikt med eksisterende
         eksisterende.values().stream()
                 .filter(Aksjonspunkt::erÅpentAksjonspunkt)
                 .filter(ap -> ap.getAksjonspunktDefinisjon().getUtelukkendeApdef().stream().anyMatch(nyeApDef::contains))
@@ -79,7 +79,7 @@ class AksjonspunktResultatOppretter {
             aksjonspunktKontrollRepository.setReåpnet(oppdatert);
         }
         if (resultat.getFrist() != null || resultat.getVenteårsak() != null) {
-            aksjonspunktKontrollRepository.setFrist(oppdatert, resultat.getFrist(), resultat.getVenteårsak());
+            aksjonspunktKontrollRepository.setFrist(behandling, oppdatert, resultat.getFrist(), resultat.getVenteårsak());
         }
         return oppdatert;
     }

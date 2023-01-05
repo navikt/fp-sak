@@ -189,9 +189,9 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
             return BehandleStegResultat.henlagtBehandling();
         }
         // TODO: Bestill brev (Venter på PK-50295)
-        var venteårsak = kompletthetResultat.getVenteårsak() != null ? kompletthetResultat.getVenteårsak() : Venteårsak.AVV_DOK;
+        var venteårsak = kompletthetResultat.venteårsak() != null ? kompletthetResultat.venteårsak() : Venteårsak.AVV_DOK;
 
         return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections
-                .singletonList(AksjonspunktResultat.opprettForAksjonspunktMedFrist(apDef, venteårsak, kompletthetResultat.getVentefrist())));
+                .singletonList(AksjonspunktResultat.opprettForAksjonspunktMedFrist(apDef, venteårsak, kompletthetResultat.ventefrist())));
     }
 }

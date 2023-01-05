@@ -2,11 +2,13 @@ package no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon.ENTRINN;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon.FORBLI;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon.SAMME_BEHFRIST;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon.TILBAKE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon.TOTRINN;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon.UTEN_FRIST;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon.UTEN_SKJERMLENKE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon.UTEN_VILKÅR;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon.UTVID_BEHFRIST;
 import static no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType.FAKTA_OM_AKTIVITETSKRAV;
 import static no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.YtelseType.ES;
 import static no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.YtelseType.FP;
@@ -354,46 +356,50 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
 
     AUTO_MANUELT_SATT_PÅ_VENT(AksjonspunktKodeDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT_KODE, AksjonspunktType.AUTOPUNKT,
             "Manuelt satt på vent", BehandlingStegType.KONTROLLER_FAKTA, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN,
-            FORBLI, "P4W", EnumSet.of(ES, FP, SVP)),
+            FORBLI, Period.ofWeeks(4), SAMME_BEHFRIST, EnumSet.of(ES, FP, SVP)),
     AUTO_VENT_PÅ_FØDSELREGISTRERING(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_FØDSELREGISTRERING_KODE, AksjonspunktType.AUTOPUNKT,
             "Vent på fødsel ved avklaring av søkers relasjon til barnet", BehandlingStegType.KONTROLLER_FAKTA, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN,
-            TILBAKE, UTEN_FRIST, EnumSet.of(ES, FP, SVP)),
+            TILBAKE, UTEN_FRIST, SAMME_BEHFRIST, EnumSet.of(ES, FP, SVP)),
     AUTO_VENTER_PÅ_KOMPLETT_SØKNAD(AksjonspunktKodeDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD_KODE, AksjonspunktType.AUTOPUNKT,
-            "Venter på komplett søknad", BehandlingStegType.VURDER_KOMPLETTHET, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, FORBLI, "P4W", EnumSet.of(ES, FP, SVP)),
+            "Venter på komplett søknad", BehandlingStegType.VURDER_KOMPLETTHET, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, FORBLI,
+            Period.ofWeeks(4), SAMME_BEHFRIST, EnumSet.of(ES, FP, SVP)),
     VENT_PÅ_FØDSEL(AksjonspunktKodeDefinisjon.VENT_PÅ_FØDSEL_KODE, AksjonspunktType.AUTOPUNKT,
             "Vent på fødsel ved avklaring av medlemskap", BehandlingStegType.KONTROLLER_FAKTA, VurderingspunktType.UT, UTEN_VILKÅR,
-            UTEN_SKJERMLENKE, ENTRINN, FORBLI, "P3W", EnumSet.of(ES, FP, SVP)),
+            UTEN_SKJERMLENKE, ENTRINN, FORBLI, Period.ofWeeks(3), UTVID_BEHFRIST, EnumSet.of(ES, FP, SVP)),
     AUTO_SATT_PÅ_VENT_REVURDERING(AksjonspunktKodeDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING_KODE, AksjonspunktType.AUTOPUNKT,
             "Satt på vent etter varsel om revurdering", BehandlingStegType.VARSEL_REVURDERING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE,
-            ENTRINN, FORBLI, "P4W", EnumSet.of(ES, FP, SVP)),
+            ENTRINN, FORBLI, Period.ofWeeks(4), SAMME_BEHFRIST, EnumSet.of(ES, FP, SVP)),
     VENT_PÅ_SCANNING(AksjonspunktKodeDefinisjon.VENT_PÅ_SCANNING_KODE,
             AksjonspunktType.AUTOPUNKT, "Venter på scanning", BehandlingStegType.VURDER_INNSYN, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE,
-            "P3D", EnumSet.of(ES, FP, SVP)),
+        Period.ofDays(3), SAMME_BEHFRIST, EnumSet.of(ES, FP, SVP)),
     VENT_PGA_FOR_TIDLIG_SØKNAD(AksjonspunktKodeDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD_KODE, AksjonspunktType.AUTOPUNKT, "Satt på vent pga for tidlig søknad",
-            BehandlingStegType.VURDER_KOMPLETTHET, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(ES, FP, SVP)),
+            BehandlingStegType.VURDER_KOMPLETTHET, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE,
+            UTEN_FRIST, UTVID_BEHFRIST, EnumSet.of(ES, FP, SVP)),
 
     AUTO_KØET_BEHANDLING(AksjonspunktKodeDefinisjon.AUTO_KØET_BEHANDLING_KODE,
             AksjonspunktType.AUTOPUNKT, "Autokøet behandling", BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN,
-        FORBLI, UTEN_FRIST, EnumSet.of(FP)),
+        FORBLI, UTEN_FRIST, SAMME_BEHFRIST, EnumSet.of(FP)),
     VENT_PÅ_SØKNAD(AksjonspunktKodeDefinisjon.VENT_PÅ_SØKNAD_KODE,
             AksjonspunktType.AUTOPUNKT, "Venter på søknad", BehandlingStegType.REGISTRER_SØKNAD, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE,
-            "P3W", EnumSet.of(FP, SVP)),
+            Period.ofWeeks(3), UTVID_BEHFRIST, EnumSet.of(FP, SVP)),
     AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST_KODE, AksjonspunktType.AUTOPUNKT, "Vent på rapporteringsfrist for inntekt",
-            BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
+            BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE,
+            UTEN_FRIST, SAMME_BEHFRIST, EnumSet.of(FP, SVP)),
     AUTO_VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT_KODE, AksjonspunktType.AUTOPUNKT,
             "Vent på siste meldekort for AAP eller DP-mottaker", BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR,
-        UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
+            UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, SAMME_BEHFRIST, EnumSet.of(FP, SVP)),
     AUTO_VENT_ETTERLYST_INNTEKTSMELDING(AksjonspunktKodeDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING_KODE, AksjonspunktType.AUTOPUNKT, "Vent på etterlyst inntektsmelding",
-            BehandlingStegType.INREG_AVSL, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, "P3W", EnumSet.of(FP, SVP)),
+            BehandlingStegType.INREG_AVSL, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, Period.ofWeeks(3), SAMME_BEHFRIST, EnumSet.of(FP, SVP)),
     AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN(AksjonspunktKodeDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN_KODE, AksjonspunktType.AUTOPUNKT, "Autopunkt anke oversendt til Trygderetten",
-            BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, "P2Y", EnumSet.of(ES, FP, SVP)),
+            BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, Period.ofYears(2),
+            UTVID_BEHFRIST, EnumSet.of(ES, FP, SVP)),
     AUTO_VENT_PÅ_SYKEMELDING(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_SYKEMELDING_KODE, AksjonspunktType.AUTOPUNKT,
         "Vent på siste sykemelding fra søker som mottar sykepenger basert på dagpenger", BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR,
-        UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP)),
+        UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, SAMME_BEHFRIST, EnumSet.of(FP)),
     AUTO_VENT_PÅ_KABAL_KLAGE(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE_KODE, AksjonspunktType.AUTOPUNKT, "Vent på klagebehandling hos NAV Klageinstans",
-        BehandlingStegType.KLAGE_NK, VurderingspunktType.INN, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(ES, FP, SVP)),
+        BehandlingStegType.KLAGE_NK, VurderingspunktType.INN, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, SAMME_BEHFRIST, EnumSet.of(ES, FP, SVP)),
     AUTO_VENT_PÅ_KABAL_ANKE(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE_KODE, AksjonspunktType.AUTOPUNKT, "Vent på ankebehandling hos NAV Klageinstans",
-        BehandlingStegType.ANKE, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(ES, FP, SVP)),
+        BehandlingStegType.ANKE, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, SAMME_BEHFRIST, EnumSet.of(ES, FP, SVP)),
     UNDEFINED,
 
     // Utgåtte aksjonspunktkoder - kun her for bakoverkompatibilitet. Finnes historisk i databasen til fpsak i PROD !
@@ -488,31 +494,29 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         }
     }
 
-    private static final Set<String> UTELUKKENDE_AKSJONSPUNKT = Set.of(
-        AksjonspunktKodeDefinisjon.SJEKK_MANGLENDE_FØDSEL_KODE,
-        AksjonspunktKodeDefinisjon.AVKLAR_TERMINBEKREFTELSE_KODE);
-
-    private static final Map<String, Set<AksjonspunktDefinisjon>> UTELUKKENDE_AP_MAP = Map.ofEntries(
-        Map.entry(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL.getKode(), Set.of(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)),
-        Map.entry(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE.getKode(), Set.of(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL)),
-        Map.entry(AksjonspunktDefinisjon.FORESLÅ_VEDTAK.getKode(), Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL)),
-        Map.entry(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL.getKode(), Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT, AksjonspunktDefinisjon.FORESLÅ_VEDTAK)),
-        Map.entry(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.getKode(), Set.of(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktDefinisjon.FORESLÅ_VEDTAK))
+    private static final Map<AksjonspunktDefinisjon, Set<AksjonspunktDefinisjon>> UTELUKKENDE_AP_MAP = Map.ofEntries(
+        Map.entry(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, Set.of(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)),
+        Map.entry(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, Set.of(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL))
+        /* TODO: Vurder om disse skal tas med
+        , Map.entry(AksjonspunktDefinisjon.FORESLÅ_VEDTAK, Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL))
+        , Map.entry(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT, AksjonspunktDefinisjon.FORESLÅ_VEDTAK))
+        , Map.entry(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT, Set.of(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktDefinisjon.FORESLÅ_VEDTAK))
+         */
     );
 
     private AksjonspunktType aksjonspunktType = AksjonspunktType.UDEFINERT;
 
     /**
-     * Definerer hvorvidt Aksjonspunktet default krever totrinnsbehandling. Dvs. Beslutter må godkjenne hva
-     * Saksbehandler har utført.
+     * Definerer hvorvidt Aksjonspunktet default krever totrinnsbehandling. Dvs. Beslutter må godkjenne hva Saksbehandler har utført.
      */
     private boolean defaultTotrinnBehandling = false;
 
     /**
-     * Hvorvidt aksjonspunktet har en frist før det må være løst. Brukes i forbindelse med når Behandling er lagt til
-     * Vent.
+     * Hvorvidt aksjonspunktet har en frist før det må være løst. Brukes i forbindelse med når Behandling er lagt til Vent.
      */
-    private String fristPeriode;
+    private Period fristPeriode;
+
+    private boolean utviderBehandlingsfrist;
 
     private VilkårType vilkårType;
 
@@ -578,7 +582,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
                            SkjermlenkeType skjermlenkeType,
                            boolean defaultTotrinnBehandling,
                            boolean tilbakehoppVedGjenopptakelse,
-                           String fristPeriode,
+                           Period fristPeriode,
+                           boolean utviderBehandlingsfrist,
                            Set<FagsakYtelseType.YtelseType> ytelseTyper) {
         this.kode = Objects.requireNonNull(kode);
         this.navn = navn;
@@ -591,6 +596,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         this.skjermlenkeType = skjermlenkeType;
         this.tilbakehoppVedGjenopptakelse = tilbakehoppVedGjenopptakelse;
         this.fristPeriode = fristPeriode;
+        this.utviderBehandlingsfrist = utviderBehandlingsfrist;
     }
 
 
@@ -620,12 +626,12 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         return SkjermlenkeType.totrinnsSkjermlenke(skjermlenkeType);
     }
 
-    public String getFristPeriode() {
+    public Period getFristPeriod() {
         return fristPeriode;
     }
 
-    public Period getFristPeriod() {
-        return (fristPeriode == null ? null : Period.parse(fristPeriode));
+    public boolean utviderBehandlingsfrist() {
+        return utviderBehandlingsfrist;
     }
 
     public VilkårType getVilkårType() {
@@ -641,9 +647,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     }
 
     /** Returnerer kode verdi for aksjonspunkt utelukket av denne. */
-    public Set<String> getUtelukkendeApdef() {
-        // TODO: Til vurdering UTELUKKENDE_AP_MAP.getOrDefault(kode, Set.of()).stream().map(AksjonspunktDefinisjon::getKode).collect(Collectors.toSet());
-        return UTELUKKENDE_AKSJONSPUNKT.stream().filter(ap -> !Objects.equals(kode, ap)).collect(Collectors.toSet());
+    public Set<AksjonspunktDefinisjon> getUtelukkendeApdef() {
+        return UTELUKKENDE_AP_MAP.getOrDefault(this, Set.of());
     }
 
     @Override

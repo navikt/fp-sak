@@ -116,7 +116,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isTrue();
-        assertThat(kompletthetResultat.getVentefrist()).isNull();
+        assertThat(kompletthetResultat.ventefrist()).isNull();
     }
 
     @Test
@@ -132,7 +132,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(
+        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(
                 søknadRepository.hentSøknad(behandling.getId()).getMottattDato().plusWeeks(1));
     }
 
@@ -152,7 +152,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isTrue();
-        assertThat(kompletthetResultat.getVentefrist()).isNull();
+        assertThat(kompletthetResultat.ventefrist()).isNull();
         verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any());
     }
 
@@ -171,7 +171,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isTrue();
-        assertThat(kompletthetResultat.getVentefrist()).isNull();
+        assertThat(kompletthetResultat.ventefrist()).isNull();
         verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any());
     }
 
@@ -190,7 +190,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(STARTDATO_PERMISJON);
+        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(STARTDATO_PERMISJON);
         verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any());
     }
 
@@ -209,7 +209,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(3));
+        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(3));
         verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(), any());
 
         // Act 2
@@ -219,7 +219,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(kompletthetResultat2.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat2.getVentefrist().toLocalDate()).isEqualTo(stp);
+        assertThat(kompletthetResultat2.ventefrist().toLocalDate()).isEqualTo(stp);
         verify(dokumentBestillerTjenesteMock, times(2)).bestillDokument(any(), any());
     }
 
@@ -238,7 +238,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(3));
+        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(3));
         verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(), any());
     }
 
@@ -253,7 +253,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(
+        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(
                 søknadRepository.hentSøknad(behandling.getId()).getMottattDato().plusWeeks(1));
     }
 
@@ -269,7 +269,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isTrue();
-        assertThat(kompletthetResultat.getVentefrist()).isNull();
+        assertThat(kompletthetResultat.ventefrist()).isNull();
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -80,9 +79,6 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 @Entity(name = "Behandling")
 @Table(name = "BEHANDLING")
 public class Behandling extends BaseEntitet {
-
-    private static final Set<BehandlingÅrsakType> DØDSHENDELSER = Collections
-            .unmodifiableSet(EnumSet.of(BehandlingÅrsakType.RE_HENDELSE_DØD_BARN, BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL));
 
     // Null safe
     private static final Comparator<? extends BaseEntitet> COMPARATOR_OPPRETTET_TID = Comparator
@@ -695,28 +691,15 @@ public class Behandling extends BaseEntitet {
     }
 
     public LocalDate getFristDatoBehandlingPåVent() {
-        var aksjonspunkt = getFørsteÅpneAutopunkt();
-        LocalDateTime fristTid = null;
-        if (aksjonspunkt.isPresent()) {
-            fristTid = aksjonspunkt.get().getFristTid();
-        }
-        return fristTid == null ? null : fristTid.toLocalDate();
+        return getFørsteÅpneAutopunkt().map(Aksjonspunkt::getFristTid).map(LocalDateTime::toLocalDate).orElse(null);
     }
 
     public AksjonspunktDefinisjon getBehandlingPåVentAksjonspunktDefinisjon() {
-        var aksjonspunkt = getFørsteÅpneAutopunkt();
-        if (aksjonspunkt.isPresent()) {
-            return aksjonspunkt.get().getAksjonspunktDefinisjon();
-        }
-        return null;
+        return getFørsteÅpneAutopunkt().map(Aksjonspunkt::getAksjonspunktDefinisjon).orElse(null);
     }
 
     public Venteårsak getVenteårsak() {
-        var aksjonspunkt = getFørsteÅpneAutopunkt();
-        if (aksjonspunkt.isPresent()) {
-            return aksjonspunkt.get().getVenteårsak();
-        }
-        return null;
+        return getFørsteÅpneAutopunkt().map(Aksjonspunkt::getVenteårsak).orElse(null);
     }
 
     /**
@@ -777,10 +760,6 @@ public class Behandling extends BaseEntitet {
 
     public boolean erÅpnetForEndring() {
         return åpnetForEndring;
-    }
-
-    public boolean behandlingSkyldesDødsfall() {
-        return behandlingÅrsaker.stream().anyMatch(årsak -> DØDSHENDELSER.contains(årsak.getBehandlingÅrsakType()));
     }
 
     public void setÅpnetForEndring(boolean åpnetForEndring) {

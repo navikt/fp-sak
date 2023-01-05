@@ -27,7 +27,7 @@ public class VurderKompletthetStegFelles {
     }
 
     public AksjonspunktResultat byggAutopunkt(KompletthetResultat kompletthetResultat, AksjonspunktDefinisjon apDef) {
-        return opprettForAksjonspunktMedFrist(apDef, kompletthetResultat.getVenteårsak(), kompletthetResultat.getVentefrist());
+        return opprettForAksjonspunktMedFrist(apDef, kompletthetResultat.venteårsak(), kompletthetResultat.ventefrist());
     }
 
     public BehandleStegResultat evaluerUoppfylt(KompletthetResultat kompletthetResultat, AksjonspunktDefinisjon apDef) {

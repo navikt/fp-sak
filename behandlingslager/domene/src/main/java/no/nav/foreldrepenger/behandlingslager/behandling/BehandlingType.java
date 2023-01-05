@@ -19,20 +19,20 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
      * Konstanter for å skrive ned kodeverdi. For å hente ut andre data konfigurert, må disse leses fra databasen (eks.
      * for å hente offisiell kode for et Nav kodeverk).
      */
-    FØRSTEGANGSSØKNAD("BT-002", "Førstegangsbehandling", "ae0034", 6, true),
-    KLAGE("BT-003", "Klage", "ae0058", 10, false),
-    REVURDERING("BT-004", "Revurdering", "ae0028", 6, false),
-    ANKE("BT-008", "Anke", "ae0046", 0, false),
-    INNSYN("BT-006", "Dokumentinnsyn", "ae0042", 1, false),
+    FØRSTEGANGSSØKNAD("BT-002", "Førstegangsbehandling", "ae0034", 6),
+    KLAGE("BT-003", "Klage", "ae0058", 10),
+    REVURDERING("BT-004", "Revurdering", "ae0028", 6),
+    ANKE("BT-008", "Anke", "ae0046", 0),
+    INNSYN("BT-006", "Dokumentinnsyn", "ae0042", 1),
 
     /** @deprecated fjern herfra. */
-    TILBAKEBETALING_ENDRING("BT-005", "Tilbakebetaling endring", "ae0043", 6, false),
+    TILBAKEBETALING_ENDRING("BT-005", "Tilbakebetaling endring", "ae0043", 6),
     /** @deprecated fjern herfra. */
-    TILBAKEKREVING("BT-007", "Tilbakekreving", null, 0, false),
+    TILBAKEKREVING("BT-007", "Tilbakekreving", null, 0),
     /** @deprecated fjern herfra. */
-    REVURDERING_TILBAKEKREVING("BT-009", "Revurdering tilbakekreving", null, 0, false),
+    REVURDERING_TILBAKEKREVING("BT-009", "Revurdering tilbakekreving", null, 0),
 
-    UDEFINERT("-", "Ikke definert", null, 0, false),
+    UDEFINERT("-", "Ikke definert", null, 0),
     ;
 
     private static final Set<BehandlingType> YTELSE_BEHANDLING_TYPER = Set.of(FØRSTEGANGSSØKNAD, REVURDERING);
@@ -51,7 +51,6 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
     }
 
     private int behandlingstidFristUker;
-    private Boolean behandlingstidVarselbrev;
 
     private String navn;
 
@@ -67,13 +66,11 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
     BehandlingType(String kode,
                    String navn,
                    String offisiellKode,
-                   int behandlingstidFristUker,
-                   Boolean behandlingstidVarselbrev) {
+                   int behandlingstidFristUker) {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;
         this.behandlingstidFristUker = behandlingstidFristUker;
-        this.behandlingstidVarselbrev = behandlingstidVarselbrev;
     }
 
     public static BehandlingType fraKode(String kode) {
@@ -129,10 +126,6 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
 
     public int getBehandlingstidFristUker() {
         return behandlingstidFristUker;
-    }
-
-    public boolean isBehandlingstidVarselbrev() {
-        return behandlingstidVarselbrev;
     }
 
     @Converter(autoApply = true)

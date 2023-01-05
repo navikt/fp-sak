@@ -87,7 +87,6 @@ public class SendBrevForAutopunktEventObserverTest {
         verify(sendBrevForAutopunkt, times(0)).sendBrevForSøknadIkkeMottatt(any(), any());
         verify(sendBrevForAutopunkt, times(0)).sendBrevForVenterPåFødsel(any(), any());
         verify(sendBrevForAutopunkt, times(0)).sendBrevForTidligSøknad(any(), any());
-        verify(sendBrevForAutopunkt, times(0)).oppdaterBehandlingsfristForVenterPåOpptjening(any(), any());
     }
 
     @Test

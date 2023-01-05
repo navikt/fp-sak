@@ -68,8 +68,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
         if (utledAlleManglendeVedleggForForsendelse(ref).isEmpty()) {
             return KompletthetResultat.oppfylt();
         }
-        var definisjon = AUTO_VENTER_PÅ_KOMPLETT_SØKNAD;
-        var ønsketFrist = LocalDateTime.now().plusDays(definisjon.getFristPeriod().getDays());
+        var ønsketFrist = LocalDateTime.now().plus(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD.getFristPeriod());
         return KompletthetResultat.ikkeOppfylt(ønsketFrist, Venteårsak.AVV_DOK);
     }
 
