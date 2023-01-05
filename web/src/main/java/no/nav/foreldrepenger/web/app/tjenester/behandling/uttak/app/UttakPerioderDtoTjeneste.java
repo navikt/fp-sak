@@ -89,7 +89,7 @@ public class UttakPerioderDtoTjeneste {
         var annenForelderRettEØS = ytelseFordeling.map(yf -> UttakOmsorgUtil.avklartAnnenForelderHarRettEØS(yf)).orElse(false);
         var oppgittAnnenForelderRettEØS = ytelseFordeling.map(yf -> UttakOmsorgUtil.oppgittAnnenForelderRettEØS(yf)).orElse(false);
         return new UttakResultatPerioderDto(perioderSøker,
-            annenpartUttaksperioder, RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()), annenForelderHarRett, aleneomsorg,
+            annenpartUttaksperioder, annenForelderHarRett, aleneomsorg,
             annenForelderRettEØS, oppgittAnnenForelderRettEØS, filter);
     }
 
@@ -139,7 +139,6 @@ public class UttakPerioderDtoTjeneste {
             .medOppholdÅrsak(periode.getOppholdÅrsak())
             .medPeriodeType(periode.getSøktKonto())
             .medMottattDato(periode.getMottattDato())
-            .medTidligstMottattDato(periode.getTidligstMottattDato())
             .build();
 
         for (var aktivitet : periode.getAktiviteter()) {

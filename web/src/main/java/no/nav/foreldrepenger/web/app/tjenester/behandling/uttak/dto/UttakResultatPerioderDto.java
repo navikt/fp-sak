@@ -4,7 +4,6 @@ import java.util.List;
 
 public record UttakResultatPerioderDto(List<UttakResultatPeriodeDto> perioderSøker,
                                        List<UttakResultatPeriodeDto> perioderAnnenpart,
-                                       boolean søkerErMor,
                                        boolean annenForelderHarRett,
                                        boolean aleneomsorg,
                                        boolean annenForelderRettEØS,
