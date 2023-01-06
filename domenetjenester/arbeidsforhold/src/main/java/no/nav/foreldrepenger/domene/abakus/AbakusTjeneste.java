@@ -76,7 +76,6 @@ public class AbakusTjeneste {
     private URI endpointInntektsmeldinger;
     private URI endpointYtelser;
     private URI endpointOverstyring;
-    private URI endpointLagreYtelse;
 
     AbakusTjeneste() {
         // for CDI
@@ -96,7 +95,6 @@ public class AbakusTjeneste {
         this.innhentRegisterdata = toUri("/api/registerdata/v1/innhent/async");
         this.endpointInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/hentAlle");
         this.endpointYtelser = toUri("/api/ytelse/v1/hentVedtakForAktoer");
-        this.endpointLagreYtelse = toUri("/api/ytelse/v1/vedtatt");
         this.endpointOverstyring = toUri("/api/iay/grunnlag/v1/overstyrt");
     }
 
@@ -315,25 +313,6 @@ public class AbakusTjeneste {
             throw feilVedKallTilAbakus(feilmelding);
         }
 
-    }
-
-    public void lagreYtelse(Ytelse dto) throws IOException {
-        var json = iayJsonWriter.writeValueAsString(dto);
-
-        var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
-        var request = RestRequest.newRequest(method, endpointLagreYtelse, restConfig);
-
-        var rawResponse = restClient.sendReturnUnhandled(request);
-        var responseCode = rawResponse.statusCode();
-        if (responseCode != HttpURLConnection.HTTP_OK) {
-            var responseBody = rawResponse.body();
-            var feilmelding = String.format("Kunne ikke lagre vedtak for sak: %s til Abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
-                dto.getSaksnummer(), endpointLagreYtelse, responseCode, responseBody);
-            if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
-                throw feilKallTilAbakus(feilmelding);
-            }
-            throw feilVedKallTilAbakus(feilmelding);
-        }
     }
 
     private static TekniskException feilVedKallTilAbakus(String feilmelding) {

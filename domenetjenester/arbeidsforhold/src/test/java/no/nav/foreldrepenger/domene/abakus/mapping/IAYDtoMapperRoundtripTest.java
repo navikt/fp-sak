@@ -82,33 +82,76 @@ public class IAYDtoMapperRoundtripTest {
     private final IAYFraDtoMapper fraDtoMapper = new IAYFraDtoMapper(aktørId);
 
     @Test
-    public void roundtrip_mapping_dto_til_grunnlag_til_dto() {
+    public void roundtrip_mapping_dto_til_grunnlag() {
         // Arrange
         var dto = lagIAYGrunnlag();
 
         // Act
         var fpsakGrunnlag = fraDtoMapper.mapTilGrunnlagInklusivRegisterdata(dto, true);
-        var dtoMapper = new IAYTilDtoMapper(aktørId, ytelseType, uuid, uuid);
-        var dtoIgjen = dtoMapper.mapTilDto(fpsakGrunnlag, true);
 
         // Assert
-        assertThat(dtoIgjen.getGrunnlagTidspunkt()).isEqualTo(dto.getGrunnlagTidspunkt());
-        assertThat(dtoIgjen.getGrunnlagReferanse()).isEqualTo(dto.getGrunnlagReferanse());
-        assertThat(dtoIgjen.getKoblingReferanse()).isEqualTo(dto.getKoblingReferanse());
-        assertThat(dtoIgjen.getOppgittOpptjening()).isEqualToComparingFieldByFieldRecursively(dto.getOppgittOpptjening());
-        assertThat(dtoIgjen.getPerson()).isEqualToComparingFieldByFieldRecursively(dto.getPerson());
+        assertThat(fpsakGrunnlag.getEksternReferanse().toString()).isEqualTo(dto.getGrunnlagReferanse());
 
-        // mangler mapping av inntektsmeldinger som ikke kommer (grunnet trenger mappe
-        // ArbeidsforholdInformasjon)
-        assertThat(dtoIgjen.getInntektsmeldinger()).isEqualToComparingFieldByFieldRecursively(dto.getInntektsmeldinger());
+        // Assert oppgitt opptjening
+        var fpsakOO = fpsakGrunnlag.getOppgittOpptjening().get();
+        var dtoOO = dto.getOppgittOpptjening();
+        assertThat(fpsakOO.getEksternReferanse().toString()).isEqualTo(dtoOO.getEksternReferanse().getReferanse());
 
-        assertThat(dtoIgjen.getOverstyrt()).isEqualToComparingFieldByFieldRecursively(dto.getOverstyrt());
+        assertThat(fpsakOO.getEgenNæring().get(0).getOrgnr()).isEqualTo(dtoOO.getEgenNæring().get(0).getVirksomhet().getIdent());
+        assertThat(fpsakOO.getEgenNæring().get(0).getBegrunnelse()).isEqualTo(dtoOO.getEgenNæring().get(0).getBegrunnelse());
+        assertThat(fpsakOO.getEgenNæring().get(0).getBruttoInntekt()).isEqualTo(dtoOO.getEgenNæring().get(0).getBruttoInntekt());
+        assertThat(fpsakOO.getEgenNæring().get(0).getEndringDato()).isEqualTo(dtoOO.getEgenNæring().get(0).getEndringDato());
+        assertThat(fpsakOO.getEgenNæring().get(0).getNyIArbeidslivet()).isEqualTo(dtoOO.getEgenNæring().get(0).isNyIArbeidslivet());
+        assertThat(fpsakOO.getEgenNæring().get(0).getVarigEndring()).isEqualTo(dtoOO.getEgenNæring().get(0).isVarigEndring());
+        assertThat(fpsakOO.getEgenNæring().get(0).getNyoppstartet()).isEqualTo(dtoOO.getEgenNæring().get(0).isNyoppstartet());
+        assertThat(fpsakOO.getEgenNæring().get(0).getRegnskapsførerNavn()).isEqualTo(dtoOO.getEgenNæring().get(0).getRegnskapsførerNavn());
+        assertThat(fpsakOO.getEgenNæring().get(0).getRegnskapsførerTlf()).isEqualTo(dtoOO.getEgenNæring().get(0).getRegnskapsførerTlf());
 
-        assertThat(dtoIgjen.getRegister()).isEqualToComparingFieldByFieldRecursively(dto.getRegister());
+        assertThat(fpsakOO.getAnnenAktivitet().get(0).getArbeidType().getKode()).isEqualTo(dtoOO.getAnnenAktivitet().get(0).getArbeidTypeDto().getKode());
+        assertThat(fpsakOO.getAnnenAktivitet().get(0).getPeriode().getFomDato()).isEqualTo(dtoOO.getAnnenAktivitet().get(0).getPeriode().getFom());
+        assertThat(fpsakOO.getAnnenAktivitet().get(0).getPeriode().getTomDato()).isEqualTo(dtoOO.getAnnenAktivitet().get(0).getPeriode().getTom());
 
-        // alla i hopa
-        // assertThat(dtoIgjen).isEqualToComparingFieldByFieldRecursively(dto);
+        assertThat(fpsakOO.getOppgittArbeidsforhold().get(0).getArbeidType().getKode()).isEqualTo(dtoOO.getArbeidsforhold().get(0).getArbeidTypeDto().getKode());
+        assertThat(fpsakOO.getOppgittArbeidsforhold().get(0).getPeriode().getFomDato()).isEqualTo(dtoOO.getArbeidsforhold().get(0).getPeriode().getFom());
+        assertThat(fpsakOO.getOppgittArbeidsforhold().get(0).getPeriode().getTomDato()).isEqualTo(dtoOO.getArbeidsforhold().get(0).getPeriode().getTom());
 
+        assertThat(fpsakOO.getFrilans().get().getErNyoppstartet()).isEqualTo(dtoOO.getFrilans().isErNyoppstartet());
+        assertThat(fpsakOO.getFrilans().get().getHarInntektFraFosterhjem()).isEqualTo(dtoOO.getFrilans().isHarInntektFraFosterhjem());
+        assertThat(fpsakOO.getFrilans().get().getHarNærRelasjon()).isEqualTo(dtoOO.getFrilans().isHarNærRelasjon());
+
+
+        // Assert inntektsmeldinger
+        var fpsakIM = fpsakGrunnlag.getInntektsmeldinger().get().getAlleInntektsmeldinger();
+        var dtoIM = dto.getInntektsmeldinger().getInntektsmeldinger();
+        assertThat(fpsakIM.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(dtoIM.get(0).getArbeidsgiver().getIdent());
+        assertThat(fpsakIM.get(0).getArbeidsforholdRef().getReferanse()).isEqualTo(dtoIM.get(0).getArbeidsforholdRef().getAbakusReferanse());
+        assertThat(fpsakIM.get(0).getKanalreferanse()).isEqualTo(dtoIM.get(0).getKanalreferanse());
+        assertThat(fpsakIM.get(0).getInnsendingstidspunkt()).isEqualTo(dtoIM.get(0).getInnsendingstidspunkt().toLocalDateTime());
+        assertThat(fpsakIM.get(0).getRefusjonBeløpPerMnd().getVerdi()).isEqualTo(dtoIM.get(0).getRefusjonsBeløpPerMnd());
+        assertThat(fpsakIM.get(0).getInntektBeløp().getVerdi()).isEqualTo(dtoIM.get(0).getInntektBeløp());
+
+        // Assert arbeid
+        var fpsakYA = fpsakGrunnlag.getAktørArbeidFraRegister(aktørId).get().hentAlleYrkesaktiviteter().stream().toList();
+        var dtoYA = dto.getRegister().getArbeid().get(0).getYrkesaktiviteter();
+
+        assertThat(fpsakYA.get(0).getArbeidsforholdRef().getReferanse()).isEqualTo(dtoYA.get(0).getArbeidsforholdId().getAbakusReferanse());
+        assertThat(fpsakYA.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(dtoYA.get(0).getArbeidsgiver().get().getIdent());
+        assertThat(fpsakYA.get(0).getArbeidType().getKode()).isEqualTo(dtoYA.get(0).getType().getKode());
+
+        // Assert inntekt
+        var fpsakInntekt = fpsakGrunnlag.getAktørInntektFraRegister(aktørId).get().getInntekt().stream().toList();
+        var dtoInntekt = dto.getRegister().getInntekt().get(0).getUtbetalinger();
+        assertThat(fpsakInntekt.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(dtoInntekt.get(0).getUtbetaler().getIdent());
+        assertThat(fpsakInntekt.get(0).getInntektsKilde().getKode()).isEqualTo(dtoInntekt.get(0).getKilde().getKode());
+
+        // Assert ytelse
+        var fpsakYtelse = fpsakGrunnlag.getAktørYtelseFraRegister(aktørId).get().getAlleYtelser().stream().toList();
+        var dtoYtelse = dto.getRegister().getYtelse().get(0).getYtelser();
+        assertThat(fpsakYtelse.get(0).getVedtattTidspunkt()).isEqualTo(dtoYtelse.get(0).getVedtattTidspunkt());
+        assertThat(fpsakYtelse.get(0).getPeriode().getFomDato()).isEqualTo(dtoYtelse.get(0).getPeriode().getFom());
+        assertThat(fpsakYtelse.get(0).getPeriode().getTomDato()).isEqualTo(dtoYtelse.get(0).getPeriode().getTom());
+        assertThat(fpsakYtelse.get(0).getSaksnummer().getVerdi()).isEqualTo(dtoYtelse.get(0).getSaksnummer());
+        assertThat(fpsakYtelse.get(0).getKilde().getKode()).isEqualTo(dtoYtelse.get(0).getFagsystemDto().getKode());
     }
 
     private InntektArbeidYtelseGrunnlagDto lagIAYGrunnlag() {

@@ -496,19 +496,6 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         }
     }
 
-    private InntektArbeidYtelseGrunnlagDto konverterTilDto(Behandling behandling, InntektArbeidYtelseGrunnlag gr) {
-        InntektArbeidYtelseGrunnlagDto grunnlagDto;
-        try {
-            var tilDto = new IAYTilDtoMapper(behandling.getAktørId(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
-                    gr.getEksternReferanse(), behandling.getUuid());
-            grunnlagDto = tilDto.mapTilDto(gr);
-        } catch (RuntimeException t) {
-            LOG.warn("Kunne ikke transformere til Dto: grunnlag={} behandling={}", gr.getEksternReferanse(), behandling.getId(), t);
-            throw t;
-        }
-        return grunnlagDto;
-    }
-
     private OverstyrtInntektArbeidYtelseDto konverterTilOverstyringDto(Behandling behandling, InntektArbeidYtelseGrunnlag gr) {
         OverstyrtInntektArbeidYtelseDto grunnlagDto;
         try {
