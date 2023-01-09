@@ -237,6 +237,9 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP)),
     FASTSETT_UTTAK_STORTINGSREPRESENTANT(AksjonspunktKodeDefinisjon.VURDER_UTTAK_STORTINGSREPRESENTANT_KODE, AksjonspunktType.MANUELL, "Søker er stortingsrepresentant",
         BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP)),
+    FASTSETT_UTTAK_ETTER_NESTE_SAK(AksjonspunktKodeDefinisjon.VURDER_UTTAK_ETTER_NESTE_SAK_KODE, AksjonspunktType.MANUELL,
+        "Bruker har minsterett ifm tette saker og uttak etter start av ny sak", BehandlingStegType.VURDER_UTTAK,
+        VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP)),
     KONTROLLER_ANNENPART_EØS(AksjonspunktKodeDefinisjon.KONTROLLER_ANNENPART_EØS_KODE, AksjonspunktType.MANUELL, "Kontroller annen forelders uttak i EØS",
         BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP)),
     KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE(

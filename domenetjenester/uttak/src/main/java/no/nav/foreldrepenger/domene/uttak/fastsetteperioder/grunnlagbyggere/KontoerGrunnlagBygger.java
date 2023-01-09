@@ -96,6 +96,8 @@ public class KontoerGrunnlagBygger {
         var builder = new Kontoer.Builder()
             .flerbarnsdager(flerbarnsdager);
 
+        var gjelderFødsel = foreldrepengerGrunnlag.getFamilieHendelser().gjelderTerminFødsel();
+
         var familieHendelse = familieHendelse(foreldrepengerGrunnlag);
         var familieHendelseNesteSak = familieHendelseNesteSak(foreldrepengerGrunnlag);
 
@@ -104,6 +106,7 @@ public class KontoerGrunnlagBygger {
             .bareFarHarRett(bareFarHarRett)
             .morHarUføretrygd(morHarUføretrygd)
             .mor(erMor)
+            .gjelderFødsel(gjelderFødsel)
             .antallBarn(antallBarn)
             .aleneomsorg(aleneomsorg)
             .minsterett(minsterett)

@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
@@ -27,8 +28,10 @@ import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Spesialkontotype;
 
 @ApplicationScoped
 public class FastsettUttakManueltAksjonspunktUtleder {
@@ -37,11 +40,16 @@ public class FastsettUttakManueltAksjonspunktUtleder {
 
     private FpUttakRepository fpUttakRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
+    private KontoerGrunnlagBygger kontoerGrunnlagBygger;
+    private FagsakRepository fagsakRepository;
 
     @Inject
-    FastsettUttakManueltAksjonspunktUtleder(UttakRepositoryProvider repositoryProvider){
+    FastsettUttakManueltAksjonspunktUtleder(UttakRepositoryProvider repositoryProvider,
+                                            KontoerGrunnlagBygger kontoerGrunnlagBygger) {
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
+        this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        this.kontoerGrunnlagBygger = kontoerGrunnlagBygger;
     }
 
     FastsettUttakManueltAksjonspunktUtleder() {
@@ -56,6 +64,7 @@ public class FastsettUttakManueltAksjonspunktUtleder {
 
         utledAksjonspunktForManuellBehandlingFraRegler(behandlingId).ifPresent(aksjonspunkter::add);
         utledAksjonspunktForStortingsrepresentant(input).ifPresent(aksjonspunkter::add);
+        utledAksjonspunktForTetteFødslerSammeBruker(input).ifPresent(aksjonspunkter::add);
         utledAksjonspunktForDødtBarn(input.getYtelsespesifiktGrunnlag()).ifPresent(aksjonspunkter::add);
         utledAksjonspunktForAnnenpartEØS(behandlingId).ifPresent(aksjonspunkter::add);
         if (input.harBehandlingÅrsak(BehandlingÅrsakType.RE_KLAGE_UTEN_END_INNTEKT)
@@ -98,6 +107,26 @@ public class FastsettUttakManueltAksjonspunktUtleder {
             return Optional.of(AksjonspunktDefinisjon.FASTSETT_UTTAK_STORTINGSREPRESENTANT);
         }
         return Optional.empty();
+    }
+
+    private Optional<AksjonspunktDefinisjon> utledAksjonspunktForTetteFødslerSammeBruker(UttakInput input) {
+        var fpGrunnlag = (ForeldrepengerGrunnlag)input.getYtelsespesifiktGrunnlag();
+        var nesteSak = fpGrunnlag.getNesteSakGrunnlag().orElse(null);
+        // Ser ikke på tilfelle av far/medmor som har nestesak pga mors nye sak
+        if (nesteSak == null || input.getBehandlingReferanse().getSkjæringstidspunkt().utenMinsterett() ||
+            !input.getBehandlingReferanse().aktørId().equals(fagsakRepository.hentSakGittSaksnummer(nesteSak.getSaksnummer()).orElseThrow().getAktørId())) {
+            return Optional.empty();
+        }
+        var kontoer = kontoerGrunnlagBygger.byggGrunnlag(input).build();
+        if (!kontoer.harSpesialkonto(Spesialkontotype.TETTE_FØDSLER) || kontoer.getSpesialkontoTrekkdager(Spesialkontotype.TETTE_FØDSLER) <= 0) {
+            return Optional.empty();
+        }
+        var uttakEtterNesteStartdato = fpUttakRepository.hentUttakResultatHvisEksisterer(input.getBehandlingReferanse().behandlingId())
+            .map(UttakResultatEntitet::getGjeldendePerioder)
+            .map(UttakResultatPerioderEntitet::getPerioder).orElse(List.of()).stream()
+            .filter(p -> !p.getTom().isBefore(nesteSak.getStartdato()))
+            .anyMatch(p -> p.getAktiviteter().stream().anyMatch(a -> a.getUtbetalingsgrad().harUtbetaling() && a.getTrekkdager().merEnn0()));
+        return uttakEtterNesteStartdato ? Optional.of(AksjonspunktDefinisjon.FASTSETT_UTTAK_ETTER_NESTE_SAK) : Optional.empty();
     }
 
     private Optional<AksjonspunktDefinisjon> utledAksjonspunktForDødtBarn(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
