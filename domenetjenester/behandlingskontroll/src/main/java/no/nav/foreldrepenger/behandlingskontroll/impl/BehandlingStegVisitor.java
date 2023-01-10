@@ -383,9 +383,7 @@ class BehandlingStegVisitor {
              * definert for et identifisert abstraktpunkt.
              */
             throw new IllegalStateException(
-                    "Utvikler-feil: Det er definert aksjonspunkt [" + //$NON-NLS-1$
-                            Aksjonspunkt.getKoder(gjenværendeÅpneAksjonspunkt)
-                            + "] som ikke er håndtert av noe steg" //$NON-NLS-1$
+                    "Utvikler-feil: Det er definert aksjonspunkt [" + gjenværendeÅpneAksjonspunkt + "] som ikke er håndtert av noe steg" //$NON-NLS-1$
                             + (aktivtBehandlingSteg == null ? " i sekvensen " : " fra og med: " + aktivtBehandlingSteg)); //$NON-NLS-1$
         }
     }

@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktUtil.fjernToTrinnsBehandlingKreves;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktUtil.setToTrinnsBehandlingKreves;
 
 import java.util.List;
 import java.util.function.Function;
@@ -168,7 +166,8 @@ public class ForvaltningTekniskRestTjeneste {
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon())
                 .filter(Aksjonspunkt::isToTrinnsBehandling)
                 .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
-        fjernToTrinnsBehandlingKreves(aksjonspunkt);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        behandlingskontrollTjeneste.setAksjonspunktToTrinn(kontekst, aksjonspunkt, false);
         behandlingRepository.lagre(behandling, lås);
         return Response.ok().build();
     }
@@ -190,8 +189,11 @@ public class ForvaltningTekniskRestTjeneste {
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon())
                 .filter(ap -> !ap.isToTrinnsBehandling())
                 .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
-        setToTrinnsBehandlingKreves(aksjonspunkt);
-        behandlingRepository.lagre(behandling, lås);
+        if (aksjonspunkt.kanSetteToTrinnsbehandling()) {
+            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+            behandlingskontrollTjeneste.setAksjonspunktToTrinn(kontekst, aksjonspunkt, true);
+            behandlingRepository.lagre(behandling, lås);
+        }
         return Response.ok().build();
     }
 

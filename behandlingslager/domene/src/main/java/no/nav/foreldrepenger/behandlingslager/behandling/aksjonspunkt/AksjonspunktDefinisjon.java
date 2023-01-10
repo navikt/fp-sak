@@ -497,6 +497,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         }
     }
 
+    private static final Set<AksjonspunktDefinisjon> ENTRINN_VEDTAK = Set.of(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
+
     private static final Map<AksjonspunktDefinisjon, Set<AksjonspunktDefinisjon>> UTELUKKENDE_AP_MAP = Map.ofEntries(
         Map.entry(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, Set.of(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)),
         Map.entry(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, Set.of(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL))
@@ -626,7 +628,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     }
 
     public boolean kanSetteTotrinnBehandling() {
-        return SkjermlenkeType.totrinnsSkjermlenke(skjermlenkeType);
+        return SkjermlenkeType.totrinnsSkjermlenke(skjermlenkeType) && !ENTRINN_VEDTAK.contains(this);
     }
 
     public Period getFristPeriod() {

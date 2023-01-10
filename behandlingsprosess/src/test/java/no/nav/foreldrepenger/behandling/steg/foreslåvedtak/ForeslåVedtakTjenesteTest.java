@@ -313,8 +313,10 @@ public class ForeslåVedtakTjenesteTest {
 
     private void leggTilAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon, boolean totrinnsbehandling) {
         var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
+        if (totrinnsbehandling) {
+            AksjonspunktTestSupport.setToTrinnsBehandlingKreves(aksjonspunkt);
+        }
         AksjonspunktTestSupport.setTilUtført(aksjonspunkt, "");
-        aksjonspunkt.setToTrinnsBehandling(totrinnsbehandling);
     }
 
 }

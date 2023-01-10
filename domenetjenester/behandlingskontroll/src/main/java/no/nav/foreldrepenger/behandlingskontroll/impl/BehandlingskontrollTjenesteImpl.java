@@ -277,8 +277,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         return new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(), lås);
     }
 
-    @Override
-    public void aksjonspunkterEndretStatus(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
+    void aksjonspunkterEndretStatus(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
             List<Aksjonspunkt> aksjonspunkter) {
         // handlinger som skal skje når funnet
         if (!aksjonspunkter.isEmpty()) {
@@ -384,6 +383,20 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     }
 
     @Override
+    public void setAksjonspunktToTrinn(BehandlingskontrollKontekst kontekst, Aksjonspunkt aksjonspunkt, boolean totrinn) {
+        if (aksjonspunkt.isToTrinnsBehandling() == totrinn) {
+            return;
+        }
+        var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
+        if (!aksjonspunkt.erÅpentAksjonspunkt()) {
+            aksjonspunktKontrollRepository.setReåpnet(aksjonspunkt);
+        }
+        aksjonspunktKontrollRepository.setToTrinnsBehandlingKreves(aksjonspunkt, totrinn);
+        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
+        aksjonspunkterEndretStatus(kontekst, null, List.of(aksjonspunkt));
+    }
+
+    @Override
     public BehandlingStegKonfigurasjon getBehandlingStegKonfigurasjon() {
         return behandlingStegKonfigurasjon;
     }
@@ -463,7 +476,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
 
     private void doForberedGjenopptak(Behandling behandling, BehandlingskontrollKontekst kontekst, boolean erHenleggelse) {
         var aksjonspunkterSomMedførerTilbakehopp = behandling.getÅpneAksjonspunkter().stream()
-                .filter(Aksjonspunkt::tilbakehoppVedGjenopptakelse)
+                .filter(a -> a.getAksjonspunktDefinisjon().tilbakehoppVedGjenopptakelse())
                 .collect(Collectors.toList());
 
         if (aksjonspunkterSomMedførerTilbakehopp.size() > 1) {

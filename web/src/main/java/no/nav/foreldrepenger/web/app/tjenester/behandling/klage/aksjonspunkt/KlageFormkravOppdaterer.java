@@ -19,12 +19,12 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktUtil;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
@@ -39,7 +39,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = KlageFormkravAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -53,7 +52,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
     private KlageVurderingTjeneste klageVurderingTjeneste;
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
-    private ProsessTaskTjeneste prosessTaskTjeneste;
+    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     private FptilbakeRestKlient fptilbakeRestKlient;
 
@@ -67,13 +66,13 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
                                    BehandlingRepository behandlingRepository,
                                    BehandlingVedtakRepository behandlingVedtakRepository,
                                    FptilbakeRestKlient fptilbakeRestKlient,
-                                   ProsessTaskTjeneste taskTjeneste) {
+                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
         this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;
         this.fptilbakeRestKlient = fptilbakeRestKlient;
-        this.prosessTaskTjeneste = taskTjeneste;
+        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }
 
     @Override
@@ -98,9 +97,14 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         }
         klageBehandling.getÅpentAksjonspunktMedDefinisjonOptional(apDefFormkrav)
             .filter(Aksjonspunkt::isToTrinnsBehandling)
-            .ifPresent(AksjonspunktUtil::fjernToTrinnsBehandlingKreves);
+            .ifPresent(ap -> fjernToTrinnsbehandling(klageBehandling, ap));
 
         return OppdateringResultat.utenTransisjon().build();
+    }
+
+    private void fjernToTrinnsbehandling(Behandling behandling, Aksjonspunkt aksjonspunkt) {
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        behandlingskontrollTjeneste.setAksjonspunktToTrinn(kontekst, aksjonspunkt, false);
     }
 
     private Optional<KlageAvvistÅrsak> vurderOgLagreFormkrav(KlageFormkravAksjonspunktDto dto,

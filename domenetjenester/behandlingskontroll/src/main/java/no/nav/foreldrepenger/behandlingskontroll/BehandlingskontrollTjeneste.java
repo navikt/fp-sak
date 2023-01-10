@@ -101,12 +101,6 @@ public interface BehandlingskontrollTjeneste {
     void behandlingFramføringTilSenereBehandlingSteg(BehandlingskontrollKontekst kontekst, BehandlingStegType senereSteg);
 
     /**
-     * Signaliserer at aksjonspunkter er funnet eller har endret status. Bruk helst
-     * lagre-metodene
-     */
-    void aksjonspunkterEndretStatus(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType, List<Aksjonspunkt> aksjonspunkter);
-
-    /**
      * Oppretter og håndterer nye aksjonspunkt
      */
     List<Aksjonspunkt> lagreAksjonspunkterFunnet(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
@@ -148,6 +142,12 @@ public interface BehandlingskontrollTjeneste {
      */
     void lagreAksjonspunktResultat(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
             List<AksjonspunktResultat> aksjonspunktResultater);
+
+    /**
+     * Lagrer og publiserer totrinns-setting for aksjonspunkt
+     */
+    void setAksjonspunktToTrinn(BehandlingskontrollKontekst kontekst, Aksjonspunkt aksjonspunkt, boolean totrinn);
+
 
     /**
      * Lagrer en ny behandling i behandlingRepository og fyrer av event om at en
