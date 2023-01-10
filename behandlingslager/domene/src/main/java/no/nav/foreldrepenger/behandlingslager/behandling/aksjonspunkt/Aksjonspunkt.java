@@ -237,7 +237,7 @@ public class Aksjonspunkt extends BaseEntitet {
         }
 
         Builder(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-            this(aksjonspunktDefinisjon, null);
+            this.aksjonspunkt = new Aksjonspunkt(aksjonspunktDefinisjon);
         }
 
         Aksjonspunkt buildFor(Behandling behandling) {
