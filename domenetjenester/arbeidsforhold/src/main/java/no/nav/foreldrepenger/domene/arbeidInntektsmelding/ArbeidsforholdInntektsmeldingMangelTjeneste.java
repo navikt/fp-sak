@@ -78,7 +78,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         var iaygrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId());
         arbeidInntektHistorikkinnslagTjeneste.opprettHistorikkinnslag(behandlingReferanse, dto, iaygrunnlag);
 
-        // Kall til kalkulus, gjøres til slutt
+        // Kall til abakus, gjøres til slutt
         arbeidsforholdTjeneste.lagreOverstyring(behandlingReferanse.behandlingId(), behandlingReferanse.aktørId(), oppdatertBuilder);
     }
 

@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
@@ -74,6 +75,9 @@ public class BekreftSvangerskapspengerOppdatererTest {
     @Mock
     private StønadsperioderInnhenter stønadsperioderInnhenterMock;
 
+    @Mock
+    private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
+
     @BeforeEach
     public void beforeEach(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
@@ -81,7 +85,8 @@ public class BekreftSvangerskapspengerOppdatererTest {
         var historikkAdapter = new HistorikkTjenesteAdapter(
             repositoryProvider.getHistorikkRepository(), null, repositoryProvider.getBehandlingRepository());
         oppdaterer = new BekreftSvangerskapspengerOppdaterer(historikkAdapter, grunnlagProvider,
-            tilgangerTjenesteMock, inntektArbeidYtelseTjeneste, stønadsperioderInnhenterMock);
+            tilgangerTjenesteMock, inntektArbeidYtelseTjeneste, stønadsperioderInnhenterMock, arbeidsforholdAdministrasjonTjeneste,
+            repositoryProvider.getBehandlingRepository());
     }
 
     @Test
