@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.rest;
 
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.web.app.ApiConfig;
+import no.nav.foreldrepenger.web.app.konfig.ApiConfig;
 
 public final class ResourceLinks {
 

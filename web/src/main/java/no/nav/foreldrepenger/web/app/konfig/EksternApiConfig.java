@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app;
+package no.nav.foreldrepenger.web.app.konfig;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,6 +18,8 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 
 import io.swagger.v3.oas.models.servers.Server;
+
+import no.nav.vedtak.exception.TekniskException;
 
 import org.glassfish.jersey.server.ServerProperties;
 
@@ -55,7 +57,7 @@ public class EksternApiConfig extends Application {
                 .buildContext(true)
                 .read();
         } catch (OpenApiConfigurationException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new TekniskException("EKSTERN-OPENAPI", e.getMessage(), e);
         }
     }
 

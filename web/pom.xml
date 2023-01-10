@@ -253,11 +253,6 @@
             <groupId>org.glassfish</groupId>
             <artifactId>jakarta.el</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>swagger-ui</artifactId>
-        </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
@@ -351,6 +346,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
                             <mainClass>no.nav.foreldrepenger.web.server.jetty.JettyServer</mainClass>
                         </manifest>
                     </archive>

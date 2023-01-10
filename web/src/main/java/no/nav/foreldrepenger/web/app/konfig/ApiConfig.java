@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app;
+package no.nav.foreldrepenger.web.app.konfig;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -11,6 +11,8 @@ import java.util.stream.Stream;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
+
+import no.nav.vedtak.exception.TekniskException;
 
 import org.glassfish.jersey.server.ServerProperties;
 
@@ -52,7 +54,7 @@ public class ApiConfig extends Application {
                 .buildContext(true)
                 .read();
         } catch (OpenApiConfigurationException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new TekniskException("OPENAPI", e.getMessage(), e);
         }
     }
 

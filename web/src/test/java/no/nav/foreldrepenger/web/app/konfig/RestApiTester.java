@@ -12,7 +12,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Application;
 
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
-import no.nav.foreldrepenger.web.app.ApiConfig;
 import no.nav.foreldrepenger.web.app.oppgave.OppgaveRedirectApplication;
 
 public class RestApiTester {
