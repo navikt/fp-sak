@@ -15,12 +15,12 @@ import no.nav.foreldrepenger.web.app.metrics.PrometheusRestService;
  * Konfigurer Prometheus og Healthchecks
  */
 @ApplicationScoped
-@ApplicationPath(InternalAppConfig.INTERNAL_URI)
-public class InternalAppConfig extends Application {
+@ApplicationPath(InternalApiConfig.INTERNAL_URI)
+public class InternalApiConfig extends Application {
 
     public static final String INTERNAL_URI = "/internal";
 
-    public InternalAppConfig() {
+    public InternalApiConfig() {
         //HS QAD siden registry ikke er tilgjengelig når klassen instansieres...
         DefaultExports.initialize();
     }
