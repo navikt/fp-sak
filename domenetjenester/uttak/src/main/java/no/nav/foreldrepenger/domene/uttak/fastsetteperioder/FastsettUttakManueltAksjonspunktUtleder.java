@@ -14,7 +14,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
@@ -41,13 +40,11 @@ public class FastsettUttakManueltAksjonspunktUtleder {
     private FpUttakRepository fpUttakRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private KontoerGrunnlagBygger kontoerGrunnlagBygger;
-    private FagsakRepository fagsakRepository;
 
     @Inject
     FastsettUttakManueltAksjonspunktUtleder(UttakRepositoryProvider repositoryProvider,
                                             KontoerGrunnlagBygger kontoerGrunnlagBygger) {
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
-        this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.kontoerGrunnlagBygger = kontoerGrunnlagBygger;
     }
@@ -64,7 +61,7 @@ public class FastsettUttakManueltAksjonspunktUtleder {
 
         utledAksjonspunktForManuellBehandlingFraRegler(behandlingId).ifPresent(aksjonspunkter::add);
         utledAksjonspunktForStortingsrepresentant(input).ifPresent(aksjonspunkter::add);
-        utledAksjonspunktForTetteFødslerSammeBruker(input).ifPresent(aksjonspunkter::add);
+        utledAksjonspunktForTetteFødsler(input).ifPresent(aksjonspunkter::add);
         utledAksjonspunktForDødtBarn(input.getYtelsespesifiktGrunnlag()).ifPresent(aksjonspunkter::add);
         utledAksjonspunktForAnnenpartEØS(behandlingId).ifPresent(aksjonspunkter::add);
         if (input.harBehandlingÅrsak(BehandlingÅrsakType.RE_KLAGE_UTEN_END_INNTEKT)
@@ -109,12 +106,11 @@ public class FastsettUttakManueltAksjonspunktUtleder {
         return Optional.empty();
     }
 
-    private Optional<AksjonspunktDefinisjon> utledAksjonspunktForTetteFødslerSammeBruker(UttakInput input) {
+    private Optional<AksjonspunktDefinisjon> utledAksjonspunktForTetteFødsler(UttakInput input) {
         var fpGrunnlag = (ForeldrepengerGrunnlag)input.getYtelsespesifiktGrunnlag();
         var nesteSak = fpGrunnlag.getNesteSakGrunnlag().orElse(null);
         // Ser ikke på tilfelle av far/medmor som har nestesak pga mors nye sak
-        if (nesteSak == null || input.getBehandlingReferanse().getSkjæringstidspunkt().utenMinsterett() ||
-            !input.getBehandlingReferanse().aktørId().equals(fagsakRepository.hentSakGittSaksnummer(nesteSak.getSaksnummer()).orElseThrow().getAktørId())) {
+        if (nesteSak == null || input.getBehandlingReferanse().getSkjæringstidspunkt().utenMinsterett()) {
             return Optional.empty();
         }
         var kontoer = kontoerGrunnlagBygger.byggGrunnlag(input).build();
