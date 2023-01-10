@@ -111,14 +111,14 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
         var yrkesfilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(),
             iayGrunnlag.getAktørArbeidFraRegister(param.getAktørId()));
-        var buildere = dto.getBekreftetSvpArbeidsforholdList()
+        var oppdaterePermisjonBuildere = dto.getBekreftetSvpArbeidsforholdList()
             .stream()
             .filter(this::harGjortPermisjonsvalg)
             .map(aktivitet -> lagPermisjonsoppdatering(aktivitet, infoBuilder, yrkesfilter))
             .flatMap(Optional::stream)
             .toList();
-        if (!buildere.isEmpty()) {
-            buildere.forEach(infoBuilder::leggTil);
+        if (!oppdaterePermisjonBuildere.isEmpty()) {
+            oppdaterePermisjonBuildere.forEach(infoBuilder::leggTil);
             arbeidsforholdAdministrasjonTjeneste.lagreOverstyring(param.getBehandlingId(), param.getAktørId(), infoBuilder);
         }
     }
