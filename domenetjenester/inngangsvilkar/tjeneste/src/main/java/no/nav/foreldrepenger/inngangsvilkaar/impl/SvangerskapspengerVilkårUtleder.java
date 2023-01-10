@@ -26,7 +26,6 @@ public final class SvangerskapspengerVilkårUtleder  {
         BEREGNINGSGRUNNLAGVILKÅR,
         SVANGERSKAPSPENGERVILKÅR);
 
-    //TODO(OJR) avklar riktig vilkår
     public static Set<VilkårType> utledVilkårFor(Behandling behandling) {
         if (!FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
             throw new IllegalArgumentException("Ulovlig ytelsetype " + behandling.getFagsakYtelseType() + " ventet SVP");
