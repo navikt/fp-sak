@@ -15,19 +15,12 @@ import javax.ws.rs.core.Application;
 import org.glassfish.jersey.server.ServerProperties;
 
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
-import no.nav.foreldrepenger.web.app.exceptions.ConstraintViolationMapper;
-import no.nav.foreldrepenger.web.app.exceptions.GeneralRestExceptionMapper;
-import no.nav.foreldrepenger.web.app.exceptions.JsonMappingExceptionMapper;
-import no.nav.foreldrepenger.web.app.exceptions.JsonParseExceptionMapper;
-import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
-import no.nav.foreldrepenger.web.server.jetty.TimingFilter;
 
 @ApplicationPath(ApiConfig.API_URI)
 public class ApiConfig extends Application {
