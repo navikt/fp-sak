@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
@@ -25,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.fp.SykemeldingVentTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -34,6 +38,8 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @BehandlingTypeRef
 @ApplicationScoped
 public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg {
+    private static final Logger LOG = LoggerFactory.getLogger(FastsettBeregningsaktiviteterSteg.class);
+
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste;
@@ -62,6 +68,13 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandling);
+        var ugyldigAndel = UgyldigGraderingUtleder.finnFørsteUgyldigeAndel(input);
+        if (ugyldigAndel.isPresent()) {
+            var saksnummer = BehandlingReferanse.fra(behandling).saksnummer();
+            var feilmelding = String.format("Mulig gradering uten arbeidsforhold på saksnummer %s . Arbeidsgiver: %s Internref: %s", saksnummer,
+                OrgNummer.tilMaskertNummer(ugyldigAndel.get().arbeidsgiverIdent()), ugyldigAndel.get().internRef());
+            LOG.info(feilmelding);
+        }
 
         var aksjonspunktResultater = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
         var ventPåSykemeldingAksjonspunkt = skalVentePåSykemelding(behandling);
