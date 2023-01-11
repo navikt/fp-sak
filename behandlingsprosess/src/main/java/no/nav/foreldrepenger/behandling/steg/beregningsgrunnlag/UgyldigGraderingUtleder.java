@@ -17,6 +17,7 @@ import no.nav.folketrygdloven.kalkulator.modell.gradering.AndelGradering;
 import no.nav.folketrygdloven.kalkulator.modell.iay.AktivitetsAvtaleDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.AktørArbeidDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YrkesaktivitetDto;
+import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
 
 public class UgyldigGraderingUtleder {
 
@@ -65,7 +66,7 @@ public class UgyldigGraderingUtleder {
     private static Optional<ArbeidGraderingMap> finnAndelUtenAnsettelsesperiode(ArbeidGraderingMap andel, Collection<YrkesaktivitetDto> yrkesaktiviteter, LocalDate stpOpptjening) {
         var yrkesaktivitet = yrkesaktiviteter.stream()
             .filter(ya -> ya.getArbeidsgiver() != null && Objects.equals(ya.getArbeidsgiver().getIdentifikator(), andel.arbeidsgiverIdent))
-            .filter(ya -> Objects.equals(ya.getArbeidsforholdRef().getReferanse(), andel.internRef))
+            .filter(ya -> ya.getArbeidsforholdRef().gjelderFor(andel.internRef))
             .findFirst();
         var ansettelsesperioder = yrkesaktivitet.map(YrkesaktivitetDto::getAlleAnsettelsesperioder).orElse(Collections.emptySet());
         if (!finnesAnsettelsesperiodeSomSlutterEtterSTP(ansettelsesperioder, stpOpptjening)) {
@@ -87,10 +88,10 @@ public class UgyldigGraderingUtleder {
             .map(grad -> grad.getPeriode().getFomDato())
             .collect(Collectors.toSet());
         return startdatoerGradering.stream()
-            .map(g -> new ArbeidGraderingMap(andelGradering.getArbeidsgiver().getIdentifikator(), andelGradering.getArbeidsforholdRef().getReferanse(), g))
+            .map(g -> new ArbeidGraderingMap(andelGradering.getArbeidsgiver().getIdentifikator(), andelGradering.getArbeidsforholdRef(), g))
             .collect(Collectors.toList());
     }
 
-    protected record ArbeidGraderingMap(String arbeidsgiverIdent, String internRef, LocalDate startdatoGradering){};
+    protected record ArbeidGraderingMap(String arbeidsgiverIdent, InternArbeidsforholdRefDto internRef, LocalDate startdatoGradering){};
 
 }
