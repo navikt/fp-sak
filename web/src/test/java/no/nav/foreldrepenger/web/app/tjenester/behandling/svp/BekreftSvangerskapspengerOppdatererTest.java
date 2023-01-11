@@ -16,7 +16,6 @@ import java.util.Optional;
 import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -41,11 +40,13 @@ import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjen
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.registerinnhenting.StønadsperioderInnhenter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -55,7 +56,6 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.tilganger.InnloggetNavAnsattDto;
 import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
-import no.nav.vedtak.konfig.Tid;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
@@ -91,7 +91,6 @@ public class BekreftSvangerskapspengerOppdatererTest {
     }
 
     @Test
-    @Disabled // Diskuter denne
     public void skal_kunne_fjerne_permisjon_ved_flere_arbeidsforhold_i_samme_virksomhet_og_tilrettelegging_uten_id() {
         var behandling = behandlingMedTilretteleggingAP();
 
@@ -116,27 +115,24 @@ public class BekreftSvangerskapspengerOppdatererTest {
         var dto = byggDto(BEHOV_DATO, TERMINDATO,
             svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
             new VelferdspermisjonDto(permisjonFom, permisjonTom, BigDecimal.valueOf(100),
-                PermisjonsbeskrivelseType.VELFERDSPERMISJON, false), INTERN_ARBEIDSFORHOLD_REF,
+                PermisjonsbeskrivelseType.VELFERDSPERMISJON, false), null,
             new SvpTilretteleggingDatoDto(BEHOV_DATO.plusWeeks(1), TilretteleggingType.INGEN_TILRETTELEGGING, null));
 
         var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
 
-        var resultat = oppdaterer.oppdater(dto, param);
+        oppdaterer.oppdater(dto, param);
 
         var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(
             behandling.getId());
-        var permisjonErFjernet = inntektArbeidYtelseGrunnlag.getSaksbehandletVersjon()
-            .orElseThrow()
-            .getAktørArbeid()
-            .iterator()
-            .next()
-            .hentAlleYrkesaktiviteter()
-            .stream()
-            .allMatch(ya -> ya.getPermisjon().isEmpty());
 
-        assertThat(permisjonErFjernet).isTrue();
+        var overstyringer = inntektArbeidYtelseGrunnlag.getArbeidsforholdOverstyringer();
 
-        assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
+        assertThat(overstyringer).hasSize(1);
+
+        assertThat(overstyringer.get(0).getBekreftetPermisjon()).isPresent();
+        assertThat(overstyringer.get(0).getBekreftetPermisjon().get().getStatus()).isEqualTo(BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON);
+        assertThat(overstyringer.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(ARBEIDSGIVER_IDENT);
+        assertThat(overstyringer.get(0).getArbeidsforholdRef()).isEqualTo(INTERN_ARBEIDSFORHOLD_REF);
     }
 
     @Test

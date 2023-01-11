@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.web.app.tjenester.behandling.svp.Svangerskap
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -115,7 +116,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             .stream()
             .filter(this::harGjortPermisjonsvalg)
             .map(aktivitet -> lagPermisjonsoppdatering(aktivitet, infoBuilder, yrkesfilter))
-            .flatMap(Optional::stream)
+            .flatMap(Collection::stream)
             .toList();
         if (!oppdaterePermisjonBuildere.isEmpty()) {
             oppdaterePermisjonBuildere.forEach(infoBuilder::leggTil);
@@ -128,28 +129,32 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             .anyMatch(p -> PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(p.getType()) && p.getErGyldig() != null);
     }
 
-    private Optional<ArbeidsforholdOverstyringBuilder> lagPermisjonsoppdatering(SvpArbeidsforholdDto aktivitet,
-                                                                                ArbeidsforholdInformasjonBuilder infoBuilder,
-                                                                                YrkesaktivitetFilter yrkesfilter) {
+    private List<ArbeidsforholdOverstyringBuilder> lagPermisjonsoppdatering(SvpArbeidsforholdDto aktivitet,
+                                                                            ArbeidsforholdInformasjonBuilder infoBuilder,
+                                                                            YrkesaktivitetFilter yrkesfilter) {
         var yrkesaktiviteter = yrkesfilter.getYrkesaktiviteter()
             .stream()
             .filter(ya -> ya.getArbeidsgiver() != null && ya.getArbeidsgiver().getIdentifikator().equals(aktivitet.getArbeidsgiverReferanse()))
             .filter(ya -> ya.getArbeidsforholdRef().gjelderFor(InternArbeidsforholdRef.ref(aktivitet.getInternArbeidsforholdReferanse())))
             .toList();
-        if (yrkesaktiviteter.size() != 1) {
-            var feilmelding = String.format("Forventet maks 1 matchende yrkesaktivitet , fant %s. Gjelder aktivitet med arbeidsgiverIdent %s og arbeidsforholdId %s",
-                yrkesaktiviteter.size(), aktivitet.getArbeidsgiverReferanse(), aktivitet.getInternArbeidsforholdReferanse());
+        if (yrkesaktiviteter.isEmpty()) {
+            var feilmelding = String.format("Forventet minst 1 matchende yrkesaktivitet , fant 0. Gjelder aktivitet med arbeidsgiverIdent %s og arbeidsforholdId %s",
+                aktivitet.getArbeidsgiverReferanse(), aktivitet.getInternArbeidsforholdReferanse());
             throw new IllegalStateException(feilmelding);
         }
-        var yrkesaktivitet = yrkesaktiviteter.get(0);
-        var vurdertPermisjon = finnPermisjonSomErVurdert(aktivitet.getVelferdspermisjoner(), yrkesaktivitet);
-        return vurdertPermisjon.map(vp -> {
-            infoBuilder.fjernOverstyringVedrørende(yrkesaktivitet.getArbeidsgiver(), yrkesaktivitet.getArbeidsforholdRef());
-            var yaBuilder = infoBuilder.getOverstyringBuilderFor(yrkesaktivitet.getArbeidsgiver(), yrkesaktivitet.getArbeidsforholdRef());
-            yaBuilder.medBekreftetPermisjon(new BekreftetPermisjon(vp.getPermisjonFom(), vp.getPermisjonTom(), finnStatus(vp)))
-                .medHandling(ArbeidsforholdHandlingType.BRUK);
-            return yaBuilder;
+        List<ArbeidsforholdOverstyringBuilder> listeMedEndredeArbeidsforhold = new ArrayList<>();
+        yrkesaktiviteter.forEach(yrkesaktivitet -> {
+            var vurdertPermisjon = finnPermisjonSomErVurdert(aktivitet.getVelferdspermisjoner(), yrkesaktivitet);
+            if (vurdertPermisjon.isPresent()) {
+                infoBuilder.fjernOverstyringVedrørende(yrkesaktivitet.getArbeidsgiver(), yrkesaktivitet.getArbeidsforholdRef());
+                var yaBuilder = infoBuilder.getOverstyringBuilderFor(yrkesaktivitet.getArbeidsgiver(), yrkesaktivitet.getArbeidsforholdRef());
+                yaBuilder.medBekreftetPermisjon(new BekreftetPermisjon(vurdertPermisjon.get().getPermisjonFom(), vurdertPermisjon.get().getPermisjonTom(), finnStatus(vurdertPermisjon.get())))
+                    .medHandling(ArbeidsforholdHandlingType.BRUK);
+                listeMedEndredeArbeidsforhold.add(yaBuilder);
+
+            }
         });
+        return listeMedEndredeArbeidsforhold;
     }
 
     private BekreftetPermisjonStatus finnStatus(VelferdspermisjonDto vp) {
