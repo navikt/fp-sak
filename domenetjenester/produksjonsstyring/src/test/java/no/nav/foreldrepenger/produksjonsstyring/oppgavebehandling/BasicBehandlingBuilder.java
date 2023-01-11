@@ -1,20 +1,19 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.persistence.EntityManager;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+
+import javax.persistence.EntityManager;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /** Enkel builder for å lage en enkel behandling for internt bruk her. */
 public class BasicBehandlingBuilder {
@@ -78,16 +77,5 @@ public class BasicBehandlingBuilder {
         em.persist(fagsak);
         em.flush();
         return fagsak;
-    }
-
-    public VilkårResultat leggTilTomtVilkårResultat(Behandling behandling) {
-        var vilkårResultat = VilkårResultat.builder().buildFor(behandling);
-        behandlingRepository.lagre(vilkårResultat, taSkriveLås(behandling));
-        lagreBehandling(behandling);
-        return vilkårResultat;
-    }
-
-    public void lagreVilkårResultat(Long behandlingId, VilkårResultat vilkårResultat) {
-        vilkårResultatRepository.lagre(behandlingId, vilkårResultat);
     }
 }
