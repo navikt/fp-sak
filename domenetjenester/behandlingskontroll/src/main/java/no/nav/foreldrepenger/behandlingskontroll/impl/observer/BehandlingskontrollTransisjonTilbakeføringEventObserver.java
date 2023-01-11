@@ -120,10 +120,10 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
 
     private void håndterEndretAksjonspunkt(Aksjonspunkt a, BehandlingStegType førsteSteg, BehandlingModell modell,
             List<Aksjonspunkt> oppdaterteAksjonspunkt, boolean tilInngangFørsteSteg) {
-        if (skalAvbryte(a, førsteSteg, modell, tilInngangFørsteSteg)) {
+        if (!a.erAvbrutt() && skalAvbryte(a, førsteSteg, modell, tilInngangFørsteSteg)) {
             aksjonspunktKontrollRepository.setTilAvbrutt(a);
             oppdaterteAksjonspunkt.add(a);
-        } else if (skalReåpne(a, førsteSteg, modell)) {
+        } else if (!a.erÅpentAksjonspunkt() && skalReåpne(a, førsteSteg, modell)) {
             aksjonspunktKontrollRepository.setReåpnet(a);
             oppdaterteAksjonspunkt.add(a);
         }

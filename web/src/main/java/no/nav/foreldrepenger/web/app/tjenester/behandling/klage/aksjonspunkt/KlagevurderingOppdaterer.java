@@ -8,9 +8,9 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktUtil;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
@@ -32,6 +32,7 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
     private KlageVurderingTjeneste klageVurderingTjeneste;
+    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     KlagevurderingOppdaterer() {
         // for CDI proxy
@@ -40,10 +41,12 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     @Inject
     public KlagevurderingOppdaterer(HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
                                     BehandlingsutredningTjeneste behandlingsutredningTjeneste,
+                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                     KlageVurderingTjeneste klageVurderingTjeneste) {
         this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;
         this.behandlingsutredningTjeneste = behandlingsutredningTjeneste;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
+        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }
 
     @Override
@@ -86,7 +89,8 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     private void fjernToTrinnsBehandling(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         var aksjonspunkt = behandling.getAksjonspunktFor(aksjonspunktDefinisjon);
         if (aksjonspunkt.isToTrinnsBehandling()) {
-            AksjonspunktUtil.fjernToTrinnsBehandlingKreves(aksjonspunkt);
+            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+            behandlingskontrollTjeneste.setAksjonspunktToTrinn(kontekst, aksjonspunkt, false);
         }
     }
 

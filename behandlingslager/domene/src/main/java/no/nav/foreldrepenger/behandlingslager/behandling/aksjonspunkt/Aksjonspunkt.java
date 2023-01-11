@@ -1,10 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -107,7 +104,7 @@ public class Aksjonspunkt extends BaseEntitet {
         return this.aksjonspunktDefinisjon.getAksjonspunktType() != null && this.aksjonspunktDefinisjon.getAksjonspunktType().erOverstyringpunkt();
     }
 
-    void setBehandlingsresultat(Behandling behandling) {
+    void setBehandling(Behandling behandling) {
         // brukes kun internt for å koble sammen aksjonspunkt og behandling
         this.behandling = behandling;
     }
@@ -118,10 +115,6 @@ public class Aksjonspunkt extends BaseEntitet {
 
     public AksjonspunktStatus getStatus() {
         return status;
-    }
-
-    public boolean tilbakehoppVedGjenopptakelse() {
-        return aksjonspunktDefinisjon.tilbakehoppVedGjenopptakelse();
     }
 
     /**
@@ -169,17 +162,6 @@ public class Aksjonspunkt extends BaseEntitet {
         return status.erÅpentAksjonspunkt();
     }
 
-    static Optional<Aksjonspunkt> finnEksisterende(Behandling behandling, AksjonspunktDefinisjon ap) {
-        return behandling.getAksjonspunktMedDefinisjonOptional(ap);
-    }
-
-    /**
-     * Returner liste av abstraktpunkt definisjon koder.
-     */
-    public static List<String> getKoder(List<Aksjonspunkt> abstraktpunkter) {
-        return abstraktpunkter.stream().map(ap -> ap.getAksjonspunktDefinisjon().getKode()).collect(Collectors.toList());
-    }
-
     @Override
     public boolean equals(Object object) {
         if (object == this) {
@@ -212,14 +194,13 @@ public class Aksjonspunkt extends BaseEntitet {
         return toTrinnsBehandling || aksjonspunktDefinisjon.getDefaultTotrinnBehandling();
     }
 
-    void settToTrinnsFlag() {
-        validerIkkeUtførtAvbruttAllerede();
-        this.setToTrinnsBehandling(true);
+    public boolean kanSetteToTrinnsbehandling() {
+        return aksjonspunktDefinisjon.kanSetteTotrinnBehandling();
     }
 
-    void fjernToTrinnsFlagg() {
+    void setToTrinnsBehandling(boolean toTrinnsBehandling) {
         validerIkkeUtførtAvbruttAllerede();
-        this.setToTrinnsBehandling(false);
+        this.toTrinnsBehandling = toTrinnsBehandling;
     }
 
     private void validerIkkeUtførtAvbruttAllerede() {
@@ -249,7 +230,7 @@ public class Aksjonspunkt extends BaseEntitet {
      * {@link Aksjonspunkt}.
      */
     static class Builder {
-        private Aksjonspunkt aksjonspunkt;
+        private final Aksjonspunkt aksjonspunkt;
 
         Builder(AksjonspunktDefinisjon aksjonspunktDefinisjon, BehandlingStegType behandlingStegFunnet) {
             this.aksjonspunkt = new Aksjonspunkt(aksjonspunktDefinisjon, behandlingStegFunnet);
@@ -261,15 +242,14 @@ public class Aksjonspunkt extends BaseEntitet {
 
         Aksjonspunkt buildFor(Behandling behandling) {
             var ap = this.aksjonspunkt;
-            var eksisterende = finnEksisterende(behandling, ap.aksjonspunktDefinisjon);
-            if (eksisterende.isPresent()) {
+            var eksisterende = behandling.getAksjonspunktMedDefinisjonOptional(ap.aksjonspunktDefinisjon).orElse(null);
+            if (eksisterende != null) {
                 // Oppdater eksisterende.
-                var eksisterendeAksjonspunkt = eksisterende.get();
-                kopierBasisfelter(ap, eksisterendeAksjonspunkt);
-                return eksisterendeAksjonspunkt;
+                kopierBasisfelter(ap, eksisterende);
+                return eksisterende;
             }
-            // Opprett ny og knytt til behandlingsresultat
-            ap.setBehandlingsresultat(behandling);
+            // Opprett ny og knytt til behandling
+            ap.setBehandling(behandling);
             InternalUtil.leggTilAksjonspunkt(behandling, ap);
             return ap;
         }
@@ -315,10 +295,6 @@ public class Aksjonspunkt extends BaseEntitet {
 
     void setBehandlingSteg(BehandlingStegType stegType) {
         this.behandlingSteg = stegType;
-    }
-
-    public void setToTrinnsBehandling(boolean toTrinnsBehandling) {
-        this.toTrinnsBehandling = toTrinnsBehandling;
     }
 
     public void setId(long id) {

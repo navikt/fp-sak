@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -21,8 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 public class AksjonspunktKontrollRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(AksjonspunktKontrollRepository.class);
-
-    private static final Set<AksjonspunktDefinisjon> IKKE_AKTUELL_TOTRINN = Set.of(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
 
     @Inject
     public AksjonspunktKontrollRepository() {
@@ -94,9 +91,7 @@ public class AksjonspunktKontrollRepository {
     public void setReåpnetMedTotrinn(Aksjonspunkt aksjonspunkt, boolean setToTrinn) {
         LOG.info("Setter aksjonspunkt reåpnet: {}", aksjonspunkt.getAksjonspunktDefinisjon());
         aksjonspunkt.setStatus(AksjonspunktStatus.OPPRETTET, aksjonspunkt.getBegrunnelse());
-        if (setToTrinn && !aksjonspunkt.isToTrinnsBehandling() && !IKKE_AKTUELL_TOTRINN.contains(aksjonspunkt.getAksjonspunktDefinisjon())) {
-            aksjonspunkt.settToTrinnsFlag();
-        }
+        setToTrinnsBehandlingKreves(aksjonspunkt, setToTrinn);
     }
 
     public void setTilAvbrutt(Aksjonspunkt aksjonspunkt) {
@@ -107,6 +102,13 @@ public class AksjonspunktKontrollRepository {
     public boolean setTilUtført(Aksjonspunkt aksjonspunkt, String begrunnelse) {
         LOG.info("Setter aksjonspunkt utført: {}", aksjonspunkt.getAksjonspunktDefinisjon());
         return aksjonspunkt.setStatus(AksjonspunktStatus.UTFØRT, begrunnelse);
+    }
+
+    public void setToTrinnsBehandlingKreves(Aksjonspunkt aksjonspunkt, boolean totrinn) {
+        if (!aksjonspunkt.erÅpentAksjonspunkt() || (totrinn && !aksjonspunkt.kanSetteToTrinnsbehandling())) {
+            throw new IllegalStateException("Utviklerfeil: kan ikke sette totrinn på aksjonspunkt " + aksjonspunkt);
+        }
+        aksjonspunkt.setToTrinnsBehandling(totrinn);
     }
 
     public void setFrist(Behandling behandling, Aksjonspunkt ap, LocalDateTime fristTid, Venteårsak venteårsak) {

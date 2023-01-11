@@ -42,20 +42,18 @@ public final class AksjonspunktTestSupport {
     public static void setToTrinnsBehandlingKreves(Aksjonspunkt aksjonspunkt) {
         var apDef = aksjonspunkt.getAksjonspunktDefinisjon();
         if (!apDef.kanSetteTotrinnBehandling()) {
-            if (AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL.equals(apDef) || AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.equals(apDef)) {
-                return;
-            }
+            return;
         }
         if (!aksjonspunkt.isToTrinnsBehandling()) {
             if (!aksjonspunkt.erÅpentAksjonspunkt()) {
                 setReåpnet(aksjonspunkt);
             }
-            aksjonspunkt.settToTrinnsFlag();
+            aksjonspunkt.setToTrinnsBehandling(true);
         }
     }
 
     public static void fjernToTrinnsBehandlingKreves(Aksjonspunkt aksjonspunkt) {
-        aksjonspunkt.fjernToTrinnsFlagg();
+        aksjonspunkt.setToTrinnsBehandling(false);
     }
 
     public static boolean setTilUtført(Aksjonspunkt aksjonspunkt, String begrunnelse) {
