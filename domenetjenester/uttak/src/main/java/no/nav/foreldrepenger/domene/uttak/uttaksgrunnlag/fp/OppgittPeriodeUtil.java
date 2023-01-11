@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 
-class OppgittPeriodeUtil {
+public class OppgittPeriodeUtil {
 
     private OppgittPeriodeUtil() {
         //Forhindrer instanser
@@ -56,7 +56,7 @@ class OppgittPeriodeUtil {
         return perioder.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder());
     }
 
-    static List<OppgittPeriodeEntitet> slåSammenLikePerioder(List<OppgittPeriodeEntitet> perioder) {
+    public static List<OppgittPeriodeEntitet> slåSammenLikePerioder(List<OppgittPeriodeEntitet> perioder) {
         List<OppgittPeriodeEntitet> resultat = new ArrayList<>();
 
         var i = 0;
@@ -81,7 +81,7 @@ class OppgittPeriodeUtil {
         return resultat;
     }
 
-    private static boolean erLikBortsettFraTidsperiode(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
+    public static boolean erLikBortsettFraTidsperiode(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
         //begrunnelse ikke viktig å se på
         return Objects.equals(periode1.getGraderingAktivitetType(), periode2.getGraderingAktivitetType()) &&
             Objects.equals(periode1.isFlerbarnsdager(), periode2.isFlerbarnsdager()) &&

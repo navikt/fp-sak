@@ -69,7 +69,8 @@ public class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
             uttakInputTjeneste, new VurderUttakDokumentasjonAksjonspunktUtleder(ytelseFordelingTjeneste, new AktivitetskravDokumentasjonUtleder(foreldrepengerUttakTjeneste)));
         var kontrollerAktivitetskravDtoTjeneste = new KontrollerAktivitetskravDtoTjeneste(repositoryProvider.getBehandlingRepository(),
             ytelseFordelingTjeneste, uttakInputTjeneste, foreldrepengerUttakTjeneste);
-        var faktaUttakPeriodeDtoTjeneste = new FaktaUttakPeriodeDtoTjeneste(uttakInputTjeneste, ytelseFordelingTjeneste, repositoryProvider.getBehandlingRepository());
+        var faktaUttakPeriodeDtoTjeneste = new FaktaUttakPeriodeDtoTjeneste(uttakInputTjeneste, ytelseFordelingTjeneste, repositoryProvider.getBehandlingRepository(),
+            repositoryProvider.getFpUttakRepository());
 
         behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningtjeneste,
             tilbakekrevingRepository, skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste,

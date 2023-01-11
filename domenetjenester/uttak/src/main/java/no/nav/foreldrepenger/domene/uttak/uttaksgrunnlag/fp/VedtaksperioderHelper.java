@@ -42,10 +42,11 @@ public class VedtaksperioderHelper {
 
     public static List<OppgittPeriodeEntitet> opprettOppgittePerioder(UttakResultatEntitet uttakResultatFraForrigeBehandling,
                                                                       List<OppgittPeriodeEntitet> søknadsperioder,
-                                                                      LocalDate endringsdato,
+                                                                      LocalDate fomDato,
                                                                       boolean kreverSammenhengendeUttak) {
         var førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
-        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling, endringsdato, førsteSøknadsdato, kreverSammenhengendeUttak);
+        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling,
+            fomDato, førsteSøknadsdato, kreverSammenhengendeUttak);
 
         List<OppgittPeriodeEntitet> søknadOgVedtaksperioder = new ArrayList<>();
         søknadsperioder.forEach(op -> søknadOgVedtaksperioder.add(OppgittPeriodeBuilder.fraEksisterende(op).build()));
@@ -53,18 +54,27 @@ public class VedtaksperioderHelper {
         return OppgittPeriodeUtil.sorterEtterFom(søknadOgVedtaksperioder);
     }
 
-    private static List<OppgittPeriodeEntitet> lagVedtaksperioder(UttakResultatEntitet uttakResultat, LocalDate endringsdato,
-                                                                  Optional<LocalDate> førsteSøknadsdato, boolean kreverSammenhengendeUttak) {
+    public static boolean avslåttPgaAvTaptPeriodeTilAnnenpart(UttakResultatPeriodeEntitet periode) {
+        return PeriodeResultatÅrsak.årsakerTilAvslagPgaAnnenpart().contains(periode.getResultatÅrsak())
+            && PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) && periode.getAktiviteter()
+            .stream()
+            .allMatch(aktivitet -> aktivitet.getTrekkdager().equals(Trekkdager.ZERO));
+    }
+
+    private static List<OppgittPeriodeEntitet> lagVedtaksperioder(UttakResultatEntitet uttakResultat,
+                                                                  LocalDate fraDato,
+                                                                  Optional<LocalDate> førsteSøknadsdato,
+                                                                  boolean kreverSammenhengendeUttak) {
         return uttakResultat.getGjeldendePerioder()
             .getPerioder()
             .stream()
-            .filter(p -> !p.getTom().isBefore(endringsdato))
+            .filter(p -> !p.getTom().isBefore(fraDato))
             .filter(p -> kreverSammenhengendeUttak || !avslåttIngenTrekkdager(p))
             .filter(p -> !avslåttPgaAvTaptPeriodeTilAnnenpart(p))
             .filter(p -> filtrerFørsteSøknadsdato(p, førsteSøknadsdato))
             .filter(VedtaksperioderHelper::erPeriodeFraSøknad)
             .map(VedtaksperioderHelper::konverter)
-            .flatMap(p -> klipp(p, endringsdato, førsteSøknadsdato))
+            .flatMap(p -> klipp(p, fraDato, førsteSøknadsdato))
             .toList();
     }
 
@@ -78,14 +88,7 @@ public class VedtaksperioderHelper {
         return true;
     }
 
-    public static boolean avslåttPgaAvTaptPeriodeTilAnnenpart(UttakResultatPeriodeEntitet periode) {
-        return PeriodeResultatÅrsak.årsakerTilAvslagPgaAnnenpart().contains(periode.getResultatÅrsak())
-            && PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) && periode.getAktiviteter()
-            .stream()
-            .allMatch(aktivitet -> aktivitet.getTrekkdager().equals(Trekkdager.ZERO));
-    }
-
-    public static boolean avslåttIngenTrekkdager(UttakResultatPeriodeEntitet periode) {
+    private static boolean avslåttIngenTrekkdager(UttakResultatPeriodeEntitet periode) {
         return PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) &&
             periode.getAktiviteter().stream().allMatch(aktivitet -> aktivitet.getTrekkdager().equals(Trekkdager.ZERO));
     }
@@ -95,15 +98,15 @@ public class VedtaksperioderHelper {
     }
 
     private static Stream<OppgittPeriodeEntitet> klipp(OppgittPeriodeEntitet op,
-                                                LocalDate endringsdato,
-                                                Optional<LocalDate> førsteSøknadsdato) {
-        Objects.requireNonNull(endringsdato);
+                                                       LocalDate fraDato,
+                                                       Optional<LocalDate> førsteSøknadsdato) {
+        Objects.requireNonNull(fraDato);
 
         var opb = OppgittPeriodeBuilder.fraEksisterende(op);
         var fom = op.getFom();
         var tom = op.getTom();
-        if (endringsdato.isAfter(fom)) {
-            fom = endringsdato;
+        if (fraDato.isAfter(fom)) {
+            fom = fraDato;
         }
         if (førsteSøknadsdato.isPresent() && (førsteSøknadsdato.get().isBefore(tom) || førsteSøknadsdato.get()
             .isEqual(tom))) {

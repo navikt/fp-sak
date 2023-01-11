@@ -1,7 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 
+import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.slåSammenLikePerioder;
+
+import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,6 +20,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.VedtaksperioderHelper;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
@@ -25,14 +32,17 @@ public class FaktaUttakPeriodeDtoTjeneste {
     private UttakInputTjeneste uttakInputTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private BehandlingRepository behandlingRepository;
+    private FpUttakRepository uttakRepository;
 
     @Inject
     public FaktaUttakPeriodeDtoTjeneste(UttakInputTjeneste uttakInputTjeneste,
                                         YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                        BehandlingRepository behandlingRepository) {
+                                        BehandlingRepository behandlingRepository,
+                                        FpUttakRepository uttakRepository) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.uttakRepository = uttakRepository;
     }
 
     FaktaUttakPeriodeDtoTjeneste() {
@@ -41,20 +51,35 @@ public class FaktaUttakPeriodeDtoTjeneste {
 
     public List<FaktaUttakPeriodeDto> lagDtos(UuidDto uuidDto) {
         var behandlingId = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid()).getId();
+        return lagDtos(behandlingId);
+    }
+
+    public List<FaktaUttakPeriodeDto> lagDtos(Long behandlingId) {
+        return hentRelevanteOppgittPerioder(behandlingId).map(p -> tilDto(p)).toList();
+    }
+
+    public Stream<OppgittPeriodeEntitet> hentRelevanteOppgittPerioder(Long behandlingId) {
         var uttakInput = uttakInputTjeneste.lagInput(behandlingId);
         if (!uttakInput.isSkalBrukeNyFaktaOmUttak()) {
-            return List.of();
+            return Stream.of();
         }
         var ytelseFordelingAggregatOpt = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId);
         if (ytelseFordelingAggregatOpt.isEmpty()) {
-            return List.of();
+            return Stream.of();
         }
-        //TODO TFP-4873 perioder før endringsdato burde vises
 
-        return ytelseFordelingAggregatOpt.get().getGjeldendeFordeling().getPerioder()
-            .stream()
-            .map(p -> tilDto(p))
-            .toList();
+        var yfa = ytelseFordelingAggregatOpt.get();
+        var perioder = yfa.getGjeldendeFordeling().getPerioder();
+        var behandlingReferanse = uttakInput.getBehandlingReferanse();
+        if (behandlingReferanse.erRevurdering()) {
+            var uttakOriginalBehandling = uttakRepository.hentUttakResultatHvisEksisterer(behandlingReferanse
+                .originalBehandlingId());
+            if (uttakOriginalBehandling.isPresent()) {
+                perioder = slåSammenLikePerioder(VedtaksperioderHelper.opprettOppgittePerioder(uttakOriginalBehandling.get(), perioder,
+                    LocalDate.MIN, behandlingReferanse.getSkjæringstidspunkt().kreverSammenhengendeUttak()));
+            }
+        }
+        return perioder.stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getTom));
     }
 
     private FaktaUttakPeriodeDto tilDto(OppgittPeriodeEntitet periode) {

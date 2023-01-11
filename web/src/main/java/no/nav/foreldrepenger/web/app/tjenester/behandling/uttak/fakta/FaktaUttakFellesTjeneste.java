@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -19,12 +20,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
@@ -48,6 +48,7 @@ class FaktaUttakFellesTjeneste {
     private BehandlingRepository behandlingRepository;
     private FpUttakRepository fpUttakRepository;
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
+    private FaktaUttakPeriodeDtoTjeneste dtoTjeneste;
 
     @Inject
     public FaktaUttakFellesTjeneste(UttakInputTjeneste uttakInputtjeneste,
@@ -58,7 +59,8 @@ class FaktaUttakFellesTjeneste {
                                     UttaksperiodegrenseRepository uttaksperiodegrenseRepository,
                                     FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste,
                                     FaktaUttakHistorikkinnslagTjeneste historikkinnslagTjeneste,
-                                    BehandlingRepository behandlingRepository) {
+                                    BehandlingRepository behandlingRepository,
+                                    FaktaUttakPeriodeDtoTjeneste dtoTjeneste) {
         this.uttakInputtjeneste = uttakInputtjeneste;
         this.utleder = utleder;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
@@ -68,6 +70,7 @@ class FaktaUttakFellesTjeneste {
         this.behandlingRepository = behandlingRepository;
         this.fpUttakRepository = fpUttakRepository;
         this.uttaksperiodegrenseRepository = uttaksperiodegrenseRepository;
+        this.dtoTjeneste = dtoTjeneste;
     }
 
     FaktaUttakFellesTjeneste() {
@@ -75,19 +78,55 @@ class FaktaUttakFellesTjeneste {
     }
 
     public OppdateringResultat oppdater(String begrunnelse, List<FaktaUttakPeriodeDto> perioder, Long behandlingId) {
-        var gjeldendePerioder = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId)
-            .map(YtelseFordelingAggregat::getGjeldendeFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(List.of());
-        var overstyrtePerioder = perioder.stream().map(p -> map(p, gjeldendePerioder)).toList();
-        overstyrtePerioder.forEach(p -> setPeriodeKildeForUendrete(p, gjeldendePerioder));
+        var gjeldendeDtos = dtoTjeneste.lagDtos(behandlingId);
+        //relevanteOppgittPerioder og perioder som lagres kan inneholder vedtaksperioder fra forrige behandling
+        var relevanteOppgittPerioder = dtoTjeneste.hentRelevanteOppgittPerioder(behandlingId).toList();
+        var førsteGjeldendeDag = førsteUttaksdagIBehandling(behandlingId);
+
+        var overstyrtePerioder = finnPerioderFraFørsteEndring(gjeldendeDtos, perioder, førsteGjeldendeDag)
+            .stream()
+            .map(p -> map(p, relevanteOppgittPerioder))
+            .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
+            .toList();
+
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         validerFørsteUttaksdag(overstyrtePerioder, behandling);
         var overstyrtePerioderMedMottattDato = oppdaterMedMottattdato(behandling, overstyrtePerioder);
         ytelseFordelingTjeneste.overstyrSøknadsperioder(behandlingId, overstyrtePerioderMedMottattDato, List.of());
         oppdaterEndringsdato(overstyrtePerioderMedMottattDato, behandlingId);
-        historikkinnslagTjeneste.opprettHistorikkinnslag(begrunnelse, gjeldendePerioder, overstyrtePerioderMedMottattDato);
+        historikkinnslagTjeneste.opprettHistorikkinnslag(begrunnelse, relevanteOppgittPerioder, overstyrtePerioderMedMottattDato);
 
         validerReutledetAksjonspunkt(behandlingId);
         return OppdateringResultat.utenTransisjon().build();
+    }
+
+    private LocalDate førsteUttaksdagIBehandling(Long behandlingId) {
+        return ytelseFordelingTjeneste.hentAggregat(behandlingId)
+            .getGjeldendeFordeling()
+            .getPerioder()
+            .stream()
+            .map(p -> p.getFom())
+            .min(LocalDate::compareTo)
+            .orElse(LocalDate.MIN);
+    }
+
+    private List<FaktaUttakPeriodeDto> finnPerioderFraFørsteEndring(List<FaktaUttakPeriodeDto> gjeldendePerioder,
+                                                                    List<FaktaUttakPeriodeDto> overstyrtePerioder,
+                                                                    LocalDate førsteGjeldendeDag) {
+        var funnetEndring = false;
+        var perioderFraEndring = new ArrayList<FaktaUttakPeriodeDto>();
+        var sorted = overstyrtePerioder.stream().sorted(Comparator.comparing(FaktaUttakPeriodeDto::fom)).toList();
+        for (var overstyrt : sorted) {
+            if (funnetEndring || !overstyrt.fom().isBefore(førsteGjeldendeDag) || erEndret(overstyrt, gjeldendePerioder)) {
+                perioderFraEndring.add(overstyrt);
+                funnetEndring = true;
+            }
+        }
+        return perioderFraEndring;
+    }
+
+    private boolean erEndret(FaktaUttakPeriodeDto p, List<FaktaUttakPeriodeDto> gjeldendePerioder) {
+        return gjeldendePerioder.stream().noneMatch(gp -> p.equals(gp));
     }
 
     private void validerReutledetAksjonspunkt(Long behandlingId) {
@@ -119,17 +158,15 @@ class FaktaUttakFellesTjeneste {
         var ansesMottattDato = uttaksperiodegrenseRepository.hentHvisEksisterer(behandling.getId())
             .map(Uttaksperiodegrense::getMottattDato).orElseGet(LocalDate::now);
         return TidligstMottattOppdaterer.oppdaterTidligstMottattDato(overstyrt, ansesMottattDato, gjeldendeFordelingAsList, forrigeUttak);
-
     }
 
     private static OppgittPeriodeEntitet map(FaktaUttakPeriodeDto dto, List<OppgittPeriodeEntitet> gjeldende) {
         var periodeIntervall = DatoIntervallEntitet.fraOgMedTilOgMed(dto.fom(), dto.tom());
+        var gjeldendeSomOmslutter = gjeldendeSomOmslutter(periodeIntervall, gjeldende);
         var builder = OppgittPeriodeBuilder.ny().medPeriode(dto.fom(), dto.tom())
-            .medPeriodeKilde(FordelingPeriodeKilde.SAKSBEHANDLER)
-            .medMottattDato(gjeldendeSomOmslutter(periodeIntervall, gjeldende)
-                .map(OppgittPeriodeEntitet::getMottattDato).orElseGet(LocalDate::now))
-            .medTidligstMottattDato(gjeldendeSomOmslutter(periodeIntervall, gjeldende)
-                .flatMap(OppgittPeriodeEntitet::getTidligstMottattDato).orElse(null))
+            .medPeriodeKilde(dto.periodeKilde() == null ? FordelingPeriodeKilde.SAKSBEHANDLER : dto.periodeKilde())
+            .medMottattDato(gjeldendeSomOmslutter.map(OppgittPeriodeEntitet::getMottattDato).orElseGet(LocalDate::now))
+            .medTidligstMottattDato(gjeldendeSomOmslutter.flatMap(OppgittPeriodeEntitet::getTidligstMottattDato).orElse(null))
             .medDokumentasjonVurdering(utledDokumentasjonsVurdering(periodeIntervall, gjeldende))
             .medMorsAktivitet(dto.morsAktivitet())
             .medFlerbarnsdager(dto.flerbarnsdager())
@@ -151,13 +188,6 @@ class FaktaUttakFellesTjeneste {
                 .medArbeidsprosent(dto.arbeidstidsprosent());
         }
         return builder.build();
-    }
-
-    private static void setPeriodeKildeForUendrete(OppgittPeriodeEntitet ny, List<OppgittPeriodeEntitet> gjeldende) {
-        gjeldende.stream()
-            .filter(p -> p.getTidsperiode().equals(ny.getTidsperiode())) // Vurder arv dersom ny erOmsluttetAv p
-            .filter(p -> FaktaUttakHistorikkinnslagTjeneste.erLikePerioder(p, ny))
-            .findFirst().map(OppgittPeriodeEntitet::getPeriodeKilde).ifPresent(ny::setPeriodeKilde);
     }
 
     private static boolean erGradering(FaktaUttakPeriodeDto dto) {
