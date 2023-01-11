@@ -42,7 +42,6 @@ public class ApiConfig extends Application {
             .id(ID_PREFIX + ApiConfig.class.getName())
             .openAPI(oas)
             .prettyPrint(true)
-            //.scannerClass("io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner")
             .resourceClasses(Stream.of(RestImplementationClasses.getImplementationClasses(), RestImplementationClasses.getForvaltningClasses())
                 .flatMap(Collection::stream).map(Class::getName).collect(Collectors.toSet()));
 

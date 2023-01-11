@@ -13,8 +13,6 @@ public class AppStartupServletContextListener implements ServletContextListener 
         CDI.current().select(HealthCheckRestService.class).get().setIsContextStartupReady(Boolean.TRUE);
     }
 
-
-
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         // ikke noe
