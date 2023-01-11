@@ -12,6 +12,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
@@ -25,10 +26,10 @@ import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering.SaldoVali
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriodeAktivitet;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AktivitetIdentifikatorDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AktivitetSaldoDto;
@@ -111,9 +112,26 @@ public class SaldoerDtoTjeneste {
             var stønadskontoDto = foreldrepengerMinsterettDto(saldoUtregning);
             stønadskontoMap.put(stønadskontoDto.stonadskontotype(), stønadskontoDto);
         }
+        if (harMinsterettEtterNesteSak(saldoUtregning, fpGrunnlag, ref)) {
+            var stønadskontoDto = foreldrepengerEtterNesteStønadsperiodeDto(saldoUtregning);
+            stønadskontoMap.put(stønadskontoDto.stonadskontotype(), stønadskontoDto);
+        }
 
         var tapteDagerFpff = finnTapteDagerFpff(input);
         return new SaldoerDto(stønadskontoMap, tapteDagerFpff);
+    }
+
+    private boolean harMinsterettEtterNesteSak(SaldoUtregning saldoUtregning, ForeldrepengerGrunnlag fpGrunnlag, BehandlingReferanse ref) {
+        return saldoUtregning.getMaxDagerEtterNesteStønadsperiode().merEnn0() && fpGrunnlag.getNesteSakGrunnlag().isPresent()
+            && harTrekkdagerEtterNesteSak(ref, fpGrunnlag.getNesteSakGrunnlag().orElseThrow());
+    }
+
+    private boolean harTrekkdagerEtterNesteSak(BehandlingReferanse ref, NesteSakGrunnlagEntitet nesteSakGrunnlag) {
+        var nesteSakFom = nesteSakGrunnlag.getStartdato();
+        return uttakTjeneste.hentUttakHvisEksisterer(ref.behandlingId()).map(u -> {
+            //Bruker opprinnelige uttak fra reglene for at minsterett saldo ikke skal forsvinne hvis saksbehandler fjerner alle trekkdager etter ny sak i AP
+            return u.getOpprinneligPerioder().stream().anyMatch(p -> p.harTrekkdager() && !p.getTom().isBefore(nesteSakFom));
+        }).orElse(false);
     }
 
     private StønadskontoDto foreldrepengerFlerbarnsdagerDto(SaldoUtregning saldoUtregning) {
@@ -161,6 +179,20 @@ public class SaldoerDtoTjeneste {
         return new StønadskontoDto(SaldoerDto.SaldoVisningStønadskontoType.MINSTERETT,
             saldoUtregning.getMaxDagerMinsterett().rundOpp(), restSaldoMinsterett, aktivitetSaldoList, gyldigForbruk,
             null);
+    }
+
+    private StønadskontoDto foreldrepengerEtterNesteStønadsperiodeDto(SaldoUtregning saldoUtregning) {
+        var aktivitetSaldoList = saldoUtregning.aktiviteterForSøker().stream().map(a -> {
+            var restSaldo = saldoUtregning.restSaldoEtterNesteStønadsperiode(a);
+            return new AktivitetSaldoDto(mapToDto(a), restSaldo.rundOpp());
+        }).toList();
+        int restSaldo = aktivitetSaldoList.stream()
+            .map(AktivitetSaldoDto::saldo)
+            .max(Comparator.comparing(integer -> integer))
+            .orElse(0);
+        var gyldigForbruk = restSaldo >= 0;
+        return new StønadskontoDto(SaldoerDto.SaldoVisningStønadskontoType.MINSTERETT_NESTE_STØNADSPERIODE,
+            saldoUtregning.getMaxDagerEtterNesteStønadsperiode().rundOpp(), restSaldo, aktivitetSaldoList, gyldigForbruk, null);
     }
 
     private int finnTapteDagerFpff(UttakInput input) {

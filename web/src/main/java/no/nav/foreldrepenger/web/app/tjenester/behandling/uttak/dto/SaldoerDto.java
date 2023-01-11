@@ -14,6 +14,7 @@ public record SaldoerDto(Map<SaldoVisningStønadskontoType, StønadskontoDto> st
         FORELDREPENGER_FØR_FØDSEL,
         FLERBARNSDAGER,
         UTEN_AKTIVITETSKRAV,
+        MINSTERETT_NESTE_STØNADSPERIODE,
         MINSTERETT;
 
         public static SaldoVisningStønadskontoType fra(Stønadskontotype stønadskontotype) {
