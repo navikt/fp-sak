@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.web.app.tjenester.behandling.svp.Svangerskap
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -25,20 +26,21 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregat;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
-import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
-import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.registerinnhenting.StønadsperioderInnhenter;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -59,6 +61,8 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     private TilgangerTjeneste tilgangerTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private StønadsperioderInnhenter stønadsperioderInnhenter;
+    private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     BekreftSvangerskapspengerOppdaterer() {
         //CDI
@@ -69,25 +73,27 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                                                BehandlingGrunnlagRepositoryProvider repositoryProvider,
                                                TilgangerTjeneste tilgangerTjeneste,
                                                InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                               StønadsperioderInnhenter stønadsperioderInnhenter) {
+                                               StønadsperioderInnhenter stønadsperioderInnhenter,
+                                               ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
+                                               BehandlingRepository behandlingRepository) {
         this.svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
         this.historikkAdapter = historikkAdapter;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.tilgangerTjeneste = tilgangerTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.stønadsperioderInnhenter = stønadsperioderInnhenter;
+        this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
     public OppdateringResultat oppdater(BekreftSvangerskapspengerDto dto, AksjonspunktOppdaterParameter param) {
 
         verifiserUnikeDatoer(dto);
-
-        var behandling = param.getBehandling();
+        var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         var termindatoEndret = oppdaterFamiliehendelse(dto, behandling);
         var tilretteleggingEndret = oppdaterTilrettelegging(dto, behandling);
-
-        oppdaterPermisjon(dto, param, behandling);
+        oppdaterPermisjonVedBehov(dto, param);
 
         if (termindatoEndret || tilretteleggingEndret) {
             var begrunnelse = dto.getBegrunnelse();
@@ -100,57 +106,69 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
     }
 
-    private void oppdaterPermisjon(BekreftSvangerskapspengerDto dto, AksjonspunktOppdaterParameter param, Behandling behandling) {
-        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
-        var saksbehandlet = InntektArbeidYtelseAggregatBuilder.oppdatere(finnAggregat(iayGrunnlag), VersjonType.SAKSBEHANDLET);
-        var aktørArbeidBuilder = saksbehandlet.getAktørArbeidBuilder(param.getAktørId());
-        dto.getBekreftetSvpArbeidsforholdList().forEach(arbeidsforhold -> oppdaterPermisjonForArbeid(param, iayGrunnlag, aktørArbeidBuilder, arbeidsforhold));
-        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), saksbehandlet);
+    private void oppdaterPermisjonVedBehov(BekreftSvangerskapspengerDto dto, AksjonspunktOppdaterParameter param) {
+        var infoBuilder = arbeidsforholdAdministrasjonTjeneste.opprettBuilderFor(param.getBehandlingId());
+        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(param.getBehandlingId());
+
+        var yrkesfilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(),
+            iayGrunnlag.getAktørArbeidFraRegister(param.getAktørId()));
+        var oppdaterePermisjonBuildere = dto.getBekreftetSvpArbeidsforholdList()
+            .stream()
+            .filter(this::harGjortPermisjonsvalg)
+            .map(aktivitet -> lagPermisjonsoppdatering(aktivitet, infoBuilder, yrkesfilter))
+            .flatMap(Collection::stream)
+            .toList();
+        if (!oppdaterePermisjonBuildere.isEmpty()) {
+            oppdaterePermisjonBuildere.forEach(infoBuilder::leggTil);
+            arbeidsforholdAdministrasjonTjeneste.lagreOverstyring(param.getBehandlingId(), param.getAktørId(), infoBuilder);
+        }
     }
 
-    private void oppdaterPermisjonForArbeid(AksjonspunktOppdaterParameter param,
-                                            InntektArbeidYtelseGrunnlag iayGrunnlag,
-                                            InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder,
-                                            SvpArbeidsforholdDto arbeidsforhold) {
-        var yrkesaktiviteter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(),
-            iayGrunnlag.getAktørArbeidFraRegister(param.getAktørId())).getYrkesaktiviteter()
+    private boolean harGjortPermisjonsvalg(SvpArbeidsforholdDto aktivitet) {
+        return aktivitet.getVelferdspermisjoner().stream()
+            .anyMatch(p -> PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(p.getType()) && p.getErGyldig() != null);
+    }
+
+    private List<ArbeidsforholdOverstyringBuilder> lagPermisjonsoppdatering(SvpArbeidsforholdDto aktivitet,
+                                                                            ArbeidsforholdInformasjonBuilder infoBuilder,
+                                                                            YrkesaktivitetFilter yrkesfilter) {
+        var yrkesaktiviteter = yrkesfilter.getYrkesaktiviteter()
             .stream()
-            .filter(ya -> ya.getArbeidsgiver() != null && ya.getArbeidsgiver().getIdentifikator().equals(arbeidsforhold.getArbeidsgiverReferanse()))
-            .filter(ya -> ya.getArbeidsforholdRef().gjelderFor(InternArbeidsforholdRef.ref(arbeidsforhold.getInternArbeidsforholdReferanse())))
+            .filter(ya -> ya.getArbeidsgiver() != null && ya.getArbeidsgiver().getIdentifikator().equals(aktivitet.getArbeidsgiverReferanse()))
+            .filter(ya -> ya.getArbeidsforholdRef().gjelderFor(InternArbeidsforholdRef.ref(aktivitet.getInternArbeidsforholdReferanse())))
             .toList();
+        if (yrkesaktiviteter.isEmpty()) {
+            var feilmelding = String.format("Forventet minst 1 matchende yrkesaktivitet , fant 0. Gjelder aktivitet med arbeidsgiverIdent %s og arbeidsforholdId %s",
+                aktivitet.getArbeidsgiverReferanse(), aktivitet.getInternArbeidsforholdReferanse());
+            throw new IllegalStateException(feilmelding);
+        }
+        List<ArbeidsforholdOverstyringBuilder> listeMedEndredeArbeidsforhold = new ArrayList<>();
         yrkesaktiviteter.forEach(yrkesaktivitet -> {
-            var velferdspermisjoner = arbeidsforhold.getVelferdspermisjoner();
-            if (velferdspermisjoner != null && harEndretPermisjonForYrkesaktivitet(yrkesaktivitet, velferdspermisjoner)) {
-                var inkludertePermisjoner = finnGyldigePermisjoner(yrkesaktivitet, velferdspermisjoner);
-                var yrkesaktivitetBuilder = aktørArbeidBuilder
-                        .getYrkesaktivitetBuilderForNøkkelAvType(Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(yrkesaktivitet.getArbeidsforholdRef(), yrkesaktivitet.getArbeidsgiver()), yrkesaktivitet.getArbeidType())
-                        .tilbakestillPermisjon();
-                    inkludertePermisjoner.forEach(yrkesaktivitetBuilder::leggTilPermisjon);
+            var vurdertPermisjon = finnPermisjonSomErVurdert(aktivitet.getVelferdspermisjoner(), yrkesaktivitet);
+            if (vurdertPermisjon.isPresent()) {
+                infoBuilder.fjernOverstyringVedrørende(yrkesaktivitet.getArbeidsgiver(), yrkesaktivitet.getArbeidsforholdRef());
+                var yaBuilder = infoBuilder.getOverstyringBuilderFor(yrkesaktivitet.getArbeidsgiver(), yrkesaktivitet.getArbeidsforholdRef());
+                yaBuilder.medBekreftetPermisjon(new BekreftetPermisjon(vurdertPermisjon.get().getPermisjonFom(), vurdertPermisjon.get().getPermisjonTom(), finnStatus(vurdertPermisjon.get())))
+                    .medHandling(ArbeidsforholdHandlingType.BRUK);
+                listeMedEndredeArbeidsforhold.add(yaBuilder);
+
             }
         });
+        return listeMedEndredeArbeidsforhold;
     }
 
-    private boolean harEndretPermisjonForYrkesaktivitet(Yrkesaktivitet yrkesaktivitet, List<VelferdspermisjonDto> velferdspermisjoner) {
-        return yrkesaktivitet.getPermisjon().stream()
-            .anyMatch(p -> PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(p.getPermisjonsbeskrivelseType())
-                && velferdspermisjoner.stream().anyMatch(vp -> vp.getPermisjonFom().isEqual(p.getFraOgMed()) && vp.getPermisjonsprosent().compareTo(p.getProsentsats().getVerdi()) == 0));
+    private BekreftetPermisjonStatus finnStatus(VelferdspermisjonDto vp) {
+        return vp.getErGyldig() ? BekreftetPermisjonStatus.BRUK_PERMISJON : BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON;
     }
 
-    private List<Permisjon> finnGyldigePermisjoner(Yrkesaktivitet yrkesaktivitet, List<VelferdspermisjonDto> velferdspermisjoner) {
-        return yrkesaktivitet.getPermisjon().stream()
-                    .filter(p -> !PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(p.getPermisjonsbeskrivelseType())
-                        || velferdspermisjoner.stream().noneMatch(vp -> vp.getPermisjonFom().isEqual(p.getFraOgMed()) && vp.getPermisjonsprosent().compareTo(p.getProsentsats().getVerdi()) == 0 && !vp.getErGyldig()))
-                    .collect(Collectors.toList());
+    private Optional<VelferdspermisjonDto> finnPermisjonSomErVurdert(List<VelferdspermisjonDto> velferdspermisjoner, Yrkesaktivitet yrkesaktivitet) {
+        return velferdspermisjoner.stream()
+            .filter(bekreftetPerm -> yrkesaktivitet.getPermisjon().stream()
+                .anyMatch(yaPerm -> yaPerm.getFraOgMed().equals(bekreftetPerm.getPermisjonFom())
+                    && yaPerm.getProsentsats().getVerdi().compareTo(bekreftetPerm.getPermisjonsprosent()) == 0))
+            .filter(bekreftetPerm -> bekreftetPerm.getErGyldig() != null)
+            .findFirst();
     }
-
-    private Optional<InntektArbeidYtelseAggregat> finnAggregat(InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var saksbehandletVersjon = iayGrunnlag.getSaksbehandletVersjon();
-        if (saksbehandletVersjon.isPresent()) {
-            return saksbehandletVersjon;
-        }
-        return iayGrunnlag.getRegisterVersjon();
-    }
-
     private void verifiserUnikeDatoer(BekreftSvangerskapspengerDto dto) {
         var bekreftedeArbeidsforhold = dto.getBekreftetSvpArbeidsforholdList();
         for (var arbeidsforhold : bekreftedeArbeidsforhold) {

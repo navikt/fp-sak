@@ -38,12 +38,15 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.registerinnhenting.StønadsperioderInnhenter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -80,8 +83,11 @@ public class BekreftSvangerskapspengerOppdatererTest {
         grunnlagProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         var historikkAdapter = new HistorikkTjenesteAdapter(
             repositoryProvider.getHistorikkRepository(), null, repositoryProvider.getBehandlingRepository());
+        var arbeidsforholdAdministrasjonTjeneste = new ArbeidsforholdAdministrasjonTjeneste(
+            inntektArbeidYtelseTjeneste);
         oppdaterer = new BekreftSvangerskapspengerOppdaterer(historikkAdapter, grunnlagProvider,
-            tilgangerTjenesteMock, inntektArbeidYtelseTjeneste, stønadsperioderInnhenterMock);
+            tilgangerTjenesteMock, inntektArbeidYtelseTjeneste, stønadsperioderInnhenterMock, arbeidsforholdAdministrasjonTjeneste,
+            repositoryProvider.getBehandlingRepository());
     }
 
     @Test
@@ -114,22 +120,19 @@ public class BekreftSvangerskapspengerOppdatererTest {
 
         var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
 
-        var resultat = oppdaterer.oppdater(dto, param);
+        oppdaterer.oppdater(dto, param);
 
         var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(
             behandling.getId());
-        var permisjonErFjernet = inntektArbeidYtelseGrunnlag.getSaksbehandletVersjon()
-            .orElseThrow()
-            .getAktørArbeid()
-            .iterator()
-            .next()
-            .hentAlleYrkesaktiviteter()
-            .stream()
-            .allMatch(ya -> ya.getPermisjon().isEmpty());
 
-        assertThat(permisjonErFjernet).isTrue();
+        var overstyringer = inntektArbeidYtelseGrunnlag.getArbeidsforholdOverstyringer();
 
-        assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
+        assertThat(overstyringer).hasSize(1);
+
+        assertThat(overstyringer.get(0).getBekreftetPermisjon()).isPresent();
+        assertThat(overstyringer.get(0).getBekreftetPermisjon().get().getStatus()).isEqualTo(BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON);
+        assertThat(overstyringer.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(ARBEIDSGIVER_IDENT);
+        assertThat(overstyringer.get(0).getArbeidsforholdRef()).isEqualTo(INTERN_ARBEIDSFORHOLD_REF);
     }
 
     @Test
@@ -290,47 +293,6 @@ public class BekreftSvangerskapspengerOppdatererTest {
 
         var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
         assertDoesNotThrow(() -> oppdaterer.oppdater(dto, param));
-    }
-
-    @Test
-    public void skal_fjerne_permisjon_ved_ugyldig_velferdspermisjon() {
-        var behandling = behandlingMedTilretteleggingAP();
-
-        var register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
-            VersjonType.REGISTER);
-        var aktørArbeidBuilder = register.getAktørArbeidBuilder(
-            behandling.getAktørId());
-        var yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
-        yrkesaktivitetBuilder.medArbeidsgiver(Arbeidsgiver.virksomhet(ARBEIDSGIVER_IDENT));
-        yrkesaktivitetBuilder.medArbeidsforholdId(INTERN_ARBEIDSFORHOLD_REF);
-        yrkesaktivitetBuilder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
-        var permisjonBuilder = yrkesaktivitetBuilder.getPermisjonBuilder();
-        var permisjonsprosent = BigDecimal.valueOf(40);
-        permisjonBuilder.medProsentsats(permisjonsprosent);
-        permisjonBuilder.medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.ANNEN_PERMISJON_LOVFESTET);
-        permisjonBuilder.medPeriode(BEHOV_DATO, TERMINDATO);
-        aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
-        register.leggTilAktørArbeid(aktørArbeidBuilder);
-        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), register);
-
-        var svpGrunnlag = byggSøknadsgrunnlag(behandling);
-        var dto = byggDto(BEHOV_DATO, TERMINDATO,
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
-            new SvpTilretteleggingDatoDto(BEHOV_DATO.plusWeeks(1), TilretteleggingType.INGEN_TILRETTELEGGING, null));
-        var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
-        var svpArbeidsforholdDto = dto.getBekreftetSvpArbeidsforholdList().get(0);
-        svpArbeidsforholdDto.setVelferdspermisjoner(List.of(
-            new VelferdspermisjonDto(BEHOV_DATO, TERMINDATO, permisjonsprosent,
-                PermisjonsbeskrivelseType.ANNEN_PERMISJON_LOVFESTET, false)));
-        var resultat = oppdaterer.oppdater(dto, param);
-
-        var saksbehandletVersjon = inntektArbeidYtelseTjeneste.hentGrunnlag(
-            behandling.getId()).getSaksbehandletVersjon();
-
-        assertThat(saksbehandletVersjon).isPresent();
-        var aktørArbeid = saksbehandletVersjon.get().getAktørArbeid().iterator().next();
-        var permisjoner = aktørArbeid.hentAlleYrkesaktiviteter().iterator().next().getPermisjon();
-        assertThat(permisjoner.isEmpty()).isTrue();
     }
 
     private Behandling behandlingMedTilretteleggingAP() {
