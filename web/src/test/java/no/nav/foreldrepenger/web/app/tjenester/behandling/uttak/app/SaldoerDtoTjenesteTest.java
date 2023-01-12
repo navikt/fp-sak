@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
@@ -903,6 +904,47 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         assertKonto(totalSaldo, maxDager, 10 );
         var minsterettSaldo = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MINSTERETT);
         assertKonto(minsterettSaldo, 8 * 5, 10);
+    }
+
+    @Test
+    void minsterett_neste_stønadsperiode() {
+        var fødseldato = LocalDate.of(2022, 1, 1);
+
+        var uttakAktivitet = lagUttakAktivitet(arbeidsgiver("123"));
+        var uttak = new UttakResultatPerioderEntitet();
+
+        var periode = new UttakResultatPeriodeEntitet.Builder(fødseldato.plusWeeks(6), fødseldato.plusWeeks(8).minusDays(1))
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build();
+        var akt1 = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet).medTrekkonto(FEDREKVOTE)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
+            .medTrekkdager(new Trekkdager(40))
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
+        uttak.leggTilPeriode(periode);
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false))
+            .medFordeling(new OppgittFordelingEntitet(List.of(), true));
+        var behandling = avsluttetBehandlingMedUttak(fødseldato, scenario, uttak);
+
+        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(FEDREKVOTE, 75));
+        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+
+        var saksnummer = repositoryProvider.getFagsakRepository().finnEksaktFagsak(behandling.getFagsakId()).getSaksnummer();
+        var fødselNesteSak = periode.getTom().minusDays(1);
+        var nesteSakGrunnlag = NesteSakGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+            .medBehandlingId(behandling.getId())
+            .medSaksnummer(saksnummer)
+            .medStartdato(fødselNesteSak.minusWeeks(3))
+            .medHendelsedato(fødselNesteSak)
+            .build();
+        var fpGrunnlag = fpGrunnlag()
+            .medNesteSakGrunnlag(nesteSakGrunnlag);
+        var input = inputFAB(behandling, fpGrunnlag, fødseldato);
+        var saldoer = tjeneste.lagStønadskontoerDto(input);
+
+        var saldo = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MINSTERETT_NESTE_STØNADSPERIODE);
+        var maxDager = 8 * 5;
+        assertKonto(saldo, maxDager, maxDager - akt1.getTrekkdager().decimalValue().intValue());
     }
 
     private Optional<AktivitetSaldoDto> finnRiktigAktivitetSaldo(List<AktivitetSaldoDto> aktivitetSaldoer,
