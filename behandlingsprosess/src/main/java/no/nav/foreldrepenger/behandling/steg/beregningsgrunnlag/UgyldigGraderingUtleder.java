@@ -64,14 +64,16 @@ public class UgyldigGraderingUtleder {
     }
 
     private static Optional<ArbeidGraderingMap> finnAndelUtenAnsettelsesperiode(ArbeidGraderingMap andel, Collection<YrkesaktivitetDto> yrkesaktiviteter, LocalDate stpOpptjening) {
-        var yrkesaktivitet = yrkesaktiviteter.stream()
+        var matchendeYrkesaktiviteter = yrkesaktiviteter.stream()
             .filter(ya -> ya.getArbeidsgiver() != null && Objects.equals(ya.getArbeidsgiver().getIdentifikator(), andel.arbeidsgiverIdent))
             .filter(ya -> ya.getArbeidsforholdRef().gjelderFor(andel.internRef))
-            .findFirst();
-        var ansettelsesperioder = yrkesaktivitet.map(YrkesaktivitetDto::getAlleAnsettelsesperioder).orElse(Collections.emptySet());
-        if (!finnesAnsettelsesperiodeSomSlutterEtterSTP(ansettelsesperioder, stpOpptjening)) {
+            .toList();
+        var alleAnsettelsesperioder = matchendeYrkesaktiviteter.stream()
+            .map(YrkesaktivitetDto::getAlleAnsettelsesperioder)
+            .flatMap(Collection::stream)
+            .toList();
+        if (!finnesAnsettelsesperiodeSomSlutterEtterSTP(alleAnsettelsesperioder, stpOpptjening)) {
             return Optional.of(andel);
-
         }
         return Optional.empty();
     }
