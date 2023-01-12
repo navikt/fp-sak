@@ -69,6 +69,17 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
     }
 
     @Override
+    public boolean harOpphørsUttakNyeInnvilgetePerioder(UttakResultatHolder other) {
+        var uttakresultatSammenligneMed = (UttakResultatHolderFP) other;
+        var uttaksTL = lagTidslinjeFraUttaksPerioder(uttakresultatSammenligneMed.getGjeldendePerioder());
+        var originalTL = lagTidslinjeFraUttaksPerioder(getGjeldendePerioder());
+        return uttaksTL.combine(originalTL, this::fjernLikePerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN)
+            .toSegments().stream().map(LocalDateSegment::getValue).filter(Objects::nonNull)
+            .map(WrapUttakPeriode::getP)
+            .anyMatch(ForeldrepengerUttakPeriode::harAktivtUttak);
+    }
+
+    @Override
     public boolean harUlikUttaksplan(UttakResultatHolder other) {
         var uttakresultatSammenligneMed = (UttakResultatHolderFP) other;
         var uttaksTL = lagTidslinjeFraUttaksPerioder(uttakresultatSammenligneMed.getGjeldendePerioder());
@@ -84,6 +95,7 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
     public Optional<BehandlingVedtak> getBehandlingVedtak() {
         return Optional.ofNullable(vedtak);
     }
+
 
     private LocalDateTimeline<WrapUttakPeriode> lagTidslinjeFraUttaksPerioder(List<ForeldrepengerUttakPeriode> uttaksPerioder) {
         return new LocalDateTimeline<>(uttaksPerioder.stream()

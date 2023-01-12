@@ -16,10 +16,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -27,10 +34,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
+import no.nav.foreldrepenger.regler.uttak.konfig.Konfigurasjon;
+import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 public abstract class RevurderingBehandlingsresultatutlederFelles {
@@ -44,12 +54,15 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private FamilieHendelseRepository familieHendelseRepository;
+    private NesteSakRepository nesteSakRepository;
 
     protected RevurderingBehandlingsresultatutlederFelles() {
         // for CDI proxy
     }
 
     public RevurderingBehandlingsresultatutlederFelles(BehandlingRepositoryProvider repositoryProvider,
+                                                       BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
                                                        BeregningTjeneste beregningTjeneste,
                                                        MedlemTjeneste medlemTjeneste,
                                                        OpphørUttakTjeneste opphørUttakTjeneste,
@@ -63,6 +76,8 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
+        this.nesteSakRepository = grunnlagRepositoryProvider.getNesteSakRepository();
     }
 
     public Behandlingsresultat bestemBehandlingsresultatForRevurdering(BehandlingReferanse revurderingRef,
@@ -129,8 +144,12 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
             uttakresultatRevurderingOpt);
         if (erEndringIUttakFraEndringstidspunkt
             && uttakresultatRevurderingOpt.kontrollerErSisteUttakAvslåttMedÅrsak()) {
-            return SettOpphørOgIkkeRett.fastsett(revurdering, behandlingsresultatRevurdering.orElse(null),
-                Vedtaksbrev.AUTOMATISK);
+            // Endret ifm TFP-5356 la bruker søke på restdager av minsterett også etter ny stønadsperiode
+            // Aktuell kode for TFP-5360 - håndtering av søknad som gir både innvilget og avslått/opphør-perioder
+            boolean opphør = !uttakresultatOriginalOpt.harOpphørsUttakNyeInnvilgetePerioder(uttakresultatRevurderingOpt) || !totette(revurdering);
+            if (opphør) {
+                return SettOpphørOgIkkeRett.fastsett(revurdering, behandlingsresultatRevurdering.orElse(null), Vedtaksbrev.AUTOMATISK);
+            }
         }
         var revurderingsGrunnlagOpt = beregningTjeneste.hent(revurdering.getId()).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
         var originalGrunnlagOpt = beregningTjeneste.hent(originalBehandling.getId()).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
@@ -326,6 +345,18 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         behandlingsresultatBuilder.medRettenTil(rettenTil);
         konsekvenserForYtelsen.forEach(behandlingsresultatBuilder::leggTilKonsekvensForYtelsen);
         return behandlingsresultatBuilder.buildFor(revurdering);
+    }
+
+    private boolean totette(Behandling behandling) {
+        var gjeldendeFamilieHendelsedato = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt).orElse(null);
+        return FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) && gjeldendeFamilieHendelsedato != null &&
+            behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER) &&
+            nesteSakRepository.hentGrunnlag(behandling.getId()).map(NesteSakGrunnlagEntitet::getHendelsedato)
+                .filter(h -> h.isBefore(gjeldendeFamilieHendelsedato.plusDays(1)
+                    .plusWeeks(Konfigurasjon.STANDARD.getParameter(Parametertype.TETTE_SAKER_MELLOMROM_UKER, gjeldendeFamilieHendelsedato))))
+                .isPresent();
     }
 
 

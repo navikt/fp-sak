@@ -138,6 +138,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
 
         revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutleder(repositoryProvider,
+                grunnlagRepositoryProvider,
                 uttakResultatRepository,
                 beregningTjeneste,
                 opphørUttakTjeneste,

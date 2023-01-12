@@ -18,8 +18,6 @@ import org.mockito.ArgumentMatchers;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingBehandlingsresultatutleder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -28,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -48,19 +47,17 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
-import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
 
     private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
 
     private final DokumentBehandlingTjeneste dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
     private final OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
@@ -78,10 +75,12 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(new MedlemTjeneste.VilkårUtfallMedÅrsak(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
         when(beregningTjeneste.hent(any())).thenReturn(Optional.empty());
         var entityManager = getEntityManager();
-        this.repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         fpUttakRepository = this.repositoryProvider.getFpUttakRepository();
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
-        revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(this.repositoryProvider,
+        revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
+                grunnlagRepositoryProvider,
                 beregningTjeneste,
                 opphørUttakTjeneste,
                 skjæringstidspunktTjeneste,

@@ -23,6 +23,10 @@ public interface UttakResultatHolder {
      */
     boolean kontrollerErSisteUttakAvslåttMedÅrsak();
 
+    default boolean harOpphørsUttakNyeInnvilgetePerioder(UttakResultatHolder other) {
+        return false;
+    }
+
     boolean harUlikUttaksplan(UttakResultatHolder other);
 
     Optional<BehandlingVedtak> getBehandlingVedtak();
