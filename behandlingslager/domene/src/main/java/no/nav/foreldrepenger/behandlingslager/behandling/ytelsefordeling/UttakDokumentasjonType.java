@@ -21,7 +21,6 @@ public enum UttakDokumentasjonType implements Kodeverdi {
     SYK_SØKER("SYK_SOKER", "Søker er syk eller skadet"),
     INNLAGT_SØKER("INNLAGT_SOKER", "Søker er innlagt i institusjon"),
     INNLAGT_BARN("INNLAGT_BARN", "Barn er innlagt i institusjon"),
-    UTEN_DOKUMENTASJON("UTEN_DOKUMENTASJON", "Søkt periode er ikke dokumentert"),
     INSTITUSJONSOPPHOLD_ANNEN_FORELDRE("INSTITUSJONSOPPHOLD_ANNEN_FORELDRE", "Annen forelder er innlagt i institusjon"),
     SYKDOM_ANNEN_FORELDER("SYKDOM_ANNEN_FORELDER", "Annen forelder er syk eller skadet"),
     IKKE_RETT_ANNEN_FORELDER("IKKE_RETT_ANNEN_FORELDER", "Annen forelder har ikke rett for barnet"),
