@@ -111,7 +111,7 @@ public class HåndterePermisjoner {
     private static boolean erPeriodenInnenfortilretteleggingFom(Permisjon p, LocalDate tilretteleggingBehovFom) {
         if (p.getTilOgMed() != null) {
             return p.getPeriode().getFomDato().isEqual(tilretteleggingBehovFom)
-                || p.getPeriode().getFomDato().isEqual(tilretteleggingBehovFom)
+                || p.getPeriode().getTomDato().isEqual(tilretteleggingBehovFom)
                 || (tilretteleggingBehovFom.isAfter(p.getFraOgMed()) && tilretteleggingBehovFom.isBefore(p.getTilOgMed()));
         }
         return false;
