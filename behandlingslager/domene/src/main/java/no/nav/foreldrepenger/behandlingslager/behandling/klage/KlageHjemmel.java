@@ -40,7 +40,8 @@ public enum KlageHjemmel implements Kodeverdi {
     OPPLYSNINGSPLIKT("21-3", "21-3 Opplysningsplikt", "FTRL_21_3", Set.of(ES, FP, SVP)),
     FREMSETT("22-13", "22-13 Fremsetning av krav", "FTRL_22_13", Set.of(ES, FP, SVP)),
     TILBAKE("22-15", "22-15 Tilbakekreving", "FTRL_22_15", Set.of(ES, FP, SVP)),
-    EØS("883-6", "EØS 883/2004 artikkel 6", "EOES_883_2004_6", Set.of(FP, SVP)),
+    EØS_YTELSE("883-5", "EØS 883/2004 artikkel 5", "EOES_883_2004_5", Set.of(FP)),
+    EØS_OPPTJEN("883-6", "EØS 883/2004 artikkel 6", "EOES_883_2004_6", Set.of(FP, SVP)),
 
     UDEFINERT("-", "Ikke definert", "", Set.of()),
     ;
