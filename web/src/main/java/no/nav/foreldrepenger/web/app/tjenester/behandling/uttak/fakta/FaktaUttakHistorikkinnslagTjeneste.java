@@ -202,7 +202,7 @@ public class FaktaUttakHistorikkinnslagTjeneste {
 
     private record Endring(String intro, String tekstFra, String tekstTil) {}
 
-    public static boolean erLikePerioder(OppgittPeriodeEntitet før, OppgittPeriodeEntitet etter) {
+    private static boolean erLikePerioder(OppgittPeriodeEntitet før, OppgittPeriodeEntitet etter) {
         return Objects.equals(før, etter) || (Objects.equals(før.getPeriodeType(), etter.getPeriodeType()) &&
             Objects.equals(før.getÅrsak(), etter.getÅrsak()) &&
             Objects.equals(arbeidsprosent(før), arbeidsprosent(etter)) &&
