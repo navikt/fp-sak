@@ -284,7 +284,7 @@ class FaktaUttakFellesTjenesteTest {
 
         assertThat(lagretPerioder.get(0).getFom()).isEqualTo(lagretEndretVedtaksperiode.fom());
         var periodeSøknad = uttaksperiode.getPeriodeSøknad().orElseThrow();
-        assertThat(lagretPerioder.get(0).getDokumentasjonVurdering()).isEqualTo(periodeSøknad.getDokumentasjonVurdering());
+        assertThat(lagretPerioder.get(0).getDokumentasjonVurdering()).isNull();
         assertThat(lagretPerioder.get(0).getMottattDato()).isEqualTo(periodeSøknad.getMottattDato());
         assertThat(lagretPerioder.get(0).getTidligstMottattDato()).isEqualTo(periodeSøknad.getTidligstMottattDato());
 

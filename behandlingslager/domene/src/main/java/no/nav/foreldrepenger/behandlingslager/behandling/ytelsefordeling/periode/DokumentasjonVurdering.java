@@ -33,7 +33,7 @@ public enum DokumentasjonVurdering implements Kodeverdi {
 
     //Tidlig oppstart
     TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT("TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT", "Far kan starte tidlig fedrekvote, pga mor er syk eller innlagt", true),
-    TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT("TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT", "Far kan ikke starte tidlig fedrekvotet", false),
+    TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT("TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT", "Far kan ikke starte tidlig fedrekvote", false),
 
     //Overføring
     INNLEGGELSE_ANNEN_FORELDER_GODKJENT("INNLEGGELSE_ANNEN_FORELDER_GODKJENT", "Annen forelder er innlagt", true),
