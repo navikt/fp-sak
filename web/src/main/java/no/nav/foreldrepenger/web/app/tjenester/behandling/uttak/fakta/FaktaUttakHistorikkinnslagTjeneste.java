@@ -12,6 +12,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -39,12 +40,15 @@ public class FaktaUttakHistorikkinnslagTjeneste {
         //CDI
     }
 
-    public void opprettHistorikkinnslag(String begrunnelse,
+    public void opprettHistorikkinnslag(String begrunnelse, boolean overstyring,
                                         List<OppgittPeriodeEntitet> eksisterendePerioder,
                                         List<OppgittPeriodeEntitet> oppdatertePerioder) {
         var builder = historikkTjenesteAdapter.tekstBuilder()
             .medBegrunnelse(begrunnelse)
             .medSkjermlenke(SkjermlenkeType.FAKTA_UTTAK);
+        if (overstyring) {
+            builder.medResultat(HistorikkResultatType.OVERSTYRING_FAKTA_UTTAK);
+        }
 
         var eksisterendeSegment = eksisterendePerioder.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), p)).toList();
         var oppdaterteSegment = oppdatertePerioder.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), p)).toList();

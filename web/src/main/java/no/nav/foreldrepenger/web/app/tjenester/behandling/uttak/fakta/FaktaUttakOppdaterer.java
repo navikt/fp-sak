@@ -25,6 +25,6 @@ public class FaktaUttakOppdaterer implements AksjonspunktOppdaterer<FaktaUttakDt
 
     @Override
     public OppdateringResultat oppdater(FaktaUttakDto dto, AksjonspunktOppdaterParameter param) {
-        return fellesTjeneste.oppdater(dto.getBegrunnelse(), dto.getPerioder(), param.getBehandlingId());
+        return fellesTjeneste.oppdater(dto.getBegrunnelse(), dto.getPerioder(), param.getBehandlingId(), false);
     }
 }

@@ -46,7 +46,7 @@ public class AksjonspunktDtoMapper {
         dto.setStatus(aksjonspunkt.getStatus());
         dto.setBegrunnelse(aksjonspunkt.getBegrunnelse());
         dto.setVilkarType(finnVilkårType(aksjonspunkt, behandlingsresultat));
-        dto.setToTrinnsBehandling(aksjonspunkt.isToTrinnsBehandling() || aksjonspunktDefinisjon.getDefaultTotrinnBehandling());
+        dto.setToTrinnsBehandling(aksjonspunkt.isToTrinnsBehandling());
         dto.setFristTid(aksjonspunkt.getFristTid());
         dto.setEndretAv(aksjonspunkt.getEndretAv());
         dto.setEndretTidspunkt(aksjonspunkt.getEndretTidspunkt());

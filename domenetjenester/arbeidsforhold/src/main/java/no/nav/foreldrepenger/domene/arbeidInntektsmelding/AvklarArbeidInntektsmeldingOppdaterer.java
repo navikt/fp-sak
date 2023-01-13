@@ -57,11 +57,7 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
         var skalOpprettesTotrinnskontroll = alleManueltRegistrerteArbeidsforhold.stream()
             .anyMatch(os -> HANDLINGER_SOM_LEDER_TIL_TOTRINN.contains(os.getHandling()));
 
-        if (skalOpprettesTotrinnskontroll) {
-            return OppdateringResultat.utenTransisjon().medTotrinn().build();
-        } else {
-            return OppdateringResultat.utenTransisjon().build();
-        }
+        return OppdateringResultat.utenTransisjon().medTotrinnHvis(skalOpprettesTotrinnskontroll).build();
     }
 
     private void validerInntektsmeldingerSomManglerArbeidsforhold(List<ArbeidsforholdMangel> alleMangler, List<ArbeidsforholdValg> alleSaksbehandlersValg, List<ArbeidsforholdOverstyring> alleManuelleArbeidsforhold) {

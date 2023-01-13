@@ -77,7 +77,7 @@ class FaktaUttakFellesTjeneste {
         //CDI
     }
 
-    public OppdateringResultat oppdater(String begrunnelse, List<FaktaUttakPeriodeDto> perioder, Long behandlingId) {
+    public OppdateringResultat oppdater(String begrunnelse, List<FaktaUttakPeriodeDto> perioder, Long behandlingId, boolean overstyring) {
         var gjeldendeDtos = dtoTjeneste.lagDtos(behandlingId);
         //relevanteOppgittPerioder og perioder som lagres kan inneholder vedtaksperioder fra forrige behandling
         var relevanteOppgittPerioder = dtoTjeneste.hentRelevanteOppgittPerioder(behandlingId).toList();
@@ -94,7 +94,7 @@ class FaktaUttakFellesTjeneste {
         var overstyrtePerioderMedMottattDato = oppdaterMedMottattdato(behandling, overstyrtePerioder);
         ytelseFordelingTjeneste.overstyrSøknadsperioder(behandlingId, overstyrtePerioderMedMottattDato, List.of());
         oppdaterEndringsdato(overstyrtePerioderMedMottattDato, behandlingId);
-        historikkinnslagTjeneste.opprettHistorikkinnslag(begrunnelse, relevanteOppgittPerioder, overstyrtePerioderMedMottattDato);
+        historikkinnslagTjeneste.opprettHistorikkinnslag(begrunnelse, overstyring, relevanteOppgittPerioder, overstyrtePerioderMedMottattDato);
 
         validerReutledetAksjonspunkt(behandlingId);
         return OppdateringResultat.utenTransisjon().build();
