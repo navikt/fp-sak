@@ -17,6 +17,8 @@ import no.nav.folketrygdloven.kalkulator.modell.gradering.AndelGradering;
 import no.nav.folketrygdloven.kalkulator.modell.iay.AktivitetsAvtaleDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.AktørArbeidDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YrkesaktivitetDto;
+import no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktiviteterDto;
+import no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver;
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
 
 public class UgyldigGraderingUtleder {
@@ -41,29 +43,41 @@ public class UgyldigGraderingUtleder {
                 .getAktørArbeidFraRegister()
                 .map(AktørArbeidDto::hentAlleYrkesaktiviteter)
                 .orElse(Collections.emptySet());
-            return validerAndelGraderingMotYrkesaktiviteter(andelGraderingDatoMap, yrkesaktiviteter, input.getKoblingReferanse().getSkjæringstidspunkt());
+            List<OpptjeningAktiviteterDto.OpptjeningPeriodeDto> opptjeningsperioder =
+                input.getOpptjeningAktiviteter() == null ? Collections.emptyList() : input.getOpptjeningAktiviteter().getOpptjeningPerioder();
+            return finnUgyldigAndel(andelGraderingDatoMap, yrkesaktiviteter, opptjeningsperioder, input.getKoblingReferanse().getSkjæringstidspunkt());
         }
         return Optional.empty();
 
     }
 
-    private static Optional<ArbeidGraderingMap> validerAndelGraderingMotYrkesaktiviteter(List<ArbeidGraderingMap> andelGraderingDatoMap,
-                                                                                  Collection<YrkesaktivitetDto> yrkesaktiviteter,
-                                                                                  Skjæringstidspunkt skjæringstidspunkt) {
+    private static Optional<ArbeidGraderingMap> finnUgyldigAndel(List<ArbeidGraderingMap> andelGraderingDatoMap,
+                                                                 Collection<YrkesaktivitetDto> yrkesaktiviteter,
+                                                                 List<OpptjeningAktiviteterDto.OpptjeningPeriodeDto> opptjeningsperioder,
+                                                                 Skjæringstidspunkt skjæringstidspunkt) {
         var stpOpptjening = skjæringstidspunkt == null ? null : skjæringstidspunkt.getSkjæringstidspunktOpptjening();
         if (stpOpptjening == null) {
             return Optional.empty();
         }
         for (ArbeidGraderingMap andel : andelGraderingDatoMap) {
-            var ugyldigAndel = finnAndelUtenAnsettelsesperiode(andel, yrkesaktiviteter, stpOpptjening);
-            if (ugyldigAndel.isPresent()) {
-                return ugyldigAndel;
+            var andelFinnesIIAY = finnesAndelIIAY(andel, yrkesaktiviteter, stpOpptjening);
+            var andelFinnesIOpptjening = finnesAndelIOpptjening(andel, opptjeningsperioder);
+            if (!andelFinnesIIAY && !andelFinnesIOpptjening) {
+                return Optional.of(andel);
             }
         }
         return Optional.empty();
     }
 
-    private static Optional<ArbeidGraderingMap> finnAndelUtenAnsettelsesperiode(ArbeidGraderingMap andel, Collection<YrkesaktivitetDto> yrkesaktiviteter, LocalDate stpOpptjening) {
+    private static boolean finnesAndelIOpptjening(ArbeidGraderingMap andel, List<OpptjeningAktiviteterDto.OpptjeningPeriodeDto> opptjeningsperioder) {
+        var matchendeAndeler = opptjeningsperioder.stream()
+            .filter(opp -> Objects.equals(opp.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null), andel.arbeidsgiverIdent()))
+            .filter(opp -> opp.getArbeidsforholdId().gjelderFor(andel.internRef))
+            .toList();
+        return !matchendeAndeler.isEmpty();
+    }
+
+    private static boolean finnesAndelIIAY(ArbeidGraderingMap andel, Collection<YrkesaktivitetDto> yrkesaktiviteter, LocalDate stpOpptjening) {
         var matchendeYrkesaktiviteter = yrkesaktiviteter.stream()
             .filter(ya -> ya.getArbeidsgiver() != null && Objects.equals(ya.getArbeidsgiver().getIdentifikator(), andel.arbeidsgiverIdent))
             .filter(ya -> ya.getArbeidsforholdRef().gjelderFor(andel.internRef))
@@ -72,10 +86,7 @@ public class UgyldigGraderingUtleder {
             .map(YrkesaktivitetDto::getAlleAnsettelsesperioder)
             .flatMap(Collection::stream)
             .toList();
-        if (!finnesAnsettelsesperiodeSomSlutterEtterSTP(alleAnsettelsesperioder, stpOpptjening)) {
-            return Optional.of(andel);
-        }
-        return Optional.empty();
+        return finnesAnsettelsesperiodeSomSlutterEtterSTP(alleAnsettelsesperioder, stpOpptjening);
     }
 
     private static boolean finnesAnsettelsesperiodeSomSlutterEtterSTP(Collection<AktivitetsAvtaleDto> ansettelsesperioder, LocalDate stpOpptjening) {
