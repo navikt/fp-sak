@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 
 @JsonAutoDetect(getterVisibility=Visibility.NONE, setterVisibility=Visibility.NONE, fieldVisibility=Visibility.ANY)
 @JsonTypeName(AksjonspunktKodeDefinisjon.SØKERS_OPPLYSNINGSPLIKT_OVST_KODE)
@@ -37,6 +38,12 @@ public class OverstyringSokersOpplysingspliktDto extends OverstyringAksjonspunkt
     @Override
     public boolean getErVilkarOk() {
         return erVilkarOk;
+    }
+
+    @JsonIgnore
+    @Override
+    public HistorikkinnslagType historikkmalForOverstyring() {
+        return HistorikkinnslagType.FAKTA_ENDRET;
     }
 
 }

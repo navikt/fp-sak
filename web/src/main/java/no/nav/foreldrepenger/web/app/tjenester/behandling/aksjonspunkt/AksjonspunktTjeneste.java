@@ -309,12 +309,9 @@ public class AksjonspunktTjeneste {
 
     private void lagreHistorikkInnslag(Behandling behandling, Collection<OverstyringAksjonspunktDto> overstyrteAksjonspunkter) {
 
-        // TODO(FC): Kan vi flytte spesielhåndtering av SØKERS_OPPLYSNINGSPLIKT_OVST ned til SøkersOpplysningspliktOverstyringshåndterer?
-        // Hvis vi aldri sender inn mer enn en overstyring kan historikk opprettes også der.
-        var opplysningsPlikt =overstyrteAksjonspunkter.stream().map(OverstyringAksjonspunktDto::getAksjonspunktDefinisjon)
-            .anyMatch(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_OVST::equals);
-        historikkTjenesteAdapter.opprettHistorikkInnslag(behandling.getId(),
-            opplysningsPlikt ? HistorikkinnslagType.FAKTA_ENDRET : HistorikkinnslagType.OVERSTYRT);
+        var innslagstype = overstyrteAksjonspunkter.stream().findFirst()
+            .map(OverstyringAksjonspunkt::historikkmalForOverstyring).orElse(HistorikkinnslagType.OVERSTYRT);
+        historikkTjenesteAdapter.opprettHistorikkInnslag(behandling.getId(), innslagstype);
 
     }
 
