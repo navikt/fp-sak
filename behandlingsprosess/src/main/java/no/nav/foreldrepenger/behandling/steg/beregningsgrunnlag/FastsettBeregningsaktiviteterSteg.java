@@ -71,9 +71,9 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         var ugyldigAndel = UgyldigGraderingUtleder.finnFørsteUgyldigeAndel(input);
         if (ugyldigAndel.isPresent()) {
             var saksnummer = BehandlingReferanse.fra(behandling).saksnummer();
-            var feilmelding = String.format("Mulig gradering uten arbeidsforhold på saksnummer %s . Arbeidsgiver: %s Internref: %s", saksnummer,
+            var feilmelding = String.format("Mulig gradering uten arbeidsforhold på saksnummer %s . Arbeidsgiver: %s Internref: %s", saksnummer.getVerdi(),
                 OrgNummer.tilMaskertNummer(ugyldigAndel.get().arbeidsgiverIdent()), ugyldigAndel.get().internRef());
-            LOG.info(feilmelding);
+            LOG.warn(feilmelding);
         }
 
         var aksjonspunktResultater = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
