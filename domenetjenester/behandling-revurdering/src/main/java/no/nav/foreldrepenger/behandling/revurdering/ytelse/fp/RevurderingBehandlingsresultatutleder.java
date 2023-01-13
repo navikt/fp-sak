@@ -8,6 +8,7 @@ import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -27,12 +28,14 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
 
     @Inject
     public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
+                                                 BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
             BeregningTjeneste beregningTjeneste,
             OpphørUttakTjeneste opphørUttakTjeneste,
             @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
             MedlemTjeneste medlemTjeneste,
             ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
         super(repositoryProvider,
+                grunnlagRepositoryProvider,
                 beregningTjeneste,
                 medlemTjeneste,
                 opphørUttakTjeneste,

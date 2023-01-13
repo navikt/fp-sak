@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -61,6 +62,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
 
     private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
 
     private final BeregningTjeneste beregningTjeneste = mock(BeregningTjeneste.class);
     private final DokumentBehandlingTjeneste dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
@@ -79,10 +81,12 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(new MedlemTjeneste.VilkårUtfallMedÅrsak(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         var svpUttakRepository = new SvangerskapspengerUttakResultatRepository(entityManager);
         revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
+                grunnlagRepositoryProvider,
                 svpUttakRepository,
             beregningTjeneste,
                 opphørUttakTjeneste,

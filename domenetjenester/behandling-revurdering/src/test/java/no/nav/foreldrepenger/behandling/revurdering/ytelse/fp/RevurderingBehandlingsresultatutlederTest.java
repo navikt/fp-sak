@@ -41,6 +41,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -104,6 +105,8 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
+    private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
+    @Inject
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     @Mock
     private BeregningTjeneste beregningTjeneste;
@@ -119,6 +122,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     @BeforeEach
     public void setup() {
         revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutleder(repositoryProvider,
+            grunnlagRepositoryProvider,
             beregningTjeneste,
             opphørUttakTjeneste,
             skjæringstidspunktTjeneste,
