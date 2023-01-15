@@ -96,11 +96,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Operation(description = "Setter saker med revurdering til under behandling", tags = "FORVALTNING-uttrekk")
     @Path("/openIkkeLopendeSaker")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response openIkkeLopendeSaker(@Parameter(description = "Aksjonspunktkoden") @BeanParam @Valid AksjonspunktKodeDto dto) {
-        var apDef = dto.getAksjonspunktDefinisjon();
-        if (apDef == null) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
+    public Response openIkkeLopendeSaker() {
         var query = entityManager.createNativeQuery("""
                 select saksnummer, id from fagsak where fagsak_status in (:fstatus)
                 and id in (select fagsak_id from behandling where behandling_status not in (:bstatus))
@@ -110,7 +106,7 @@ public class ForvaltningUttrekkRestTjeneste {
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         var saker = resultatList.stream()
-            .map(row -> new FagsakTreff((String) row[0], ((BigDecimal) row[1]).longValue())).collect(Collectors.toList()); // NOSONAR
+            .map(row -> new FagsakTreff((String) row[0], ((BigDecimal) row[1]).longValue())).toList(); // NOSONAR
         saker.forEach(f -> fagsakRepository.oppdaterFagsakStatus(f.fagsakId(), FagsakStatus.UNDER_BEHANDLING));
         return Response.ok().build();
     }

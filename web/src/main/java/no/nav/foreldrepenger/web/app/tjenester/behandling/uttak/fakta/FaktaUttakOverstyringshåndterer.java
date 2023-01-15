@@ -31,7 +31,7 @@ public class FaktaUttakOverstyringshåndterer extends AbstractOverstyringshåndt
 
     @Override
     public OppdateringResultat håndterOverstyring(OverstyringFaktaUttakDto dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        return fellesTjeneste.oppdater(dto.getBegrunnelse(), dto.getPerioder(), behandling.getId());
+        return fellesTjeneste.oppdater(dto.getBegrunnelse(), dto.getPerioder(), behandling.getId(), true);
     }
 
     @Override

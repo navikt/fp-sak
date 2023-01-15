@@ -52,7 +52,7 @@ public class FaktaUttakHistorikkinnslagTjenesteTest {
         var etter = OppgittPeriodeBuilder.fraEksisterende(før).build();
 
         // dto
-        tjeneste.opprettHistorikkinnslag("Begrunnelse", List.of(før), List.of(etter));
+        tjeneste.opprettHistorikkinnslag("Begrunnelse", false, List.of(før), List.of(etter));
         var historikkinnslag = opprettHistorikkInnslag(adapter.tekstBuilder());
 
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.FAKTA_ENDRET);
@@ -72,7 +72,7 @@ public class FaktaUttakHistorikkinnslagTjenesteTest {
         var etter = OppgittPeriodeBuilder.fraEksisterende(før).medPeriode(FOM, TOM.plusDays(1)).build();
 
         // dto
-        tjeneste.opprettHistorikkinnslag("Begrunnelse", List.of(før), List.of(etter));
+        tjeneste.opprettHistorikkinnslag("Begrunnelse", false, List.of(før), List.of(etter));
         var historikkinnslag = opprettHistorikkInnslag(adapter.tekstBuilder());
 
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.FAKTA_ENDRET);
@@ -98,7 +98,7 @@ public class FaktaUttakHistorikkinnslagTjenesteTest {
         var etter = OppgittPeriodeBuilder.fraEksisterende(før).medPeriode(FOM, TOM.minusDays(1)).build();
 
         // dto
-        tjeneste.opprettHistorikkinnslag("Begrunnelse", List.of(før), List.of(etter));
+        tjeneste.opprettHistorikkinnslag("Begrunnelse", false, List.of(før), List.of(etter));
         var historikkinnslag = opprettHistorikkInnslag(adapter.tekstBuilder());
 
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.FAKTA_ENDRET);
@@ -127,7 +127,7 @@ public class FaktaUttakHistorikkinnslagTjenesteTest {
             .build();
 
         // dto
-        tjeneste.opprettHistorikkinnslag("Begrunnelse", List.of(før), List.of(etter));
+        tjeneste.opprettHistorikkinnslag("Begrunnelse", false, List.of(før), List.of(etter));
         var historikkinnslag = opprettHistorikkInnslag(adapter.tekstBuilder());
 
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.FAKTA_ENDRET);
@@ -157,7 +157,7 @@ public class FaktaUttakHistorikkinnslagTjenesteTest {
             .build();
 
         // dto
-        tjeneste.opprettHistorikkinnslag("Begrunnelse", List.of(før), List.of(etter));
+        tjeneste.opprettHistorikkinnslag("Begrunnelse", false, List.of(før), List.of(etter));
         var historikkinnslag = opprettHistorikkInnslag(adapter.tekstBuilder());
 
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.FAKTA_ENDRET);
@@ -208,7 +208,7 @@ public class FaktaUttakHistorikkinnslagTjenesteTest {
             .build();
 
         // dto
-        tjeneste.opprettHistorikkinnslag("Begrunnelse", List.of(før), List.of(etter1, etter2, etter3, etter4, etter5, etter6));
+        tjeneste.opprettHistorikkinnslag("Begrunnelse", false, List.of(før), List.of(etter1, etter2, etter3, etter4, etter5, etter6));
         var historikkinnslag = opprettHistorikkInnslag(adapter.tekstBuilder());
 
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.FAKTA_ENDRET);

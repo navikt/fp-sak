@@ -198,9 +198,9 @@ public class Aksjonspunkt extends BaseEntitet {
         return aksjonspunktDefinisjon.kanSetteTotrinnBehandling();
     }
 
-    void setToTrinnsBehandling(boolean toTrinnsBehandling) {
+    void setToTrinnsBehandling(boolean setToTrinnsBehandling) {
         validerIkkeUtførtAvbruttAllerede();
-        this.toTrinnsBehandling = toTrinnsBehandling;
+        this.toTrinnsBehandling = aksjonspunktDefinisjon.getDefaultTotrinnBehandling() || setToTrinnsBehandling;
     }
 
     private void validerIkkeUtførtAvbruttAllerede() {

@@ -51,7 +51,7 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
         om.registerModule(simpleModule);
 
         // registrer jackson JsonTypeName subtypes basert på rest implementasjoner
-        var restClasses = new RestImplementationClasses().getImplementationClasses();
+        var restClasses = RestImplementationClasses.getImplementationClasses();
 
         Set<Class<?>> scanClasses = new LinkedHashSet<>(restClasses);
 

@@ -334,15 +334,26 @@ public class OppgaveTjeneste {
     /*
      * Forvaltningsrelatert
      */
-    public void ferdigstillOppgaveForForvaltning(Long behandlingId, String oppgaveId) {
-        var oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(behandlingId, oppgaveId);
+    public void ferdigstillOppgaveForForvaltning() {
+        oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverBehandlingAvsluttet().stream()
+            .filter(o -> !o.isFerdigstilt())
+            .forEach(o -> {
+                restKlient.ferdigstillOppgave(o.getOppgaveId());
+                LOG.info("FPSAK GOSYS forvaltning ferdigstilte oppgave {}", o.getOppgaveId());
+                ferdigstillOppgaveBehandlingKobling(o);
+            });
+    }
+
+    public void ferdigstillOppgaveForForvaltning(String oppgaveId) {
+        var oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId);
         oppgave.filter(o -> !o.isFerdigstilt()).ifPresent(this::ferdigstillOppgaveBehandlingKobling);
         restKlient.ferdigstillOppgave(oppgaveId);
         LOG.info("FPSAK GOSYS forvaltning ferdigstilte oppgave {}", oppgaveId);
+
     }
 
-    public void feilregistrerOppgaveForForvaltning(Long behandlingId, String oppgaveId) {
-        var oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(behandlingId, oppgaveId);
+    public void feilregistrerOppgaveForForvaltning(String oppgaveId) {
+        var oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId);
         oppgave.filter(o -> !o.isFerdigstilt()).ifPresent(this::ferdigstillOppgaveBehandlingKobling);
         restKlient.feilregistrerOppgave(oppgaveId);
         LOG.info("FPSAK GOSYS forvaltning feilregistrerte oppgave {}", oppgaveId);

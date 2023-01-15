@@ -91,7 +91,10 @@ public class AutomatiskGjenopptagelseTjeneste {
 
     public String gjenopplivBehandlinger() {
         LOG.info("BATCH Gjenoppliv inngang");
-        var sovende = behandlingKandidaterRepository.finnÅpneBehandlingerUtenÅpneAksjonspunktEllerAutopunkt();
+        var feileteBehandlinger = behandlingProsesseringTjeneste.behandlingerMedFeiletProsessTask();
+        var sovende = behandlingKandidaterRepository.finnÅpneBehandlingerUtenÅpneAksjonspunktEllerAutopunkt().stream()
+            .filter(b -> !feileteBehandlinger.contains(b.getId()))
+            .toList();
         var baseline = LocalTime.now();
         LOG.info("BATCH Gjenoppliv fant {} behandlinger", sovende.size());
         for (var behandling : sovende) {

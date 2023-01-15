@@ -388,6 +388,6 @@ class FaktaUttakFellesTjenesteTest {
                 Mockito.mock(DokumentArkivTjeneste.class), repositoryProvider.getBehandlingRepository())),
             repositoryProvider.getBehandlingRepository(), new FaktaUttakPeriodeDtoTjeneste(uttakInputTjeneste, ytelseFordelingTjeneste, repositoryProvider.getBehandlingRepository(),
             repositoryProvider.getFpUttakRepository()));
-        return tjeneste.oppdater("begrunnelse", perioder, behandling.getId());
+        return tjeneste.oppdater("begrunnelse", perioder, behandling.getId(), false);
     }
 }

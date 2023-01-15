@@ -79,13 +79,6 @@ public class OppdaterFagsakStatusTjeneste {
         oppdaterFagsakStatusNårAlleBehandlingerErLukket(fagsak, null);
     }
 
-    public void settUnderBehandlingNårAktiveBehandlinger(Fagsak fagsak) {
-        if (behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsak.getId()) && FagsakStatus.LØPENDE.equals(fagsak.getStatus())) {
-            var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).orElseThrow();
-            oppdaterFagsakStatus(fagsak, behandling.getId(), FagsakStatus.UNDER_BEHANDLING);
-        }
-    }
-
     public FagsakStatusOppdateringResultat oppdaterFagsakStatusNårAlleBehandlingerErLukket(Fagsak fagsak, Behandling behandling) {
         var behandlingId = behandling != null ? behandling.getId() : null;
         if (alleAndreBehandlingerErLukket(fagsak, behandling)) {
