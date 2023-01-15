@@ -95,7 +95,6 @@ public class OppgaveBehandlingKoblingRepository {
                 createQuery("select obk from OppgaveBehandlingKobling obk inner join Behandling behandling on obk.behandlingId = behandling.id " +
                     " where obk.ferdigstilt=:ferdig and behandling.status = :avsluttet ",
                 OppgaveBehandlingKobling.class)
-            .setHint(QueryHints.HINT_READONLY, "true")
             .setParameter("avsluttet", BehandlingStatus.AVSLUTTET)
             .setParameter("ferdig", Boolean.FALSE);
         return query.getResultList();
