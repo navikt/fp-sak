@@ -82,7 +82,6 @@ public class RestImplementationClasses {
         classes.add(BeregningsgrunnlagRestTjeneste.class);
         classes.add(AksjonspunktRestTjeneste.class);
         classes.add(DokumentRestTjeneste.class);
-        classes.add(ForvaltningBehandlingskontrollRestTjeneste.class);
         classes.add(KodeverkRestTjeneste.class);
         classes.add(HistorikkRestTjeneste.class);
         classes.add(BatchRestTjeneste.class);
@@ -113,8 +112,6 @@ public class RestImplementationClasses {
         classes.add(SvangerskapspengerRestTjeneste.class);
         classes.add(IAYRegisterdataCallbackRestTjeneste.class);
         classes.add(VergeRestTjeneste.class);
-        classes.add(ForvaltningBeregningRestTjeneste.class);
-        classes.add(ForvaltningTilkjentYtelseRestTjeneste.class);
         classes.add(BrevRestTjeneste.class);
         classes.add(LosRestTjeneste.class);
 
@@ -129,6 +126,8 @@ public class RestImplementationClasses {
 
         // UtilTjenester for uttrekk fra registre
         classes.add(DatavarehusAdminRestTjeneste.class);
+        classes.add(ForvaltningBehandlingskontrollRestTjeneste.class);
+        classes.add(ForvaltningBeregningRestTjeneste.class);
         classes.add(ForvaltningFagsakRestTjeneste.class);
         classes.add(ForvaltningTekniskRestTjeneste.class);
         classes.add(ForvaltningUttrekkRestTjeneste.class);
@@ -139,6 +138,7 @@ public class RestImplementationClasses {
         classes.add(ForvaltningStegRestTjeneste.class);
         classes.add(ForvaltningSvangerskapspengerRestTjeneste.class);
         classes.add(ForvaltningSøknadRestTjeneste.class);
+        classes.add(ForvaltningTilkjentYtelseRestTjeneste.class);
 
         return Collections.unmodifiableSet(classes);
     }

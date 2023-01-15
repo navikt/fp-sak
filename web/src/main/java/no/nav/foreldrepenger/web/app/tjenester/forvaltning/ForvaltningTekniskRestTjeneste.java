@@ -15,7 +15,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
@@ -25,18 +24,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsessTaskRepository;
 import no.nav.foreldrepenger.poststed.PostnummerSynkroniseringTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BehandlingAksjonspunktDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -56,7 +49,6 @@ public class ForvaltningTekniskRestTjeneste {
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private OppgaveTjeneste oppgaveTjeneste;
     private PostnummerSynkroniseringTjeneste postnummerTjeneste;
-    private ProsessTaskTjeneste taskTjeneste;
     private FagsakProsessTaskRepository fagsakProsessTaskRepository;
 
     public ForvaltningTekniskRestTjeneste() {
@@ -68,41 +60,48 @@ public class ForvaltningTekniskRestTjeneste {
                                           FagsakProsessTaskRepository fagsakProsessTaskRepository,
             OppgaveTjeneste oppgaveTjeneste,
             PostnummerSynkroniseringTjeneste postnummerTjeneste,
-            ProsessTaskTjeneste taskTjeneste,
             BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.oppgaveTjeneste = oppgaveTjeneste;
         this.postnummerTjeneste = postnummerTjeneste;
-        this.taskTjeneste = taskTjeneste;
         this.fagsakProsessTaskRepository = fagsakProsessTaskRepository;
     }
 
     @POST
-    @Path("/sett-oppgave-ferdig")
+    @Path("/ferdigstill-oppgaver-avsluttet-behandling")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Operation(description = "Ferdigstill Gosys-oppgave", tags = "FORVALTNING-teknisk", responses = {
-            @ApiResponse(responseCode = "200", description = "Oppgave satt til ferdig."),
-            @ApiResponse(responseCode = "400", description = "Fant ikke aktuell oppgave."),
+            @ApiResponse(responseCode = "200", description = "Oppgaver satt til ferdig."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response ferdigstillOppgaverAvsluttetBehandling() {
+        oppgaveTjeneste.ferdigstillOppgaveForForvaltning();
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/sett-oppgave-ferdigstilt")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Ferdigstill Gosys-oppgave", tags = "FORVALTNING-teknisk", responses = {
+        @ApiResponse(responseCode = "200", description = "Oppgave satt til ferdig."),
+        @ApiResponse(responseCode = "400", description = "Fant ikke aktuell oppgave."),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+    })
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response ferdigstillOppgave(
-            @TilpassetAbacAttributt(supplierClass = ForvaltningTekniskRestTjeneste.AbacDataSupplier.class) @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto,
-            @BeanParam @Valid ForvaltningBehandlingIdDto behandlingIdDto) {
+        @TilpassetAbacAttributt(supplierClass = ForvaltningTekniskRestTjeneste.AbacDataSupplier.class)
+        @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto) {
         try {
-            var behandlingId = getBehandlingId(behandlingIdDto);
-            oppgaveTjeneste.ferdigstillOppgaveForForvaltning(behandlingId, oppgaveIdDto.getProsessTaskId().toString());
+            oppgaveTjeneste.ferdigstillOppgaveForForvaltning(oppgaveIdDto.getProsessTaskId().toString());
         } catch (Exception e) {
             LOG.info("Feil fra Gosys ved ferdigstillelse", e);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         return Response.ok().build();
-    }
-
-    private Long getBehandlingId(ForvaltningBehandlingIdDto behandlingIdDto) {
-        return behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid()).getId();
     }
 
     @POST
@@ -116,10 +115,10 @@ public class ForvaltningTekniskRestTjeneste {
     })
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response feilregistrerOppgave(
-            @TilpassetAbacAttributt(supplierClass = ForvaltningTekniskRestTjeneste.AbacDataSupplier.class) @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto,
-            @BeanParam @Valid ForvaltningBehandlingIdDto behandlingIdDto) {
+            @TilpassetAbacAttributt(supplierClass = ForvaltningTekniskRestTjeneste.AbacDataSupplier.class)
+            @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto) {
         try {
-            oppgaveTjeneste.feilregistrerOppgaveForForvaltning(getBehandlingId(behandlingIdDto), oppgaveIdDto.getProsessTaskId().toString());
+            oppgaveTjeneste.feilregistrerOppgaveForForvaltning(oppgaveIdDto.getProsessTaskId().toString());
         } catch (Exception e) {
             LOG.info("Feil fra Gosys ved ferdigstillelse", e);
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -148,121 +147,6 @@ public class ForvaltningTekniskRestTjeneste {
         behandlingRepository.lagre(behandling, lås);
         return Response.ok().build();
     }
-
-    @POST
-    @Path("/sett-aksjonspunkt-entrinn")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Setter åpent aksjonspunkt til entrinn", tags = "FORVALTNING-teknisk", responses = {
-            @ApiResponse(responseCode = "200", description = "Aksjonspunkt med totrinn."),
-            @ApiResponse(responseCode = "400", description = "Fant ikke aktuelt aksjonspunkt."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response setAksjonspunktEntrinn(@BeanParam @Valid BehandlingAksjonspunktDto dto) {
-        var behandlingId = dto.getBehandlingUuid();
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var lås = behandlingRepository.taSkriveLås(behandling.getId());
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon())
-                .filter(Aksjonspunkt::isToTrinnsBehandling)
-                .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandlingskontrollTjeneste.setAksjonspunktToTrinn(kontekst, aksjonspunkt, false);
-        behandlingRepository.lagre(behandling, lås);
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/sett-aksjonspunkt-totrinn")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Setter åpent aksjonspunkt til totrinn", tags = "FORVALTNING-teknisk", responses = {
-            @ApiResponse(responseCode = "200", description = "Aksjonspunkt uten totrinn."),
-            @ApiResponse(responseCode = "400", description = "Fant ikke aktuelt aksjonspunkt."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response setAksjonspunktTotrinn(@BeanParam @Valid BehandlingAksjonspunktDto dto) {
-        var behandlingId = dto.getBehandlingUuid();
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var lås = behandlingRepository.taSkriveLås(behandling.getId());
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon())
-                .filter(ap -> !ap.isToTrinnsBehandling())
-                .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
-        if (aksjonspunkt.kanSetteToTrinnsbehandling()) {
-            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-            behandlingskontrollTjeneste.setAksjonspunktToTrinn(kontekst, aksjonspunkt, true);
-            behandlingRepository.lagre(behandling, lås);
-        }
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/sett-behandling-entrinn")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Setter behandling til entrinn", tags = "FORVALTNING-teknisk", responses = {
-            @ApiResponse(responseCode = "200", description = "Behandling er nå uten totrinn."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response setBehandlingEntrinn(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandling = getBehandling(dto);
-        LOG.info("Setter behandling={} til entrinn", behandling.getId());
-        var lås = behandlingRepository.taSkriveLås(behandling.getId());
-
-        behandling.nullstillToTrinnsBehandling();
-        behandlingRepository.lagre(behandling, lås);
-        return Response.ok().build();
-    }
-
-    private Behandling getBehandling(ForvaltningBehandlingIdDto dto) {
-        return behandlingRepository.hentBehandling(dto.getBehandlingUuid());
-    }
-
-    @POST
-    @Path("/sett-behandling-totrinn")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Setter behandling til totrinn", tags = "FORVALTNING-teknisk", responses = {
-            @ApiResponse(responseCode = "200", description = "Behandling er nå med totrinn."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response setBehandlingTotrinn(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandling = getBehandling(dto);
-        LOG.info("Setter behandling={} til totrinn", behandling.getId());
-        var lås = behandlingRepository.taSkriveLås(behandling.getId());
-
-        behandling.setToTrinnsBehandling();
-        behandlingRepository.lagre(behandling, lås);
-        return Response.ok().build();
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Bytt aksjonspunkt til reg papir endringssøknad", tags = "FORVALTNING-teknisk")
-    @Path("/endring-papir")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response byttPapirSøknadTilEndring(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        // fjern alle overstyringer gjort av saksbehandler
-        var behandling = getBehandling(dto);
-
-        var lås = behandlingRepository.taSkriveLås(behandling);
-
-        if (!BehandlingStegType.REGISTRER_SØKNAD.equals(behandling.getAktivtBehandlingSteg())) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER).ifPresent(ap -> {
-            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-            behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, behandling.getAktivtBehandlingSteg(),
-                    List.of(AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER));
-            behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), List.of(ap));
-        });
-        behandlingRepository.lagre(behandling, lås);
-        return Response.ok().build();
-    }
-
 
     public static class AbacDataSupplier implements Function<Object, AbacDataAttributter> {
         @Override

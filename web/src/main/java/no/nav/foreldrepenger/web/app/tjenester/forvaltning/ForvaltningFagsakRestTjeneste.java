@@ -41,7 +41,6 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.KobleFagsakerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.OverstyrDekningsgradDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -58,7 +57,6 @@ public class ForvaltningFagsakRestTjeneste {
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private BehandlingRepository behandlingRepository;
     private PersonopplysningRepository personopplysningRepository;
-    private ProsessTaskTjeneste taskTjeneste;
     private OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste;
     private OpprettSakTjeneste opprettSakTjeneste;
     private PersoninfoAdapter personinfoAdapter;
@@ -71,7 +69,6 @@ public class ForvaltningFagsakRestTjeneste {
 
     @Inject
     public ForvaltningFagsakRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
-            ProsessTaskTjeneste taskTjeneste,
             OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste,
             OpprettSakTjeneste opprettSakTjeneste,
             PersoninfoAdapter personinfoAdapter,
@@ -82,7 +79,6 @@ public class ForvaltningFagsakRestTjeneste {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-        this.taskTjeneste = taskTjeneste;
         this.oppdaterFagsakStatusTjeneste = oppdaterFagsakStatusTjeneste;
         this.overstyrDekningsgradTjeneste = overstyrDekningsgradTjeneste;
         this.opprettSakTjeneste = opprettSakTjeneste;
@@ -285,26 +281,4 @@ public class ForvaltningFagsakRestTjeneste {
         return Response.ok().build();
     }
 
-    @POST
-    @Path("/fagsak/setStatusUnderBehandlingFagsak")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Sett riktig status for fagsak", tags = "FORVALTNING-fagsak", responses = {
-        @ApiResponse(responseCode = "200", description = "Oppdatert fagsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-        @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
-        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response setStatusUnderBehandlingFagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-                                                @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
-        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
-        if (fagsak == null || FagsakStatus.UNDER_BEHANDLING.equals(fagsak.getStatus()) || FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
-            LOG.warn("Ugyldig fagsak {}", saksnummer.getVerdi());
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        LOG.info("Avslutter fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
-        oppdaterFagsakStatusTjeneste.settUnderBehandlingNårAktiveBehandlinger(fagsak);
-        return Response.ok().build();
-    }
 }
