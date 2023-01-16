@@ -70,12 +70,52 @@ public class OppgittRettighetEntitet extends BaseEntitet {
         return harAnnenForeldreRett;
     }
 
-    public boolean getMorMottarUføretrygd() {
-        return morMottarUføretrygd != null && morMottarUføretrygd;
+    public Boolean getMorMottarUføretrygd() {
+        return morMottarUføretrygd;
     }
 
     public boolean getAnnenForelderRettEØS() {
         return annenForelderRettEØS != null && annenForelderRettEØS;
+    }
+
+    public static OppgittRettighetEntitet kopiAleneomsorg(OppgittRettighetEntitet rett, Boolean aleneomsorg) {
+        if (rett == null) {
+            return new OppgittRettighetEntitet(null, aleneomsorg, null, null);
+        }
+        return Objects.equals(aleneomsorg, rett.harAleneomsorgForBarnet) ? rett :
+            new OppgittRettighetEntitet(rett.harAnnenForeldreRett, aleneomsorg, rett.morMottarUføretrygd, rett.annenForelderRettEØS);
+    }
+
+    public static OppgittRettighetEntitet kopiAleneomsorgIkkeRettAnnenForelder(OppgittRettighetEntitet rett) {
+        if (rett == null) {
+            return new OppgittRettighetEntitet(false, true, null, null);
+        }
+        return Objects.equals(rett.harAleneomsorgForBarnet, Boolean.TRUE) && Objects.equals(rett.harAnnenForeldreRett, Boolean.FALSE) ? rett :
+            new OppgittRettighetEntitet(false, true, rett.morMottarUføretrygd, rett.annenForelderRettEØS);
+    }
+
+    public static OppgittRettighetEntitet kopiAnnenForelderRett(OppgittRettighetEntitet rett, Boolean annenForelderRett) {
+        if (rett == null) {
+            return new OppgittRettighetEntitet(annenForelderRett, null, null, null);
+        }
+        return Objects.equals(annenForelderRett, rett.harAnnenForeldreRett) ? rett :
+            new OppgittRettighetEntitet(annenForelderRett, rett.harAleneomsorgForBarnet, rett.morMottarUføretrygd, rett.annenForelderRettEØS);
+    }
+
+    public static OppgittRettighetEntitet kopiAnnenForelderRettEØS(OppgittRettighetEntitet rett, Boolean annenForelderRettEØS) {
+        if (rett == null) {
+            return new OppgittRettighetEntitet(null, null, null, annenForelderRettEØS);
+        }
+        return Objects.equals(annenForelderRettEØS, rett.annenForelderRettEØS) ? rett :
+            new OppgittRettighetEntitet(rett.harAnnenForeldreRett, rett.harAleneomsorgForBarnet, rett.morMottarUføretrygd, annenForelderRettEØS);
+    }
+
+    public static OppgittRettighetEntitet kopiMorUføretrygd(OppgittRettighetEntitet rett, Boolean morUføretrygd) {
+        if (rett == null) {
+            return new OppgittRettighetEntitet(null, null, morUføretrygd, null);
+        }
+        return Objects.equals(morUføretrygd, rett.morMottarUføretrygd) ? rett :
+            new OppgittRettighetEntitet(rett.harAnnenForeldreRett, rett.harAleneomsorgForBarnet, morUføretrygd, rett.annenForelderRettEØS);
     }
 
     @Override

@@ -33,6 +33,7 @@ class RyddOmsorgRettTjeneste {
                 builder.medPerioderAnnenforelderHarRett(null);
                 builder.medPerioderAleneOmsorg(null);
                 builder.medPerioderAnnenForelderRettEØS(null);
+                builder.medOverstyrtRettighet(null);
                 ytelsesFordelingRepository.lagre(kontekst.getBehandlingId(), builder.build());
             });
         uføretrygdRepository.deaktiverGrunnlagUtenRegister(kontekst.getBehandlingId());

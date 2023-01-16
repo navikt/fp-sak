@@ -59,11 +59,17 @@ public class YtelseFordelingTjeneste {
     }
 
     public void aksjonspunktBekreftFaktaForAleneomsorg(Long behandlingId, boolean aleneomsorg) {
+        var overstyrtRett = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
+            .flatMap(YtelseFordelingAggregat::getOverstyrtRettighet).orElse(null);
         var ytelseFordelingBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medPerioderAleneOmsorg(new PerioderAleneOmsorgEntitet(aleneomsorg));
         if (aleneomsorg) {
             ytelseFordelingBuilder.medPerioderAnnenforelderHarRett(new PerioderAnnenforelderHarRettEntitet(false));
+            overstyrtRett = OppgittRettighetEntitet.kopiAleneomsorgIkkeRettAnnenForelder(overstyrtRett);
+        } else {
+            overstyrtRett = OppgittRettighetEntitet.kopiAleneomsorg(overstyrtRett, aleneomsorg);
         }
+        ytelseFordelingBuilder.medOverstyrtRettighet(overstyrtRett);
         ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingBuilder.build());
     }
 
@@ -127,15 +133,23 @@ public class YtelseFordelingTjeneste {
         ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregatBuilder.build());
     }
 
-    public void bekreftAnnenforelderHarRett(Long behandlingId, Boolean annenforelderHarRett, Boolean annenForelderHarRettEØS) {
+    public void bekreftAnnenforelderHarRett(Long behandlingId, Boolean annenforelderHarRett, Boolean annenForelderHarRettEØS, Boolean annenforelderMottarUføretrygd) {
         var perioderAnnenforelderHarRettEntitet = new PerioderAnnenforelderHarRettEntitet(annenforelderHarRett);
 
+        var overstyrtRett = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
+            .flatMap(YtelseFordelingAggregat::getOverstyrtRettighet).orElse(null);
+        overstyrtRett = OppgittRettighetEntitet.kopiAnnenForelderRett(overstyrtRett, annenforelderHarRett);
         var ytelseFordelingAggregatBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medPerioderAnnenforelderHarRett(perioderAnnenforelderHarRettEntitet);
         if (annenForelderHarRettEØS != null) {
             var perioderAnnenForelderRettEØSEntitet = new PerioderAnnenForelderRettEØSEntitet(annenForelderHarRettEØS);
             ytelseFordelingAggregatBuilder.medPerioderAnnenForelderRettEØS(perioderAnnenForelderRettEØSEntitet);
+            overstyrtRett = OppgittRettighetEntitet.kopiAnnenForelderRettEØS(overstyrtRett, annenForelderHarRettEØS);
         }
+        if (annenforelderMottarUføretrygd != null) {
+            overstyrtRett = OppgittRettighetEntitet.kopiMorUføretrygd(overstyrtRett, annenforelderMottarUføretrygd);
+        }
+        ytelseFordelingAggregatBuilder.medOverstyrtRettighet(overstyrtRett);
         ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregatBuilder.build());
     }
 

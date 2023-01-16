@@ -60,9 +60,10 @@ public class YtelseFordelingDtoTjeneste {
 
     private RettigheterAnnenforelderDto lagAnnenforelderRettDto(Behandling behandling, YtelseFordelingAggregat yfa) {
         var uføregrunnlag = uføretrygdRepository.hentGrunnlag(behandling.getId());
-        var avklareUføretrygd = uføregrunnlag.filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd).isPresent();
+        var avklareUføretrygd = uføregrunnlag.filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd).isPresent(); // TODO: endre til yfa+ufg/register etter migrering
         var avklareRettEØS = yfa.getOppgittRettighet().getAnnenForelderRettEØS();
-        var avklartMottarUføretrygd = uføregrunnlag.map(UføretrygdGrunnlagEntitet::getUføretrygdOverstyrt).orElse(null);
+        var avklartMottarUføretrygd = Optional.ofNullable(yfa.getMorUføretrygdAvklaring())
+            .or(() -> uføregrunnlag.map(UføretrygdGrunnlagEntitet::getUføretrygdOverstyrt)).orElse(null);
         return new RettigheterAnnenforelderDto(yfa.getAnnenForelderRettAvklaring(),
             yfa.getAnnenForelderRettEØSAvklaring(), avklareRettEØS,
             avklartMottarUføretrygd, avklareUføretrygd);

@@ -31,9 +31,10 @@ public final class UttakOmsorgUtil {
             });
     }
 
-    public static boolean morMottarUføretrygd(UføretrygdGrunnlagEntitet uføretrygdGrunnlag) {
+    public static boolean morMottarUføretrygd(YtelseFordelingAggregat ytelseFordelingAggregat, UføretrygdGrunnlagEntitet uføretrygdGrunnlag) {
         // Inntil videre er oppgittrettighet ikke komplett - derfor ser vi på om det finnes et UFO-grunnlag
-        return uføretrygdGrunnlag != null && uføretrygdGrunnlag.annenForelderMottarUføretrygd();
+        return Optional.ofNullable(ytelseFordelingAggregat.getMorUføretrygdAvklaring())
+            .orElseGet(() -> Optional.ofNullable(uføretrygdGrunnlag).filter(UføretrygdGrunnlagEntitet::annenForelderMottarUføretrygd).isPresent());
     }
 
     public static boolean avklartAnnenForelderHarRettEØS(YtelseFordelingAggregat ytelseFordelingAggregat) {

@@ -60,7 +60,8 @@ public class OmsorgRettUttakTjeneste {
 
     public void avklarOmAnnenForelderHarRett(BehandlingReferanse ref) {
         if (kanAutomatiskAvklareAtAnnenForelderIkkeHarRett(ref)) {
-            ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(ref.behandlingId(), false, null);
+            // Annen forelder uten norsk id har ikke Uføretrygd i Norge - men nok volum til å forsvare denne?
+            ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(ref.behandlingId(), false, null, null);
         }
     }
 

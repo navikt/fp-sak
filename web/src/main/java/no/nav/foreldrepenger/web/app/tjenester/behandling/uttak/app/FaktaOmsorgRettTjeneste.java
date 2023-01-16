@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -11,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
@@ -40,11 +42,11 @@ public class FaktaOmsorgRettTjeneste {
                                                Boolean annenforelderMottarUføretrygd,
                                                boolean opprettUføreGrunnlagHvisMangler,
                                                Boolean annenForelderHarRettEØS) {
-        var tidligereVurderingAvMorsUføretrygd = tidligereVurderingAvMorsUføretrygd(param);
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(param.getBehandlingId());
+        var tidligereVurderingAvMorsUføretrygd = tidligereVurderingAvMorsUføretrygd(param, ytelseFordelingAggregat);
         var endretVurderingAvMorsUføretrygd = endretVurderingAvMorsUføretrygd(annenforelderMottarUføretrygd, param,
             tidligereVurderingAvMorsUføretrygd, opprettUføreGrunnlagHvisMangler);
 
-        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(param.getBehandlingId());
         var endretVurderingAvRettEØS = endretVurderingAvRettEØS(annenForelderHarRettEØS, ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring());
 
         var harAnnenForeldreRettSokVersjon = ytelseFordelingAggregat.getOppgittRettighet().getHarAnnenForeldreRett();
@@ -79,7 +81,7 @@ public class FaktaOmsorgRettTjeneste {
                                                boolean opprettUføreGrunnlagHvisMangler,
                                                Boolean annenForelderHarRettEØS) {
         var ytelsefordelingAggregat = ytelseFordelingTjeneste.hentAggregat(param.getBehandlingId());
-        var tidligereVurderingAvMorsUføretrygd = tidligereVurderingAvMorsUføretrygd(param);
+        var tidligereVurderingAvMorsUføretrygd = tidligereVurderingAvMorsUføretrygd(param, ytelsefordelingAggregat);
         var endretVurderingAvMorsUføretrygd = endretVurderingAvMorsUføretrygd(annenforelderMottarUføretrygd, param,
             tidligereVurderingAvMorsUføretrygd, opprettUføreGrunnlagHvisMangler);
         var endretVurderingAvRettEØS = endretVurderingAvRettEØS(annenForelderHarRettEØS, ytelsefordelingAggregat.getAnnenForelderRettEØSAvklaring());
@@ -124,7 +126,7 @@ public class FaktaOmsorgRettTjeneste {
                                           boolean opprettUføreGrunnlagHvisMangler,
                                           AktørId annenpartAktørId,
                                           Boolean annenForelderHarRettEØS) {
-        ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(param.getBehandlingId(), annenforelderHarRett, annenForelderHarRettEØS);
+        ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(param.getBehandlingId(), annenforelderHarRett, annenForelderHarRettEØS, annenforelderMottarUføretrygd);
         oppdaterUføretrygdVedBehov(annenforelderMottarUføretrygd, param, opprettUføreGrunnlagHvisMangler, annenpartAktørId);
     }
 
@@ -170,9 +172,10 @@ public class FaktaOmsorgRettTjeneste {
             && !Objects.equals(tidligereVurdering, nyVerdi);
     }
 
-    private Boolean tidligereVurderingAvMorsUføretrygd(AksjonspunktOppdaterParameter param) {
-        return uføretrygdRepository.hentGrunnlag(param.getBehandlingId())
-            .map(UføretrygdGrunnlagEntitet::getUføretrygdOverstyrt).orElse(null);
+    private Boolean tidligereVurderingAvMorsUføretrygd(AksjonspunktOppdaterParameter param, YtelseFordelingAggregat ytelseFordelingAggregat) {
+        return Optional.ofNullable(ytelseFordelingAggregat.getMorUføretrygdAvklaring())
+            .or(() -> uføretrygdRepository.hentGrunnlag(param.getBehandlingId()).map(UføretrygdGrunnlagEntitet::getUføretrygdOverstyrt))
+            .orElse(null);
     }
 
     private boolean endretVurderingAvRettEØS(Boolean nyVerdi, Boolean tidligereVurdering) {

@@ -322,6 +322,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
         scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
         var perioderAleneOmsorg = new PerioderAleneOmsorgEntitet(true);
         scenario.medPeriodeMedAleneomsorg(perioderAleneOmsorg);
+        scenario.medOverstyrtRettighet(new OppgittRettighetEntitet(true, false, false, false));
     }
 
     private BeregningsresultatEntitet lagBeregningsresultatFP() {

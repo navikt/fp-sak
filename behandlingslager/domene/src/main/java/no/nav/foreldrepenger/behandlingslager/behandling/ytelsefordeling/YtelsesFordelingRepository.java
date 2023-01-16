@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling.erBerørtBehandling;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -12,8 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-
-import static no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling.erBerørtBehandling;
 
 @ApplicationScoped
 public class YtelsesFordelingRepository {
@@ -61,6 +61,7 @@ public class YtelsesFordelingRepository {
         return YtelseFordelingAggregat.Builder.nytt()
             .medOppgittDekningsgrad(ytelseFordelingGrunnlagEntitet.getOppgittDekningsgrad())
             .medOppgittRettighet(ytelseFordelingGrunnlagEntitet.getOppgittRettighet())
+            .medOverstyrtRettighet(ytelseFordelingGrunnlagEntitet.getOverstyrtRettighet())
             .medPerioderUtenOmsorg(ytelseFordelingGrunnlagEntitet.getPerioderUtenOmsorg())
             .medPerioderAleneOmsorg(ytelseFordelingGrunnlagEntitet.getPerioderAleneOmsorgEntitet())
             .medOppgittFordeling(ytelseFordelingGrunnlagEntitet.getOppgittFordeling())
@@ -108,6 +109,9 @@ public class YtelsesFordelingRepository {
         if (grunnlag.getOppgittRettighet() != null) {
             entityManager.persist(grunnlag.getOppgittRettighet());
         }
+        if (grunnlag.getOverstyrtRettighet() != null) {
+            entityManager.persist(grunnlag.getOverstyrtRettighet());
+        }
         if (grunnlag.getOppgittFordeling() != null) {
             entityManager.persist(grunnlag.getOppgittFordeling());
             lagrePeriode(grunnlag.getOppgittFordeling().getPerioder());
@@ -140,6 +144,7 @@ public class YtelsesFordelingRepository {
         grunnlag.setBehandling(behandlingId);
         grunnlag.setOppgittDekningsgrad(aggregat.getOppgittDekningsgrad());
         grunnlag.setOppgittRettighet(aggregat.getOppgittRettighet());
+        aggregat.getOverstyrtRettighet().ifPresent(grunnlag::setOverstyrtRettighet);
         grunnlag.setOppgittFordeling(aggregat.getOppgittFordeling());
         aggregat.getPerioderUttakDokumentasjon().ifPresent(grunnlag::setPerioderUttakDokumentasjon);
         aggregat.getPerioderUtenOmsorg().ifPresent(grunnlag::setPerioderUtenOmsorg);
