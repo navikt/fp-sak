@@ -1,11 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
@@ -33,7 +31,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
@@ -120,26 +117,6 @@ public class KlagevurderingOppdatererTest {
                 .isEqualTo(BehandlingResultatType.KLAGE_YTELSESVEDTAK_STADFESTET);
     }
 
-    @Test
-    public void skal_ikke_bestille_dokument_ved_stadfestet_ytelsesvedtak_når_behandlingen_er_migrert() {
-        // Arrange
-        var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
-
-        var klageScenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(scenario);
-        var behandling = klageScenario.lagre(repositoryProvider, klageRepository);
-        behandling.setMigrertKilde(Fagsystem.INFOTRYGD);
-
-        var klageVurdering = KlageVurdering.STADFESTE_YTELSESVEDTAK;
-        var dto = new KlageVurderingResultatAksjonspunktDto("begrunnelse bla. bla.",
-                klageVurdering, null, null, LocalDate.now(), "Fritekst til brev", null, null, false);
-
-        // Act
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
-        getKlageVurderer(repositoryProvider, klageRepository).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
-
-        // Assert
-        verify(dokumentBestillerTjeneste, times(0)).bestillDokument(any(), any());
-    }
 
     private KlagevurderingOppdaterer getKlageVurderer(BehandlingRepositoryProvider repositoryProvider, KlageRepository klageRepository) {
         var behandlingRepository = repositoryProvider.getBehandlingRepository();

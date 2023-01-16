@@ -55,7 +55,6 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningStegRestTj
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningSvangerskapspengerRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningSøknadRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTekniskRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTilkjentYtelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttrekkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.gosys.GosysRestTjeneste;
@@ -138,7 +137,6 @@ public class RestImplementationClasses {
         classes.add(ForvaltningStegRestTjeneste.class);
         classes.add(ForvaltningSvangerskapspengerRestTjeneste.class);
         classes.add(ForvaltningSøknadRestTjeneste.class);
-        classes.add(ForvaltningTilkjentYtelseRestTjeneste.class);
 
         return Collections.unmodifiableSet(classes);
     }

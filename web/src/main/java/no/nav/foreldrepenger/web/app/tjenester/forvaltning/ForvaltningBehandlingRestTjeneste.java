@@ -28,25 +28,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -68,21 +61,18 @@ public class ForvaltningBehandlingRestTjeneste {
     private MottatteDokumentRepository mottatteDokumentRepository;
     private ProsessTaskTjeneste taskTjeneste;
     private BerørtBehandlingForvaltningTjeneste berørtBehandlingTjeneste;
-    private HistorikkTjenesteAdapter historikkTjenesteAdapter;
 
     @Inject
     public ForvaltningBehandlingRestTjeneste(BerørtBehandlingForvaltningTjeneste berørtBehandlingForvaltningTjeneste,
             BehandlingsoppretterTjeneste behandlingsoppretterTjeneste,
             ProsessTaskTjeneste taskTjeneste,
-            BehandlingRepositoryProvider repositoryProvider,
-            HistorikkTjenesteAdapter historikkTjenesteAdapter) {
+            BehandlingRepositoryProvider repositoryProvider) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.mottatteDokumentRepository = repositoryProvider.getMottatteDokumentRepository();
         this.taskTjeneste = taskTjeneste;
         this.berørtBehandlingTjeneste = berørtBehandlingForvaltningTjeneste;
         this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
-        this.historikkTjenesteAdapter = historikkTjenesteAdapter;
     }
 
     public ForvaltningBehandlingRestTjeneste() {
@@ -211,59 +201,6 @@ public class ForvaltningBehandlingRestTjeneste {
         }
         berørtBehandlingTjeneste.opprettNyBerørtBehandling(fagsak);
         return Response.ok().build();
-    }
-
-    @POST
-    @Path("/oppdaterMigrertFraInfotrygd")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Oppdaterer migrert fra Infotrygd på gitt behandling", tags = "FORVALTNING-behandling", responses = {
-            @ApiResponse(responseCode = "200", description = "Migrert fra Infotrygd oppdatert.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "400", description = "Finner ikke angitt behandling, ulovlig oppdatering eller avsluttet behandling."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public Response oppdaterMigrertFraInfotrygd(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
-            @NotNull @QueryParam("migrertFraInfotrygd") @Valid Boolean migrertFraInfotrygd) {
-        var behandlingId = dto.getBehandlingUuid();
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (behandling == null) {
-            LOG.info("Oppgitt behandling {} er ukjent", dto);
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        if (behandling.getMigrertKilde().equals(Fagsystem.INFOTRYGD) && migrertFraInfotrygd) {
-            LOG.info("Oppgitt behandling {} er allerede satt til migrert fra Infotrygd", dto);
-            return Response.status(Response.Status.BAD_REQUEST).build();
-
-        }
-        if (behandling.getMigrertKilde().equals(Fagsystem.UDEFINERT) && !migrertFraInfotrygd) {
-            LOG.info("Oppgitt behandling {} er ikke satt til migrert fra Infotrygd", dto);
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        if (behandling.erAvsluttet()) {
-            LOG.info("Behandling {} er avsluttet og kan derfor ikke oppdateres", dto);
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        if (migrertFraInfotrygd) {
-            behandling.setMigrertKilde(Fagsystem.INFOTRYGD);
-            lagHistorikkInnslag(behandling.getId(), HistorikkinnslagType.MIGRERT_FRA_INFOTRYGD);
-        } else {
-            behandling.setMigrertKilde(Fagsystem.UDEFINERT);
-            lagHistorikkInnslag(behandling.getId(), HistorikkinnslagType.MIGRERT_FRA_INFOTRYGD_FJERNET);
-        }
-        return Response.ok().build();
-    }
-
-    private void lagHistorikkInnslag(Long behandlingId, HistorikkinnslagType innslagType) {
-        var innslag = new Historikkinnslag();
-        var builder = new HistorikkInnslagTekstBuilder();
-
-        innslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        innslag.setBehandlingId(behandlingId);
-        innslag.setType(innslagType);
-        builder.medHendelse(innslagType);
-        builder.build(innslag);
-        historikkTjenesteAdapter.lagInnslag(innslag);
     }
 
 }
