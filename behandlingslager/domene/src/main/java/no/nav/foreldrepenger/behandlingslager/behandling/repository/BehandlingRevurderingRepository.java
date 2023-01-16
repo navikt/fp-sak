@@ -241,14 +241,6 @@ public class BehandlingRevurderingRepository {
               and beh.id not in (select ba.behandling_id from behandling_arsak ba where behandling_arsak_type in (:berort)) )
         """;
 
-    /** Plukker ut aktørId på søkere med flere SVP saker */
-    public List<AktørId> finnAktørerMedFlereSVPSaker() {
-        var query = getEntityManager().createNativeQuery(SØKERE_MED_FLERE_SVP_SAKER).setParameter("ytelse", "SVP");
-        @SuppressWarnings("unchecked")
-        List<String> resultatList = query.getResultList();
-        return resultatList.stream().map(AktørId::new).collect(Collectors.toList());
-    }
-
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering over 6G og det ikke finnes åpen behandling */
     public List<FagsakIdAktørId> finnSakerMedBehovForGrunnbeløpRegulering(LocalDate gjeldendeFom, long forrigeAvkortingMultiplikator) {
         /*

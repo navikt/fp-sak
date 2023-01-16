@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmg
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
@@ -164,8 +163,7 @@ public class KlageVurderingTjeneste {
     }
 
     private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, KlageVurdering klageVurdering, KlageVurderingOmgjør omgjør, KlageVurdertAv vurdertAv) {
-        if (skalBehandlesAvKlageInstans(vurdertAv, klageVurdering) && !Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde())
-            && !dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT)) {
+        if (skalBehandlesAvKlageInstans(vurdertAv, klageVurdering) && !dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT)) {
 
             var bestillBrevDto = new BestillBrevDto(behandling.getId(), behandling.getUuid(), DokumentMalType.KLAGE_OVERSENDT);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER);
