@@ -163,11 +163,13 @@ class FaktaUttakFellesTjeneste {
     private static OppgittPeriodeEntitet map(FaktaUttakPeriodeDto dto, List<OppgittPeriodeEntitet> gjeldende) {
         var periodeIntervall = DatoIntervallEntitet.fraOgMedTilOgMed(dto.fom(), dto.tom());
         var gjeldendeSomOmslutter = gjeldendeSomOmslutter(periodeIntervall, gjeldende);
+        var periodeKilde = dto.periodeKilde() == null ? FordelingPeriodeKilde.SAKSBEHANDLER : dto.periodeKilde();
         var builder = OppgittPeriodeBuilder.ny().medPeriode(dto.fom(), dto.tom())
-            .medPeriodeKilde(dto.periodeKilde() == null ? FordelingPeriodeKilde.SAKSBEHANDLER : dto.periodeKilde())
+            .medPeriodeKilde(periodeKilde)
             .medMottattDato(gjeldendeSomOmslutter.map(OppgittPeriodeEntitet::getMottattDato).orElseGet(LocalDate::now))
             .medTidligstMottattDato(gjeldendeSomOmslutter.flatMap(OppgittPeriodeEntitet::getTidligstMottattDato).orElse(null))
-            .medDokumentasjonVurdering(utledDokumentasjonsVurdering(periodeIntervall, gjeldende))
+            //Hvis saksbehandler har endret på perioden må dokumentasjon vurderes på nytt.
+            .medDokumentasjonVurdering(periodeKilde == FordelingPeriodeKilde.SAKSBEHANDLER ? null : utledDokumentasjonsVurdering(periodeIntervall, gjeldende))
             .medMorsAktivitet(dto.morsAktivitet())
             .medFlerbarnsdager(dto.flerbarnsdager())
             .medPeriodeType(dto.uttakPeriodeType())
