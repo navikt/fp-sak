@@ -37,6 +37,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministra
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
+import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
@@ -146,9 +147,10 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         yrkesaktiviteter.forEach(yrkesaktivitet -> {
             var vurdertPermisjon = finnPermisjonSomErVurdert(aktivitet.getVelferdspermisjoner(), yrkesaktivitet);
             if (vurdertPermisjon.isPresent()) {
+                var permFraIAY = finnMatchendePermisjonIIAY(yrkesaktivitet, vurdertPermisjon.get()).orElseThrow();
                 infoBuilder.fjernOverstyringVedrørende(yrkesaktivitet.getArbeidsgiver(), yrkesaktivitet.getArbeidsforholdRef());
                 var yaBuilder = infoBuilder.getOverstyringBuilderFor(yrkesaktivitet.getArbeidsgiver(), yrkesaktivitet.getArbeidsforholdRef());
-                yaBuilder.medBekreftetPermisjon(new BekreftetPermisjon(vurdertPermisjon.get().getPermisjonFom(), vurdertPermisjon.get().getPermisjonTom(), finnStatus(vurdertPermisjon.get())))
+                yaBuilder.medBekreftetPermisjon(new BekreftetPermisjon(vurdertPermisjon.get().getPermisjonFom(), permFraIAY.getTilOgMed(), finnStatus(vurdertPermisjon.get())))
                     .medHandling(ArbeidsforholdHandlingType.BRUK);
                 listeMedEndredeArbeidsforhold.add(yaBuilder);
 
@@ -163,12 +165,19 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
     private Optional<VelferdspermisjonDto> finnPermisjonSomErVurdert(List<VelferdspermisjonDto> velferdspermisjoner, Yrkesaktivitet yrkesaktivitet) {
         return velferdspermisjoner.stream()
-            .filter(bekreftetPerm -> yrkesaktivitet.getPermisjon().stream()
-                .anyMatch(yaPerm -> yaPerm.getFraOgMed().equals(bekreftetPerm.getPermisjonFom())
-                    && yaPerm.getProsentsats().getVerdi().compareTo(bekreftetPerm.getPermisjonsprosent()) == 0))
+            .filter(bekreftetPerm -> finnMatchendePermisjonIIAY(yrkesaktivitet, bekreftetPerm).isPresent())
             .filter(bekreftetPerm -> bekreftetPerm.getErGyldig() != null)
             .findFirst();
     }
+
+    private static Optional<Permisjon> finnMatchendePermisjonIIAY(Yrkesaktivitet yrkesaktivitet, VelferdspermisjonDto bekreftetPerm) {
+        return yrkesaktivitet.getPermisjon()
+            .stream()
+            .filter(yaPerm -> yaPerm.getFraOgMed().equals(bekreftetPerm.getPermisjonFom())
+                && yaPerm.getProsentsats().getVerdi().compareTo(bekreftetPerm.getPermisjonsprosent()) == 0)
+            .findFirst();
+    }
+
     private void verifiserUnikeDatoer(BekreftSvangerskapspengerDto dto) {
         var bekreftedeArbeidsforhold = dto.getBekreftetSvpArbeidsforholdList();
         for (var arbeidsforhold : bekreftedeArbeidsforhold) {
