@@ -93,7 +93,8 @@ public class FaktaUttakPeriodeDtoTjeneste {
         var morsAktivitet = periode.getMorsAktivitet() == null || MorsAktivitet.UDEFINERT.equals(periode.getMorsAktivitet()) ? null : periode.getMorsAktivitet();
         return new FaktaUttakPeriodeDto(periode.getFom(), periode.getTom(),
             periodeType, utsettelseÅrsak, overføringÅrsak, oppholdÅrsak, arbeidsprosent, arbeidsforhold,
-            periode.getSamtidigUttaksprosent(), periode.isFlerbarnsdager(), morsAktivitet, periode.getPeriodeKilde());
+            periode.getSamtidigUttaksprosent(), periode.isFlerbarnsdager(), morsAktivitet, periode.getPeriodeKilde(),
+            periode.getBegrunnelse().orElse(null));
     }
 
     private ArbeidsforholdDto mapArbeidsforhold(OppgittPeriodeEntitet periode) {

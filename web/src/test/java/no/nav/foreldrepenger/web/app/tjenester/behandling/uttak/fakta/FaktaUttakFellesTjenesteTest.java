@@ -106,13 +106,13 @@ class FaktaUttakFellesTjenesteTest {
         var mødrekvoteFørOpprinnelig = mødrekvote(avklartFørsteUttaksdag, opprinneligPeriode1.getFom().minusDays(1), SAKSBEHANDLER);
         var mødrekvoteDto = mødrekvote(opprinneligPeriode1.getFom(), opprinneligPeriode1.getTom(), TIDLIGERE_VEDTAK);
         var utsettelseDto = new FaktaUttakPeriodeDto(mødrekvoteDto.tom().plusDays(1), mødrekvoteDto.tom().plusWeeks(1), null, UtsettelseÅrsak.SYKDOM,
-            null, null, null, null, null, false, MorsAktivitet.ARBEID, SAKSBEHANDLER);
+            null, null, null, null, null, false, MorsAktivitet.ARBEID, SAKSBEHANDLER, "begrunnelse");
         var oppholdDto = new FaktaUttakPeriodeDto(utsettelseDto.tom().plusDays(1), utsettelseDto.tom().plusWeeks(1), null, null,
-            null, OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER, null, null, null, false, null, SAKSBEHANDLER);
+            null, OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER, null, null, null, false, null, SAKSBEHANDLER, null);
         var overføringDto = new FaktaUttakPeriodeDto(oppholdDto.tom().plusDays(1), oppholdDto.tom().plusWeeks(1), FEDREKVOTE,
-            null, OverføringÅrsak.SYKDOM_ANNEN_FORELDER, null, null, null, null, false, null, ANDRE_NAV_VEDTAK);
+            null, OverføringÅrsak.SYKDOM_ANNEN_FORELDER, null, null, null, null, false, null, ANDRE_NAV_VEDTAK, null);
         var samtidigUttak = new FaktaUttakPeriodeDto(overføringDto.tom().plusDays(1), overføringDto.tom().plusWeeks(1), FELLESPERIODE,
-            null, null, null, null, null, SamtidigUttaksprosent.TEN, true, null, null);
+            null, null, null, null, null, SamtidigUttaksprosent.TEN, true, null, null, null);
         var resultat = kjørOppdaterer(behandling, List.of(mødrekvoteFørOpprinnelig, mødrekvoteDto, utsettelseDto,
             oppholdDto, overføringDto, samtidigUttak));
         var yfa = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
@@ -159,6 +159,7 @@ class FaktaUttakFellesTjenesteTest {
         assertThat(lagretPerioder.get(2).getPeriodeType()).isEqualTo(UDEFINERT);
         assertThat(lagretPerioder.get(2).isFlerbarnsdager()).isEqualTo(utsettelseDto.flerbarnsdager());
         assertThat(lagretPerioder.get(2).getÅrsak()).isEqualTo(utsettelseDto.utsettelseÅrsak());
+        assertThat(lagretPerioder.get(2).getBegrunnelse()).isEmpty();
 
         assertThat(lagretPerioder.get(3).getFom()).isEqualTo(oppholdDto.fom());
         assertThat(lagretPerioder.get(3).getTom()).isEqualTo(oppholdDto.tom());
@@ -358,7 +359,7 @@ class FaktaUttakFellesTjenesteTest {
             .lagre(repositoryProvider);
         var mødrekvoteDto = mødrekvote(opprinneligFom, opprinneligFom.plusWeeks(2), SØKNAD);
         var utsettelseDto = new FaktaUttakPeriodeDto(opprinneligFom.minusWeeks(2), mødrekvoteDto.fom().minusDays(1),
-            null, UtsettelseÅrsak.SYKDOM, null, null, null, null, null, false, null, SØKNAD);
+            null, UtsettelseÅrsak.SYKDOM, null, null, null, null, null, false, null, SØKNAD, null);
         kjørOppdaterer(behandling, List.of(mødrekvoteDto, utsettelseDto));
 
         var lagretPerioder = ytelseFordelingTjeneste.hentAggregat(behandling.getId()).getGjeldendeFordeling().getPerioder();
@@ -371,7 +372,7 @@ class FaktaUttakFellesTjenesteTest {
 
     private static FaktaUttakPeriodeDto periode(LocalDate fom, LocalDate tom, FordelingPeriodeKilde kilde, UttakPeriodeType uttakPeriodeType) {
         return new FaktaUttakPeriodeDto(fom, tom, uttakPeriodeType, null, null, null, null,
-            null, null, false, null, kilde);
+            null, null, false, null, kilde, null);
     }
 
     private OppdateringResultat kjørOppdaterer(Behandling behandling, List<FaktaUttakPeriodeDto> perioder) {

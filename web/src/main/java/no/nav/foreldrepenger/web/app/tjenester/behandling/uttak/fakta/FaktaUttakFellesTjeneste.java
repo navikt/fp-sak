@@ -164,12 +164,19 @@ class FaktaUttakFellesTjeneste {
         var periodeIntervall = DatoIntervallEntitet.fraOgMedTilOgMed(dto.fom(), dto.tom());
         var gjeldendeSomOmslutter = gjeldendeSomOmslutter(periodeIntervall, gjeldende);
         var periodeKilde = dto.periodeKilde() == null ? FordelingPeriodeKilde.SAKSBEHANDLER : dto.periodeKilde();
+        //Hvis saksbehandler har endret på perioden må dokumentasjon vurderes på nytt.
+        var dokumentasjonVurdering =
+            periodeKilde == FordelingPeriodeKilde.SAKSBEHANDLER ? null : utledDokumentasjonsVurdering(periodeIntervall, gjeldende);
+        //legacy begrunnelse fjernes hvis saksbehandler endrer noe
+        var begrunnelse = periodeKilde == FordelingPeriodeKilde.SAKSBEHANDLER || gjeldendeSomOmslutter.isEmpty() ? null : gjeldendeSomOmslutter.get()
+            .getBegrunnelse()
+            .orElse(null);
         var builder = OppgittPeriodeBuilder.ny().medPeriode(dto.fom(), dto.tom())
             .medPeriodeKilde(periodeKilde)
             .medMottattDato(gjeldendeSomOmslutter.map(OppgittPeriodeEntitet::getMottattDato).orElseGet(LocalDate::now))
             .medTidligstMottattDato(gjeldendeSomOmslutter.flatMap(OppgittPeriodeEntitet::getTidligstMottattDato).orElse(null))
-            //Hvis saksbehandler har endret på perioden må dokumentasjon vurderes på nytt.
-            .medDokumentasjonVurdering(periodeKilde == FordelingPeriodeKilde.SAKSBEHANDLER ? null : utledDokumentasjonsVurdering(periodeIntervall, gjeldende))
+            .medDokumentasjonVurdering(dokumentasjonVurdering)
+            .medBegrunnelse(begrunnelse)
             .medMorsAktivitet(dto.morsAktivitet())
             .medFlerbarnsdager(dto.flerbarnsdager())
             .medPeriodeType(dto.uttakPeriodeType())
