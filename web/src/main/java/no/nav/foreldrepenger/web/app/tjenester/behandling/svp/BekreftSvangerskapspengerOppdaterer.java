@@ -174,7 +174,8 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         return yrkesaktivitet.getPermisjon()
             .stream()
             .filter(yaPerm -> yaPerm.getFraOgMed().equals(bekreftetPerm.getPermisjonFom())
-                && yaPerm.getProsentsats().getVerdi().compareTo(bekreftetPerm.getPermisjonsprosent()) == 0)
+                && yaPerm.getProsentsats().getVerdi().compareTo(bekreftetPerm.getPermisjonsprosent()) == 0
+                && Objects.equals(yaPerm.getPermisjonsbeskrivelseType(), bekreftetPerm.getType()))
             .findFirst();
     }
 
