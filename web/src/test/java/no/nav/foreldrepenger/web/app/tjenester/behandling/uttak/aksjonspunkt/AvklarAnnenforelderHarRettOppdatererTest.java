@@ -120,7 +120,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknad();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-        var rettighet = new OppgittRettighetEntitet(false, false, false, false);
+        var rettighet = new OppgittRettighetEntitet(false, false, true, false);
         scenario.medOppgittRettighet(rettighet);
         scenario.leggTilAksjonspunkt(AKSONSPUNKT_DEF, BehandlingStegType.VURDER_UTTAK);
         var behandling = scenario.lagre(repositoryProvider);
@@ -128,7 +128,6 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
         AvklarFaktaTestUtil.opprettBehandlingGrunnlag(getEntityManager(), behandling.getId());
         var dto = new AvklarAnnenforelderHarRettDto("Har rett");
         dto.setAnnenforelderHarRett(false);
-        dto.setAnnenforelderMottarUføretrygd(true);  //skal ikke påvirker her
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon()).get();
 
         var resultat = oppdaterer().oppdater(dto,
@@ -139,6 +138,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
         when(uføretrygdRepository.hentGrunnlag(anyLong())).thenReturn(Optional.of(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
             .medBehandlingId(behandling.getId()).medAktørIdUføretrygdet(AktørId.dummy())
             .medRegisterUføretrygd(false, null, null).build()));
+        dto.setAnnenforelderMottarUføretrygd(true);  //skal ikke påvirker her
         var resultat1 = oppdaterer().oppdater(dto,
             new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         //assert

@@ -89,7 +89,7 @@ public class YtelseFordelingAggregat {
     }
 
     public Boolean getAnnenForelderRettEØSAvklaring() {
-        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getAnnenForelderRettEØS)
+        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getAnnenForelderRettEØSNullable)
             .or(() -> getPerioderAnnenForelderRettEØS().map(p -> !p.getPerioder().isEmpty()))
             .orElse(null);
     }

@@ -74,6 +74,10 @@ public class OppgittRettighetEntitet extends BaseEntitet {
         return morMottarUføretrygd;
     }
 
+    public Boolean getAnnenForelderRettEØSNullable() {
+        return annenForelderRettEØS;
+    }
+
     public boolean getAnnenForelderRettEØS() {
         return annenForelderRettEØS != null && annenForelderRettEØS;
     }
