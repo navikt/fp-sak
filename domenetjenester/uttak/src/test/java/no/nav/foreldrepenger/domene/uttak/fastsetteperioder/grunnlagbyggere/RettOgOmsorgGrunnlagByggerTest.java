@@ -123,13 +123,14 @@ public class RettOgOmsorgGrunnlagByggerTest {
         var scenario = medAleneomsorg();
         var perioderAleneOmsorg = new PerioderAleneOmsorgEntitet(true);
         scenario.medPeriodeMedAleneomsorg(perioderAleneOmsorg);
+        scenario.medOverstyrtRettighet(new OppgittRettighetEntitet(false, true, null, null));
         var behandling = scenario.lagre(repositoryProvider);
 
         var grunnlag = byggGrunnlag(behandling);
 
         assertThat(grunnlag.getAleneomsorg()).isTrue();
         assertThat(grunnlag.getMorHarRett()).isTrue();
-        assertThat(grunnlag.getFarHarRett()).isTrue();
+        assertThat(grunnlag.getFarHarRett()).isFalse();
         assertThat(grunnlag.getMorUføretrygd()).isFalse();
         assertThat(grunnlag.getMorOppgittUføretrygd()).isFalse();
     }
@@ -139,6 +140,7 @@ public class RettOgOmsorgGrunnlagByggerTest {
         var scenario = medAleneomsorg();
         var perioderAleneOmsorg = new PerioderAleneOmsorgEntitet(false);
         scenario.medPeriodeMedAleneomsorg(perioderAleneOmsorg);
+        scenario.medOverstyrtRettighet(new OppgittRettighetEntitet(true, false, null, null));
         var behandling = scenario.lagre(repositoryProvider);
 
         var grunnlag = byggGrunnlag(behandling);
@@ -152,7 +154,9 @@ public class RettOgOmsorgGrunnlagByggerTest {
 
     @Test
     public void skalLeggeTilOppgittOgRegisterUføre() {
-        var behandling = bareFarMedRett(true, false).lagre(repositoryProvider);
+        var behandling = bareFarMedRett(true, false)
+            .medOverstyrtRettighet(new OppgittRettighetEntitet(false, false, null, null))
+            .lagre(repositoryProvider);
 
         var grunnlag = byggGrunnlagMedRegisterUføre(behandling, true);
 
@@ -164,7 +168,37 @@ public class RettOgOmsorgGrunnlagByggerTest {
 
     @Test
     public void skalLeggeTilOppgittOgIkkeRegisterUføre() {
-        var behandling = bareFarMedRett(true, false).lagre(repositoryProvider);
+        var behandling = bareFarMedRett(true, false)
+            .medOverstyrtRettighet(new OppgittRettighetEntitet(false, false, null, null))
+            .lagre(repositoryProvider);
+
+        var grunnlag = byggGrunnlagMedRegisterUføre(behandling, false);
+
+        assertThat(grunnlag.getMorHarRett()).isFalse();
+        assertThat(grunnlag.getFarHarRett()).isTrue();
+        assertThat(grunnlag.getMorUføretrygd()).isFalse();
+        assertThat(grunnlag.getMorOppgittUføretrygd()).isTrue();
+    }
+
+    @Test
+    public void skalLeggeTilOppgittIkkeRegisterMenOverstyrtUføre() {
+        var behandling = bareFarMedRett(true, false)
+            .medOverstyrtRettighet(new OppgittRettighetEntitet(false, false, true, null))
+            .lagre(repositoryProvider);
+
+        var grunnlag = byggGrunnlagMedRegisterUføre(behandling, false);
+
+        assertThat(grunnlag.getMorHarRett()).isFalse();
+        assertThat(grunnlag.getFarHarRett()).isTrue();
+        assertThat(grunnlag.getMorUføretrygd()).isTrue();
+        assertThat(grunnlag.getMorOppgittUføretrygd()).isTrue();
+    }
+
+    @Test
+    public void skalLeggeTilOppgittIkkeRegisterMenOverstyrtIkkeUføre() {
+        var behandling = bareFarMedRett(true, false)
+            .medOverstyrtRettighet(new OppgittRettighetEntitet(false, false, false, null))
+            .lagre(repositoryProvider);
 
         var grunnlag = byggGrunnlagMedRegisterUføre(behandling, false);
 
@@ -180,6 +214,7 @@ public class RettOgOmsorgGrunnlagByggerTest {
         var scenario = bareFarMedRett(false, true);
         var periodeAnnenForelderRettEØS = new PerioderAnnenForelderRettEØSEntitet(true);
         scenario.medPeriodeAnnenForelderRettEØS(periodeAnnenForelderRettEØS);
+        scenario.medOverstyrtRettighet(new OppgittRettighetEntitet(null, null, null, true));
         var behandling = scenario.lagre(repositoryProvider);
         var grunnlag = byggGrunnlag(behandling);
 
@@ -192,6 +227,7 @@ public class RettOgOmsorgGrunnlagByggerTest {
         var scenario = bareFarMedRett(false, true);
         var periodeAnnenForelderRettEØS = new PerioderAnnenForelderRettEØSEntitet(false);
         scenario.medPeriodeAnnenForelderRettEØS(periodeAnnenForelderRettEØS);
+        scenario.medOverstyrtRettighet(new OppgittRettighetEntitet(null, null, null, false));
         var behandling = scenario.lagre(repositoryProvider);
 
         var grunnlag = byggGrunnlag(behandling);
@@ -204,7 +240,7 @@ public class RettOgOmsorgGrunnlagByggerTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medFordeling(new OppgittFordelingEntitet(Collections.emptyList(), true));
 
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
+        scenario.medOppgittRettighet(new OppgittRettighetEntitet(false, true, false, false));
         return scenario;
     }
 
@@ -263,7 +299,6 @@ public class RettOgOmsorgGrunnlagByggerTest {
     private RettOgOmsorg byggGrunnlagMedRegisterUføre(Behandling behandling, boolean uføreVerdi) {
         var bygger = grunnlagBygger();
         var fpGrunnlag = new ForeldrepengerGrunnlag()
-
             .medUføretrygdGrunnlag(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
                 .medRegisterUføretrygd(uføreVerdi, LocalDate.now(), LocalDate.now())
                 .medBehandlingId(behandling.getId())

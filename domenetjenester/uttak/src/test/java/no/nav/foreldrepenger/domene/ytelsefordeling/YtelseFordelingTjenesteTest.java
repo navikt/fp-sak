@@ -55,7 +55,7 @@ public class YtelseFordelingTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
 
-        tjeneste.bekreftAnnenforelderHarRett(behandling.getId(), false, null);
+        tjeneste.bekreftAnnenforelderHarRett(behandling.getId(), false, null, null);
 
         var perioderAnnenforelderHarRett = tjeneste.hentAggregat(
             behandling.getId()).getAnnenForelderRettAvklaring();
@@ -69,7 +69,7 @@ public class YtelseFordelingTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
 
-        tjeneste.bekreftAnnenforelderHarRett(behandling.getId(), true, null);
+        tjeneste.bekreftAnnenforelderHarRett(behandling.getId(), true, null, null);
 
         var perioderAnnenforelderHarRett = tjeneste.hentAggregat(
             behandling.getId()).getAnnenForelderRettAvklaring();

@@ -58,6 +58,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private BehandlingType behandlingType = BehandlingType.FØRSTEGANGSSØKNAD;
     private OppgittRettighetEntitet oppgittRettighet;
+    private OppgittRettighetEntitet overstyrtRettighet;
     private OppgittDekningsgradEntitet oppgittDekningsgrad;
     private OppgittFordelingEntitet oppgittFordeling;
     private OppgittFordelingEntitet justertFordeling;
@@ -159,7 +160,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     private void lagreYtelseFordeling(UttakRepositoryProvider repositoryProvider, Behandling behandling) {
-        if (oppgittRettighet == null && oppgittDekningsgrad == null && oppgittFordeling == null
+        if (oppgittRettighet == null && oppgittDekningsgrad == null && oppgittFordeling == null && overstyrtRettighet == null
             && avklarteUttakDatoer == null && perioderUtenOmsorg == null && perioderMedAleneomsorg == null
             && opprinneligeAktivitetskravPerioder == null && justertFordeling == null
             && saksbehandledeAktivitetskravPerioder == null) {
@@ -168,6 +169,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         var yf = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
             .medOppgittRettighet(oppgittRettighet)
+            .medOverstyrtRettighet(overstyrtRettighet)
             .medOppgittDekningsgrad(oppgittDekningsgrad)
             .medOppgittFordeling(oppgittFordeling)
             .medJustertFordeling(justertFordeling)
@@ -249,6 +251,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S medOppgittRettighet(OppgittRettighetEntitet oppgittRettighet) {
         this.oppgittRettighet = oppgittRettighet;
+        return (S) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public S medOverstyrtRettighet(OppgittRettighetEntitet overstyrtRettighet) {
+        this.overstyrtRettighet = overstyrtRettighet;
         return (S) this;
     }
 

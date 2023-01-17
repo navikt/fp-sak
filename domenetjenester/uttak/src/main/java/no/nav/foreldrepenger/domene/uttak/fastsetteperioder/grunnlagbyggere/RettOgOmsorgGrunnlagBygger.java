@@ -45,7 +45,7 @@ public class RettOgOmsorgGrunnlagBygger {
                 .aleneomsorg(aleneomsorg(ytelseFordelingAggregat))
                 .farHarRett(farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
                 .morHarRett(morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
-                .morUføretrygd(morUføretrygd(uttakInput))
+                .morUføretrygd(morUføretrygd(uttakInput, ytelseFordelingAggregat))
                 .morOppgittUføretrygd(morOppgittUføretrygd(uttakInput))
                 .samtykke(samtykke);
     }
@@ -85,11 +85,9 @@ public class RettOgOmsorgGrunnlagBygger {
         throw new IllegalStateException("Uventet foreldrerolletype " + relasjonsRolleType);
     }
 
-    private boolean morUføretrygd(UttakInput uttakInput) {
+    private boolean morUføretrygd(UttakInput uttakInput, YtelseFordelingAggregat ytelseFordelingAggregat) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        return fpGrunnlag.getUføretrygdGrunnlag()
-            .filter(UttakOmsorgUtil::morMottarUføretrygd)
-            .isPresent();
+        return UttakOmsorgUtil.morMottarUføretrygd(ytelseFordelingAggregat, fpGrunnlag.getUføretrygdGrunnlag().orElse(null));
     }
 
     private boolean morOppgittUføretrygd(UttakInput uttakInput) {

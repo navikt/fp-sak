@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -80,7 +80,7 @@ public class UføreInnhenter {
             .filter(p -> UttakPeriodeType.FORELDREPENGER.equals(p.getPeriodeType()))
             .anyMatch(p -> MorsAktivitet.UFØRE.equals(p.getMorsAktivitet()));
         var oppgittRettighetMorUfør = yfAggregat.map(YtelseFordelingAggregat::getOppgittRettighet)
-            .filter(OppgittRettighetEntitet::getMorMottarUføretrygd)
+            .filter(r -> Objects.equals(r.getMorMottarUføretrygd(), Boolean.TRUE))
             .isPresent();
         // Midlertidig: Sjekker også om det finnes innvilgete perioder for å opprette grunnlag for eksisterende
         var harInnvilgetUttakMedUføre = uttakResultatMedInnvilgetUføre(behandling);

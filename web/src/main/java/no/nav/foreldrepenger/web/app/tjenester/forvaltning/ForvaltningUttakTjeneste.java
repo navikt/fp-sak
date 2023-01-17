@@ -67,7 +67,7 @@ public class ForvaltningUttakTjeneste {
             throw new ForvaltningException("Kan ikke endre ettersom annen forelder har rett ikke er avklart");
         }
         if (UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, Optional.empty()) != harRett) {
-            ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandlingId, harRett, null);
+            ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandlingId, harRett, null, ytelseFordelingAggregat.getMorUføretrygdAvklaring());
 
             var begrunnelse = harRett ? "FORVALTNING - Endret til annen forelder har rett" : "FORVALTNING - Endret til annen forelder har ikke rett";
             lagHistorikkinnslagRett(behandlingId, begrunnelse);

@@ -177,6 +177,7 @@ public class VedtakXmlTest {
 
         scenario.medFordeling(opprettOppgittFordeling());
         scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
+        scenario.medOverstyrtRettighet(new OppgittRettighetEntitet(true, false, false, false));
         var perioderAleneOmsorg = new PerioderAleneOmsorgEntitet(true);
         scenario.medPeriodeMedAleneomsorg(perioderAleneOmsorg);
 

@@ -50,6 +50,11 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     private OppgittRettighetEntitet oppgittRettighet;
 
     @ManyToOne
+    @JoinColumn(name = "overstyrt_rettighet_id", updatable = false, unique = true)
+    @ChangeTracked
+    private OppgittRettighetEntitet overstyrtRettighet;
+
+    @ManyToOne
     @JoinColumn(name = "so_dekningsgrad_id", updatable = false, unique = true)
     @ChangeTracked
     private OppgittDekningsgradEntitet oppgittDekningsgrad;
@@ -143,6 +148,14 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
 
     void setOppgittRettighet(OppgittRettighetEntitet oppgittRettighet) {
         this.oppgittRettighet = oppgittRettighet;
+    }
+
+    public OppgittRettighetEntitet getOverstyrtRettighet() {
+        return overstyrtRettighet;
+    }
+
+    void setOverstyrtRettighet(OppgittRettighetEntitet overstyrtRettighet) {
+        this.overstyrtRettighet = overstyrtRettighet;
     }
 
     void setBehandling(Long behandlingId) {
