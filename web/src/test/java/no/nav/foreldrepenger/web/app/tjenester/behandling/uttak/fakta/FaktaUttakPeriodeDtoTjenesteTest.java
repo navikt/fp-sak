@@ -119,6 +119,7 @@ class FaktaUttakPeriodeDtoTjenesteTest {
             .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_IKKE_DOKUMENTERT)
             .medÅrsak(UtsettelseÅrsak.SYKDOM)
             .medFlerbarnsdager(true)
+            .medBegrunnelse("begrunnelse")
             .build();
 
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -157,6 +158,7 @@ class FaktaUttakPeriodeDtoTjenesteTest {
         assertThat(resultat.get(1).oppholdÅrsak()).isNull();
         assertThat(resultat.get(1).overføringÅrsak()).isNull();
         assertThat(resultat.get(1).flerbarnsdager()).isEqualTo(op.isFlerbarnsdager());
+        assertThat(resultat.get(1).begrunnelse()).isEqualTo(op.getBegrunnelse().orElseThrow());
     }
 
     private FaktaUttakPeriodeDtoTjeneste dtoTjeneste() {
