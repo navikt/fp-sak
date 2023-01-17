@@ -1,8 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import javax.validation.constraints.Pattern;
 
-public record ArbeidsforholdDto(String arbeidsgiverReferanse, UttakArbeidType arbeidType) {
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
+
+public record ArbeidsforholdDto(@Pattern(regexp = "^\\d{9}$|^\\d{13}$") String arbeidsgiverReferanse,
+                                @ValidKodeverk UttakArbeidType arbeidType) {
 
     public static ArbeidsforholdDto ordinært(String arbeidsgiverReferanse) {
         return new ArbeidsforholdDto(arbeidsgiverReferanse, UttakArbeidType.ORDINÆRT_ARBEID);
