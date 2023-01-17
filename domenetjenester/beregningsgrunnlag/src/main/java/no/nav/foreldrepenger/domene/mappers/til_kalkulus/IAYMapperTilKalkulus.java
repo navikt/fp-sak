@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
 
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import no.nav.folketrygdloven.kalkulator.modell.iay.AktivitetsAvtaleDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.ArbeidsforholdInformasjonDto;
@@ -219,12 +219,17 @@ public class IAYMapperTilKalkulus {
     }
 
     private static boolean erRelevantForBeregning(Permisjon perm, Optional<BekreftetPermisjon> bekreftetPermisjon) {
-        if (perm.getPermisjonsbeskrivelseType() == null || !perm.getPermisjonsbeskrivelseType().erRelevantForBeregningEllerArbeidsforhold()) {
+        if (perm.getPermisjonsbeskrivelseType() == null || !perm.getPermisjonsbeskrivelseType().erRelevantForBeregningEllerArbeidsforhold()
+            || !erFullPermisjon(perm)) {
             return false;
         }
         return bekreftetPermisjon
             .map(b -> Objects.equals(b.getPeriode(), perm.getPeriode()) && BekreftetPermisjonStatus.BRUK_PERMISJON.equals(b.getStatus()))
             .orElse(true);
+    }
+
+    private static boolean erFullPermisjon(Permisjon perm) {
+        return perm.getProsentsats().getVerdi().compareTo(BigDecimal.valueOf(100)) >= 0;
     }
 
     private static Optional<BekreftetPermisjon> finnBekreftetPermisjon(Yrkesaktivitet yrkesaktivitet, List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
