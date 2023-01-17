@@ -87,15 +87,14 @@ public class SvangerskapspengerTjeneste {
         var arbeidsforholdInformasjon = iayGrunnlag.getArbeidsforholdInformasjon()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Fant ikke forventent arbeidsforholdinformasjon for behandling: " + behandlingId));
 
-        var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), finnSaksbehandletEllerRegister(behandling.getAktørId(), iayGrunnlag));
-        var saksbehandletVersjon = iayGrunnlag.getSaksbehandletVersjon();
-        var yrkesfilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), saksbehandletVersjon.flatMap(iay -> iay.getAktørArbeid().stream().filter(aa -> aa.getAktørId().equals(behandling.getAktørId())).findFirst()));
+        var registerFilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(behandling.getAktørId()));
+        var gjeldendeFilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), finnSaksbehandletEllerRegister(behandling.getAktørId(), iayGrunnlag));
 
         gjeldendeTilrettelegginger.forEach(tilr -> {
             SvpArbeidsforholdDto tilretteleggingDto = mapTilretteleggingsinfo(tilr);
-            tilretteleggingDto.setVelferdspermisjoner(finnRelevanteVelferdspermisjoner(tilr, filter, yrkesfilter));
+            tilretteleggingDto.setVelferdspermisjoner(finnRelevanteVelferdspermisjoner(tilr, registerFilter, gjeldendeFilter));
             finnEksternRef(tilr, arbeidsforholdInformasjon).ifPresent(tilretteleggingDto::setEksternArbeidsforholdReferanse);
-            tilretteleggingDto.setKanTilrettelegges(erTilgjengeligForBeregning(tilr, filter));
+            tilretteleggingDto.setKanTilrettelegges(erTilgjengeligForBeregning(tilr, registerFilter));
             dto.leggTilArbeidsforhold(tilretteleggingDto);
         });
         dto.setSaksbehandlet(harSaksbehandletTilrettelegging(behandling));
