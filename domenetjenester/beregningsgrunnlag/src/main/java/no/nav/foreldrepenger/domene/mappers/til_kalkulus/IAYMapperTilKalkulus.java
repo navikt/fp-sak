@@ -229,7 +229,7 @@ public class IAYMapperTilKalkulus {
     }
 
     private static boolean erFullPermisjon(Permisjon perm) {
-        return perm.getProsentsats().getVerdi().compareTo(BigDecimal.valueOf(100)) >= 0;
+        return perm.getProsentsats() != null && perm.getProsentsats().getVerdi().compareTo(BigDecimal.valueOf(100)) >= 0;
     }
 
     private static Optional<BekreftetPermisjon> finnBekreftetPermisjon(Yrkesaktivitet yrkesaktivitet, List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
