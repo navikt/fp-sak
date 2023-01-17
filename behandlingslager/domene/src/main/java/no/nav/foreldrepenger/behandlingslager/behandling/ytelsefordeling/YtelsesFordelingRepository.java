@@ -269,4 +269,12 @@ public class YtelsesFordelingRepository {
         query.setParameter("grunnlagId", grunnlagId);
         return HibernateVerktøy.hentUniktResultat(query);
     }
+
+    public void oppdaterMedOverstyrtRettighet(Long behandlingId, OppgittRettighetEntitet overstyrt) {
+        var grunnlag = hentAktivtGrunnlag(behandlingId).orElseThrow();
+        grunnlag.setOverstyrtRettighet(overstyrt);
+        entityManager.persist(grunnlag.getOverstyrtRettighet());
+        entityManager.persist(grunnlag);
+        entityManager.flush();
+    }
 }

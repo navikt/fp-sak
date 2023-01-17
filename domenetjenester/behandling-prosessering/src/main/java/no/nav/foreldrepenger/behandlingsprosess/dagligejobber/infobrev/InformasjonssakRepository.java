@@ -293,4 +293,19 @@ public class InformasjonssakRepository {
         List<Object[]> resultatList = query.getResultList();
         return toOverlappData(resultatList);
     }
+
+    public List<Long> finnYtelsesfordelingForMigrering() {
+        var query = entityManager.createNativeQuery("""
+             select distinct b.id, b.fagsak_id from behandling b where id in
+             (select behandling_id from gr_ytelses_fordeling where (annen_forelder_rett_eos_id is not null or annen_forelder_har_rett_id is not null or aleneomsorg_id is not null) and aktiv='J'
+             UNION
+             select behandling_id from gr_uforetrygd where overstyrt_ufore is not null and aktiv='J'
+             MINUS
+             select behandling_id from gr_ytelses_fordeling where overstyrt_rettighet_id is not null and aktiv = 'J')
+             and rownum <= 25
+             """);
+        @SuppressWarnings("unchecked")
+        List<Object[]> resultatList = query.getResultList();
+        return resultatList.stream().map(o -> ((BigDecimal) o[0]).longValue()).toList();
+    }
 }
