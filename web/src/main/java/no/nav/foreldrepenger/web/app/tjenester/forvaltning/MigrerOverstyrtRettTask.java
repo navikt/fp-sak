@@ -64,7 +64,7 @@ public class MigrerOverstyrtRettTask implements ProsessTaskHandler {
             .medCallId(callId)
             .medPrioritet(100)
             .build();
-        // taskTjeneste.lagre(task);
+        taskTjeneste.lagre(task);
     }
 
     private void migrer(Long behandlingId) {
