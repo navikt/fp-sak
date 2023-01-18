@@ -52,7 +52,6 @@
         dependency (bruk composition over arv) da de overstyrer andre scope definisjoner. Sett det heller der det brukes. -->
     <dependencyManagement>
         <dependencies>
-
             <!-- Felles biblioteker - Importerte avhengigheter -->
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
@@ -61,6 +60,7 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles</artifactId>
