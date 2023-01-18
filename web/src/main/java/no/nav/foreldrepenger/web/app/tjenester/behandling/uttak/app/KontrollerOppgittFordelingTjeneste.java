@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.IKKE_RETT_ANNEN_FORELDER;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.SYKDOM_ANNEN_FORELDER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.FRI;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.HV_OVELSE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.INSTITUSJON_BARN;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.INSTITUSJON_SØKER;
@@ -69,9 +70,7 @@ public class KontrollerOppgittFordelingTjeneste {
         for (var bekreftetOppgittPeriodeDto : bekreftedePerioder) {
             var bekreftetPeriode = bekreftetOppgittPeriodeDto.getBekreftetPeriode();
             final var oppgittPeriodeBuilder = oversettPeriode(bekreftetPeriode);
-            if (bekreftetPeriode.getÅrsak().isPresent()) {
-                dokumentasjonsperioder.addAll(oversettDokumentasjonsperioder(bekreftetPeriode.getÅrsak().get(), bekreftetPeriode.getDokumentertePerioder()));
-            }
+            bekreftetPeriode.getÅrsak().filter(å -> å != FRI).map(å -> dokumentasjonsperioder.addAll(oversettDokumentasjonsperioder(å, bekreftetPeriode.getDokumentertePerioder())));
             leggTilMottattDatoPåNyPeriode(behandling, oppgittPeriodeBuilder, bekreftetPeriode);
             overstyrtPerioder.add(oppgittPeriodeBuilder.build());
         }
