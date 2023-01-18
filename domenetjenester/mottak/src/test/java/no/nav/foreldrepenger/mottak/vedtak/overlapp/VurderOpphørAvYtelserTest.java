@@ -47,14 +47,13 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 @ExtendWith(MockitoExtension.class)
 public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
-    private static final LocalDate FØDSELS_DATO_1 = VirkedagUtil.fomVirkedag(LocalDate.now().minusMonths(2));
-    private static final LocalDate SISTE_DAG_MOR = FØDSELS_DATO_1.plusWeeks(6);
+    private static final LocalDate START_PERIODEDAG_LØPENDE_BEHANDLING = VirkedagUtil.fomVirkedag(LocalDate.now().minusWeeks(50));
+    private static final LocalDate SISTE_PERIODEDAG_LØPENDE_BEHANDLING = START_PERIODEDAG_LØPENDE_BEHANDLING.plusWeeks(6);
 
-    private static final LocalDate SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1 = VirkedagUtil.fomVirkedag(LocalDate.now().minusMonths(1));
-    private static final LocalDate SISTE_DAG_PER_OVERLAPP = SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1.plusWeeks(6);
+    private static final LocalDate START_PERIODEDAG_OVERLAPP = VirkedagUtil.fomVirkedag(START_PERIODEDAG_LØPENDE_BEHANDLING.minusWeeks(1));
+    private static final LocalDate SISTE_PERIODEDAG_OVERLAPP = START_PERIODEDAG_OVERLAPP.plusWeeks(6);
 
-    private static final LocalDate SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1 = VirkedagUtil.fomVirkedag(
-        LocalDate.now().plusMonths(1));
+    private static final LocalDate START_PERIODEDAG_IKKE_OVERLAPP = VirkedagUtil.fomVirkedag(LocalDate.now());
 
     private static final AktørId AKTØR_ID_MOR = AktørId.dummy();
     private static final AktørId MEDF_AKTØR_ID = AktørId.dummy();
@@ -68,9 +67,9 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     @Mock
     private FamilieHendelseRepository familieHendelseRepository;
     @Mock
-    private FamilieHendelseGrunnlagEntitet familieHendelseGrunnlagEntitet, familieHendelseGrunnlagEntitetAndreBarn;
+    private FamilieHendelseGrunnlagEntitet familieHendelseGrunnlagEntitet, familieHendelseGrunnlagEntitetAndreBarn, familieHendelseGrunnlagEntitetAndreFar;
     @Mock
-    private FamilieHendelseEntitet familieHendelseEntitet, familieHendelseEntitetAndreBarn;
+    private FamilieHendelseEntitet familieHendelseEntitet, familieHendelseEntitetAndreBarn, familieHendelseEntitetFar;
 
 
     @BeforeEach
@@ -83,65 +82,69 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     @Test
     public void opphørLøpendeSakNårNySakOverlapperPåMor() {
-        var avsluttetBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
-        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(SISTE_DAG_MOR));
+        var avsluttetBehMor = lagBehandlingMor(START_PERIODEDAG_LØPENDE_BEHANDLING, AKTØR_ID_MOR, null);
+        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(
+            SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
 
-        var nyAvsBehandlingMor = lagBehandlingMor(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, AKTØR_ID_MOR, null);
-        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1));
+        var nyAvsBehandlingMor = lagBehandlingMor(START_PERIODEDAG_OVERLAPP, AKTØR_ID_MOR, null);
+        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(START_PERIODEDAG_OVERLAPP));
 
         when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
-        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1.plusWeeks(60));
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(START_PERIODEDAG_LØPENDE_BEHANDLING.plusWeeks(60));
 
         when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
-        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(START_PERIODEDAG_LØPENDE_BEHANDLING);
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyAvsBehandlingMor);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetBehMor.getFagsak(), 1);
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetBehMor.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
     }
 
     @Test
     public void opphørSakPåMorOgMedforelderNårNySakOverlapper() {
-        var avsluttetBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, MEDF_AKTØR_ID);
-        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(SISTE_DAG_MOR));
+        var avsluttetBehMor = lagBehandlingMor(START_PERIODEDAG_LØPENDE_BEHANDLING, AKTØR_ID_MOR, MEDF_AKTØR_ID);
+        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(
+            SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
 
-        var nyAvsBehandlingMor = lagBehandlingMor(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, AKTØR_ID_MOR, MEDF_AKTØR_ID);
-        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1));
+        var nyAvsBehandlingMor = lagBehandlingMor(START_PERIODEDAG_OVERLAPP, AKTØR_ID_MOR, MEDF_AKTØR_ID);
+        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(START_PERIODEDAG_OVERLAPP));
 
         when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
-        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1.plusWeeks(60));
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(START_PERIODEDAG_LØPENDE_BEHANDLING.plusWeeks(60));
 
         when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
-        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(START_PERIODEDAG_LØPENDE_BEHANDLING);
 
-        var avslBehFarMedOverlappMor = lagBehandlingFar(FØDSELS_DATO_1, MEDF_AKTØR_ID, AKTØR_ID_MOR);
-        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avslBehFarMedOverlappMor.getFagsak())).thenReturn(Optional.of(SISTE_DAG_PER_OVERLAPP));
+        var avslBehFarMedOverlappMor = lagBehandlingFar(START_PERIODEDAG_LØPENDE_BEHANDLING, MEDF_AKTØR_ID, AKTØR_ID_MOR);
+        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avslBehFarMedOverlappMor.getFagsak())).thenReturn(Optional.of(
+            SISTE_PERIODEDAG_OVERLAPP));
 
         when(familieHendelseRepository.hentAggregat(avslBehFarMedOverlappMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         when(familieHendelseRepository.hentAggregat(avslBehFarMedOverlappMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
-        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(START_PERIODEDAG_LØPENDE_BEHANDLING);
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyAvsBehandlingMor);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetBehMor.getFagsak(), 2);
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(2);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetBehMor.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
     }
 
     @Test
     public void adopsjonFarFørstSkalIkkeOpphøresAvMor() {
-        var avsluttetBehFar = lagBehandlingFPAdopsjonFar(AKTØR_ID_MOR, FØDSELS_DATO_1);
+        var avsluttetBehFar = lagBehandlingFPAdopsjonFar(AKTØR_ID_MOR, START_PERIODEDAG_LØPENDE_BEHANDLING);
         // Lenient for pattern. Vil ikke sjekke koblet sak.
-        lenient().when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehFar.getFagsak())).thenReturn(Optional.of(SISTE_DAG_MOR));
+        lenient().when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehFar.getFagsak())).thenReturn(Optional.of(
+            SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
 
-        var avsluttetBehMor = lagBehandlingFPAdopsjonMor(MEDF_AKTØR_ID, FØDSELS_DATO_1);
-        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(avsluttetBehMor)).thenReturn(Optional.of(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1));
+        var avsluttetBehMor = lagBehandlingFPAdopsjonMor(MEDF_AKTØR_ID, START_PERIODEDAG_LØPENDE_BEHANDLING);
+        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(avsluttetBehMor)).thenReturn(Optional.of(START_PERIODEDAG_OVERLAPP));
 
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(avsluttetBehFar.getFagsak(), avsluttetBehMor.getFagsak(), avsluttetBehFar);
 
@@ -154,11 +157,12 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     public void vurderOverlappVedAdospjonForskjelligeBarn() {
         var omsorgsovertakelsedato = LocalDate.of(2019, 1, 1);
         var adopsjonFarLop = lagBehandlingFPAdopsjonFar(null, omsorgsovertakelsedato);
-        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(adopsjonFarLop.getFagsak())).thenReturn(Optional.of(SISTE_DAG_MOR));
+        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(adopsjonFarLop.getFagsak())).thenReturn(Optional.of(
+            SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
 
         var omsorgsovertakelsedato2 = LocalDate.of(2020, 1, 1);
         var morAdopsjonIVB = lagBehandlingFPAdopsjonMor(adopsjonFarLop.getAktørId(), omsorgsovertakelsedato2);
-        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(morAdopsjonIVB)).thenReturn(Optional.of(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1));
+        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(morAdopsjonIVB)).thenReturn(Optional.of(START_PERIODEDAG_OVERLAPP));
 
         when(familieHendelseRepository.hentAggregat(adopsjonFarLop.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         when(familieHendelseRepository.hentAggregat(adopsjonFarLop.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
@@ -170,7 +174,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(morAdopsjonIVB);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(adopsjonFarLop.getFagsak(), 1);
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(adopsjonFarLop.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
 
@@ -178,11 +182,12 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     @Test
     public void ikkeOpphørSakNårNySakIkkeOverlapper() {
-        var avsluttetBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
-        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(SISTE_DAG_MOR));
+        var avsluttetBehMor = lagBehandlingMor(START_PERIODEDAG_LØPENDE_BEHANDLING, AKTØR_ID_MOR, null);
+        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(
+            SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
 
-        var nyAvsBehandlingMor = lagBehandlingMor(SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1, AKTØR_ID_MOR, null);
-        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1));
+        var nyAvsBehandlingMor = lagBehandlingMor(START_PERIODEDAG_IKKE_OVERLAPP, AKTØR_ID_MOR, null);
+        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(START_PERIODEDAG_IKKE_OVERLAPP));
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyAvsBehandlingMor);
         verifiserAtProsesstaskForHåndteringAvOpphørIkkeErOpprettet();
@@ -190,50 +195,55 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     @Test
     public void opphørSakPåMedforelderMenIkkeMor() {
-        var avsluttetBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, MEDF_AKTØR_ID);
-        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(SISTE_DAG_MOR.plusWeeks(2)));
+        var startPeriodedagAvslutttetFar = START_PERIODEDAG_LØPENDE_BEHANDLING.plusMonths(3);
+        var sistePeriodedagAvsluttetFar = SISTE_PERIODEDAG_LØPENDE_BEHANDLING.plusMonths(2);
+        var startPeriodedagNyMorOverlappFar = sistePeriodedagAvsluttetFar.minusDays(3);
 
-        var nyBehMorSomIkkeOverlapper = lagBehandlingMor(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, AKTØR_ID_MOR, MEDF_AKTØR_ID);
-        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyBehMorSomIkkeOverlapper)).thenReturn(Optional.of(SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1));
+        var avsluttetBehMor = lagBehandlingMor(START_PERIODEDAG_LØPENDE_BEHANDLING, AKTØR_ID_MOR, MEDF_AKTØR_ID);
+        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(SISTE_PERIODEDAG_LØPENDE_BEHANDLING.plusWeeks(2)));
 
-        var avslBehFarMedOverlappMor = lagBehandlingFar(FØDSELS_DATO_1, MEDF_AKTØR_ID, AKTØR_ID_MOR);
-        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avslBehFarMedOverlappMor.getFagsak())).thenReturn(Optional.of(SISTE_DAG_PER_OVERLAPP.plusMonths(2)));
+        var avsluttetBehFar = lagBehandlingFar(startPeriodedagAvslutttetFar, MEDF_AKTØR_ID, AKTØR_ID_MOR);
+        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehFar.getFagsak())).thenReturn(Optional.of(sistePeriodedagAvsluttetFar));
 
-        when(familieHendelseRepository.hentAggregat(nyBehMorSomIkkeOverlapper.getId())).thenReturn(familieHendelseGrunnlagEntitet);
-        when(familieHendelseRepository.hentAggregat(nyBehMorSomIkkeOverlapper.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
-        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1.plusWeeks(60));
+        var nyBehMorSomOverlapperFar = lagBehandlingMor(startPeriodedagNyMorOverlappFar, AKTØR_ID_MOR, MEDF_AKTØR_ID);
+        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyBehMorSomOverlapperFar)).thenReturn(Optional.of(startPeriodedagNyMorOverlappFar));
 
-        when(familieHendelseRepository.hentAggregat(avslBehFarMedOverlappMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
-        when(familieHendelseRepository.hentAggregat(avslBehFarMedOverlappMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
-        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1);
+        when(familieHendelseRepository.hentAggregat(avsluttetBehFar.getId())).thenReturn(familieHendelseGrunnlagEntitetAndreBarn);
+        when(familieHendelseRepository.hentAggregat(avsluttetBehFar.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitetAndreBarn);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(startPeriodedagAvslutttetFar);
 
-        vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyBehMorSomIkkeOverlapper);
+        lenient().when(familieHendelseRepository.hentAggregat(nyBehMorSomOverlapperFar.getId())).thenReturn(familieHendelseGrunnlagEntitetAndreFar);
+        lenient().when(familieHendelseRepository.hentAggregat(nyBehMorSomOverlapperFar.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitetFar);
+        lenient().when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(startPeriodedagNyMorOverlappFar);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avslBehFarMedOverlappMor.getFagsak(), 1);
-        assertThat(håndterOpphør.getFagsakId()).isEqualTo(avslBehFarMedOverlappMor.getFagsak().getId());
+        vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyBehMorSomOverlapperFar);
+
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
+        assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetBehFar.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
 
     }
 
     @Test
     public void opphørSakPåFarNårNySakPåFarOverlapper() {
-        var avslBehFar = lagBehandlingFar(FØDSELS_DATO_1, MEDF_AKTØR_ID, AKTØR_ID_MOR);
-        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avslBehFar.getFagsak())).thenReturn(Optional.of(SISTE_DAG_MOR));
+        var avslBehFar = lagBehandlingFar(START_PERIODEDAG_LØPENDE_BEHANDLING, MEDF_AKTØR_ID, AKTØR_ID_MOR);
+        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avslBehFar.getFagsak())).thenReturn(Optional.of(
+            SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
 
-        var nyBehFar = lagBehandlingFar(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, MEDF_AKTØR_ID, AKTØR_ID_MOR);
-        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyBehFar)).thenReturn(Optional.of(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1));
+        var nyBehFar = lagBehandlingFar(START_PERIODEDAG_OVERLAPP, MEDF_AKTØR_ID, AKTØR_ID_MOR);
+        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyBehFar)).thenReturn(Optional.of(START_PERIODEDAG_OVERLAPP));
 
         lenient().when(familieHendelseRepository.hentAggregat(avslBehFar.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         lenient().when(familieHendelseRepository.hentAggregat(avslBehFar.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
-        lenient().when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1.plusWeeks(60));
+        lenient().when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(START_PERIODEDAG_LØPENDE_BEHANDLING.plusWeeks(60));
 
         when(familieHendelseRepository.hentAggregat(nyBehFar.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         when(familieHendelseRepository.hentAggregat(nyBehFar.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
-        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(START_PERIODEDAG_LØPENDE_BEHANDLING);
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyBehFar);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avslBehFar.getFagsak(), 1);
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(avslBehFar.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
 
@@ -241,24 +251,25 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     @Test
     public void opphørSakPåMorNårSisteUttakLikStartPåNyttUttak() {
-        var avsluttetBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
-        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(SISTE_DAG_MOR));
+        var avsluttetBehMor = lagBehandlingMor(START_PERIODEDAG_LØPENDE_BEHANDLING, AKTØR_ID_MOR, null);
+        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(
+            SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
 
-        var nyAvsBehandlingMor = lagBehandlingMor(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, AKTØR_ID_MOR, null);
-        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SISTE_DAG_MOR));
+        var nyAvsBehandlingMor = lagBehandlingMor(START_PERIODEDAG_OVERLAPP, AKTØR_ID_MOR, null);
+        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
 
 
         lenient().when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         lenient().when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
-        lenient().when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1);
+        lenient().when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(START_PERIODEDAG_LØPENDE_BEHANDLING);
 
         when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
-        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(START_PERIODEDAG_LØPENDE_BEHANDLING);
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyAvsBehandlingMor);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetBehMor.getFagsak(), 1);
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetBehMor.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
     }
@@ -266,10 +277,11 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     @Test
     public void opphørSakPåMorNårToTette() {
         var avsluttetBehMor = lagBehandlingMor(LocalDate.now(), AKTØR_ID_MOR, null);
-        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(SISTE_DAG_MOR));
+        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(
+            SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
 
         var nyAvsBehandlingMor = lagBehandlingMor(LocalDate.now().plusWeeks(20), AKTØR_ID_MOR, null);
-        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SISTE_DAG_MOR));
+        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
 
         //første barn
         when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
@@ -286,11 +298,12 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     @Test
     public void opphørSelvOmSkjæringstidspunktErNull() {
-        var avsluttetBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
-        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(SISTE_DAG_MOR));
+        var avsluttetBehMor = lagBehandlingMor(START_PERIODEDAG_LØPENDE_BEHANDLING, AKTØR_ID_MOR, null);
+        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(avsluttetBehMor.getFagsak())).thenReturn(Optional.of(
+            SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
 
-        var nyAvsBehandlingMor = lagBehandlingMor(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, AKTØR_ID_MOR, null);
-        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SISTE_DAG_MOR));
+        var nyAvsBehandlingMor = lagBehandlingMor(START_PERIODEDAG_OVERLAPP, AKTØR_ID_MOR, null);
+        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(nyAvsBehandlingMor)).thenReturn(Optional.of(SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
 
 
         lenient().when(familieHendelseRepository.hentAggregat(avsluttetBehMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
@@ -299,26 +312,29 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId())).thenReturn(familieHendelseGrunnlagEntitet);
         when(familieHendelseRepository.hentAggregat(nyAvsBehandlingMor.getId()).getGjeldendeVersjon()).thenReturn(familieHendelseEntitet);
-        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(FØDSELS_DATO_1);
+        when(familieHendelseEntitet.getSkjæringstidspunkt()).thenReturn(START_PERIODEDAG_LØPENDE_BEHANDLING);
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyAvsBehandlingMor);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetBehMor.getFagsak(), 1);
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetBehMor.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
     }
 
     @Test
     public void opprettHåndteringNårOverlappMedFPNårInnvSVPPåSammeBarn() {
-        var avsluttetFPBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
-        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1, SISTE_DAG_MOR)));
+        var avsluttetFPBehMor = lagBehandlingMor(START_PERIODEDAG_LØPENDE_BEHANDLING, AKTØR_ID_MOR, null);
+        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(
+            START_PERIODEDAG_LØPENDE_BEHANDLING,
+            SISTE_PERIODEDAG_LØPENDE_BEHANDLING)));
 
         var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
-        when(stønadsperiodeTjeneste.stønadsperiode(nyBehSVPOverlapper)).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1.minusWeeks(3), FØDSELS_DATO_1.plusDays(4))));
+        when(stønadsperiodeTjeneste.stønadsperiode(nyBehSVPOverlapper)).thenReturn(Optional.of(new LocalDateInterval(
+            START_PERIODEDAG_LØPENDE_BEHANDLING.minusWeeks(3), START_PERIODEDAG_LØPENDE_BEHANDLING.plusDays(4))));
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyBehSVPOverlapper);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(nyBehSVPOverlapper.getFagsak(), 1);
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(nyBehSVPOverlapper.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).contains("Overlapp identifisert:");
     }
@@ -326,44 +342,48 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     @Test
     public void overlappNårSVPInnvilgesForLøpendeFP() {
         var løpendeSVP = lagBehandlingSVP(AKTØR_ID_MOR);
-        when(stønadsperiodeTjeneste.stønadsperiode(løpendeSVP)).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1.minusWeeks(3), FØDSELS_DATO_1.plusDays(4))));
+        when(stønadsperiodeTjeneste.stønadsperiode(løpendeSVP)).thenReturn(Optional.of(new LocalDateInterval(START_PERIODEDAG_LØPENDE_BEHANDLING.minusWeeks(3), START_PERIODEDAG_LØPENDE_BEHANDLING.plusDays(4))));
 
-        var starterFPSomOverlapperSVP = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
-        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(starterFPSomOverlapperSVP.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1, SISTE_DAG_MOR)));
+        var starterFPSomOverlapperSVP = lagBehandlingMor(START_PERIODEDAG_LØPENDE_BEHANDLING, AKTØR_ID_MOR, null);
+        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(starterFPSomOverlapperSVP.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(
+            START_PERIODEDAG_LØPENDE_BEHANDLING,
+            SISTE_PERIODEDAG_LØPENDE_BEHANDLING)));
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(løpendeSVP);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(løpendeSVP.getFagsak(), 1);
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(løpendeSVP.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).contains("Overlapp identifisert:");
     }
 
     @Test
     public void opprettHåndteringNårOverlappMedFPNårInnvilgerSVPPåNyttBarn() {
-        var avsluttetFPBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
+        var løpendeFPMor = lagBehandlingMor(START_PERIODEDAG_LØPENDE_BEHANDLING, AKTØR_ID_MOR, null);
         // PGA sjekk gradering
-        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1, SISTE_DAG_MOR)));
-        when(stønadsperiodeTjeneste.fullUtbetalingSisteUtbetalingsperiode(avsluttetFPBehMor.getFagsak())).thenReturn(true);
+        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(løpendeFPMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(START_PERIODEDAG_LØPENDE_BEHANDLING,SISTE_PERIODEDAG_LØPENDE_BEHANDLING)));
+        lenient().when(stønadsperiodeTjeneste.fullUtbetalingSisteUtbetalingsperiode(løpendeFPMor.getFagsak())).thenReturn(true);
 
-        var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
-        when(stønadsperiodeTjeneste.stønadsperiode(nyBehSVPOverlapper)).thenReturn(Optional.of(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, SISTE_DAG_PER_OVERLAPP)));
+        var nySVPNyttBarnOverlapperFP = lagBehandlingSVP(AKTØR_ID_MOR);
+        when(stønadsperiodeTjeneste.stønadsperiode(nySVPNyttBarnOverlapperFP)).thenReturn(Optional.of(new LocalDateInterval(START_PERIODEDAG_OVERLAPP, SISTE_PERIODEDAG_OVERLAPP)));
 
-        vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyBehSVPOverlapper);
+        vurderOpphørAvYtelser.vurderOpphørAvYtelser(nySVPNyttBarnOverlapperFP);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetFPBehMor.getFagsak(), 1);
-        assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetFPBehMor.getFagsak().getId());
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
+        assertThat(håndterOpphør.getFagsakId()).isEqualTo(nySVPNyttBarnOverlapperFP.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).contains("Overlapp identifisert:");
     }
 
     @Test
     public void loggOverlappFPMedGraderingNårInnvilgerSVP() {
         //Har FP som overlapper med ny SVP sak og det er ikke gradering
-        var avsluttetFPBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
-        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1, FØDSELS_DATO_1.plusWeeks(21))));
+        var avsluttetFPBehMor = lagBehandlingMor(START_PERIODEDAG_LØPENDE_BEHANDLING, AKTØR_ID_MOR, null);
+        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(
+            START_PERIODEDAG_LØPENDE_BEHANDLING, START_PERIODEDAG_LØPENDE_BEHANDLING.plusWeeks(21))));
         when(stønadsperiodeTjeneste.fullUtbetalingSisteUtbetalingsperiode(avsluttetFPBehMor.getFagsak())).thenReturn(false);
 
         var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
-        when(stønadsperiodeTjeneste.stønadsperiode(nyBehSVPOverlapper)).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1.plusWeeks(18), FØDSELS_DATO_1.plusWeeks(25))));
+        when(stønadsperiodeTjeneste.stønadsperiode(nyBehSVPOverlapper)).thenReturn(Optional.of(new LocalDateInterval(
+            START_PERIODEDAG_LØPENDE_BEHANDLING.plusWeeks(18), START_PERIODEDAG_LØPENDE_BEHANDLING.plusWeeks(25))));
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyBehSVPOverlapper);
 
@@ -372,16 +392,19 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     @Test
     public void opphørOverlappFPMedGraderingIPeriodenNårInnvilgerSVP() {
-        var avsluttetFPBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
-        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(FØDSELS_DATO_1.minusWeeks(6), SISTE_DAG_MOR)));
+        var avsluttetFPBehMor = lagBehandlingMor(START_PERIODEDAG_LØPENDE_BEHANDLING, AKTØR_ID_MOR, null);
+        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avsluttetFPBehMor.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(
+            START_PERIODEDAG_LØPENDE_BEHANDLING.minusWeeks(6),
+            SISTE_PERIODEDAG_LØPENDE_BEHANDLING)));
         when(stønadsperiodeTjeneste.fullUtbetalingSisteUtbetalingsperiode(avsluttetFPBehMor.getFagsak())).thenReturn(true);
 
         var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
-        when(stønadsperiodeTjeneste.stønadsperiode(nyBehSVPOverlapper)).thenReturn(Optional.of(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, SISTE_DAG_PER_OVERLAPP)));
+        when(stønadsperiodeTjeneste.stønadsperiode(nyBehSVPOverlapper)).thenReturn(Optional.of(new LocalDateInterval(START_PERIODEDAG_OVERLAPP,
+            SISTE_PERIODEDAG_OVERLAPP)));
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyBehSVPOverlapper);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetFPBehMor.getFagsak(), 1);
+        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetFPBehMor.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).contains("Overlapp identifisert:");
     }
@@ -389,10 +412,12 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     @Test
     public void loggOverlappSVPNårInnvilgerSVP() {
         var avslSVPBeh = lagBehandlingSVP(AKTØR_ID_MOR);
-        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avslSVPBeh.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(SISTE_DAG_MOR.minusMonths(2), SISTE_DAG_MOR)));
+        when(stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(avslSVPBeh.getFagsak())).thenReturn(Optional.of(new LocalDateInterval(
+            SISTE_PERIODEDAG_LØPENDE_BEHANDLING.minusMonths(2), SISTE_PERIODEDAG_LØPENDE_BEHANDLING)));
 
         var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
-        when(stønadsperiodeTjeneste.stønadsperiode(nyBehSVPOverlapper)).thenReturn(Optional.of(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1, SISTE_DAG_PER_OVERLAPP)));
+        when(stønadsperiodeTjeneste.stønadsperiode(nyBehSVPOverlapper)).thenReturn(Optional.of(new LocalDateInterval(START_PERIODEDAG_OVERLAPP,
+            SISTE_PERIODEDAG_OVERLAPP)));
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyBehSVPOverlapper);
 
@@ -510,7 +535,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         scenarioAvslBeh.medDefaultOppgittTilknytning();
         scenarioAvslBeh.medSøknadHendelse().medTerminbekreftelse(scenarioAvslBeh.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medNavnPå("LEGEN MIN")
-                .medTermindato(FØDSELS_DATO_1)
+                .medTermindato(START_PERIODEDAG_LØPENDE_BEHANDLING)
                 .medUtstedtDato(LocalDate.now().minusDays(3)))
             .medAntallBarn(1);
 
@@ -535,7 +560,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         fagsakRepository.oppdaterFagsakStatus(behandling.getFagsakId(), FagsakStatus.LØPENDE);
     }
 
-    private ProsessTaskData verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(Fagsak fagsak, int times) {
+    private ProsessTaskData verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(int times) {
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste, times(times)).lagre(captor.capture());
         return captor.getAllValues()

@@ -135,15 +135,14 @@ public class VurderOpphørAvYtelser {
     }
 
     private boolean toTetteFødsler(Fagsak sakOpphør, Behandling iverksattBehandling) {
+        if (!beggeSakerErForeldrepenger(sakOpphør, iverksattBehandling)) {
+            return false;
+        }
+
         var fhDatoFraBehOpphør = hentFamilieHenseleDatoFraSisteYtelseBehandling(sakOpphør);
         var fhDatoNyBeh = finnGjeldendeFamiliehendelseDato(iverksattBehandling.getId());
 
         if (fhDatoFraBehOpphør == null || fhDatoNyBeh == null) {
-            return false;
-        }
-
-        //samme barn ved overlapp svp og fp er ikke to tette fødsler
-        if (fhDatoFraBehOpphør.isEqual(fhDatoNyBeh)) {
             return false;
         }
 
@@ -155,6 +154,10 @@ public class VurderOpphørAvYtelser {
         }
         var grenseToTette = tidligsteFH.plus(TO_TETTE_GRENSE).plusDays(1);
         return grenseToTette.isAfter(senesteFH);
+    }
+
+    private boolean beggeSakerErForeldrepenger(Fagsak sakOpphør, Behandling iverksattBehandling) {
+        return FagsakYtelseType.FORELDREPENGER.equals(sakOpphør.getYtelseType()) && FagsakYtelseType.FORELDREPENGER.equals(iverksattBehandling.getFagsakYtelseType());
     }
 
     private List<Fagsak> løpendeSakerSomOverlapperUttakPåNyIkkeKobletSak(AktørId aktørId, Fagsak fagsakIVB, LocalDate startdatoIVB) {
