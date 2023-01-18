@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Oppgitt
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.OpprettToTrinnsgrunnlag;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
@@ -27,6 +28,7 @@ public class MigrerOverstyrtRettTask implements ProsessTaskHandler {
     private UføretrygdRepository uføretrygdRepository;
     private BehandlingRepository behandlingRepository;
     private ProsessTaskTjeneste taskTjeneste;
+    private OpprettToTrinnsgrunnlag toTrinnsgrunnlag;
 
     MigrerOverstyrtRettTask() {
         // for CDI proxy
@@ -37,6 +39,7 @@ public class MigrerOverstyrtRettTask implements ProsessTaskHandler {
                                    YtelsesFordelingRepository ytelsesFordelingRepository,
                                    UføretrygdRepository uføretrygdRepository,
                                    BehandlingRepository behandlingRepository,
+                                   OpprettToTrinnsgrunnlag toTrinnsgrunnlag,
                                    ProsessTaskTjeneste taskTjeneste) {
         super();
         this.informasjonssakRepository = informasjonssakRepository;
@@ -44,6 +47,7 @@ public class MigrerOverstyrtRettTask implements ProsessTaskHandler {
         this.uføretrygdRepository = uføretrygdRepository;
         this.behandlingRepository = behandlingRepository;
         this.taskTjeneste = taskTjeneste;
+        this.toTrinnsgrunnlag = toTrinnsgrunnlag;
     }
 
     @Override
@@ -60,7 +64,7 @@ public class MigrerOverstyrtRettTask implements ProsessTaskHandler {
             .medCallId(callId)
             .medPrioritet(100)
             .build();
-        taskTjeneste.lagre(task);
+        // taskTjeneste.lagre(task);
     }
 
     private void migrer(Long behandlingId) {
@@ -77,7 +81,9 @@ public class MigrerOverstyrtRettTask implements ProsessTaskHandler {
         var aleneomsorg = fordelingAggregat.getAleneomsorgAvklaring();
         var uføreAvklaring = uføre.map(UføretrygdGrunnlagEntitet::getUføretrygdOverstyrt).orElse(null);
         var overstyrt = new OppgittRettighetEntitet(annenforelderRett, aleneomsorg, uføreAvklaring, annenforelderRettEØS);
-        ytelsesFordelingRepository.oppdaterMedOverstyrtRettighet(behandlingId, overstyrt);
+        var builder = ytelsesFordelingRepository.opprettBuilder(behandlingId).medOverstyrtRettighet(overstyrt);
+        ytelsesFordelingRepository.lagre(behandlingId, builder.build());
+        toTrinnsgrunnlag.settNyttTotrinnsgrunnlag(behandling);
     }
 
 
