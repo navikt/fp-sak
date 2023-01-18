@@ -101,7 +101,7 @@ public class ForvaltningUttakRestTjeneste {
     public Response migrerOverstyrtRett() {
         if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
         var callId = MDCOperations.getCallId();
-        var prosessTaskData = ProsessTaskDataBuilder.forProsessTask(MigrerTilOmsorgRettTask.class)
+        var prosessTaskData = ProsessTaskDataBuilder.forProsessTask(MigrerOverstyrtRettTask.class)
                 .medCallId(callId)
                 .medPrioritet(100)
                 .build();
