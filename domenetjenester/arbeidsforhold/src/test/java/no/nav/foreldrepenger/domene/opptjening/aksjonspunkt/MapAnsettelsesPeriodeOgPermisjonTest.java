@@ -268,7 +268,8 @@ public class MapAnsettelsesPeriodeOgPermisjonTest {
                 .medArbeidsforholdId(REF)
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
-                        .medPeriode(B, D)
+                        .medPeriode(LocalDate.of(2019, Month.MARCH, 1),
+                            LocalDate.of(2019, Month.MARCH, 31))
                         .medProsentsats(BigDecimal.valueOf(100))
                         .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
                         .build())

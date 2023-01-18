@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -28,7 +29,10 @@ class MapAnsettelsesPeriodeOgPermisjon {
             return ansettelsesPerioder;
         }
         var bekreftetPermisjon = bekreftetPermisjonOpt.get();
-        if (bekreftetPermisjon.getStatus().equals(BekreftetPermisjonStatus.BRUK_PERMISJON)) {
+        var erFullPermisjon = yrkesaktivitet.getPermisjon().stream()
+            .filter(perm -> perm.getPeriode().equals(bekreftetPermisjon.getPeriode()))
+            .findFirst().map(perm -> perm.getProsentsats() != null && perm.getProsentsats().getVerdi().compareTo(BigDecimal.valueOf(100)) >= 0).orElse(false);
+        if (bekreftetPermisjon.getStatus().equals(BekreftetPermisjonStatus.BRUK_PERMISJON) && erFullPermisjon) {
             return utledPerioder(filter, yrkesaktivitet, bekreftetPermisjon);
         }
         return ansettelsesPerioder;
