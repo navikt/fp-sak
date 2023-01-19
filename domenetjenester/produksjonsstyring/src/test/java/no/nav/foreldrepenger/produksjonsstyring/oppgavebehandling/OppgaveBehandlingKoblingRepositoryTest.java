@@ -76,41 +76,39 @@ public class OppgaveBehandlingKoblingRepositoryTest extends EntityManagerAwareTe
     @Test
     public void skal_hente_opp_oppgave_behandling_koblinger_for_åpne_oppgaver() {
         // Arrange
-        var behandling = new BasicBehandlingBuilder(getEntityManager()).opprettOgLagreFørstegangssøknad(
-            FagsakYtelseType.ENGANGSTØNAD);
-        var bsAvsl = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "O1234",
-            DUMMY_SAKSNUMMER, behandling.getId());
-        bsAvsl.ferdigstillOppgave("I11111");
-        var bsAapen = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "O1235",
-            DUMMY_SAKSNUMMER, behandling.getId());
-        var godkjenn = new OppgaveBehandlingKobling(OppgaveÅrsak.GODKJENNE_VEDTAK, "O1236",
-            DUMMY_SAKSNUMMER, behandling.getId());
-        var registrer = new OppgaveBehandlingKobling(OppgaveÅrsak.REGISTRER_SØKNAD, "O1238",
-            DUMMY_SAKSNUMMER, behandling.getId());
-        var revurder = new OppgaveBehandlingKobling(OppgaveÅrsak.REVURDER, "O1237",
-            DUMMY_SAKSNUMMER, behandling.getId());
+        var behandlingAvsl = new BasicBehandlingBuilder(getEntityManager()).opprettOgLagreFørstegangssøknad(FagsakYtelseType.ENGANGSTØNAD);
+        var oppgaveAvsl = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "O1234", DUMMY_SAKSNUMMER, behandlingAvsl.getId());
+        oppgaveAvsl.ferdigstillOppgave("I11111");
+        var behandlingBehandleAapen = new BasicBehandlingBuilder(getEntityManager()).opprettOgLagreFørstegangssøknad(FagsakYtelseType.ENGANGSTØNAD);
+        var oppgaveBehandleAapen = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "O1235", DUMMY_SAKSNUMMER, behandlingBehandleAapen.getId());
+        var behandlingGodkjenn = new BasicBehandlingBuilder(getEntityManager()).opprettOgLagreFørstegangssøknad(FagsakYtelseType.ENGANGSTØNAD);
+        var oppgaveGodkjenn = new OppgaveBehandlingKobling(OppgaveÅrsak.GODKJENNE_VEDTAK, "O1236", DUMMY_SAKSNUMMER, behandlingGodkjenn.getId());
+        var behandlingRegistrer = new BasicBehandlingBuilder(getEntityManager()).opprettOgLagreFørstegangssøknad(FagsakYtelseType.ENGANGSTØNAD);
+        var oppgaveRegistrer = new OppgaveBehandlingKobling(OppgaveÅrsak.REGISTRER_SØKNAD, "O1238", DUMMY_SAKSNUMMER, behandlingRegistrer.getId());
+        var behandlingRevurder = new BasicBehandlingBuilder(getEntityManager()).opprettOgLagreFørstegangssøknad(FagsakYtelseType.ENGANGSTØNAD);
+        var oppgaveRevurder = new OppgaveBehandlingKobling(OppgaveÅrsak.REVURDER, "O1237", DUMMY_SAKSNUMMER, behandlingRevurder.getId());
 
-        lagOppgave(bsAapen);
-        lagOppgave(bsAvsl);
-        lagOppgave(godkjenn);
-        lagOppgave(revurder);
-        lagOppgave(registrer);
+        lagOppgave(oppgaveBehandleAapen);
+        lagOppgave(oppgaveAvsl);
+        lagOppgave(oppgaveGodkjenn);
+        lagOppgave(oppgaveRevurder);
+        lagOppgave(oppgaveRegistrer);
 
         // Act
-        var behandlingKobling = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(LocalDate.now(),
+        var behandlingKobling = oppgaveBehandlingKoblingRepository.hentBehandlingerMedUferdigeOppgaverOpprettetTidsrom(LocalDate.now(),
             LocalDate.now(), Set.of(OppgaveÅrsak.BEHANDLE_SAK, OppgaveÅrsak.REVURDER));
 
         // Assert
-        assertThat(behandlingKobling).contains(bsAapen, revurder);
-        assertThat(behandlingKobling).doesNotContain(godkjenn, registrer, bsAvsl);
+        assertThat(behandlingKobling).contains(behandlingBehandleAapen, behandlingRevurder);
+        assertThat(behandlingKobling).doesNotContain(behandlingAvsl, behandlingGodkjenn, behandlingRegistrer);
 
         // Change + reassert
-        revurder.ferdigstillOppgave("I11111");
-        lagOppgave(revurder);
-        behandlingKobling = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(LocalDate.now(),
+        oppgaveRevurder.ferdigstillOppgave("I11111");
+        lagOppgave(oppgaveRevurder);
+        behandlingKobling = oppgaveBehandlingKoblingRepository.hentBehandlingerMedUferdigeOppgaverOpprettetTidsrom(LocalDate.now(),
             LocalDate.now(), Set.of(OppgaveÅrsak.BEHANDLE_SAK, OppgaveÅrsak.REVURDER));
-        assertThat(behandlingKobling).contains(bsAapen);
-        assertThat(behandlingKobling).doesNotContain(godkjenn, registrer, bsAvsl, revurder);
+        assertThat(behandlingKobling).contains(behandlingBehandleAapen);
+        assertThat(behandlingKobling).doesNotContain(behandlingAvsl, behandlingGodkjenn, behandlingRegistrer, behandlingRevurder);
 
     }
 
