@@ -3,10 +3,12 @@ package no.nav.foreldrepenger.domene.rest.dto;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import no.nav.vedtak.util.InputValideringRegex;
+
 public class RefusjonskravPrArbeidsgiverVurderingDto {
 
     @NotNull
-    @Pattern(regexp = "[\\d]{9}|[\\d]{13}")
+    @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER)
     private String arbeidsgiverId;
 
     private boolean skalUtvideGyldighet;

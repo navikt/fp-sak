@@ -4,8 +4,9 @@ import javax.validation.constraints.Pattern;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
+import no.nav.vedtak.util.InputValideringRegex;
 
-public record ArbeidsforholdDto(@Pattern(regexp = "^\\d{9}$|^\\d{13}$") String arbeidsgiverReferanse,
+public record ArbeidsforholdDto(@Pattern(regexp = InputValideringRegex.ARBEIDSGIVER) String arbeidsgiverReferanse,
                                 @ValidKodeverk UttakArbeidType arbeidType) {
 
     public static ArbeidsforholdDto ordinært(String arbeidsgiverReferanse) {

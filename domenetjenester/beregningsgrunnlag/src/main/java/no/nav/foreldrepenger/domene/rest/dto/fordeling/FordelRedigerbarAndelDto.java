@@ -12,13 +12,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.vedtak.util.InputValideringRegex;
 
 public class FordelRedigerbarAndelDto {
 
     @Min(0)
     @Max(Long.MAX_VALUE)
     private Long andelsnr;
-    @Pattern(regexp = "[\\d]{9}|[\\d]{13}")
+    @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER)
     private String arbeidsgiverId;
     private String arbeidsforholdId;
     @NotNull
@@ -36,7 +37,7 @@ public class FordelRedigerbarAndelDto {
     }
 
     public FordelRedigerbarAndelDto(@Min(0) @Max(Long.MAX_VALUE) Long andelsnr,
-                                    @Pattern(regexp = "[\\d]{9}|[\\d]{13}") String arbeidsgiverId,
+                                    @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER) String arbeidsgiverId,
                                     String arbeidsforholdId, @NotNull Boolean nyAndel,
                                     AndelKilde kilde,
                                     AktivitetStatus aktivitetStatus,

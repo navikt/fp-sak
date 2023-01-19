@@ -75,7 +75,7 @@ public class KontrollerFaktaPeriodeLagreDto {
 
     @Valid
     private ArbeidsgiverLagreDto arbeidsgiver;
-    @Pattern(regexp = "\\d{9}|\\d{13}")
+    @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER)
     private String arbeidsgiverReferanse;
 
     private boolean erArbeidstaker;

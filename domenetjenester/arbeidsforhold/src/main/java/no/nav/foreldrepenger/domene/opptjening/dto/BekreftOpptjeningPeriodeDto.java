@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.opptjening.dto;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;

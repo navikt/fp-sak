@@ -1,15 +1,17 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
-import no.nav.foreldrepenger.validering.ValidKodeverk;
-import no.nav.vedtak.util.InputValideringRegex;
+import java.util.UUID;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
+import no.nav.vedtak.util.InputValideringRegex;
 
 public class ManglendeOpplysningerVurderingDto {
     @JsonProperty("behandlingUuid")
@@ -25,7 +27,7 @@ public class ManglendeOpplysningerVurderingDto {
     private String begrunnelse;
     @JsonProperty("arbeidsgiverIdent")
     @NotNull
-    @Pattern(regexp = "\\d{9}|\\d{13}")
+    @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER)
     private String arbeidsgiverIdent;
     @JsonProperty("internArbeidsforholdRef")
     @Size(max = 100)
@@ -47,7 +49,7 @@ public class ManglendeOpplysningerVurderingDto {
                                              @JsonProperty("begrunnelse")
                                                  String begrunnelse,
                                              @NotNull
-                                             @Pattern(regexp = "\\d{9}|\\d{13}")
+                                             @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER)
                                              @JsonProperty("arbeidsgiverIdent")
                                                  String arbeidsgiverIdent,
                                              @Size(max = 100)

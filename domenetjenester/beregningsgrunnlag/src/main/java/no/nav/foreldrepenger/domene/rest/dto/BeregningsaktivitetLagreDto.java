@@ -21,7 +21,7 @@ public class BeregningsaktivitetLagreDto {
 
     private LocalDate tom;
 
-    @Pattern(regexp = "\\d{9}|\\d{13}")
+    @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER)
     private String oppdragsgiverOrg;
 
     private String arbeidsgiverIdentifikator;
