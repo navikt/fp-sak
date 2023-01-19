@@ -146,7 +146,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
     }
 
     private AvklarAnnenforelderHarRettOppdaterer oppdaterer() {
-        return new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(), uføretrygdRepository));
+        return new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory()));
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {

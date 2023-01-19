@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenForelderRettEØSEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
@@ -394,7 +393,8 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         var yfa = ytelsesFordelingRepository.hentAggregat(behandling.getId());
         ytelsesFordelingRepository.lagre(behandling.getId(),
-            YtelseFordelingAggregat.oppdatere(yfa).medPerioderAnnenForelderRettEØS(new PerioderAnnenForelderRettEØSEntitet(harRettEøs)).build());
+            YtelseFordelingAggregat.oppdatere(yfa)
+                .medOverstyrtRettighet(OppgittRettighetEntitet.kopiAnnenForelderRettEØS(yfa.getOverstyrtRettighet().orElse(null), harRettEøs)).build());
     }
 
     @Test

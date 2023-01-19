@@ -66,10 +66,11 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements OmsorgRettAksjon
             !annenForelderHarUttakMedUtbetaling(annenpartsGjeldendeUttaksplan)) {
             ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
             var harAnnenForelderInnvilgetES = fpGrunnlag.isOppgittAnnenForelderHarEngangsstønadForSammeBarn();
-            var måAvklareMorUfør = fpGrunnlag.getUføretrygdGrunnlag()
+            var måAvklareMorUfør = ytelseFordelingAggregat.getMorUføretrygdAvklaring() == null && fpGrunnlag.getUføretrygdGrunnlag()
                 .filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd)
                 .isPresent();
-            var måAvklareAnnenForelderRettEØS = UttakOmsorgUtil.oppgittAnnenForelderRettEØS(ytelseFordelingAggregat);
+            var måAvklareAnnenForelderRettEØS =  ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring() == null &&
+                UttakOmsorgUtil.oppgittAnnenForelderRettEØS(ytelseFordelingAggregat);
             return !harAnnenForelderInnvilgetES || måAvklareMorUfør || måAvklareAnnenForelderRettEØS ? aksjonspunkt() : List.of();
         }
 

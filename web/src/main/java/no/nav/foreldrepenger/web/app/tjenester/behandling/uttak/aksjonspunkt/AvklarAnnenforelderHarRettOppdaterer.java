@@ -32,12 +32,12 @@ public class AvklarAnnenforelderHarRettOppdaterer implements AksjonspunktOppdate
         var annenforelderHarRett = dto.getAnnenforelderHarRett();
         var annenForelderHarRettEØS = TRUE.equals(annenforelderHarRett) && dto.getAnnenForelderHarRettEØS() != null ? Boolean.FALSE : dto.getAnnenForelderHarRettEØS();
         var totrinn = faktaOmsorgRettTjeneste.totrinnForAnnenforelderRett(param, annenforelderHarRett,
-            dto.getAnnenforelderMottarUføretrygd(), false, annenForelderHarRettEØS);
+            dto.getAnnenforelderMottarUføretrygd(), annenForelderHarRettEØS);
         faktaOmsorgRettTjeneste.annenforelderRettHistorikkFelt(param, annenforelderHarRett,
-            dto.getAnnenforelderMottarUføretrygd(), false, annenForelderHarRettEØS);
+            dto.getAnnenforelderMottarUføretrygd(), annenForelderHarRettEØS);
         faktaOmsorgRettTjeneste.omsorgRettHistorikkInnslag(param, dto.getBegrunnelse());
         faktaOmsorgRettTjeneste.oppdaterAnnenforelderRett(param, annenforelderHarRett,
-            dto.getAnnenforelderMottarUføretrygd(), false, null, annenForelderHarRettEØS);
+            dto.getAnnenforelderMottarUføretrygd(), annenForelderHarRettEØS);
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }
 

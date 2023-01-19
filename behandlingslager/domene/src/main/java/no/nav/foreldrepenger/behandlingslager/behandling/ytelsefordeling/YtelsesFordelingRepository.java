@@ -63,14 +63,11 @@ public class YtelsesFordelingRepository {
             .medOppgittRettighet(ytelseFordelingGrunnlagEntitet.getOppgittRettighet())
             .medOverstyrtRettighet(ytelseFordelingGrunnlagEntitet.getOverstyrtRettighet())
             .medPerioderUtenOmsorg(ytelseFordelingGrunnlagEntitet.getPerioderUtenOmsorg())
-            .medPerioderAleneOmsorg(ytelseFordelingGrunnlagEntitet.getPerioderAleneOmsorgEntitet())
             .medOppgittFordeling(ytelseFordelingGrunnlagEntitet.getOppgittFordeling())
             .medJustertFordeling(ytelseFordelingGrunnlagEntitet.getJustertFordeling())
             .medOverstyrtFordeling(ytelseFordelingGrunnlagEntitet.getOverstyrtFordeling())
             .medPerioderUttakDokumentasjon(ytelseFordelingGrunnlagEntitet.getPerioderUttakDokumentasjon())
             .medAvklarteDatoer(ytelseFordelingGrunnlagEntitet.getAvklarteUttakDatoer())
-            .medPerioderAnnenforelderHarRett(ytelseFordelingGrunnlagEntitet.getPerioderAnnenforelderHarRettEntitet())
-            .medPerioderAnnenForelderRettEØS(ytelseFordelingGrunnlagEntitet.getPerioderAnnenForelderRettEØSEntitet())
             .medOpprinneligeAktivitetskravPerioder(
                 ytelseFordelingGrunnlagEntitet.getOpprinneligeAktivitetskravPerioder())
             .medSaksbehandledeAktivitetskravPerioder(
@@ -128,11 +125,8 @@ public class YtelsesFordelingRepository {
             entityManager.persist(grunnlag.getAvklarteUttakDatoer());
         }
 
-        lagrePerioderAleneOmsorg(grunnlag);
         lagrePerioderUtenOmsorg(grunnlag);
         lagrePerioderUttakDokumentasjon(grunnlag);
-        lagrePerioderAnnenforelderHarRett(grunnlag);
-        lagrePerioderAnnenforelderRettEØS(grunnlag);
         lagrePerioderAktivitetskrav(grunnlag.getOpprinneligeAktivitetskravPerioder());
         lagrePerioderAktivitetskrav(grunnlag.getSaksbehandledeAktivitetskravPerioder());
 
@@ -148,12 +142,9 @@ public class YtelsesFordelingRepository {
         grunnlag.setOppgittFordeling(aggregat.getOppgittFordeling());
         aggregat.getPerioderUttakDokumentasjon().ifPresent(grunnlag::setPerioderUttakDokumentasjon);
         aggregat.getPerioderUtenOmsorg().ifPresent(grunnlag::setPerioderUtenOmsorg);
-        aggregat.getPerioderAleneOmsorg().ifPresent(grunnlag::setPerioderAleneOmsorg);
         aggregat.getOverstyrtFordeling().ifPresent(grunnlag::setOverstyrtFordeling);
         aggregat.getJustertFordeling().ifPresent(grunnlag::setJustertFordeling);
         aggregat.getAvklarteDatoer().ifPresent(grunnlag::setAvklarteUttakDatoerEntitet);
-        aggregat.getPerioderAnnenforelderHarRett().ifPresent(grunnlag::setPerioderAnnenforelderHarRettEntitet);
-        aggregat.getPerioderAnnenForelderRettEØS().ifPresent(grunnlag::setPerioderAnnenForelderRettEØSEntitet);
         aggregat.getOpprinneligeAktivitetskravPerioder().ifPresent(grunnlag::setOpprinneligeAktivitetskravPerioder);
         aggregat.getSaksbehandledeAktivitetskravPerioder().ifPresent(grunnlag::setSaksbehandledeAktivitetskravPerioder);
         return grunnlag;
@@ -172,33 +163,6 @@ public class YtelsesFordelingRepository {
         if (grunnlag.getPerioderUtenOmsorg() != null) {
             entityManager.persist(grunnlag.getPerioderUtenOmsorg());
             for (var periode : grunnlag.getPerioderUtenOmsorg().getPerioder()) {
-                entityManager.persist(periode);
-            }
-        }
-    }
-
-    private void lagrePerioderAleneOmsorg(YtelseFordelingGrunnlagEntitet grunnlag) {
-        if (grunnlag.getPerioderAleneOmsorgEntitet() != null) {
-            entityManager.persist(grunnlag.getPerioderAleneOmsorgEntitet());
-            for (var periode : grunnlag.getPerioderAleneOmsorgEntitet().getPerioder()) {
-                entityManager.persist(periode);
-            }
-        }
-    }
-
-    private void lagrePerioderAnnenforelderHarRett(YtelseFordelingGrunnlagEntitet grunnlag) {
-        if (grunnlag.getPerioderAnnenforelderHarRettEntitet() != null) {
-            entityManager.persist(grunnlag.getPerioderAnnenforelderHarRettEntitet());
-            for (var periode : grunnlag.getPerioderAnnenforelderHarRettEntitet().getPerioder()) {
-                entityManager.persist(periode);
-            }
-        }
-    }
-
-    private void lagrePerioderAnnenforelderRettEØS(YtelseFordelingGrunnlagEntitet grunnlag) {
-        if (grunnlag.getPerioderAnnenForelderRettEØSEntitet() != null) {
-            entityManager.persist(grunnlag.getPerioderAnnenForelderRettEØSEntitet());
-            for (var periode : grunnlag.getPerioderAnnenForelderRettEØSEntitet().getPerioder()) {
                 entityManager.persist(periode);
             }
         }

@@ -35,33 +35,6 @@ public class UføretrygdRepository {
         lagreGrunnlag(aktivtGrunnlag, nyttGrunnlag);
     }
 
-    public void lagreUføreGrunnlagOverstyrtVersjon(Long behandlingId, boolean erUføretrygdet) {
-        var aktivtGrunnlag = hentGrunnlag(behandlingId);
-        if (aktivtGrunnlag.isEmpty()) throw new IllegalStateException("Utviklerfeil - finnes ikke UFO-grunnlag");
-        var nyttGrunnlag = UføretrygdGrunnlagEntitet.Builder.oppdatere(aktivtGrunnlag)
-            .medBehandlingId(behandlingId)
-            .medOverstyrtUføretrygd(erUføretrygdet);
-        lagreGrunnlag(aktivtGrunnlag, nyttGrunnlag);
-    }
-
-    public void lagreUføreGrunnlagAvkreftetAleneomsorgVersjon(Long behandlingId, AktørId annenpartAktørId, boolean mottarUføretrygd) {
-        var aktivtGrunnlag = hentGrunnlag(behandlingId);
-        var nyttGrunnlag = UføretrygdGrunnlagEntitet.Builder.oppdatere(aktivtGrunnlag)
-            .medBehandlingId(behandlingId)
-            .medAktørIdUføretrygdet(annenpartAktørId)
-            .medManueltAvklartUføretrygd(mottarUføretrygd);
-        lagreGrunnlag(aktivtGrunnlag, nyttGrunnlag);
-    }
-
-    public void deaktiverGrunnlagUtenRegister(Long behandlingId) {
-        hentGrunnlag(behandlingId).filter(g -> g.getUføretrygdRegister() == null)
-            .ifPresent(g -> {
-                g.deaktiver();
-                entityManager.persist(g);
-                entityManager.flush();
-            });
-    }
-
     private void lagreGrunnlag(Optional<UføretrygdGrunnlagEntitet> aktivtGrunnlag, UføretrygdGrunnlagEntitet.Builder builder) {
         var nyttGrunnlag = builder.build();
 

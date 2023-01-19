@@ -48,10 +48,6 @@ public class UføretrygdGrunnlagEntitet extends BaseEntitet {
     @Column(name = "register_ufore")
     private Boolean uføretrygdRegister;
 
-    @Convert(converter = BooleanToStringConverter.class)
-    @Column(name = "overstyrt_ufore")
-    private Boolean uføretrygdOverstyrt;
-
     @Column(name = "uforedato")
     @ChangeTracked
     private LocalDate uføredato;
@@ -68,17 +64,16 @@ public class UføretrygdGrunnlagEntitet extends BaseEntitet {
     UføretrygdGrunnlagEntitet(UføretrygdGrunnlagEntitet grunnlag) {
         this.aktørId = grunnlag.aktørId;
         this.uføretrygdRegister = grunnlag.uføretrygdRegister;
-        this.uføretrygdOverstyrt = grunnlag.uføretrygdOverstyrt;
         this.uføredato = grunnlag.uføredato;
         this.virkningsdato = grunnlag.virkningsdato;
     }
 
     public boolean annenForelderMottarUføretrygd() {
-        return Objects.equals(Boolean.TRUE, uføretrygdRegister) || Objects.equals(Boolean.TRUE, uføretrygdOverstyrt);
+        return Objects.equals(Boolean.TRUE, uføretrygdRegister);
     }
 
     public boolean uavklartAnnenForelderMottarUføretrygd() {
-        return !Objects.equals(Boolean.TRUE, uføretrygdRegister) && uføretrygdOverstyrt == null;
+        return !Objects.equals(Boolean.TRUE, uføretrygdRegister);
     }
 
     Long getId() {
@@ -105,10 +100,6 @@ public class UføretrygdGrunnlagEntitet extends BaseEntitet {
         return uføretrygdRegister;
     }
 
-    public Boolean getUføretrygdOverstyrt() {
-        return uføretrygdOverstyrt;
-    }
-
     public LocalDate getUføredato() {
         return uføredato;
     }
@@ -125,14 +116,13 @@ public class UføretrygdGrunnlagEntitet extends BaseEntitet {
         return Objects.equals(behandlingId, that.behandlingId) &&
             Objects.equals(aktørId, that.aktørId) &&
             Objects.equals(uføretrygdRegister, that.uføretrygdRegister) &&
-            Objects.equals(uføretrygdOverstyrt, that.uføretrygdOverstyrt) &&
             Objects.equals(uføredato, that.uføredato) &&
             Objects.equals(virkningsdato, that.virkningsdato);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(behandlingId, aktørId, uføretrygdRegister, uføretrygdOverstyrt, uføredato, virkningsdato);
+        return Objects.hash(behandlingId, aktørId, uføretrygdRegister, uføredato, virkningsdato);
     }
 
     public static class Builder {
@@ -172,18 +162,6 @@ public class UføretrygdGrunnlagEntitet extends BaseEntitet {
             this.kladd.uføretrygdRegister = erUføretrygdet;
             this.kladd.uføredato = erUføretrygdet ? uføredato : null;
             this.kladd.virkningsdato = erUføretrygdet ? virkningsdato : null;
-            return this;
-        }
-
-        public Builder medOverstyrtUføretrygd(boolean erUføretrygdet) {
-            Objects.requireNonNull(this.kladd.uføretrygdRegister, "Utviklerfeil: register skal være satt");
-            this.kladd.uføretrygdOverstyrt = erUføretrygdet;
-            return this;
-        }
-
-        public Builder medManueltAvklartUføretrygd(boolean erUføretrygdet) {
-            // Brukes for tilfelle der søknad pga andre valg neppe har angitt om mor er ufør og dette bekreftes manuelt (Aleneomsorg-bekreftelse)
-            this.kladd.uføretrygdOverstyrt = erUføretrygdet;
             return this;
         }
 

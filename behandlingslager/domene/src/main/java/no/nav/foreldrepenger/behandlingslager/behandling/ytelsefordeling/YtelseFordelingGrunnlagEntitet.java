@@ -65,24 +65,9 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     private PerioderUtenOmsorgEntitet perioderUtenOmsorgEntitet;
 
     @ManyToOne
-    @JoinColumn(name = "aleneomsorg_id", updatable = false, unique = true)
-    @ChangeTracked
-    private PerioderAleneOmsorgEntitet perioderAleneOmsorgEntitet;
-
-    @ManyToOne
     @JoinColumn(name = "uttak_dokumentasjon_id", updatable = false, unique = true)
     @ChangeTracked
     private PerioderUttakDokumentasjonEntitet perioderUttakDokumentasjon;
-
-    @ManyToOne
-    @JoinColumn(name = "annen_forelder_har_rett_id", updatable = false, unique = true)
-    @ChangeTracked
-    private PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRettEntitet;
-
-    @ManyToOne
-    @JoinColumn(name = "annen_forelder_rett_eos_id", updatable = false, unique = true)
-    @ChangeTracked
-    private PerioderAnnenForelderRettEØSEntitet perioderAnnenForelderRettEØSEntitet;
 
     @ManyToOne
     @JoinColumn(name = "opprinnelige_aktkrav_per_id", updatable = false, unique = true)
@@ -191,36 +176,12 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
         this.saksbehandledeAktivitetskravPerioder = saksbehandletAktivitetskravPerioder;
     }
 
-    PerioderAleneOmsorgEntitet getPerioderAleneOmsorgEntitet() {
-        return perioderAleneOmsorgEntitet;
-    }
-
-    void setPerioderAleneOmsorg(PerioderAleneOmsorgEntitet perioder) {
-        this.perioderAleneOmsorgEntitet = perioder;
-    }
-
     PerioderUttakDokumentasjonEntitet getPerioderUttakDokumentasjon() {
         return perioderUttakDokumentasjon;
     }
 
     void setPerioderUttakDokumentasjon(PerioderUttakDokumentasjonEntitet perioderUttakDokumentasjon) {
         this.perioderUttakDokumentasjon = perioderUttakDokumentasjon;
-    }
-
-    PerioderAnnenforelderHarRettEntitet getPerioderAnnenforelderHarRettEntitet() {
-        return perioderAnnenforelderHarRettEntitet;
-    }
-
-    void setPerioderAnnenforelderHarRettEntitet(PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRettEntitet) {
-        this.perioderAnnenforelderHarRettEntitet = perioderAnnenforelderHarRettEntitet;
-    }
-
-    PerioderAnnenForelderRettEØSEntitet getPerioderAnnenForelderRettEØSEntitet() {
-        return perioderAnnenForelderRettEØSEntitet;
-    }
-
-    void setPerioderAnnenForelderRettEØSEntitet(PerioderAnnenForelderRettEØSEntitet perioderAnnenForelderRettEØSEntitet) {
-        this.perioderAnnenForelderRettEØSEntitet = perioderAnnenForelderRettEØSEntitet;
     }
 
     AvklarteUttakDatoerEntitet getAvklarteUttakDatoer() {
@@ -246,15 +207,11 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
             Objects.equals(oppgittFordeling, that.oppgittFordeling) &&
             Objects.equals(oppgittRettighet, that.oppgittRettighet) &&
             Objects.equals(oppgittDekningsgrad, that.oppgittDekningsgrad) &&
-            Objects.equals(perioderUtenOmsorgEntitet, that.perioderUtenOmsorgEntitet) &&
-            Objects.equals(perioderAleneOmsorgEntitet, that.perioderAleneOmsorgEntitet) &&
-            Objects.equals(perioderAnnenforelderHarRettEntitet, that.perioderAnnenforelderHarRettEntitet) &&
-            Objects.equals(perioderAnnenForelderRettEØSEntitet, that.perioderAnnenForelderRettEØSEntitet);
+            Objects.equals(perioderUtenOmsorgEntitet, that.perioderUtenOmsorgEntitet);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(oppgittFordeling, oppgittRettighet, oppgittDekningsgrad, perioderUtenOmsorgEntitet,
-            perioderAleneOmsorgEntitet, perioderAnnenforelderHarRettEntitet, perioderAnnenForelderRettEØSEntitet, aktiv);
+        return Objects.hash(oppgittFordeling, oppgittRettighet, oppgittDekningsgrad, perioderUtenOmsorgEntitet, aktiv);
     }
 }

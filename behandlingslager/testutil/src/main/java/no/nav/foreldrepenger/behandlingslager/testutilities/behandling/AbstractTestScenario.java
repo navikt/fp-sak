@@ -86,7 +86,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -174,7 +173,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private Behandling originalBehandling;
     private List<BehandlingÅrsakType> behandlingÅrsakTyper;
     private BehandlingRepositoryProvider repositoryProvider;
-    private PerioderAleneOmsorgEntitet perioderMedAleneomsorg;
     private PersonInformasjon.Builder personInformasjonBuilder;
     private UttakResultatPerioderEntitet uttak;
     private boolean manueltOpprettet;
@@ -915,8 +913,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private void lagreYtelseFordelingOpplysninger(BehandlingRepositoryProvider repositoryProvider, Behandling behandling) {
         if (oppgittRettighet == null && oppgittDekningsgrad == null && oppgittFordeling == null && overstyrtRettighet == null
-            && avklarteUttakDatoer == null && perioderMedAleneomsorg == null
-            && justertFordeling == null) {
+            && avklarteUttakDatoer == null && justertFordeling == null) {
             return;
         }
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
@@ -926,8 +923,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             .medOppgittDekningsgrad(oppgittDekningsgrad)
             .medOppgittFordeling(oppgittFordeling)
             .medJustertFordeling(justertFordeling)
-            .medAvklarteDatoer(avklarteUttakDatoer)
-            .medPerioderAleneOmsorg(perioderMedAleneomsorg);
+            .medAvklarteDatoer(avklarteUttakDatoer);
         ytelsesFordelingRepository.lagre(behandling.getId(), yf.build());
     }
 
@@ -1337,12 +1333,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S medAvklarteUttakDatoer(AvklarteUttakDatoerEntitet avklarteUttakDatoer) {
         this.avklarteUttakDatoer = avklarteUttakDatoer;
-        return (S) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public S medPeriodeMedAleneomsorg(PerioderAleneOmsorgEntitet perioderAleneOmsorg) {
-        this.perioderMedAleneomsorg = perioderAleneOmsorg;
         return (S) this;
     }
 

@@ -41,7 +41,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -178,8 +177,6 @@ public class VedtakXmlTest {
         scenario.medFordeling(opprettOppgittFordeling());
         scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
         scenario.medOverstyrtRettighet(new OppgittRettighetEntitet(true, false, false, false));
-        var perioderAleneOmsorg = new PerioderAleneOmsorgEntitet(true);
-        scenario.medPeriodeMedAleneomsorg(perioderAleneOmsorg);
 
         var behandling = lagre(scenario);
         var behandlingsresultat = opprettBehandlingsresultatMedVilkårResultatForBehandling(em, behandling);

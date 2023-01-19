@@ -17,9 +17,7 @@ import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
@@ -93,21 +91,4 @@ public class ForvaltningUttakRestTjeneste {
         return Response.noContent().build();
     }
 
-    @POST
-    @Path("/migrerOverstyrtRett")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Operation(description = "Lagrer task for å migrere til ny overstyrt rett", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response migrerOverstyrtRett() {
-        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
-        var callId = MDCOperations.getCallId();
-        var prosessTaskData = ProsessTaskDataBuilder.forProsessTask(MigrerOverstyrtRettTask.class)
-                .medCallId(callId)
-                .medPrioritet(100)
-                .build();
-
-        taskTjeneste.lagre(prosessTaskData);
-
-        return Response.noContent().build();
-    }
 }
