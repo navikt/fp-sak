@@ -24,12 +24,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
 import no.nav.abakus.iaygrunnlag.JsonObjectMapper;
 import no.nav.abakus.iaygrunnlag.UuidDto;
 import no.nav.abakus.iaygrunnlag.arbeidsforhold.v1.ArbeidsforholdDto;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingerDto;
-import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.abakus.iaygrunnlag.request.AktørDatoRequest;
 import no.nav.abakus.iaygrunnlag.request.InnhentRegisterdataRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektArbeidYtelseGrunnlagRequest;
@@ -40,7 +38,11 @@ import no.nav.abakus.iaygrunnlag.request.OppgittOpptjeningMottattRequest;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagSakSnapshotDto;
 import no.nav.abakus.iaygrunnlag.v1.OverstyrtInntektArbeidYtelseDto;
+import no.nav.abakus.vedtak.ytelse.Aktør;
+import no.nav.abakus.vedtak.ytelse.Periode;
 import no.nav.abakus.vedtak.ytelse.Ytelse;
+import no.nav.abakus.vedtak.ytelse.Ytelser;
+import no.nav.abakus.vedtak.ytelse.request.VedtakForPeriodeRequest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
@@ -50,6 +52,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
+import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPABAKUS, scopesProperty = "abakus.scopes")
@@ -94,7 +97,7 @@ public class AbakusTjeneste {
         this.endpointKopierGrunnlag = toUri("/api/iay/grunnlag/v1/kopier");
         this.innhentRegisterdata = toUri("/api/registerdata/v1/innhent/async");
         this.endpointInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/hentAlle");
-        this.endpointYtelser = toUri("/api/ytelse/v1/hentVedtakForAktoer");
+        this.endpointYtelser = toUri("/api/ytelse/v1/hent-vedtak-ytelse");
         this.endpointOverstyring = toUri("/api/iay/grunnlag/v1/overstyrt");
     }
 
@@ -167,11 +170,16 @@ public class AbakusTjeneste {
         return hentFraAbakus(endpoint, responseHandler, json);
     }
 
-    public static AktørDatoRequest lagRequestForHentVedtakFom(AktørId aktørId, LocalDate fom) {
-        return new AktørDatoRequest(new AktørIdPersonident(aktørId.getId()), fom, YtelseType.FORELDREPENGER);
+    public static VedtakForPeriodeRequest lagRequestForHentVedtakFom(AktørId aktørId, LocalDate fom, Set<Ytelser> ytelser) {
+        var aktør = new Aktør();
+        aktør.setVerdi(aktørId.getId());
+        var periode = new Periode();
+        periode.setFom(fom);
+        periode.setTom(Tid.TIDENES_ENDE);
+        return new VedtakForPeriodeRequest(aktør, periode, ytelser);
     }
 
-    public List<Ytelse> hentVedtakForAktørId(AktørDatoRequest request) {
+    public List<Ytelse> hentVedtakForAktørId(VedtakForPeriodeRequest request) {
         var endpoint = endpointYtelser;
         var reader = iayMapper.readerFor(Ytelse[].class);
         var responseHandler = new AbakusResponseHandler<Ytelse[]>(reader);
