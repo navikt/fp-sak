@@ -9,12 +9,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
-import no.nav.abakus.iaygrunnlag.Organisasjon;
 import no.nav.abakus.vedtak.ytelse.Desimaltall;
 import no.nav.abakus.vedtak.ytelse.Periode;
 import no.nav.abakus.vedtak.ytelse.v1.anvisning.Anvisning;
 import no.nav.abakus.vedtak.ytelse.v1.anvisning.AnvistAndel;
+import no.nav.abakus.vedtak.ytelse.v1.anvisning.ArbeidsgiverIdent;
 import no.nav.abakus.vedtak.ytelse.v1.anvisning.Inntektklasse;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -22,8 +21,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -188,14 +187,8 @@ class VedtattYtelseMapper {
             .orElse(null);
     }
 
-    private static no.nav.abakus.iaygrunnlag.Aktør mapAktør(Arbeidsgiver arbeidsgiver) {
-        if (arbeidsgiver == null) {
-            return null;
-        }
-        if (arbeidsgiver.getErVirksomhet()) {
-            return new Organisasjon(arbeidsgiver.getIdentifikator());
-        }
-        return new AktørIdPersonident(arbeidsgiver.getIdentifikator());
+    private static ArbeidsgiverIdent mapAktør(Arbeidsgiver arbeidsgiver) {
+        return arbeidsgiver != null ? new ArbeidsgiverIdent(arbeidsgiver.getIdentifikator()) : null;
     }
 
     private record AnvistAndelNøkkel(Arbeidsgiver arbeidsgiver,

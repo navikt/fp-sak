@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -77,7 +78,8 @@ public class HåndterOverlappPleiepengerTask extends GenerellProsessTask {
         var tidligsteTilkjent = tilkjentSegments.stream().map(LocalDateSegment::getFom).min(Comparator.naturalOrder()).orElseThrow();
         var tilkjentTidslinje = new LocalDateTimeline<>(tilkjentSegments, StandardCombinators::alwaysTrueForMatch).compress();
 
-        var request = AbakusTjeneste.lagRequestForHentVedtakFom(fagsak.getAktørId(), tidligsteTilkjent);
+        var request = AbakusTjeneste.lagRequestForHentVedtakFom(fagsak.getAktørId(), tidligsteTilkjent,
+            Set.of(Ytelser.PLEIEPENGER_SYKT_BARN, Ytelser.PLEIEPENGER_NÆRSTÅENDE));
         return abakusTjeneste.hentVedtakForAktørId(request).stream()
             .map(y -> (YtelseV1)y)
             .filter(y -> Kildesystem.K9SAK.equals(y.getKildesystem()))
