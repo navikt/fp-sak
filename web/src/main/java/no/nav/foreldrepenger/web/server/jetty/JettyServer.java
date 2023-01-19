@@ -176,6 +176,10 @@ public class JettyServer {
         ctx.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
         ctx.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern",
             "^.*jersey-.*.jar$|^.*felles-.*.jar$");
+
+        ctx.addEventListener(new org.jboss.weld.environment.servlet.BeanManagerResourceBindingListener());
+        ctx.addEventListener(new org.jboss.weld.environment.servlet.Listener());
+
         ctx.setSecurityHandler(createSecurityHandler());
         updateMetaData(ctx.getMetaData());
         ctx.setThrowUnavailableOnStartupException(true);

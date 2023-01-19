@@ -18,12 +18,10 @@
         "mem": "2816Mi"
     },
     "ingresses": [
-        "https://fpsak.nais.adeo.no",
         "https://fpsak-api.intern.nav.no",
         "https://fpsak-api.prod-fss-pub.nais.io"
     ],
     "env": {
-        "APPDYNAMICS_AGENT_ACCOUNT_NAME": "PROD",
         "APPD_ENABLED": "true"
     },
     "AZURE_IAC_RULES": [
