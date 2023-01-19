@@ -77,16 +77,15 @@ public class AutomatiskGjenopptagelseTjeneste {
         var tom = LocalDate.now().minusDays(1);
         var fom = DayOfWeek.MONDAY.equals(tom.getDayOfWeek()) ? tom.minusDays(2) : tom;
         var feileteBehandlinger = behandlingProsesseringTjeneste.behandlingerMedFeiletProsessTask();
-        var oppgaveListe = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(fom, tom, OPPGAVE_TYPER);
+        var behandlingListe = oppgaveBehandlingKoblingRepository.hentBehandlingerMedUferdigeOppgaverOpprettetTidsrom(fom, tom, OPPGAVE_TYPER);
         var baseline = LocalTime.now();
-        LOG.info("BATCH Oppdater fant {} oppgaver", oppgaveListe.size());
-        oppgaveListe.stream()
-            .filter(o -> !feileteBehandlinger.contains(o.getBehandlingId()))
-            .map(o -> behandlingRepository.hentBehandlingReadOnly(o.getBehandlingId()))
+        LOG.info("BATCH Oppdater fant {} oppgaver", behandlingListe.size());
+        behandlingListe.stream()
+            .filter(b -> !feileteBehandlinger.contains(b.getId()))
             .filter(b -> !b.erSaksbehandlingAvsluttet() && !b.isBehandlingPåVent() && b.erYtelseBehandling())
             .forEach(behandling -> opprettProsessTasks(behandling, baseline, 1439));
         LOG.info("BATCH Oppdater utgang");
-        return "-" + oppgaveListe.size();
+        return "-" + behandlingListe.size();
     }
 
     public String gjenopplivBehandlinger() {

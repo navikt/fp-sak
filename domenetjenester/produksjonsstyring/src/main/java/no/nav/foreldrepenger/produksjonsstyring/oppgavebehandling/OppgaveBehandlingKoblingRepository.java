@@ -12,6 +12,7 @@ import javax.persistence.EntityManager;
 
 import org.hibernate.jpa.QueryHints;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -78,10 +79,11 @@ public class OppgaveBehandlingKoblingRepository {
     }
 
 
-    public List<OppgaveBehandlingKobling> hentUferdigeOppgaverOpprettetTidsrom(LocalDate fom, LocalDate tom, Set<OppgaveÅrsak> oppgaveTyper) {
+    public List<Behandling> hentBehandlingerMedUferdigeOppgaverOpprettetTidsrom(LocalDate fom, LocalDate tom, Set<OppgaveÅrsak> oppgaveTyper) {
         var query = entityManager.
-            createQuery("from OppgaveBehandlingKobling where ferdigstilt=:ferdig and opprettet_tid >= :fom and opprettet_tid <= :tom and oppgaveÅrsak in :aarsaker ",
-                OppgaveBehandlingKobling.class)
+            createQuery("select distinct behandling from OppgaveBehandlingKobling obk inner join Behandling behandling on obk.behandlingId = behandling.id " +
+                    "where obk.ferdigstilt=:ferdig and obk.opprettetTidspunkt >= :fom and obk.opprettetTidspunkt <= :tom and obk.oppgaveÅrsak in :aarsaker ",
+                Behandling.class)
             .setHint(QueryHints.HINT_READONLY, "true")
             .setParameter("fom", fom.atStartOfDay())
             .setParameter("tom", tom.plusDays(1).atStartOfDay().minusMinutes(1))
