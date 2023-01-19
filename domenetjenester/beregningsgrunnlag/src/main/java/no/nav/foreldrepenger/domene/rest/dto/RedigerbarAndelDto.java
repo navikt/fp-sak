@@ -12,13 +12,14 @@ import javax.validation.constraints.Pattern;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.vedtak.util.InputValideringRegex;
 
 public class RedigerbarAndelDto {
 
     @Min(0)
     @Max(Long.MAX_VALUE)
     private Long andelsnr;
-    @Pattern(regexp = "[\\d]{9}|[\\d]{13}")
+    @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER)
     private String arbeidsgiverId;
     private String arbeidsforholdId;
     @NotNull

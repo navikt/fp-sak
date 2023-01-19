@@ -1,8 +1,7 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
-import no.nav.vedtak.util.InputValideringRegex;
+import java.time.LocalDate;
+import java.util.UUID;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -10,8 +9,11 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.time.LocalDate;
-import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
+import no.nav.vedtak.util.InputValideringRegex;
 
 public class ManueltArbeidsforholdDto {
     @JsonProperty("behandlingUuid")
@@ -24,7 +26,7 @@ public class ManueltArbeidsforholdDto {
     private String begrunnelse;
     @JsonProperty("arbeidsgiverIdent")
     @NotNull
-    @Pattern(regexp = "\\d{9}|\\d{13}")
+    @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER)
     private String arbeidsgiverIdent;
     @JsonProperty("internArbeidsforholdRef")
     @Size(max = 100)
