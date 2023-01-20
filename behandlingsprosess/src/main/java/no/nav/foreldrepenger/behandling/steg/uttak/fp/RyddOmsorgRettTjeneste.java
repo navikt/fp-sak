@@ -6,7 +6,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 
@@ -14,12 +13,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 class RyddOmsorgRettTjeneste {
 
     private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private UføretrygdRepository uføretrygdRepository;
 
     @Inject
-    public RyddOmsorgRettTjeneste(YtelsesFordelingRepository ytelsesFordelingRepository, UføretrygdRepository uføretrygdRepository) {
+    public RyddOmsorgRettTjeneste(YtelsesFordelingRepository ytelsesFordelingRepository) {
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
-        this.uføretrygdRepository = uføretrygdRepository;
     }
 
     RyddOmsorgRettTjeneste() {
@@ -30,13 +27,9 @@ class RyddOmsorgRettTjeneste {
         ytelsesFordelingRepository.hentAggregatHvisEksisterer(kontekst.getBehandlingId())
             .map(a -> YtelseFordelingAggregat.Builder.oppdatere(Optional.of(a)))
             .ifPresent(builder -> {
-                builder.medPerioderAnnenforelderHarRett(null);
-                builder.medPerioderAleneOmsorg(null);
-                builder.medPerioderAnnenForelderRettEØS(null);
                 builder.medOverstyrtRettighet(null);
                 ytelsesFordelingRepository.lagre(kontekst.getBehandlingId(), builder.build());
             });
-        uføretrygdRepository.deaktiverGrunnlagUtenRegister(kontekst.getBehandlingId());
     }
 
 }

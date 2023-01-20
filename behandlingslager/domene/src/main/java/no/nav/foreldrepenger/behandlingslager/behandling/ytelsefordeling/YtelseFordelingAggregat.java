@@ -15,11 +15,8 @@ public class YtelseFordelingAggregat {
     private OppgittRettighetEntitet oppgittRettighet;
     private OppgittRettighetEntitet overstyrtRettighet;
     private PerioderUtenOmsorgEntitet perioderUtenOmsorg;
-    private PerioderAleneOmsorgEntitet perioderAleneOmsorg;
     private PerioderUttakDokumentasjonEntitet perioderUttakDokumentasjon;
     private AvklarteUttakDatoerEntitet avklarteDatoer;
-    private PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRett;
-    private PerioderAnnenForelderRettEØSEntitet perioderAnnenForelderRettEØS;
     private AktivitetskravPerioderEntitet opprinneligeAktivitetskravPerioder;
     private AktivitetskravPerioderEntitet saksbehandledeAktivitetskravPerioder;
 
@@ -51,18 +48,6 @@ public class YtelseFordelingAggregat {
         return Optional.ofNullable(perioderUtenOmsorg);
     }
 
-    Optional<PerioderAleneOmsorgEntitet> getPerioderAleneOmsorg() {
-        return Optional.ofNullable(perioderAleneOmsorg);
-    }
-
-    Optional<PerioderAnnenforelderHarRettEntitet> getPerioderAnnenforelderHarRett() {
-        return Optional.ofNullable(perioderAnnenforelderHarRett);
-    }
-
-    Optional<PerioderAnnenForelderRettEØSEntitet> getPerioderAnnenForelderRettEØS() {
-        return Optional.ofNullable(perioderAnnenForelderRettEØS);
-    }
-
     public Optional<AktivitetskravPerioderEntitet> getOpprinneligeAktivitetskravPerioder() {
         return Optional.ofNullable(opprinneligeAktivitetskravPerioder);
     }
@@ -78,19 +63,16 @@ public class YtelseFordelingAggregat {
 
     public Boolean getAleneomsorgAvklaring() {
         return getOverstyrtRettighet().map(OppgittRettighetEntitet::getHarAleneomsorgForBarnet)
-            .or(() -> getPerioderAleneOmsorg().map(p -> !p.getPerioder().isEmpty()))
             .orElse(null);
     }
 
     public Boolean getAnnenForelderRettAvklaring() {
         return getOverstyrtRettighet().map(OppgittRettighetEntitet::getHarAnnenForeldreRett)
-            .or(() -> getPerioderAnnenforelderHarRett().map(p -> !p.getPerioder().isEmpty()))
             .orElse(null);
     }
 
     public Boolean getAnnenForelderRettEØSAvklaring() {
         return getOverstyrtRettighet().map(OppgittRettighetEntitet::getAnnenForelderRettEØSNullable)
-            .or(() -> getPerioderAnnenForelderRettEØS().map(p -> !p.getPerioder().isEmpty()))
             .orElse(null);
     }
 
@@ -196,11 +178,6 @@ public class YtelseFordelingAggregat {
             return this;
         }
 
-        public Builder medPerioderAleneOmsorg(PerioderAleneOmsorgEntitet perioderAleneOmsorg) {
-            kladd.perioderAleneOmsorg = perioderAleneOmsorg;
-            return this;
-        }
-
         public Builder medOpprinneligeAktivitetskravPerioder(AktivitetskravPerioderEntitet aktivitetskravPerioder) {
             kladd.opprinneligeAktivitetskravPerioder = aktivitetskravPerioder;
             return this;
@@ -208,16 +185,6 @@ public class YtelseFordelingAggregat {
 
         public Builder medSaksbehandledeAktivitetskravPerioder(AktivitetskravPerioderEntitet aktivitetskravPerioder) {
             kladd.saksbehandledeAktivitetskravPerioder = aktivitetskravPerioder;
-            return this;
-        }
-
-        public Builder medPerioderAnnenforelderHarRett(PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRett) {
-            kladd.perioderAnnenforelderHarRett = perioderAnnenforelderHarRett;
-            return this;
-        }
-
-        public Builder medPerioderAnnenForelderRettEØS(PerioderAnnenForelderRettEØSEntitet perioderAnnenForelderRettEØS) {
-            kladd.perioderAnnenForelderRettEØS = perioderAnnenForelderRettEØS;
             return this;
         }
 

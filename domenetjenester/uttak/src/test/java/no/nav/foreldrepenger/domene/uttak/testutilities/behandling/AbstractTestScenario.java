@@ -20,9 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Aktivit
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenForelderRettEØSEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUtenOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -67,9 +64,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private Behandling originalBehandling;
     private Set<BehandlingÅrsakType> behandlingÅrsaker;
     private PerioderUtenOmsorgEntitet perioderUtenOmsorg;
-    private PerioderAleneOmsorgEntitet perioderMedAleneomsorg;
-    private PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRett;
-    private PerioderAnnenForelderRettEØSEntitet perioderAnnenForelderRettEØS;
     private UttakResultatPerioderEntitet uttak;
     private AktivitetskravPerioderEntitet opprinneligeAktivitetskravPerioder;
     private AktivitetskravPerioderEntitet saksbehandledeAktivitetskravPerioder;
@@ -161,8 +155,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private void lagreYtelseFordeling(UttakRepositoryProvider repositoryProvider, Behandling behandling) {
         if (oppgittRettighet == null && oppgittDekningsgrad == null && oppgittFordeling == null && overstyrtRettighet == null
-            && avklarteUttakDatoer == null && perioderUtenOmsorg == null && perioderMedAleneomsorg == null
-            && opprinneligeAktivitetskravPerioder == null && justertFordeling == null
+            && avklarteUttakDatoer == null && perioderUtenOmsorg == null && opprinneligeAktivitetskravPerioder == null && justertFordeling == null
             && saksbehandledeAktivitetskravPerioder == null) {
             return;
         }
@@ -175,9 +168,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             .medJustertFordeling(justertFordeling)
             .medAvklarteDatoer(avklarteUttakDatoer)
             .medPerioderUtenOmsorg(perioderUtenOmsorg)
-            .medPerioderAleneOmsorg(perioderMedAleneomsorg)
-            .medPerioderAnnenforelderHarRett(perioderAnnenforelderHarRett)
-            .medPerioderAnnenForelderRettEØS(perioderAnnenForelderRettEØS)
             .medOpprinneligeAktivitetskravPerioder(opprinneligeAktivitetskravPerioder)
             .medSaksbehandledeAktivitetskravPerioder(saksbehandledeAktivitetskravPerioder)
             ;
@@ -287,24 +277,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S medPerioderUtenOmsorg(PerioderUtenOmsorgEntitet perioderUtenOmsorg) {
         this.perioderUtenOmsorg = perioderUtenOmsorg;
-        return (S) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public S medPeriodeMedAleneomsorg(PerioderAleneOmsorgEntitet perioderAleneOmsorg) {
-        this.perioderMedAleneomsorg = perioderAleneOmsorg;
-        return (S) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public S medPeriodeAnnenforelderHarRett(PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRett) {
-        this.perioderAnnenforelderHarRett = perioderAnnenforelderHarRett;
-        return (S) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public S medPeriodeAnnenForelderRettEØS(PerioderAnnenForelderRettEØSEntitet perioderAnnenForelderRettEØS) {
-        this.perioderAnnenForelderRettEØS = perioderAnnenForelderRettEØS;
         return (S) this;
     }
 

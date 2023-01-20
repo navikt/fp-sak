@@ -155,6 +155,8 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         var rettighet = new OppgittRettighetEntitet(false, false, false, false);
         scenario.medOppgittRettighet(rettighet);
+        var overstyrt = new OppgittRettighetEntitet(null, null, true, null);
+        scenario.medOverstyrtRettighet(overstyrt);
 
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -163,7 +165,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
             .medBekreftetHendelse(familieHendelse);
         var uføreBuilder = UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
             .medBehandlingId(behandling.getId()).medAktørIdUføretrygdet(AKTØR_ID_MOR)
-            .medRegisterUføretrygd(false, null, null).medOverstyrtUføretrygd(true);
+            .medRegisterUføretrygd(false, null, null);
 
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(
             lagInputUføre(behandling, familieHendelser, null, true, uføreBuilder));

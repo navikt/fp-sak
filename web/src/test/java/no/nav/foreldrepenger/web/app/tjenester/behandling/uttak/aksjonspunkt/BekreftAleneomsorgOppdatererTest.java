@@ -14,10 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -35,14 +32,12 @@ public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
 
     private BehandlingRepositoryProvider behandlingRepositoryProvider;
-    private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
 
     @BeforeEach
     void setUp() {
         var entityManager = getEntityManager();
         behandlingRepositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager));
     }
 
@@ -68,7 +63,7 @@ public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         dto.setAnnenforelderHarRett(true);
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         // Act
-        var oppdateringresultat = new BekreftAleneomsorgOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(), mock(UføretrygdRepository.class)), mock(PersonopplysningRepository.class))
+        var oppdateringresultat = new BekreftAleneomsorgOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory()))
             .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
@@ -108,7 +103,7 @@ public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         dto.setAnnenforelderHarRett(true);
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         // Act
-        var oppdateringresultat = new BekreftAleneomsorgOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(), mock(UføretrygdRepository.class)), mock(PersonopplysningRepository.class))
+        var oppdateringresultat = new BekreftAleneomsorgOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory()))
             .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
@@ -148,7 +143,7 @@ public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         dto.setAnnenforelderHarRett(true);
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         // Act
-        var oppdateringresultat = new BekreftAleneomsorgOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(), mock(UføretrygdRepository.class)), mock(PersonopplysningRepository.class))
+        var oppdateringresultat = new BekreftAleneomsorgOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory()))
             .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
@@ -200,8 +195,7 @@ public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         // Act
         var oppdateringresultat = new BekreftAleneomsorgOppdaterer(
-            new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(), grunnlagRepositoryProvider.getUføretrygdRepository()),
-            grunnlagRepositoryProvider.getPersonopplysningRepository())
+            new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory()))
             .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
@@ -210,11 +204,7 @@ public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         // Assert
         assertThat(oppdateringresultat.kreverTotrinnsKontroll()).isTrue();
 
-        assertThat(grunnlagRepositoryProvider.getUføretrygdRepository().hentGrunnlag(behandling.getId()))
-            .hasValueSatisfying(u -> {
-                assertThat(u.getAktørIdAnnenPart()).isEqualTo(annenpart);
-                assertThat(u.annenForelderMottarUføretrygd()).isTrue();
-            });
+        assertThat(ytelseFordelingTjeneste.hentAggregat(behandling.getId()).getMorUføretrygdAvklaring()).isTrue();
 
         assertThat(historikkinnslagDeler).hasSize(1);
         assertThat(historikkinnslagDeler.get(0).getEndredeFelt()).hasSize(3);

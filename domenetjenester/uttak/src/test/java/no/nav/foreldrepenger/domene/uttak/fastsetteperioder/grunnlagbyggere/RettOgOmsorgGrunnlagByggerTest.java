@@ -17,8 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenForelderRettEØSEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -121,8 +119,6 @@ public class RettOgOmsorgGrunnlagByggerTest {
     @Test
     public void skalLeggeHarAleneomsorgHvisAleneomsorg() {
         var scenario = medAleneomsorg();
-        var perioderAleneOmsorg = new PerioderAleneOmsorgEntitet(true);
-        scenario.medPeriodeMedAleneomsorg(perioderAleneOmsorg);
         scenario.medOverstyrtRettighet(new OppgittRettighetEntitet(false, true, null, null));
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -138,8 +134,6 @@ public class RettOgOmsorgGrunnlagByggerTest {
     @Test
     public void skalIkkeLeggeTilHarAleneomsorgHvisIkkeAleneomsorg() {
         var scenario = medAleneomsorg();
-        var perioderAleneOmsorg = new PerioderAleneOmsorgEntitet(false);
-        scenario.medPeriodeMedAleneomsorg(perioderAleneOmsorg);
         scenario.medOverstyrtRettighet(new OppgittRettighetEntitet(true, false, null, null));
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -212,8 +206,6 @@ public class RettOgOmsorgGrunnlagByggerTest {
     @Test
     public void skalLeggeTilOppgittOgBekreftetEØS() {
         var scenario = bareFarMedRett(false, true);
-        var periodeAnnenForelderRettEØS = new PerioderAnnenForelderRettEØSEntitet(true);
-        scenario.medPeriodeAnnenForelderRettEØS(periodeAnnenForelderRettEØS);
         scenario.medOverstyrtRettighet(new OppgittRettighetEntitet(null, null, null, true));
         var behandling = scenario.lagre(repositoryProvider);
         var grunnlag = byggGrunnlag(behandling);
@@ -225,8 +217,6 @@ public class RettOgOmsorgGrunnlagByggerTest {
     @Test
     public void skalLeggeTilOppgittOgAvkreftetEØS() {
         var scenario = bareFarMedRett(false, true);
-        var periodeAnnenForelderRettEØS = new PerioderAnnenForelderRettEØSEntitet(false);
-        scenario.medPeriodeAnnenForelderRettEØS(periodeAnnenForelderRettEØS);
         scenario.medOverstyrtRettighet(new OppgittRettighetEntitet(null, null, null, false));
         var behandling = scenario.lagre(repositoryProvider);
 
