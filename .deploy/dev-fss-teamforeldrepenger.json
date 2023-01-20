@@ -18,6 +18,7 @@
         "mem": "1024Mi"
     },
     "ingresses": [
+        "fpsak-q1.nais.preprod.local",
         "https://fpsak-api.dev-fss-pub.nais.io",
         "https://fpsak-api.dev.intern.nav.no"
     ],
