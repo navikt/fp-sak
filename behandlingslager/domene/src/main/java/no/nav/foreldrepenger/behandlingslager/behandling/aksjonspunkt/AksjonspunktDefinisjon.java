@@ -221,7 +221,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         AksjonspunktType.MANUELL, "Gradering i søknadsperiode er lagt på aktivitet uten beregningsgrunnlag", BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.INN, UTEN_VILKÅR,
         SkjermlenkeType.FAKTA_OM_UTTAK, ENTRINN, EnumSet.of(FP)),
     FAKTA_UTTAK_INGEN_PERIODER(AksjonspunktKodeDefinisjon.FAKTA_UTTAK_INGEN_PERIODER_KODE,
-        AksjonspunktType.MANUELL, "Ingen perioder å vurdere. Vurder om behandlingen er feiloppretter og kan henlegges", BehandlingStegType.FAKTA_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR,
+        AksjonspunktType.MANUELL, "Ingen perioder å vurdere. Vurder om behandlingen er feilopprettet og kan henlegges", BehandlingStegType.FAKTA_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR,
         SkjermlenkeType.FAKTA_UTTAK, TOTRINN, EnumSet.of(FP)),
     FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO(AksjonspunktKodeDefinisjon.FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO_KODE,
         AksjonspunktType.MANUELL, "Første periode starter ikke på avklart startdato. Legg inn periode fra startdato", BehandlingStegType.FAKTA_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR,
