@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class Adresseinfo {
 
@@ -78,9 +79,19 @@ public class Adresseinfo {
         if (a1 == null && a2 == null) return true;
         if (a1 == null || a2 == null) return false;
         if (a1.matrikkelId != null || a2.matrikkelId != null) return Objects.equals(a1.matrikkelId, a2.matrikkelId);
-        return Objects.equals(a1.adresselinje1, a2.adresselinje1) &&
+        return likeAdresselinjer(a1, a2) &&
             Objects.equals(a1.postNr, a2.postNr) &&
             Objects.equals(a1.land, a2.land);
+    }
+
+    private static boolean likeAdresselinjer(Adresseinfo a1, Adresseinfo a2) {
+        var a1l1 = kompaktAdresseline(a1.adresselinje1);
+        var a2l1 = kompaktAdresseline(a2.adresselinje1);
+        return Objects.equals(a1l1, a2l1) || Objects.equals(a1l1, kompaktAdresseline(a2.adresselinje2)) || Objects.equals(kompaktAdresseline(a1.adresselinje2), a2l1);
+    }
+
+    private static String kompaktAdresseline(String adresselinje) {
+        return Optional.ofNullable(adresselinje).map(a -> a.replaceAll("\\s", "")).orElse(null);
     }
 
     public static Builder builder(AdresseType gjeldende) {
