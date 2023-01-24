@@ -61,12 +61,12 @@ public class BestillBrevDto {
         return behandlingUuid;
     }
 
-    public RevurderingVarslingÅrsak getÅrsakskode() {
+    public RevurderingVarslingÅrsak getArsakskode() {
         return arsakskode;
     }
 
-    public void setÅrsakskode(RevurderingVarslingÅrsak årsakskode) {
-        this.arsakskode = årsakskode;
+    public void setArsakskode(RevurderingVarslingÅrsak arsakskode) {
+        this.arsakskode = arsakskode;
     }
 
     public void setBehandlingId(Long behandlingId) {

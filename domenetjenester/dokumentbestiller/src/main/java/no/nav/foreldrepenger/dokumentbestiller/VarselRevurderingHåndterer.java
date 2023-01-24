@@ -37,7 +37,7 @@ class VarselRevurderingHåndterer {
 
     void oppdater(Behandling behandling, VarselRevurderingAksjonspunktDto adapter) {
         var bestillBrevDto = new BestillBrevDto(behandling.getId(), behandling.getUuid(), DokumentMalType.VARSEL_OM_REVURDERING, adapter.getFritekst());
-        bestillBrevDto.setÅrsakskode(RevurderingVarslingÅrsak.ANNET);
+        bestillBrevDto.setArsakskode(RevurderingVarslingÅrsak.ANNET);
         dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER);
         settBehandlingPaVent(behandling, adapter.getFrist(), fraDto(adapter.getVenteÅrsakKode()));
     }
