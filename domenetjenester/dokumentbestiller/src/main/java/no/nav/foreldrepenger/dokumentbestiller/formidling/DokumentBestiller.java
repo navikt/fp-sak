@@ -10,8 +10,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilt;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilt;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.vedtak.felles.prosesstask.api.CommonTaskProperties;
@@ -47,7 +47,7 @@ public class DokumentBestiller {
         bestillBrev(behandling,
                     bestillBrevDto.getBrevmalkode(),
                     bestillBrevDto.getFritekst(),
-                    bestillBrevDto.getÅrsakskode(),
+                    bestillBrevDto.getArsakskode(),
                     aktør);
     }
 

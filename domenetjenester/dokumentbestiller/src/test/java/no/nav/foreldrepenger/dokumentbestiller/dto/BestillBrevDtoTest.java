@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class BestillBrevDtoTest {
 
@@ -22,14 +22,16 @@ class BestillBrevDtoTest {
 
         var brev = new BestillBrevDto(behandlingId, UUID.fromString(uuid), dokumentMal, null, arsak);
 
-        var etterRoundtrip = StandardJsonConfig.fromJson(StandardJsonConfig.toJson(brev), BestillBrevDto.class);
+        String json = DefaultJsonMapper.toJson(brev);
+
+        var etterRoundtrip = DefaultJsonMapper.fromJson(json, BestillBrevDto.class);
 
         assertEquals(brev.getBehandlingId(), etterRoundtrip.getBehandlingId());
         assertEquals(behandlingId, etterRoundtrip.getBehandlingId());
         assertEquals(brev.getBrevmalkode(), etterRoundtrip.getBrevmalkode());
         assertEquals(dokumentMal, brev.getBrevmalkode());
-        assertEquals(brev.getÅrsakskode(), etterRoundtrip.getÅrsakskode());
-        assertEquals(arsak, etterRoundtrip.getÅrsakskode());
+        assertEquals(brev.getArsakskode(), etterRoundtrip.getArsakskode());
+        assertEquals(arsak, etterRoundtrip.getArsakskode());
         assertEquals(brev.getFritekst(), etterRoundtrip.getFritekst());
         assertNull(etterRoundtrip.getFritekst());
         assertEquals(brev.getBehandlingUuid(), etterRoundtrip.getBehandlingUuid());
