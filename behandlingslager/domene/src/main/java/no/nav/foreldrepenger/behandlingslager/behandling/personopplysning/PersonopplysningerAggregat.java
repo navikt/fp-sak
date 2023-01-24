@@ -274,24 +274,13 @@ public class PersonopplysningerAggregat {
         for (var opplysningAdresseSøker : getAdresserFor(søkerAktørId)) {
             for (var opplysningAdresseAnnenpart : getAdresserFor(aktørId)) {
                 var sammeperiode = opplysningAdresseSøker.getPeriode().overlapper(opplysningAdresseAnnenpart.getPeriode());
-                var sammeMatrikkel = likAdresseIgnoringCase(opplysningAdresseSøker.getMatrikkelId(), opplysningAdresseAnnenpart.getMatrikkelId());
-                if (sammeperiode && (sammeMatrikkel || (likAdresseIgnoringCase(opplysningAdresseSøker.getAdresselinje1(), opplysningAdresseAnnenpart.getAdresselinje1())
-                    && Objects.equals(opplysningAdresseSøker.getPostnummer(), opplysningAdresseAnnenpart.getPostnummer())))) {
+                if (sammeperiode && PersonAdresseEntitet.likeAdresser(opplysningAdresseSøker, opplysningAdresseAnnenpart)) {
                     return true;
                 }
             }
         }
         return false;
     }
-
-    private boolean likAdresseIgnoringCase(String adresse1, String adresse2) {
-        if (adresse1 == null && adresse2 == null)
-            return true;
-        if (adresse1 == null || adresse2 == null)
-            return false;
-        return adresse1.equalsIgnoreCase(adresse2);
-    }
-
 
     @Override
     public boolean equals(Object o) {

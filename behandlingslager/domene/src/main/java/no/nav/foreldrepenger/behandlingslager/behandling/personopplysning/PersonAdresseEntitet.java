@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -201,6 +202,25 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
 
     public boolean erUtlandskAdresse() {
         return !Landkoder.erNorge(land) || adresseType.erUtlandsAdresseType();
+    }
+
+    public static boolean likeAdresser(PersonAdresseEntitet a1, PersonAdresseEntitet a2) {
+        if (a1 == null && a2 == null) return true;
+        if (a1 == null || a2 == null) return false;
+        if (a1.matrikkelId != null || a2.matrikkelId != null) return Objects.equals(a1.matrikkelId, a2.matrikkelId);
+        return likeAdresselinjer(a1, a2) &&
+            Objects.equals(a1.postnummer, a2.postnummer) &&
+            Objects.equals(a1.land, a2.land);
+    }
+
+    private static boolean likeAdresselinjer(PersonAdresseEntitet a1, PersonAdresseEntitet a2) {
+        var a1l1 = kompaktAdresseline(a1.adresselinje1);
+        var a2l1 = kompaktAdresseline(a2.adresselinje1);
+        return Objects.equals(a1l1, a2l1) || Objects.equals(a1l1, kompaktAdresseline(a2.adresselinje2)) || Objects.equals(kompaktAdresseline(a1.adresselinje2), a2l1);
+    }
+
+    private static String kompaktAdresseline(String adresselinje) {
+        return Optional.ofNullable(adresselinje).map(a -> a.replaceAll("\\s", "")).orElse(null);
     }
 
     @Override
