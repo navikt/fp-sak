@@ -4,16 +4,20 @@ import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -21,6 +25,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
@@ -32,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -93,8 +102,11 @@ public class FordelRestTjeneste {
 
     @Inject
     public FordelRestTjeneste(SaksbehandlingDokumentmottakTjeneste dokumentmottakTjeneste,
-            FagsakTjeneste fagsakTjeneste, OpprettSakOrchestrator opprettSakOrchestrator, OpprettSakTjeneste opprettSakTjeneste,
-            BehandlingRepositoryProvider repositoryProvider, VurderFagsystemFellesTjeneste vurderFagsystemFellesTjeneste) { // NOSONAR
+                              FagsakTjeneste fagsakTjeneste,
+                              OpprettSakOrchestrator opprettSakOrchestrator,
+                              OpprettSakTjeneste opprettSakTjeneste,
+                              BehandlingRepositoryProvider repositoryProvider,
+                              VurderFagsystemFellesTjeneste vurderFagsystemFellesTjeneste) { // NOSONAR
         this.dokumentmottakTjeneste = dokumentmottakTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
         this.opprettSakOrchestrator = opprettSakOrchestrator;
@@ -110,8 +122,7 @@ public class FordelRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Informasjon om en fagsak", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public BehandlendeFagsystemDto vurderFagsystem(
-            @Parameter(description = "Krever behandlingstemaOffisiellKode", required = true) @Valid AbacVurderFagsystemDto vurderFagsystemDto) {
+    public BehandlendeFagsystemDto vurderFagsystem(@Parameter(description = "Krever behandlingstemaOffisiellKode", required = true) @Valid AbacVurderFagsystemDto vurderFagsystemDto) {
         ensureCallId();
         var vurderFagsystem = map(vurderFagsystemDto);
         var behandlendeFagsystem = vurderFagsystemTjeneste.vurderFagsystem(vurderFagsystem);
@@ -124,8 +135,7 @@ public class FordelRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Informasjon om en fagsak klageinstansrelatert", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public BehandlendeFagsystemDto vurderForKlageinstans(
-        @Parameter(description = "Krever behandlingstemaOffisiellKode", required = true) @Valid AbacVurderFagsystemDto vurderFagsystemDto) {
+    public BehandlendeFagsystemDto vurderForKlageinstans(@Parameter(description = "Krever behandlingstemaOffisiellKode", required = true) @Valid AbacVurderFagsystemDto vurderFagsystemDto) {
         ensureCallId();
         var vurderFagsystem = map(vurderFagsystemDto);
         var behandlendeFagsystem = vurderFagsystemTjeneste.vurderFagsystemForKlageinstans(vurderFagsystem);
@@ -138,8 +148,7 @@ public class FordelRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Informasjon om en fagsak", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public FagsakInfomasjonDto fagsak(
-            @Parameter(description = "Saksnummeret det skal hentes saksinformasjon om") @Valid AbacSaksnummerDto saksnummerDto) {
+    public FagsakInfomasjonDto fagsak(@Parameter(description = "Saksnummeret det skal hentes saksinformasjon om") @Valid AbacSaksnummerDto saksnummerDto) {
         ensureCallId();
         var optFagsak = fagsakTjeneste.finnFagsakGittSaksnummer(new Saksnummer(saksnummerDto.getSaksnummer()), false);
         if (optFagsak.isEmpty() || optFagsak.get().erStengt()) {
@@ -149,8 +158,8 @@ public class FordelRestTjeneste {
         FamilieHendelseEntitet familieHendelse = null;
         if (behandling.isPresent()) {
             familieHendelse = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())
-                    .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-                    .orElse(null);
+                .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+                .orElse(null);
         }
         var behandlingTemaFraKodeverksRepo = BehandlingTema.fraFagsak(optFagsak.get(), familieHendelse);
         var behandlingstemaOffisiellKode = behandlingTemaFraKodeverksRepo.getOffisiellKode();
@@ -186,11 +195,9 @@ public class FordelRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Knytt journalpost til fagsak.", summary = ("Før en journalpost journalføres på en fagsak skal fagsaken oppdateres med journalposten."), tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public Response knyttSakOgJournalpost(
-            @Parameter(description = "Saksnummer og JournalpostId som skal knyttes sammen") @Valid AbacJournalpostKnyttningDto journalpostKnytningDto) {
+    public Response knyttSakOgJournalpost(@Parameter(description = "Saksnummer og JournalpostId som skal knyttes sammen") @Valid AbacJournalpostKnyttningDto journalpostKnytningDto) {
         ensureCallId();
-        opprettSakTjeneste.knyttSakOgJournalpost(new Saksnummer(journalpostKnytningDto.getSaksnummer()),
-                new JournalpostId(journalpostKnytningDto.getJournalpostId()));
+        opprettSakTjeneste.knyttSakOgJournalpost(new Saksnummer(journalpostKnytningDto.getSaksnummer()), new JournalpostId(journalpostKnytningDto.getJournalpostId()));
         return Response.ok().build();
     }
 
@@ -200,8 +207,7 @@ public class FordelRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Ny journalpost skal behandles.", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public Response mottaJournalpost(
-            @Parameter(description = "Krever saksnummer, journalpostId og behandlingstemaOffisiellKode") @Valid AbacJournalpostMottakDto mottattJournalpost) {
+    public Response mottaJournalpost(@Parameter(description = "Krever saksnummer, journalpostId og behandlingstemaOffisiellKode") @Valid AbacJournalpostMottakDto mottattJournalpost) {
         var dokumentTypeId = mottattJournalpost.getDokumentTypeIdOffisiellKode()
             .map(DokumentTypeId::finnForKodeverkEiersKode).orElse(DokumentTypeId.UDEFINERT);
         if (DokumentTypeId.TILBAKE_UTTALSELSE.equals(dokumentTypeId)) {
@@ -213,6 +219,29 @@ public class FordelRestTjeneste {
         return Response.ok().build();
     }
 
+    @GET
+    @Path("/finnFagsaker")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Finn alle saker for en bruker.", summary = ("Finn alle saker for en bruker"), tags = "fordel",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Liste av alle brukers saker, ellers tom liste",
+                content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = FagSakJournalføringDto.class))))
+        })
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    public Response finnAlleSakerForBruker(@NotNull @QueryParam("aktørId") @Parameter(description = "Krever aktørid") @Valid AktørId aktørId) {
+        ensureCallId();
+        var fagSakJournalføringDtoListe = fagsakTjeneste.finnFagsakerForAktør(aktørId).stream().map(this::mapFagsakJFDto).toList();
+        //Anja - hva med kode 6 og 7 - må vi ha noe håndtering av det her?
+        return Response.ok(new FagsakerJournalføringRespons(fagSakJournalføringDtoListe)).build();
+    }
+    private FagSakJournalføringDto mapFagsakJFDto(Fagsak fagsak) {
+        return new FagSakJournalføringDto (new SaksnummerDto(fagsak.getSaksnummer().getVerdi()), fagsak.getYtelseType().getNavn(), fagsak.getOpprettetTidspunkt().toLocalDate(), fagsak.getEndretTidspunkt().toLocalDate(), fagsak.getStatus().getNavn());
+    }
+    private  record FagsakerJournalføringRespons(List<FagSakJournalføringDto> fagsakJournalFøringDtoListe){ }
+
+    private record FagSakJournalføringDto(SaksnummerDto saksnummer, String ytelseNavn, LocalDate opprettetDato, LocalDate endretDato, String status) {}
+
     private void ensureCallId() {
         var callId = MDCOperations.getCallId();
         if (callId == null || callId.isBlank()) {
@@ -222,7 +251,7 @@ public class FordelRestTjeneste {
 
     private VurderFagsystem map(VurderFagsystemDto dto) {
         var v = new VurderFagsystem();
-        dto.getJournalpostId().map(jpi -> new JournalpostId(jpi)).ifPresent(v::setJournalpostId);
+        dto.getJournalpostId().map(JournalpostId::new).ifPresent(v::setJournalpostId);
         v.setStrukturertSøknad(dto.isStrukturertSøknad());
         v.setAktørId(new AktørId(dto.getAktørId()));
         var behandlingTema = BehandlingTema.finnForKodeverkEiersKode(dto.getBehandlingstemaOffisiellKode());
