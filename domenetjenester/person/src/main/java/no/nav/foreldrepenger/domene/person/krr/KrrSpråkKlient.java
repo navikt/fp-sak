@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.person.krr;
 
 import java.net.URI;
+import java.time.Duration;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.Response;
@@ -48,7 +49,8 @@ public class KrrSpråkKlient {
         try {
             var request = RestRequest.newGET(endpoint, restConfig)
                 .header(NavHeaders.HEADER_NAV_PERSONIDENT, fnr)
-                .otherCallId(NavHeaders.HEADER_NAV_CALL_ID);
+                .otherCallId(NavHeaders.HEADER_NAV_CALL_ID)
+                .timeout(Duration.ofSeconds(3)); // Kall langt avgårde - blokkerer ofte til 3*timeout. Request inn til fpsak har timeout 20s.
             var respons = restClient.sendReturnOptional(request, KrrRespons.class);
             return respons
                 .map(KrrRespons::språk)
