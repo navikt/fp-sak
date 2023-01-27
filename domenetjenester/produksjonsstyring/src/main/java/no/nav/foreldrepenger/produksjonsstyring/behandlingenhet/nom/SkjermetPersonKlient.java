@@ -13,7 +13,7 @@ import no.nav.vedtak.felles.integrasjon.skjerming.AbstractSkjermetPersonOnPremKl
  */
 @Dependent
 //@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "skjermet.person.rs.url", endpointDefault = "https://skjermede-personer-pip.intern.nav.no/skjermet",
-//    scopesProperty = "skjermet.person.rs.azure.scope", scopesDefault = "api://prod-gcp.nom.skjermede-personer-pip/.default")
+//    scopesProperty = "skjermet.person.scopes", scopesDefault = "api://prod-gcp.nom.skjermede-personer-pip/.default")
 @RestClientConfig(tokenConfig = TokenFlow.STS_CC, endpointProperty = "skjermet.person.onprem.rs.url", endpointDefault = "http://skjermede-personer-pip.nom/skjermet")
 public class SkjermetPersonKlient extends AbstractSkjermetPersonOnPremKlient {
 
