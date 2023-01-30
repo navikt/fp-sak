@@ -7,11 +7,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnresultatgrunnlag;
 
@@ -51,6 +51,21 @@ public class OpprettToTrinnsgrunnlag {
         var totrinnsresultatgrunnlag = new Totrinnresultatgrunnlag(behandling,
             ytelseFordelingIdOpt.orElse(null),
             uttakResultatOpt.map(UttakResultatEntitet::getId).orElse(null),
+            beregningsgrunnlagOpt.map(BeregningsgrunnlagEntitet::getId).orElse(null),
+            iayGrunnlagOpt.map(InntektArbeidYtelseGrunnlag::getEksternReferanse).orElse(null));
+
+        totrinnTjeneste.lagreNyttTotrinnresultat(behandling, totrinnsresultatgrunnlag);
+    }
+
+    public void settNyttTotrinnsgrunnlag(Behandling behandling, Long uttakId) {
+        var beregningsgrunnlagOpt = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId())
+            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
+        var ytelseFordelingIdOpt = ytelsesFordelingRepository.hentIdPåAktivYtelsesFordeling(behandling.getId());
+        var iayGrunnlagOpt = iayTjeneste.finnGrunnlag(behandling.getId());
+
+        var totrinnsresultatgrunnlag = new Totrinnresultatgrunnlag(behandling,
+            ytelseFordelingIdOpt.orElse(null),
+            uttakId,
             beregningsgrunnlagOpt.map(BeregningsgrunnlagEntitet::getId).orElse(null),
             iayGrunnlagOpt.map(InntektArbeidYtelseGrunnlag::getEksternReferanse).orElse(null));
 
