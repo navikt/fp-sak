@@ -58,16 +58,13 @@ public class OpprettToTrinnsgrunnlag {
     }
 
     public void settNyttTotrinnsgrunnlag(Behandling behandling, Long uttakId) {
-        var beregningsgrunnlagOpt = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId())
-            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
-        var ytelseFordelingIdOpt = ytelsesFordelingRepository.hentIdPåAktivYtelsesFordeling(behandling.getId());
-        var iayGrunnlagOpt = iayTjeneste.finnGrunnlag(behandling.getId());
+        var grunnlag = totrinnTjeneste.hentTotrinngrunnlagHvisEksisterer(behandling).orElseThrow();
 
         var totrinnsresultatgrunnlag = new Totrinnresultatgrunnlag(behandling,
-            ytelseFordelingIdOpt.orElse(null),
+            grunnlag.getYtelseFordelingGrunnlagEntitetId().orElse(null),
             uttakId,
-            beregningsgrunnlagOpt.map(BeregningsgrunnlagEntitet::getId).orElse(null),
-            iayGrunnlagOpt.map(InntektArbeidYtelseGrunnlag::getEksternReferanse).orElse(null));
+            grunnlag.getBeregningsgrunnlagId().orElse(null),
+            grunnlag.getGrunnlagUuid().orElse(null));
 
         totrinnTjeneste.lagreNyttTotrinnresultat(behandling, totrinnsresultatgrunnlag);
     }
