@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -41,6 +42,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -63,6 +66,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
@@ -229,18 +233,19 @@ public class FordelRestTjeneste {
                 content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = FagSakJournalføringDto.class))))
         })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response finnAlleSakerForBruker(@NotNull @QueryParam("aktørId") @Parameter(description = "Krever aktørid") @Valid AktørId aktørId) {
+    public FagsakerJournalføringRespons finnAlleSakerForBruker(@TilpassetAbacAttributt(supplierClass = AbacJournalpostMottakDto.AbacDataSupplier.class) @NotNull @QueryParam("aktørId") @Parameter(description = "Krever aktørid") @Valid AktørId aktørId) {
         ensureCallId();
         var fagSakJournalføringDtoListe = fagsakTjeneste.finnFagsakerForAktør(aktørId).stream().map(this::mapFagsakJFDto).toList();
-        //Anja - hva med kode 6 og 7 - må vi ha noe håndtering av det her?
-        return Response.ok(new FagsakerJournalføringRespons(fagSakJournalføringDtoListe)).build();
+        return new FagsakerJournalføringRespons(fagSakJournalføringDtoListe);
     }
     private FagSakJournalføringDto mapFagsakJFDto(Fagsak fagsak) {
-        return new FagSakJournalføringDto (new SaksnummerDto(fagsak.getSaksnummer().getVerdi()), fagsak.getYtelseType().getNavn(), fagsak.getOpprettetTidspunkt().toLocalDate(), fagsak.getEndretTidspunkt().toLocalDate(), fagsak.getStatus().getNavn());
+        return new FagSakJournalføringDto (new SaksnummerDto(fagsak.getSaksnummer().getVerdi()), fagsak.getYtelseType(), fagsak.getOpprettetTidspunkt().toLocalDate(), fagsak.getEndretTidspunkt().toLocalDate(), fagsak.getStatus());
     }
-    private  record FagsakerJournalføringRespons(List<FagSakJournalføringDto> fagsakJournalFøringDtoListe){ }
 
-    private record FagSakJournalføringDto(SaksnummerDto saksnummer, String ytelseNavn, LocalDate opprettetDato, LocalDate endretDato, String status) {}
+    public record FagsakerJournalføringRespons(List<FagSakJournalføringDto> fagsakJournalFøringDtoListe){ }
+
+    public record FagSakJournalføringDto(SaksnummerDto saksnummer, FagsakYtelseType ytelseType, LocalDate opprettetDato, LocalDate endretDato, FagsakStatus status) {}
+
 
     private void ensureCallId() {
         var callId = MDCOperations.getCallId();
@@ -367,6 +372,15 @@ public class FordelRestTjeneste {
                     deklarertLengde, streng.length()));
             }
             return Optional.of(streng);
+        }
+
+        public static class AbacDataSupplier implements Function<Object, AbacDataAttributter> {
+
+            @Override
+            public AbacDataAttributter apply(Object obj) {
+                var req = (AktørId) obj;
+                return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.getId());
+            }
         }
 
         @Override

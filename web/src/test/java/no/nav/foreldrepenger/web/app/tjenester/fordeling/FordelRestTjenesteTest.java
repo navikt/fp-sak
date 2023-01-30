@@ -19,6 +19,8 @@ import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -41,8 +43,6 @@ public class FordelRestTjenesteTest {
     @Mock
     private SaksbehandlingDokumentmottakTjeneste dokumentmottakTjenesteMock;
     @Mock
-    private FagsakTjeneste fagsakTjenesteMock;
-    @Mock
     private OpprettSakOrchestrator opprettSakOrchestratorMock;
     @Mock
     private OpprettSakTjeneste opprettSakTjenesteMock;
@@ -56,9 +56,8 @@ public class FordelRestTjenesteTest {
     @BeforeEach
     public void setup(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        fagsakTjenesteMock = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository(), null);
-        fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock,
-                fagsakTjenesteMock, opprettSakOrchestratorMock, opprettSakTjenesteMock, repositoryProvider, vurderFagsystemTjenesteMock);
+        FagsakTjeneste fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository(), null);
+        fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjeneste, opprettSakOrchestratorMock, opprettSakTjenesteMock, repositoryProvider, vurderFagsystemTjenesteMock);
     }
 
     @Test
@@ -72,7 +71,7 @@ public class FordelRestTjenesteTest {
         var result = fordelRestTjeneste.vurderFagsystem(innDto);
 
         assertThat(result).isNotNull();
-        assertThat(String.valueOf(result.getSaksnummer().get())).isEqualTo(saksnummer.getVerdi());
+        assertThat(result.getSaksnummer().get()).isEqualTo(saksnummer.getVerdi());
         assertThat(result.isBehandlesIVedtaksløsningen()).isTrue();
     }
 
@@ -116,4 +115,18 @@ public class FordelRestTjenesteTest {
         assertThat(result).isNull();
     }
 
+    @Test
+    public void skalReturnereAlleBrukersSaker() {
+        final var saknr = new Saksnummer("TEST3");
+        final var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
+        scenario.medSaksnummer(saknr).medSøknadHendelse().medFødselsDato(LocalDate.now());
+        scenario.lagre(repositoryProvider);
+
+        var result = fordelRestTjeneste.finnAlleSakerForBruker(AKTØR_ID_MOR).fagsakJournalFøringDtoListe();
+
+        assertThat(result).hasSize(1);
+        assertThat((result.get(0).saksnummer()).getSaksnummer()).isEqualTo(saknr.getVerdi());
+        assertThat(result.get(0).status()).isEqualTo(FagsakStatus.OPPRETTET);
+        assertThat(result.get(0).ytelseType()).isEqualTo(FagsakYtelseType.FORELDREPENGER);
+    }
 }
