@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -295,23 +294,4 @@ public class InformasjonssakRepository {
         return toOverlappData(resultatList);
     }
 
-    public static record MigrerUR(Long behandlingId, Long uttakId) {}
-
-    public List<MigrerUR> finnYtelsesfordelingForMigrering() {
-        var query = entityManager.createNativeQuery("""
-select ttg.behandling_id, oppr.oppr, uttak.urid
-from TOTRINNRESULTATGRUNNLAG ttg
-join (select behandling_id, max(opprettet_tid) oppr from TOTRINNRESULTATGRUNNLAG ttgi where ttgi.aktiv='N' group by behandling_id) oppr on ttg.behandling_id = oppr.behandling_id
-join (select behandling_id, opprettet_tid oppt, uttak_resultat_id urid from TOTRINNRESULTATGRUNNLAG ttgu where ttgu.aktiv='N') uttak\s
-   on (ttg.behandling_id = uttak.behandling_id and uttak.oppt=oppr.oppr)
-where aktiv = 'J' and uttak_resultat_id is null
-and ttg.opprettet_tid >= :opprettet
-and uttak.urid is not null
-and exists (select * from TOTRINNRESULTATGRUNNLAG ttgi where ttgi.behandling_id = ttg.behandling_id and aktiv = 'N' and uttak_resultat_id is not null)
-             """)
-            .setParameter("opprettet", LocalDateTime.of(2023,1,18, 11,0));
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(o -> new MigrerUR(((BigDecimal) o[0]).longValue(), ((BigDecimal) o[2]).longValue())).toList();
-    }
 }
