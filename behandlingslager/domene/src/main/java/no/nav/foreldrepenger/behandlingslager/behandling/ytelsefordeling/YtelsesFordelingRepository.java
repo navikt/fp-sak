@@ -68,10 +68,10 @@ public class YtelsesFordelingRepository {
             .medOverstyrtFordeling(ytelseFordelingGrunnlagEntitet.getOverstyrtFordeling())
             .medPerioderUttakDokumentasjon(ytelseFordelingGrunnlagEntitet.getPerioderUttakDokumentasjon())
             .medAvklarteDatoer(ytelseFordelingGrunnlagEntitet.getAvklarteUttakDatoer())
-            .medOpprinneligeAktivitetskravPerioder(
-                ytelseFordelingGrunnlagEntitet.getOpprinneligeAktivitetskravPerioder())
-            .medSaksbehandledeAktivitetskravPerioder(
-                ytelseFordelingGrunnlagEntitet.getSaksbehandledeAktivitetskravPerioder())
+            .medOpprinneligeAktivitetskravPerioder(ytelseFordelingGrunnlagEntitet.getOpprinneligeAktivitetskravPerioder())
+            .medSaksbehandledeAktivitetskravPerioder(ytelseFordelingGrunnlagEntitet.getSaksbehandledeAktivitetskravPerioder())
+            .medOverstyrtOmsorg(ytelseFordelingGrunnlagEntitet.getOverstyrtOmsorg())
+            .migrertDokumentasjonsPerioder(ytelseFordelingGrunnlagEntitet.getMigrertDokumentasjonsPerioder())
             .build();
     }
 
@@ -147,6 +147,8 @@ public class YtelsesFordelingRepository {
         aggregat.getAvklarteDatoer().ifPresent(grunnlag::setAvklarteUttakDatoerEntitet);
         aggregat.getOpprinneligeAktivitetskravPerioder().ifPresent(grunnlag::setOpprinneligeAktivitetskravPerioder);
         aggregat.getSaksbehandledeAktivitetskravPerioder().ifPresent(grunnlag::setSaksbehandledeAktivitetskravPerioder);
+        Optional.ofNullable(aggregat.getOverstyrtOmsorg()).ifPresent(grunnlag::setOverstyrtOmsorg);
+        Optional.ofNullable(aggregat.getMigrertDokumentasjonsPerioder()).ifPresent(grunnlag::setMigrertDokumentasjonsPerioder);
         return grunnlag;
     }
 

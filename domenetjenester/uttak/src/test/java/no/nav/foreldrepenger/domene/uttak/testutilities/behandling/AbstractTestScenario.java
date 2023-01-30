@@ -63,6 +63,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private Behandling originalBehandling;
     private Set<BehandlingÅrsakType> behandlingÅrsaker;
+    private Boolean overstyrtOmsorg;
     private PerioderUtenOmsorgEntitet perioderUtenOmsorg;
     private UttakResultatPerioderEntitet uttak;
     private AktivitetskravPerioderEntitet opprinneligeAktivitetskravPerioder;
@@ -156,7 +157,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private void lagreYtelseFordeling(UttakRepositoryProvider repositoryProvider, Behandling behandling) {
         if (oppgittRettighet == null && oppgittDekningsgrad == null && oppgittFordeling == null && overstyrtRettighet == null
             && avklarteUttakDatoer == null && perioderUtenOmsorg == null && opprinneligeAktivitetskravPerioder == null && justertFordeling == null
-            && saksbehandledeAktivitetskravPerioder == null) {
+            && saksbehandledeAktivitetskravPerioder == null && overstyrtOmsorg == null) {
             return;
         }
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
@@ -168,6 +169,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             .medJustertFordeling(justertFordeling)
             .medAvklarteDatoer(avklarteUttakDatoer)
             .medPerioderUtenOmsorg(perioderUtenOmsorg)
+            .medOverstyrtOmsorg(overstyrtOmsorg)
             .medOpprinneligeAktivitetskravPerioder(opprinneligeAktivitetskravPerioder)
             .medSaksbehandledeAktivitetskravPerioder(saksbehandledeAktivitetskravPerioder)
             ;
@@ -271,6 +273,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S medAvklarteUttakDatoer(AvklarteUttakDatoerEntitet avklarteUttakDatoer) {
         this.avklarteUttakDatoer = avklarteUttakDatoer;
+        return (S) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public S medOverstyrtOmsorg(Boolean overstyrtOmsorg) {
+        this.overstyrtOmsorg = overstyrtOmsorg;
         return (S) this;
     }
 

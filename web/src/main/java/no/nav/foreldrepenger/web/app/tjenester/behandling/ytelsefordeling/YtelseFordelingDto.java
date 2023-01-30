@@ -7,6 +7,7 @@ import no.nav.foreldrepenger.familiehendelse.rest.PeriodeDto;
 
 public class YtelseFordelingDto {
     private List<PeriodeDto> ikkeOmsorgPerioder;
+    private Boolean overstyrtOmsorg;
     private Boolean bekreftetAleneomsorg;
     private RettigheterAnnenforelderDto rettigheterAnnenforelder;
     private LocalDate endringsdato;
@@ -15,6 +16,10 @@ public class YtelseFordelingDto {
     private boolean ønskerJustertVedFødsel;
 
     private YtelseFordelingDto() {
+    }
+
+    public Boolean getOverstyrtOmsorg() {
+        return overstyrtOmsorg;
     }
 
     public List<PeriodeDto> getIkkeOmsorgPerioder() {
@@ -48,6 +53,12 @@ public class YtelseFordelingDto {
     public static class Builder {
 
         private final YtelseFordelingDto kladd = new YtelseFordelingDto();
+
+        public Builder medOverstyrtOmsorg(Boolean overstyrtOmsorg) {
+            kladd.overstyrtOmsorg = overstyrtOmsorg;
+            return this;
+        }
+
 
         public Builder medIkkeOmsorgPerioder(List<PeriodeDto> ikkeOmsorgPerioder) {
             kladd.ikkeOmsorgPerioder = ikkeOmsorgPerioder;

@@ -59,6 +59,11 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     @ChangeTracked
     private OppgittDekningsgradEntitet oppgittDekningsgrad;
 
+    @Convert(converter = BooleanToStringConverter.class)
+    @Column(name = "overstyrt_omsorg")
+    @ChangeTracked
+    private Boolean overstyrtOmsorg;
+
     @ManyToOne
     @JoinColumn(name = "utenomsorg_id", updatable = false, unique = true)
     @ChangeTracked
@@ -91,6 +96,11 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     @Version
     @Column(name = "versjon", nullable = false)
     private long versjon;
+
+    @Convert(converter = BooleanToStringConverter.class)
+    @Column(name = "migrert_dok")
+    @ChangeTracked
+    private Boolean migrertDokumentasjonsPerioder;
 
     YtelseFordelingGrunnlagEntitet() {
     }
@@ -150,6 +160,22 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
 
     void setAktiv(boolean aktiv) {
         this.aktiv = aktiv;
+    }
+
+    public Boolean getOverstyrtOmsorg() {
+        return overstyrtOmsorg;
+    }
+
+    void setOverstyrtOmsorg(Boolean overstyrtOmsorg) {
+        this.overstyrtOmsorg = overstyrtOmsorg;
+    }
+
+    public Boolean getMigrertDokumentasjonsPerioder() {
+        return migrertDokumentasjonsPerioder;
+    }
+
+    void setMigrertDokumentasjonsPerioder(Boolean migrertDokumentasjonsPerioder) {
+        this.migrertDokumentasjonsPerioder = migrertDokumentasjonsPerioder;
     }
 
     PerioderUtenOmsorgEntitet getPerioderUtenOmsorg() {
