@@ -6,9 +6,11 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptj
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -25,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
+import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
@@ -41,6 +44,7 @@ import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.MapYtelseperioderTje
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningAktivitetVurderingAksjonspunkt;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningAktivitetVurderingVilkår;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -378,7 +382,26 @@ public class OpptjeningsperioderTjeneste {
             builder.medErManueltBehandlet();
         }
         builder.medStillingsandel(new Stillingsprosent(BigDecimal.valueOf(100)));
+        Optional<String> beskrivelseOpt = finnNæringBegrunnelseFraSaksbehandlet(grunnlag, aktørId);
+        beskrivelseOpt.ifPresent(builder::medBegrunnelse);
         return builder.build();
+    }
+
+    private static Optional<String> finnNæringBegrunnelseFraSaksbehandlet(InntektArbeidYtelseGrunnlag grunnlag, AktørId aktørId) {
+        var manueltBekreftetNæring = grunnlag.getSaksbehandletVersjon()
+            .flatMap(sbh -> sbh.getAktørArbeid().stream().filter(aa -> Objects.equals(aa.getAktørId(), aktørId)).findFirst())
+            .map(AktørArbeid::hentAlleYrkesaktiviteter)
+            .orElse(Collections.emptyList())
+            .stream()
+            .filter(ya -> ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(ya.getArbeidType()))
+            .findFirst();
+        return manueltBekreftetNæring
+            .map(Yrkesaktivitet::getAlleAktivitetsAvtaler)
+            .orElse(Collections.emptyList())
+            .stream()
+            .filter(aa -> aa.getBeskrivelse() != null)
+            .findFirst()
+            .map(AktivitetsAvtale::getBeskrivelse);
     }
 
     private boolean harEndretPåPeriode(DatoIntervallEntitet periode, Yrkesaktivitet overstyrtAktivitet) {
