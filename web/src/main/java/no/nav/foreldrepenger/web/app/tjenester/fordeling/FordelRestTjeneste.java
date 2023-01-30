@@ -230,21 +230,21 @@ public class FordelRestTjeneste {
     @Operation(description = "Finn alle saker for en bruker.", summary = ("Finn alle saker for en bruker"), tags = "fordel",
         responses = {
             @ApiResponse(responseCode = "200", description = "Liste av alle brukers saker, ellers tom liste",
-                content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = FagSakJournalføringDto.class))))
+                content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = FagSakInfoDto.class))))
         })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public FagsakerJournalføringRespons finnAlleSakerForBruker(@TilpassetAbacAttributt(supplierClass = AbacJournalpostMottakDto.AbacDataSupplier.class) @NotNull @QueryParam("aktørId") @Parameter(description = "Krever aktørid") @Valid AktørId aktørId) {
+    public FagsakerInfoDtoRespons finnAlleSakerForBruker(@TilpassetAbacAttributt(supplierClass = AbacJournalpostMottakDto.AbacDataSupplier.class) @NotNull @QueryParam("aktørId") @Parameter(description = "Krever aktørid") @Valid AktørId aktørId) {
         ensureCallId();
         var fagSakJournalføringDtoListe = fagsakTjeneste.finnFagsakerForAktør(aktørId).stream().map(this::mapFagsakJFDto).toList();
-        return new FagsakerJournalføringRespons(fagSakJournalføringDtoListe);
+        return new FagsakerInfoDtoRespons(fagSakJournalføringDtoListe);
     }
-    private FagSakJournalføringDto mapFagsakJFDto(Fagsak fagsak) {
-        return new FagSakJournalføringDto (new SaksnummerDto(fagsak.getSaksnummer().getVerdi()), fagsak.getYtelseType(), fagsak.getOpprettetTidspunkt().toLocalDate(), fagsak.getEndretTidspunkt().toLocalDate(), fagsak.getStatus());
+    public FagSakInfoDto mapFagsakJFDto(Fagsak fagsak) {
+        return new FagSakInfoDto(new SaksnummerDto(fagsak.getSaksnummer().getVerdi()), fagsak.getYtelseType(), fagsak.getOpprettetTidspunkt().toLocalDate(), fagsak.getEndretTidspunkt().toLocalDate(), fagsak.getStatus());
     }
 
-    public record FagsakerJournalføringRespons(List<FagSakJournalføringDto> fagsakJournalFøringDtoListe){ }
+    public record FagsakerInfoDtoRespons(List<FagSakInfoDto> fagsakJournalFøringDtoListe){ }
 
-    public record FagSakJournalføringDto(SaksnummerDto saksnummer, FagsakYtelseType ytelseType, LocalDate opprettetDato, LocalDate endretDato, FagsakStatus status) {}
+    public record FagSakInfoDto(SaksnummerDto saksnummer, FagsakYtelseType ytelseType, LocalDate opprettetDato, LocalDate endretDato, FagsakStatus status) {}
 
 
     private void ensureCallId() {
