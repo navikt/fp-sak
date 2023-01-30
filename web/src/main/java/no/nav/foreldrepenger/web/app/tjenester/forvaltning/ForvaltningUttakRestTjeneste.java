@@ -16,11 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.OpprettToTrinnsgrunnlag;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
@@ -31,22 +27,10 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 public class ForvaltningUttakRestTjeneste {
 
     private ForvaltningUttakTjeneste forvaltningUttakTjeneste;
-    private InformasjonssakRepository infoRepo;
-    private OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag;
-    private BehandlingRepository behandlingRepository;
-    private ProsessTaskTjeneste taskTjeneste;
 
     @Inject
-    public ForvaltningUttakRestTjeneste(ForvaltningUttakTjeneste forvaltningUttakTjeneste,
-                                        InformasjonssakRepository infoRepo,
-                                        OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag,
-                                        BehandlingRepository behandlingRepository,
-                                        ProsessTaskTjeneste taskTjeneste) {
+    public ForvaltningUttakRestTjeneste(ForvaltningUttakTjeneste forvaltningUttakTjeneste) {
         this.forvaltningUttakTjeneste = forvaltningUttakTjeneste;
-        this.taskTjeneste = taskTjeneste;
-        this.behandlingRepository = behandlingRepository;
-        this.infoRepo = infoRepo;
-        this.opprettToTrinnsgrunnlag = opprettToTrinnsgrunnlag;
     }
 
     public ForvaltningUttakRestTjeneste() {
@@ -102,17 +86,4 @@ public class ForvaltningUttakRestTjeneste {
         forvaltningUttakTjeneste.endreAleneomsorg(dto.getBehandlingUuid(), aleneomsorg);
         return Response.noContent().build();
     }
-
-    @POST
-    @Path("/patchTotrinnUttak")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Operation(description = "Patcher totrinnsgrunnlag med feil UR", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response patchTotrinnUttak() {
-        var migreres = infoRepo.finnYtelsesfordelingForMigrering();
-        migreres.forEach(migrer -> opprettToTrinnsgrunnlag.settNyttTotrinnsgrunnlag(behandlingRepository.hentBehandling(migrer.behandlingId()), migrer.uttakId()));
-
-        return Response.noContent().build();
-    }
-
 }

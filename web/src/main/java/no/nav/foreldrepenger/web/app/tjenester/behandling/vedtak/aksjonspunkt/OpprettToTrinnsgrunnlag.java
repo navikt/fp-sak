@@ -57,16 +57,4 @@ public class OpprettToTrinnsgrunnlag {
         totrinnTjeneste.lagreNyttTotrinnresultat(behandling, totrinnsresultatgrunnlag);
     }
 
-    public void settNyttTotrinnsgrunnlag(Behandling behandling, Long uttakId) {
-        var grunnlag = totrinnTjeneste.hentTotrinngrunnlagHvisEksisterer(behandling).orElseThrow();
-
-        var totrinnsresultatgrunnlag = new Totrinnresultatgrunnlag(behandling,
-            grunnlag.getYtelseFordelingGrunnlagEntitetId().orElse(null),
-            uttakId,
-            grunnlag.getBeregningsgrunnlagId().orElse(null),
-            grunnlag.getGrunnlagUuid().orElse(null));
-
-        totrinnTjeneste.lagreNyttTotrinnresultat(behandling, totrinnsresultatgrunnlag);
-    }
-
 }
