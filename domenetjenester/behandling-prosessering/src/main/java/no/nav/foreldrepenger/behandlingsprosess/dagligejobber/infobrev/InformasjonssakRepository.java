@@ -312,6 +312,6 @@ and exists (select * from TOTRINNRESULTATGRUNNLAG ttgi where ttgi.behandling_id 
             .setParameter("opprettet", LocalDateTime.of(2023,1,18, 11,0));
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(o -> new MigrerUR(((BigDecimal) o[0]).longValue(), ((BigDecimal) o[1]).longValue())).toList();
+        return resultatList.stream().map(o -> new MigrerUR(((BigDecimal) o[0]).longValue(), ((BigDecimal) o[2]).longValue())).toList();
     }
 }
