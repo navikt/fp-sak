@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.fordeling;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -12,6 +14,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -127,14 +130,16 @@ public class FordelRestTjenesteTest {
     public void skalReturnereAlleBrukersSaker() {
         var saknr = new Saksnummer("TEST3");
         var forventetYtelseType = FagsakYtelseType.FORELDREPENGER;
+        var forventedTid = LocalDateTime.now();
 
         Fagsak fagsak = Fagsak.opprettNy(forventetYtelseType, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
-        fagsak.setOpprettetTidspunkt(LocalDateTime.now());
-        fagsak.setEndretTidspunkt(LocalDateTime.now());
+        fagsak.setOpprettetTidspunkt(forventedTid);
+        fagsak.setEndretTidspunkt(forventedTid);
+
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak));
 
-        var tjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjenesteMock, opprettSakOrchestratorMock, opprettSakTjenesteMock, mock(
-            BehandlingRepositoryProvider.class), vurderFagsystemTjenesteMock);
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, null, mock(
+            BehandlingRepositoryProvider.class), null);
 
         var result = tjeneste.finnAlleSakerForBruker(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId())).fagsakJournalFøringDtoListe();
 
@@ -142,6 +147,25 @@ public class FordelRestTjenesteTest {
         var fagSakInfoDto = result.get(0);
         assertThat(fagSakInfoDto.saksnummer().getSaksnummer()).isEqualTo(saknr.getVerdi());
         assertThat(fagSakInfoDto.status()).isEqualTo(FagsakStatus.OPPRETTET);
+        assertThat(fagSakInfoDto.opprettetDato()).isEqualTo(forventedTid.toLocalDate());
+        assertThat(fagSakInfoDto.endretDato()).isEqualTo(forventedTid.toLocalDate());
         assertThat(fagSakInfoDto.ytelseType()).isEqualTo(forventetYtelseType);
+    }
+
+    @Test
+    @DisplayName("Skal kaste exceptions om aktørId er ikke gyldig.")
+    public void exception_om_ikke_gyldig_aktørId() {
+        var tjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjenesteMock, opprettSakOrchestratorMock, opprettSakTjenesteMock, mock(
+            BehandlingRepositoryProvider.class), vurderFagsystemTjenesteMock);
+
+        var aktørIdDto = new FordelRestTjeneste.AktørIdDto("ikke_gyldig_id_haha:)");
+        var exception = assertThrows(IllegalArgumentException.class, () -> {
+            tjeneste.finnAlleSakerForBruker(aktørIdDto);
+        });
+
+        String expectedMessage = "Oppgitt aktørId er ikke en gyldig ident.";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 }
