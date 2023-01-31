@@ -985,6 +985,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             }
         }
         fagsak = fagsakBuilder.build();
+        fagsak.setEndretTidspunkt(LocalDateTime.now());
         var fagsakId = fagsakRepo.opprettNy(fagsak); // NOSONAR //$NON-NLS-1$
         fagsak.setId(fagsakId);
     }
