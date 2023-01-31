@@ -233,12 +233,12 @@ public class FordelRestTjeneste {
                 content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = FagSakInfoDto.class))))
         })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public FagsakerInfoDtoRespons finnAlleSakerForBruker(@TilpassetAbacAttributt(supplierClass = AbacJournalpostMottakDto.AbacDataSupplier.class) @NotNull @QueryParam("aktørId") @Parameter(description = "Krever aktørid") @Valid AktørId aktørId) {
+    public FagsakerInfoDtoRespons finnAlleSakerForBruker(@TilpassetAbacAttributt(supplierClass = AbacJournalpostMottakDto.AbacDataSupplier.class) @NotNull @QueryParam("aktørId") @Valid AktørId aktørId) {
         ensureCallId();
-        var fagSakJournalføringDtoListe = fagsakTjeneste.finnFagsakerForAktør(aktørId).stream().map(this::mapFagsakJFDto).toList();
+        var fagSakJournalføringDtoListe = fagsakTjeneste.finnFagsakerForAktør(aktørId).stream().map(this::mapFagsakInfoDto).toList();
         return new FagsakerInfoDtoRespons(fagSakJournalføringDtoListe);
     }
-    public FagSakInfoDto mapFagsakJFDto(Fagsak fagsak) {
+    private FagSakInfoDto mapFagsakInfoDto(Fagsak fagsak) {
         return new FagSakInfoDto(new SaksnummerDto(fagsak.getSaksnummer().getVerdi()), fagsak.getYtelseType(), fagsak.getOpprettetTidspunkt().toLocalDate(), fagsak.getEndretTidspunkt().toLocalDate(), fagsak.getStatus());
     }
 
