@@ -2,9 +2,12 @@ package no.nav.foreldrepenger.web.app.tjenester.fordeling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 
@@ -16,11 +19,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -46,6 +52,8 @@ public class FordelRestTjenesteTest {
     private OpprettSakOrchestrator opprettSakOrchestratorMock;
     @Mock
     private OpprettSakTjeneste opprettSakTjenesteMock;
+    @Mock
+    private FagsakTjeneste fagsakTjenesteMock;
 
     @Mock
     private VurderFagsystemFellesTjeneste vurderFagsystemTjenesteMock;
@@ -117,16 +125,23 @@ public class FordelRestTjenesteTest {
 
     @Test
     public void skalReturnereAlleBrukersSaker() {
-        final var saknr = new Saksnummer("TEST3");
-        final var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
-        scenario.medSaksnummer(saknr).medSøknadHendelse().medFødselsDato(LocalDate.now());
-        scenario.lagre(repositoryProvider);
+        var saknr = new Saksnummer("TEST3");
+        var forventetYtelseType = FagsakYtelseType.FORELDREPENGER;
 
-        var result = fordelRestTjeneste.finnAlleSakerForBruker(AKTØR_ID_MOR).fagsakJournalFøringDtoListe();
+        Fagsak fagsak = Fagsak.opprettNy(forventetYtelseType, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        fagsak.setOpprettetTidspunkt(LocalDateTime.now());
+        fagsak.setEndretTidspunkt(LocalDateTime.now());
+        when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak));
+
+        var tjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjenesteMock, opprettSakOrchestratorMock, opprettSakTjenesteMock, mock(
+            BehandlingRepositoryProvider.class), vurderFagsystemTjenesteMock);
+
+        var result = tjeneste.finnAlleSakerForBruker(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId())).fagsakJournalFøringDtoListe();
 
         assertThat(result).hasSize(1);
-        assertThat((result.get(0).saksnummer()).getSaksnummer()).isEqualTo(saknr.getVerdi());
-        assertThat(result.get(0).status()).isEqualTo(FagsakStatus.OPPRETTET);
-        assertThat(result.get(0).ytelseType()).isEqualTo(FagsakYtelseType.FORELDREPENGER);
+        var fagSakInfoDto = result.get(0);
+        assertThat(fagSakInfoDto.saksnummer().getSaksnummer()).isEqualTo(saknr.getVerdi());
+        assertThat(fagSakInfoDto.status()).isEqualTo(FagsakStatus.OPPRETTET);
+        assertThat(fagSakInfoDto.ytelseType()).isEqualTo(forventetYtelseType);
     }
 }

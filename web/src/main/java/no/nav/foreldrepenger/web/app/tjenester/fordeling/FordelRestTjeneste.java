@@ -12,13 +12,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -26,7 +25,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -74,25 +72,10 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
  * Mottar dokumenter fra f.eks. FPFORDEL og håndterer dispatch internt for
  * saksbehandlingsløsningen.
  */
-@Path(FordelRestTjeneste.BASE_PATH)
+@Path("/fordel")
 @ApplicationScoped
 @Transactional
 public class FordelRestTjeneste {
-
-    static final String BASE_PATH = "/fordel";
-    private static final String INFORMASJON_PART_PATH = "/fagsak/informasjon";
-    public static final String INFORMASJON_PATH = BASE_PATH + INFORMASJON_PART_PATH; // NOSONAR TFP-2234
-    private static final String OPPRETT_PART_PATH = "/fagsak/opprett";
-    public static final String OPPRETT_PATH = BASE_PATH + OPPRETT_PART_PATH; // NOSONAR TFP-2234
-    private static final String KNYTT_JOURNALPOST_PART_PATH = "/fagsak/knyttJournalpost";
-    public static final String KNYTT_JOURNALPOST_PATH = BASE_PATH + KNYTT_JOURNALPOST_PART_PATH; // NOSONAR TFP-2234
-    private static final String JOURNALPOST_PART_PATH = "/journalpost";
-    public static final String JOURNALPOST_PATH = BASE_PATH + JOURNALPOST_PART_PATH; // NOSONAR TFP-2234
-    private static final String KLAGEINSTANS_PART_PATH = "/klageinstans";
-    public static final String KLAGEINSTANS_PATH = BASE_PATH + KLAGEINSTANS_PART_PATH; // NOSONAR TFP-2234
-    private static final String VURDER_FAGSYSTEM_PART_PATH = "/vurderFagsystem";
-    public static final String VURDER_FAGSYSTEM_PATH = BASE_PATH + VURDER_FAGSYSTEM_PART_PATH; // NOSONAR TFP-2234
-
     private SaksbehandlingDokumentmottakTjeneste dokumentmottakTjeneste;
     private FagsakTjeneste fagsakTjeneste;
     private OpprettSakOrchestrator opprettSakOrchestrator;
@@ -121,7 +104,7 @@ public class FordelRestTjeneste {
     }
 
     @POST
-    @Path(VURDER_FAGSYSTEM_PART_PATH)
+    @Path("/vurderFagsystem")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Informasjon om en fagsak", tags = "fordel")
@@ -134,7 +117,7 @@ public class FordelRestTjeneste {
     }
 
     @POST
-    @Path(KLAGEINSTANS_PART_PATH)
+    @Path("/klageinstans")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Informasjon om en fagsak klageinstansrelatert", tags = "fordel")
@@ -147,7 +130,7 @@ public class FordelRestTjeneste {
     }
 
     @POST
-    @Path(INFORMASJON_PART_PATH)
+    @Path("/fagsak/informasjon")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Informasjon om en fagsak", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
@@ -172,7 +155,7 @@ public class FordelRestTjeneste {
     }
 
     @POST
-    @Path(OPPRETT_PART_PATH)
+    @Path("/fagsak/opprett")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Ny journalpost skal behandles.", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
@@ -194,7 +177,7 @@ public class FordelRestTjeneste {
     }
 
     @POST
-    @Path(KNYTT_JOURNALPOST_PART_PATH)
+    @Path("/fagsak/knyttJournalpost")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Knytt journalpost til fagsak.", summary = ("Før en journalpost journalføres på en fagsak skal fagsaken oppdateres med journalposten."), tags = "fordel")
@@ -206,7 +189,7 @@ public class FordelRestTjeneste {
     }
 
     @POST
-    @Path(JOURNALPOST_PART_PATH)
+    @Path("/journalpost")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Ny journalpost skal behandles.", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
@@ -223,26 +206,59 @@ public class FordelRestTjeneste {
         return Response.ok().build();
     }
 
-    @GET
+    @POST
     @Path("/finnFagsaker")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Finn alle saker for en bruker.", summary = ("Finn alle saker for en bruker"), tags = "fordel",
         responses = {
             @ApiResponse(responseCode = "200", description = "Liste av alle brukers saker, ellers tom liste",
-                content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = FagSakInfoDto.class))))
+                content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = BrukersFagsakerDto.class)))
         })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public FagsakerInfoDtoRespons finnAlleSakerForBruker(@TilpassetAbacAttributt(supplierClass = AbacJournalpostMottakDto.AbacDataSupplier.class) @NotNull @QueryParam("aktørId") @Valid AktørId aktørId) {
+    public BrukersFagsakerDto finnAlleSakerForBruker(
+        @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class)
+        @Parameter(description = "AktørId")
+        @Valid AktørIdDto bruker) {
         ensureCallId();
-        var fagSakJournalføringDtoListe = fagsakTjeneste.finnFagsakerForAktør(aktørId).stream().map(this::mapFagsakInfoDto).toList();
-        return new FagsakerInfoDtoRespons(fagSakJournalføringDtoListe);
+        if (!AktørId.erGyldigAktørId(bruker.aktørId())) {
+            throw new IllegalArgumentException("Oppgitt aktørId er ikke en gyldig ident.");
+        }
+        var brukersSaker = fagsakTjeneste.finnFagsakerForAktør(new AktørId(bruker.aktørId())).stream().map(this::mapTilFagsakInfoDto).toList();
+        return new BrukersFagsakerDto(brukersSaker);
     }
-    private FagSakInfoDto mapFagsakInfoDto(Fagsak fagsak) {
+
+    public record AktørIdDto (@NotNull @Digits(integer = 19, fraction = 0) String aktørId) {
+        @Override
+        public String toString() {
+            return getClass().getSimpleName() + "<" + maskerAktørId() + ">";
+        }
+
+        private String maskerAktørId() {
+            if (aktørId == null) {
+                return "";
+            }
+            var length = aktørId.length();
+            if (length <= 4) {
+                return "*".repeat(length);
+            }
+            return "*".repeat(length - 4) + aktørId.substring(length - 4);
+        }
+    }
+
+    public static class AbacDataSupplier implements Function<Object, AbacDataAttributter> {
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (AktørIdDto) obj;
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
+        }
+    }
+
+    private FagSakInfoDto mapTilFagsakInfoDto(Fagsak fagsak) {
         return new FagSakInfoDto(new SaksnummerDto(fagsak.getSaksnummer().getVerdi()), fagsak.getYtelseType(), fagsak.getOpprettetTidspunkt().toLocalDate(), fagsak.getEndretTidspunkt().toLocalDate(), fagsak.getStatus());
     }
 
-    public record FagsakerInfoDtoRespons(List<FagSakInfoDto> fagsakJournalFøringDtoListe){ }
+    public record BrukersFagsakerDto(List<FagSakInfoDto> fagsakJournalFøringDtoListe) { }
 
     public record FagSakInfoDto(SaksnummerDto saksnummer, FagsakYtelseType ytelseType, LocalDate opprettetDato, LocalDate endretDato, FagsakStatus status) {}
 
@@ -372,15 +388,6 @@ public class FordelRestTjeneste {
                     deklarertLengde, streng.length()));
             }
             return Optional.of(streng);
-        }
-
-        public static class AbacDataSupplier implements Function<Object, AbacDataAttributter> {
-
-            @Override
-            public AbacDataAttributter apply(Object obj) {
-                var req = (AktørId) obj;
-                return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.getId());
-            }
         }
 
         @Override
