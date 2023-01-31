@@ -141,7 +141,7 @@ public class FordelRestTjenesteTest {
         var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, null, mock(
             BehandlingRepositoryProvider.class), null);
 
-        var result = tjeneste.finnAlleSakerForBruker(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId())).fagsakJournalFøringDtoListe();
+        var result = tjeneste.finnAlleSakerForBruker(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()));
 
         assertThat(result).hasSize(1);
         var fagSakInfoDto = result.get(0);

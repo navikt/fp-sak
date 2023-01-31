@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -213,10 +214,10 @@ public class FordelRestTjeneste {
     @Operation(description = "Finn alle saker for en bruker.", summary = ("Finn alle saker for en bruker"), tags = "fordel",
         responses = {
             @ApiResponse(responseCode = "200", description = "Liste av alle brukers saker, ellers tom liste",
-                content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = BrukersFagsakerDto.class)))
+                content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = FagSakInfoDto.class))))
         })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public BrukersFagsakerDto finnAlleSakerForBruker(
+    public List<FagSakInfoDto> finnAlleSakerForBruker(
         @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class)
         @Parameter(description = "AktørId")
         @Valid AktørIdDto bruker) {
@@ -224,8 +225,7 @@ public class FordelRestTjeneste {
         if (!AktørId.erGyldigAktørId(bruker.aktørId())) {
             throw new IllegalArgumentException("Oppgitt aktørId er ikke en gyldig ident.");
         }
-        var brukersSaker = fagsakTjeneste.finnFagsakerForAktør(new AktørId(bruker.aktørId())).stream().map(this::mapTilFagsakInfoDto).toList();
-        return new BrukersFagsakerDto(brukersSaker);
+        return fagsakTjeneste.finnFagsakerForAktør(new AktørId(bruker.aktørId())).stream().map(this::mapTilFagsakInfoDto).toList();
     }
 
     public record AktørIdDto (@NotNull @Digits(integer = 19, fraction = 0) String aktørId) {
@@ -258,10 +258,7 @@ public class FordelRestTjeneste {
         return new FagSakInfoDto(new SaksnummerDto(fagsak.getSaksnummer().getVerdi()), fagsak.getYtelseType(), fagsak.getOpprettetTidspunkt().toLocalDate(), fagsak.getEndretTidspunkt().toLocalDate(), fagsak.getStatus());
     }
 
-    public record BrukersFagsakerDto(List<FagSakInfoDto> fagsakJournalFøringDtoListe) { }
-
     public record FagSakInfoDto(SaksnummerDto saksnummer, FagsakYtelseType ytelseType, LocalDate opprettetDato, LocalDate endretDato, FagsakStatus status) {}
-
 
     private void ensureCallId() {
         var callId = MDCOperations.getCallId();
