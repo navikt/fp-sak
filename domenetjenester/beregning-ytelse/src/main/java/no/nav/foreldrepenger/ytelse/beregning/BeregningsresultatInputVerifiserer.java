@@ -23,17 +23,19 @@ public final class BeregningsresultatInputVerifiserer {
     }
 
     public static void verifiserAndelerIUttakLiggerIBeregning(BeregningsresultatRegelmodell input) {
-        var bGAndeler = hentBGAndeler(input);
-        var uttakAndeler = hentUttakAndeler(input);
-        uttakAndeler.forEach(uttakAndel -> verifiserUttak(uttakAndel, bGAndeler));
+        if (brukerHarUttak(input)) {
+            var bGAndeler = hentBGAndeler(input);
+            var uttakAndeler = hentUttakAndeler(input);
+            uttakAndeler.forEach(uttakAndel -> verifiserUttak(uttakAndel, bGAndeler));
+        }
     }
 
-    private static boolean brukerGittFraSegAltUttak(BeregningsresultatRegelmodell input) {
-        return input.getUttakResultat().getUttakResultatPerioder().isEmpty();
+    private static boolean brukerHarUttak(BeregningsresultatRegelmodell input) {
+        return !input.getUttakResultat().getUttakResultatPerioder().isEmpty();
     }
 
     public static void verifiserAlleAndelerIBeregningErIUttak(BeregningsresultatRegelmodell input) {
-        if (!brukerGittFraSegAltUttak(input)) {
+        if (brukerHarUttak(input)) {
             var bGAndeler = hentBGAndeler(input);
             var uttakAndeler = hentUttakAndeler(input);
             bGAndeler.forEach(bgAndel -> verifiserAtAndelerMatcher(bgAndel, uttakAndeler));
@@ -93,7 +95,7 @@ public final class BeregningsresultatInputVerifiserer {
             .filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.ATFL))
             .map(BeregningsgrunnlagPrStatus::getArbeidsforhold)
             .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+            .toList();
         var matchetBGArbfor = bgArbeidsforhold.stream()
             .filter(
                 a -> BeregningsgrunnlagUttakArbeidsforholdMatcher.matcherArbeidsforhold(uttakAndel.getArbeidsforhold(),
