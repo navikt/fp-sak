@@ -10,20 +10,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelKjønn;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
-import no.nav.fpsak.nare.doc.RuleDescriptionDigraph;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class FødselsVilkårDocTest {
 
-    @Test
-    public void test_documentation() {
-        var vilkår = new FødselsvilkårMor().getSpecification();
-        var digraph = new RuleDescriptionDigraph(vilkår.ruleDescription());
-
-        @SuppressWarnings("unused") var json = digraph.toJson();
-
-//        System.out.println(json);
-    }
 
     private static final String gammelJson = """
         {

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
 
 @ApplicationScoped
 public class SakOgBehandlingHendelseProducer {
@@ -31,10 +32,9 @@ public class SakOgBehandlingHendelseProducer {
     @Inject
     public SakOgBehandlingHendelseProducer(@KonfigVerdi("kafka.sakogbehandling.topic") String topicName,
                                            @KonfigVerdi("kafka.bootstrap.servers") String bootstrapServers,
-                                           @KonfigVerdi("kafka.schema.registry.url") String schemaRegistryUrl,
-                                           @KonfigVerdi("systembruker.username") String username,
-                                           @KonfigVerdi("systembruker.password") String password) {
-        var properties = KafkaPropertiesUtil.opprettProperties(bootstrapServers, schemaRegistryUrl, getProducerClientId(topicName), username, password);
+                                           @KonfigVerdi("kafka.schema.registry.url") String schemaRegistryUrl) {
+        var properties = KafkaPropertiesUtil.opprettProperties(bootstrapServers, schemaRegistryUrl, getProducerClientId(topicName),
+            Systembruker.username(), Systembruker.password());
         this.topic = topicName;
         this.producer = createProducer(properties);
     }

@@ -50,6 +50,11 @@
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-streams</artifactId>
         </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>kafka-properties</artifactId>
+        </dependency>
+
         <!-- Test avhengigheter -->
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>

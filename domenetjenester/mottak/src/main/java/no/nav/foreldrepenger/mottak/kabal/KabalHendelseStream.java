@@ -13,7 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.domene.liveness.KafkaIntegration;
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.apptjeneste.AppServiceHandler;
+import no.nav.vedtak.felles.integrasjon.kafka.KafkaProperties;
 import no.nav.vedtak.log.metrics.LivenessAware;
 import no.nav.vedtak.log.metrics.ReadinessAware;
 
@@ -24,19 +27,20 @@ import no.nav.vedtak.log.metrics.ReadinessAware;
 public class KabalHendelseStream implements LivenessAware, ReadinessAware, AppServiceHandler, KafkaIntegration {
 
     private static final Logger LOG = LoggerFactory.getLogger(KabalHendelseStream.class);
+    private static final String APPLICATION_ID = "fpsak"; // Hold konstant pga offset commit !!
+    private static final Environment ENV = Environment.current();
+    private static final boolean IS_DEPLOY = ENV.isProd() || ENV.isDev();
 
     private KafkaStreams stream;
     private String topicName;
-    private boolean isDeployment;
 
     KabalHendelseStream() {
     }
 
     @Inject
-    public KabalHendelseStream(KabalHendelseHåndterer kabalHendelseHåndterer,
-                               KabalHendelseProperties streamKafkaProperties) {
-        this.topicName = streamKafkaProperties.getTopicName();
-        this.isDeployment = streamKafkaProperties.isDeployment();
+    public KabalHendelseStream(@KonfigVerdi(value = "kafka.kabal.topic", defaultVerdi = "klage.behandling-events.v1") String topicName,
+                               KabalHendelseHåndterer kabalHendelseHåndterer) {
+        this.topicName = topicName;
 
         final Consumed<String, String> consumed = Consumed.with(Topology.AutoOffsetReset.EARLIEST);
 
@@ -44,7 +48,7 @@ public class KabalHendelseStream implements LivenessAware, ReadinessAware, AppSe
         builder.stream(topicName, consumed)
             .foreach(kabalHendelseHåndterer::handleMessage);
 
-        this.stream = new KafkaStreams(builder.build(), streamKafkaProperties.getProperties());
+        this.stream = new KafkaStreams(builder.build(), KafkaProperties.forStreamsStringValue(APPLICATION_ID));
     }
 
 
@@ -66,7 +70,7 @@ public class KabalHendelseStream implements LivenessAware, ReadinessAware, AppSe
 
     @Override
     public void start() {
-        if (!isDeployment) return;
+        if (!IS_DEPLOY) return;
         addShutdownHooks();
 
         stream.start();
@@ -79,7 +83,7 @@ public class KabalHendelseStream implements LivenessAware, ReadinessAware, AppSe
 
     @Override
     public boolean isAlive() {
-        return !isDeployment || (stream != null && stream.state().isRunningOrRebalancing());
+        return !IS_DEPLOY || (stream != null && stream.state().isRunningOrRebalancing());
     }
 
     @Override
@@ -89,7 +93,7 @@ public class KabalHendelseStream implements LivenessAware, ReadinessAware, AppSe
 
     @Override
     public void stop() {
-        if (!isDeployment) return;
+        if (!IS_DEPLOY) return;
         LOG.info("Starter shutdown av topic={}, tilstand={} med 15 sekunder timeout", getTopicName(), stream.state());
         stream.close(Duration.ofSeconds(15));
         LOG.info("Shutdown av topic={}, tilstand={} med 15 sekunder timeout", getTopicName(), stream.state());

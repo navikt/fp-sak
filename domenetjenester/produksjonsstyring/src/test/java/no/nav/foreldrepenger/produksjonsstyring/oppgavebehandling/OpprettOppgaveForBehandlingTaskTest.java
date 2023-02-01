@@ -6,7 +6,6 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -44,7 +43,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
     private static final String FNR = "00000000000";
     private static final Oppgave OPPGAVE = new Oppgave(99L, null, null, null, null,
         Tema.FOR.getOffisiellKode(), null, null, null, 1, "4806",
-        LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, "beskrivelse", LocalDateTime.now());
+        LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, "beskrivelse");
 
     private EntityManager entityManager;
     private OppgaveTjeneste tjeneste;

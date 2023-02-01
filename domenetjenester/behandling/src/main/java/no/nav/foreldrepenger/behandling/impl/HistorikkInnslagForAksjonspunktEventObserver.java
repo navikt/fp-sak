@@ -15,8 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
 
 /**
  * Observerer Aksjonspunkt*Events og registrerer HistorikkInnslag for enkelte
@@ -29,12 +29,11 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
     private String systembruker;
 
     @Inject
-    public HistorikkInnslagForAksjonspunktEventObserver(HistorikkRepository historikkRepository,
-            /*
-             * FIXME property vil være satt i produksjon, men ikke i tester. Uansett er
-             * løsningen ikke er god. Kan heller bruker IdentType når det fikses.
-             */
-            @KonfigVerdi(value = "systembruker.username", required = false) String systembruker) {
+    public HistorikkInnslagForAksjonspunktEventObserver(HistorikkRepository historikkRepository) {
+        this(historikkRepository, Systembruker.username());
+    }
+
+    public HistorikkInnslagForAksjonspunktEventObserver(HistorikkRepository historikkRepository, String systembruker) {
         this.historikkRepository = historikkRepository;
         this.systembruker = systembruker;
     }
@@ -73,6 +72,7 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
         }
         var historikkinnslag = new Historikkinnslag();
         var brukerident = SubjectHandler.getSubjectHandler().getUid();
+        // TODO - finn på noe helt annet enn å sjekke systembruker. Prøv heller å sjekke KontekstHolder når den er på plass
         historikkinnslag.setAktør(!Objects.equals(systembruker, brukerident) ? HistorikkAktør.SAKSBEHANDLER : HistorikkAktør.VEDTAKSLØSNINGEN);
         historikkinnslag.setType(historikkinnslagType);
         historikkinnslag.setBehandlingId(behandlingId);
