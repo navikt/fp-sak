@@ -290,7 +290,8 @@ class FaktaUttakFellesTjenesteTest {
         assertThat(lagretPerioder.get(0).getTidligstMottattDato()).isEqualTo(periodeSøknad.getTidligstMottattDato());
 
         assertThat(lagretPerioder.get(1).getFom()).isEqualTo(søknadsperiode.getFom());
-        assertThat(lagretPerioder.get(1).getDokumentasjonVurdering()).isEqualTo(søknadsperiode.getDokumentasjonVurdering());
+        //Dokvurdering arves ikke
+        assertThat(lagretPerioder.get(1).getDokumentasjonVurdering()).isNull();
         assertThat(lagretPerioder.get(1).getMottattDato()).isEqualTo(søknadsperiode.getMottattDato());
         assertThat(lagretPerioder.get(1).getTidligstMottattDato()).isEqualTo(søknadsperiode.getTidligstMottattDato());
     }
