@@ -51,6 +51,7 @@ public class YtelseFordelingTjeneste {
         }
         var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medPerioderUtenOmsorg(perioderUtenOmsorg)
+            .medOverstyrtOmsorg(omsorg)
             .build();
         ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregat);
     }

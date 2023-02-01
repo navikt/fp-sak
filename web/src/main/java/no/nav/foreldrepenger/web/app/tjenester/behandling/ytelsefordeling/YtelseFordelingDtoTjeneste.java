@@ -41,6 +41,7 @@ public class YtelseFordelingDtoTjeneste {
         var dtoBuilder = new YtelseFordelingDto.Builder();
         ytelseFordelingAggregat.ifPresent(yfa -> {
             dtoBuilder.medBekreftetAleneomsorg(yfa.getAleneomsorgAvklaring());
+            dtoBuilder.medOverstyrtOmsorg(yfa.getOverstyrtOmsorg());
             yfa.getPerioderUtenOmsorg()
                 .ifPresent(uenOmsorg -> dtoBuilder.medIkkeOmsorgPerioder(PeriodeKonverter.mapUtenOmsorgperioder(uenOmsorg.getPerioder())));
             yfa.getAvklarteDatoer().ifPresent(avklarteUttakDatoer -> dtoBuilder.medEndringsdato(avklarteUttakDatoer.getGjeldendeEndringsdato()));

@@ -19,6 +19,8 @@ public class YtelseFordelingAggregat {
     private AvklarteUttakDatoerEntitet avklarteDatoer;
     private AktivitetskravPerioderEntitet opprinneligeAktivitetskravPerioder;
     private AktivitetskravPerioderEntitet saksbehandledeAktivitetskravPerioder;
+    private Boolean overstyrtOmsorg;
+    private Boolean migrertDokumentasjonsPerioder;
 
     protected YtelseFordelingAggregat() {
     }
@@ -42,6 +44,18 @@ public class YtelseFordelingAggregat {
 
     public Optional<OppgittRettighetEntitet> getOverstyrtRettighet() {
         return Optional.ofNullable(overstyrtRettighet);
+    }
+
+    public Boolean getOverstyrtOmsorg() {
+        return overstyrtOmsorg;
+    }
+
+    public Boolean harOmsorg() {
+        return overstyrtOmsorg == null || overstyrtOmsorg;
+    }
+
+    public Boolean getMigrertDokumentasjonsPerioder() {
+        return migrertDokumentasjonsPerioder;
     }
 
     public Optional<PerioderUtenOmsorgEntitet> getPerioderUtenOmsorg() {
@@ -173,6 +187,11 @@ public class YtelseFordelingAggregat {
             return this;
         }
 
+        public Builder medOverstyrtOmsorg(Boolean harOmsorg) {
+            kladd.overstyrtOmsorg = harOmsorg;
+            return this;
+        }
+
         public Builder medPerioderUtenOmsorg(PerioderUtenOmsorgEntitet perioderUtenOmsorg) {
             kladd.perioderUtenOmsorg = perioderUtenOmsorg;
             return this;
@@ -195,6 +214,11 @@ public class YtelseFordelingAggregat {
 
         public Builder medAvklarteDatoer(AvklarteUttakDatoerEntitet avklarteUttakDatoer) {
             kladd.avklarteDatoer = avklarteUttakDatoer;
+            return this;
+        }
+
+        public Builder migrertDokumentasjonsPerioder(Boolean migrert) {
+            kladd.migrertDokumentasjonsPerioder = migrert;
             return this;
         }
 
