@@ -2,13 +2,12 @@ package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class BekreftTerminbekreftelseAksjonspunktDtoTest {
 
@@ -16,9 +15,9 @@ public class BekreftTerminbekreftelseAksjonspunktDtoTest {
     public void test_av_json_mapping() {
         var terminbekreftelseAksjonspunktDto = bekreftFødselAksjonspunktDto();
 
-        var json = StandardJsonConfig.toJson(terminbekreftelseAksjonspunktDto);
+        var json = DefaultJsonMapper.toJson(terminbekreftelseAksjonspunktDto);
 
-        var objektFraJson =  StandardJsonConfig.fromJson(json, BekreftTerminbekreftelseAksjonspunktDto.class);
+        var objektFraJson =  DefaultJsonMapper.fromJson(json, BekreftTerminbekreftelseAksjonspunktDto.class);
 
         assertThat(objektFraJson.getAntallBarn()).isEqualTo(terminbekreftelseAksjonspunktDto.getAntallBarn());
         assertThat(objektFraJson.getTermindato()).isEqualTo(terminbekreftelseAksjonspunktDto.getTermindato());

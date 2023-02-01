@@ -25,7 +25,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseSorteringRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.AktørIdDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødfødselHendelseDto;
@@ -36,6 +35,7 @@ import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.A
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
@@ -72,7 +72,7 @@ public class HendelserRestTjenesteTest {
         var tasks = captor.getAllValues();
         var task = tasks.stream().filter(d -> Objects.equals(HENDELSE_TASK, d.taskType())).findFirst().orElseThrow();
         assertThat(task.taskType()).isEqualTo(HENDELSE_TASK);
-        assertThat(task.getPayloadAsString()).isEqualTo(StandardJsonConfig.toJson(hendelse));
+        assertThat(task.getPayloadAsString()).isEqualTo(DefaultJsonMapper.toJson(hendelse));
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_UID)).isEqualTo(HENDELSE_ID);
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE)).isEqualTo("FØDSEL");
     }
@@ -91,7 +91,7 @@ public class HendelserRestTjenesteTest {
         var tasks = captor.getAllValues();
         var task = tasks.stream().filter(d -> Objects.equals(HENDELSE_TASK, d.taskType())).findFirst().orElseThrow();
         assertThat(task.taskType()).isEqualTo(HENDELSE_TASK);
-        assertThat(task.getPayloadAsString()).isEqualTo(StandardJsonConfig.toJson(hendelse));
+        assertThat(task.getPayloadAsString()).isEqualTo(DefaultJsonMapper.toJson(hendelse));
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_UID)).isEqualTo(HENDELSE_ID);
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE)).isEqualTo("DØDFØDSEL");
     }

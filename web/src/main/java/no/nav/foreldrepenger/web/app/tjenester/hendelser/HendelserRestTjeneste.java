@@ -22,7 +22,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseSorteringRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.AktørIdDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseDto;
@@ -31,6 +30,7 @@ import no.nav.foreldrepenger.mottak.hendelser.KlargjørHendelseTask;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -103,7 +103,7 @@ public class HendelserRestTjeneste {
 
         hendelsemottakRepository.registrerMottattHendelse(hendelse.getId());
         var taskData = ProsessTaskData.forProsessTask(KlargjørHendelseTask.class);
-        taskData.setPayload(StandardJsonConfig.toJson(hendelse));
+        taskData.setPayload(DefaultJsonMapper.toJson(hendelse));
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE, hendelse.getHendelsetype());
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, hendelse.getId());
         taskData.setCallIdFraEksisterende();

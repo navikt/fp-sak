@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.konfig.Cluster;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.BehandlingStatusDto;
@@ -36,6 +35,7 @@ import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehan
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
 @ProsessTask("behandlingskontroll.oppdatersakogbehandling")
@@ -129,7 +129,7 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
     }
 
     private String generatePayload(contract.sob.dto.BehandlingStatus hendelse) {
-        return StandardJsonConfig.toJson(hendelse);
+        return DefaultJsonMapper.toJson(hendelse);
     }
 
 }

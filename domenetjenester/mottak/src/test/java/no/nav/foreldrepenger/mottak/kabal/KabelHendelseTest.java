@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.kabal.KabalHendelse;
 import no.nav.foreldrepenger.behandling.kabal.KabalUtfall;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class KabelHendelseTest  {
 
@@ -33,7 +33,7 @@ public class KabelHendelseTest  {
                 }
             """;
 
-        var hendelse = StandardJsonConfig.fromJson(payload, KabalHendelse.class);
+        var hendelse = DefaultJsonMapper.fromJson(payload, KabalHendelse.class);
 
         assertThat(hendelse.kilde()).isEqualTo(Fagsystem.FPSAK.getOffisiellKode());
         assertThat(hendelse.type()).isEqualTo(KabalHendelse.BehandlingEventType.KLAGEBEHANDLING_AVSLUTTET);

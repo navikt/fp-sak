@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFraRegelTilVL;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodell;
 import no.nav.foreldrepenger.ytelse.beregning.regler.RegelFastsettBeregningsresultat;
 import no.nav.fpsak.nare.evaluation.summary.EvaluationSerializer;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public final class FastsettBeregningsresultatTjeneste {
 
@@ -29,6 +29,6 @@ public final class FastsettBeregningsresultatTjeneste {
     }
 
     private static String toJson(BeregningsresultatRegelmodell grunnlag) {
-        return StandardJsonConfig.toJson(grunnlag);
+        return DefaultJsonMapper.toPrettyJson(grunnlag);
     }
 }

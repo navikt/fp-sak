@@ -14,12 +14,12 @@ import no.nav.foreldrepenger.domene.feed.FpVedtakUtgåendeHendelse;
 import no.nav.foreldrepenger.domene.feed.HendelseCriteria;
 import no.nav.foreldrepenger.domene.feed.SvpVedtakUtgåendeHendelse;
 import no.nav.foreldrepenger.domene.feed.UtgåendeHendelse;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.jsonfeed.dto.VedtakDto;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.FeedElement;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.Meldingstype;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.VedtakMetadata;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
 public class VedtakFattetTjeneste {
@@ -73,7 +73,7 @@ public class VedtakFattetTjeneste {
             throw new IllegalStateException("Utviklerfeil: Udefinert hendelsetype");
         }
 
-        var innhold = StandardJsonConfig.fromJson(hendelse.getPayload(), type.getMeldingsDto());
+        var innhold = DefaultJsonMapper.fromJson(hendelse.getPayload(), type.getMeldingsDto());
         return new FeedElement.Builder()
                 .medSekvensId(hendelse.getSekvensnummer())
                 .medType(hendelse.getType())

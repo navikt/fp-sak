@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Forretningshendelse;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.AktørIdDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.Endringstype;
@@ -39,6 +38,7 @@ import no.nav.foreldrepenger.mottak.hendelser.saksvelger.FødselForretningshende
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.UtflyttingForretningshendelseSaksvelger;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class KlargjørHendelseTaskTest {
 
@@ -54,7 +54,7 @@ public class KlargjørHendelseTaskTest {
         hendelse.setId("id_1");
         hendelse.setAktørIdForeldre(Collections.singletonList(new AktørIdDto(AktørId.dummy().getId())));
         hendelse.setFødselsdato(LocalDate.now());
-        taskData.setPayload(StandardJsonConfig.toJson(hendelse));
+        taskData.setPayload(DefaultJsonMapper.toJson(hendelse));
 
         var captorT = ArgumentCaptor.forClass(ForretningshendelseType.class);
         var captorP = ArgumentCaptor.forClass(HendelseDto.class);
@@ -86,7 +86,7 @@ public class KlargjørHendelseTaskTest {
         hendelse.setEndringstype(Endringstype.OPPRETTET);
         hendelse.setAktørIdForeldre(Collections.singletonList(new AktørIdDto(aktørId.getId())));
         hendelse.setFødselsdato(LocalDate.now());
-        taskData.setPayload(StandardJsonConfig.toJson(hendelse));
+        taskData.setPayload(DefaultJsonMapper.toJson(hendelse));
 
         var captor = ArgumentCaptor.forClass(Forretningshendelse.class);
 
@@ -118,7 +118,7 @@ public class KlargjørHendelseTaskTest {
         hendelse.setEndringstype(Endringstype.OPPRETTET);
         hendelse.setAktørId(Collections.singletonList(new AktørIdDto(AktørId.dummy().getId())));
         hendelse.setDødfødselsdato(LocalDate.now());
-        taskData.setPayload(StandardJsonConfig.toJson(hendelse));
+        taskData.setPayload(DefaultJsonMapper.toJson(hendelse));
 
         var captor = ArgumentCaptor.forClass(Forretningshendelse.class);
 
@@ -148,7 +148,7 @@ public class KlargjørHendelseTaskTest {
         hendelse.setEndringstype(Endringstype.OPPRETTET);
         hendelse.setAktørId(Collections.singletonList(new AktørIdDto(AktørId.dummy().getId())));
         hendelse.setDødsdato(LocalDate.now());
-        taskData.setPayload(StandardJsonConfig.toJson(hendelse));
+        taskData.setPayload(DefaultJsonMapper.toJson(hendelse));
 
         var captor = ArgumentCaptor.forClass(Forretningshendelse.class);
 
@@ -178,7 +178,7 @@ public class KlargjørHendelseTaskTest {
         hendelse.setEndringstype(Endringstype.OPPRETTET);
         hendelse.setAktørId(Collections.singletonList(new AktørIdDto(AktørId.dummy().getId())));
         hendelse.setUtflyttingsdato(LocalDate.now());
-        taskData.setPayload(StandardJsonConfig.toJson(hendelse));
+        taskData.setPayload(DefaultJsonMapper.toJson(hendelse));
 
         var captor = ArgumentCaptor.forClass(Forretningshendelse.class);
 

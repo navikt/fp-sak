@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.mottak.vedtak.kafka;
 
-import no.nav.foreldrepenger.domene.liveness.KafkaIntegration;
-import no.nav.vedtak.apptjeneste.AppServiceHandler;
-import no.nav.vedtak.log.metrics.LivenessAware;
-import no.nav.vedtak.log.metrics.ReadinessAware;
+import java.time.Duration;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -12,15 +12,22 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import java.time.Duration;
+import no.nav.foreldrepenger.domene.liveness.KafkaIntegration;
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.vedtak.apptjeneste.AppServiceHandler;
+import no.nav.vedtak.felles.integrasjon.kafka.KafkaProperties;
+import no.nav.vedtak.log.metrics.LivenessAware;
+import no.nav.vedtak.log.metrics.ReadinessAware;
 
 @ApplicationScoped
 public class VedtaksHendelseConsumer implements LivenessAware, ReadinessAware, AppServiceHandler, KafkaIntegration {
 
     private static final Logger LOG = LoggerFactory.getLogger(VedtaksHendelseConsumer.class);
+
+    private static final Environment ENV = Environment.current();
+    private static final String PROD_APP_ID = "fpsak-vedtakfattet";
+
     private String topicName;
     private KafkaStreams stream;
 
@@ -28,9 +35,9 @@ public class VedtaksHendelseConsumer implements LivenessAware, ReadinessAware, A
     }
 
     @Inject
-    public VedtaksHendelseConsumer(VedtakStreamKafkaProperties vedtakStreamKafkaProperties,
+    public VedtaksHendelseConsumer(@KonfigVerdi("kafka.fattevedtak.topic") String topicName,
                                    VedtaksHendelseHåndterer vedtaksHendelseHåndterer) {
-        this.topicName = vedtakStreamKafkaProperties.getTopicName();
+        this.topicName = topicName;
 
         final Consumed<String, String> consumed = Consumed.with(Topology.AutoOffsetReset.EARLIEST);
 
@@ -38,7 +45,7 @@ public class VedtaksHendelseConsumer implements LivenessAware, ReadinessAware, A
         builder.stream(topicName, consumed)
             .foreach(vedtaksHendelseHåndterer::handleMessage);
 
-        this.stream = new KafkaStreams(builder.build(), vedtakStreamKafkaProperties.getProperties());
+        this.stream = new KafkaStreams(builder.build(), KafkaProperties.forStreamsStringValue(getApplicationId()));
     }
 
     @Override
@@ -84,4 +91,12 @@ public class VedtaksHendelseConsumer implements LivenessAware, ReadinessAware, A
     private String getTopicName() {
         return topicName;
     }
+
+    private static String getApplicationId() {
+        if (!ENV.isProd()) {
+            return PROD_APP_ID + (ENV.isDev() ? "-dev" : "-vtp");
+        }
+        return PROD_APP_ID;
+    }
+
 }

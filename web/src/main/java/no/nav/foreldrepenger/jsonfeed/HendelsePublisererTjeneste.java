@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.feed.FeedRepository;
 import no.nav.foreldrepenger.domene.feed.FpVedtakUtgåendeHendelse;
 import no.nav.foreldrepenger.domene.feed.SvpVedtakUtgåendeHendelse;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerEndret;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerInnvilget;
@@ -36,6 +35,7 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
 public class HendelsePublisererTjeneste {
@@ -112,7 +112,7 @@ public class HendelsePublisererTjeneste {
 
         var innhold = mapVedtakTilInnholdFp(behandling, meldingstype, innvilgetPeriode.orElseGet(orginalPeriode::get));
 
-        var payloadJason = StandardJsonConfig.toJson(innhold);
+        var payloadJason = DefaultJsonMapper.toJson(innhold);
         fpVedtakUtgåendeHendelseBuilder.payload(payloadJason);
 
         feedRepository.lagre(fpVedtakUtgåendeHendelseBuilder.build());
@@ -135,7 +135,7 @@ public class HendelsePublisererTjeneste {
 
         var innhold = mapVedtakTilInnholdSVP(behandling, meldingstype, innvilgetPeriode.orElseGet(orginalPeriode::get));
 
-        var payloadJason = StandardJsonConfig.toJson(innhold);
+        var payloadJason = DefaultJsonMapper.toJson(innhold);
         svpVedtakUtgåendeHendelseBuilder.payload(payloadJason);
 
         feedRepository.lagre(svpVedtakUtgåendeHendelseBuilder.build());

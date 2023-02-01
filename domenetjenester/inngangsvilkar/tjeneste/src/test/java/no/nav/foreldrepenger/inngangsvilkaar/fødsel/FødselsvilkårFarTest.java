@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
@@ -37,6 +36,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteI
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class FødselsvilkårFarTest extends EntityManagerAwareTest {
 
@@ -73,7 +73,7 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
         // Act
         var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
 
-        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.regelInput());
+        var jsonNode = DefaultJsonMapper.treeFromJson(data.regelInput());
         var soekersKjonn = jsonNode.get("soekersKjonn").asText();
 
         // Assert
@@ -95,7 +95,7 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
         // Act
         var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
 
-        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.regelInput());
+        var jsonNode = DefaultJsonMapper.treeFromJson(data.regelInput());
         var soekersKjonn = jsonNode.get("soekersKjonn").asText();
 
         // Assert

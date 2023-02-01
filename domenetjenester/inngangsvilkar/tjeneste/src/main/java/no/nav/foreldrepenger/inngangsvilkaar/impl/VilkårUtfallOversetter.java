@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.MerknadRuleReasonRef;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
@@ -19,6 +18,7 @@ import no.nav.fpsak.nare.evaluation.summary.EvaluationSerializer;
 import no.nav.fpsak.nare.evaluation.summary.EvaluationSummary;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.exception.VLException;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class VilkårUtfallOversetter {
 
@@ -35,7 +35,7 @@ public class VilkårUtfallOversetter {
 
         String jsonGrunnlag;
         try {
-            jsonGrunnlag = StandardJsonConfig.toJson(grunnlag);
+            jsonGrunnlag = DefaultJsonMapper.toPrettyJson(grunnlag);
         } catch (VLException e) {
             throw new TekniskException("FP-384257", "Kunne ikke serialisere regelinput "
                 + "for vilkår: " + vilkårType.getKode(), e);

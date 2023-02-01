@@ -20,10 +20,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 
 @Transactional
@@ -58,7 +58,7 @@ public class KabalHendelseHåndterer {
     }
 
     void handleMessage(String key, String payload) {
-        var mottattHendelse = StandardJsonConfig.fromJson(payload, KabalHendelse.class);
+        var mottattHendelse = DefaultJsonMapper.fromJson(payload, KabalHendelse.class);
         setCallIdForHendelse(mottattHendelse);
         LOG.info("KABAL mottatt hendelse key={} hendelse={}", key, mottattHendelse);
 

@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.mottak.vedtak.kafka;
 
+import static java.util.stream.Collectors.toList;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -28,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.MottattVedtak;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOverlappPleiepengerTask;
@@ -41,8 +42,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.log.util.LoggerUtils;
-
-import static java.util.stream.Collectors.toList;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
 @ActivateRequestContext
@@ -82,7 +82,7 @@ public class VedtaksHendelseHåndterer {
     void handleMessage(String key, String payload) {
         // enhver exception ut fra denne metoden medfører at tråden som leser fra kafka gir opp og dør på seg.
         try {
-            var mottattVedtak = StandardJsonConfig.fromJson(payload, Ytelse.class);
+            var mottattVedtak = DefaultJsonMapper.fromJson(payload, Ytelse.class);
             if (mottattVedtak != null) {
                 handleMessageIntern((YtelseV1) mottattVedtak);
             }

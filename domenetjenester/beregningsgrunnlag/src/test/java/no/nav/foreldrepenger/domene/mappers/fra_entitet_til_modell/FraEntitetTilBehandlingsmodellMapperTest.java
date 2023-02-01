@@ -4,13 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetAggregatEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
-import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregat;
-import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class FraEntitetTilBehandlingsmodellMapperTest {
 
@@ -276,6 +271,6 @@ class FraEntitetTilBehandlingsmodellMapperTest {
               "aktiv" : true,
               "beregningsgrunnlagTilstand" : "FASTSATT"
             }""";
-        return StandardJsonConfig.fromJson(json, BeregningsgrunnlagGrunnlagEntitet.class);
+        return DefaultJsonMapper.fromJson(json, BeregningsgrunnlagGrunnlagEntitet.class);
     }
 }

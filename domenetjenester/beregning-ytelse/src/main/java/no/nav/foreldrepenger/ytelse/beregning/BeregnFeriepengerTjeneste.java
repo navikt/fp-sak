@@ -12,13 +12,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFeriepengerFraRegelTilVL;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapInputFraVLTilRegelGrunnlag;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.SammenlignBeregningsresultatFeriepengerMedRegelResultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerRegelModell;
 import no.nav.foreldrepenger.ytelse.beregning.regler.feriepenger.RegelBeregnFeriepenger;
 import no.nav.fpsak.nare.evaluation.summary.EvaluationSerializer;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public abstract class BeregnFeriepengerTjeneste {
 
@@ -105,7 +105,7 @@ public abstract class BeregnFeriepengerTjeneste {
     }
 
     private String toJson(BeregningsresultatFeriepengerRegelModell grunnlag) {
-        return StandardJsonConfig.toJson(grunnlag);
+        return DefaultJsonMapper.toPrettyJson(grunnlag);
     }
 
     protected abstract int finnTigjengeligeFeriepengedager(BehandlingReferanse ref, BeregningsresultatEntitet beregningsresultat);

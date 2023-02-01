@@ -4,7 +4,6 @@ import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_MULT_CHOICE;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
-import static no.nav.vedtak.mapper.json.DefaultJsonMapper.fromJson;
 
 import java.net.URI;
 import java.net.http.HttpResponse;
@@ -26,6 +25,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPOPPDRAG)
@@ -83,7 +83,7 @@ public class FpOppdragRestKlient {
 
     private static boolean erDetForventetNedetid(String body) {
         try {
-            return FeilType.OPPDRAG_FORVENTET_NEDETID.equals(fromJson(body, FeilDto.class).type());
+            return FeilType.OPPDRAG_FORVENTET_NEDETID.equals(DefaultJsonMapper.fromJson(body, FeilDto.class).type());
         } catch (Exception e) {
             return false;
         }

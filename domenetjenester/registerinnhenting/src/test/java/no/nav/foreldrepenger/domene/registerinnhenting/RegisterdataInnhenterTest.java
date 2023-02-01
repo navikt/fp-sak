@@ -14,9 +14,9 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class RegisterdataInnhenterTest {
 
@@ -138,7 +138,7 @@ public class RegisterdataInnhenterTest {
             }
             """;
         var fikset = json.replace("&#34;", "\"");
-        var deser = StandardJsonConfig.fromJson(fikset, PleipengerOversetter.PleiepengerOpplysninger.class);
+        var deser = DefaultJsonMapper.fromJson(fikset, PleipengerOversetter.PleiepengerOpplysninger.class);
 
         assertThat(deser.pleietrengende()).isEqualTo(new AktørId("9999999999999"));
         assertThat(deser.innleggelsesPerioder()).hasSize(1);

@@ -13,11 +13,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataEndringshåndterer;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 /**
  * Utfører innhenting av registerdata.
@@ -73,6 +73,6 @@ public class RegisterdataOppdatererTask extends BehandlingProsessTask {
     EndringsresultatSnapshot hentUtSnapshotFraPayload(ProsessTaskData prosessTaskData) {
         var payloadAsString = prosessTaskData.getPayloadAsString();
         if (payloadAsString == null) return null;
-        return StandardJsonConfig.fromJson(payloadAsString, EndringsresultatSnapshot.class);
+        return DefaultJsonMapper.fromJson(payloadAsString, EndringsresultatSnapshot.class);
     }
 }

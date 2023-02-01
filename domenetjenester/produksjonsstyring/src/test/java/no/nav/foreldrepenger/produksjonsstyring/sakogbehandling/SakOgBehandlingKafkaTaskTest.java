@@ -17,10 +17,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehandlingHendelseProducer;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
 
@@ -55,7 +55,7 @@ public class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
 
         verify(producer).sendJsonMedNøkkel(captorKey.capture(), captorVal.capture());
         var value = captorVal.getValue();
-        var roundtrip = StandardJsonConfig.fromJson(value, BehandlingOpprettet.class);
+        var roundtrip = DefaultJsonMapper.fromJson(value, BehandlingOpprettet.class);
         assertThat(roundtrip.getBehandlingsID()).isEqualToIgnoringCase(Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());
     }
 
@@ -79,7 +79,7 @@ public class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
         verify(producer).sendJsonMedNøkkel(captorKey.capture(), captorVal.capture());
         var key = captorKey.getValue();
         var value = captorVal.getValue();
-        var roundtrip = StandardJsonConfig.fromJson(value, BehandlingAvsluttet.class);
+        var roundtrip = DefaultJsonMapper.fromJson(value, BehandlingAvsluttet.class);
         assertThat(roundtrip.getBehandlingsID()).isEqualToIgnoringCase(Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());
         assertThat(roundtrip.getAvslutningsstatus().getValue()).isEqualTo("ok");
     }

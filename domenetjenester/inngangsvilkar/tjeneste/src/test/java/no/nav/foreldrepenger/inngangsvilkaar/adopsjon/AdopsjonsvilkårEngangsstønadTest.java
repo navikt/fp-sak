@@ -2,14 +2,11 @@ package no.nav.foreldrepenger.inngangsvilkaar.adopsjon;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
@@ -27,12 +24,12 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
 
@@ -75,7 +72,7 @@ public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
 
         var data = new InngangsvilkårEngangsstønadAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
-        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.regelInput());
+        var jsonNode = DefaultJsonMapper.treeFromJson(data.regelInput());
         var ektefellesBarn = jsonNode.get("ektefellesBarn").asText();
 
         assertThat(data.vilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD);

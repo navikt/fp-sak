@@ -4,8 +4,6 @@ package no.nav.foreldrepenger.mottak.publiserer.task;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.mottak.publiserer.producer.DialogHendelseProducer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,12 +12,13 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
+import no.nav.foreldrepenger.mottak.publiserer.producer.DialogHendelseProducer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.hendelser.inntektsmelding.v1.InntektsmeldingV1;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
@@ -71,7 +70,7 @@ public class PubliserPersistertDokumentHendelseTask extends GenerellProsessTask 
                 .medStartDato(inntektsmelding.getStartDatoPermisjon().orElse(null))
                 .medSaksnummer(fagsak.getSaksnummer().getVerdi())
                 .build();
-            var json = StandardJsonConfig.toJson(hendelse);
+            var json = DefaultJsonMapper.toJson(hendelse);
             producer.sendJsonMedNøkkel(data.getAktørId(), json);
         }));
     }

@@ -6,8 +6,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class PleipengerOversetter {
 
@@ -17,7 +17,7 @@ public class PleipengerOversetter {
         try {
             // TODO finne ut hvor double-quote escapes og gir &#34;
             var midlertidigKonvertering = tilleggsOpplysninger.replace("&#34;", "\"");
-            return StandardJsonConfig.fromJson(midlertidigKonvertering, PleiepengerOpplysninger.class);
+            return DefaultJsonMapper.fromJson(midlertidigKonvertering, PleiepengerOpplysninger.class);
         } catch (Exception e) {
             LOG.warn("Feil ved oversetting av pleiepenger / innleggelse for {}", tilleggsOpplysninger, e);
             return null;

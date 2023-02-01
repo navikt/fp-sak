@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.inngangsvilkaar.fødsel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
 
@@ -27,13 +26,13 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class FødselsvilkårMorTest extends EntityManagerAwareTest {
 
@@ -68,7 +67,7 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
         // Act
         var data = new InngangsvilkårFødselMor(oversetter).vurderVilkår(lagRef(behandling));
 
-        var jsonNode =  StandardJsonConfig.fromJsonAsTree(data.regelInput());
+        var jsonNode =  DefaultJsonMapper.treeFromJson(data.regelInput());
         var soekersKjonn = jsonNode.get("soekersKjonn").asText();
 
         // Assert
