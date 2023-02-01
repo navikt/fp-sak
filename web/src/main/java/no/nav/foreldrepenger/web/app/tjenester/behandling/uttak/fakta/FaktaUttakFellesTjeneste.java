@@ -164,9 +164,6 @@ class FaktaUttakFellesTjeneste {
         var periodeIntervall = DatoIntervallEntitet.fraOgMedTilOgMed(dto.fom(), dto.tom());
         var gjeldendeSomOmslutter = gjeldendeSomOmslutter(periodeIntervall, gjeldende);
         var periodeKilde = dto.periodeKilde() == null ? FordelingPeriodeKilde.SAKSBEHANDLER : dto.periodeKilde();
-        //Hvis saksbehandler har endret på perioden må dokumentasjon vurderes på nytt.
-        var dokumentasjonVurdering =
-            periodeKilde == FordelingPeriodeKilde.SAKSBEHANDLER ? null : utledDokumentasjonsVurdering(periodeIntervall, gjeldende);
         //legacy begrunnelse fjernes hvis saksbehandler endrer noe
         var begrunnelse = periodeKilde == FordelingPeriodeKilde.SAKSBEHANDLER || gjeldendeSomOmslutter.isEmpty() ? null : gjeldendeSomOmslutter.get()
             .getBegrunnelse()
@@ -175,7 +172,8 @@ class FaktaUttakFellesTjeneste {
             .medPeriodeKilde(periodeKilde)
             .medMottattDato(gjeldendeSomOmslutter.map(OppgittPeriodeEntitet::getMottattDato).orElseGet(LocalDate::now))
             .medTidligstMottattDato(gjeldendeSomOmslutter.flatMap(OppgittPeriodeEntitet::getTidligstMottattDato).orElse(null))
-            .medDokumentasjonVurdering(dokumentasjonVurdering)
+            //Setter dokvurdering til null for å sikre at dokumentasjons AP reutledes ved tilbakehopp. TFP-5381. Kan sannsynligvis optimaliseres til å være mer presis
+            .medDokumentasjonVurdering(null)
             .medBegrunnelse(begrunnelse)
             .medMorsAktivitet(dto.morsAktivitet())
             .medFlerbarnsdager(dto.flerbarnsdager())
