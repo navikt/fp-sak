@@ -203,7 +203,7 @@ public class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         new FatterVedtakAksjonspunktOppdaterer(fatterVedtakAksjonspunkt).oppdater(aksjonspunktDto,
                 new AksjonspunktOppdaterParameter(behandling, Optional.empty(), aksjonspunktDto));
 
-        var totrinnsvurderinger = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling);
+        var totrinnsvurderinger = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling.getId());
         assertThat(totrinnsvurderinger).hasSize(1);
         var totrinnsvurdering = totrinnsvurderinger.iterator().next();
 
@@ -232,7 +232,7 @@ public class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         new FatterVedtakAksjonspunktOppdaterer(fatterVedtakAksjonspunkt).oppdater(aksjonspunktDto,
                 new AksjonspunktOppdaterParameter(behandling, Optional.empty(), aksjonspunktDto));
 
-        var totrinnsvurderinger = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling);
+        var totrinnsvurderinger = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling.getId());
         assertThat(totrinnsvurderinger).hasSize(1);
         var totrinnsvurdering = totrinnsvurderinger.iterator().next();
 

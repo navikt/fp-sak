@@ -65,7 +65,7 @@ public class FatterVedtakAksjonspunkt {
             vurderingBuilder.medBegrunnelse(aks.getBegrunnelse());
             totrinnsvurderinger.add(vurderingBuilder.build());
         }
-        totrinnTjeneste.settNyeTotrinnaksjonspunktvurderinger(behandling, totrinnsvurderinger);
+        totrinnTjeneste.settNyeTotrinnaksjonspunktvurderinger(totrinnsvurderinger);
         vedtakTjeneste.lagHistorikkinnslagFattVedtak(behandling);
         // Noe spesialhåndtering ifm totrinn og tilbakeføring fra FVED
         if (!skalReåpnes.isEmpty()) {

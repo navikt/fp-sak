@@ -42,17 +42,14 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
 
 
     private TotrinnskontrollAksjonspunkterTjeneste totrinnskontrollAksjonspunkterTjeneste;
-    private TotrinnTjeneste totrinnTjeneste = Mockito.mock(TotrinnTjeneste.class);
-    private TotrinnsaksjonspunktDtoTjeneste totrinnsaksjonspunktDtoTjeneste = Mockito.mock(TotrinnsaksjonspunktDtoTjeneste.class);
+    private final TotrinnTjeneste totrinnTjeneste = Mockito.mock(TotrinnTjeneste.class);
+    private final TotrinnsaksjonspunktDtoTjeneste totrinnsaksjonspunktDtoTjeneste = Mockito.mock(TotrinnsaksjonspunktDtoTjeneste.class);
     private Behandling behandling;
     private Behandlingsresultat behandlingsresultat;
-    private Totrinnresultatgrunnlag totrinnresultatgrunnlag;
 
     @BeforeEach
     public void oppsett() {
         totrinnskontrollAksjonspunkterTjeneste = new TotrinnskontrollAksjonspunkterTjeneste(totrinnsaksjonspunktDtoTjeneste, totrinnTjeneste);
-        totrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null,
-            null, null, null);
     }
 
     @Test
@@ -403,7 +400,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     public void skal_hente_en_tom_skjermlenkecontext_for_en_behandling_med_ingen_totrinnaksjonspunktvurdering(){
         // Arrange
         opprettBehandlingForFP(Optional.empty());
-        when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling)).thenReturn(Collections.emptyList());
+        when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(Collections.emptyList());
         // Act
         var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling, behandlingsresultat);
         // Assert
@@ -438,8 +435,9 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
             var ttv2 = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon2, ttv2Godkjent);
             var totrinnskontrollAksjonspunkterDto2 = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon2), Optional.of(ttv2));
 
-            when(totrinnTjeneste.hentTotrinngrunnlagHvisEksisterer(behandling)).thenReturn(Optional.of(totrinnresultatgrunnlag));
-            when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling)).thenReturn(List.of(ttv1, ttv2));
+            var totrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null, null, null);
+            when(totrinnTjeneste.hentTotrinngrunnlagHvisEksisterer(behandling.getId())).thenReturn(Optional.of(totrinnresultatgrunnlag));
+            when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(List.of(ttv1, ttv2));
             when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(eq(ttv1), eq(behandling), eq(Optional.of(totrinnresultatgrunnlag))))
                 .thenReturn(totrinnskontrollAksjonspunkterDto1);
             when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(eq(ttv2), eq(behandling), eq(Optional.of(totrinnresultatgrunnlag))))
@@ -469,10 +467,6 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
 
     }
 
-    // ------------------------------------------------------------ //
-    // PRIVATE METODER                                              //
-    // ------------------------------------------------------------ //
-
     private void opprettBehandlingForFP(Optional<VilkårType> vilkårTypeOpt) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         vilkårTypeOpt.ifPresent(vt -> scenario.leggTilVilkår(vt, VilkårUtfallType.IKKE_VURDERT));
@@ -486,8 +480,9 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     private void setFelleseMockMetoder(TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto, List<Totrinnsvurdering> ttv) {
-        when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling)).thenReturn(ttv);
-        when(totrinnTjeneste.hentTotrinngrunnlagHvisEksisterer(behandling)).thenReturn(Optional.of(totrinnresultatgrunnlag));
+        when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(ttv);
+        var totrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null, null, null);
+        when(totrinnTjeneste.hentTotrinngrunnlagHvisEksisterer(behandling.getId())).thenReturn(Optional.of(totrinnresultatgrunnlag));
         when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(any(), eq(behandling), eq(Optional.of(totrinnresultatgrunnlag))))
             .thenReturn(totrinnskontrollAksjonspunkterDto);
     }
