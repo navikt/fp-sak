@@ -159,9 +159,7 @@ public class FordelRestTjenesteTest {
             BehandlingRepositoryProvider.class), vurderFagsystemTjenesteMock);
 
         var aktørIdDto = new FordelRestTjeneste.AktørIdDto("ikke_gyldig_id_haha:)");
-        var exception = assertThrows(IllegalArgumentException.class, () -> {
-            tjeneste.finnAlleSakerForBruker(aktørIdDto);
-        });
+        var exception = assertThrows(IllegalArgumentException.class, () -> tjeneste.finnAlleSakerForBruker(aktørIdDto));
 
         String expectedMessage = "Oppgitt aktørId er ikke en gyldig ident.";
         String actualMessage = exception.getMessage();
