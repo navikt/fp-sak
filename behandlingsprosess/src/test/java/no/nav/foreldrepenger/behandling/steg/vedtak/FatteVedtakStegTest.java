@@ -388,7 +388,7 @@ public class FatteVedtakStegTest {
 
         List<Totrinnsvurdering> totrinnsvurderings = new ArrayList<>();
         totrinnsvurderings.add(ttvurdering);
-        when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling)).thenReturn(totrinnsvurderings);
+        when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(totrinnsvurderings);
         var klageanke = new KlageAnkeVedtakTjeneste(klageRepository, mock(AnkeRepository.class));
         var fvtei = new FatteVedtakTjeneste(vedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste,
                 oppgaveTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
@@ -462,7 +462,7 @@ public class FatteVedtakStegTest {
         List<Totrinnsvurdering> totrinnsvurderings = new ArrayList<>();
         totrinnsvurderings.add(vurderesPåNytt);
         totrinnsvurderings.add(vurderesOk);
-        when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling)).thenReturn(totrinnsvurderings);
+        when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(totrinnsvurderings);
         var klageanke = new KlageAnkeVedtakTjeneste(klageRepository, mock(AnkeRepository.class));
         var fvtei = new FatteVedtakTjeneste(vedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste,
                 oppgaveTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);

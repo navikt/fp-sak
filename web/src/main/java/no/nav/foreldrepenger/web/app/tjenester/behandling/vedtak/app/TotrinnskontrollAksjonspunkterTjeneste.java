@@ -39,7 +39,7 @@ public class TotrinnskontrollAksjonspunkterTjeneste {
         var skjermlenkeContext = new ArrayList<TotrinnskontrollSkjermlenkeContextDto>();
         var aksjonspunkter = behandling.getAksjonspunkterMedTotrinnskontroll();
         var skjermlenkeMap = new HashMap<SkjermlenkeType, List<TotrinnskontrollAksjonspunkterDto>>();
-        var ttVurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
+        var ttVurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId());
         // Behandling er ikkje i fatte vedtak og har ingen totrinnsvurderinger -> returnerer tom liste
         if (!BehandlingStatus.FATTER_VEDTAK.equals(behandling.getStatus()) && ttVurderinger.isEmpty()) {
             return Collections.emptyList();
@@ -64,10 +64,11 @@ public class TotrinnskontrollAksjonspunkterTjeneste {
         return skjermlenkeContext;
     }
 
-    private void lagTotrinnsaksjonspunkt(Behandling behandling, Behandlingsresultat behandlingsresultat,
+    private void lagTotrinnsaksjonspunkt(Behandling behandling,
+                                         Behandlingsresultat behandlingsresultat,
                                          Map<SkjermlenkeType, List<TotrinnskontrollAksjonspunkterDto>> skjermlenkeMap,
                                          Totrinnsvurdering vurdering) {
-        var totrinnresultatOpt = totrinnTjeneste.hentTotrinngrunnlagHvisEksisterer(behandling);
+        var totrinnresultatOpt = totrinnTjeneste.hentTotrinngrunnlagHvisEksisterer(behandling.getId());
         var totrinnsAksjonspunkt = totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(vurdering,
             behandling, totrinnresultatOpt);
         var skjermlenkeType = SkjermlenkeType.finnSkjermlenkeType(vurdering.getAksjonspunktDefinisjon(), behandling,
@@ -80,7 +81,7 @@ public class TotrinnskontrollAksjonspunkterTjeneste {
 
     public List<TotrinnskontrollSkjermlenkeContextDto> hentTotrinnsvurderingSkjermlenkeContext(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         var skjermlenkeContext = new ArrayList<TotrinnskontrollSkjermlenkeContextDto>();
-        var totrinnaksjonspunktvurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
+        var totrinnaksjonspunktvurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId());
         var skjermlenkeMap = new HashMap<SkjermlenkeType, List<TotrinnskontrollAksjonspunkterDto>>();
         for (var vurdering : totrinnaksjonspunktvurderinger) {
             lagTotrinnsaksjonspunkt(behandling, behandlingsresultat, skjermlenkeMap, vurdering);

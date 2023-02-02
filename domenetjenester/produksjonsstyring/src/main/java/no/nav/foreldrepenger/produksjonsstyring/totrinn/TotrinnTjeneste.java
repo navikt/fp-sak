@@ -7,8 +7,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-
 /** Totrinn tjeneste som eksponeres ut av modulen.*/
 @ApplicationScoped
 public class TotrinnTjeneste {
@@ -24,19 +22,19 @@ public class TotrinnTjeneste {
         this.totrinnRepository = totrinnRepository;
     }
 
-    public Optional<Totrinnresultatgrunnlag> hentTotrinngrunnlagHvisEksisterer(Behandling behandling) {
-        return totrinnRepository.hentTotrinngrunnlag(behandling);
+    public Optional<Totrinnresultatgrunnlag> hentTotrinngrunnlagHvisEksisterer(Long behandlingId) {
+        return totrinnRepository.hentTotrinngrunnlag(behandlingId);
     }
 
-    public Collection<Totrinnsvurdering> hentTotrinnaksjonspunktvurderinger(Behandling behandling) {
-        return totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling);
+    public Collection<Totrinnsvurdering> hentTotrinnaksjonspunktvurderinger(Long behandlingId) {
+        return totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandlingId);
     }
 
-    public void settNyeTotrinnaksjonspunktvurderinger(Behandling behandling, List<Totrinnsvurdering> vurderinger) {
-        totrinnRepository.lagreOgFlush(behandling, vurderinger);
+    public void settNyeTotrinnaksjonspunktvurderinger(List<Totrinnsvurdering> vurderinger) {
+        totrinnRepository.lagreOgFlush(vurderinger);
     }
-    
-    public void lagreNyttTotrinnresultat(Behandling behandling, Totrinnresultatgrunnlag totrinnresultatgrunnlag) {
-        totrinnRepository.lagreOgFlush(behandling, totrinnresultatgrunnlag);
+
+    public void lagreNyttTotrinnresultat(Totrinnresultatgrunnlag totrinnresultatgrunnlag) {
+        totrinnRepository.lagreOgFlush(totrinnresultatgrunnlag);
     }
 }

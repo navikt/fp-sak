@@ -225,7 +225,7 @@ public class FagsakBehandlingDtoTjeneste {
         var kanÅpnesForEndring = b.erRevurdering() && !b.isBehandlingPåVent() &&
             SpesialBehandling.erIkkeSpesialBehandling(b) && !b.erKøet() &&
             !FagsakYtelseType.ENGANGSTØNAD.equals(b.getFagsakYtelseType());
-        var totrinnRetur = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(b).stream()
+        var totrinnRetur = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(b.getId()).stream()
             .anyMatch(tt -> !tt.isGodkjent());
         return BehandlingOperasjonerDto.builder(b.getUuid())
             .medTilGodkjenning(false)

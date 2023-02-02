@@ -97,7 +97,7 @@ public class FatteVedtakTjeneste {
         }
 
         if (behandling.isToTrinnsBehandling()) {
-            var totrinnaksjonspunktvurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
+            var totrinnaksjonspunktvurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId());
             if (sendesTilbakeTilSaksbehandler(totrinnaksjonspunktvurderinger)) {
                 oppgaveTjeneste.avsluttOppgaveOgStartTask(behandling, OppgaveÅrsak.GODKJENNE_VEDTAK,
                     TaskType.forProsessTask(OpprettOppgaveForBehandlingSendtTilbakeTask.class));

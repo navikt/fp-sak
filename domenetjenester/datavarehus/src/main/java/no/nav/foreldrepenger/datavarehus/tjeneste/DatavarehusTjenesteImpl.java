@@ -123,7 +123,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     public void lagreNedAksjonspunkter(Collection<Aksjonspunkt> aksjonspunkter, Long behandlingId, BehandlingStegType behandlingStegType) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var behandlingStegTilstand = behandling.getBehandlingStegTilstand(behandlingStegType);
-        var totrinnsvurderings = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling);
+        var totrinnsvurderings = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling.getId());
         for (var aksjonspunkt : aksjonspunkter) {
             if (aksjonspunkt.getId() != null) {
                 var godkjennt = totrinnsvurderings.stream().anyMatch(ttv -> ttv.getAksjonspunktDefinisjon() == aksjonspunkt.getAksjonspunktDefinisjon() && ttv.isGodkjent());

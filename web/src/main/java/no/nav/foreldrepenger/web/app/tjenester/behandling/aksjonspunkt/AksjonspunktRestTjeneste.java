@@ -102,7 +102,7 @@ public class AksjonspunktRestTjeneste {
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
-        var ttVurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
+        var ttVurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId());
         var dto = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, behandlingsresultat, ttVurderinger);
         var cc = new CacheControl();
         cc.setNoCache(true);

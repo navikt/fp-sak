@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.produksjonsstyring.totrinn;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -61,6 +62,7 @@ public class Totrinnresultatgrunnlag extends BaseEntitet {
                                    Long uttakResultatEntitetId,
                                    Long beregningsgrunnlagId,
                                    UUID iayGrunnlagUuid) {
+        Objects.requireNonNull(behandling);
         this.behandling = behandling;
         this.ytelseFordelingGrunnlagEntitetId = ytelseFordelingGrunnlagEntitetId;
         this.uttakResultatEntitetId = uttakResultatEntitetId;
@@ -102,5 +104,9 @@ public class Totrinnresultatgrunnlag extends BaseEntitet {
 
     public void setGrunnlagUuid(UUID iayGrunnlagUuid) {
         this.iayGrunnlagUuid = iayGrunnlagUuid;
+    }
+
+    public Long getBehandlingId() {
+        return behandling.getId();
     }
 }

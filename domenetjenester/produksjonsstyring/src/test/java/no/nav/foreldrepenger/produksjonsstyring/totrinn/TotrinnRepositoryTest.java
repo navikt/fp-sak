@@ -51,12 +51,11 @@ public class TotrinnRepositoryTest extends EntityManagerAwareTest {
         var nyttTotrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null, null,
             null);
 
-        totrinnRepository.lagreOgFlush(behandling, gammeltTotrinnresultatgrunnlag);
-        totrinnRepository.lagreOgFlush(behandling, nyttTotrinnresultatgrunnlag);
+        totrinnRepository.lagreOgFlush(gammeltTotrinnresultatgrunnlag);
+        totrinnRepository.lagreOgFlush(nyttTotrinnresultatgrunnlag);
 
         // Hent ut aktiv totrinnsgrunnlag
-        var optionalNyttTotrinnresultatgrunnlag = totrinnRepository.hentTotrinngrunnlag(
-            behandling);
+        var optionalNyttTotrinnresultatgrunnlag = totrinnRepository.hentTotrinngrunnlag(behandling.getId());
 
         // Hent ut inaktive totrinnsgrunnlag
         var query = entityManager.createQuery(
@@ -96,7 +95,7 @@ public class TotrinnRepositoryTest extends EntityManagerAwareTest {
         inaktivTotrinnsvurderingList.add(inaktivTotrinnsvurdering1);
         inaktivTotrinnsvurderingList.add(inaktivTotrinnsvurdering2);
         inaktivTotrinnsvurderingList.add(inaktivTotrinnsvurdering3);
-        totrinnRepository.lagreOgFlush(behandling, inaktivTotrinnsvurderingList);
+        totrinnRepository.lagreOgFlush(inaktivTotrinnsvurderingList);
 
         // Opprett vurderinger som skal være aktive
         var aktivTotrinnsvurdering1 = lagTotrinnsvurdering(behandling,
@@ -110,11 +109,10 @@ public class TotrinnRepositoryTest extends EntityManagerAwareTest {
         aktivTotrinnsvurderingList.add(aktivTotrinnsvurdering1);
         aktivTotrinnsvurderingList.add(aktivTotrinnsvurdering2);
         aktivTotrinnsvurderingList.add(aktivTotrinnsvurdering3);
-        totrinnRepository.lagreOgFlush(behandling, aktivTotrinnsvurderingList);
+        totrinnRepository.lagreOgFlush(aktivTotrinnsvurderingList);
 
         // Hent aktive vurderinger etter flush
-        var repoAktiveTotrinnsvurderinger = totrinnRepository.hentTotrinnaksjonspunktvurderinger(
-            behandling);
+        var repoAktiveTotrinnsvurderinger = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling.getId());
 
         // Hent inaktive vurderinger etter flush
         var query = entityManager.createQuery(

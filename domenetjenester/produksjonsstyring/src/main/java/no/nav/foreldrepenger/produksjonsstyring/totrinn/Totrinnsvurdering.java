@@ -83,6 +83,9 @@ public class Totrinnsvurdering extends BaseEntitet {
         this.aktiv = aktiv;
     }
 
+    public Long getBehandlingId() {
+        return behandling.getId();
+    }
 
     public static class Builder {
         private Totrinnsvurdering totrinnsvurderingMal;

@@ -42,11 +42,12 @@ public class OpprettToTrinnsgrunnlag {
     }
 
     public void settNyttTotrinnsgrunnlag(Behandling behandling) {
-        var beregningsgrunnlagOpt = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId())
+        var behandlingId = behandling.getId();
+        var beregningsgrunnlagOpt = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId)
                 .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
-        var ytelseFordelingIdOpt = ytelsesFordelingRepository.hentIdPåAktivYtelsesFordeling(behandling.getId());
-        var uttakResultatOpt = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
-        var iayGrunnlagOpt = iayTjeneste.finnGrunnlag(behandling.getId());
+        var ytelseFordelingIdOpt = ytelsesFordelingRepository.hentIdPåAktivYtelsesFordeling(behandlingId);
+        var uttakResultatOpt = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId);
+        var iayGrunnlagOpt = iayTjeneste.finnGrunnlag(behandlingId);
 
         var totrinnsresultatgrunnlag = new Totrinnresultatgrunnlag(behandling,
             ytelseFordelingIdOpt.orElse(null),
@@ -54,7 +55,7 @@ public class OpprettToTrinnsgrunnlag {
             beregningsgrunnlagOpt.map(BeregningsgrunnlagEntitet::getId).orElse(null),
             iayGrunnlagOpt.map(InntektArbeidYtelseGrunnlag::getEksternReferanse).orElse(null));
 
-        totrinnTjeneste.lagreNyttTotrinnresultat(behandling, totrinnsresultatgrunnlag);
+        totrinnTjeneste.lagreNyttTotrinnresultat(totrinnsresultatgrunnlag);
     }
 
 }

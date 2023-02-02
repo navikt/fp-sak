@@ -81,7 +81,7 @@ public class VedtakTjeneste {
 
     public void lagHistorikkinnslagFattVedtak(Behandling behandling) {
         if (behandling.isToTrinnsBehandling()) {
-            var totrinnsvurderings = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
+            var totrinnsvurderings = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId());
             if (sendesTilbakeTilSaksbehandler(totrinnsvurderings)) {
                 lagHistorikkInnslagVurderPåNytt(behandling, totrinnsvurderings);
                 return;
