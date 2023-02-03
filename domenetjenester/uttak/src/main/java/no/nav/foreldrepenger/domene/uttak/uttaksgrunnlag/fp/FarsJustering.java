@@ -36,13 +36,13 @@ class FarsJustering implements ForelderFødselJustering {
     @Override
     public List<OppgittPeriodeEntitet> justerVedFødselEtterTermin(List<OppgittPeriodeEntitet> oppgittePerioder) {
         guard(termindato, fødselsdato);
-        if (!skalJustere(oppgittePerioder)) {
+        var slåttSammen = slåSammenLikePerioder(oppgittePerioder);
+        if (!skalJustere(slåttSammen)) {
             return oppgittePerioder;
         }
-        var slåttSammen = slåSammenLikePerioder(oppgittePerioder);
-        var justerFørstePeriode = justerFødselEtterTermin(oppgittePerioder.get(0), oppgittePerioder);
+        var justerFørstePeriode = justerFødselEtterTermin(slåttSammen.get(0), slåttSammen);
         if (justerFørstePeriode.isEmpty()) {
-            return oppgittePerioder.subList(1, oppgittePerioder.size());
+            return slåttSammen.subList(1, slåttSammen.size());
         }
         slåttSammen.set(0, justerFørstePeriode.get());
         return slåttSammen;
@@ -51,11 +51,11 @@ class FarsJustering implements ForelderFødselJustering {
     @Override
     public List<OppgittPeriodeEntitet> justerVedFødselFørTermin(List<OppgittPeriodeEntitet> oppgittePerioder) {
         guard(fødselsdato, termindato);
-        if (!skalJustere(oppgittePerioder)) {
-            return oppgittePerioder;
-        }
         var slåttSammen = slåSammenLikePerioder(oppgittePerioder);
-        var justerFørstePeriode = justerFødselFørTermin(oppgittePerioder.get(0));
+        if (!skalJustere(slåttSammen)) {
+            return slåttSammen;
+        }
+        var justerFørstePeriode = justerFødselFørTermin(slåttSammen.get(0));
         slåttSammen.set(0, justerFørstePeriode);
         return slåttSammen;
     }
