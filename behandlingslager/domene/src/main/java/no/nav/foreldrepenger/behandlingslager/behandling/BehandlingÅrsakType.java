@@ -53,12 +53,12 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     // G-regulering
     RE_SATS_REGULERING("RE-SATS-REGULERING", "Regulering grunnbeløp"),
 
-    //For automatiske informasjonsbrev
+    // For automatiske informasjonsbrev
     INFOBREV_BEHANDLING("INFOBREV_BEHANDLING", "Informasjonsbrev uttak"),
     INFOBREV_OPPHOLD("INFOBREV_OPPHOLD", "Informasjonsbrev opphold"),
     INFOBREV_PÅMINNELSE("INFOBREV_PÅMINNELSE", "Informasjonsbrev påminnelse"),
 
-    //For å vurdere opphør av ytelse
+    // For å vurdere opphør av ytelse
     OPPHØR_YTELSE_NYTT_BARN("OPPHØR-NYTT-BARN", "Nytt barn/stønadsperiode"),
 
     // Hendelser
@@ -69,6 +69,9 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     RE_HENDELSE_UTFLYTTING("RE-HENDELSE-UTFLYTTING", "Utflytting"),
 
     RE_VEDTAK_PLEIEPENGER("RE-VEDTAK-PSB", "Pleiepenger"),
+
+    // Skille klageområder
+    KLAGE_TILBAKEBETALING("KLAGE_TILBAKE", "Tilbakebetaling"),
 
 
     // UTGÅTT. men ikke slett - BehandlingÅrsak-tabellen er rensket og ikke bruk disse som nye behandlingsårsaker!

@@ -24,6 +24,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsessTaskRepository;
@@ -176,6 +178,24 @@ public class ForvaltningTekniskRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response fjernFagsakProsesstaskAvsluttetBehandling() {
         fagsakProsessTaskRepository.fjernForAvsluttedeBehandlinger();
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/klage-tilbake-aarsak")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Setter legger til årsak klage-tilbake", tags = "FORVALTNING-teknisk", responses = {
+        @ApiResponse(responseCode = "200", description = "Lagt til årsak."),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+    })
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response klageTilbakeArsak() {
+        behandlingRepository.hentKlageTilbakeBehandlinger().forEach(behandling -> {
+            var lås = behandlingRepository.taSkriveLås(behandling.getId());
+            BehandlingÅrsak.builder(BehandlingÅrsakType.KLAGE_TILBAKEBETALING).buildFor(behandling);
+            behandlingRepository.lagre(behandling, lås);
+        });
         return Response.ok().build();
     }
 
