@@ -56,38 +56,43 @@ public class Adresseinfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (Adresseinfo) o;
-        return gjeldendePostadresseType == that.gjeldendePostadresseType &&
-            Objects.equals(matrikkelId, that.matrikkelId) &&
-            Objects.equals(adresselinje1, that.adresselinje1) &&
-            Objects.equals(adresselinje2, that.adresselinje2) &&
-            Objects.equals(adresselinje3, that.adresselinje3) &&
-            Objects.equals(adresselinje4, that.adresselinje4) &&
-            Objects.equals(postNr, that.postNr) &&
-            Objects.equals(poststed, that.poststed) &&
-            Objects.equals(land, that.land);
+        return gjeldendePostadresseType == that.gjeldendePostadresseType && Objects.equals(matrikkelId, that.matrikkelId) && Objects.equals(
+            adresselinje1, that.adresselinje1) && Objects.equals(adresselinje2, that.adresselinje2) && Objects.equals(adresselinje3,
+            that.adresselinje3) && Objects.equals(adresselinje4, that.adresselinje4) && Objects.equals(postNr, that.postNr) && Objects.equals(
+            poststed, that.poststed) && Objects.equals(land, that.land);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(gjeldendePostadresseType, matrikkelId, adresselinje1, adresselinje2, adresselinje3, adresselinje4, postNr, poststed, land);
+        return Objects.hash(gjeldendePostadresseType, matrikkelId, adresselinje1, adresselinje2, adresselinje3, adresselinje4, postNr, poststed,
+            land);
     }
 
     public static boolean likeAdresser(Adresseinfo a1, Adresseinfo a2) {
-        if (a1 == null && a2 == null) return true;
-        if (a1 == null || a2 == null) return false;
-        if (a1.matrikkelId != null || a2.matrikkelId != null) return Objects.equals(a1.matrikkelId, a2.matrikkelId);
-        return likeAdresselinjer(a1, a2) &&
-            Objects.equals(a1.postNr, a2.postNr) &&
-            Objects.equals(a1.land, a2.land);
+        if (a1 == null && a2 == null) {
+            return true;
+        }
+        if (a1 == null || a2 == null) {
+            return false;
+        }
+        if (a1.matrikkelId != null || a2.matrikkelId != null) {
+            return Objects.equals(a1.matrikkelId, a2.matrikkelId);
+        }
+        return likeAdresselinjer(a1, a2) && Objects.equals(a1.postNr, a2.postNr) && Objects.equals(a1.land, a2.land);
     }
 
     private static boolean likeAdresselinjer(Adresseinfo a1, Adresseinfo a2) {
         var a1l1 = kompaktAdresseline(a1.adresselinje1);
         var a2l1 = kompaktAdresseline(a2.adresselinje1);
-        return Objects.equals(a1l1, a2l1) || Objects.equals(a1l1, kompaktAdresseline(a2.adresselinje2)) || Objects.equals(kompaktAdresseline(a1.adresselinje2), a2l1);
+        return Objects.equals(a1l1, a2l1) || Objects.equals(a1l1, kompaktAdresseline(a2.adresselinje2)) || Objects.equals(
+            kompaktAdresseline(a1.adresselinje2), a2l1);
     }
 
     private static String kompaktAdresseline(String adresselinje) {

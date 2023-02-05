@@ -1,18 +1,18 @@
 version: '3.7'
 services:
-    oracle:
-        image: gvenzl/oracle-xe:18.4.0-slim
-        environment:
-            - ORACLE_RANDOM_PASSWORD=true
-        shm_size: 4gb
-        deploy:
-            resources:
-                limits:
-                    memory: 4gb
-                reservations:
-                    memory: 4gb
-        ports:
-            - "1521:1521"
-        volumes:
-            - ./oracle-init:/docker-entrypoint-initdb.d/
-        container_name: oraclefpsak
+  oracle:
+    image: gvenzl/oracle-xe:18.4.0-slim
+    environment:
+      - ORACLE_RANDOM_PASSWORD=true
+    shm_size: 4gb
+    deploy:
+      resources:
+        limits:
+          memory: 4gb
+        reservations:
+          memory: 4gb
+    ports:
+      - "1521:1521"
+    volumes:
+      - ./oracle-init:/docker-entrypoint-initdb.d/
+    container_name: oraclefpsak

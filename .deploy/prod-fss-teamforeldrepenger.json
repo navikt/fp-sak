@@ -1,73 +1,77 @@
 {
-    "environment": "prod",
-    "kafkaPool": "nav-prod",
-    "oracleconfig": "oracle/data/prod/config/fpsak",
-    "oraclefpsaksecret": "oracle/data/prod/creds/fpsak-fpsak",
-    "oracledvhsecret": "oracle/data/prod/creds/fpsak-fpsak_hist",
-    "fpsakserviceuser": "serviceuser/data/prod/srvengangsstonad",
-    "ldapserviceuser": "serviceuser/data/prod/srvssolinux",
-    "mqserviceuser": "serviceuser/data/prod/srvfpsak",
-    "minReplicas": "4",
-    "maxReplicas": "9",
-    "limits": {
-        "cpu": "4",
-        "mem": "3072Mi"
+  "environment": "prod",
+  "kafkaPool": "nav-prod",
+  "oracleconfig": "oracle/data/prod/config/fpsak",
+  "oraclefpsaksecret": "oracle/data/prod/creds/fpsak-fpsak",
+  "oracledvhsecret": "oracle/data/prod/creds/fpsak-fpsak_hist",
+  "fpsakserviceuser": "serviceuser/data/prod/srvengangsstonad",
+  "ldapserviceuser": "serviceuser/data/prod/srvssolinux",
+  "mqserviceuser": "serviceuser/data/prod/srvfpsak",
+  "minReplicas": "4",
+  "maxReplicas": "9",
+  "limits": {
+    "cpu": "4",
+    "mem": "3072Mi"
+  },
+  "requests": {
+    "cpu": "1",
+    "mem": "2816Mi"
+  },
+  "ingresses": [
+    "https://fpsak-api.intern.nav.no",
+    "https://fpsak-api.prod-fss-pub.nais.io"
+  ],
+  "env": {
+    "APPD_ENABLED": "true"
+  },
+  "groups": [
+    "73107205-17ec-4a07-a56e-e0a8542f90c9",
+    "77f05833-ebfd-45fb-8be7-88eca8e7418f",
+    "0d226374-4748-4367-a38a-062dcad70034"
+  ],
+  "AZURE_IAC_RULES": [
+    {
+      "app": "fp-swagger",
+      "namespace": "teamforeldrepenger",
+      "cluster": "prod-gcp",
+      "scopes": [
+        "swagger"
+      ]
     },
-    "requests": {
-        "cpu": "1",
-        "mem": "2816Mi"
+    {
+      "app": "fp-frontend",
+      "namespace": "teamforeldrepenger",
+      "cluster": "prod-gcp"
     },
-    "ingresses": [
-        "https://fpsak.nais.adeo.no",
-        "https://fpsak-api.intern.nav.no",
-        "https://fpsak-api.prod-fss-pub.nais.io"
-    ],
-    "env": {
-        "APPD_ENABLED": "true"
+    {
+      "app": "fpformidling",
+      "namespace": "teamforeldrepenger",
+      "cluster": "prod-fss"
     },
-    "AZURE_IAC_RULES": [
-        {
-            "app": "fp-swagger",
-            "namespace": "teamforeldrepenger",
-            "cluster": "prod-gcp",
-            "scopes": [
-                "swagger"
-            ]
-        },
-        {
-            "app": "fp-frontend",
-            "namespace": "teamforeldrepenger",
-            "cluster": "prod-gcp"
-        },
-        {
-            "app": "fpformidling",
-            "namespace": "teamforeldrepenger",
-            "cluster": "prod-fss"
-        },
-        {
-            "app": "fplos",
-            "namespace": "teamforeldrepenger",
-            "cluster": "prod-fss"
-        },
-        {
-            "app": "fptilbake",
-            "namespace": "teamforeldrepenger",
-            "cluster": "prod-fss"
-        },
-        {
-            "app": "fpfordel",
-            "namespace": "teamforeldrepenger",
-            "cluster": "prod-fss"
-        },
-        {
-            "app": "fpabakus",
-            "namespace": "teamforeldrepenger",
-            "cluster": "prod-fss"
-        },
-        {
-            "app": "fpabonnent",
-            "namespace": "teamforeldrepenger",
-            "cluster": "prod-fss"
-        }
-    ]
+    {
+      "app": "fplos",
+      "namespace": "teamforeldrepenger",
+      "cluster": "prod-fss"
+    },
+    {
+      "app": "fptilbake",
+      "namespace": "teamforeldrepenger",
+      "cluster": "prod-fss"
+    },
+    {
+      "app": "fpfordel",
+      "namespace": "teamforeldrepenger",
+      "cluster": "prod-fss"
+    },
+    {
+      "app": "fpabakus",
+      "namespace": "teamforeldrepenger",
+      "cluster": "prod-fss"
+    },
+    {
+      "app": "fpabonnent",
+      "namespace": "teamforeldrepenger",
+      "cluster": "prod-fss"
+    }
+  ]
 }

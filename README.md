@@ -11,7 +11,7 @@ Dette er saksbehandlingsløsning på foreldrepengeområdet (Folketrygdloven kapi
 ### Preconditions:
 - Du er logget inn i docker (kommando: `docker login`) mot:
   - repo.adeo.no: login med ADEO-ident
-  - DockerHub: login med egen Docker-ID 
+  - DockerHub: login med egen Docker-ID
   - GitHub package registry: login med eget personal access token fra GitHub. Token skal ha tilgang til read:packages og ha enablet SSO mot NAV.
 - Du har generert keystore og truststore i mappe '.modig' i brukermappe med egen CSR. Se [oppsett på Confluence - NAV intern](https://confluence.adeo.no/display/TVF/Sett+opp+keystore+og+truststore+for+lokal+test)
 - Du har installert kubectl konfigurert kubectl for NAV cluster. Se [Prosjekt med Config](https://github.com/navikt/kubeconfigs).
@@ -35,3 +35,12 @@ Vennligst se dokumentasjonen her: [Link til lokal utvikling i fpsak-autotest](ht
 ### Linker
 [Foreldrepengeprosjektet på Confluence](http://confluence.adeo.no/display/MODNAV/Foreldrepengeprosjektet)
 
+### Sikkerhet
+Det er mulig å kalle tjenesten med bruk av følgende tokens
+- Azure CC
+- Azure OBO med følgende rettigheter:
+    - fpsak-saksbehandler
+    - fpsak-veileder
+    - fpsak-drift
+- STS (fases ut)
+- SAML (fases ut)
