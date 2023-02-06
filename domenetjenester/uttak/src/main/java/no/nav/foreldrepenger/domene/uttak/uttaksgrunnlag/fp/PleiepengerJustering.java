@@ -59,18 +59,18 @@ final class PleiepengerJustering {
         return combine(pleiepengerUtsettelser, oppgittePerioder);
     }
 
-    static List<LocalDateSegment<PleiepengerUtsettelseNy>> pleiepengerUtsettelser(AktørId aktørId, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
+    static List<LocalDateSegment<PleiepengerUtsettelse>> pleiepengerUtsettelser(AktørId aktørId, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
         return inntektArbeidYtelseGrunnlag.getAktørYtelseFraRegister(aktørId)
             .map(AktørYtelse::getAlleYtelser).orElse(List.of()).stream()
             .filter(ytelse1 -> K9SAK.equals(ytelse1.getKilde()))
             .filter(ytelse1 -> RelatertYtelseType.PLEIEPENGER.contains(ytelse1.getRelatertYtelseType()))
             .flatMap(ytelse -> ytelse.getYtelseAnvist().stream()
                 .filter(ya -> !ya.getUtbetalingsgradProsent().orElse(Stillingsprosent.ZERO).erNulltall())
-                .map(ya -> mapNy(ytelse, ya)))
+                .map(ya -> mapTilSegment(ytelse, ya)))
             .toList();
     }
 
-    static List<OppgittPeriodeEntitet> combine(List<LocalDateSegment<PleiepengerUtsettelseNy>> pleiepengerUtsettelser,
+    static List<OppgittPeriodeEntitet> combine(List<LocalDateSegment<PleiepengerUtsettelse>> pleiepengerUtsettelser,
                                                List<OppgittPeriodeEntitet> foreldrepenger) {
         var foreldrepengerTimeline = oppgittPeriodeTimeline(foreldrepenger);
         var pleiepengerTimeline = new LocalDateTimeline<>(pleiepengerUtsettelser, PleiepengerJustering::slåSammenOverlappendePleiepenger);
@@ -118,26 +118,26 @@ final class PleiepengerJustering {
         return new LocalDateTimeline<>(segments);
     }
 
-    private static LocalDateSegment<PleiepengerUtsettelseNy> slåSammenOverlappendePleiepenger(LocalDateInterval dateInterval,
-                                                                                              LocalDateSegment<PleiepengerUtsettelseNy> lhs,
-                                                                                              LocalDateSegment<PleiepengerUtsettelseNy> rhs) {
+    private static LocalDateSegment<PleiepengerUtsettelse> slåSammenOverlappendePleiepenger(LocalDateInterval dateInterval,
+                                                                                            LocalDateSegment<PleiepengerUtsettelse> lhs,
+                                                                                            LocalDateSegment<PleiepengerUtsettelse> rhs) {
         if (lhs != null && rhs != null) {
             var årsak = UtsettelseÅrsak.INSTITUSJON_BARN.equals(lhs.getValue().årsak()) || UtsettelseÅrsak.INSTITUSJON_BARN.equals(rhs.getValue().årsak()) ?
                 UtsettelseÅrsak.INSTITUSJON_BARN : UtsettelseÅrsak.FRI;
             var senesteVedtak =  lhs.getValue().vedtakstidspunkt().isAfter(rhs.getValue().vedtakstidspunkt()) ?
                 lhs.getValue().vedtakstidspunkt() : rhs.getValue().vedtakstidspunkt();
-            return new LocalDateSegment<>(dateInterval, new PleiepengerUtsettelseNy(senesteVedtak, årsak));
+            return new LocalDateSegment<>(dateInterval, new PleiepengerUtsettelse(senesteVedtak, årsak));
         } else {
             return lhs == null ? new LocalDateSegment<>(dateInterval, rhs.getValue()) : new LocalDateSegment<>(dateInterval, lhs.getValue());
         }
     }
 
-    private static LocalDateSegment<PleiepengerUtsettelseNy> mapNy(Ytelse ytelse, YtelseAnvist periodeMedUtbetaltPleiepenger) {
+    private static LocalDateSegment<PleiepengerUtsettelse> mapTilSegment(Ytelse ytelse, YtelseAnvist periodeMedUtbetaltPleiepenger) {
         var utsettelseÅrsak = RelatertYtelseType.PLEIEPENGER_SYKT_BARN.equals(ytelse.getRelatertYtelseType()) ?
             UtsettelseÅrsak.INSTITUSJON_BARN : UtsettelseÅrsak.FRI;
         return new LocalDateSegment<>(periodeMedUtbetaltPleiepenger.getAnvistFOM(), periodeMedUtbetaltPleiepenger.getAnvistTOM(),
-            new PleiepengerUtsettelseNy(ytelse.getVedtattTidspunkt(), utsettelseÅrsak));
+            new PleiepengerUtsettelse(ytelse.getVedtattTidspunkt(), utsettelseÅrsak));
     }
 
-    record PleiepengerUtsettelseNy(LocalDateTime vedtakstidspunkt, UtsettelseÅrsak årsak) { }
+    record PleiepengerUtsettelse(LocalDateTime vedtakstidspunkt, UtsettelseÅrsak årsak) { }
 }

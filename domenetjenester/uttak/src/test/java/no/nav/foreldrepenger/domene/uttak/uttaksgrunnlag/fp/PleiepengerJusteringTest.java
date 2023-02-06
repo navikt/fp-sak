@@ -366,7 +366,7 @@ class PleiepengerJusteringTest {
             .medVedtattTidspunkt(LocalDateTime.now().minusMinutes(5));
     }
 
-    private LocalDateSegment<PleiepengerJustering.PleiepengerUtsettelseNy> pleiepenger(LocalDate fom, LocalDate tom) {
-        return new LocalDateSegment<>(fom, tom, new PleiepengerJustering.PleiepengerUtsettelseNy(LocalDateTime.now(), INSTITUSJON_BARN));
+    private LocalDateSegment<PleiepengerJustering.PleiepengerUtsettelse> pleiepenger(LocalDate fom, LocalDate tom) {
+        return new LocalDateSegment<>(fom, tom, new PleiepengerJustering.PleiepengerUtsettelse(LocalDateTime.now(), INSTITUSJON_BARN));
     }
 }
