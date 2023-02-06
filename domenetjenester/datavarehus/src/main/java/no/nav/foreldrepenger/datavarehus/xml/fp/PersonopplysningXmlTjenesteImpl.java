@@ -105,7 +105,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         });
         var skjæringstidspunkt = skjæringstidspunkter.getUtledetSkjæringstidspunkt();
         setAdresse(personopplysninger, personopplysningerAggregat);
-        setDokumentasjonsperioder(behandlingId, personopplysninger);
+        setDokumentasjonsperioder(behandlingId, personopplysninger, skjæringstidspunkt);
         setInntekter(behandlingId, personopplysninger, skjæringstidspunkt);
         setBruker(personopplysninger, personopplysningerAggregat);
         setFamilierelasjoner(personopplysninger, personopplysningerAggregat);
@@ -234,7 +234,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         return familierelasjon;
     }
 
-    private void setDokumentasjonsperioder(Long behandlingId, PersonopplysningerForeldrepenger personopplysninger) {
+    private void setDokumentasjonsperioder(Long behandlingId, PersonopplysningerForeldrepenger personopplysninger, LocalDate skjæringstidspunkt) {
         var dokumentasjonsperioder = personopplysningObjectFactory
             .createPersonopplysningerForeldrepengerDokumentasjonsperioder();
 
@@ -242,8 +242,12 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
             leggTilPerioderMedAleneomsorg(aggregat, dokumentasjonsperioder);
             aggregat.getPerioderUttakDokumentasjon().ifPresent(
                 uttakDokumentasjon -> dokumentasjonsperioder.getDokumentasjonperiode().addAll(lagDokumentasjonPerioder(uttakDokumentasjon.getPerioder())));
-            aggregat.getPerioderUtenOmsorg()
-                .ifPresent(utenOmsorg -> dokumentasjonsperioder.getDokumentasjonperiode().addAll(lagDokumentasjonPerioder(utenOmsorg.getPerioder())));
+            if (!aggregat.harOmsorg()) {
+                var dokumentasjonPeriode = personopplysningObjectFactory.createDokumentasjonPeriode();
+                dokumentasjonPeriode.setDokumentasjontype(VedtakXmlUtil.lagKodeverksOpplysning(UttakDokumentasjonType.UTEN_OMSORG));
+                dokumentasjonPeriode.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(skjæringstidspunkt, skjæringstidspunkt.plusYears(3)));
+                dokumentasjonsperioder.getDokumentasjonperiode().add(dokumentasjonPeriode);
+            }
             if (Boolean.TRUE.equals(aggregat.getAnnenForelderRettAvklaring())) {
                 dokumentasjonsperioder.getDokumentasjonperiode()
                     .addAll(lagEnkelDokumentasjonPeriode(UttakDokumentasjonType.ANNEN_FORELDER_HAR_RETT));

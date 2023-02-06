@@ -38,12 +38,19 @@ public class BekreftFaktaForOmsorgAksjonspunktTest {
         assertThat(periodeUtenOmsorg).hasSize(1);
         assertThat(periodeUtenOmsorg.get(0).getPeriode()).isEqualTo(ikkeOmsorgPeriode);
 
+        var overstyrtOmsorg = ytelsesFordelingRepository.hentAggregat(behandling.getId()).getOverstyrtOmsorg();
+        assertThat(overstyrtOmsorg).isNotNull();
+        assertThat(overstyrtOmsorg).isFalse();
+
         //må nullstille etter endret til har omsorg
         ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandling.getId(), true, null);
         perioderUtenOmsorgOpt = ytelsesFordelingRepository.hentAggregat(behandling.getId()).getPerioderUtenOmsorg();
         assertThat(perioderUtenOmsorgOpt).isPresent();
         periodeUtenOmsorg = perioderUtenOmsorgOpt.get().getPerioder();
         assertThat(periodeUtenOmsorg).isEmpty();
+        overstyrtOmsorg = ytelsesFordelingRepository.hentAggregat(behandling.getId()).getOverstyrtOmsorg();
+        assertThat(overstyrtOmsorg).isNotNull();
+        assertThat(overstyrtOmsorg).isTrue();
     }
 
     private Behandling opprettBehandling() {

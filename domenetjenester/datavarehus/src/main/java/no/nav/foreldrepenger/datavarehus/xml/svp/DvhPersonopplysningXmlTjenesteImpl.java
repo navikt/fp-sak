@@ -109,7 +109,6 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
         var skjæringstidspunkt = skjæringstidspunkter.getUtledetSkjæringstidspunkt();
         setAdresse(personopplysninger, personopplysningerAggregat);
         setInntekter(behandlingId, personopplysninger, skjæringstidspunkt);
-        setDokumentasjonsperioder(behandlingId, personopplysninger);
         setBruker(personopplysninger, personopplysningerAggregat);
         setFamilierelasjoner(personopplysninger, personopplysningerAggregat);
         setAnnenForelder(personopplysninger, personopplysningerAggregat);
@@ -257,19 +256,6 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
     private void setBruker(PersonopplysningerDvhForeldrepenger personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
         var person = personopplysningFellesTjeneste.lagUidentifiserbarBruker(personopplysningerAggregat, personopplysningerAggregat.getSøker());
         personopplysninger.setBruker(person);
-    }
-
-    private void setDokumentasjonsperioder(Long behandlingId, PersonopplysningerDvhForeldrepenger personopplysninger) {
-        var dokumentasjonsperioder = personopplysningDvhObjectFactory
-            .createPersonopplysningerDvhForeldrepengerDokumentasjonsperioder();
-
-        ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId).ifPresent(aggregat -> {
-            aggregat.getPerioderUttakDokumentasjon().ifPresent(
-                uttakDokumentasjon -> dokumentasjonsperioder.getDokumentasjonperiode().addAll(lagDokumentasjonPerioder(uttakDokumentasjon.getPerioder())));
-            aggregat.getPerioderUtenOmsorg()
-                .ifPresent(utenOmsorg -> dokumentasjonsperioder.getDokumentasjonperiode().addAll(lagDokumentasjonPerioder(utenOmsorg.getPerioder())));
-            personopplysninger.setDokumentasjonsperioder(dokumentasjonsperioder);
-        });
     }
 
     private List<? extends DokumentasjonPeriode> lagDokumentasjonPerioder(List<? extends DokumentasjonPeriodeEntitet<?>> perioder) {

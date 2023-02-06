@@ -47,7 +47,9 @@ public class RettOgOmsorgGrunnlagBygger {
                 .morHarRett(morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
                 .morUføretrygd(morUføretrygd(uttakInput, ytelseFordelingAggregat))
                 .morOppgittUføretrygd(morOppgittUføretrygd(uttakInput))
-                .samtykke(samtykke);
+                .samtykke(samtykke)
+                .harOmsorg(ytelseFordelingAggregat.harOmsorg())
+            ;
     }
 
     private Optional<ForeldrepengerUttak> hentAnnenpartsUttak(UttakInput uttakInput) {

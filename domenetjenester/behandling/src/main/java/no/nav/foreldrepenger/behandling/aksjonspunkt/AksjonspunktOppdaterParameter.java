@@ -13,8 +13,8 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public final class AksjonspunktOppdaterParameter {
     private final Behandling behandling;
     private final Optional<Aksjonspunkt> aksjonspunkt;
-    private Skjæringstidspunkt skjæringstidspunkt;
-    private BehandlingReferanse ref;
+    private final Skjæringstidspunkt skjæringstidspunkt;
+    private final BehandlingReferanse ref;
     private final boolean erBegrunnelseEndret;
 
     private AksjonspunktOppdaterParameter(Behandling behandling,
