@@ -564,12 +564,4 @@ public class BehandlingRepository {
         return query.getResultList();
     }
 
-    public List<Behandling> hentKlageTilbakeBehandlinger() {
-
-        var query = entityManager.createQuery(
-            "select behandling from Behandling behandling INNER JOIN KlageResultat klageresultat ON behandling.id = klageresultat.klageBehandlingId where behandling.behandlingType in (:behandlingType) and klageresultat.påKlagdEksternBehandlingUuid is not null",
-            Behandling.class)
-            .setParameter("behandlingType", BehandlingType.KLAGE);
-        return query.getResultList();
-    }
 }
