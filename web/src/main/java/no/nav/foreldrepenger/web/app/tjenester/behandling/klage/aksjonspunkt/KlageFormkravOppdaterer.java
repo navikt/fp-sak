@@ -23,6 +23,8 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
@@ -114,6 +116,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         if (dto.erTilbakekreving()) {
             klageVurderingTjeneste.oppdaterKlageMedPåklagetEksternBehandlingUuid(behandling.getId(),
                 dto.getKlageTilbakekreving().tilbakekrevingUuid());
+            BehandlingÅrsak.builder(BehandlingÅrsakType.KLAGE_TILBAKEBETALING).buildFor(behandling);
         } else {
             var påKlagdBehandlingUuid = dto.hentPåKlagdBehandlingUuid();
             if (påKlagdBehandlingUuid != null || dto.hentpåKlagdEksternBehandlingUuId() == null
