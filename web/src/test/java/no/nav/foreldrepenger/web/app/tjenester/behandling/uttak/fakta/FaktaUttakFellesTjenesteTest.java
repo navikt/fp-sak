@@ -61,6 +61,8 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fakta.v2.FaktaUttakAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnRepository;
+import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.FørsteUttaksdatoTjenesteImpl;
 
@@ -377,10 +379,11 @@ class FaktaUttakFellesTjenesteTest {
     }
 
     private OppdateringResultat kjørOppdaterer(Behandling behandling, List<FaktaUttakPeriodeDto> perioder) {
+        var entityManager = repositoryProvider.getEntityManager();
         var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider,
-            new HentOgLagreBeregningsgrunnlagTjeneste(repositoryProvider.getEntityManager()), new AbakusInMemoryInntektArbeidYtelseTjeneste(),
+            new HentOgLagreBeregningsgrunnlagTjeneste(entityManager), new AbakusInMemoryInntektArbeidYtelseTjeneste(),
             skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste,
-            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), true);
+            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), true, new TotrinnTjeneste(new TotrinnRepository(entityManager)));
 
         var tjeneste = new FaktaUttakFellesTjeneste(uttakInputTjeneste, faktaUttakAksjonspunktUtleder, ytelseFordelingTjeneste,
             ytelsesFordelingRepository, repositoryProvider.getFpUttakRepository(), repositoryProvider.getUttaksperiodegrenseRepository(),

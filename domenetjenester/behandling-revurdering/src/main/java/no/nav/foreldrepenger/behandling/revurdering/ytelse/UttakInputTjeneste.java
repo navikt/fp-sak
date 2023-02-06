@@ -42,6 +42,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
@@ -57,6 +58,7 @@ public class UttakInputTjeneste {
     private BeregningUttakTjeneste beregningUttakTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private boolean brukNyFaktaUttak;
+    private TotrinnTjeneste totrinnTjeneste;
 
     @Inject
     public UttakInputTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -66,7 +68,8 @@ public class UttakInputTjeneste {
                               MedlemTjeneste medlemTjeneste,
                               BeregningUttakTjeneste beregningUttakTjeneste,
                               YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                              @KonfigVerdi(value = "bruk.ny.fakta.uttak", defaultVerdi = "false") boolean brukNyFaktaUttak) {
+                              @KonfigVerdi(value = "bruk.ny.fakta.uttak", defaultVerdi = "false") boolean brukNyFaktaUttak,
+                              TotrinnTjeneste totrinnTjeneste) {
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
         this.medlemTjeneste = Objects.requireNonNull(medlemTjeneste, "medlemTjeneste");
@@ -77,6 +80,7 @@ public class UttakInputTjeneste {
         this.beregningUttakTjeneste = beregningUttakTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.brukNyFaktaUttak = brukNyFaktaUttak;
+        this.totrinnTjeneste = totrinnTjeneste;
     }
 
     UttakInputTjeneste() {
@@ -127,7 +131,12 @@ public class UttakInputTjeneste {
     private boolean harÅpentGammeltOpprettetAP(Behandling behandling) {
         var gamleAP = Set.of(AVKLAR_FØRSTE_UTTAKSDATO, AVKLAR_FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG,
             AVKLAR_FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET, AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER, KONTROLLER_AKTIVITETSKRAV);
-        return gamleAP.stream().anyMatch(ap -> behandling.harÅpentAksjonspunktMedType(ap));
+        if (gamleAP.stream().anyMatch(ap -> behandling.harÅpentAksjonspunktMedType(ap))) {
+            return true;
+        }
+        //for å støtte behandlinger som er sendt tilbake fra beslutter
+        var totrinnsvurdering = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId());
+        return totrinnsvurdering.stream().anyMatch(ttv -> gamleAP.contains(ttv.getAksjonspunktDefinisjon()));
     }
 
     private boolean alleredeAvklartPåGammelVersjon(Long behandlingId) {
