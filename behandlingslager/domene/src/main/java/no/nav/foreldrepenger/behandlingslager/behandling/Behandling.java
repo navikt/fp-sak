@@ -299,7 +299,7 @@ public class Behandling extends BaseEntitet {
     }
 
     void leggTilBehandlingÅrsaker(List<BehandlingÅrsak> behandlingÅrsaker) {
-        if (erAvsluttet() && erHenlagt()) {
+        if (erAvsluttet() && erHenlagt() && behandlingÅrsaker.stream().map(BehandlingÅrsak::getBehandlingÅrsakType).noneMatch(BehandlingÅrsakType.KLAGE_TILBAKEBETALING::equals)) {
             throw new IllegalStateException("Utvikler-feil: kan ikke legge til årsaker på en behandling som er avsluttet.");
         }
         behandlingÅrsaker.forEach(bå -> {
