@@ -42,6 +42,8 @@ import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjen
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnRepository;
+import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 
@@ -162,10 +164,11 @@ class FaktaUttakPeriodeDtoTjenesteTest {
     }
 
     private FaktaUttakPeriodeDtoTjeneste dtoTjeneste() {
+        var entityManager = repositoryProvider.getEntityManager();
         var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider,
-            new HentOgLagreBeregningsgrunnlagTjeneste(repositoryProvider.getEntityManager()), new AbakusInMemoryInntektArbeidYtelseTjeneste(),
+            new HentOgLagreBeregningsgrunnlagTjeneste(entityManager), new AbakusInMemoryInntektArbeidYtelseTjeneste(),
             skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste,
-            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), true);
+            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), true, new TotrinnTjeneste(new TotrinnRepository(entityManager)));
         return new FaktaUttakPeriodeDtoTjeneste(uttakInputTjeneste, ytelseFordelingTjeneste, repositoryProvider.getBehandlingRepository(),
             repositoryProvider.getFpUttakRepository());
     }

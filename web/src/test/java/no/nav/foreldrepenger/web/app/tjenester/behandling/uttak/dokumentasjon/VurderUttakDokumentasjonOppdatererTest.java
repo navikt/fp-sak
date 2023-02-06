@@ -43,6 +43,8 @@ import no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov;
 import no.nav.foreldrepenger.domene.uttak.fakta.v2.VurderUttakDokumentasjonAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnRepository;
+import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @CdiDbAwareTest
@@ -208,11 +210,12 @@ class VurderUttakDokumentasjonOppdatererTest {
 
     private OppdateringResultat kjørOppdatering(Behandling behandling, VurderUttakDokumentasjonDto dto) {
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        var entityManager = repositoryProvider.getEntityManager();
         var oppdaterer = new VurderUttakDokumentasjonOppdaterer(new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()),
             uttakDokumentasjonAksjonspunktUtleder, new VurderUttakDokumentasjonHistorikkinnslagTjeneste(historikkTjenesteAdapter),
-            new UttakInputTjeneste(repositoryProvider, new HentOgLagreBeregningsgrunnlagTjeneste(repositoryProvider.getEntityManager()),
+            new UttakInputTjeneste(repositoryProvider, new HentOgLagreBeregningsgrunnlagTjeneste(entityManager),
                 new AbakusInMemoryInntektArbeidYtelseTjeneste(), skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste,
-                new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), true));
+                new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), true, new TotrinnTjeneste(new TotrinnRepository(entityManager))));
         return oppdaterer.oppdater(dto,
             new AksjonspunktOppdaterParameter(behandling, behandling.getAksjonspunktFor(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON), stp,
                 "begrunnelse"));

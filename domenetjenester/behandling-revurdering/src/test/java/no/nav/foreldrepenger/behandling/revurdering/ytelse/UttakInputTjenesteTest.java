@@ -28,6 +28,8 @@ import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnRepository;
+import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
@@ -50,7 +52,8 @@ public class UttakInputTjenesteTest {
             mock(UtsettelseBehandling2021.class), mock(MinsterettBehandling2022.class));
         tjeneste = new UttakInputTjeneste(repositoryProvider, new HentOgLagreBeregningsgrunnlagTjeneste(entityManager),
                 new AbakusInMemoryInntektArbeidYtelseTjeneste(), skjæringstidspunktTjeneste,
-                mock(MedlemTjeneste.class), andelGraderingTjeneste, new YtelseFordelingTjeneste(ytelsesFordelingRepository), false);
+                mock(MedlemTjeneste.class), andelGraderingTjeneste, new YtelseFordelingTjeneste(ytelsesFordelingRepository), false,
+            new TotrinnTjeneste(new TotrinnRepository(entityManager)));
     }
 
     @Test
