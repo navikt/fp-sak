@@ -79,8 +79,10 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
             .flatMap(BeregningsgrunnlagEntitet::getBesteberegninggrunnlag)
             .map(BeregningsgrunnlagGUIInputTjeneste::mapTilVurderinsgrunnlag);
-        return besteberegninggrunnlag.map(bbGrunnlag -> new ForeldrepengerGrunnlag(dekningsgrad.getVerdi(), bbGrunnlag))
+        var fpGr = besteberegninggrunnlag.map(bbGrunnlag -> new ForeldrepengerGrunnlag(dekningsgrad.getVerdi(), bbGrunnlag))
             .orElse(new ForeldrepengerGrunnlag(dekningsgrad.getVerdi(), kvalifisererTilBesteberegning, aktivitetGradering));
+        fpGr.setAktivitetGradering(aktivitetGradering);
+        return fpGr;
     }
 
     private static BesteberegningVurderingGrunnlag mapTilVurderinsgrunnlag(BesteberegninggrunnlagEntitet besteberegninggrunnlagEntitet) {
