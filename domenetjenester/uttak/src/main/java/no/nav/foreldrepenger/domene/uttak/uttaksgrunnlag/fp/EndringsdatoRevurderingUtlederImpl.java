@@ -359,7 +359,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     private Optional<LocalDate> førsteDatoMedOverlappPleiepenger(UttakInput input) {
         var tidslinjeUtbetalt = tidslinjeUttakMedUtbetaling(finnForrigeBehandling(input.getBehandlingReferanse()));
         var segmentPleiepenger = PleiepengerJustering.pleiepengerUtsettelser(input.getBehandlingReferanse().aktørId(), input.getIayGrunnlag()).stream()
-            .map(p -> new LocalDateSegment<>(p.oppgittPeriode().getFom(), p.oppgittPeriode().getTom(), Boolean.TRUE))
+            .map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), Boolean.TRUE))
             .toList();
         var tidslinjePleiepenger = new LocalDateTimeline<>(segmentPleiepenger, StandardCombinators::alwaysTrueForMatch);
         var tidslinjeOverlapp = tidslinjeUtbetalt.intersection(tidslinjePleiepenger);

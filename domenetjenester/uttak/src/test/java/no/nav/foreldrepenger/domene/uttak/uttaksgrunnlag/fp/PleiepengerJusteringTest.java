@@ -4,7 +4,6 @@ import static java.time.LocalDate.of;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.MØDREKVOTE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.INSTITUSJON_BARN;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,6 +24,7 @@ import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
 
 class PleiepengerJusteringTest {
 
@@ -134,7 +134,7 @@ class PleiepengerJusteringTest {
     }
 
     @Test
-    void exception_hvis_overlappende_ytelse() {
+    void slå_sammen_hvis_overlappende_ytelse() {
         var aktørId = AktørId.dummy();
         var ytelseBuilder = pleiepengerFraK9();
         var pleiepengerInterval1 = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 1), of(2020, 1, 13));
@@ -152,7 +152,14 @@ class PleiepengerJusteringTest {
             .medPeriode(of(2019, 12, 10), of(2020, 4, 1))
             .medPeriodeType(MØDREKVOTE)
             .build();
-        assertThrows(IllegalStateException.class, () -> PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote)));
+        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote));
+
+        assertThat(resultat).hasSize(3);
+        assertThat(resultat.get(0).isUtsettelse()).isFalse();
+        assertThat(resultat.get(1).isUtsettelse()).isTrue();
+        assertThat(resultat.get(1).getFom()).isEqualTo(of(2020, 1, 1));
+        assertThat(resultat.get(1).getTom()).isEqualTo(of(2020, 1, 13));
+        assertThat(resultat.get(2).isUtsettelse()).isFalse();
     }
 
     @Test
@@ -355,11 +362,11 @@ class PleiepengerJusteringTest {
     private YtelseBuilder pleiepengerFraK9() {
         return YtelseBuilder.oppdatere(Optional.empty())
             .medKilde(Fagsystem.K9SAK)
-            .medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN);
+            .medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN)
+            .medVedtattTidspunkt(LocalDateTime.now().minusMinutes(5));
     }
 
-    private PleiepengerJustering.PleiepengerUtsettelse pleiepenger(LocalDate fom, LocalDate tom) {
-        var oppgittPeriode = OppgittPeriodeBuilder.ny().medPeriode(fom, tom).medÅrsak(INSTITUSJON_BARN).build();
-        return new PleiepengerJustering.PleiepengerUtsettelse(LocalDateTime.now(), oppgittPeriode);
+    private LocalDateSegment<PleiepengerJustering.PleiepengerUtsettelseNy> pleiepenger(LocalDate fom, LocalDate tom) {
+        return new LocalDateSegment<>(fom, tom, new PleiepengerJustering.PleiepengerUtsettelseNy(LocalDateTime.now(), INSTITUSJON_BARN));
     }
 }
