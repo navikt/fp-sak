@@ -294,4 +294,15 @@ public class InformasjonssakRepository {
         return toOverlappData(resultatList);
     }
 
+    public List<Long> finnYtelsesfordelingForMigreringAvklartDok() {
+        var query = entityManager.createNativeQuery("""
+             select distinct gryf.behandling_id from GR_YTELSES_FORDELING gryf
+             where (gryf.migrert_dok = 'N' or gryf.migrert_dok is null) and gryf.aktiv = 'J'
+             and (gryf.opprinnelige_aktkrav_per_id is not null or gryf.saksbehandlede_aktkrav_per_id is not null or gryf.uttak_dokumentasjon_id is not null or gryf.overstyrt_fordeling_id is not null)
+             and rownum <= 25
+             """);
+        @SuppressWarnings("unchecked")
+        List<BigDecimal> resultatList = query.getResultList();
+        return resultatList.stream().map(o -> o.longValue()).toList();
+    }
 }
