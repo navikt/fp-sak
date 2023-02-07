@@ -76,7 +76,7 @@ public class LosBehandlingDtoTjeneste {
             behandling.getBehandlingstidFrist(),
             behandling.getAnsvarligSaksbehandler(),
             mapAksjonspunkter(behandling),
-            mapBehandlingsårsaker(behandling).stream().collect(Collectors.toList()),
+            mapBehandlingsårsaker(behandling).stream().toList(),
             harInnhentetRegisterData && mapFaresignaler(behandling),
             harRefusjonskrav(behandling),
             mapForeldrepengerUttak(behandling),
@@ -126,6 +126,7 @@ public class LosBehandlingDtoTjeneste {
             case BERØRT_BEHANDLING -> Behandlingsårsak.BERØRT;
             case RE_ENDRING_FRA_BRUKER -> Behandlingsårsak.SØKNAD;
             case RE_VEDTAK_PLEIEPENGER -> Behandlingsårsak.PLEIEPENGER;
+            case KLAGE_TILBAKEBETALING -> Behandlingsårsak.KLAGE_TILBAKEBETALING;
             default -> Behandlingsårsak.ANNET;
         };
     }
