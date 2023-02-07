@@ -97,7 +97,6 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         });
         var skjæringstidspunkt = skjæringstidspunkter.getUtledetSkjæringstidspunkt();
         setAdresse(personopplysninger, personopplysningerAggregat);
-        setDokumentasjonsperioder(behandlingId, personopplysninger);
         setInntekter(behandlingId, personopplysninger, skjæringstidspunkt);
         setBruker(personopplysninger, personopplysningerAggregat);
         setRelaterteYtelser(behandlingId, aktørId, personopplysninger, skjæringstidspunkt);
@@ -202,19 +201,6 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         domene.getUtbetalingsgradProsent().ifPresent(prosent -> kontrakt.setUtbetalingsgradprosent(VedtakXmlUtil.lagDecimalOpplysning(prosent.getVerdi())));
 
         return kontrakt;
-    }
-
-    private void setDokumentasjonsperioder(Long behandlingId, PersonopplysningerSvangerskapspenger personopplysninger) {
-        var dokumentasjonsperioder = personopplysningObjectFactory
-            .createPersonopplysningerSvangerskapspengerDokumentasjonsperioder();
-
-        ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId).ifPresent(aggregat -> {
-            aggregat.getPerioderUttakDokumentasjon().ifPresent(
-                uttakDokumentasjon -> dokumentasjonsperioder.getDokumentasjonperiode().addAll(lagDokumentasjonPerioder(uttakDokumentasjon.getPerioder())));
-            aggregat.getPerioderUtenOmsorg()
-                .ifPresent(utenOmsorg -> dokumentasjonsperioder.getDokumentasjonperiode().addAll(lagDokumentasjonPerioder(utenOmsorg.getPerioder())));
-            personopplysninger.setDokumentasjonsperioder(dokumentasjonsperioder);
-        });
     }
 
     private List<? extends DokumentasjonPeriode> lagDokumentasjonPerioder(List<? extends DokumentasjonPeriodeEntitet<?>> perioder) {

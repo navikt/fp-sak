@@ -28,7 +28,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUtenOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -47,9 +46,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.UttakYrkesaktiviteter;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetType;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Dokumentasjon;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppgittPeriode;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeUtenOmsorg;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Søknad;
@@ -77,7 +74,6 @@ public class SøknadGrunnlagBygger {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
         return new Søknad.Builder()
             .type(type(input.getYtelsespesifiktGrunnlag()))
-            .dokumentasjon(dokumentasjon(ytelseFordelingAggregat))
             .oppgittePerioder(oppgittePerioder(input, ytelseFordelingAggregat))
             .mottattTidspunkt(input.getSøknadOpprettetTidspunkt());
     }
@@ -295,16 +291,4 @@ public class SøknadGrunnlagBygger {
         return Søknadstype.ADOPSJON;
     }
 
-    private Dokumentasjon.Builder dokumentasjon(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        var builder = new Dokumentasjon.Builder();
-        ytelseFordelingAggregat.getPerioderUtenOmsorg().ifPresent(puo -> leggTilPerioderUtenOmsorg(builder, puo.getPerioder()));
-        return builder;
-    }
-
-    private void leggTilPerioderUtenOmsorg(Dokumentasjon.Builder builder, List<PeriodeUtenOmsorgEntitet> perioder) {
-        for (var periodeUtenOmsorg : perioder) {
-            builder.periodeUtenOmsorg(new PeriodeUtenOmsorg(periodeUtenOmsorg.getPeriode().getFomDato(),
-                periodeUtenOmsorg.getPeriode().getTomDato()));
-        }
-    }
 }

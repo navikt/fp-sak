@@ -51,7 +51,7 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     OMSORG("OMSORG", "Omsorg"),
     OMSORGSOVERTAKELSESDATO("OMSORGSOVERTAKELSESDATO", "Omsorgsovertakelsesdato"),
     OMSORGSVILKAR("OMSORGSVILKAR", "Foreldreansvar"),
-    IKKE_OMSORG_PERIODEN("IKKE_OMSORG_PERIODEN", "Perioden Søker har ikke omsorg for barnet"),
+    IKKE_OMSORG_PERIODEN("IKKE_OMSORG_PERIODEN", "Søker har ikke omsorg for barnet"),
     INNTEKTSKATEGORI_FOR_ANDEL("INNTEKTSKATEGORI_FOR_ANDEL", "Inntektskategori for andel"),
     OPPHOLDSRETT_EOS("OPPHOLDSRETT_EOS", "Bruker har oppholdsrett i EØS"),
     OPPHOLDSRETT_IKKE_EOS("OPPHOLDSRETT_IKKE_EOS", "Bruker har ikke oppholdsrett i EØS"),

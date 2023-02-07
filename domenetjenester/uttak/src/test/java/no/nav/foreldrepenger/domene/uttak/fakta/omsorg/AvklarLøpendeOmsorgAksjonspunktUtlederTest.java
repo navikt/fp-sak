@@ -48,7 +48,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     void setUp() {
         repositoryProvider = new UttakRepositoryStubProvider();
         personopplysninger = mock(PersonopplysningerForUttak.class);
-        aksjonspunktUtleder = new AvklarLøpendeOmsorgAksjonspunktUtleder(personopplysninger);
+        aksjonspunktUtleder = new AvklarLøpendeOmsorgAksjonspunktUtleder(personopplysninger, repositoryProvider);
     }
 
     @Test

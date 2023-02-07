@@ -8,8 +8,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
+import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -20,11 +23,15 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 @ApplicationScoped
 public class AvklarLøpendeOmsorgAksjonspunktUtleder {
     private PersonopplysningerForUttak personopplysninger;
+    private YtelsesFordelingRepository ytelsesFordelingRepository;
 
     @Inject
-    public AvklarLøpendeOmsorgAksjonspunktUtleder(PersonopplysningerForUttak personopplysninger) {
+    public AvklarLøpendeOmsorgAksjonspunktUtleder(PersonopplysningerForUttak personopplysninger,
+                                                  UttakRepositoryProvider repositoryProvider) {
         this.personopplysninger = personopplysninger;
+        this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
     }
+
     AvklarLøpendeOmsorgAksjonspunktUtleder() {
 
     }
@@ -36,6 +43,11 @@ public class AvklarLøpendeOmsorgAksjonspunktUtleder {
         var bekreftetFH = familieHendelser.getBekreftetFamilieHendelse();
 
         if (familieHendelser.getGjeldendeFamilieHendelse().erAlleBarnDøde()) {
+            return Optional.empty();
+        }
+        // Trenger ikke rebekrefte
+        if (BehandlingType.REVURDERING.equals(ref.behandlingType())
+            && ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.behandlingId()).filter(a -> Boolean.TRUE.equals(a.getOverstyrtOmsorg())).isPresent()) {
             return Optional.empty();
         }
         if (bekreftetFH.isPresent() && erBarnetFødt(bekreftetFH.get()) == Utfall.JA
