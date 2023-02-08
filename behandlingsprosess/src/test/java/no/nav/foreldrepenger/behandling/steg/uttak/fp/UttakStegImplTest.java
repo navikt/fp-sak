@@ -171,7 +171,7 @@ public class UttakStegImplTest {
     @Test
     public void skalBeregneStønadskontoVedFørsteBehandlingForFørsteForelder() {
         var fagsakForFar = FagsakBuilder.nyForeldrepengesak(RelasjonsRolleType.FARA)
-                .medSaksnummer(new Saksnummer("12345"))
+                .medSaksnummer(new Saksnummer("9912345"))
                 .build();
         fagsakRepository.opprettNy(fagsakForFar);
 
