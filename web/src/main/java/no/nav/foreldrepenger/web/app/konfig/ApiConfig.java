@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,7 +36,7 @@ public class ApiConfig extends Application {
         var oas = new OpenAPI();
         var info = new Info()
             .title("FPSAK - Foreldrepenger, engangsstønad og svangerskapspenger")
-            .version(ENV.imageName())
+            .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
             .description("REST grensesnitt for FPSAK.");
 
         oas.info(info).addServersItem(new Server().url(ENV.getProperty("context.path", "/fpsak")));
