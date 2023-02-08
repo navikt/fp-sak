@@ -198,7 +198,7 @@ public class FordelRestTjeneste {
     }
 
     record OpprettSakV2Dto(@Digits(integer = 18, fraction = 0) String journalpostId,
-                           @NotNull @Size(max = 8) @Valid FagsakYtelseType ytelseType,
+                           @NotNull @Valid FagsakYtelseType ytelseType,
                            @NotNull @Digits(integer = 19, fraction = 0) String aktørId) {
     }
 
