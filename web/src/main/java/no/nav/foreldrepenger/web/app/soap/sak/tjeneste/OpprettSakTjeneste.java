@@ -49,6 +49,7 @@ public class OpprettSakTjeneste {
         return fagsak;
     }
 
+    @Deprecated(forRemoval = true, since = "TFP-4124")
     public FagsakYtelseType utledYtelseType(BehandlingTema behandlingTema) {
 
         var fagsakYtelseType = behandlingTema.getFagsakYtelseType();

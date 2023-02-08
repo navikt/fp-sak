@@ -27,24 +27,34 @@ public class OpprettSakOrchestrator {
     public OpprettSakOrchestrator() { // NOSONAR: cdi
     }
 
+    @Deprecated(forRemoval = true, since = "TFP-4124")
     public Saksnummer opprettSak(BehandlingTema behandlingTema, AktørId aktørId) {
         var ytelseType = opprettSakTjeneste.utledYtelseType(behandlingTema);
         var fagsak = opprettSakTjeneste.opprettSakVL(aktørId, ytelseType);
         return fagsak.getSaksnummer();
     }
 
+    @Deprecated(forRemoval = true, since = "TFP-4124")
     public Saksnummer opprettSak(JournalpostId journalpostId, BehandlingTema behandlingTema, AktørId aktørId) {
         var ytelseType = opprettSakTjeneste.utledYtelseType(behandlingTema);
         var fagsak = finnEllerOpprettFagSak(journalpostId, ytelseType, aktørId);
         return fagsak.getSaksnummer();
     }
 
+    @Deprecated(forRemoval = true, since = "TFP-4124")
     public boolean harAktivSak(AktørId aktørId, BehandlingTema behandlingTema) {
         var ytelsetype = behandlingTema.getFagsakYtelseType();
         return fagsakRepository.hentForBruker(aktørId).stream()
             .filter(Fagsak::erÅpen)
             .map(Fagsak::getYtelseType)
             .anyMatch(ytelsetype::equals);
+    }
+
+    public Saksnummer opprettSak(FagsakYtelseType ytelseType, AktørId aktørId, JournalpostId journalpostId) {
+        if (journalpostId == null) {
+            return opprettSakTjeneste.opprettSakVL(aktørId, ytelseType).getSaksnummer();
+        }
+        return finnEllerOpprettFagSak(journalpostId, ytelseType, aktørId).getSaksnummer();
     }
 
     private Fagsak finnEllerOpprettFagSak(JournalpostId journalpostId, FagsakYtelseType ytelseType, AktørId bruker) {

@@ -7,8 +7,6 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.jws.WebService;
 
-import no.nav.foreldrepenger.web.app.tjenester.gosys.GosysRestTjeneste;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
