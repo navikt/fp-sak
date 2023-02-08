@@ -14,6 +14,8 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -59,6 +61,7 @@ import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakOrchestrator;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
@@ -175,6 +178,35 @@ public class FordelRestTjeneste {
             s = opprettSakOrchestrator.opprettSak(behandlingTema, aktørId);
         }
         return new SaksnummerDto(s.getVerdi());
+    }
+
+    @POST
+    @Path("/fagsak/opprett/v2")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Ny journalpost skal behandles.", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
+    public SaksnummerDto opprettSakv2(@TilpassetAbacAttributt(supplierClass = AktørIdDataSupplier.class) @Parameter(description = "Oppretter fagsak") @Valid OpprettSakV2Dto opprettSakDto) {
+        ensureCallId();
+        var journalpostId = Optional.ofNullable(opprettSakDto.journalpostId());
+        var ytelseType = opprettSakDto.ytelseType();
+
+        var aktørId = new AktørId(opprettSakDto.aktørId());
+
+        var saksnummer = opprettSakOrchestrator.opprettSak(ytelseType, aktørId, journalpostId.map(JournalpostId::new).orElse(null));
+        return new SaksnummerDto(saksnummer.getVerdi());
+    }
+
+    record OpprettSakV2Dto(@Digits(integer = 18, fraction = 0) String journalpostId,
+                           @NotNull @Valid FagsakYtelseType ytelseType,
+                           @NotNull @Digits(integer = 19, fraction = 0) String aktørId) {
+    }
+
+    public static class AktørIdDataSupplier implements Function<Object, AbacDataAttributter> {
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, ((OpprettSakV2Dto) obj).aktørId());
+        }
     }
 
     @POST

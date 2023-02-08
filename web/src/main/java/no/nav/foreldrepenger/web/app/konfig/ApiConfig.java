@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -12,48 +13,46 @@ import java.util.stream.Stream;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import no.nav.vedtak.exception.TekniskException;
-
 import org.glassfish.jersey.server.ServerProperties;
 
-import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
+import io.swagger.v3.oas.integration.GenericOpenApiContextBuilder;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationPath(ApiConfig.API_URI)
 public class ApiConfig extends Application {
 
+    private static final Environment ENV = Environment.current();
+
     public static final String API_URI = "/api";
-    private static final String ID_PREFIX = "openapi.context.id.servlet.";
 
     public ApiConfig() {
         var oas = new OpenAPI();
         var info = new Info()
             .title("FPSAK - Foreldrepenger, engangsstønad og svangerskapspenger")
-            .version("1.0")
+            .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
             .description("REST grensesnitt for FPSAK.");
 
-        oas.info(info).addServersItem(new Server().url("/fpsak"));
+        oas.info(info).addServersItem(new Server().url(ENV.getProperty("context.path", "/fpsak")));
         var oasConfig = new SwaggerConfiguration()
-            .id(ID_PREFIX + ApiConfig.class.getName())
             .openAPI(oas)
             .prettyPrint(true)
             .resourceClasses(Stream.of(RestImplementationClasses.getImplementationClasses(), RestImplementationClasses.getForvaltningClasses())
                 .flatMap(Collection::stream).map(Class::getName).collect(Collectors.toSet()));
 
         try {
-            new JaxrsOpenApiContextBuilder<>()
-                .ctxId(ID_PREFIX + ApiConfig.class.getName())
-                .application(this)
+            new GenericOpenApiContextBuilder<>()
                 .openApiConfiguration(oasConfig)
                 .buildContext(true)
                 .read();
         } catch (OpenApiConfigurationException e) {
-            throw new TekniskException("OPENAPI", e.getMessage(), e);
+            throw new TekniskException("OPEN-API", e.getMessage(), e);
         }
     }
 

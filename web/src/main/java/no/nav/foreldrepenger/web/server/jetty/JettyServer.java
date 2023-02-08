@@ -39,7 +39,6 @@ import org.slf4j.MDC;
 
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.web.app.konfig.ApiConfig;
-import no.nav.foreldrepenger.web.app.konfig.EksternApiConfig;
 import no.nav.vedtak.sikkerhet.jaspic.OidcAuthModule;
 
 public class JettyServer {
@@ -208,7 +207,7 @@ public class JettyServer {
     }
 
     private static List<Class<?>> getWebInfClasses() {
-        return List.of(ApiConfig.class, EksternApiConfig.class);
+        return List.of(ApiConfig.class);
     }
 
     private Integer getServerPort() {
