@@ -65,11 +65,6 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     private Boolean overstyrtOmsorg;
 
     @ManyToOne
-    @JoinColumn(name = "utenomsorg_id", updatable = false, unique = true)
-    @ChangeTracked
-    private PerioderUtenOmsorgEntitet perioderUtenOmsorgEntitet;
-
-    @ManyToOne
     @JoinColumn(name = "uttak_dokumentasjon_id", updatable = false, unique = true)
     @ChangeTracked
     private PerioderUttakDokumentasjonEntitet perioderUttakDokumentasjon;
@@ -178,14 +173,6 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
         this.migrertDokumentasjonsPerioder = migrertDokumentasjonsPerioder;
     }
 
-    PerioderUtenOmsorgEntitet getPerioderUtenOmsorg() {
-        return perioderUtenOmsorgEntitet;
-    }
-
-    void setPerioderUtenOmsorg(PerioderUtenOmsorgEntitet perioder) {
-        this.perioderUtenOmsorgEntitet = perioder;
-    }
-
     public AktivitetskravPerioderEntitet getOpprinneligeAktivitetskravPerioder() {
         return opprinneligeAktivitetskravPerioder;
     }
@@ -232,12 +219,11 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
         return aktiv == that.aktiv &&
             Objects.equals(oppgittFordeling, that.oppgittFordeling) &&
             Objects.equals(oppgittRettighet, that.oppgittRettighet) &&
-            Objects.equals(oppgittDekningsgrad, that.oppgittDekningsgrad) &&
-            Objects.equals(perioderUtenOmsorgEntitet, that.perioderUtenOmsorgEntitet);
+            Objects.equals(oppgittDekningsgrad, that.oppgittDekningsgrad);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(oppgittFordeling, oppgittRettighet, oppgittDekningsgrad, perioderUtenOmsorgEntitet, aktiv);
+        return Objects.hash(oppgittFordeling, oppgittRettighet, oppgittDekningsgrad, aktiv);
     }
 }

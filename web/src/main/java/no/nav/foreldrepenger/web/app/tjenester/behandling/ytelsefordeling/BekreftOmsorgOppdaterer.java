@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
-import java.util.List;
 import java.util.Objects;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -15,8 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.rest.BekreftFaktaForOmsorgVurderingDto;
-import no.nav.foreldrepenger.familiehendelse.rest.PeriodeDto;
-import no.nav.foreldrepenger.familiehendelse.rest.PeriodeKonverter;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
@@ -59,16 +56,7 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
             .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
             .medSkjermlenke(SkjermlenkeType.FAKTA_FOR_OMSORG);
 
-        List<PeriodeDto> perioder = dto.getIkkeOmsorgPerioder();
-        if (Boolean.FALSE.equals(dto.getOmsorg()) && (perioder == null || perioder.isEmpty())) {
-            var periode = new PeriodeDto();
-            periode.setPeriodeFom(param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt());
-            periode.setPeriodeTom(param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt().plusYears(3));
-            perioder = List.of(periode);
-        }
-
-        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandlingId, omsorg,
-            PeriodeKonverter.mapIkkeOmsorgsperioder(perioder, omsorg));
+        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandlingId, omsorg);
 
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }

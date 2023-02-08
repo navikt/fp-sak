@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Aktivit
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUtenOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -64,7 +63,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private Behandling originalBehandling;
     private Set<BehandlingÅrsakType> behandlingÅrsaker;
     private Boolean overstyrtOmsorg;
-    private PerioderUtenOmsorgEntitet perioderUtenOmsorg;
     private UttakResultatPerioderEntitet uttak;
     private AktivitetskravPerioderEntitet opprinneligeAktivitetskravPerioder;
     private AktivitetskravPerioderEntitet saksbehandledeAktivitetskravPerioder;
@@ -156,7 +154,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private void lagreYtelseFordeling(UttakRepositoryProvider repositoryProvider, Behandling behandling) {
         if (oppgittRettighet == null && oppgittDekningsgrad == null && oppgittFordeling == null && overstyrtRettighet == null
-            && avklarteUttakDatoer == null && perioderUtenOmsorg == null && opprinneligeAktivitetskravPerioder == null && justertFordeling == null
+            && avklarteUttakDatoer == null && opprinneligeAktivitetskravPerioder == null && justertFordeling == null
             && saksbehandledeAktivitetskravPerioder == null && overstyrtOmsorg == null) {
             return;
         }
@@ -168,7 +166,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             .medOppgittFordeling(oppgittFordeling)
             .medJustertFordeling(justertFordeling)
             .medAvklarteDatoer(avklarteUttakDatoer)
-            .medPerioderUtenOmsorg(perioderUtenOmsorg)
             .medOverstyrtOmsorg(overstyrtOmsorg)
             .medOpprinneligeAktivitetskravPerioder(opprinneligeAktivitetskravPerioder)
             .medSaksbehandledeAktivitetskravPerioder(saksbehandledeAktivitetskravPerioder)
@@ -279,12 +276,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S medOverstyrtOmsorg(Boolean overstyrtOmsorg) {
         this.overstyrtOmsorg = overstyrtOmsorg;
-        return (S) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public S medPerioderUtenOmsorg(PerioderUtenOmsorgEntitet perioderUtenOmsorg) {
-        this.perioderUtenOmsorg = perioderUtenOmsorg;
         return (S) this;
     }
 

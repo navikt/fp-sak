@@ -10,16 +10,13 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUtenOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUtenOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
@@ -44,13 +41,8 @@ public class YtelseFordelingTjeneste {
         return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId);
     }
 
-    public void aksjonspunktBekreftFaktaForOmsorg(Long behandlingId, boolean omsorg, List<DatoIntervallEntitet> ikkeOmsorgPerioder) {
-        var perioderUtenOmsorg = new PerioderUtenOmsorgEntitet();
-        if (!omsorg) {
-            ikkeOmsorgPerioder.stream().map(i ->  new PeriodeUtenOmsorgEntitet(i.getFomDato(), i.getTomDato())).forEach(perioderUtenOmsorg::leggTil);
-        }
+    public void aksjonspunktBekreftFaktaForOmsorg(Long behandlingId, boolean omsorg) {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(behandlingId)
-            .medPerioderUtenOmsorg(perioderUtenOmsorg)
             .medOverstyrtOmsorg(omsorg)
             .build();
         ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregat);

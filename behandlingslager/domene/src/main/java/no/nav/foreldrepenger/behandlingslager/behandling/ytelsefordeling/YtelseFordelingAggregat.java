@@ -14,7 +14,6 @@ public class YtelseFordelingAggregat {
     private OppgittDekningsgradEntitet oppgittDekningsgrad;
     private OppgittRettighetEntitet oppgittRettighet;
     private OppgittRettighetEntitet overstyrtRettighet;
-    private PerioderUtenOmsorgEntitet perioderUtenOmsorg;
     private PerioderUttakDokumentasjonEntitet perioderUttakDokumentasjon;
     private AvklarteUttakDatoerEntitet avklarteDatoer;
     private AktivitetskravPerioderEntitet opprinneligeAktivitetskravPerioder;
@@ -50,16 +49,12 @@ public class YtelseFordelingAggregat {
         return overstyrtOmsorg;
     }
 
-    public Boolean harOmsorg() {
+    public boolean harOmsorg() {
         return overstyrtOmsorg == null || overstyrtOmsorg;
     }
 
     public Boolean getMigrertDokumentasjonsPerioder() {
         return migrertDokumentasjonsPerioder;
-    }
-
-    public Optional<PerioderUtenOmsorgEntitet> getPerioderUtenOmsorg() {
-        return Optional.ofNullable(perioderUtenOmsorg);
     }
 
     public Optional<AktivitetskravPerioderEntitet> getOpprinneligeAktivitetskravPerioder() {
@@ -189,11 +184,6 @@ public class YtelseFordelingAggregat {
 
         public Builder medOverstyrtOmsorg(Boolean harOmsorg) {
             kladd.overstyrtOmsorg = harOmsorg;
-            return this;
-        }
-
-        public Builder medPerioderUtenOmsorg(PerioderUtenOmsorgEntitet perioderUtenOmsorg) {
-            kladd.perioderUtenOmsorg = perioderUtenOmsorg;
             return this;
         }
 

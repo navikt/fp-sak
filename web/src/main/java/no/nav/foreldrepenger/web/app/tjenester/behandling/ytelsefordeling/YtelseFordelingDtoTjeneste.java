@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdReposi
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.familiehendelse.rest.PeriodeKonverter;
 
 @ApplicationScoped
 public class YtelseFordelingDtoTjeneste {
@@ -42,8 +41,6 @@ public class YtelseFordelingDtoTjeneste {
         ytelseFordelingAggregat.ifPresent(yfa -> {
             dtoBuilder.medBekreftetAleneomsorg(yfa.getAleneomsorgAvklaring());
             dtoBuilder.medOverstyrtOmsorg(yfa.getOverstyrtOmsorg());
-            yfa.getPerioderUtenOmsorg()
-                .ifPresent(uenOmsorg -> dtoBuilder.medIkkeOmsorgPerioder(PeriodeKonverter.mapUtenOmsorgperioder(uenOmsorg.getPerioder())));
             yfa.getAvklarteDatoer().ifPresent(avklarteUttakDatoer -> dtoBuilder.medEndringsdato(avklarteUttakDatoer.getGjeldendeEndringsdato()));
             leggTilFørsteUttaksdato(behandling, dtoBuilder);
             dtoBuilder.medØnskerJustertVedFødsel(yfa.getGjeldendeFordeling().ønskerJustertVedFødsel());

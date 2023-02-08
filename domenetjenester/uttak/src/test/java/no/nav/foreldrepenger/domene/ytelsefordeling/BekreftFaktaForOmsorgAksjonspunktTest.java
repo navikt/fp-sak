@@ -3,14 +3,11 @@ package no.nav.foreldrepenger.domene.ytelsefordeling;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
@@ -25,29 +22,14 @@ public class BekreftFaktaForOmsorgAksjonspunktTest {
         var behandling = opprettBehandling();
         var iDag = LocalDate.now();
         // simulerer svar fra GUI
-        List<DatoIntervallEntitet> ikkeOmsorgPerioder = new ArrayList<>();
-        var ikkeOmsorgPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(2),
-            iDag.minusMonths(1));
-        ikkeOmsorgPerioder.add(ikkeOmsorgPeriode);
-        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandling.getId(), false, ikkeOmsorgPerioder);
-
-        var perioderUtenOmsorgOpt = ytelsesFordelingRepository.hentAggregat(
-            behandling.getId()).getPerioderUtenOmsorg();
-        assertThat(perioderUtenOmsorgOpt).isPresent();
-        var periodeUtenOmsorg = perioderUtenOmsorgOpt.get().getPerioder();
-        assertThat(periodeUtenOmsorg).hasSize(1);
-        assertThat(periodeUtenOmsorg.get(0).getPeriode()).isEqualTo(ikkeOmsorgPeriode);
+        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandling.getId(), false);
 
         var overstyrtOmsorg = ytelsesFordelingRepository.hentAggregat(behandling.getId()).getOverstyrtOmsorg();
         assertThat(overstyrtOmsorg).isNotNull();
         assertThat(overstyrtOmsorg).isFalse();
 
         //må nullstille etter endret til har omsorg
-        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandling.getId(), true, null);
-        perioderUtenOmsorgOpt = ytelsesFordelingRepository.hentAggregat(behandling.getId()).getPerioderUtenOmsorg();
-        assertThat(perioderUtenOmsorgOpt).isPresent();
-        periodeUtenOmsorg = perioderUtenOmsorgOpt.get().getPerioder();
-        assertThat(periodeUtenOmsorg).isEmpty();
+        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandling.getId(), true);
         overstyrtOmsorg = ytelsesFordelingRepository.hentAggregat(behandling.getId()).getOverstyrtOmsorg();
         assertThat(overstyrtOmsorg).isNotNull();
         assertThat(overstyrtOmsorg).isTrue();

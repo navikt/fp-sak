@@ -186,6 +186,11 @@ public class UttakStegImplTest {
 
         opprettPersonopplysninger(behandling);
 
+        var yfa = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false, false))
+            .medOverstyrtRettighet(new OppgittRettighetEntitet(false, true, false, false));
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfa.build());
+
         // Act -- behandler mors behandling først
         steg.utførSteg(kontekst(behandling));
         var morsFagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak());
@@ -198,11 +203,22 @@ public class UttakStegImplTest {
         steg.utførSteg(kontekst(behandling));
         morsFagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak());
 
-        // Assert -- fortsatt innenfor første behandling -- skal beregne stønadskontoer
-        // på nytt
+        // Assert -- fortsatt innenfor første behandling -- skal beregne stønadskontoer på nytt men lagring gir samme id
         assertThat(morsFagsakRelasjon.getGjeldendeStønadskontoberegning()).isPresent();
         var andreStønadskontoberegning = morsFagsakRelasjon.getGjeldendeStønadskontoberegning().get();
-        assertThat(andreStønadskontoberegning.getId()).isNotEqualTo(førsteStønadskontoberegning.getId());
+        assertThat(andreStønadskontoberegning.getId()).isEqualTo(førsteStønadskontoberegning.getId());
+
+        // Act -- kjører steget på nytt for mor
+        yfa = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOverstyrtRettighet(new OppgittRettighetEntitet(true, false, false, false));
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfa.build());
+        steg.utførSteg(kontekst(behandling));
+        morsFagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak());
+
+        // Assert -- fortsatt innenfor første behandling -- skal beregne stønadskontoer på nytt men lagring gir samme id
+        assertThat(morsFagsakRelasjon.getGjeldendeStønadskontoberegning()).isPresent();
+        var tredjeStønadskontoberegning = morsFagsakRelasjon.getGjeldendeStønadskontoberegning().get();
+        assertThat(tredjeStønadskontoberegning.getId()).isNotEqualTo(førsteStønadskontoberegning.getId());
 
         // Avslutter mors behandling
         avsluttMedVedtak(behandling, repositoryProvider);
@@ -216,7 +232,7 @@ public class UttakStegImplTest {
         var stønadskontoberegningFar = nyLagretFagsakRelasjon.getGjeldendeStønadskontoberegning().get();
 
         // Assert
-        assertThat(stønadskontoberegningFar.getId()).isEqualTo(andreStønadskontoberegning.getId());
+        assertThat(stønadskontoberegningFar.getId()).isEqualTo(tredjeStønadskontoberegning.getId());
     }
 
     @Test
