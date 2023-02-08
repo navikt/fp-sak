@@ -31,7 +31,6 @@ public class Stønadskontoberegning extends BaseEntitet {
     private String regelInput;
 
     @Lob
-    @ChangeTracked
     @Column(name = "regel_evaluering", nullable = false)
     private String regelEvaluering;
 
