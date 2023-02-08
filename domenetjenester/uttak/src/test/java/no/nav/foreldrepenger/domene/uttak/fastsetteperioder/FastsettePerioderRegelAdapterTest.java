@@ -23,9 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUtenOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUtenOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
@@ -829,10 +827,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medSamtidigUttak(false)
             .build();
 
-        var perioderUtenOmsorg = new PerioderUtenOmsorgEntitet();
-        perioderUtenOmsorg.leggTil(new PeriodeUtenOmsorgEntitet(fom, tom));
-
-        var behandling = setupFar(oppgittPeriode, virksomhet, fom, tom, perioderUtenOmsorg, Boolean.FALSE);
+        var behandling = setupFar(oppgittPeriode, virksomhet, fom, tom, Boolean.FALSE);
         var beregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet(), null);
 
@@ -894,7 +889,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         var scenario = ScenarioMorSøkerForeldrepenger.forAdopsjon();
         var behandling = setup(List.of(oppgittPeriode), virksomhet(), startdato.minusYears(2),
-            startdato.plusYears(2), scenario, null, BigDecimal.valueOf(100), null);
+            startdato.plusYears(2), scenario, BigDecimal.valueOf(100), null);
         var beregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet(), null);
 
@@ -1206,7 +1201,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medSamtidigUttaksprosent(samtidigUttaksprosent)
             .build();
 
-        var behandling = setupFar(oppgittPeriode, arbeidsgiver, start, slutt, null, null);
+        var behandling = setupFar(oppgittPeriode, arbeidsgiver, start, slutt, null);
         var beregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet(), null);
 
@@ -1799,7 +1794,7 @@ public class FastsettePerioderRegelAdapterTest {
                                 LocalDate arbeidFom,
                                 LocalDate arbeidTom) {
         return setupFødsel(oppgittPerioder, arbeidsgiver, arbeidFom, arbeidTom,
-            ScenarioMorSøkerForeldrepenger.forFødsel(), null, null);
+            ScenarioMorSøkerForeldrepenger.forFødsel(), null);
     }
 
     private Behandling setupFar(OppgittPeriodeEntitet oppgittPeriode,
@@ -1807,39 +1802,33 @@ public class FastsettePerioderRegelAdapterTest {
                                 LocalDate arbeidFom,
                                 LocalDate arbeidTom) {
         return setupFødsel(List.of(oppgittPeriode), arbeidsgiver, arbeidFom, arbeidTom,
-            ScenarioFarSøkerForeldrepenger.forFødsel(), null, null);
+            ScenarioFarSøkerForeldrepenger.forFødsel(), null);
     }
 
     private Behandling setupFar(OppgittPeriodeEntitet oppgittPeriode,
                                 Arbeidsgiver arbeidsgiver,
                                 LocalDate arbeidFom,
-                                LocalDate arbeidTom,
-                                PerioderUtenOmsorgEntitet perioderUtenOmsorg, Boolean overstyrtOmsorg) {
+                                LocalDate arbeidTom, Boolean overstyrtOmsorg) {
         return setupFødsel(List.of(oppgittPeriode), arbeidsgiver, arbeidFom, arbeidTom,
-            ScenarioFarSøkerForeldrepenger.forFødsel(), perioderUtenOmsorg, overstyrtOmsorg);
+            ScenarioFarSøkerForeldrepenger.forFødsel(), overstyrtOmsorg);
     }
 
     private Behandling setupFødsel(List<OppgittPeriodeEntitet> oppgittPerioder,
                                    Arbeidsgiver arbeidsgiver,
                                    LocalDate arbeidFom,
                                    LocalDate arbeidTom,
-                                   AbstractTestScenario<?> scenario,
-                                   PerioderUtenOmsorgEntitet perioderUtenOmsorg, Boolean overstyrtOmsorg) {
-        return setup(oppgittPerioder, arbeidsgiver, arbeidFom, arbeidTom, scenario, perioderUtenOmsorg,
-            BigDecimal.valueOf(100), overstyrtOmsorg);
+                                   AbstractTestScenario<?> scenario, Boolean overstyrtOmsorg) {
+        return setup(oppgittPerioder, arbeidsgiver, arbeidFom, arbeidTom, scenario, BigDecimal.valueOf(100), overstyrtOmsorg);
     }
 
     private Behandling setup(List<OppgittPeriodeEntitet> oppgittPerioder,
                              Arbeidsgiver arbeidsgiver,
                              LocalDate arbeidFom,
                              LocalDate arbeidTom,
-                             AbstractTestScenario<?> scenario,
-                             PerioderUtenOmsorgEntitet perioderUtenOmsorg,
-                             BigDecimal stillingsprosent, Boolean overstyrtOmsorg) {
+                             AbstractTestScenario<?> scenario, BigDecimal stillingsprosent, Boolean overstyrtOmsorg) {
 
         scenario.medFordeling(new OppgittFordelingEntitet(oppgittPerioder, true));
         scenario.medOverstyrtOmsorg(overstyrtOmsorg);
-        scenario.medPerioderUtenOmsorg(perioderUtenOmsorg);
         scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
 
         var aktivitetsAvtale = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()

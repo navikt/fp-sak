@@ -1,12 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
 import java.time.LocalDate;
-import java.util.List;
-
-import no.nav.foreldrepenger.familiehendelse.rest.PeriodeDto;
 
 public class YtelseFordelingDto {
-    private List<PeriodeDto> ikkeOmsorgPerioder;
     private Boolean overstyrtOmsorg;
     private Boolean bekreftetAleneomsorg;
     private RettigheterAnnenforelderDto rettigheterAnnenforelder;
@@ -20,10 +16,6 @@ public class YtelseFordelingDto {
 
     public Boolean getOverstyrtOmsorg() {
         return overstyrtOmsorg;
-    }
-
-    public List<PeriodeDto> getIkkeOmsorgPerioder() {
-        return ikkeOmsorgPerioder;
     }
 
     public Boolean getBekreftetAleneomsorg() {
@@ -59,11 +51,6 @@ public class YtelseFordelingDto {
             return this;
         }
 
-
-        public Builder medIkkeOmsorgPerioder(List<PeriodeDto> ikkeOmsorgPerioder) {
-            kladd.ikkeOmsorgPerioder = ikkeOmsorgPerioder;
-            return this;
-        }
 
         public Builder medBekreftetAleneomsorg(Boolean bekreftetAleneomsorg) {
             kladd.bekreftetAleneomsorg = bekreftetAleneomsorg;

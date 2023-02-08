@@ -1,11 +1,7 @@
 package no.nav.foreldrepenger.familiehendelse.rest;
 
 
-import java.util.List;
-
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -17,11 +13,6 @@ public class BekreftFaktaForOmsorgVurderingDto extends BekreftetAksjonspunktDto 
 
     @NotNull
     private Boolean omsorg;
-
-    @Valid
-    @Size(max = 50)
-    private List<PeriodeDto> ikkeOmsorgPerioder;
-
 
     BekreftFaktaForOmsorgVurderingDto() { // NOSONAR
         //For Jackson
@@ -37,14 +28,6 @@ public class BekreftFaktaForOmsorgVurderingDto extends BekreftetAksjonspunktDto 
 
     public void setOmsorg(Boolean omsorg) {
         this.omsorg = omsorg;
-    }
-
-    public List<PeriodeDto> getIkkeOmsorgPerioder() {
-        return ikkeOmsorgPerioder;
-    }
-
-    public void setIkkeOmsorgPerioder(List<PeriodeDto> ikkeOmsorgPerioder) {
-        this.ikkeOmsorgPerioder = ikkeOmsorgPerioder;
     }
 
 }
