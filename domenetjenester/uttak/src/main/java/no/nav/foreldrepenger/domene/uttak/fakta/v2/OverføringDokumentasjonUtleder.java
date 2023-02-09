@@ -16,10 +16,10 @@ final class OverføringDokumentasjonUtleder {
         }
         var overføringÅrsak = (OverføringÅrsak) oppgittPeriode.getÅrsak();
         var behovÅrsak = switch (overføringÅrsak) {
-            case INSTITUSJONSOPPHOLD_ANNEN_FORELDER -> DokumentasjonVurderingBehov.Behov.OverføringÅrsak.INNLEGGELSE_ANNEN_FORELDER;
-            case SYKDOM_ANNEN_FORELDER -> DokumentasjonVurderingBehov.Behov.OverføringÅrsak.SYKDOM_ANNEN_FORELDER;
-            case IKKE_RETT_ANNEN_FORELDER -> DokumentasjonVurderingBehov.Behov.OverføringÅrsak.BARE_SØKER_RETT;
-            case ALENEOMSORG -> DokumentasjonVurderingBehov.Behov.OverføringÅrsak.ALENEOMSORG;
+            case INSTITUSJONSOPPHOLD_ANNEN_FORELDER -> DokumentasjonVurderingBehov.Behov.Årsak.INNLEGGELSE_ANNEN_FORELDER;
+            case SYKDOM_ANNEN_FORELDER -> DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_ANNEN_FORELDER;
+            case IKKE_RETT_ANNEN_FORELDER -> DokumentasjonVurderingBehov.Behov.Årsak.BARE_SØKER_RETT;
+            case ALENEOMSORG -> DokumentasjonVurderingBehov.Behov.Årsak.ALENEOMSORG;
             case UDEFINERT -> throw new IllegalArgumentException("Udefinert overføringsårsak " + overføringÅrsak);
         };
         return Optional.of(new DokumentasjonVurderingBehov.Behov(DokumentasjonVurderingBehov.Behov.Type.OVERFØRING, behovÅrsak));

@@ -25,7 +25,7 @@ class UtsettelseDokumentasjonUtlederTest {
         var vurderingBehov = utledVurderingBehovSammenhengendeUttak(utsettelseSykdom);
         assertThat(vurderingBehov).isPresent();
         assertThat(vurderingBehov.get().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE);
-        assertThat(vurderingBehov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.SYKDOM_SØKER);
+        assertThat(vurderingBehov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_SØKER);
     }
 
     @Test
@@ -34,7 +34,7 @@ class UtsettelseDokumentasjonUtlederTest {
         var vurderingBehov = utledVurderingBehovSammenhengendeUttak(utsettelseInnlagt);
         assertThat(vurderingBehov).isPresent();
         assertThat(vurderingBehov.get().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE);
-        assertThat(vurderingBehov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.INNLEGGELSE_SØKER);
+        assertThat(vurderingBehov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.INNLEGGELSE_SØKER);
     }
 
     @Test
@@ -43,7 +43,7 @@ class UtsettelseDokumentasjonUtlederTest {
         var vurderingBehov = utledVurderingBehovSammenhengendeUttak(utsettelseInnlagt);
         assertThat(vurderingBehov).isPresent();
         assertThat(vurderingBehov.get().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE);
-        assertThat(vurderingBehov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.INNLEGGELSE_BARN);
+        assertThat(vurderingBehov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.INNLEGGELSE_BARN);
     }
 
     @Test
@@ -73,7 +73,7 @@ class UtsettelseDokumentasjonUtlederTest {
         var vurderingBehov = utledVurderingBehov(utsettelseSykdom, utsettelseSykdom.getFom(), List.of());
         assertThat(vurderingBehov).isPresent();
         assertThat(vurderingBehov.get().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE);
-        assertThat(vurderingBehov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.SYKDOM_SØKER);
+        assertThat(vurderingBehov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_SØKER);
     }
 
     @Test
@@ -82,7 +82,7 @@ class UtsettelseDokumentasjonUtlederTest {
         var vurderingBehov = utledVurderingBehov(utsettelseBarnInnlagt, utsettelseBarnInnlagt.getFom(), List.of());
         assertThat(vurderingBehov).isPresent();
         assertThat(vurderingBehov.get().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE);
-        assertThat(vurderingBehov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.INNLEGGELSE_BARN);
+        assertThat(vurderingBehov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.INNLEGGELSE_BARN);
     }
 
     @Test

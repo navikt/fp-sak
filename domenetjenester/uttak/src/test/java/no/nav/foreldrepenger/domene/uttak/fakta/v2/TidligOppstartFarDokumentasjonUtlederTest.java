@@ -76,7 +76,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
 
         assertThat(behov).isPresent();
         assertThat(behov.get().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.UTTAK);
-        assertThat(behov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.UttakÅrsak.TIDLIG_OPPSTART_FAR);
+        assertThat(behov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.TIDLIG_OPPSTART_FAR);
     }
 
     @Test
