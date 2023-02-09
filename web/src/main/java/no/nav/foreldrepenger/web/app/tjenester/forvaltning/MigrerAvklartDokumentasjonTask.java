@@ -178,19 +178,21 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
             dokPerioder.stream().map(dp -> new LocalDateSegment<>(dp.getPeriode().getFomDato(), dp.getPeriode().getTomDato(), dp)).toList());
         var aktKravPerioder = ytelseFordelingAggregat.getGjeldendeAktivitetskravPerioder().map(d -> d.getPerioder()).orElse(List.of());
         return switch (vurderingBehov.behov().type()) {
-            case UTSETTELSE -> avklarUtsettelse(periode, (DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak) vurderingBehov.behov().årsak(), dokTimeline);
-            case OVERFØRING -> avklarOverføring(periode, (DokumentasjonVurderingBehov.Behov.OverføringÅrsak) vurderingBehov.behov().årsak(), dokTimeline);
-            case UTTAK -> Stream.of(avklarUttak(periode, (DokumentasjonVurderingBehov.Behov.UttakÅrsak) vurderingBehov.behov().årsak(), aktKravPerioder, ref));
+            case UTSETTELSE -> avklarUtsettelse(periode, vurderingBehov.behov().årsak(), dokTimeline);
+            case OVERFØRING -> avklarOverføring(periode, vurderingBehov.behov().årsak(), dokTimeline);
+            case UTTAK -> Stream.of(avklarUttak(periode, vurderingBehov.behov().årsak(), aktKravPerioder, ref));
         };
     }
 
     private OppgittPeriodeEntitet avklarUttak(OppgittPeriodeEntitet periode,
-                                              DokumentasjonVurderingBehov.Behov.UttakÅrsak årsak,
+                                              DokumentasjonVurderingBehov.Behov.Årsak årsak,
                                               List<AktivitetskravPeriodeEntitet> aktKravTimeline,
                                               BehandlingReferanse ref) {
         var avklartDokVurdering = switch (årsak) {
+            case AKTIVITETSKRAV_ARBEID, AKTIVITETSKRAV_IKKE_OPPGITT, AKTIVITETSKRAV_ARBEID_OG_UTDANNING, AKTIVITETSKRAV_INNLAGT,
+                AKTIVITETSKRAV_TRENGER_HJELP, AKTIVITETSKRAV_INTROPROG, AKTIVITETSKRAV_KVALPROG, AKTIVITETSKRAV_UTDANNING -> avklarAktivitetskrav(periode, aktKravTimeline, ref);
             case TIDLIG_OPPSTART_FAR -> avklarTidligOppstart(periode);
-            default -> avklarAktivitetskrav(periode, aktKravTimeline, ref);
+            default -> throw new IllegalStateException("Unexpected value: " + årsak);
         };
         return OppgittPeriodeBuilder.fraEksisterende(periode)
             .medDokumentasjonVurdering(avklartDokVurdering.vurdering)
@@ -219,7 +221,7 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
     }
 
     private Stream<OppgittPeriodeEntitet> avklarUtsettelse(OppgittPeriodeEntitet periode,
-                                                           DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak årsak,
+                                                           DokumentasjonVurderingBehov.Behov.Årsak årsak,
                                                            LocalDateTimeline<PeriodeUttakDokumentasjonEntitet> dokTimeline) {
 
         var tilhørendeAvklaring = switch (årsak) {
@@ -228,13 +230,15 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
             case HV_ØVELSE -> new TilhørendeAvklaring(UttakDokumentasjonType.HV_OVELSE, HV_OVELSE_GODKJENT, HV_OVELSE_IKKE_GODKJENT);
             case NAV_TILTAK -> new TilhørendeAvklaring(UttakDokumentasjonType.NAV_TILTAK, NAV_TILTAK_GODKJENT, NAV_TILTAK_IKKE_GODKJENT);
             case SYKDOM_SØKER -> new TilhørendeAvklaring(UttakDokumentasjonType.SYK_SØKER, SYKDOM_SØKER_GODKJENT, SYKDOM_SØKER_IKKE_GODKJENT);
+            //TODO aktivitetskrav bfhr fri utsettelse
+            default -> throw new IllegalStateException("Unexpected value: " + årsak);
         };
 
         return avklar(periode, dokTimeline, tilhørendeAvklaring);
     }
 
     private Stream<OppgittPeriodeEntitet> avklarOverføring(OppgittPeriodeEntitet periode,
-                                                           DokumentasjonVurderingBehov.Behov.OverføringÅrsak årsak,
+                                                           DokumentasjonVurderingBehov.Behov.Årsak årsak,
                                                            LocalDateTimeline<PeriodeUttakDokumentasjonEntitet> dokTimeline) {
 
         var tilhørendeAvklaring = switch (årsak) {
@@ -242,6 +246,7 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
             case SYKDOM_ANNEN_FORELDER -> new TilhørendeAvklaring(UttakDokumentasjonType.SYKDOM_ANNEN_FORELDER, SYKDOM_ANNEN_FORELDER_GODKJENT, SYKDOM_ANNEN_FORELDER_IKKE_GODKJENT);
             case BARE_SØKER_RETT -> new TilhørendeAvklaring(UttakDokumentasjonType.IKKE_RETT_ANNEN_FORELDER, BARE_SØKER_RETT_GODKJENT, BARE_SØKER_RETT_IKKE_GODKJENT);
             case ALENEOMSORG -> new TilhørendeAvklaring(UttakDokumentasjonType.ALENEOMSORG_OVERFØRING, ALENEOMSORG_GODKJENT, ALENEOMSORG_IKKE_GODKJENT);
+            default -> throw new IllegalStateException("Unexpected value: " + årsak);
         };
 
         return avklar(periode, dokTimeline, tilhørendeAvklaring);
