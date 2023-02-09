@@ -106,13 +106,13 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
 
     static DokumentasjonVurdering mapVurdering(DokumentasjonVurderingBehovDto dto) {
         return switch (dto.type()) {
-            case UTSETTELSE -> mapUtsettelseVurdering(dto.årsak(), dto.vurdering());
-            case UTTAK -> mapUttak(dto.årsak(), dto.vurdering());
-            case OVERFØRING -> mapOverføringVurdering(dto.årsak(), dto.vurdering());
+            case UTSETTELSE -> mapUtsettelseVurdering((DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak) dto.årsak(), dto.vurdering());
+            case UTTAK -> mapUttak((DokumentasjonVurderingBehov.Behov.UttakÅrsak) dto.årsak(), dto.vurdering());
+            case OVERFØRING -> mapOverføringVurdering((DokumentasjonVurderingBehov.Behov.OverføringÅrsak) dto.årsak(), dto.vurdering());
         };
     }
 
-    private static DokumentasjonVurdering mapUttak(DokumentasjonVurderingBehov.Behov.Årsak årsak, DokumentasjonVurderingBehovDto.Vurdering vurdering) {
+    private static DokumentasjonVurdering mapUttak(DokumentasjonVurderingBehov.Behov.UttakÅrsak årsak, DokumentasjonVurderingBehovDto.Vurdering vurdering) {
         return switch (årsak) {
             case AKTIVITETSKRAV_INNLAGT, AKTIVITETSKRAV_IKKE_OPPGITT, AKTIVITETSKRAV_ARBEID_OG_UTDANNING, AKTIVITETSKRAV_ARBEID,
                 AKTIVITETSKRAV_INTROPROG, AKTIVITETSKRAV_KVALPROG, AKTIVITETSKRAV_UTDANNING, AKTIVITETSKRAV_TRENGER_HJELP ->
@@ -125,13 +125,12 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
                 case GODKJENT -> TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT;
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT;
             };
-            default -> throw new IllegalStateException("Unexpected value: " + årsak);
         };
     }
 
     @SuppressWarnings("DuplicatedCode")
-    private static DokumentasjonVurdering mapOverføringVurdering(DokumentasjonVurderingBehov.Behov.Årsak årsak,
-                                                                 DokumentasjonVurderingBehovDto.Vurdering vurdering) {
+    private static DokumentasjonVurdering mapOverføringVurdering(DokumentasjonVurderingBehov.Behov.OverføringÅrsak årsak,
+                                                          DokumentasjonVurderingBehovDto.Vurdering vurdering) {
         if (vurdering == null) {
             return null;
         }
@@ -152,13 +151,12 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
                 case GODKJENT -> ALENEOMSORG_GODKJENT;
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> ALENEOMSORG_IKKE_GODKJENT;
             };
-            default -> throw new IllegalStateException("Unexpected value: " + årsak);
         };
     }
 
     @SuppressWarnings("DuplicatedCode")
-    private static DokumentasjonVurdering mapUtsettelseVurdering(DokumentasjonVurderingBehov.Behov.Årsak årsak,
-                                                                 DokumentasjonVurderingBehovDto.Vurdering vurdering) {
+    private static DokumentasjonVurdering mapUtsettelseVurdering(DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak årsak,
+                                                          DokumentasjonVurderingBehovDto.Vurdering vurdering) {
         return switch (årsak) {
             case INNLEGGELSE_SØKER -> switch (vurdering) {
                 case GODKJENT -> INNLEGGELSE_SØKER_GODKJENT;
@@ -180,14 +178,6 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
                 case GODKJENT -> SYKDOM_SØKER_GODKJENT;
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> SYKDOM_SØKER_IKKE_GODKJENT;
             };
-            case AKTIVITETSKRAV_INNLAGT, AKTIVITETSKRAV_IKKE_OPPGITT, AKTIVITETSKRAV_ARBEID_OG_UTDANNING, AKTIVITETSKRAV_ARBEID,
-                AKTIVITETSKRAV_INTROPROG, AKTIVITETSKRAV_KVALPROG, AKTIVITETSKRAV_UTDANNING, AKTIVITETSKRAV_TRENGER_HJELP ->
-                switch (vurdering) {
-                    case GODKJENT -> MORS_AKTIVITET_GODKJENT;
-                    case IKKE_GODKJENT -> MORS_AKTIVITET_IKKE_GODKJENT;
-                    case IKKE_DOKUMENTERT -> MORS_AKTIVITET_IKKE_DOKUMENTERT;
-                };
-            default -> throw new IllegalStateException("Unexpected value: " + årsak);
         };
     }
 }

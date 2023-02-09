@@ -86,10 +86,10 @@ class VurderUttakDokumentasjonOppdatererTest {
 
 
         var vurdering1 = new DokumentasjonVurderingBehovDto(eksisterendeUtsettelse.getFom(), eksisterendeUtsettelse.getFom().plusWeeks(1).minusDays(1),
-            DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE, DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_SØKER,
+            DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE, DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.SYKDOM_SØKER,
             DokumentasjonVurderingBehovDto.Vurdering.GODKJENT);
         var vurdering2 = new DokumentasjonVurderingBehovDto(vurdering1.tom().plusDays(1), eksisterendeUtsettelse.getTom(), DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE,
-            DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_SØKER, DokumentasjonVurderingBehovDto.Vurdering.IKKE_GODKJENT);
+            DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.SYKDOM_SØKER, DokumentasjonVurderingBehovDto.Vurdering.IKKE_GODKJENT);
         var dto = new VurderUttakDokumentasjonDto("begrunnelse", List.of(vurdering1, vurdering2));
 
 
@@ -138,7 +138,7 @@ class VurderUttakDokumentasjonOppdatererTest {
 
         var dto = new VurderUttakDokumentasjonDto();
         var vurdering = new DokumentasjonVurderingBehovDto(eksisterendeØverføring.getFom(), eksisterendeØverføring.getTom(),
-            DokumentasjonVurderingBehov.Behov.Type.OVERFØRING, DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_ANNEN_FORELDER, null);
+            DokumentasjonVurderingBehov.Behov.Type.OVERFØRING, DokumentasjonVurderingBehov.Behov.OverføringÅrsak.SYKDOM_ANNEN_FORELDER, null);
         dto.setVurderingBehov(List.of(vurdering));
 
         var resultat = kjørOppdatering(behandling, dto);
@@ -162,7 +162,7 @@ class VurderUttakDokumentasjonOppdatererTest {
 
         var dto = new VurderUttakDokumentasjonDto();
         var vurdering = new DokumentasjonVurderingBehovDto(eksisterendeØverføring.getFom().minusWeeks(1), eksisterendeØverføring.getTom(),
-            DokumentasjonVurderingBehov.Behov.Type.OVERFØRING, DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_ANNEN_FORELDER, null);
+            DokumentasjonVurderingBehov.Behov.Type.OVERFØRING, DokumentasjonVurderingBehov.Behov.OverføringÅrsak.SYKDOM_ANNEN_FORELDER, null);
         dto.setVurderingBehov(List.of(vurdering));
 
         assertThatThrownBy(() -> kjørOppdatering(behandling, dto)).isInstanceOf(IllegalArgumentException.class);
@@ -180,7 +180,7 @@ class VurderUttakDokumentasjonOppdatererTest {
 
         var dto = new VurderUttakDokumentasjonDto();
         var vurdering = new DokumentasjonVurderingBehovDto(eksisterendeØverføring.getFom(), eksisterendeØverføring.getTom().plusWeeks(1),
-            DokumentasjonVurderingBehov.Behov.Type.OVERFØRING, DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_ANNEN_FORELDER, null);
+            DokumentasjonVurderingBehov.Behov.Type.OVERFØRING, DokumentasjonVurderingBehov.Behov.OverføringÅrsak.SYKDOM_ANNEN_FORELDER, null);
         dto.setVurderingBehov(List.of(vurdering));
 
         assertThatThrownBy(() -> kjørOppdatering(behandling, dto)).isInstanceOf(IllegalArgumentException.class);

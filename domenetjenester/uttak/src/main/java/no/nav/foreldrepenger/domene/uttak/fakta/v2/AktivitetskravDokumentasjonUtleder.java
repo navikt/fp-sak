@@ -3,14 +3,14 @@ package no.nav.foreldrepenger.domene.uttak.fakta.v2;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER;
 import static no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil.harAleneomsorg;
-import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_ARBEID;
-import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_ARBEID_OG_UTDANNING;
-import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_IKKE_OPPGITT;
-import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_INNLAGT;
-import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_INTROPROG;
-import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_KVALPROG;
-import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_TRENGER_HJELP;
-import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_UTDANNING;
+import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.UttakÅrsak.AKTIVITETSKRAV_ARBEID;
+import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.UttakÅrsak.AKTIVITETSKRAV_ARBEID_OG_UTDANNING;
+import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.UttakÅrsak.AKTIVITETSKRAV_IKKE_OPPGITT;
+import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.UttakÅrsak.AKTIVITETSKRAV_INNLAGT;
+import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.UttakÅrsak.AKTIVITETSKRAV_INTROPROG;
+import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.UttakÅrsak.AKTIVITETSKRAV_KVALPROG;
+import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.UttakÅrsak.AKTIVITETSKRAV_TRENGER_HJELP;
+import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.UttakÅrsak.AKTIVITETSKRAV_UTDANNING;
 
 import java.util.Optional;
 import java.util.Set;
@@ -55,14 +55,14 @@ public class AktivitetskravDokumentasjonUtleder {
         }
 
         var periodeType = periode.getPeriodeType();
-        var bareFarHarRettOgSøkerUtsettelse = bareFarHarRettOgSøkerUtsettelse(periode, ytelseFordelingAggregat, fpGrunnlag);
         var harKravTilAktivitet =
-            !periode.isFlerbarnsdager() && (Set.of(FELLESPERIODE, FORELDREPENGER).contains(periodeType) || bareFarHarRettOgSøkerUtsettelse);
+            !periode.isFlerbarnsdager() && (Set.of(FELLESPERIODE, FORELDREPENGER).contains(periodeType) || bareFarHarRettOgSøkerUtsettelse(periode,
+                ytelseFordelingAggregat, fpGrunnlag));
         if (!harKravTilAktivitet) {
             return Optional.empty();
         }
-        var type = bareFarHarRettOgSøkerUtsettelse ? DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE : DokumentasjonVurderingBehov.Behov.Type.UTTAK;
-        return Optional.of(new DokumentasjonVurderingBehov.Behov(type, mapÅrsak(periode.getMorsAktivitet())));
+        return Optional.of(new DokumentasjonVurderingBehov.Behov(DokumentasjonVurderingBehov.Behov.Type.UTTAK,
+            mapÅrsak(periode.getMorsAktivitet())));
     }
 
     private DokumentasjonVurderingBehov.Behov.Årsak mapÅrsak(MorsAktivitet morsAktivitet) {

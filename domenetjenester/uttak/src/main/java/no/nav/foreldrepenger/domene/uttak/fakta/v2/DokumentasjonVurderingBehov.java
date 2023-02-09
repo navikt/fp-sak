@@ -16,20 +16,23 @@ public record DokumentasjonVurderingBehov(OppgittPeriodeEntitet oppgittPeriode, 
             UTTAK,
         }
 
-        public enum Årsak {
-            //Utsettelse
+        public enum UtsettelseÅrsak implements Årsak {
             INNLEGGELSE_SØKER,
             INNLEGGELSE_BARN,
             HV_ØVELSE,
             NAV_TILTAK,
             SYKDOM_SØKER,
+        }
 
-            //Overføring
+        public enum OverføringÅrsak implements Årsak {
             INNLEGGELSE_ANNEN_FORELDER,
             SYKDOM_ANNEN_FORELDER,
             BARE_SØKER_RETT,
             ALENEOMSORG,
+        }
 
+        public enum UttakÅrsak implements Årsak {
+            TIDLIG_OPPSTART_FAR,
             AKTIVITETSKRAV_ARBEID,
             AKTIVITETSKRAV_UTDANNING,
             AKTIVITETSKRAV_KVALPROG,
@@ -38,7 +41,8 @@ public record DokumentasjonVurderingBehov(OppgittPeriodeEntitet oppgittPeriode, 
             AKTIVITETSKRAV_INNLAGT,
             AKTIVITETSKRAV_ARBEID_OG_UTDANNING,
             AKTIVITETSKRAV_IKKE_OPPGITT,
-            TIDLIG_OPPSTART_FAR,
         }
+
+        public interface Årsak {}
     }
 }

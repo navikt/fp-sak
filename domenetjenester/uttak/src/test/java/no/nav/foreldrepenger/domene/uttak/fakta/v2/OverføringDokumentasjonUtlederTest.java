@@ -23,7 +23,7 @@ class OverføringDokumentasjonUtlederTest {
 
         assertThat(behov).isPresent();
         assertThat(behov.get().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.OVERFØRING);
-        assertThat(behov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_ANNEN_FORELDER);
+        assertThat(behov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.OverføringÅrsak.SYKDOM_ANNEN_FORELDER);
     }
 
     @Test
@@ -33,7 +33,7 @@ class OverføringDokumentasjonUtlederTest {
 
         assertThat(behov).isPresent();
         assertThat(behov.get().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.OVERFØRING);
-        assertThat(behov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.INNLEGGELSE_ANNEN_FORELDER);
+        assertThat(behov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.OverføringÅrsak.INNLEGGELSE_ANNEN_FORELDER);
     }
 
     @Test
@@ -43,7 +43,7 @@ class OverføringDokumentasjonUtlederTest {
 
         assertThat(behov).isPresent();
         assertThat(behov.get().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.OVERFØRING);
-        assertThat(behov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.ALENEOMSORG);
+        assertThat(behov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.OverføringÅrsak.ALENEOMSORG);
     }
 
     @Test
@@ -53,7 +53,7 @@ class OverføringDokumentasjonUtlederTest {
 
         assertThat(behov).isPresent();
         assertThat(behov.get().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.OVERFØRING);
-        assertThat(behov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.BARE_SØKER_RETT);
+        assertThat(behov.get().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.OverføringÅrsak.BARE_SØKER_RETT);
     }
 
     @Test

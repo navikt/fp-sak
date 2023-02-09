@@ -47,8 +47,8 @@ final class UtsettelseDokumentasjonUtleder {
         if (søktPeriodeInnenforTidsperiodeForbeholdtMor(oppgittPeriode, gjeldendeFamilieHendelse)) {
             var årsak = (UtsettelseÅrsak) oppgittPeriode.getÅrsak();
             return switch (årsak) {
-                case SYKDOM -> DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_SØKER;
-                case INSTITUSJON_SØKER -> DokumentasjonVurderingBehov.Behov.Årsak.INNLEGGELSE_SØKER;
+                case SYKDOM -> DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.SYKDOM_SØKER;
+                case INSTITUSJON_SØKER -> DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.INNLEGGELSE_SØKER;
                 case INSTITUSJON_BARN -> utledBehovÅrsakForInnlagtBarn(oppgittPeriode, pleiepengerInnleggelser);
                 case FERIE, ARBEID, FRI, UDEFINERT, NAV_TILTAK, HV_OVELSE -> null;
             };
@@ -60,18 +60,18 @@ final class UtsettelseDokumentasjonUtleder {
                                                                                                  List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
         var årsak = (UtsettelseÅrsak) oppgittPeriode.getÅrsak();
         return switch (årsak) {
-            case SYKDOM -> DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_SØKER;
-            case INSTITUSJON_SØKER -> DokumentasjonVurderingBehov.Behov.Årsak.INNLEGGELSE_SØKER;
+            case SYKDOM -> DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.SYKDOM_SØKER;
+            case INSTITUSJON_SØKER -> DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.INNLEGGELSE_SØKER;
             case INSTITUSJON_BARN -> utledBehovÅrsakForInnlagtBarn(oppgittPeriode, pleiepengerInnleggelser);
-            case HV_OVELSE -> DokumentasjonVurderingBehov.Behov.Årsak.HV_ØVELSE;
-            case NAV_TILTAK -> DokumentasjonVurderingBehov.Behov.Årsak.NAV_TILTAK;
+            case HV_OVELSE -> DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.HV_ØVELSE;
+            case NAV_TILTAK -> DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.NAV_TILTAK;
             case FERIE, ARBEID, FRI, UDEFINERT -> null;
         };
     }
 
-    private static DokumentasjonVurderingBehov.Behov.Årsak utledBehovÅrsakForInnlagtBarn(OppgittPeriodeEntitet utsettelseInnlagtBarn,
+    private static DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak utledBehovÅrsakForInnlagtBarn(OppgittPeriodeEntitet utsettelseInnlagtBarn,
                                                                                                    List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
-        return erAvklartAvVedtakOmPleiepenger(utsettelseInnlagtBarn, pleiepengerInnleggelser) ? null : DokumentasjonVurderingBehov.Behov.Årsak.INNLEGGELSE_BARN;
+        return erAvklartAvVedtakOmPleiepenger(utsettelseInnlagtBarn, pleiepengerInnleggelser) ? null : DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.INNLEGGELSE_BARN;
     }
 
     static boolean søktPeriodeInnenforTidsperiodeForbeholdtMor(OppgittPeriodeEntitet søknadsperiode, LocalDate familiehendelse) {

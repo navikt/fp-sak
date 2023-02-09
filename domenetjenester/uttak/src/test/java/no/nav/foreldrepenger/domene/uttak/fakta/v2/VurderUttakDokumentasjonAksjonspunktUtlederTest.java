@@ -88,16 +88,16 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
         assertThat(behov.get(3).måVurderes()).isTrue();
         assertThat(behov.get(4).måVurderes()).isFalse(); //Fedrevoten
 
-        assertThat(behov.get(0).behov().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.TIDLIG_OPPSTART_FAR);
+        assertThat(behov.get(0).behov().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.UttakÅrsak.TIDLIG_OPPSTART_FAR);
         assertThat(behov.get(0).behov().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.UTTAK);
 
-        assertThat(behov.get(1).behov().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_SØKER);
+        assertThat(behov.get(1).behov().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.UtsettelseÅrsak.SYKDOM_SØKER);
         assertThat(behov.get(1).behov().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE);
 
-        assertThat(behov.get(2).behov().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_ARBEID);
+        assertThat(behov.get(2).behov().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.UttakÅrsak.AKTIVITETSKRAV_ARBEID);
         assertThat(behov.get(2).behov().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.UTTAK);
 
-        assertThat(behov.get(3).behov().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.INNLEGGELSE_ANNEN_FORELDER);
+        assertThat(behov.get(3).behov().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.OverføringÅrsak.INNLEGGELSE_ANNEN_FORELDER);
         assertThat(behov.get(3).behov().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.OVERFØRING);
 
         assertThat(behov.get(4).behov()).isNull();
