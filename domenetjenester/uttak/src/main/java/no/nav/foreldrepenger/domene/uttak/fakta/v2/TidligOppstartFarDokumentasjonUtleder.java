@@ -37,7 +37,7 @@ final class TidligOppstartFarDokumentasjonUtleder {
         //Fellesperiode/foreldrepenger tas i aktivitetskrav dok
         if (Objects.equals(FEDREKVOTE, oppgittPeriode.getPeriodeType())) {
             return Optional.of(new DokumentasjonVurderingBehov.Behov(DokumentasjonVurderingBehov.Behov.Type.UTTAK,
-                DokumentasjonVurderingBehov.Behov.UttakÅrsak.TIDLIG_OPPSTART_FAR));
+                DokumentasjonVurderingBehov.Behov.Årsak.TIDLIG_OPPSTART_FAR));
         }
         return Optional.empty();
     }
