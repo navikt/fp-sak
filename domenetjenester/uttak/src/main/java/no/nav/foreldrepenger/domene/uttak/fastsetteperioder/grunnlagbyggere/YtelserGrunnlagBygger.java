@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ytelser.Pleiepenger;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ytelser.PleiepengerPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ytelser.Ytelser;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
@@ -53,12 +54,20 @@ public class YtelserGrunnlagBygger {
         var segments = perioder.stream()
             .map(p -> new LocalDateSegment<>(p.getFom(), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), p.isBarnInnlagt()))
             .collect(Collectors.toList());
-        var timeline = new LocalDateTimeline<>(segments);
+        var timeline = new LocalDateTimeline<>(segments, YtelserGrunnlagBygger::slåSammenOverlappendePleiepenger);
 
         return timeline.compress((b1, b2) -> b1 == b2, StandardCombinators::leftOnly)
             .stream()
             .map(s -> new PleiepengerPeriode(s.getFom(), VirkedagUtil.tomVirkedag(s.getTom()), s.getValue()))
             .toList();
+    }
+
+    private static LocalDateSegment<Boolean> slåSammenOverlappendePleiepenger(LocalDateInterval dateInterval,
+                                                                              LocalDateSegment<Boolean> lhs,
+                                                                              LocalDateSegment<Boolean> rhs) {
+        var innlagt = (lhs != null && Boolean.TRUE.equals(lhs.getValue())) || (rhs != null && Boolean.TRUE.equals(rhs.getValue()));
+        return new LocalDateSegment<>(dateInterval, innlagt);
+
     }
 
     private Stream<YtelseAnvist> pleiepengerAnvistePerioderMedUtbetaling(AktørYtelse aktørYtelseFraRegister) {
