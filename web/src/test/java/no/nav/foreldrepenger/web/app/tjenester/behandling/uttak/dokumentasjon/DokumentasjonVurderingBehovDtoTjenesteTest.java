@@ -87,13 +87,13 @@ class DokumentasjonVurderingBehovDtoTjenesteTest {
         assertThat(resultat.get(0).vurdering()).isEqualTo(GODKJENT);
         assertThat(resultat.get(0).fom()).isEqualTo(overføringMedVurdering.getFom());
         assertThat(resultat.get(0).tom()).isEqualTo(overføringMedVurdering.getTom());
-        assertThat(resultat.get(0).årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.OverføringÅrsak.SYKDOM_ANNEN_FORELDER);
+        assertThat(resultat.get(0).årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_ANNEN_FORELDER);
         assertThat(resultat.get(0).type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.OVERFØRING);
 
         assertThat(resultat.get(1).vurdering()).isNull();
         assertThat(resultat.get(1).fom()).isEqualTo(overføringUtenVurdering.getFom());
         assertThat(resultat.get(1).tom()).isEqualTo(overføringUtenVurdering.getTom());
-        assertThat(resultat.get(1).årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.OverføringÅrsak.SYKDOM_ANNEN_FORELDER);
+        assertThat(resultat.get(1).årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_ANNEN_FORELDER);
         assertThat(resultat.get(1).type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.OVERFØRING);
     }
 
