@@ -23,6 +23,14 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.SYKDOM_SØKER_IKKE_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT;
+import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_ARBEID;
+import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_ARBEID_OG_UTDANNING;
+import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_IKKE_OPPGITT;
+import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_INNLAGT;
+import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_INTROPROG;
+import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_KVALPROG;
+import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_TRENGER_HJELP;
+import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_UTDANNING;
 
 import java.util.List;
 import java.util.Set;
@@ -129,7 +137,7 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
 
         var input = uttakInputTjeneste.lagInput(behandlingId);
         var migrertePerioder = eksisterende.getPerioder().stream().flatMap(p -> migrer(p, yfa, input)).toList();
-        var migreringFørerTilEndring = !migrertePerioder.equals(eksisterende.getPerioder());
+        var migreringFørerTilEndring = førtTilEndring(migrertePerioder, eksisterende.getPerioder());
         if (!migreringFørerTilEndring) {
             LOG.info("Migrering uttak - Finner ingen endringer {} {} {}", behandlingId, eksisterende.getPerioder(), migrertePerioder);
         }
@@ -144,9 +152,20 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
             } else {
                 builder = builder.medOppgittFordeling(migrertFordeling);
             }
+            //TODO oppdatere dokvurdering i uttakres slik at vurderingen tas med i neste revurdering
         }
         ytelsesFordelingRepository.lagre(behandlingId, builder.build());
         oppdaterToTrinnGrunnlag(behandlingId);
+    }
+
+    private static boolean førtTilEndring(List<OppgittPeriodeEntitet> migrertePerioder, List<OppgittPeriodeEntitet> eksisterendePerioder) {
+        var migrert = timeline(migrertePerioder);
+        var eksisterende = timeline(eksisterendePerioder);
+        return !migrert.equals(eksisterende);
+    }
+
+    private static LocalDateTimeline<DokumentasjonVurdering> timeline(List<OppgittPeriodeEntitet> migrertePerioder) {
+        return new LocalDateTimeline<>(migrertePerioder.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), p.getDokumentasjonVurdering())).toList());
     }
 
     private void oppdaterToTrinnGrunnlag(Long behandlingId) {
@@ -178,7 +197,7 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
             dokPerioder.stream().map(dp -> new LocalDateSegment<>(dp.getPeriode().getFomDato(), dp.getPeriode().getTomDato(), dp)).toList());
         var aktKravPerioder = ytelseFordelingAggregat.getGjeldendeAktivitetskravPerioder().map(d -> d.getPerioder()).orElse(List.of());
         return switch (vurderingBehov.behov().type()) {
-            case UTSETTELSE -> avklarUtsettelse(periode, vurderingBehov.behov().årsak(), dokTimeline);
+            case UTSETTELSE -> avklarUtsettelse(periode, vurderingBehov.behov().årsak(), dokTimeline, aktKravPerioder, ref);
             case OVERFØRING -> avklarOverføring(periode, vurderingBehov.behov().årsak(), dokTimeline);
             case UTTAK -> Stream.of(avklarUttak(periode, vurderingBehov.behov().årsak(), aktKravPerioder, ref));
         };
@@ -222,7 +241,18 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
 
     private Stream<OppgittPeriodeEntitet> avklarUtsettelse(OppgittPeriodeEntitet periode,
                                                            DokumentasjonVurderingBehov.Behov.Årsak årsak,
-                                                           LocalDateTimeline<PeriodeUttakDokumentasjonEntitet> dokTimeline) {
+                                                           LocalDateTimeline<PeriodeUttakDokumentasjonEntitet> dokTimeline,
+                                                           List<AktivitetskravPeriodeEntitet> aktKravTimeline, BehandlingReferanse ref) {
+        if (Set.of(AKTIVITETSKRAV_ARBEID,
+            AKTIVITETSKRAV_UTDANNING,
+            AKTIVITETSKRAV_KVALPROG,
+            AKTIVITETSKRAV_INTROPROG,
+            AKTIVITETSKRAV_TRENGER_HJELP,
+            AKTIVITETSKRAV_INNLAGT,
+            AKTIVITETSKRAV_ARBEID_OG_UTDANNING,
+            AKTIVITETSKRAV_IKKE_OPPGITT).contains(årsak)) {
+            return Stream.of(avklarUttak(periode, årsak, aktKravTimeline, ref));
+        }
 
         var tilhørendeAvklaring = switch (årsak) {
             case INNLEGGELSE_SØKER -> new TilhørendeAvklaring(UttakDokumentasjonType.INNLAGT_SØKER, INNLEGGELSE_SØKER_GODKJENT, INNLEGGELSE_SØKER_IKKE_GODKJENT);
@@ -230,7 +260,6 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
             case HV_ØVELSE -> new TilhørendeAvklaring(UttakDokumentasjonType.HV_OVELSE, HV_OVELSE_GODKJENT, HV_OVELSE_IKKE_GODKJENT);
             case NAV_TILTAK -> new TilhørendeAvklaring(UttakDokumentasjonType.NAV_TILTAK, NAV_TILTAK_GODKJENT, NAV_TILTAK_IKKE_GODKJENT);
             case SYKDOM_SØKER -> new TilhørendeAvklaring(UttakDokumentasjonType.SYK_SØKER, SYKDOM_SØKER_GODKJENT, SYKDOM_SØKER_IKKE_GODKJENT);
-            //TODO aktivitetskrav bfhr fri utsettelse
             default -> throw new IllegalStateException("Unexpected value: " + årsak);
         };
 
