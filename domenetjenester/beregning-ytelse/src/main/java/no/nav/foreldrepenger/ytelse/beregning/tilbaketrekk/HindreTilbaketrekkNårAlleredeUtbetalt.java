@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 import java.time.LocalDate;
 import java.util.Collection;
 
-import no.nav.folketrygdloven.beregningsgrunnlag.regelmodell.resultat.Beregningsgrunnlag;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
@@ -15,7 +14,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetalt {
     /**
      * Vi har utbetalt beregningsresultat (uten endringsdato eller feriepenger)
      *
-     * @param beregningsgrunnlagTY {@link Beregningsresultat} basert på {@link Beregningsgrunnlag}et
+     * @param beregningsgrunnlagTY {@link Beregningsresultat} basert på {@link no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag}et
      * @param tidslinje            {@link LocalDateTimeline} tidslinje for å sammeligne utbetalt og beregningsgrunnlag-versjonen av tilkjent ytelse
      * @param yrkesaktiviteter
      * @param skjæringstidspunkt
