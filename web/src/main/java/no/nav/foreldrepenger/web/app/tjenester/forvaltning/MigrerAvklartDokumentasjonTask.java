@@ -137,9 +137,11 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
 
         var input = uttakInputTjeneste.lagInput(behandlingId);
         var migrertePerioder = eksisterende.getPerioder().stream().flatMap(p -> migrer(p, yfa, input)).toList();
-        var migreringFørerTilEndring = førtTilEndring(migrertePerioder, eksisterende.getPerioder());
-        if (!migreringFørerTilEndring) {
-            LOG.info("Migrering uttak - Finner ingen endringer {} {} {}", behandlingId, eksisterende.getPerioder(), migrertePerioder);
+        var migrertTimeline = timeline(migrertePerioder);
+        var eksisterendeTimeline = timeline(eksisterende.getPerioder());
+        var migreringFørerTilEndring = !migrertTimeline.equals(eksisterendeTimeline);
+        if (migreringFørerTilEndring) {
+            LOG.info("Migrering uttak - Finner endringer {} {} {}", behandlingId, migrertTimeline, eksisterendeTimeline);
         }
         var migrertFordeling = new OppgittFordelingEntitet(migrertePerioder, erAnnenForelderInformert, ønskerJustertVedFødsel);
         var builder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
@@ -156,12 +158,6 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
         }
         ytelsesFordelingRepository.lagre(behandlingId, builder.build());
         oppdaterToTrinnGrunnlag(behandlingId);
-    }
-
-    private static boolean førtTilEndring(List<OppgittPeriodeEntitet> migrertePerioder, List<OppgittPeriodeEntitet> eksisterendePerioder) {
-        var migrert = timeline(migrertePerioder);
-        var eksisterende = timeline(eksisterendePerioder);
-        return !migrert.equals(eksisterende);
     }
 
     private static LocalDateTimeline<DokumentasjonVurdering> timeline(List<OppgittPeriodeEntitet> migrertePerioder) {
