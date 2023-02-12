@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,7 +50,6 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -144,18 +142,6 @@ public class ForvaltningUttrekkRestTjeneste {
     }
 
     @POST
-    @Path("/uttak-gradering")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Operation(description = "Beregner kontoer basert på data fra behandlingen. Husk å revurdere begge foreldre", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response beregnKontoer(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
-        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
-        flyttTilbakeTilOmsorgRett(new BehandlingFlytt(null, behandling.getId()));
-        return Response.noContent().build();
-    }
-
-    @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Flytt tilbake til uttak grunnlag", tags = "FORVALTNING-uttrekk")
@@ -183,7 +169,7 @@ public class ForvaltningUttrekkRestTjeneste {
 
     private void flyttTilbakeTilOmsorgRett(BehandlingFlytt behandlingRef) {
         var behandling = behandlingRepository.hentBehandling(behandlingRef.behandlingId());
-        if (!BehandlingStegType.VURDER_UTTAK.equals(behandling.getAktivtBehandlingSteg())) {
+        if (!BehandlingStegType.KONTROLLER_FAKTA_UTTAK.equals(behandling.getAktivtBehandlingSteg())) {
             return;
         }
         var task = ProsessTaskData.forProsessTask(MigrerTilOmsorgRettTask.class);
