@@ -33,11 +33,18 @@ import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurdering
 import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_UTDANNING;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +93,8 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
     private TotrinnTjeneste totrinnTjeneste;
     private VurderUttakDokumentasjonAksjonspunktUtleder utleder;
     private UttakInputTjeneste uttakInputTjeneste;
+    private FpUttakRepository uttakRepository;
+    private EntityManager entityManager;
 
     @Inject
     public MigrerAvklartDokumentasjonTask(InformasjonssakRepository informasjonssakRepository,
@@ -94,7 +103,9 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
                                           TotrinnTjeneste totrinnTjeneste,
                                           ProsessTaskTjeneste taskTjeneste,
                                           VurderUttakDokumentasjonAksjonspunktUtleder utleder,
-                                          UttakInputTjeneste uttakInputTjeneste) {
+                                          UttakInputTjeneste uttakInputTjeneste,
+                                          FpUttakRepository uttakRepository,
+                                          EntityManager entityManager) {
         this.informasjonssakRepository = informasjonssakRepository;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
         this.behandlingRepository = behandlingRepository;
@@ -102,6 +113,8 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
         this.totrinnTjeneste = totrinnTjeneste;
         this.utleder = utleder;
         this.uttakInputTjeneste = uttakInputTjeneste;
+        this.uttakRepository = uttakRepository;
+        this.entityManager = entityManager;
     }
 
     MigrerAvklartDokumentasjonTask() {
@@ -141,7 +154,7 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
         var eksisterendeTimeline = timeline(eksisterende.getPerioder());
         var migreringFørerTilEndring = !migrertTimeline.equals(eksisterendeTimeline);
         if (migreringFørerTilEndring) {
-            LOG.info("Migrering uttak - Finner endringer {} {} {}", behandlingId, migrertTimeline, eksisterendeTimeline);
+            LOG.info("Migrering uttak - Finner endringer {}", behandlingId);
         }
         var migrertFordeling = new OppgittFordelingEntitet(migrertePerioder, erAnnenForelderInformert, ønskerJustertVedFødsel);
         var builder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
@@ -154,10 +167,66 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
             } else {
                 builder = builder.medOppgittFordeling(migrertFordeling);
             }
-            //TODO oppdatere dokvurdering i uttakres slik at vurderingen tas med i neste revurdering
         }
-        ytelsesFordelingRepository.lagre(behandlingId, builder.build());
+        var nyYfa = builder.build();
+        ytelsesFordelingRepository.lagre(behandlingId, nyYfa);
+        if (migreringFørerTilEndring) {
+            oppdaterUttakRes(behandlingId, nyYfa);
+        }
+
         oppdaterToTrinnGrunnlag(behandlingId);
+    }
+
+    private void oppdaterUttakRes(Long behandlingId, YtelseFordelingAggregat yfa) {
+        var uttakOpt = uttakRepository.hentUttakResultatHvisEksisterer(behandlingId);
+        if (uttakOpt.isEmpty()) {
+            return;
+        }
+        var uttak = uttakOpt.get();
+
+        var uttaksperioder = uttak.getGjeldendePerioder().getPerioder()
+            .stream()
+            .filter(p -> p.getPeriodeSøknad().isPresent())
+            .toList();
+        var uttakSøknader = uttaksperioder.stream()
+            .map(p -> p.getPeriodeSøknad().orElseThrow())
+            .collect(Collectors.toSet());
+
+        for (var us : uttakSøknader) {
+            var uttaksperioderForSøknadsperiode = uttaksperioder.stream()
+                .filter(p -> p.getPeriodeSøknad().orElseThrow().getId().equals(us.getId()))
+                .toList();
+
+            var dokumentasjonVurdering = uttaksperioderForSøknadsperiode.stream().map(p -> dokForPeriode(yfa, p))
+                .distinct()
+                .toList();
+            if (dokumentasjonVurdering.size() == 0 || dokumentasjonVurdering.get(0) == null) {
+                continue;
+            }
+            if (dokumentasjonVurdering.size() > 1) {
+                LOG.info("Migrering uttak - flere dokvurdering for søknadsperiode i uttak {} {}", us.getId(), dokumentasjonVurdering);
+                continue;
+            }
+
+            entityManager.createNativeQuery(
+                    "UPDATE UTTAK_RESULTAT_PERIODE_SOKNAD SET DOKUMENTASJON_VURDERING = :vurdering WHERE ID = :id")
+                .setParameter("vurdering", dokumentasjonVurdering.stream().findFirst().orElseThrow().getKode())
+                .setParameter("id", us.getId())
+                .executeUpdate();
+
+        }
+        entityManager.flush();
+    }
+
+    private static DokumentasjonVurdering dokForPeriode(YtelseFordelingAggregat yfa, UttakResultatPeriodeEntitet p) {
+        return yfa.getGjeldendeFordeling()
+            .getPerioder()
+            .stream()
+            .filter(op -> p.getTidsperiode().erOmsluttetAv(op.getTidsperiode()))
+            .map(op -> op.getDokumentasjonVurdering())
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
     }
 
     private static LocalDateTimeline<DokumentasjonVurdering> timeline(List<OppgittPeriodeEntitet> migrertePerioder) {
