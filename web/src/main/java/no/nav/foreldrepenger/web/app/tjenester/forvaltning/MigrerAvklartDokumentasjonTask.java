@@ -42,10 +42,6 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,12 +60,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
 import no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov;
 import no.nav.foreldrepenger.domene.uttak.fakta.v2.VurderUttakDokumentasjonAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnresultatgrunnlag;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -258,14 +257,28 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
                                                               YtelseFordelingAggregat ytelseFordelingAggregat,
                                                               BehandlingReferanse ref) {
         var dokPerioder = ytelseFordelingAggregat.getPerioderUttakDokumentasjon().map(d -> d.getPerioder()).orElse(List.of());
-        var dokTimeline = new LocalDateTimeline<>(
-            dokPerioder.stream().map(dp -> new LocalDateSegment<>(dp.getPeriode().getFomDato(), dp.getPeriode().getTomDato(), dp)).toList());
+        var dokSegments = dokPerioder.stream()
+            .map(dp -> new LocalDateSegment<>(dp.getPeriode().getFomDato(), dp.getPeriode().getTomDato(), dp))
+            .toList();
+        var dokTimeline = new LocalDateTimeline<>(dokSegments, MigrerAvklartDokumentasjonTask::slåSammenOverlappende);
         var aktKravPerioder = ytelseFordelingAggregat.getGjeldendeAktivitetskravPerioder().map(d -> d.getPerioder()).orElse(List.of());
         return switch (vurderingBehov.behov().type()) {
             case UTSETTELSE -> avklarUtsettelse(periode, vurderingBehov.behov().årsak(), dokTimeline, aktKravPerioder, ref);
             case OVERFØRING -> avklarOverføring(periode, vurderingBehov.behov().årsak(), dokTimeline);
             case UTTAK -> Stream.of(avklarUttak(periode, vurderingBehov.behov().årsak(), aktKravPerioder, ref));
         };
+    }
+
+    private static LocalDateSegment<PeriodeUttakDokumentasjonEntitet> slåSammenOverlappende(LocalDateInterval dateInterval,
+                                                                                            LocalDateSegment<PeriodeUttakDokumentasjonEntitet> lhs,
+                                                                                            LocalDateSegment<PeriodeUttakDokumentasjonEntitet> rhs) {
+        if (lhs != null && rhs != null) {
+            var dokumentasjonType = lhs.getValue().getOpprettetTidspunkt().isAfter(rhs.getValue().getOpprettetTidspunkt()) ? lhs.getValue().getDokumentasjonType()
+                : rhs.getValue().getDokumentasjonType();
+            return new LocalDateSegment<>(dateInterval, new PeriodeUttakDokumentasjonEntitet(dateInterval.getFomDato(), dateInterval.getTomDato(),
+                    dokumentasjonType));
+        }
+        return lhs == null ? new LocalDateSegment<>(dateInterval, rhs.getValue()) : new LocalDateSegment<>(dateInterval, lhs.getValue());
     }
 
     private OppgittPeriodeEntitet avklarUttak(OppgittPeriodeEntitet periode,
