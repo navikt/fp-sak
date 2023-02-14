@@ -65,7 +65,7 @@ public class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
         var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, mock(HentOgLagreBeregningsgrunnlagTjeneste.class),
             new AbakusInMemoryInntektArbeidYtelseTjeneste(), skjæringstidspunktTjeneste, mock(MedlemTjeneste.class),
             new BeregningUttakTjeneste(foreldrepengerUttakTjeneste, repositoryProvider.getYtelsesFordelingRepository()), ytelseFordelingTjeneste,
-            false, new TotrinnTjeneste(new TotrinnRepository(entityManager)));
+            new TotrinnTjeneste(new TotrinnRepository(entityManager)));
         var dokumentasjonVurderingBehovDtoTjeneste = new DokumentasjonVurderingBehovDtoTjeneste(repositoryProvider.getBehandlingRepository(),
             uttakInputTjeneste, new VurderUttakDokumentasjonAksjonspunktUtleder(ytelseFordelingTjeneste, new AktivitetskravDokumentasjonUtleder(foreldrepengerUttakTjeneste)));
         var kontrollerAktivitetskravDtoTjeneste = new KontrollerAktivitetskravDtoTjeneste(repositoryProvider.getBehandlingRepository(),

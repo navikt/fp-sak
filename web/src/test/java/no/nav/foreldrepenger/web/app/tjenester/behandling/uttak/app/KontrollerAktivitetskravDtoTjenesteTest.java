@@ -65,7 +65,7 @@ class KontrollerAktivitetskravDtoTjenesteTest {
             new AbakusInMemoryInntektArbeidYtelseTjeneste(), new SkjæringstidspunktTjenesteImpl(repositoryProvider,
             new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
             new SkjæringstidspunktUtils(), mock(UtsettelseBehandling2021.class), mock(MinsterettBehandling2022.class)),
-            mock(MedlemTjeneste.class), andelGraderingTjeneste, ytelseFordelingTjeneste, false, new TotrinnTjeneste(new TotrinnRepository(entityManager)));
+            mock(MedlemTjeneste.class), andelGraderingTjeneste, ytelseFordelingTjeneste, new TotrinnTjeneste(new TotrinnRepository(entityManager)));
         tjeneste = new KontrollerAktivitetskravDtoTjeneste(repositoryProvider.getBehandlingRepository(),
             ytelseFordelingTjeneste, uttakInputTjeneste, foreldrepengerUttakTjeneste);
     }

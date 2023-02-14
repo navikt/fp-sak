@@ -168,7 +168,8 @@ class FaktaUttakPeriodeDtoTjenesteTest {
         var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider,
             new HentOgLagreBeregningsgrunnlagTjeneste(entityManager), new AbakusInMemoryInntektArbeidYtelseTjeneste(),
             skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste,
-            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), true, new TotrinnTjeneste(new TotrinnRepository(entityManager)));
+            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository())
+            , new TotrinnTjeneste(new TotrinnRepository(entityManager)));
         return new FaktaUttakPeriodeDtoTjeneste(uttakInputTjeneste, ytelseFordelingTjeneste, repositoryProvider.getBehandlingRepository(),
             repositoryProvider.getFpUttakRepository());
     }

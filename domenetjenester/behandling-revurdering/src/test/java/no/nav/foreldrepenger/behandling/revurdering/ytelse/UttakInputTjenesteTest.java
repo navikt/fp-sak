@@ -52,7 +52,7 @@ public class UttakInputTjenesteTest {
             mock(UtsettelseBehandling2021.class), mock(MinsterettBehandling2022.class));
         tjeneste = new UttakInputTjeneste(repositoryProvider, new HentOgLagreBeregningsgrunnlagTjeneste(entityManager),
                 new AbakusInMemoryInntektArbeidYtelseTjeneste(), skjæringstidspunktTjeneste,
-                mock(MedlemTjeneste.class), andelGraderingTjeneste, new YtelseFordelingTjeneste(ytelsesFordelingRepository), false,
+                mock(MedlemTjeneste.class), andelGraderingTjeneste, new YtelseFordelingTjeneste(ytelsesFordelingRepository),
             new TotrinnTjeneste(new TotrinnRepository(entityManager)));
     }
 
