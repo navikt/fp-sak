@@ -137,6 +137,10 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
                 if (e.getMessage().contains("Mangelfull søknad: Mangler informasjon om det er FL eller SN som graderes")
                 || e.getMessage().contains("Finner ikke skjæringstidspunkt for foreldrepenger")) {
                     LOG.warn("Migrering uttak - feilet for behandling {}", b, e);
+                    var builder = ytelsesFordelingRepository.opprettBuilder(b)
+                        .migrertDokumentasjonsPerioder(true);
+                    ytelsesFordelingRepository.lagre(b, builder.build());
+                    oppdaterToTrinnGrunnlag(b);
                 } else {
                     throw e;
                 }
