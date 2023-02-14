@@ -273,10 +273,11 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
                                                                                             LocalDateSegment<PeriodeUttakDokumentasjonEntitet> lhs,
                                                                                             LocalDateSegment<PeriodeUttakDokumentasjonEntitet> rhs) {
         if (lhs != null && rhs != null) {
-            var dokumentasjonType = lhs.getValue().getOpprettetTidspunkt().isAfter(rhs.getValue().getOpprettetTidspunkt()) ? lhs.getValue().getDokumentasjonType()
-                : rhs.getValue().getDokumentasjonType();
-            return new LocalDateSegment<>(dateInterval, new PeriodeUttakDokumentasjonEntitet(dateInterval.getFomDato(), dateInterval.getTomDato(),
-                    dokumentasjonType));
+            var gjeldende = lhs.getValue().getOpprettetTidspunkt().isAfter(rhs.getValue().getOpprettetTidspunkt()) ? lhs : rhs;
+            var dokumentasjonType = gjeldende.getValue().getDokumentasjonType();
+            var ny = new PeriodeUttakDokumentasjonEntitet(dateInterval.getFomDato(), dateInterval.getTomDato(), dokumentasjonType);
+            ny.setOpprettetTidspunkt(gjeldende.getValue().getOpprettetTidspunkt());
+            return new LocalDateSegment<>(dateInterval, ny);
         }
         return lhs == null ? new LocalDateSegment<>(dateInterval, rhs.getValue()) : new LocalDateSegment<>(dateInterval, lhs.getValue());
     }
