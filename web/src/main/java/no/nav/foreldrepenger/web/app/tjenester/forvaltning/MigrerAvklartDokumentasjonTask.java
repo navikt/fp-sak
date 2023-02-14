@@ -129,13 +129,23 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
             LOG.info("Migrering uttak - ingen flere kandidater for migrering");
             return;
         }
-        behandlinger.forEach(this::migrer);
+        behandlinger.forEach(b -> {
+            try {
+                migrer(b);
+            } catch (IllegalStateException e) {
+                if (e.getMessage().contains("Mangelfull søknad: Mangler informasjon om det er FL eller SN som graderes")) {
+                    LOG.warn("Migrering uttak - feilet for behandling {}", b, e);
+                } else {
+                    throw e;
+                }
+            }
+        });
 
         var task = ProsessTaskDataBuilder.forProsessTask(MigrerAvklartDokumentasjonTask.class)
             .medCallId(callId)
             .medPrioritet(100)
             .build();
-//        taskTjeneste.lagre(task);
+        taskTjeneste.lagre(task);
     }
 
     private void migrer(Long behandlingId) {
