@@ -215,7 +215,7 @@ class VurderUttakDokumentasjonOppdatererTest {
             uttakDokumentasjonAksjonspunktUtleder, new VurderUttakDokumentasjonHistorikkinnslagTjeneste(historikkTjenesteAdapter),
             new UttakInputTjeneste(repositoryProvider, new HentOgLagreBeregningsgrunnlagTjeneste(entityManager),
                 new AbakusInMemoryInntektArbeidYtelseTjeneste(), skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste,
-                new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), true, new TotrinnTjeneste(new TotrinnRepository(entityManager))));
+                new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), new TotrinnTjeneste(new TotrinnRepository(entityManager))));
         return oppdaterer.oppdater(dto,
             new AksjonspunktOppdaterParameter(behandling, behandling.getAksjonspunktFor(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON), stp,
                 "begrunnelse"));

@@ -59,7 +59,7 @@ class FaktaUttakStegTest {
         steg = new FaktaUttakSteg(faktaUttakAksjonspunktUtleder,
             new UttakInputTjeneste(repositoryProvider, new HentOgLagreBeregningsgrunnlagTjeneste(entityManager), new AbakusInMemoryInntektArbeidYtelseTjeneste(),
                 skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste, new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()),
-                true, new TotrinnTjeneste(new TotrinnRepository(entityManager))), repositoryProvider.getBehandlingRepository());
+                 new TotrinnTjeneste(new TotrinnRepository(entityManager))), repositoryProvider.getBehandlingRepository());
     }
 
     @Test

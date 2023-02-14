@@ -78,7 +78,7 @@ class DokumentasjonVurderingBehovDtoTjenesteTest {
         var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider,
             new HentOgLagreBeregningsgrunnlagTjeneste(entityManager), new AbakusInMemoryInntektArbeidYtelseTjeneste(),
             skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste,
-            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), true, new TotrinnTjeneste(new TotrinnRepository(entityManager)));
+            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), new TotrinnTjeneste(new TotrinnRepository(entityManager)));
 
         var tjeneste = new DokumentasjonVurderingBehovDtoTjeneste(repositoryProvider.getBehandlingRepository(), uttakInputTjeneste,
             vurderUttakDokumentasjonAksjonspunktUtleder);

@@ -41,7 +41,6 @@ import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -57,7 +56,6 @@ public class UttakInputTjeneste {
     private PersonopplysningRepository personopplysningRepository;
     private BeregningUttakTjeneste beregningUttakTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private boolean brukNyFaktaUttak;
     private TotrinnTjeneste totrinnTjeneste;
 
     @Inject
@@ -68,7 +66,6 @@ public class UttakInputTjeneste {
                               MedlemTjeneste medlemTjeneste,
                               BeregningUttakTjeneste beregningUttakTjeneste,
                               YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                              @KonfigVerdi(value = "bruk.ny.fakta.uttak", defaultVerdi = "false") boolean brukNyFaktaUttak,
                               TotrinnTjeneste totrinnTjeneste) {
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
@@ -79,7 +76,6 @@ public class UttakInputTjeneste {
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.beregningUttakTjeneste = beregningUttakTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
-        this.brukNyFaktaUttak = brukNyFaktaUttak;
         this.totrinnTjeneste = totrinnTjeneste;
     }
 
@@ -125,7 +121,7 @@ public class UttakInputTjeneste {
     }
 
     private boolean skalBrukeNyFaktaOmUttak(Behandling behandling) {
-        return brukNyFaktaUttak && !alleredeAvklartPåGammelVersjon(behandling.getId()) && !harÅpentGammeltOpprettetAP(behandling);
+        return !alleredeAvklartPåGammelVersjon(behandling.getId()) && !harÅpentGammeltOpprettetAP(behandling);
     }
 
     private boolean harÅpentGammeltOpprettetAP(Behandling behandling) {
