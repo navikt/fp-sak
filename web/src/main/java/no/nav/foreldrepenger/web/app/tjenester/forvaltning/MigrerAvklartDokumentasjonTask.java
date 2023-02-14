@@ -1,18 +1,28 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.ALENEOMSORG_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.ALENEOMSORG_IKKE_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.BARE_SØKER_RETT_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.BARE_SØKER_RETT_IKKE_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.HV_OVELSE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.HV_OVELSE_IKKE_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_ANNEN_FORELDER_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_ANNEN_FORELDER_IKKE_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_BARN_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_BARN_IKKE_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_SØKER_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_SØKER_IKKE_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.MORS_AKTIVITET_IKKE_DOKUMENTERT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.MORS_AKTIVITET_IKKE_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.NAV_TILTAK_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.NAV_TILTAK_IKKE_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.SYKDOM_ANNEN_FORELDER_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.SYKDOM_ANNEN_FORELDER_IKKE_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.SYKDOM_SØKER_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.SYKDOM_SØKER_IKKE_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT;
 import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_ARBEID;
 import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_ARBEID_OG_UTDANNING;
 import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_IKKE_OPPGITT;
@@ -135,7 +145,7 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
             .medCallId(callId)
             .medPrioritet(100)
             .build();
-       // taskTjeneste.lagre(task);
+        taskTjeneste.lagre(task);
     }
 
     private void migrer(Long behandlingId) {
@@ -206,15 +216,28 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
                 LOG.info("Migrering uttak - flere dokvurdering for søknadsperiode i uttak {} {}", us.getId(), dokumentasjonVurdering);
                 continue;
             }
+            if (!dokVurderingStemmerMedUttak(uttaksperioderForSøknadsperiode, dokumentasjonVurdering.get(0))) {
+                LOG.info("Migrering uttak - dokvurdering stemmer ikke med uttak {} {}", behandlingId, dokumentasjonVurdering.get(0));
+                continue;
+            }
 
             entityManager.createNativeQuery(
                     "UPDATE UTTAK_RESULTAT_PERIODE_SOKNAD SET DOKUMENTASJON_VURDERING = :vurdering WHERE ID = :id")
-                .setParameter("vurdering", dokumentasjonVurdering.stream().findFirst().orElseThrow().getKode())
+                .setParameter("vurdering", dokumentasjonVurdering.get(0).getKode())
                 .setParameter("id", us.getId())
                 .executeUpdate();
 
         }
         entityManager.flush();
+    }
+
+    private static boolean dokVurderingStemmerMedUttak(List<UttakResultatPeriodeEntitet> uttaksperioderForSøknadsperiode,
+                                                       DokumentasjonVurdering dokumentasjonVurdering) {
+        return dokumentasjonVurdering.erGodkjent() == erGodkjent(uttaksperioderForSøknadsperiode);
+    }
+
+    private static boolean erGodkjent(List<UttakResultatPeriodeEntitet> uttaksperioderForSøknadsperiode) {
+        return uttaksperioderForSøknadsperiode.stream().allMatch(p -> p.isInnvilget());
     }
 
     private static DokumentasjonVurdering dokForPeriode(YtelseFordelingAggregat yfa, UttakResultatPeriodeEntitet p) {
@@ -299,7 +322,7 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
     }
 
     private AvklaringMedBegrunnelse avklarTidligOppstart(OppgittPeriodeEntitet periode) {
-        var vurdering = tidligOppstartFedrekvoteAvklart(periode) ? TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT : null;
+        var vurdering = tidligOppstartFedrekvoteAvklart(periode) ? TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT : TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT;
         return new AvklaringMedBegrunnelse(vurdering, periode.getBegrunnelse().orElse(null));
     }
 
@@ -334,11 +357,11 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
         }
 
         var tilhørendeAvklaring = switch (årsak) {
-            case INNLEGGELSE_SØKER -> new TilhørendeAvklaring(UttakDokumentasjonType.INNLAGT_SØKER, INNLEGGELSE_SØKER_GODKJENT, null);
-            case INNLEGGELSE_BARN -> new TilhørendeAvklaring(UttakDokumentasjonType.INNLAGT_BARN, INNLEGGELSE_BARN_GODKJENT, null);
-            case HV_ØVELSE -> new TilhørendeAvklaring(UttakDokumentasjonType.HV_OVELSE, HV_OVELSE_GODKJENT, null);
-            case NAV_TILTAK -> new TilhørendeAvklaring(UttakDokumentasjonType.NAV_TILTAK, NAV_TILTAK_GODKJENT, null);
-            case SYKDOM_SØKER -> new TilhørendeAvklaring(UttakDokumentasjonType.SYK_SØKER, SYKDOM_SØKER_GODKJENT, null);
+            case INNLEGGELSE_SØKER -> new TilhørendeAvklaring(UttakDokumentasjonType.INNLAGT_SØKER, INNLEGGELSE_SØKER_GODKJENT, INNLEGGELSE_SØKER_IKKE_GODKJENT);
+            case INNLEGGELSE_BARN -> new TilhørendeAvklaring(UttakDokumentasjonType.INNLAGT_BARN, INNLEGGELSE_BARN_GODKJENT, INNLEGGELSE_BARN_IKKE_GODKJENT);
+            case HV_ØVELSE -> new TilhørendeAvklaring(UttakDokumentasjonType.HV_OVELSE, HV_OVELSE_GODKJENT, HV_OVELSE_IKKE_GODKJENT);
+            case NAV_TILTAK -> new TilhørendeAvklaring(UttakDokumentasjonType.NAV_TILTAK, NAV_TILTAK_GODKJENT, NAV_TILTAK_IKKE_GODKJENT);
+            case SYKDOM_SØKER -> new TilhørendeAvklaring(UttakDokumentasjonType.SYK_SØKER, SYKDOM_SØKER_GODKJENT, SYKDOM_SØKER_IKKE_GODKJENT);
             default -> throw new IllegalStateException("Unexpected value: " + årsak);
         };
 
@@ -350,10 +373,10 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
                                                            LocalDateTimeline<PeriodeUttakDokumentasjonEntitet> dokTimeline) {
 
         var tilhørendeAvklaring = switch (årsak) {
-            case INNLEGGELSE_ANNEN_FORELDER -> new TilhørendeAvklaring(UttakDokumentasjonType.INSTITUSJONSOPPHOLD_ANNEN_FORELDRE, INNLEGGELSE_ANNEN_FORELDER_GODKJENT, null);
-            case SYKDOM_ANNEN_FORELDER -> new TilhørendeAvklaring(UttakDokumentasjonType.SYKDOM_ANNEN_FORELDER, SYKDOM_ANNEN_FORELDER_GODKJENT, null);
-            case BARE_SØKER_RETT -> new TilhørendeAvklaring(UttakDokumentasjonType.IKKE_RETT_ANNEN_FORELDER, BARE_SØKER_RETT_GODKJENT, null);
-            case ALENEOMSORG -> new TilhørendeAvklaring(UttakDokumentasjonType.ALENEOMSORG_OVERFØRING, ALENEOMSORG_GODKJENT, null);
+            case INNLEGGELSE_ANNEN_FORELDER -> new TilhørendeAvklaring(UttakDokumentasjonType.INSTITUSJONSOPPHOLD_ANNEN_FORELDRE, INNLEGGELSE_ANNEN_FORELDER_GODKJENT, INNLEGGELSE_ANNEN_FORELDER_IKKE_GODKJENT);
+            case SYKDOM_ANNEN_FORELDER -> new TilhørendeAvklaring(UttakDokumentasjonType.SYKDOM_ANNEN_FORELDER, SYKDOM_ANNEN_FORELDER_GODKJENT, SYKDOM_ANNEN_FORELDER_IKKE_GODKJENT);
+            case BARE_SØKER_RETT -> new TilhørendeAvklaring(UttakDokumentasjonType.IKKE_RETT_ANNEN_FORELDER, BARE_SØKER_RETT_GODKJENT, BARE_SØKER_RETT_IKKE_GODKJENT);
+            case ALENEOMSORG -> new TilhørendeAvklaring(UttakDokumentasjonType.ALENEOMSORG_OVERFØRING, ALENEOMSORG_GODKJENT, ALENEOMSORG_IKKE_GODKJENT);
             default -> throw new IllegalStateException("Unexpected value: " + årsak);
         };
 
@@ -361,19 +384,28 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
     }
 
     private static Stream<OppgittPeriodeEntitet> avklar(OppgittPeriodeEntitet periode,
-                                                                                LocalDateTimeline<PeriodeUttakDokumentasjonEntitet> dokTimeline,
-                                                                                TilhørendeAvklaring tilhørendeAvklaring) {
+                                                        LocalDateTimeline<PeriodeUttakDokumentasjonEntitet> dokTimeline,
+                                                        TilhørendeAvklaring tilhørendeAvklaring) {
         var filtertDokTimeline =  new LocalDateTimeline<>(
             dokTimeline.stream().filter(s -> s.getValue().getDokumentasjonType() == tilhørendeAvklaring.gammelAvklaring).toList());
         var opTimeline = new LocalDateTimeline<>(List.of(new LocalDateSegment<>(periode.getFom(), periode.getTom(), periode)));
         return opTimeline.combine(filtertDokTimeline, (interval, op, dok) -> {
-            var dokumentasjonVurdering = dok == null ? tilhørendeAvklaring.negativ : tilhørendeAvklaring.positiv;
+            var dokumentasjonVurdering = utledVurdering(op.getValue().getPeriodeVurderingType(), tilhørendeAvklaring, dok);
             var nyOp = OppgittPeriodeBuilder.fraEksisterende(op.getValue())
                 .medPeriode(interval.getFomDato(), interval.getTomDato())
                 .medDokumentasjonVurdering(dokumentasjonVurdering)
                 .build();
             return new LocalDateSegment<>(interval, nyOp);
         }, LocalDateTimeline.JoinStyle.LEFT_JOIN).toSegments().stream().map(s -> s.getValue());
+    }
+
+    private static DokumentasjonVurdering utledVurdering(UttakPeriodeVurderingType periodeVurderingType,
+                                                         TilhørendeAvklaring tilhørendeAvklaring,
+                                                         LocalDateSegment<PeriodeUttakDokumentasjonEntitet> dok) {
+        if (dok == null && periodeVurderingType == UttakPeriodeVurderingType.PERIODE_KAN_IKKE_AVKLARES) {
+            return tilhørendeAvklaring.negativ;
+        }
+        return dok == null ? null : tilhørendeAvklaring.positiv;
     }
 
     private boolean tidligOppstartFedrekvoteAvklart(OppgittPeriodeEntitet op) {
