@@ -61,6 +61,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
 import no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov;
@@ -237,7 +238,8 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
     }
 
     private static boolean erGodkjent(List<UttakResultatPeriodeEntitet> uttaksperioderForSøknadsperiode) {
-        return uttaksperioderForSøknadsperiode.stream().allMatch(p -> p.isInnvilget());
+        return uttaksperioderForSøknadsperiode.stream().allMatch(p -> p.isInnvilget() || (p.isUtsettelse() && Objects.equals(p.getResultatÅrsak(),
+            PeriodeResultatÅrsak.FRATREKK_PLEIEPENGER)));
     }
 
     private static DokumentasjonVurdering dokForPeriode(YtelseFordelingAggregat yfa, UttakResultatPeriodeEntitet p) {
