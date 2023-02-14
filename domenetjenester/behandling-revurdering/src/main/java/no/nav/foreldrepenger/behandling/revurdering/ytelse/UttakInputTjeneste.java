@@ -41,11 +41,14 @@ import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class UttakInputTjeneste {
+
+    private static final Environment ENV = Environment.current();
 
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -121,6 +124,9 @@ public class UttakInputTjeneste {
     }
 
     private boolean skalBrukeNyFaktaOmUttak(Behandling behandling) {
+        if (ENV.isDev()) {
+            return true;
+        }
         return !alleredeAvklartPåGammelVersjon(behandling.getId()) && !harÅpentGammeltOpprettetAP(behandling);
     }
 
