@@ -8,13 +8,13 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.folketrygdloven.beregningsgrunnlag.util.Virkedager;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.ytelse.beregning.Virkedager;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.konfig.Tid;
 
@@ -54,12 +54,12 @@ public class SvangerskapFeriepengeKvoteBeregner {
         var perioderMedFeriepengerBeregnet = intervallerSomKvalifisererTilFeriepenger.stream()
             .map(inter -> inter.overlap(feriepengetidslinjeOpt.get()))
             .flatMap(Optional::stream)
-            .collect(Collectors.toList());
+            .toList();
         var periodeSomKanPåvirkeNyFeriepengeberegning = new LocalDateInterval(Tid.TIDENES_BEGYNNELSE, førsteDagMedFeriepenger.minusDays(1));
         var perioderSomTrekkerFraFeriekvote = perioderMedFeriepengerBeregnet.stream()
             .map(inter -> inter.overlap(periodeSomKanPåvirkeNyFeriepengeberegning))
             .flatMap(Optional::stream)
-            .collect(Collectors.toList());
+            .toList();
         return perioderSomTrekkerFraFeriekvote.stream().mapToInt(p -> Virkedager.beregnAntallVirkedager(p.getFomDato(), p.getTomDato())).sum();
     }
 
