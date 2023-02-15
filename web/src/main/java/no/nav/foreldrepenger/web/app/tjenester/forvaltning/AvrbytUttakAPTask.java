@@ -72,7 +72,7 @@ public class AvrbytUttakAPTask implements ProsessTaskHandler {
             .medCallId(callId)
             .medPrioritet(100)
             .build();
-        //taskTjeneste.lagre(task);
+        taskTjeneste.lagre(task);
     }
 
     private void avbrytOgFortsett(Long behandlingId, Set<AksjonspunktDefinisjon> gamleAP) {
