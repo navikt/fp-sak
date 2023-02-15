@@ -329,6 +329,9 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
     }
 
     private AvklaringMedBegrunnelse avklarTidligOppstart(OppgittPeriodeEntitet periode) {
+        if (periode.getPeriodeVurderingType() == UttakPeriodeVurderingType.PERIODE_IKKE_VURDERT) {
+            return new AvklaringMedBegrunnelse(null, periode.getBegrunnelse().orElse(null));
+        }
         var vurdering = tidligOppstartFedrekvoteAvklart(periode) ? TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT : TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT;
         return new AvklaringMedBegrunnelse(vurdering, periode.getBegrunnelse().orElse(null));
     }
