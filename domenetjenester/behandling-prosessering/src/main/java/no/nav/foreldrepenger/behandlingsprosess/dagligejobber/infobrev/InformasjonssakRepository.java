@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -301,6 +303,19 @@ public class InformasjonssakRepository {
              and (gryf.opprinnelige_aktkrav_per_id is not null or gryf.saksbehandlede_aktkrav_per_id is not null or gryf.uttak_dokumentasjon_id is not null or gryf.overstyrt_fordeling_id is not null)
              and rownum <= 25
              """);
+        @SuppressWarnings("unchecked")
+        List<BigDecimal> resultatList = query.getResultList();
+        return resultatList.stream().map(o -> o.longValue()).toList();
+    }
+
+    public List<Long> finnBehandlingerMedGamleUttakAP(Set<AksjonspunktDefinisjon> ap) {
+        var query = entityManager.createNativeQuery("""
+             select distinct a.behandling_id from AKSJONSPUNKT a
+             where a.aksjonspunkt_def in (:ap)
+             and a.aksjonspunkt_status = 'OPPR'
+             and rownum <= 5
+             """);
+        query.setParameter("ap", ap.stream().map(a -> a.getKode()).collect(Collectors.toSet()));
         @SuppressWarnings("unchecked")
         List<BigDecimal> resultatList = query.getResultList();
         return resultatList.stream().map(o -> o.longValue()).toList();

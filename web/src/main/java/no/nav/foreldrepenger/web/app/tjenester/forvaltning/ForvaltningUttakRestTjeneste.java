@@ -109,4 +109,22 @@ public class ForvaltningUttakRestTjeneste {
 
         return Response.noContent().build();
     }
+
+    @POST
+    @Path("/avsluttGamleAP")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Operation(description = "Lagrer task for å avlutte uttak AP", tags = "FORVALTNING-uttak")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response avsluttGamleAP() {
+        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
+        var callId = MDCOperations.getCallId();
+        var prosessTaskData = ProsessTaskDataBuilder.forProsessTask(AvrbytUttakAPTask.class)
+            .medCallId(callId)
+            .medPrioritet(100)
+            .build();
+
+        taskTjeneste.lagre(prosessTaskData);
+
+        return Response.noContent().build();
+    }
 }
