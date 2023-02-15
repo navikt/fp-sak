@@ -91,8 +91,8 @@ public class AvrbytUttakAPTask implements ProsessTaskHandler {
             return;
         }
         if (behandling.getAktivtBehandlingSteg() != BehandlingStegType.KONTROLLER_AKTIVITETSKRAV) {
-            LOG.info("Migrering uttak - behandling står i feil steg {} {}", behandlingId, behandling.getAktivtBehandlingSteg());
-            throw new IllegalStateException("Feil steg");
+            LOG.info("Migrering uttak - behandling står i steg {} {} {}", behandlingId, behandling.getAktivtBehandlingSteg(),
+                aksjonspunkter);
         }
         LOG.info("Migrering uttak - fortsetter behandling {}", behandlingId);
         prosesseringTjeneste.asynkKjørProsess(behandling);
