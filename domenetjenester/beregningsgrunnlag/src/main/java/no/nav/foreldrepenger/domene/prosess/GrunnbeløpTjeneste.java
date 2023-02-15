@@ -7,7 +7,7 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.folketrygdloven.beregningsgrunnlag.Grunnbeløp;
+import no.nav.folketrygdloven.kalkulator.input.GrunnbeløpInput;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
 
@@ -25,8 +25,8 @@ public class GrunnbeløpTjeneste {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
     }
 
-    public List<Grunnbeløp> mapGrunnbeløpSatser() {
-        List<Grunnbeløp> grunnbeløpListe = new ArrayList<>();
+    public List<GrunnbeløpInput> mapGrunnbeløpSatser() {
+        List<GrunnbeløpInput> grunnbeløpListe = new ArrayList<>();
         var iår = LocalDate.now().getYear();
         for (var år = 2000; år <= iår; år++) {
             // Den vil ikke plukke opp alle grunnbeløp hvis det blir endret f.eks to ganger i året .
@@ -37,10 +37,10 @@ public class GrunnbeløpTjeneste {
         return grunnbeløpListe;
     }
 
-    private Grunnbeløp grunnbeløpOgSnittFor(LocalDate dato) {
+    private GrunnbeløpInput grunnbeløpOgSnittFor(LocalDate dato) {
         var g = beregningsgrunnlagRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, dato);
         var gSnitt = beregningsgrunnlagRepository.finnEksaktSats(BeregningSatsType.GSNITT, g.getPeriode().getFomDato());
-        return new Grunnbeløp(g.getPeriode().getFomDato(), g.getPeriode().getTomDato(), g.getVerdi(), gSnitt.getVerdi());
+        return new GrunnbeløpInput(g.getPeriode().getFomDato(), g.getPeriode().getTomDato(), g.getVerdi(), gSnitt.getVerdi());
     }
 
 }

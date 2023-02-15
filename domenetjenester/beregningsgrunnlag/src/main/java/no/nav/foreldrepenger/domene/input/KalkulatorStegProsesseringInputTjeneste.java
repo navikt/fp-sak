@@ -14,7 +14,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.folketrygdloven.beregningsgrunnlag.Grunnbeløp;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.FaktaOmBeregningInput;
 import no.nav.folketrygdloven.kalkulator.input.FastsettBeregningsaktiviteterInput;
@@ -23,6 +22,7 @@ import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.ForeslåBesteberegningInput;
 import no.nav.folketrygdloven.kalkulator.input.FortsettForeslåBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.FullføreBeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulator.input.GrunnbeløpInput;
 import no.nav.folketrygdloven.kalkulator.input.StegProsesseringInput;
 import no.nav.folketrygdloven.kalkulator.input.VurderBeregningsgrunnlagvilkårInput;
 import no.nav.folketrygdloven.kalkulator.input.VurderRefusjonBeregningsgrunnlagInput;
@@ -30,13 +30,13 @@ import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.domene.prosess.GrunnbeløpTjeneste;
-import no.nav.foreldrepenger.domene.prosess.KalkulusKonfigInjecter;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulus.BehandlingslagerTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.BehandlingslagerTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.prosess.GrunnbeløpTjeneste;
+import no.nav.foreldrepenger.domene.prosess.KalkulusKonfigInjecter;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 
 @ApplicationScoped
@@ -83,7 +83,7 @@ public class KalkulatorStegProsesseringInputTjeneste {
             .medForrigeGrunnlagFraSteg(grunnlagFraSteg.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null))
             .medStegUtTilstand(
                 no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
-        return new FastsettBeregningsaktiviteterInput(stegProsesseringInput).medGrunnbeløpsatser(finnSatser());
+        return new FastsettBeregningsaktiviteterInput(stegProsesseringInput).medGrunnbeløpInput(finnSatser());
     }
 
     public StegProsesseringInput lagFortsettInput(Long behandlingId,
@@ -99,7 +99,7 @@ public class KalkulatorStegProsesseringInputTjeneste {
                                               BehandlingStegType stegType) {
         var stegProsesseringInput = lagStegProsesseringInput(behandling, input, stegType);
         if (stegType.equals(BehandlingStegType.KONTROLLER_FAKTA_BEREGNING)) {
-            return new FaktaOmBeregningInput(stegProsesseringInput).medGrunnbeløpsatser(finnSatser());
+            return new FaktaOmBeregningInput(stegProsesseringInput).medGrunnbeløpInput(finnSatser());
         }
         if (stegType.equals(BehandlingStegType.FORESLÅ_BESTEBEREGNING)) {
             return lagInputForeslåBesteberegning(stegProsesseringInput);
@@ -183,17 +183,17 @@ public class KalkulatorStegProsesseringInputTjeneste {
 
     private ForeslåBesteberegningInput lagInputForeslåBesteberegning(StegProsesseringInput stegProsesseringInput) {
         var input = new ForeslåBesteberegningInput(stegProsesseringInput);
-        return input.medGrunnbeløpsatser(finnSatser());
+        return input.medGrunnbeløpInput(finnSatser());
     }
 
     private ForeslåBeregningsgrunnlagInput lagInputForeslå(StegProsesseringInput stegProsesseringInput) {
         var foreslåBeregningsgrunnlagInput = new ForeslåBeregningsgrunnlagInput(stegProsesseringInput);
-        return foreslåBeregningsgrunnlagInput.medGrunnbeløpsatser(finnSatser());
+        return foreslåBeregningsgrunnlagInput.medGrunnbeløpInput(finnSatser());
     }
 
     private FortsettForeslåBeregningsgrunnlagInput lagInputFortsettForeslå(StegProsesseringInput stegProsesseringInput) {
         var foreslåBeregningsgrunnlagInput = new FortsettForeslåBeregningsgrunnlagInput(stegProsesseringInput);
-        return foreslåBeregningsgrunnlagInput.medGrunnbeløpsatser(finnSatser());
+        return foreslåBeregningsgrunnlagInput.medGrunnbeløpInput(finnSatser());
     }
 
     private FordelBeregningsgrunnlagInput lagInputFordel(StegProsesseringInput stegProsesseringInput,
@@ -224,7 +224,7 @@ public class KalkulatorStegProsesseringInputTjeneste {
         return fullføreBeregningsgrunnlagInput;
     }
 
-    private List<Grunnbeløp> finnSatser() {
+    private List<GrunnbeløpInput> finnSatser() {
         return grunnbeløpTjeneste.mapGrunnbeløpSatser();
     }
 
