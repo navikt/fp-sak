@@ -90,11 +90,12 @@ public class AvrbytUttakAPTask implements ProsessTaskHandler {
             LOG.info("Migrering uttak - behandling avsluttet {}", behandlingId);
             return;
         }
+        LOG.info("Migrering uttak - fortsetter behandling {}", behandlingId);
         if (behandling.getAktivtBehandlingSteg() != BehandlingStegType.KONTROLLER_AKTIVITETSKRAV) {
             LOG.info("Migrering uttak - behandling står i steg {} {} {}", behandlingId, behandling.getAktivtBehandlingSteg(),
                 aksjonspunkter);
+        } else {
+            prosesseringTjeneste.asynkKjørProsess(behandling);
         }
-        LOG.info("Migrering uttak - fortsetter behandling {}", behandlingId);
-        prosesseringTjeneste.asynkKjørProsess(behandling);
     }
 }
