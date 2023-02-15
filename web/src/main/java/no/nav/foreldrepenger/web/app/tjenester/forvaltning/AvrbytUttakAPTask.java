@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.KONTROLLER_AKTIVITETSKRAV;
 
 import java.util.Set;
 
@@ -83,16 +82,19 @@ public class AvrbytUttakAPTask implements ProsessTaskHandler {
         LOG.info("Migrering uttak - avbryter {} for behandling {}", aksjonspunkter, behandling);
         behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), aksjonspunkter);
 
+        if (behandling.isBehandlingPåVent()) {
+            LOG.info("Migrering uttak - behandling på vent {}", behandlingId);
+            return;
+        }
         if (behandling.erAvsluttet()) {
             LOG.info("Migrering uttak - behandling avsluttet {}", behandlingId);
             return;
         }
-        var stårISteg = behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandlingId, BehandlingStegType.KONTROLLER_AKTIVITETSKRAV);
-        if (stårISteg) {
-            LOG.info("Migrering uttak - fortsetter behandling {}", behandlingId);
-            behandlingskontrollTjeneste.prosesserBehandling(kontekst);
-        } else {
-            LOG.info("Migrering uttak - avbrutt AP som ikke står i steg {} {} {}", KONTROLLER_AKTIVITETSKRAV, behandling.getId(), aksjonspunkter);
+        if (behandling.getAktivtBehandlingSteg() != BehandlingStegType.KONTROLLER_AKTIVITETSKRAV) {
+            LOG.info("Migrering uttak - behandling står i feil steg {} {}", behandlingId, behandling.getAktivtBehandlingSteg());
+            throw new IllegalStateException("Feil steg");
         }
+        LOG.info("Migrering uttak - fortsetter behandling {}", behandlingId);
+        prosesseringTjeneste.asynkKjørProsess(behandling);
     }
 }
