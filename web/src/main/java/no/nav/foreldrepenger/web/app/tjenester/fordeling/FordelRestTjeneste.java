@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.fordeling;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -14,8 +15,6 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -61,7 +60,6 @@ import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakOrchestrator;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
@@ -246,18 +244,31 @@ public class FordelRestTjeneste {
     @Operation(description = "Finn alle saker for en bruker.", summary = ("Finn alle saker for en bruker"), tags = "fordel",
         responses = {
             @ApiResponse(responseCode = "200", description = "Liste av alle brukers saker, ellers tom liste",
-                content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = FagSakInfoDto.class))))
+                content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = SakInfoDto.class))))
         })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public List<FagSakInfoDto> finnAlleSakerForBruker(
-        @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class)
-        @Parameter(description = "AktørId")
-        @Valid AktørIdDto bruker) {
+    public List<SakInfoDto> finnAlleSakerForBruker( @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) @Parameter(description = "AktørId") @Valid AktørIdDto bruker) {
         ensureCallId();
+
         if (!AktørId.erGyldigAktørId(bruker.aktørId())) {
             throw new IllegalArgumentException("Oppgitt aktørId er ikke en gyldig ident.");
         }
-        return fagsakTjeneste.finnFagsakerForAktør(new AktørId(bruker.aktørId())).stream().map(this::mapTilFagsakInfoDto).toList();
+        List<SakInfoDto> saksinfoDtoer = new ArrayList<>();
+
+        var fagsaker = fagsakTjeneste.finnFagsakerForAktør(new AktørId(bruker.aktørId())).stream().toList();
+        fagsaker.forEach( fagsak -> {
+            var sisteYtelsesBehandling = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId()).orElse(null);
+            if (sisteYtelsesBehandling != null) {
+                var gjeldendeFamilieHendelsedato = familieGrunnlagRepository.hentAggregatHvisEksisterer(sisteYtelsesBehandling.getId())
+                    .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+                    .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+                    .orElse(null);
+                saksinfoDtoer.add(mapTilSakInfoDto(fagsak, gjeldendeFamilieHendelsedato));
+            } else {
+                saksinfoDtoer.add(mapTilSakInfoDto(fagsak, null));
+            }
+        });
+        return saksinfoDtoer;
     }
 
     public record AktørIdDto (@NotNull @Digits(integer = 19, fraction = 0) String aktørId) {
@@ -286,11 +297,11 @@ public class FordelRestTjeneste {
         }
     }
 
-    private FagSakInfoDto mapTilFagsakInfoDto(Fagsak fagsak) {
-        return new FagSakInfoDto(new SaksnummerDto(fagsak.getSaksnummer().getVerdi()), fagsak.getYtelseType(), fagsak.getOpprettetTidspunkt().toLocalDate(), fagsak.getEndretTidspunkt().toLocalDate(), fagsak.getStatus());
+    private SakInfoDto mapTilSakInfoDto(Fagsak fagsak, LocalDate gjeldendeFamiliehendelseDato) {
+        return new SakInfoDto(new SaksnummerDto(fagsak.getSaksnummer().getVerdi()), fagsak.getYtelseType(), fagsak.getOpprettetTidspunkt().toLocalDate(), fagsak.getEndretTidspunkt().toLocalDate(), fagsak.getStatus(), gjeldendeFamiliehendelseDato);
     }
 
-    public record FagSakInfoDto(SaksnummerDto saksnummer, FagsakYtelseType ytelseType, LocalDate opprettetDato, LocalDate endretDato, FagsakStatus status) {}
+    public record SakInfoDto(SaksnummerDto saksnummer, FagsakYtelseType ytelseType, LocalDate opprettetDato, LocalDate endretDato, FagsakStatus status, LocalDate gjeldendeFamiliehendelseDato ) {}
 
     private void ensureCallId() {
         var callId = MDCOperations.getCallId();

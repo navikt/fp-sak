@@ -10,8 +10,16 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -60,7 +68,16 @@ public class FordelRestTjenesteTest {
 
     @Mock
     private VurderFagsystemFellesTjeneste vurderFagsystemTjenesteMock;
-
+    @Mock
+    private FamilieHendelseRepository familieHendelseRepositoryMock;
+    @Mock
+    private BehandlingRepositoryProvider behandlingRepositoryProviderMock;
+    @Mock
+    private FamilieHendelseGrunnlagEntitet familieHendelseGrunnlagEntitetMock;
+    @Mock
+    private BehandlingRepository behandlingRepositoryMock;
+    @Mock
+    private FamilieHendelseEntitet familieHendelseEntitetMock;
     private FordelRestTjeneste fordelRestTjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -72,7 +89,7 @@ public class FordelRestTjenesteTest {
     }
 
     @Test
-    public void skalReturnereFagsystemVedtaksløsning() {
+    void skalReturnereFagsystemVedtaksløsning() {
         var saksnummer = new Saksnummer("12345");
         var innDto = new AbacVurderFagsystemDto("1234", true, AKTØR_ID_MOR.getId(), "ab0047");
         var behandlendeFagsystem = new BehandlendeFagsystem(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING, saksnummer);
@@ -87,7 +104,7 @@ public class FordelRestTjenesteTest {
     }
 
     @Test
-    public void skalReturnereFagsystemManuell() {
+    void skalReturnereFagsystemManuell() {
         var saksnummer = new Saksnummer("TEST1");
         var journalpostId = new JournalpostId("1234");
         var innDto = new AbacVurderFagsystemDto(journalpostId.getVerdi(), false, AKTØR_ID_MOR.getId(), "ab0047");
@@ -103,7 +120,7 @@ public class FordelRestTjenesteTest {
     }
 
     @Test
-    public void skalReturnereFagsakinformasjonMedBehandlingTemaOgAktørId() {
+    void skalReturnereFagsakinformasjonMedBehandlingTemaOgAktørId() {
         final var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
         scenario.medSaksnummer(new Saksnummer("TEST2")).medSøknadHendelse().medFødselsDato(LocalDate.now());
         scenario.lagre(repositoryProvider);
@@ -115,7 +132,7 @@ public class FordelRestTjenesteTest {
     }
 
     @Test
-    public void skalReturnereNullNårFagsakErStengt() {
+    void skalReturnereNullNårFagsakErStengt() {
         final var saknr = new Saksnummer("TEST3");
         final var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
         scenario.medSaksnummer(saknr).medSøknadHendelse().medFødselsDato(LocalDate.now());
@@ -127,34 +144,64 @@ public class FordelRestTjenesteTest {
     }
 
     @Test
-    public void skalReturnereAlleBrukersSaker() {
-        var saknr = new Saksnummer("TEST3");
-        var forventetYtelseType = FagsakYtelseType.FORELDREPENGER;
-        var forventedTid = LocalDateTime.now();
+    void skalReturnereAlleBrukersSaker() {
+        var saknr1 = new Saksnummer("TEST3");
+        var saknr2 = new Saksnummer("TEST4");
+        var foreldrepenger = FagsakYtelseType.FORELDREPENGER;
+        var opprettetTidSak1 = LocalDateTime.now().minusMonths(16);
+        var opprettetTidSak2 = LocalDateTime.now();
+        var skjæringstidspunkt = LocalDate.now().minusMonths(15);
 
-        Fagsak fagsak = Fagsak.opprettNy(forventetYtelseType, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
-        fagsak.setOpprettetTidspunkt(forventedTid);
-        fagsak.setEndretTidspunkt(forventedTid);
 
-        when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak));
+        Fagsak fagsak1 = Fagsak.opprettNy(foreldrepenger, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr1);
+        fagsak1.setOpprettetTidspunkt(opprettetTidSak1);
+        fagsak1.setEndretTidspunkt(opprettetTidSak1);
+        fagsak1.setId(125L);
+        var behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
 
-        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, null, mock(
-            BehandlingRepositoryProvider.class), null);
+        Fagsak fagsak2 = Fagsak.opprettNy(foreldrepenger, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr2);
+        fagsak2.setOpprettetTidspunkt(opprettetTidSak2);
+        fagsak2.setEndretTidspunkt(opprettetTidSak2);
+        fagsak2.setId(126L);
+
+        when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
+        when(behandlingRepositoryProviderMock.getFamilieHendelseRepository()).thenReturn(familieHendelseRepositoryMock);
+        //Sak 1 - har familienhendelse dato
+        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak1.getId())).thenReturn(Optional.of(behandling1));
+        when(familieHendelseRepositoryMock.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelseGrunnlagEntitetMock));
+        when(familieHendelseGrunnlagEntitetMock.getGjeldendeVersjon()).thenReturn(familieHendelseEntitetMock);
+        when(familieHendelseEntitetMock.getSkjæringstidspunkt()).thenReturn(skjæringstidspunkt);
+        //Sak 2 - har ingen familiehendelse dato
+        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak2.getId())).thenReturn(Optional.empty());
+
+        when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1, fagsak2));
+
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, null, behandlingRepositoryProviderMock, null);
 
         var result = tjeneste.finnAlleSakerForBruker(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()));
 
-        assertThat(result).hasSize(1);
-        var fagSakInfoDto = result.get(0);
-        assertThat(fagSakInfoDto.saksnummer().getSaksnummer()).isEqualTo(saknr.getVerdi());
-        assertThat(fagSakInfoDto.status()).isEqualTo(FagsakStatus.OPPRETTET);
-        assertThat(fagSakInfoDto.opprettetDato()).isEqualTo(forventedTid.toLocalDate());
-        assertThat(fagSakInfoDto.endretDato()).isEqualTo(forventedTid.toLocalDate());
-        assertThat(fagSakInfoDto.ytelseType()).isEqualTo(forventetYtelseType);
+        assertThat(result).hasSize(2);
+
+        var sakInfoDto1 = result.get(0);
+        assertThat(sakInfoDto1.saksnummer().getSaksnummer()).isEqualTo(saknr1.getVerdi());
+        assertThat(sakInfoDto1.status()).isEqualTo(FagsakStatus.OPPRETTET);
+        assertThat(sakInfoDto1.opprettetDato()).isEqualTo(opprettetTidSak1.toLocalDate());
+        assertThat(sakInfoDto1.endretDato()).isEqualTo(opprettetTidSak1.toLocalDate());
+        assertThat(sakInfoDto1.ytelseType()).isEqualTo(foreldrepenger);
+        assertThat(sakInfoDto1.gjeldendeFamiliehendelseDato()).isEqualTo(skjæringstidspunkt);
+
+        var sakInfoDto2 = result.get(1);
+        assertThat(sakInfoDto2.saksnummer().getSaksnummer()).isEqualTo(saknr2.getVerdi());
+        assertThat(sakInfoDto2.status()).isEqualTo(FagsakStatus.OPPRETTET);
+        assertThat(sakInfoDto2.opprettetDato()).isEqualTo(opprettetTidSak2.toLocalDate());
+        assertThat(sakInfoDto2.endretDato()).isEqualTo(opprettetTidSak2.toLocalDate());
+        assertThat(sakInfoDto2.ytelseType()).isEqualTo(foreldrepenger);
+        assertThat(sakInfoDto2.gjeldendeFamiliehendelseDato()).isNull();
     }
 
     @Test
     @DisplayName("Skal kaste exceptions om aktørId er ikke gyldig.")
-    public void exception_om_ikke_gyldig_aktørId() {
+    void exception_om_ikke_gyldig_aktørId() {
         var tjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjenesteMock, opprettSakOrchestratorMock, opprettSakTjenesteMock, mock(
             BehandlingRepositoryProvider.class), vurderFagsystemTjenesteMock);
 
