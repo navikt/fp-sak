@@ -124,7 +124,7 @@ public class UttakInputTjeneste {
     }
 
     private boolean skalBrukeNyFaktaOmUttak(Behandling behandling) {
-        if (ENV.isDev()) {
+        if (ENV.isDev() || ENV.isProd()) {
             return true;
         }
         return !alleredeAvklartPåGammelVersjon(behandling.getId()) && !harÅpentGammeltOpprettetAP(behandling);

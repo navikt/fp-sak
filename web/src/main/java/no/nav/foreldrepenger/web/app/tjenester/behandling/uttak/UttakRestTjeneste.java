@@ -19,6 +19,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
@@ -56,6 +59,8 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Produces(MediaType.APPLICATION_JSON)
 @Transactional
 public class UttakRestTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UttakRestTjeneste.class);
 
     static final String BASE_PATH = "/behandling/uttak";
     private static final String FAKTA_ARBEIDSFORHOLD_PART_PATH = "/fakta-arbeidsforhold";
@@ -154,6 +159,7 @@ public class UttakRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<KontrollerAktivitetskravPeriodeDto> hentKontrollerAktivitetskrav(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        LOG.info("Fakta uttak - hentKontrollerAktivitetskrav brukes {}", uuidDto.getBehandlingUuid());
         return kontrollerAktivitetskravDtoTjeneste.lagDtos(uuidDto);
     }
 
@@ -164,6 +170,7 @@ public class UttakRestTjeneste {
     public KontrollerFaktaDataDto hentKontrollerFaktaPerioder(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = hentBehandling(uuidDto);
+        LOG.info("Fakta uttak - hentKontrollerFaktaPerioder brukes {}", uuidDto.getBehandlingUuid());
         return kontrollerFaktaPeriodeTjeneste.hentKontrollerFaktaPerioder(behandling.getId());
     }
 
