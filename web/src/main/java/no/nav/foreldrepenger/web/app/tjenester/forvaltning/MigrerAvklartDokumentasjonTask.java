@@ -31,6 +31,7 @@ import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurdering
 import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_KVALPROG;
 import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_TRENGER_HJELP;
 import static no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_UTDANNING;
+import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.finnesOverlapp;
 
 import java.util.List;
 import java.util.Objects;
@@ -135,7 +136,8 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
                 migrer(b);
             } catch (Exception e) {
                 if (e.getMessage().contains("Mangelfull søknad: Mangler informasjon om det er FL eller SN som graderes")
-                || e.getMessage().contains("Finner ikke skjæringstidspunkt for foreldrepenger")) {
+                || e.getMessage().contains("Finner ikke skjæringstidspunkt for foreldrepenger")
+                || e instanceof MigreringException) {
                     LOG.warn("Migrering uttak - feilet for behandling {}", b, e);
                     var builder = ytelsesFordelingRepository.opprettBuilder(b)
                         .migrertDokumentasjonsPerioder(true);
@@ -162,6 +164,10 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
         var eksisterende = yfa.getGjeldendeFordeling();
         var erAnnenForelderInformert = eksisterende.getErAnnenForelderInformert();
         var ønskerJustertVedFødsel = eksisterende.ønskerJustertVedFødsel();
+        if (finnesOverlapp(eksisterende.getPerioder())) {
+            LOG.info("Migrering uttak - finnes overlapp i oppgitte perioder {}", behandlingId);
+            throw new MigreringException("Migrering  - Overlapp i perioder");
+        }
 
         var input = uttakInputTjeneste.lagInput(behandlingId);
         var migrertePerioder = eksisterende.getPerioder().stream().flatMap(p -> migrer(p, yfa, input)).toList();
@@ -336,7 +342,13 @@ public class MigrerAvklartDokumentasjonTask implements ProsessTaskHandler {
         return new AvklaringMedBegrunnelse(vurdering, periode.getBegrunnelse().orElse(null));
     }
 
-    private record AvklaringMedBegrunnelse(DokumentasjonVurdering vurdering, String begrunnelse) {
+private static class MigreringException extends RuntimeException {
+    public MigreringException(String message) {
+        super(message);
+    }
+}
+
+private record AvklaringMedBegrunnelse(DokumentasjonVurdering vurdering, String begrunnelse) {
 
     }
 

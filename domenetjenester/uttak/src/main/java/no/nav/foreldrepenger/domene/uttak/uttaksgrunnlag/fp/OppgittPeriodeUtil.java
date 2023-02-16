@@ -20,7 +20,7 @@ public class OppgittPeriodeUtil {
         //Forhindrer instanser
     }
 
-    static boolean finnesOverlapp(List<OppgittPeriodeEntitet> oppgittPerioder) {
+    public static boolean finnesOverlapp(List<OppgittPeriodeEntitet> oppgittPerioder) {
         for (var i = 0; i < oppgittPerioder.size(); i++) {
             for (var j = i + 1; j < oppgittPerioder.size(); j++) {
                 if (overlapper(oppgittPerioder.get(i), oppgittPerioder.get(j))) {
