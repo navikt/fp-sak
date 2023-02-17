@@ -29,7 +29,6 @@ class RyddFaktaUttakTjeneste {
             return;
         }
         var builder = YtelseFordelingAggregat.Builder.oppdatere(opprinnelig)
-            .medPerioderUttakDokumentasjon(null)
             .medOverstyrtFordeling(null)
             .medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder(opprinnelig.get().getAvklarteDatoer())
                 .medJustertEndringsdato(null)

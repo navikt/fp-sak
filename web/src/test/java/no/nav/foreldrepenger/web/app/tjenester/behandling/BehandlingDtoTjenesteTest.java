@@ -51,7 +51,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.TilbakekrevingRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAktivitetskravDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDtoTjeneste;
 
@@ -87,9 +86,6 @@ public class BehandlingDtoTjenesteTest {
     @Inject
     private FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste;
 
-    @Inject
-    private KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste;
-
     private BehandlingDtoTjeneste tjeneste;
 
     private final LocalDate now = LocalDate.now();
@@ -98,7 +94,7 @@ public class BehandlingDtoTjenesteTest {
     public void setUp() {
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
                 opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, foreldrepengerUttakTjeneste, null, mock(TotrinnTjeneste.class),
-            kontrollerAktivitetskravDtoTjeneste, dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste);
+            dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste);
     }
 
     @Test

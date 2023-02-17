@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.DokumentasjonPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
@@ -332,17 +331,6 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
             dokumentasjonsperioder.getDokumentasjonperiode()
                 .addAll(lagEnkelDokumentasjonPeriode(UttakDokumentasjonType.ALENEOMSORG));
         }
-    }
-
-    private List<? extends DokumentasjonPeriode> lagDokumentasjonPerioder(List<? extends DokumentasjonPeriodeEntitet<?>> perioder) {
-        List<DokumentasjonPeriode> result = new ArrayList<>();
-        perioder.stream().forEach(periode -> {
-            var dokumentasjonPeriode = personopplysningDvhObjectFactory.createDokumentasjonPeriode();
-            dokumentasjonPeriode.setDokumentasjontype(VedtakXmlUtil.lagKodeverksOpplysning(periode.getDokumentasjonType()));
-            dokumentasjonPeriode.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periode.getPeriode().getFomDato(), periode.getPeriode().getTomDato()));
-            result.add(dokumentasjonPeriode);
-        });
-        return result;
     }
 
     private List<? extends DokumentasjonPeriode> lagEnkelDokumentasjonPeriode(UttakDokumentasjonType dokumentasjonType) {

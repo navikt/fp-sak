@@ -109,16 +109,9 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String MANUELL_KONTROLL_AV_BESTEBEREGNING_KODE = "5062";
 
-
     public static final String OVERSTYRING_AV_AVKLART_STARTDATO_KODE = "6045";
-    public static final String AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER_KODE = "5070";
-    public static final String AVKLAR_FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET_KODE = "5097";
-    public static final String AVKLAR_FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG_KODE = "5098";
-    public static final String AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING_KODE = "6070";
-    public static final String OVERSTYRING_AV_FAKTA_UTTAK_KODE = "6013";
     public static final String OVERSTYRING_FAKTA_UTTAK_KODE = "6065";
     public static final String FASTSETT_UTTAKPERIODER_KODE = "5071";
-    public static final String AVKLAR_FØRSTE_UTTAKSDATO_KODE = "5081";
     public static final String OVERSTYRING_AV_UTTAKPERIODER_KODE = "6008";
     public static final String AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT_KODE = "5086";
     public static final String VURDER_UTTAK_DOKUMENTASJON_KODE = "5074";
@@ -151,8 +144,6 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER_KODE = "5096";
 
-    public static final String KONTROLLER_AKTIVITETSKRAV = "5099";
-
     // Andre koder
     public static final SkjermlenkeType UTEN_SKJERMLENKE = null;
     public static final VilkårType UTEN_VILKÅR = null;
@@ -165,6 +156,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final boolean FORBLI = false;
 
     // Utgåtte aksjonspunktkode. Helst ikke gjenbruk 5nnnn til andre formål enn det opprinnelige før det har gått noe tid
+    //  "6013" "6070" "5099" "5070" "5081" "5098" "5097"
     //  "5009",
     //  "5022"  "5024"
     //  "5036"

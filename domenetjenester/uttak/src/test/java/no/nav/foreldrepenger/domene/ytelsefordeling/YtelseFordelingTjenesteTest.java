@@ -4,14 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -24,31 +20,6 @@ public class YtelseFordelingTjenesteTest {
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final YtelseFordelingTjeneste tjeneste = new YtelseFordelingTjeneste(
         repositoryProvider.getYtelsesFordelingRepository());
-
-    @Test
-    public void test_lagring_perioderuttakdokumentasjon() {
-        var enDag = LocalDate.of(2018, 3, 15);
-        var dokumentasjonPerioder = List.of(
-            new PeriodeUttakDokumentasjonEntitet(enDag, enDag.plusDays(1), UttakDokumentasjonType.SYK_SØKER),
-            new PeriodeUttakDokumentasjonEntitet(enDag.plusDays(4), enDag.plusDays(7),
-                UttakDokumentasjonType.SYK_SØKER));
-
-        var opprinnelig = mødrekvote(enDag, enDag.plusDays(7));
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFordeling(new OppgittFordelingEntitet(List.of(opprinnelig), true));
-        var behandling = scenario.lagre(repositoryProvider);
-
-        var ny = mødrekvote(enDag, enDag.plusDays(7));
-
-        tjeneste.overstyrSøknadsperioder(behandling.getId(), Collections.singletonList(ny), dokumentasjonPerioder);
-
-        var perioderUttak = tjeneste.hentAggregat(behandling.getId()).getPerioderUttakDokumentasjon();
-
-        assertThat(perioderUttak).isNotNull();
-        var perioder = perioderUttak.orElseThrow().getPerioder();
-        assertThat(perioder).isNotEmpty();
-        assertThat(perioder).hasSize(2);
-    }
 
     @Test
     public void test_bekreft_aksjonspunkt_annenforelder_har_ikke_rett() {
@@ -85,7 +56,7 @@ public class YtelseFordelingTjenesteTest {
         var periode2 = mødrekvote(LocalDate.now().plusWeeks(1), LocalDate.now().plusWeeks(2));
         var perioder = List.of(periode1, periode2);
         assertThrows(IllegalArgumentException.class,
-            () -> tjeneste.overstyrSøknadsperioder(behandling.getId(), perioder, List.of()));
+            () -> tjeneste.overstyrSøknadsperioder(behandling.getId(), perioder));
     }
 
     private OppgittPeriodeEntitet mødrekvote(LocalDate fom, LocalDate tom) {

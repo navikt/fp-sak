@@ -1,11 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_FØRSTE_UTTAKSDATO;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.KONTROLLER_AKTIVITETSKRAV;
-
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
@@ -40,15 +34,10 @@ import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjenest
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
-import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class UttakInputTjeneste {
-
-    private static final Environment ENV = Environment.current();
 
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -58,8 +47,6 @@ public class UttakInputTjeneste {
     private SøknadRepository søknadRepository;
     private PersonopplysningRepository personopplysningRepository;
     private BeregningUttakTjeneste beregningUttakTjeneste;
-    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private TotrinnTjeneste totrinnTjeneste;
 
     @Inject
     public UttakInputTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -67,9 +54,7 @@ public class UttakInputTjeneste {
                               InntektArbeidYtelseTjeneste iayTjeneste,
                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                               MedlemTjeneste medlemTjeneste,
-                              BeregningUttakTjeneste beregningUttakTjeneste,
-                              YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                              TotrinnTjeneste totrinnTjeneste) {
+                              BeregningUttakTjeneste beregningUttakTjeneste) {
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
         this.medlemTjeneste = Objects.requireNonNull(medlemTjeneste, "medlemTjeneste");
@@ -78,8 +63,6 @@ public class UttakInputTjeneste {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.beregningUttakTjeneste = beregningUttakTjeneste;
-        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
-        this.totrinnTjeneste = totrinnTjeneste;
     }
 
     UttakInputTjeneste() {
@@ -102,16 +85,14 @@ public class UttakInputTjeneste {
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         var søknadEntitet = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
-        var søknadMottattDato = søknadEntitet.map(SøknadEntitet::getMottattDato).orElse(null);
         var søknadOpprettetTidspunkt = søknadEntitet.map(SøknadEntitet::getOpprettetTidspunkt).orElse(null);
         var ytelsespesifiktGrunnlag = lagYtelsesspesifiktGrunnlag(ref);
         var årsaker = finnÅrsaker(ref);
-        var input = new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag).medMedlemskapOpphørsdato(medlemskapOpphørsdato)
-            .medSøknadMottattDato(søknadMottattDato)
+        var input = new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag)
+            .medMedlemskapOpphørsdato(medlemskapOpphørsdato)
             .medSøknadOpprettetTidspunkt(søknadOpprettetTidspunkt)
             .medBehandlingÅrsaker(map(årsaker))
             .medBehandlingManueltOpprettet(erManueltOpprettet(årsaker))
-            .medSkalBrukeNyFaktaOmUttak(skalBrukeNyFaktaOmUttak(behandling))
             .medErOpplysningerOmDødEndret(erOpplysningerOmDødEndret(ref));
         var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(ref.behandlingId());
         if (beregningsgrunnlag.isPresent()) {
@@ -121,30 +102,6 @@ public class UttakInputTjeneste {
                     .medFinnesAndelerMedGraderingUtenBeregningsgrunnlag(finnesAndelerMedGraderingUtenBeregningsgrunnlag);
         }
         return input;
-    }
-
-    private boolean skalBrukeNyFaktaOmUttak(Behandling behandling) {
-        if (ENV.isDev() || ENV.isProd()) {
-            return true;
-        }
-        return !alleredeAvklartPåGammelVersjon(behandling.getId()) && !harÅpentGammeltOpprettetAP(behandling);
-    }
-
-    private boolean harÅpentGammeltOpprettetAP(Behandling behandling) {
-        var gamleAP = Set.of(AVKLAR_FØRSTE_UTTAKSDATO, AVKLAR_FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG,
-            AVKLAR_FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET, AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER, KONTROLLER_AKTIVITETSKRAV);
-        if (gamleAP.stream().anyMatch(ap -> behandling.harÅpentAksjonspunktMedType(ap))) {
-            return true;
-        }
-        //for å støtte behandlinger som er sendt tilbake fra beslutter
-        var totrinnsvurdering = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId());
-        return totrinnsvurdering.stream().anyMatch(ttv -> gamleAP.contains(ttv.getAksjonspunktDefinisjon()));
-    }
-
-    private boolean alleredeAvklartPåGammelVersjon(Long behandlingId) {
-        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId);
-        return ytelseFordelingAggregat.map(yfa ->
-            yfa.getPerioderUttakDokumentasjon().isPresent() || yfa.getGjeldendeAktivitetskravPerioder().isPresent()).orElse(false);
     }
 
     private boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag(BehandlingReferanse ref, BeregningsgrunnlagEntitet beregningsgrunnlag) {

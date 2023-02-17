@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.DokumentasjonPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.xml.DvhPersonopplysningXmlTjeneste;
 import no.nav.foreldrepenger.datavarehus.xml.PersonopplysningXmlFelles;
@@ -43,7 +42,6 @@ import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.Addresse;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.Adopsjon;
-import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.DokumentasjonPeriode;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.FamilieHendelse;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.Familierelasjon;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.Inntekt;
@@ -256,17 +254,6 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
     private void setBruker(PersonopplysningerDvhForeldrepenger personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
         var person = personopplysningFellesTjeneste.lagUidentifiserbarBruker(personopplysningerAggregat, personopplysningerAggregat.getSøker());
         personopplysninger.setBruker(person);
-    }
-
-    private List<? extends DokumentasjonPeriode> lagDokumentasjonPerioder(List<? extends DokumentasjonPeriodeEntitet<?>> perioder) {
-        List<DokumentasjonPeriode> result = new ArrayList<>();
-        perioder.forEach(periode -> {
-            var dokumentasjonPeriode = personopplysningDvhObjectFactory.createDokumentasjonPeriode();
-            dokumentasjonPeriode.setDokumentasjontype(VedtakXmlUtil.lagKodeverksOpplysning(periode.getDokumentasjonType()));
-            dokumentasjonPeriode.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periode.getPeriode().getFomDato(), periode.getPeriode().getTomDato()));
-            result.add(dokumentasjonPeriode);
-        });
-        return result;
     }
 
     private void setInntekter(Long behandlingId, PersonopplysningerDvhForeldrepenger personopplysninger, LocalDate skjæringstidspunkt) {

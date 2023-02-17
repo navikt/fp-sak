@@ -50,7 +50,6 @@ public class FastsettePerioderEndringTjenesteTest {
         assertThat(endringer.get(0).getFom()).isEqualTo(opprinneligPeriode.getFom());
         assertThat(endringer.get(0).getTom()).isEqualTo(opprinneligPeriode.getTom());
         assertThat(endringer.get(0).getErEndret()).isTrue();
-        assertThat(endringer.get(0).getErAvklart()).isFalse();
         assertThat(endringer.get(0).getErSlettet()).isFalse();
         assertThat(endringer.get(0).getErLagtTil()).isFalse();
     }
@@ -81,19 +80,16 @@ public class FastsettePerioderEndringTjenesteTest {
         assertThat(endringer.get(0).getFom()).isEqualTo(opprinneligPeriode.getFom());
         assertThat(endringer.get(0).getTom()).isEqualTo(opprinneligPeriode.getTom());
         assertThat(endringer.get(0).getErEndret()).isFalse();
-        assertThat(endringer.get(0).getErAvklart()).isFalse();
         assertThat(endringer.get(0).getErSlettet()).isTrue();
         assertThat(endringer.get(0).getErLagtTil()).isFalse();
         assertThat(endringer.get(1).getFom()).isEqualTo(overstyrtPeriode1.getFom());
         assertThat(endringer.get(1).getTom()).isEqualTo(overstyrtPeriode1.getTom());
         assertThat(endringer.get(1).getErEndret()).isFalse();
-        assertThat(endringer.get(1).getErAvklart()).isFalse();
         assertThat(endringer.get(1).getErSlettet()).isFalse();
         assertThat(endringer.get(1).getErLagtTil()).isTrue();
         assertThat(endringer.get(2).getFom()).isEqualTo(overstyrtPeriode2.getFom());
         assertThat(endringer.get(2).getTom()).isEqualTo(overstyrtPeriode2.getTom());
         assertThat(endringer.get(2).getErEndret()).isFalse();
-        assertThat(endringer.get(2).getErAvklart()).isFalse();
         assertThat(endringer.get(2).getErSlettet()).isFalse();
         assertThat(endringer.get(2).getErLagtTil()).isTrue();
     }
@@ -144,7 +140,6 @@ public class FastsettePerioderEndringTjenesteTest {
         assertThat(endringer.get(0).getFom()).isEqualTo(opprinneligPeriode.getFom());
         assertThat(endringer.get(0).getTom()).isEqualTo(opprinneligPeriode.getTom());
         assertThat(endringer.get(0).getErEndret()).isTrue();
-        assertThat(endringer.get(0).getErAvklart()).isFalse();
         assertThat(endringer.get(0).getErSlettet()).isFalse();
         assertThat(endringer.get(0).getErLagtTil()).isFalse();
     }

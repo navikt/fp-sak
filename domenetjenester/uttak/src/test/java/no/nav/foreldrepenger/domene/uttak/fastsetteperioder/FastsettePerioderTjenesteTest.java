@@ -20,14 +20,11 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.KontrollerAktivitetskravAvklaring;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -188,8 +185,7 @@ public class FastsettePerioderTjenesteTest {
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
         var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser);
         return new UttakInput(ref, iayGrunnlag, fpGrunnlag)
-            .medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser())
-            .medSøknadMottattDato(fødselsdato.minusWeeks(4));
+            .medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser());
     }
 
     private OverstyrUttakResultatValidator validator() {
@@ -338,6 +334,7 @@ public class FastsettePerioderTjenesteTest {
         var oppgittFriUtsettelse1 = OppgittPeriodeBuilder.ny()
             .medÅrsak(UtsettelseÅrsak.FRI)
             .medPeriode(fødselsdato.plusWeeks(6), fødselsdato.plusWeeks(8).minusDays(1))
+            .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
             .build();
         var oppgittForeldrepenger1 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(FELLESPERIODE)
@@ -346,6 +343,7 @@ public class FastsettePerioderTjenesteTest {
         var oppgittFriUtsettelse2 = OppgittPeriodeBuilder.ny()
             .medÅrsak(UtsettelseÅrsak.FRI)
             .medPeriode(fødselsdato.plusWeeks(10), fødselsdato.plusWeeks(12).minusDays(1))
+            .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_IKKE_DOKUMENTERT)
             .build();
         var oppgittForeldrepenger2 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(FORELDREPENGER)
@@ -362,18 +360,6 @@ public class FastsettePerioderTjenesteTest {
         beregningsandelTjeneste.leggTilOrdinærtArbeid(arbeidsgiver, null);
         opprettStønadskontoerBareFarHarRett(behandling);
         opprettGrunnlag(behandling.getId(), fødselsdato);
-
-        var aktivitetskravAvklaring1 = new AktivitetskravPeriodeEntitet(oppgittFriUtsettelse1.getFom(),
-            oppgittFriUtsettelse1.getTom(), KontrollerAktivitetskravAvklaring.I_AKTIVITET, "begrunnelse");
-        var aktivitetskravAvklaring2 = new AktivitetskravPeriodeEntitet(oppgittFriUtsettelse2.getFom(),
-            oppgittFriUtsettelse2.getTom(), KontrollerAktivitetskravAvklaring.IKKE_I_AKTIVITET_IKKE_DOKUMENTERT, "begrunnelse");
-        var aktivitetskravPerioder = new AktivitetskravPerioderEntitet()
-            .leggTil(aktivitetskravAvklaring1)
-            .leggTil(aktivitetskravAvklaring2);
-        var yfMedAktivitetskravAvklaring =
-            YtelseFordelingAggregat.oppdatere(ytelsesFordelingRepository.hentAggregat(behandling.getId()))
-            .medSaksbehandledeAktivitetskravPerioder(aktivitetskravPerioder);
-        ytelsesFordelingRepository.lagre(behandling.getId(), yfMedAktivitetskravAvklaring.build());
 
         var input = lagInput(behandling, fødselsdato);
         tjeneste().fastsettePerioder(input);
@@ -622,7 +608,7 @@ public class FastsettePerioderTjenesteTest {
         var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
             new FamilieHendelser().medSøknadHendelse(familieHendelse));
         var input = new UttakInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(fødselsdato).build()),
-            iayTjeneste.hentGrunnlag(behandling.getId()), fpGrunnlag).medSøknadMottattDato(oppgittFpff.getFom())
+            iayTjeneste.hentGrunnlag(behandling.getId()), fpGrunnlag)
             .medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser());
         tjeneste().fastsettePerioder(input);
 

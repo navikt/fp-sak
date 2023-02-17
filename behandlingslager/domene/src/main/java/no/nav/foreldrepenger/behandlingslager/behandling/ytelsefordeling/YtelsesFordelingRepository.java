@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling.erBerørtBehandling;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -65,12 +63,8 @@ public class YtelsesFordelingRepository {
             .medOppgittFordeling(ytelseFordelingGrunnlagEntitet.getOppgittFordeling())
             .medJustertFordeling(ytelseFordelingGrunnlagEntitet.getJustertFordeling())
             .medOverstyrtFordeling(ytelseFordelingGrunnlagEntitet.getOverstyrtFordeling())
-            .medPerioderUttakDokumentasjon(ytelseFordelingGrunnlagEntitet.getPerioderUttakDokumentasjon())
             .medAvklarteDatoer(ytelseFordelingGrunnlagEntitet.getAvklarteUttakDatoer())
-            .medOpprinneligeAktivitetskravPerioder(ytelseFordelingGrunnlagEntitet.getOpprinneligeAktivitetskravPerioder())
-            .medSaksbehandledeAktivitetskravPerioder(ytelseFordelingGrunnlagEntitet.getSaksbehandledeAktivitetskravPerioder())
             .medOverstyrtOmsorg(ytelseFordelingGrunnlagEntitet.getOverstyrtOmsorg())
-            .migrertDokumentasjonsPerioder(ytelseFordelingGrunnlagEntitet.getMigrertDokumentasjonsPerioder())
             .build();
     }
 
@@ -124,10 +118,6 @@ public class YtelsesFordelingRepository {
             entityManager.persist(grunnlag.getAvklarteUttakDatoer());
         }
 
-        lagrePerioderUttakDokumentasjon(grunnlag);
-        lagrePerioderAktivitetskrav(grunnlag.getOpprinneligeAktivitetskravPerioder());
-        lagrePerioderAktivitetskrav(grunnlag.getSaksbehandledeAktivitetskravPerioder());
-
         entityManager.persist(grunnlag);
     }
 
@@ -138,33 +128,11 @@ public class YtelsesFordelingRepository {
         grunnlag.setOppgittRettighet(aggregat.getOppgittRettighet());
         aggregat.getOverstyrtRettighet().ifPresent(grunnlag::setOverstyrtRettighet);
         grunnlag.setOppgittFordeling(aggregat.getOppgittFordeling());
-        aggregat.getPerioderUttakDokumentasjon().ifPresent(grunnlag::setPerioderUttakDokumentasjon);
         aggregat.getOverstyrtFordeling().ifPresent(grunnlag::setOverstyrtFordeling);
         aggregat.getJustertFordeling().ifPresent(grunnlag::setJustertFordeling);
         aggregat.getAvklarteDatoer().ifPresent(grunnlag::setAvklarteUttakDatoerEntitet);
-        aggregat.getOpprinneligeAktivitetskravPerioder().ifPresent(grunnlag::setOpprinneligeAktivitetskravPerioder);
-        aggregat.getSaksbehandledeAktivitetskravPerioder().ifPresent(grunnlag::setSaksbehandledeAktivitetskravPerioder);
         Optional.ofNullable(aggregat.getOverstyrtOmsorg()).ifPresent(grunnlag::setOverstyrtOmsorg);
-        Optional.ofNullable(aggregat.getMigrertDokumentasjonsPerioder()).ifPresent(grunnlag::setMigrertDokumentasjonsPerioder);
         return grunnlag;
-    }
-
-    private void lagrePerioderUttakDokumentasjon(YtelseFordelingGrunnlagEntitet grunnlag) {
-        if (grunnlag.getPerioderUttakDokumentasjon() != null) {
-            entityManager.persist(grunnlag.getPerioderUttakDokumentasjon());
-            for (var periode : grunnlag.getPerioderUttakDokumentasjon().getPerioder()) {
-                entityManager.persist(periode);
-            }
-        }
-    }
-
-    private void lagrePerioderAktivitetskrav(AktivitetskravPerioderEntitet perioder) {
-        if (perioder != null) {
-            entityManager.persist(perioder);
-            for (var periode : perioder.getPerioder()) {
-                entityManager.persist(periode);
-            }
-        }
     }
 
     private void lagrePeriode(List<OppgittPeriodeEntitet> perioder) {
@@ -184,11 +152,6 @@ public class YtelsesFordelingRepository {
                 .medAvklarteDatoer(null)
                 .medJustertFordeling(null)
                 .medOverstyrtFordeling(null);
-            if (!erBerørtBehandling(nyBehandling)) {
-                yfBuilder.medPerioderUttakDokumentasjon(null);
-            }
-            ytelseFordelingAggregat.getGjeldendeAktivitetskravPerioder()
-                .ifPresent(akp -> yfBuilder.medOpprinneligeAktivitetskravPerioder(akp).medSaksbehandledeAktivitetskravPerioder(null));
             lagreOgFlush(nyBehandling.getId(), yfBuilder.build());
         });
     }

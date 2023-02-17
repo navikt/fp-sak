@@ -9,7 +9,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon.UTEN_SKJERMLENKE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon.UTEN_VILKÅR;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon.UTVID_BEHFRIST;
-import static no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType.FAKTA_OM_AKTIVITETSKRAV;
 import static no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.YtelseType.ES;
 import static no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.YtelseType.FP;
 import static no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.YtelseType.SVP;
@@ -211,15 +210,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktKodeDefinisjon.AUTOMATISK_MARKERING_AV_UTENLANDSSAK_KODE, AksjonspunktType.MANUELL,
             "Innhent dokumentasjon fra utenlandsk trygdemyndighet",
             BehandlingStegType.VURDER_KOMPLETTHET, VurderingspunktType.INN, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
-    AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER(AksjonspunktKodeDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER_KODE,
-            AksjonspunktType.MANUELL, "Kontrollerer søknadsperioder", BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.INN, UTEN_VILKÅR,
-            SkjermlenkeType.FAKTA_OM_UTTAK, ENTRINN, EnumSet.of(FP)),
-    AVKLAR_FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET(AksjonspunktKodeDefinisjon.AVKLAR_FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET_KODE,
-        AksjonspunktType.MANUELL, "Gradering i søknadsperiode er lagt på ukjent aktivitet", BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.INN, UTEN_VILKÅR,
-        SkjermlenkeType.FAKTA_OM_UTTAK, ENTRINN, EnumSet.of(FP)),
-    AVKLAR_FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG(AksjonspunktKodeDefinisjon.AVKLAR_FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG_KODE,
-        AksjonspunktType.MANUELL, "Gradering i søknadsperiode er lagt på aktivitet uten beregningsgrunnlag", BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.INN, UTEN_VILKÅR,
-        SkjermlenkeType.FAKTA_OM_UTTAK, ENTRINN, EnumSet.of(FP)),
     FAKTA_UTTAK_INGEN_PERIODER(AksjonspunktKodeDefinisjon.FAKTA_UTTAK_INGEN_PERIODER_KODE,
         AksjonspunktType.MANUELL, "Ingen perioder å vurdere. Vurder om behandlingen er feilopprettet og kan henlegges", BehandlingStegType.FAKTA_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR,
         SkjermlenkeType.FAKTA_UTTAK, TOTRINN, EnumSet.of(FP)),
@@ -258,9 +248,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING(AksjonspunktKodeDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING_KODE,
         AksjonspunktType.MANUELL, "Avklar mangler rundt arbeidsforhold og inntektsmelding", BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING, VurderingspunktType.UT, UTEN_VILKÅR,
         SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_INNTEKTSMELDING, ENTRINN, EnumSet.of(FP, SVP)),
-    AVKLAR_FØRSTE_UTTAKSDATO(AksjonspunktKodeDefinisjon.AVKLAR_FØRSTE_UTTAKSDATO_KODE,
-            AksjonspunktType.MANUELL, "Avklar første uttaksdato", BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.INN, UTEN_VILKÅR,
-            SkjermlenkeType.FAKTA_OM_UTTAK, ENTRINN, EnumSet.of(FP, SVP)),
     VURDERING_AV_FORMKRAV_KLAGE_NFP(
             AksjonspunktKodeDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP_KODE, AksjonspunktType.MANUELL, "Vurder formkrav (NFP).",
             BehandlingStegType.KLAGE_VURDER_FORMKRAV_NFP, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FORMKRAV_KLAGE_NFP, ENTRINN, EnumSet.of(ES, FP, SVP)),
@@ -294,9 +281,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER(
             AksjonspunktKodeDefinisjon.REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER_KODE, AksjonspunktType.MANUELL, "Registrer papirsøknad svangerskapspenger",
             BehandlingStegType.REGISTRER_SØKNAD, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
-    KONTROLLER_AKTIVITETSKRAV(
-        AksjonspunktKodeDefinisjon.KONTROLLER_AKTIVITETSKRAV, AksjonspunktType.MANUELL, "Kontroller aktivitetskrav",
-        BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.UT, UTEN_VILKÅR, FAKTA_OM_AKTIVITETSKRAV, TOTRINN, EnumSet.of(FP)),
     VURDER_UTTAK_DOKUMENTASJON(
         AksjonspunktKodeDefinisjon.VURDER_UTTAK_DOKUMENTASJON_KODE, AksjonspunktType.MANUELL, "Vurder dokumentasjon",
         BehandlingStegType.FAKTA_UTTAK_DOKUMENTASJON, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON, TOTRINN, EnumSet.of(FP)),
@@ -335,9 +319,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET_LØPENDE(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET_LØPENDE_KODE, AksjonspunktType.OVERSTYRING,
             "Overstyring av løpende medlemskapsvilkåret", BehandlingStegType.VULOMED, VurderingspunktType.UT,
             VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, SkjermlenkeType.PUNKT_FOR_MEDLEMSKAP_LØPENDE, TOTRINN, EnumSet.of(FP)),
-    OVERSTYRING_AV_FAKTA_UTTAK(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_FAKTA_UTTAK_KODE, AksjonspunktType.OVERSTYRING,
-            "Overstyr søknadsperioder", BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.INN,
-            UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
     OVERSTYRING_FAKTA_UTTAK(AksjonspunktKodeDefinisjon.OVERSTYRING_FAKTA_UTTAK_KODE, AksjonspunktType.OVERSTYRING,
         "Overstyr fakta om uttak", BehandlingStegType.FAKTA_UTTAK, VurderingspunktType.UT,
         UTEN_VILKÅR, SkjermlenkeType.FAKTA_UTTAK, TOTRINN, EnumSet.of(FP)),
@@ -351,9 +332,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             TOTRINN, EnumSet.of(ES, FP, SVP)),
     MANUELL_MARKERING_AV_UTLAND_SAKSTYPE(AksjonspunktKodeDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE_KODE, AksjonspunktType.MANUELL, "Manuell markering av utenlandssak",
             BehandlingStegType.FORESLÅ_VEDTAK, VurderingspunktType.INN, UTEN_VILKÅR, SkjermlenkeType.UTLAND, ENTRINN, EnumSet.of(ES, FP, SVP)),
-    AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING(AksjonspunktKodeDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING_KODE, AksjonspunktType.SAKSBEHANDLEROVERSTYRING,
-            "Saksbehandler endret søknadsperioder uten aksjonspunkt", BehandlingStegType.KONTROLLER_AKTIVITETSKRAV, VurderingspunktType.INN, UTEN_VILKÅR,
-            SkjermlenkeType.FAKTA_OM_UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
 
     // Gruppe : 700
 
@@ -406,6 +384,21 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     UNDEFINED,
 
     // Utgåtte aksjonspunktkoder - kun her for bakoverkompatibilitet. Finnes historisk i databasen til fpsak i PROD !
+    @Deprecated
+    _5070("5070", AksjonspunktType.MANUELL, "Kontrollerer søknadsperioder"),
+    @Deprecated
+    _5099("5099", AksjonspunktType.MANUELL, "Kontroller aktivitetskrav"),
+    @Deprecated
+    _6013("6013", AksjonspunktType.OVERSTYRING, "Overstyr søknadsperioder"),
+    @Deprecated
+    _6070("6070", AksjonspunktType.OVERSTYRING, "Saksbehandler endret søknadsperioder uten aksjonspunkt"),
+    @Deprecated
+    _5081("5081", AksjonspunktType.MANUELL, "Avklar første uttaksdato"),
+    @Deprecated
+    _5097("5097", AksjonspunktType.MANUELL, "Gradering i søknadsperiode er lagt på ukjent aktivitet"),
+    @Deprecated
+    _5098("5098", AksjonspunktType.MANUELL, "Gradering i søknadsperiode er lagt på aktivitet uten beregningsgrunnlag"),
+
     @Deprecated
     _5009("5009", AksjonspunktType.MANUELL, "Avklar tilleggsopplysninger"),
     @Deprecated

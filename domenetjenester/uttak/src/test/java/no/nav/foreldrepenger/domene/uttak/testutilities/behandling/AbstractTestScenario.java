@@ -15,8 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
@@ -64,8 +62,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private Set<BehandlingÅrsakType> behandlingÅrsaker;
     private Boolean overstyrtOmsorg;
     private UttakResultatPerioderEntitet uttak;
-    private AktivitetskravPerioderEntitet opprinneligeAktivitetskravPerioder;
-    private AktivitetskravPerioderEntitet saksbehandledeAktivitetskravPerioder;
 
     protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle, AktørId aktørId) {
         fagsak = Fagsak.opprettNy(fagsakYtelseType, NavBruker.opprettNy(aktørId, Språkkode.NB), brukerRolle,
@@ -154,8 +150,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private void lagreYtelseFordeling(UttakRepositoryProvider repositoryProvider, Behandling behandling) {
         if (oppgittRettighet == null && oppgittDekningsgrad == null && oppgittFordeling == null && overstyrtRettighet == null
-            && avklarteUttakDatoer == null && opprinneligeAktivitetskravPerioder == null && justertFordeling == null
-            && saksbehandledeAktivitetskravPerioder == null && overstyrtOmsorg == null) {
+            && avklarteUttakDatoer == null && justertFordeling == null && overstyrtOmsorg == null) {
             return;
         }
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
@@ -167,8 +162,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             .medJustertFordeling(justertFordeling)
             .medAvklarteDatoer(avklarteUttakDatoer)
             .medOverstyrtOmsorg(overstyrtOmsorg)
-            .medOpprinneligeAktivitetskravPerioder(opprinneligeAktivitetskravPerioder)
-            .medSaksbehandledeAktivitetskravPerioder(saksbehandledeAktivitetskravPerioder)
             ;
         ytelsesFordelingRepository.lagre(behandling.getId(), yf.build());
     }
@@ -293,22 +286,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     public InntektArbeidYtelseScenario.InntektArbeidYtelseScenarioTestBuilder getInntektArbeidYtelseScenarioTestBuilder() {
         return getIayScenario().getInntektArbeidYtelseScenarioTestBuilder();
-    }
-
-    public S medAktivitetskravPerioder(List<AktivitetskravPeriodeEntitet> perioder) {
-        this.opprinneligeAktivitetskravPerioder = new AktivitetskravPerioderEntitet();
-        for (var p : perioder) {
-            this.opprinneligeAktivitetskravPerioder.leggTil(p);
-        }
-        return (S) this;
-    }
-
-    public S medSaksbehandledeAktivitetskravPerioder(List<AktivitetskravPeriodeEntitet> perioder) {
-        this.saksbehandledeAktivitetskravPerioder = new AktivitetskravPerioderEntitet();
-        for (var p : perioder) {
-            this.saksbehandledeAktivitetskravPerioder.leggTil(p);
-        }
-        return (S) this;
     }
 
     interface LagreInntektArbeidYtelse {

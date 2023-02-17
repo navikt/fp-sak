@@ -10,8 +10,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -62,8 +60,7 @@ public class YtelseFordelingTjeneste {
     }
 
     public void overstyrSøknadsperioder(Long behandlingId,
-                                        List<OppgittPeriodeEntitet> overstyrteSøknadsperioder,
-                                        List<PeriodeUttakDokumentasjonEntitet> dokumentasjonsperioder) {
+                                        List<OppgittPeriodeEntitet> overstyrteSøknadsperioder) {
         validerOverlapp(overstyrteSøknadsperioder);
         var oppgittFordeling = ytelsesFordelingRepository.hentAggregat(behandlingId).getOppgittFordeling();
         var erAnnenForelderInformert = oppgittFordeling.getErAnnenForelderInformert();
@@ -71,18 +68,8 @@ public class YtelseFordelingTjeneste {
         var overstyrtFordeling = new OppgittFordelingEntitet(overstyrteSøknadsperioder, erAnnenForelderInformert, ønskerJustertVedFødsel);
 
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
-            .medOverstyrtFordeling(overstyrtFordeling)
-            .medPerioderUttakDokumentasjon(map(dokumentasjonsperioder));
+            .medOverstyrtFordeling(overstyrtFordeling);
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
-    }
-
-    private PerioderUttakDokumentasjonEntitet map(List<PeriodeUttakDokumentasjonEntitet> dokumentasjonsperioder) {
-        if (dokumentasjonsperioder.isEmpty()) {
-            return null;
-        }
-        var perioderUttakDokumentasjon = new PerioderUttakDokumentasjonEntitet();
-        dokumentasjonsperioder.forEach(perioderUttakDokumentasjon::leggTil);
-        return perioderUttakDokumentasjon;
     }
 
     private void validerOverlapp(List<OppgittPeriodeEntitet> perioder) {

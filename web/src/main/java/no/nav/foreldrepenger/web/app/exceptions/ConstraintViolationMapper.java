@@ -38,13 +38,7 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
         var aksjonspunktKoder = finnAksjonspunktKoder(exception);
         //De fleste innkommende dto er klyttet til et aksjonspunkt
         var constraints = constraints(exception);
-        var msg = "Det oppstod en valideringsfeil: Aksjonspunkt {} {}";
-        //TODO TFP-4873 fjerne spesialbehandlingen her etter nytt fakta om uttak er i prod
-        if (constraints.stream().allMatch(c -> c.contains("SlettetUttakPeriodeDto.begrunnelse - must not be null"))) {
-            LOG.info(msg, aksjonspunktKoder, constraints);
-        } else {
-            LOG.warn(msg, aksjonspunktKoder, constraints);
-        }
+        LOG.warn("Det oppstod en valideringsfeil: Aksjonspunkt {} {}", aksjonspunktKoder, constraints);
     }
 
     private static Response lagResponse(ConstraintViolationException exception) {

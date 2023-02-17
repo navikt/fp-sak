@@ -173,12 +173,6 @@ public class UttakYrkesaktiviteter {
         }
     }
 
-    private List<AktivitetsAvtale> sortertPåDato(Collection<AktivitetsAvtale> aktivitetsAvtaler) {
-        return aktivitetsAvtaler.stream()
-            .sorted(Comparator.comparing(aktivitetsAvtale -> aktivitetsAvtale.getPeriode().getFomDato()))
-            .collect(Collectors.toList());
-    }
-
     private List<AktivitetsAvtale> ansettelsePeriodeForYrkesaktivitet(YrkesaktivitetFilter filter, Yrkesaktivitet ya) {
         var ansettelsesPerioder = filter.getAnsettelsesPerioder(ya);
         if (ansettelsesPerioder.isEmpty()) {

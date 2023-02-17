@@ -1,17 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.ALENEOMSORG_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.BARE_SØKER_RETT_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.HV_OVELSE_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_ANNEN_FORELDER_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_BARN_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.INNLEGGELSE_SØKER_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.MORS_AKTIVITET_IKKE_DOKUMENTERT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.MORS_AKTIVITET_IKKE_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.NAV_TILTAK_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.SYKDOM_ANNEN_FORELDER_GODKJENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering.SYKDOM_SØKER_GODKJENT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType.FRILANS;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE;
 import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.map;
@@ -26,16 +14,10 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
@@ -51,9 +33,6 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.SamtidigUtta
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Søknad;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Søknadstype;
-import no.nav.fpsak.tidsserie.LocalDateSegment;
-import no.nav.fpsak.tidsserie.LocalDateTimeline;
-import no.nav.fpsak.tidsserie.LocalDateTimeline.JoinStyle;
 
 @ApplicationScoped
 public class SøknadGrunnlagBygger {
@@ -79,80 +58,12 @@ public class SøknadGrunnlagBygger {
     }
 
     private List<OppgittPeriode> oppgittePerioder(UttakInput input, YtelseFordelingAggregat ytelseFordelingAggregat) {
-        var oppgittePerioder = input.isSkalBrukeNyFaktaOmUttak() ? ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder()
-            : splitPåDokumentasjon(ytelseFordelingAggregat, input.getBehandlingReferanse().relasjonRolle());
+        var oppgittePerioder =  ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder();
         validerIkkeOverlappOppgittePerioder(oppgittePerioder);
 
         return oppgittePerioder.stream()
             .map(op -> byggOppgittperiode(op, new UttakYrkesaktiviteter(input).tilAktivitetIdentifikatorer()))
             .collect(Collectors.toList());
-    }
-
-    private List<OppgittPeriodeEntitet> splitPåDokumentasjon(YtelseFordelingAggregat ytelseFordelingAggregat, RelasjonsRolleType relasjonsRolleType) {
-        var gjeldendePerioder = ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder();
-        var opTimeline = new LocalDateTimeline<>(gjeldendePerioder.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), p)).toList());
-        var dokPerioder = ytelseFordelingAggregat.getPerioderUttakDokumentasjon().map(d -> d.getPerioder()).orElse(List.of());
-        var dokTimeline = new LocalDateTimeline<>(
-            dokPerioder.stream().map(dp -> new LocalDateSegment<>(dp.getPeriode().getFomDato(), dp.getPeriode().getTomDato(), dp)).toList());
-        var aktKravPerioder = ytelseFordelingAggregat.getGjeldendeAktivitetskravPerioder().map(d -> d.getPerioder()).orElse(List.of());
-        var aktKravTimeline = new LocalDateTimeline<>(aktKravPerioder.stream()
-            .map(akp -> new LocalDateSegment<>(akp.getTidsperiode().getFomDato(), akp.getTidsperiode().getTomDato(), akp)).toList());
-
-        return opTimeline.combine(dokTimeline, (interval, op, dok) -> {
-            var dokumentasjonVurdering = dok == null ? null : utledDokumentasjonVurdering(dok.getValue());
-            var nyOp = OppgittPeriodeBuilder.fraEksisterende(op.getValue())
-                .medPeriode(interval.getFomDato(), interval.getTomDato())
-                .medDokumentasjonVurdering(dokumentasjonVurdering)
-                .build();
-            return new LocalDateSegment<>(interval, nyOp);
-        }, JoinStyle.LEFT_JOIN).combine(aktKravTimeline, (interval, op, aktkravDok) -> {
-            var eksisterendeDokVurdering = op.getValue().getDokumentasjonVurdering();
-            var dokumentasjonVurdering = eksisterendeDokVurdering != null || aktkravDok == null ? eksisterendeDokVurdering : utledDokumentasjonVurdering(aktkravDok.getValue());
-            var nyOp = OppgittPeriodeBuilder.fraEksisterende(op.getValue())
-                .medPeriode(interval.getFomDato(), interval.getTomDato())
-                .medDokumentasjonVurdering(dokumentasjonVurdering)
-                .build();
-            return new LocalDateSegment<>(interval, nyOp);
-        }, JoinStyle.LEFT_JOIN).toSegments().stream()
-            .map(s -> {
-                var op = s.getValue();
-                if (RelasjonsRolleType.erFarEllerMedmor(relasjonsRolleType) && op.getDokumentasjonVurdering() == null
-                    && tidligOppstartFedrekvoteAvklart(op)) {
-                    return OppgittPeriodeBuilder.fraEksisterende(op)
-                        .medDokumentasjonVurdering(DokumentasjonVurdering.TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT)
-                        .build();
-                }
-                return op;
-            })
-            .toList();
-    }
-
-    private boolean tidligOppstartFedrekvoteAvklart(OppgittPeriodeEntitet op) {
-        return op.getPeriodeType().equals(UttakPeriodeType.FEDREKVOTE)
-            && Set.of(UttakPeriodeVurderingType.PERIODE_OK, UttakPeriodeVurderingType.PERIODE_OK_ENDRET).contains(op.getPeriodeVurderingType());
-    }
-
-    private DokumentasjonVurdering utledDokumentasjonVurdering(AktivitetskravPeriodeEntitet aktKravPeriode) {
-        return switch (aktKravPeriode.getAvklaring()) {
-            case I_AKTIVITET -> MORS_AKTIVITET_GODKJENT;
-            case IKKE_I_AKTIVITET_IKKE_DOKUMENTERT -> MORS_AKTIVITET_IKKE_DOKUMENTERT;
-            case IKKE_I_AKTIVITET_DOKUMENTERT -> MORS_AKTIVITET_IKKE_GODKJENT;
-        };
-    }
-
-    private DokumentasjonVurdering utledDokumentasjonVurdering(PeriodeUttakDokumentasjonEntitet dok) {
-        return switch (dok.getDokumentasjonType()) {
-            case SYK_SØKER -> SYKDOM_SØKER_GODKJENT;
-            case INNLAGT_SØKER -> INNLEGGELSE_SØKER_GODKJENT;
-            case INNLAGT_BARN -> INNLEGGELSE_BARN_GODKJENT;
-            case INSTITUSJONSOPPHOLD_ANNEN_FORELDRE -> INNLEGGELSE_ANNEN_FORELDER_GODKJENT;
-            case SYKDOM_ANNEN_FORELDER -> SYKDOM_ANNEN_FORELDER_GODKJENT;
-            case IKKE_RETT_ANNEN_FORELDER -> BARE_SØKER_RETT_GODKJENT;
-            case ALENEOMSORG_OVERFØRING -> ALENEOMSORG_GODKJENT;
-            case HV_OVELSE -> HV_OVELSE_GODKJENT;
-            case NAV_TILTAK -> NAV_TILTAK_GODKJENT;
-            default -> throw new IllegalArgumentException("Ikke gyldig doktype " + dok.getDokumentasjonType());
-        };
     }
 
     private OppgittPeriode byggOppgittperiode(OppgittPeriodeEntitet oppgittPeriode,

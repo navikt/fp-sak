@@ -9,9 +9,6 @@ import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
@@ -42,8 +39,6 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregningT
 
 @ApplicationScoped
 public class StønadskontoSaldoTjeneste {
-
-    private static final Logger LOG = LoggerFactory.getLogger(StønadskontoSaldoTjeneste.class);
 
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private FpUttakRepository fpUttakRepository;

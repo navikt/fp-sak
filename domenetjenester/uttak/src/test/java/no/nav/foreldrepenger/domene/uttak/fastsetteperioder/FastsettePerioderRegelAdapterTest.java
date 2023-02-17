@@ -23,9 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
@@ -288,8 +286,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medFamilieHendelser(familieHendelser)
             .medOriginalBehandling(originalBehandling);
         return new UttakInput(ref, iayTjeneste.hentGrunnlag(behandling.getId()), ytelsespesifiktGrunnlag)
-            .medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser())
-            .medSøknadMottattDato(familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato().minusWeeks(4));
+            .medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser());
     }
 
     @Test
@@ -770,20 +767,16 @@ public class FastsettePerioderRegelAdapterTest {
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
             morFpffFørstegangs.getFom()).medOpprinneligEndringsdato(morUtsettelseRevurdering.getFom()).build();
         var behandlingId = morBehandlingRevurdering.getId();
-        var dokumentasjon = new PerioderUttakDokumentasjonEntitet();
-        dokumentasjon.leggTil(
-            new PeriodeUttakDokumentasjonEntitet(morUtsettelseRevurdering.getFom(), morUtsettelseRevurdering.getTom(),
-                UttakDokumentasjonType.SYK_SØKER));
         var morUtsettelseRevurderingOverstyrt = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medÅrsak(UtsettelseÅrsak.SYKDOM)
             .medPeriode(morUtsettelseFørstegangs.getFom(), morUtsettelseFørstegangs.getTom())
+            .medDokumentasjonVurdering(DokumentasjonVurdering.SYKDOM_SØKER_GODKJENT)
             .build();
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medAvklarteDatoer(avklarteUttakDatoer)
-            .medOverstyrtFordeling(new OppgittFordelingEntitet(List.of(morUtsettelseRevurderingOverstyrt), true))
-            .medPerioderUttakDokumentasjon(dokumentasjon);
+            .medOverstyrtFordeling(new OppgittFordelingEntitet(List.of(morUtsettelseRevurderingOverstyrt), true));
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
 
         var andelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
@@ -799,8 +792,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medAnnenpart(new Annenpart(farBehandling.getId(), fødselsdato.atStartOfDay()))
             .medOriginalBehandling(new OriginalBehandling(morBehandling.getId(), null));
         var input = new UttakInput(ref, tomIay(), ytelsespesifiktGrunnlag)
-            .medBeregningsgrunnlagStatuser(andelTjeneste.hentStatuser())
-            .medSøknadMottattDato(familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato().minusWeeks(4));
+            .medBeregningsgrunnlagStatuser(andelTjeneste.hentStatuser());
         var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
 
         assertThat(resultat.getPerioder()).hasSize(1);

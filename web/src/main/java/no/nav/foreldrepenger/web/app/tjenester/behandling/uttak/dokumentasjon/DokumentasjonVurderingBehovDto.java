@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import javax.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
-import no.nav.foreldrepenger.domene.uttak.fakta.v2.DokumentasjonVurderingBehov;
+import no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov;
 
 public record DokumentasjonVurderingBehovDto(@NotNull LocalDate fom,
                                              @NotNull LocalDate tom,

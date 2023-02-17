@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Objects;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Objects;
 
 public class OppgittPeriodeBuilder {
     private final OppgittPeriodeEntitet kladd;
@@ -31,7 +31,6 @@ public class OppgittPeriodeBuilder {
                 .medFlerbarnsdager(oppgittPeriode.isFlerbarnsdager())
                 .medArbeidsgiver(oppgittPeriode.getArbeidsgiver())
                 .medGraderingAktivitetType(oppgittPeriode.getGraderingAktivitetType())
-                .medVurdering(oppgittPeriode.getPeriodeVurderingType())
                 .medMottattDato(oppgittPeriode.getMottattDato())
                 .medTidligstMottattDato(oppgittPeriode.getTidligstMottattDato().orElse(null))
                 .medDokumentasjonVurdering(oppgittPeriode.getDokumentasjonVurdering())
@@ -84,11 +83,6 @@ public class OppgittPeriodeBuilder {
 
     public OppgittPeriodeBuilder medGraderingAktivitetType(GraderingAktivitetType type) {
         kladd.setGraderingAktivitetType(type);
-        return this;
-    }
-
-    public OppgittPeriodeBuilder medVurdering(UttakPeriodeVurderingType vurdering) {
-        kladd.setPeriodeVurderingType(vurdering);
         return this;
     }
 
