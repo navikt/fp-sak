@@ -21,7 +21,7 @@ public enum GraderingAvslagÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
             "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-16,21-3\"}}}"),
     MOR_OPPFYLLER_IKKE_AKTIVITETSKRAV("4503", "§14-16 fjerde ledd: Avslag gradering – ikke rett til gradert uttak pga. redusert oppfylt aktivitetskrav på mor",
             "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-16\"}}}"),
-    AVSLAG_PGA_100_PROSENT_ARBEID("4523", "Avslag gradering - arbeid 100% eller mer", null),
+    AVSLAG_PGA_100_PROSENT_ARBEID("4523", "§14-16 første ledd: Avslag gradering - arbeid 100% eller mer", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-16\"}}}"),
     ;
 
     private static final Map<String, GraderingAvslagÅrsak> KODER = new LinkedHashMap<>();
