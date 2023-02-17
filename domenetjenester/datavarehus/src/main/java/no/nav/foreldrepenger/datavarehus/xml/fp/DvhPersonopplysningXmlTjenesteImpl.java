@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.DokumentasjonPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.xml.DvhPersonopplysningXmlTjeneste;
 import no.nav.foreldrepenger.datavarehus.xml.PersonopplysningXmlFelles;
@@ -44,6 +45,7 @@ import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelse;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.Addresse;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.Adopsjon;
@@ -71,6 +73,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private VirksomhetTjeneste virksomhetTjeneste;
     private PersonopplysningXmlFelles personopplysningFellesTjeneste;
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
 
     public DvhPersonopplysningXmlTjenesteImpl() {
         // CDI
@@ -84,7 +87,8 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
                                               VirksomhetTjeneste virksomhetTjeneste,
                                               PersonopplysningTjeneste personopplysningTjeneste,
                                               InntektArbeidYtelseTjeneste iayTjeneste,
-                                              YtelseFordelingTjeneste ytelseFordelingTjeneste) {
+                                              YtelseFordelingTjeneste ytelseFordelingTjeneste,
+                                              ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
         super(personopplysningTjeneste);
         this.personopplysningFellesTjeneste = fellesTjeneste;
         this.iayTjeneste = iayTjeneste;
@@ -93,6 +97,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
         this.medlemskapRepository = medlemskapRepository;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.virksomhetTjeneste = virksomhetTjeneste;
+        this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
     }
 
     @Override
@@ -266,10 +271,25 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
         var dokumentasjonsperioder = personopplysningDvhObjectFactory
             .createPersonopplysningerDvhForeldrepengerDokumentasjonsperioder();
 
+        foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandlingId).ifPresent(uttak -> {
+            var perioder = uttak.getGjeldendePerioder()
+                .stream()
+                .filter(p -> p.getDokumentasjonVurdering().isPresent())
+                .collect(Collectors.toSet());
+            for (var periode : perioder) {
+                var uttakDokumentasjonType = mapTilDokType(periode.getDokumentasjonVurdering().orElseThrow());
+                //Bryr seg bare om perioder der dok er godkjent
+                if (uttakDokumentasjonType != null) {
+                    var dokPeriode = personopplysningDvhObjectFactory.createDokumentasjonPeriode();
+                    dokPeriode.setDokumentasjontype(VedtakXmlUtil.lagKodeverksOpplysning(uttakDokumentasjonType));
+                    dokPeriode.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periode.getFom(), periode.getTom()));
+                    dokumentasjonsperioder.getDokumentasjonperiode().add(dokPeriode);
+                }
+            }
+        });
+
         ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId).ifPresent(aggregat -> {
             leggTilPerioderMedAleneomsorg(aggregat, dokumentasjonsperioder);
-            aggregat.getPerioderUttakDokumentasjon().ifPresent(
-                uttakDokumentasjon -> dokumentasjonsperioder.getDokumentasjonperiode().addAll(lagDokumentasjonPerioder(uttakDokumentasjon.getPerioder())));
             if (!aggregat.harOmsorg()) {
                 var dokumentasjonPeriode = personopplysningDvhObjectFactory.createDokumentasjonPeriode();
                 dokumentasjonPeriode.setDokumentasjontype(VedtakXmlUtil.lagKodeverksOpplysning(UttakDokumentasjonType.UTEN_OMSORG));
@@ -286,6 +306,24 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
             }
             personopplysninger.setDokumentasjonsperioder(dokumentasjonsperioder);
         });
+    }
+
+    static UttakDokumentasjonType mapTilDokType(DokumentasjonVurdering dokumentasjonVurdering) {
+        return switch (dokumentasjonVurdering) {
+            case SYKDOM_SØKER_GODKJENT -> UttakDokumentasjonType.SYK_SØKER;
+            case INNLEGGELSE_SØKER_GODKJENT -> UttakDokumentasjonType.INNLAGT_SØKER;
+            case INNLEGGELSE_BARN_GODKJENT -> UttakDokumentasjonType.INNLAGT_BARN;
+            case HV_OVELSE_GODKJENT -> UttakDokumentasjonType.HV_OVELSE;
+            case NAV_TILTAK_GODKJENT -> UttakDokumentasjonType.NAV_TILTAK;
+            case INNLEGGELSE_ANNEN_FORELDER_GODKJENT -> UttakDokumentasjonType.INSTITUSJONSOPPHOLD_ANNEN_FORELDRE;
+            case SYKDOM_ANNEN_FORELDER_GODKJENT -> UttakDokumentasjonType.SYKDOM_ANNEN_FORELDER;
+            case ALENEOMSORG_GODKJENT -> UttakDokumentasjonType.ALENEOMSORG_OVERFØRING;
+            case BARE_SØKER_RETT_GODKJENT -> UttakDokumentasjonType.IKKE_RETT_ANNEN_FORELDER;
+            case SYKDOM_SØKER_IKKE_GODKJENT, INNLEGGELSE_SØKER_IKKE_GODKJENT, BARE_SØKER_RETT_IKKE_GODKJENT, ALENEOMSORG_IKKE_GODKJENT,
+                SYKDOM_ANNEN_FORELDER_IKKE_GODKJENT, INNLEGGELSE_ANNEN_FORELDER_IKKE_GODKJENT, TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT,
+                TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT, MORS_AKTIVITET_IKKE_DOKUMENTERT, MORS_AKTIVITET_IKKE_GODKJENT, MORS_AKTIVITET_GODKJENT,
+                NAV_TILTAK_IKKE_GODKJENT, HV_OVELSE_IKKE_GODKJENT, INNLEGGELSE_BARN_IKKE_GODKJENT -> null;
+        };
     }
 
     private void leggTilPerioderMedAleneomsorg(YtelseFordelingAggregat aggregat,

@@ -104,6 +104,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.HentOppdragMedPositivKvittering;
@@ -164,6 +165,9 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
     @Inject
     private MedlemskapRepository medlemskapRepository;
 
+    @Inject
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
+
     private VirksomhetTjeneste virksomhetTjeneste;
 
     @BeforeEach
@@ -177,14 +181,8 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
         virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste);
 
-        var dvhPersonopplysningXmlTjenesteImpl = new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles,
-                familieHendelseRepository,
-                vergeRepository,
-                medlemskapRepository,
-                virksomhetTjeneste,
-                personopplysningTjeneste,
-                iayTjeneste,
-                ytelseFordelingTjeneste);
+        var dvhPersonopplysningXmlTjenesteImpl = new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles, familieHendelseRepository, vergeRepository,
+            medlemskapRepository, virksomhetTjeneste, personopplysningTjeneste, iayTjeneste, ytelseFordelingTjeneste, foreldrepengerUttakTjeneste);
 
         var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
         var oppdragXmlTjenesteImpl = new OppdragXmlTjenesteImpl(hentOppdragMedPositivKvittering);
