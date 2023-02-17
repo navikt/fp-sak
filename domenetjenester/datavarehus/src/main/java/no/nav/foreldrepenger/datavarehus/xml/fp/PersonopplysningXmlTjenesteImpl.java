@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.datavarehus.xml.fp;
 
+import static no.nav.foreldrepenger.datavarehus.xml.fp.DvhPersonopplysningXmlTjenesteImpl.mapTilDokType;
 import static no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil.harAleneomsorg;
 
 import java.time.LocalDate;
@@ -44,6 +45,7 @@ import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelse;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Addresse;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Adopsjon;
@@ -71,6 +73,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private VirksomhetTjeneste virksomhetTjeneste;
     private PersonopplysningXmlFelles personopplysningFellesTjeneste;
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
 
     public PersonopplysningXmlTjenesteImpl() {
         // For CDI
@@ -83,7 +86,8 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
                                            InntektArbeidYtelseTjeneste iayTjeneste,
                                            YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                            VergeRepository vergeRepository,
-                                           VirksomhetTjeneste virksomhetTjeneste) {
+                                           VirksomhetTjeneste virksomhetTjeneste,
+                                           ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
         super(personopplysningTjeneste);
         this.personopplysningFellesTjeneste = fellesTjeneste;
         this.iayTjeneste = iayTjeneste;
@@ -92,6 +96,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         this.medlemskapRepository = provider.getMedlemskapRepository();
         this.vergeRepository = vergeRepository;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
+        this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
     }
 
     @Override
@@ -238,10 +243,25 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         var dokumentasjonsperioder = personopplysningObjectFactory
             .createPersonopplysningerForeldrepengerDokumentasjonsperioder();
 
+        foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandlingId).ifPresent(uttak -> {
+            var perioder = uttak.getGjeldendePerioder()
+                .stream()
+                .filter(p -> p.getDokumentasjonVurdering().isPresent())
+                .collect(Collectors.toSet());
+            for (var periode : perioder) {
+                var uttakDokumentasjonType = mapTilDokType(periode.getDokumentasjonVurdering().orElseThrow());
+                //Bryr seg bare om perioder der dok er godkjent
+                if (uttakDokumentasjonType != null) {
+                    var dokPeriode = personopplysningObjectFactory.createDokumentasjonPeriode();
+                    dokPeriode.setDokumentasjontype(VedtakXmlUtil.lagKodeverksOpplysning(uttakDokumentasjonType));
+                    dokPeriode.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periode.getFom(), periode.getTom()));
+                    dokumentasjonsperioder.getDokumentasjonperiode().add(dokPeriode);
+                }
+            }
+        });
+
         ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId).ifPresent(aggregat -> {
             leggTilPerioderMedAleneomsorg(aggregat, dokumentasjonsperioder);
-            aggregat.getPerioderUttakDokumentasjon().ifPresent(
-                uttakDokumentasjon -> dokumentasjonsperioder.getDokumentasjonperiode().addAll(lagDokumentasjonPerioder(uttakDokumentasjon.getPerioder())));
             if (!aggregat.harOmsorg()) {
                 var dokumentasjonPeriode = personopplysningObjectFactory.createDokumentasjonPeriode();
                 dokumentasjonPeriode.setDokumentasjontype(VedtakXmlUtil.lagKodeverksOpplysning(UttakDokumentasjonType.UTEN_OMSORG));

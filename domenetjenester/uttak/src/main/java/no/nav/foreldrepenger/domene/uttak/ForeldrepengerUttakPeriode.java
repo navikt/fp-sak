@@ -3,8 +3,10 @@ package no.nav.foreldrepenger.domene.uttak;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
@@ -38,6 +40,7 @@ public class ForeldrepengerUttakPeriode {
     private LocalDate mottattDato;
     private MorsAktivitet morsAktivitet;
     private boolean erFraSøknad = true;
+    private DokumentasjonVurdering dokumentasjonVurdering;
 
     private ForeldrepengerUttakPeriode() {
 
@@ -212,6 +215,11 @@ public class ForeldrepengerUttakPeriode {
         return erFraSøknad;
     }
 
+    public Optional<DokumentasjonVurdering> getDokumentasjonVurdering() {
+        return Optional.ofNullable(dokumentasjonVurdering);
+    }
+
+
     @Override
     public String toString() {
         return "ForeldrepengerUttakPeriode{" +
@@ -233,6 +241,7 @@ public class ForeldrepengerUttakPeriode {
             ", mottattDato=" + mottattDato +
             ", morsAktivitet=" + morsAktivitet +
             ", erFraSøknad=" + erFraSøknad +
+            ", dokumentasjonVurdering=" + dokumentasjonVurdering +
             '}';
     }
 
@@ -345,6 +354,11 @@ public class ForeldrepengerUttakPeriode {
 
         public Builder medErFraSøknad(boolean erFraSøknad) {
             kladd.erFraSøknad = erFraSøknad;
+            return this;
+        }
+
+        public Builder medDokumentasjonVurdering(DokumentasjonVurdering dokumentasjonVurdering) {
+            kladd.dokumentasjonVurdering = dokumentasjonVurdering;
             return this;
         }
 
