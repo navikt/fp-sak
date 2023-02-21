@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.domene.vedtak.VedtakAksjonspunktData;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @ApplicationScoped
 public class FatterVedtakAksjonspunkt {
@@ -44,7 +44,7 @@ public class FatterVedtakAksjonspunkt {
 
     public void oppdater(Behandling behandling, Collection<VedtakAksjonspunktData> aksjonspunkter) {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandling.setAnsvarligBeslutter(SubjectHandler.getSubjectHandler().getUid());
+        behandling.setAnsvarligBeslutter(KontekstHolder.getKontekst().getUid());
 
         List<Totrinnsvurdering> totrinnsvurderinger = new ArrayList<>();
         List<Aksjonspunkt> skalReåpnes = new ArrayList<>();

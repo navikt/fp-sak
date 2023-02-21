@@ -24,12 +24,14 @@
         </dependency>
 
         <dependency>
-            <!-- TODO: fjern denne avhengigheten når felles-sikkerhet er delt opp. Trengs inntil videre for å spore bruker
-                ident (i BaseEntitet). bør refactoreres -->
-            <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
-            <artifactId>felles-sikkerhet</artifactId>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-kontekst</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>

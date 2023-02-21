@@ -49,7 +49,7 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @ApplicationScoped
 public class AksjonspunktTjeneste {
@@ -129,7 +129,7 @@ public class AksjonspunktTjeneste {
     }
 
     protected String getCurrentUserId() {
-        return SubjectHandler.getSubjectHandler().getUid();
+        return KontekstHolder.getKontekst().getUid();
     }
 
     private void spoolTilbakeTilTidligsteAksjonspunkt(Collection<? extends AksjonspunktKode> aksjonspunktDtoer,

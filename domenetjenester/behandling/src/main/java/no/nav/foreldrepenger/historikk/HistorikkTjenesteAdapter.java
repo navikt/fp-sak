@@ -7,8 +7,6 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.UriBuilder;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -27,8 +25,6 @@ import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDto;
  */
 @RequestScoped
 public class HistorikkTjenesteAdapter {
-
-    private static final String HENT_DOK_PATH = "/dokument/hent-dokument";
 
     private HistorikkRepository historikkRepository;
     private HistorikkInnslagTekstBuilder builder;
@@ -101,21 +97,4 @@ public class HistorikkTjenesteAdapter {
         builder = new HistorikkInnslagTekstBuilder();
     }
 
-    public URI getRequestPath(HttpServletRequest request) {
-        // FIXME XSS valider requestURL eller bruk relativ URL
-        if (request == null) {
-            return null;
-        }
-        var stringBuilder = new StringBuilder();
-
-        stringBuilder.append(request.getScheme())
-            .append("://")
-            .append(request.getLocalName())
-            .append(":") // NOSONAR
-            .append(request.getLocalPort());
-
-        stringBuilder.append(request.getContextPath())
-            .append(request.getServletPath());
-        return UriBuilder.fromUri(stringBuilder.toString()).path(HENT_DOK_PATH).build();
-    }
 }

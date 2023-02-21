@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
 
 /**
@@ -71,7 +71,7 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
             builder.medÅrsak(venteårsak);
         }
         var historikkinnslag = new Historikkinnslag();
-        var brukerident = SubjectHandler.getSubjectHandler().getUid();
+        var brukerident = KontekstHolder.getKontekst().getUid();
         // TODO - finn på noe helt annet enn å sjekke systembruker. Prøv heller å sjekke KontekstHolder når den er på plass
         historikkinnslag.setAktør(!Objects.equals(systembruker, brukerident) ? HistorikkAktør.SAKSBEHANDLER : HistorikkAktør.VEDTAKSLØSNINGEN);
         historikkinnslag.setType(historikkinnslagType);

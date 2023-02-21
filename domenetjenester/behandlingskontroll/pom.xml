@@ -16,11 +16,6 @@
 
 
 	<dependencies>
-		<dependency>
-            <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
-            <artifactId>felles-sikkerhet</artifactId>
-		</dependency>
-
         <dependency>
             <groupId>no.nav.vedtak.prosesstask</groupId>
             <artifactId>prosesstask</artifactId>

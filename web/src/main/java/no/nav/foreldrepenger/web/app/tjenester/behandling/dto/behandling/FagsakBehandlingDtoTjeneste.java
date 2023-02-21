@@ -46,7 +46,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.Totrinnskon
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 /**
  * Bygger et sammensatt resultat av FagsakBehandlingDto ved å samle data fra ulike tjenester, for å kunne levere dette ut på en REST tjeneste.
@@ -219,7 +219,7 @@ public class FagsakBehandlingDtoTjeneste {
         }
         if (BehandlingStatus.FATTER_VEDTAK.equals(b.getStatus())) {
             var tilgokjenning = b.getAnsvarligSaksbehandler() != null && !b.getAnsvarligSaksbehandler().equalsIgnoreCase(
-                SubjectHandler.getSubjectHandler().getUid());
+                KontekstHolder.getKontekst().getUid());
             return BehandlingOperasjonerDto.builder(b.getUuid()).medTilGodkjenning(tilgokjenning).build();
         }
         var kanÅpnesForEndring = b.erRevurdering() && !b.isBehandlingPåVent() &&

@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.web.app.util.LdapUtil;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @ApplicationScoped
 public class BehandlingsprosessTjeneste {
@@ -151,7 +151,7 @@ public class BehandlingsprosessTjeneste {
     }
 
     private boolean harRolleSaksbehandler() {
-        var ident = SubjectHandler.getSubjectHandler().getUid();
+        var ident = KontekstHolder.getKontekst().getUid();
         var ldapBruker = new LdapBrukeroppslag().hentBrukerinformasjon(ident);
         var grupper = LdapUtil.filtrerGrupper(ldapBruker.groups());
         return grupper.contains(gruppenavnSaksbehandler);
