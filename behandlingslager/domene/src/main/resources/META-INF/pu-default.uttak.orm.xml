@@ -56,11 +56,5 @@
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.DokumentasjonPeriodeEntitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.DokumentasjonPerioderEntitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPeriodeEntitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPerioderEntitet"/>
 
 </entity-mappings>

@@ -20,7 +20,6 @@ public class BekreftFaktaForOmsorgAksjonspunktTest {
     @Test
     public void skal_lagre_ned_bekreftet_aksjonspunkt_omsorg() {
         var behandling = opprettBehandling();
-        var iDag = LocalDate.now();
         // simulerer svar fra GUI
         ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandling.getId(), false);
 

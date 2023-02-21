@@ -10,8 +10,6 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
@@ -38,12 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøkn
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnRepository;
-import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 
@@ -56,10 +49,6 @@ class FaktaUttakPeriodeDtoTjenesteTest {
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    @Inject
-    private MedlemTjeneste medlemTjeneste;
-    @Inject
-    private BeregningUttakTjeneste beregningUttakTjeneste;
 
     @Test
     void skal_returnere_tom_liste_hvis_ingen_perioder() {
@@ -164,14 +153,8 @@ class FaktaUttakPeriodeDtoTjenesteTest {
     }
 
     private FaktaUttakPeriodeDtoTjeneste dtoTjeneste() {
-        var entityManager = repositoryProvider.getEntityManager();
-        var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider,
-            new HentOgLagreBeregningsgrunnlagTjeneste(entityManager), new AbakusInMemoryInntektArbeidYtelseTjeneste(),
-            skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste,
-            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository())
-            , new TotrinnTjeneste(new TotrinnRepository(entityManager)));
-        return new FaktaUttakPeriodeDtoTjeneste(uttakInputTjeneste, ytelseFordelingTjeneste, repositoryProvider.getBehandlingRepository(),
-            repositoryProvider.getFpUttakRepository());
+        return new FaktaUttakPeriodeDtoTjeneste(ytelseFordelingTjeneste, repositoryProvider.getBehandlingRepository(),
+            repositoryProvider.getFpUttakRepository(), skjæringstidspunktTjeneste);
     }
 
 }

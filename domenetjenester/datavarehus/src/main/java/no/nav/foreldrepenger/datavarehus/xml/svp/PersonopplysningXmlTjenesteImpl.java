@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.DokumentasjonPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.xml.PersonopplysningXmlFelles;
 import no.nav.foreldrepenger.datavarehus.xml.PersonopplysningXmlTjeneste;
@@ -40,7 +39,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.Addresse;
-import no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.DokumentasjonPeriode;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.FamilieHendelse;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.Inntekt;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.Inntektspost;
@@ -201,17 +199,6 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         domene.getUtbetalingsgradProsent().ifPresent(prosent -> kontrakt.setUtbetalingsgradprosent(VedtakXmlUtil.lagDecimalOpplysning(prosent.getVerdi())));
 
         return kontrakt;
-    }
-
-    private List<? extends DokumentasjonPeriode> lagDokumentasjonPerioder(List<? extends DokumentasjonPeriodeEntitet<?>> perioder) {
-        List<DokumentasjonPeriode> result = new ArrayList<>();
-        perioder.forEach(periode -> {
-            var dokumentasjonPeriode = personopplysningObjectFactory.createDokumentasjonPeriode();
-            dokumentasjonPeriode.setDokumentasjontype(VedtakXmlUtil.lagKodeverksOpplysning(periode.getDokumentasjonType()));
-            dokumentasjonPeriode.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periode.getPeriode().getFomDato(), periode.getPeriode().getTomDato()));
-            result.add(dokumentasjonPeriode);
-        });
-        return result;
     }
 
     private void setInntekter(Long behandlingId, PersonopplysningerSvangerskapspenger personopplysninger, LocalDate skjæringstidspunkt) {

@@ -18,14 +18,12 @@ public class UttakInput {
     private final InntektArbeidYtelseGrunnlag iayGrunnlag;
     private final YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag;
     private Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser = Set.of();
-    private LocalDate søknadMottattDato;
     private LocalDateTime søknadOpprettetTidspunkt;
     private LocalDate medlemskapOpphørsdato;
     private Set<BehandlingÅrsakType> behandlingÅrsaker = Set.of();
     private boolean behandlingManueltOpprettet;
     private boolean opplysningerOmDødEndret;
     private boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag;
-    private boolean skalBrukeNyFaktaOmUttak;
 
     public UttakInput(BehandlingReferanse behandlingReferanse,
                       InntektArbeidYtelseGrunnlag iayGrunnlag,
@@ -38,14 +36,12 @@ public class UttakInput {
     private UttakInput(UttakInput input) {
         this(input.getBehandlingReferanse(), input.getIayGrunnlag(), input.getYtelsespesifiktGrunnlag());
         this.beregningsgrunnlagStatuser = Set.copyOf(input.beregningsgrunnlagStatuser);
-        this.søknadMottattDato = input.søknadMottattDato;
         this.søknadOpprettetTidspunkt = input.søknadOpprettetTidspunkt;
         this.medlemskapOpphørsdato = input.medlemskapOpphørsdato;
         this.behandlingÅrsaker = input.behandlingÅrsaker;
         this.behandlingManueltOpprettet = input.behandlingManueltOpprettet;
         this.opplysningerOmDødEndret = input.opplysningerOmDødEndret;
         this.finnesAndelerMedGraderingUtenBeregningsgrunnlag = input.finnesAndelerMedGraderingUtenBeregningsgrunnlag;
-        this.skalBrukeNyFaktaOmUttak = input.skalBrukeNyFaktaOmUttak;
     }
 
     public BehandlingReferanse getBehandlingReferanse() {
@@ -62,10 +58,6 @@ public class UttakInput {
 
     public InntektArbeidYtelseGrunnlag getIayGrunnlag() {
         return iayGrunnlag;
-    }
-
-    public LocalDate getSøknadMottattDato() {
-        return søknadMottattDato;
     }
 
     /** Sjekk fagsakytelsetype før denne kalles. */
@@ -110,19 +102,9 @@ public class UttakInput {
         return behandlingÅrsaker;
     }
 
-    public boolean isSkalBrukeNyFaktaOmUttak() {
-        return skalBrukeNyFaktaOmUttak;
-    }
-
     public UttakInput medBeregningsgrunnlagStatuser(Set<BeregningsgrunnlagStatus> statuser) {
         var newInput = new UttakInput(this);
         newInput.beregningsgrunnlagStatuser = Set.copyOf(statuser);
-        return newInput;
-    }
-
-    public UttakInput medSøknadMottattDato(LocalDate mottattDato) {
-        var newInput = new UttakInput(this);
-        newInput.søknadMottattDato = mottattDato;
         return newInput;
     }
 
@@ -159,12 +141,6 @@ public class UttakInput {
     public UttakInput medFinnesAndelerMedGraderingUtenBeregningsgrunnlag(boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag) {
         var newInput = new UttakInput(this);
         newInput.finnesAndelerMedGraderingUtenBeregningsgrunnlag = finnesAndelerMedGraderingUtenBeregningsgrunnlag;
-        return newInput;
-    }
-
-    public UttakInput medSkalBrukeNyFaktaOmUttak(boolean skalBrukeNyFaktaOmUttak) {
-        var newInput = new UttakInput(this);
-        newInput.skalBrukeNyFaktaOmUttak = skalBrukeNyFaktaOmUttak;
         return newInput;
     }
 }

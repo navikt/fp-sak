@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.Tilbakek
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.KontrollerAktivitetskravAvklaring;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
@@ -79,7 +78,6 @@ public class HistorikkInnslagTekstBuilder {
             new SimpleEntry<>(PeriodeResultatÅrsak.KODEVERK, PeriodeResultatÅrsak.kodeMap()),
             new SimpleEntry<>(StønadskontoType.KODEVERK, StønadskontoType.kodeMap()),
             new SimpleEntry<>(GraderingAvslagÅrsak.KODEVERK, GraderingAvslagÅrsak.kodeMap()),
-            new SimpleEntry<>(KontrollerAktivitetskravAvklaring.KODEVERK, KontrollerAktivitetskravAvklaring.kodeMap()),
 
             // Domene : personopplysninger
             new SimpleEntry<>(VergeType.KODEVERK, VergeType.kodeMap()),

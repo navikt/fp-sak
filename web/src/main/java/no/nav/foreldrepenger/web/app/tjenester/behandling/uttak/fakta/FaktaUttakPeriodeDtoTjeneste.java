@@ -12,7 +12,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -25,29 +25,29 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.VedtaksperioderHelper;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
 
 @ApplicationScoped
 public class FaktaUttakPeriodeDtoTjeneste {
 
-    private UttakInputTjeneste uttakInputTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private BehandlingRepository behandlingRepository;
     private FpUttakRepository uttakRepository;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @Inject
-    public FaktaUttakPeriodeDtoTjeneste(UttakInputTjeneste uttakInputTjeneste,
-                                        YtelseFordelingTjeneste ytelseFordelingTjeneste,
+    public FaktaUttakPeriodeDtoTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                         BehandlingRepository behandlingRepository,
-                                        FpUttakRepository uttakRepository) {
-        this.uttakInputTjeneste = uttakInputTjeneste;
+                                        FpUttakRepository uttakRepository,
+                                        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.uttakRepository = uttakRepository;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     FaktaUttakPeriodeDtoTjeneste() {
@@ -64,10 +64,6 @@ public class FaktaUttakPeriodeDtoTjeneste {
     }
 
     public Stream<OppgittPeriodeEntitet> hentRelevanteOppgittPerioder(Long behandlingId) {
-        var uttakInput = uttakInputTjeneste.lagInput(behandlingId);
-        if (!uttakInput.isSkalBrukeNyFaktaOmUttak()) {
-            return Stream.of();
-        }
         var ytelseFordelingAggregatOpt = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId);
         if (ytelseFordelingAggregatOpt.isEmpty()) {
             return Stream.of();
@@ -75,12 +71,13 @@ public class FaktaUttakPeriodeDtoTjeneste {
 
         var yfa = ytelseFordelingAggregatOpt.get();
         var perioder = yfa.getGjeldendeFordeling().getPerioder();
-        var behandlingReferanse = uttakInput.getBehandlingReferanse();
-        if (behandlingReferanse.erRevurdering()) {
-            var uttakOriginalBehandling = uttakRepository.hentUttakResultatHvisEksisterer(behandlingReferanse
-                .originalBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        if (behandling.erRevurdering()) {
+            var uttakOriginalBehandling = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getOriginalBehandlingId().orElseThrow());
             if (uttakOriginalBehandling.isPresent()) {
-                var fraDato = behandlingSomJusteresFarsUttakVedFødsel(uttakInput, yfa, behandlingReferanse) ?
+                var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+                var behandlingReferanse = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+                var fraDato = behandlingSomJusteresFarsUttakVedFødsel(behandling, yfa) ?
                     behandlingReferanse.getUtledetSkjæringstidspunktHvisUtledet().orElse(LocalDate.MIN) : LocalDate.MIN;
                 perioder = slåSammenLikePerioder(VedtaksperioderHelper.opprettOppgittePerioder(uttakOriginalBehandling.get(), perioder,
                     fraDato, behandlingReferanse.getSkjæringstidspunkt().kreverSammenhengendeUttak()));
@@ -89,8 +86,8 @@ public class FaktaUttakPeriodeDtoTjeneste {
         return perioder.stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getTom));
     }
 
-    private static boolean behandlingSomJusteresFarsUttakVedFødsel(UttakInput uttakInput, YtelseFordelingAggregat yfa, BehandlingReferanse behandlingReferanse) {
-        return RelasjonsRolleType.erFarEllerMedmor(behandlingReferanse.relasjonRolle()) && uttakInput.harBehandlingÅrsak(
+    private static boolean behandlingSomJusteresFarsUttakVedFødsel(Behandling behandling, YtelseFordelingAggregat yfa) {
+        return RelasjonsRolleType.erFarEllerMedmor(behandling.getRelasjonsRolleType()) && behandling.harBehandlingÅrsak(
             BehandlingÅrsakType.RE_HENDELSE_FØDSEL) && yfa.getGjeldendeFordeling().ønskerJustertVedFødsel();
     }
 

@@ -1,18 +1,14 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
+
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class OppgittPeriodeUtil {
 
@@ -90,7 +86,6 @@ public class OppgittPeriodeUtil {
             Objects.equals(periode1.getMorsAktivitet(), periode2.getMorsAktivitet()) &&
             Objects.equals(periode1.isVedtaksperiode(), periode2.isVedtaksperiode()) &&
             Objects.equals(periode1.getPeriodeType(), periode2.getPeriodeType()) &&
-            Objects.equals(periode1.getPeriodeVurderingType(), periode2.getPeriodeVurderingType()) &&
             Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent()) &&
             Objects.equals(periode1.getMottattDato(), periode2.getMottattDato()) &&
             Objects.equals(periode1.getTidligstMottattDato(), periode2.getTidligstMottattDato()) &&

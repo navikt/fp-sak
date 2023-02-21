@@ -1,22 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Objects;
-import java.util.Optional;
-
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Version;
-
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
@@ -30,6 +13,12 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+
+import javax.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
 
 @Entity(name = "SoeknadPeriode")
 @Table(name = "YF_FORDELING_PERIODE")
@@ -47,11 +36,6 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     @Column(name = "periode_type", updatable = false, nullable = false)
     @Convert(converter = UttakPeriodeType.KodeverdiConverter.class)
     private UttakPeriodeType uttakPeriodeType = UttakPeriodeType.UDEFINERT;
-
-    @ChangeTracked
-    @Column(name = "vurdering_type", updatable = false, nullable = false)
-    @Convert(converter = UttakPeriodeVurderingType.KodeverdiConverter.class)
-    private UttakPeriodeVurderingType periodeVurderingType = UttakPeriodeVurderingType.PERIODE_IKKE_VURDERT;
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "arbeidstaker", nullable = false)
@@ -226,14 +210,6 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
 
     public void setArbeidsgiver(Arbeidsgiver arbeidsgiver) {
         this.arbeidsgiver = arbeidsgiver;
-    }
-
-    public UttakPeriodeVurderingType getPeriodeVurderingType() {
-        return periodeVurderingType;
-    }
-
-    void setPeriodeVurderingType(UttakPeriodeVurderingType periodeVurderingType) {
-        this.periodeVurderingType = periodeVurderingType;
     }
 
     public boolean isSamtidigUttak() {

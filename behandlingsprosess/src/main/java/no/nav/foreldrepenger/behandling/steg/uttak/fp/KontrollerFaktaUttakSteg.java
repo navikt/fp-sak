@@ -1,13 +1,9 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
-import java.util.stream.Collectors;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.steg.uttak.UttakSteg;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -16,7 +12,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.uttak.fakta.KontrollerFaktaUttakTjeneste;
 
 @BehandlingStegRef(BehandlingStegType.KONTROLLER_FAKTA_UTTAK)
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
@@ -24,16 +19,10 @@ import no.nav.foreldrepenger.domene.uttak.fakta.KontrollerFaktaUttakTjeneste;
 @ApplicationScoped
 public class KontrollerFaktaUttakSteg implements UttakSteg {
 
-    private KontrollerFaktaUttakTjeneste kontrollerFaktaUttakTjeneste;
-    private UttakInputTjeneste uttakInputTjeneste;
     private RyddFaktaUttakTjeneste ryddFaktaUttakTjeneste;
 
     @Inject
-    public KontrollerFaktaUttakSteg(UttakInputTjeneste uttakInputTjeneste,
-            KontrollerFaktaUttakTjeneste kontrollerFaktaUttakTjeneste,
-            RyddFaktaUttakTjeneste ryddFaktaUttakTjeneste) {
-        this.uttakInputTjeneste = uttakInputTjeneste;
-        this.kontrollerFaktaUttakTjeneste = kontrollerFaktaUttakTjeneste;
+    public KontrollerFaktaUttakSteg(RyddFaktaUttakTjeneste ryddFaktaUttakTjeneste) {
         this.ryddFaktaUttakTjeneste = ryddFaktaUttakTjeneste;
     }
 
@@ -43,12 +32,7 @@ public class KontrollerFaktaUttakSteg implements UttakSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        var input = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
-        var aksjonspunktDefinisjonList = kontrollerFaktaUttakTjeneste.utledAksjonspunkter(input);
-        var resultater = aksjonspunktDefinisjonList.stream()
-                .map(AksjonspunktResultat::opprettForAksjonspunkt)
-                .collect(Collectors.toList());
-        return BehandleStegResultat.utførtMedAksjonspunktResultater(resultater);
+        return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 
     @Override

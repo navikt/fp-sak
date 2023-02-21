@@ -17,9 +17,6 @@ import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
@@ -30,12 +27,10 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 public class ForvaltningUttakRestTjeneste {
 
     private ForvaltningUttakTjeneste forvaltningUttakTjeneste;
-    private ProsessTaskTjeneste taskTjeneste;
 
     @Inject
-    public ForvaltningUttakRestTjeneste(ForvaltningUttakTjeneste forvaltningUttakTjeneste, ProsessTaskTjeneste prosessTaskTjeneste) {
+    public ForvaltningUttakRestTjeneste(ForvaltningUttakTjeneste forvaltningUttakTjeneste) {
         this.forvaltningUttakTjeneste = forvaltningUttakTjeneste;
-        this.taskTjeneste = prosessTaskTjeneste;
     }
 
     public ForvaltningUttakRestTjeneste() {
@@ -89,42 +84,6 @@ public class ForvaltningUttakRestTjeneste {
         Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
 
         forvaltningUttakTjeneste.endreAleneomsorg(dto.getBehandlingUuid(), aleneomsorg);
-        return Response.noContent().build();
-    }
-
-    @POST
-    @Path("/migrerFaktaAvklaring")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Operation(description = "Lagrer task for å migrere til ny fakta struktur", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response migrerOverstyrtRett() {
-        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
-        var callId = MDCOperations.getCallId();
-        var prosessTaskData = ProsessTaskDataBuilder.forProsessTask(MigrerAvklartDokumentasjonTask.class)
-            .medCallId(callId)
-            .medPrioritet(100)
-            .build();
-
-        taskTjeneste.lagre(prosessTaskData);
-
-        return Response.noContent().build();
-    }
-
-    @POST
-    @Path("/avsluttGamleAP")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Operation(description = "Lagrer task for å avlutte uttak AP", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response avsluttGamleAP() {
-        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
-        var callId = MDCOperations.getCallId();
-        var prosessTaskData = ProsessTaskDataBuilder.forProsessTask(AvrbytUttakAPTask.class)
-            .medCallId(callId)
-            .medPrioritet(100)
-            .build();
-
-        taskTjeneste.lagre(prosessTaskData);
-
         return Response.noContent().build();
     }
 }

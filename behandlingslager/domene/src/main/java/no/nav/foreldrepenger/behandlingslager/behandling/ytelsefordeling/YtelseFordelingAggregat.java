@@ -14,12 +14,8 @@ public class YtelseFordelingAggregat {
     private OppgittDekningsgradEntitet oppgittDekningsgrad;
     private OppgittRettighetEntitet oppgittRettighet;
     private OppgittRettighetEntitet overstyrtRettighet;
-    private PerioderUttakDokumentasjonEntitet perioderUttakDokumentasjon;
     private AvklarteUttakDatoerEntitet avklarteDatoer;
-    private AktivitetskravPerioderEntitet opprinneligeAktivitetskravPerioder;
-    private AktivitetskravPerioderEntitet saksbehandledeAktivitetskravPerioder;
     private Boolean overstyrtOmsorg;
-    private Boolean migrertDokumentasjonsPerioder;
 
     protected YtelseFordelingAggregat() {
     }
@@ -51,23 +47,6 @@ public class YtelseFordelingAggregat {
 
     public boolean harOmsorg() {
         return overstyrtOmsorg == null || overstyrtOmsorg;
-    }
-
-    public Boolean getMigrertDokumentasjonsPerioder() {
-        return migrertDokumentasjonsPerioder;
-    }
-
-    public Optional<AktivitetskravPerioderEntitet> getOpprinneligeAktivitetskravPerioder() {
-        return Optional.ofNullable(opprinneligeAktivitetskravPerioder);
-    }
-
-    public Optional<AktivitetskravPerioderEntitet> getSaksbehandledeAktivitetskravPerioder() {
-        return Optional.ofNullable(saksbehandledeAktivitetskravPerioder);
-    }
-
-    public Optional<AktivitetskravPerioderEntitet> getGjeldendeAktivitetskravPerioder() {
-        return getSaksbehandledeAktivitetskravPerioder().isPresent() ? getSaksbehandledeAktivitetskravPerioder()
-            : getOpprinneligeAktivitetskravPerioder();
     }
 
     public Boolean getAleneomsorgAvklaring() {
@@ -102,10 +81,6 @@ public class YtelseFordelingAggregat {
     }
     public Optional<OppgittFordelingEntitet> getOverstyrtFordeling() {
         return Optional.ofNullable(overstyrtFordeling);
-    }
-
-    public Optional<PerioderUttakDokumentasjonEntitet> getPerioderUttakDokumentasjon() {
-        return Optional.ofNullable(perioderUttakDokumentasjon);
     }
 
     public static Builder oppdatere(Optional<YtelseFordelingAggregat> ytelseFordelingAggregat) {
@@ -187,28 +162,8 @@ public class YtelseFordelingAggregat {
             return this;
         }
 
-        public Builder medOpprinneligeAktivitetskravPerioder(AktivitetskravPerioderEntitet aktivitetskravPerioder) {
-            kladd.opprinneligeAktivitetskravPerioder = aktivitetskravPerioder;
-            return this;
-        }
-
-        public Builder medSaksbehandledeAktivitetskravPerioder(AktivitetskravPerioderEntitet aktivitetskravPerioder) {
-            kladd.saksbehandledeAktivitetskravPerioder = aktivitetskravPerioder;
-            return this;
-        }
-
-        public Builder medPerioderUttakDokumentasjon(PerioderUttakDokumentasjonEntitet perioderUttakDokumentasjon) {
-            kladd.perioderUttakDokumentasjon = perioderUttakDokumentasjon;
-            return this;
-        }
-
         public Builder medAvklarteDatoer(AvklarteUttakDatoerEntitet avklarteUttakDatoer) {
             kladd.avklarteDatoer = avklarteUttakDatoer;
-            return this;
-        }
-
-        public Builder migrertDokumentasjonsPerioder(Boolean migrert) {
-            kladd.migrertDokumentasjonsPerioder = migrert;
             return this;
         }
 

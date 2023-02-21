@@ -65,21 +65,6 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     private Boolean overstyrtOmsorg;
 
     @ManyToOne
-    @JoinColumn(name = "uttak_dokumentasjon_id", updatable = false, unique = true)
-    @ChangeTracked
-    private PerioderUttakDokumentasjonEntitet perioderUttakDokumentasjon;
-
-    @ManyToOne
-    @JoinColumn(name = "opprinnelige_aktkrav_per_id", updatable = false, unique = true)
-    @ChangeTracked
-    private AktivitetskravPerioderEntitet opprinneligeAktivitetskravPerioder;
-
-    @ManyToOne
-    @JoinColumn(name = "saksbehandlede_aktkrav_per_id", updatable = false, unique = true)
-    @ChangeTracked
-    private AktivitetskravPerioderEntitet saksbehandledeAktivitetskravPerioder;
-
-    @ManyToOne
     @JoinColumn(name = "yf_AVKLART_DATO_id", updatable = false, unique = true)
     @ChangeTracked
     private AvklarteUttakDatoerEntitet avklarteUttakDatoerEntitet;
@@ -91,11 +76,6 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     @Version
     @Column(name = "versjon", nullable = false)
     private long versjon;
-
-    @Convert(converter = BooleanToStringConverter.class)
-    @Column(name = "migrert_dok")
-    @ChangeTracked
-    private Boolean migrertDokumentasjonsPerioder;
 
     YtelseFordelingGrunnlagEntitet() {
     }
@@ -163,38 +143,6 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
 
     void setOverstyrtOmsorg(Boolean overstyrtOmsorg) {
         this.overstyrtOmsorg = overstyrtOmsorg;
-    }
-
-    public Boolean getMigrertDokumentasjonsPerioder() {
-        return migrertDokumentasjonsPerioder;
-    }
-
-    void setMigrertDokumentasjonsPerioder(Boolean migrertDokumentasjonsPerioder) {
-        this.migrertDokumentasjonsPerioder = migrertDokumentasjonsPerioder;
-    }
-
-    public AktivitetskravPerioderEntitet getOpprinneligeAktivitetskravPerioder() {
-        return opprinneligeAktivitetskravPerioder;
-    }
-
-    public void setOpprinneligeAktivitetskravPerioder(AktivitetskravPerioderEntitet opprinneligAktivitetskravPerioder) {
-        this.opprinneligeAktivitetskravPerioder = opprinneligAktivitetskravPerioder;
-    }
-
-    public AktivitetskravPerioderEntitet getSaksbehandledeAktivitetskravPerioder() {
-        return saksbehandledeAktivitetskravPerioder;
-    }
-
-    public void setSaksbehandledeAktivitetskravPerioder(AktivitetskravPerioderEntitet saksbehandletAktivitetskravPerioder) {
-        this.saksbehandledeAktivitetskravPerioder = saksbehandletAktivitetskravPerioder;
-    }
-
-    PerioderUttakDokumentasjonEntitet getPerioderUttakDokumentasjon() {
-        return perioderUttakDokumentasjon;
-    }
-
-    void setPerioderUttakDokumentasjon(PerioderUttakDokumentasjonEntitet perioderUttakDokumentasjon) {
-        this.perioderUttakDokumentasjon = perioderUttakDokumentasjon;
     }
 
     AvklarteUttakDatoerEntitet getAvklarteUttakDatoer() {

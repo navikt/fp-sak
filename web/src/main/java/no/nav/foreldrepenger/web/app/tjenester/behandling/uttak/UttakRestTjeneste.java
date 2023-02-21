@@ -19,9 +19,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
@@ -31,8 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaUttakArbeidsforholdTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAktivitetskravDtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerFaktaPeriodeTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.SaldoerDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.SvangerskapspengerUttakResultatDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.UttakPerioderDtoTjeneste;
@@ -40,8 +35,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.Do
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerAktivitetskravPeriodeDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerFaktaDataDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SvangerskapspengerUttakResultatDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPerioderDto;
@@ -60,8 +53,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Transactional
 public class UttakRestTjeneste {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UttakRestTjeneste.class);
-
     static final String BASE_PATH = "/behandling/uttak";
     private static final String FAKTA_ARBEIDSFORHOLD_PART_PATH = "/fakta-arbeidsforhold";
     public static final String FAKTA_ARBEIDSFORHOLD_PATH = BASE_PATH + FAKTA_ARBEIDSFORHOLD_PART_PATH;
@@ -69,12 +60,8 @@ public class UttakRestTjeneste {
     public static final String RESULTAT_SVANGERSKAPSPENGER_PATH = BASE_PATH + RESULTAT_SVANGERSKAPSPENGER_PART_PATH;
     private static final String RESULTAT_PERIODER_PART_PATH = "/resultat-perioder";
     public static final String RESULTAT_PERIODER_PATH = BASE_PATH + RESULTAT_PERIODER_PART_PATH;
-    private static final String KONTROLLER_FAKTA_PERIODER_PART_PATH = "/kontroller-fakta-perioder";
-    public static final String KONTROLLER_FAKTA_PERIODER_PATH = BASE_PATH + KONTROLLER_FAKTA_PERIODER_PART_PATH;
-    private static final String KONTROLLER_FAKTA_PERIODER_V2_PART_PATH = "/kontroller-fakta-perioder-v2";
-    public static final String KONTROLLER_FAKTA_PERIODER_V2_PATH = BASE_PATH + KONTROLLER_FAKTA_PERIODER_V2_PART_PATH;
-    private static final String KONTROLLER_AKTIVTETSKRAV_PART_PATH = "/kontroller-aktivitetskrav";
-    public static final String  KONTROLLER_AKTIVTETSKRAV_PATH = BASE_PATH + KONTROLLER_AKTIVTETSKRAV_PART_PATH;
+    private static final String FAKTA_UTTAK_PART_PATH = "/kontroller-fakta-perioder-v2";
+    public static final String FAKTA_UTTAK_PATH = BASE_PATH + FAKTA_UTTAK_PART_PATH;
     private static final String STONADSKONTOER_GITT_UTTAKSPERIODER_PART_PATH = "/stonadskontoerGittUttaksperioder";
     public static final String STONADSKONTOER_GITT_UTTAKSPERIODER_PATH = BASE_PATH + STONADSKONTOER_GITT_UTTAKSPERIODER_PART_PATH;
     private static final String STONADSKONTOER_PART_PATH = "/stonadskontoer";
@@ -84,11 +71,9 @@ public class UttakRestTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private SaldoerDtoTjeneste saldoerDtoTjeneste;
-    private KontrollerFaktaPeriodeTjeneste kontrollerFaktaPeriodeTjeneste;
     private UttakPerioderDtoTjeneste uttakResultatPerioderDtoTjeneste;
     private SvangerskapspengerUttakResultatDtoTjeneste svpUttakResultatDtoTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
-    private KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste;
     private FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste;
@@ -96,21 +81,17 @@ public class UttakRestTjeneste {
     @Inject
     public UttakRestTjeneste(BehandlingRepository behandlingRepository,
                              SaldoerDtoTjeneste saldoerDtoTjeneste,
-                             KontrollerFaktaPeriodeTjeneste kontrollerFaktaPeriodeTjeneste,
                              UttakPerioderDtoTjeneste uttakResultatPerioderDtoTjeneste,
                              SvangerskapspengerUttakResultatDtoTjeneste svpUttakResultatDtoTjeneste,
                              UttakInputTjeneste uttakInputTjeneste,
-                             KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste,
                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                              DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste,
                              FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.behandlingRepository = behandlingRepository;
-        this.kontrollerFaktaPeriodeTjeneste = kontrollerFaktaPeriodeTjeneste;
         this.uttakResultatPerioderDtoTjeneste = uttakResultatPerioderDtoTjeneste;
         this.saldoerDtoTjeneste = saldoerDtoTjeneste;
         this.svpUttakResultatDtoTjeneste = svpUttakResultatDtoTjeneste;
-        this.kontrollerAktivitetskravDtoTjeneste = kontrollerAktivitetskravDtoTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.dokumentasjonVurderingBehovDtoTjeneste = dokumentasjonVurderingBehovDtoTjeneste;
         this.faktaUttakPeriodeDtoTjeneste = faktaUttakPeriodeDtoTjeneste;
@@ -151,27 +132,6 @@ public class UttakRestTjeneste {
 
     private SaldoerDto defaultSvar() {
         return new SaldoerDto(Map.of(), 0);
-    }
-
-    @GET
-    @Path(KONTROLLER_AKTIVTETSKRAV_PART_PATH)
-    @Operation(description = "Hent perioder for å kontrollere aktivitetskrav", tags = "uttak")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public List<KontrollerAktivitetskravPeriodeDto> hentKontrollerAktivitetskrav(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        LOG.info("Fakta uttak - hentKontrollerAktivitetskrav brukes {}", uuidDto.getBehandlingUuid());
-        return kontrollerAktivitetskravDtoTjeneste.lagDtos(uuidDto);
-    }
-
-    @GET
-    @Path(KONTROLLER_FAKTA_PERIODER_PART_PATH)
-    @Operation(description = "Hent perioder for å kontrollere fakta ifbm uttak", tags = "uttak")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public KontrollerFaktaDataDto hentKontrollerFaktaPerioder(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var behandling = hentBehandling(uuidDto);
-        LOG.info("Fakta uttak - hentKontrollerFaktaPerioder brukes {}", uuidDto.getBehandlingUuid());
-        return kontrollerFaktaPeriodeTjeneste.hentKontrollerFaktaPerioder(behandling.getId());
     }
 
     @GET
@@ -216,11 +176,10 @@ public class UttakRestTjeneste {
     }
 
     @GET
-    @Path(KONTROLLER_FAKTA_PERIODER_V2_PART_PATH)
+    @Path(FAKTA_UTTAK_PART_PATH)
     @Operation(description = "Hent perioder for fakta om uttak", tags = "uttak")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public List<FaktaUttakPeriodeDto> hentFaktaUttakPerioderV2(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
-                                                              @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public List<FaktaUttakPeriodeDto> hentFaktaUttakPerioder(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return faktaUttakPeriodeDtoTjeneste.lagDtos(uuidDto);
     }
 
