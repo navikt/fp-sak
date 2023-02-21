@@ -1,40 +1,23 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task;
 
-import static no.nav.foreldrepenger.historikk.OppgaveÅrsak.REGISTRER_SØKNAD;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.enterprise.context.Dependent;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
-@ApplicationScoped
+@Dependent
 @ProsessTask("oppgavebehandling.opprettOppgaveRegistrerSøknad")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettOppgaveRegistrerSøknadTask extends GenerellProsessTask {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OpprettOppgaveRegistrerSøknadTask.class);
-    private OppgaveTjeneste oppgaveTjeneste;
-
-    OpprettOppgaveRegistrerSøknadTask() {
-        // for CDI proxy
-    }
-
-    @Inject
-    public OpprettOppgaveRegistrerSøknadTask(OppgaveTjeneste oppgaveTjeneste) {
+    public OpprettOppgaveRegistrerSøknadTask() {
         super();
-        this.oppgaveTjeneste = oppgaveTjeneste;
     }
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        var oppgaveId = oppgaveTjeneste.opprettBasertPåBehandlingId(behandlingId, REGISTRER_SØKNAD);
-        LOG.info("Oppgave opprettet i GSAK for å registrere søknad. Oppgavenummer: {}", oppgaveId); // NOSONAR
+        // NOOP
     }
 }

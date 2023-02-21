@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTask;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveGodkjennVedtakTask;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
@@ -183,7 +182,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
                 behandling.getId());
         when(oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(anyLong())).thenReturn(Collections.singletonList(kobling));
 
-        tjeneste.avsluttOppgaveOgStartTask(behandling, OppgaveÅrsak.BEHANDLE_SAK, TaskType.forProsessTask(OpprettOppgaveGodkjennVedtakTask.class));
+        tjeneste.avsluttOppgaveOgStartTask(behandling, OppgaveÅrsak.BEHANDLE_SAK);
 
         var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
         verify(taskTjeneste).lagre(captor.capture());
@@ -193,10 +192,6 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
         assertThat(tasks.get(0).task().getFagsakId()).isEqualTo(behandling.getFagsakId());
         assertThat(tasks.get(0).task().getBehandlingId()).isEqualTo(behandling.getId().toString());
         assertThat(String.valueOf(tasks.get(0).task().getAktørId())).isEqualTo(behandling.getAktørId().getId());
-        assertThat(tasks.get(1).task().taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveGodkjennVedtakTask.class));
-        assertThat(tasks.get(1).task().getFagsakId()).isEqualTo(behandling.getFagsakId());
-        assertThat(tasks.get(1).task().getBehandlingId()).isEqualTo(behandling.getId().toString());
-        assertThat(String.valueOf(tasks.get(1).task().getAktørId())).isEqualTo(behandling.getAktørId().getId());
     }
 
     @Test

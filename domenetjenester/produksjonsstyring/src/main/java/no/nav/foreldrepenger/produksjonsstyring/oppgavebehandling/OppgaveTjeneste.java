@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling;
 
-import static no.nav.foreldrepenger.historikk.OppgaveÅrsak.BEHANDLE_SAK;
 import static no.nav.foreldrepenger.historikk.OppgaveÅrsak.BEHANDLE_SAK_INFOTRYGD;
-import static no.nav.foreldrepenger.historikk.OppgaveÅrsak.REVURDER;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -98,17 +96,6 @@ public class OppgaveTjeneste {
         return opprettOppgave(behandling, oppgaveÅrsak, DEFAULT_OPPGAVEBESKRIVELSE, Prioritet.NORM, DEFAULT_OPPGAVEFRIST_DAGER);
     }
 
-    public String opprettBehandleOppgaveForBehandling(Long behandlingId) {
-        return opprettBehandleOppgaveForBehandlingMedPrioritetOgFrist(behandlingId, DEFAULT_OPPGAVEBESKRIVELSE, false, DEFAULT_OPPGAVEFRIST_DAGER);
-    }
-
-    public String opprettBehandleOppgaveForBehandlingMedPrioritetOgFrist(Long behandlingId, String beskrivelse, boolean høyPrioritet,
-                                                                         int fristDager) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var oppgaveÅrsak = behandling.erRevurdering() ? REVURDER : BEHANDLE_SAK;
-        return opprettOppgave(behandling, oppgaveÅrsak, beskrivelse, høyPrioritet ? Prioritet.HOY : Prioritet.NORM, fristDager);
-    }
-
     private String opprettOppgave(Behandling behandling, OppgaveÅrsak oppgaveÅrsak, String beskrivelse, Prioritet prioritet, int fristDager) {
         var oppgaveBehandlingKoblinger = oppgaveBehandlingKoblingRepository
             .hentOppgaverRelatertTilBehandling(behandling.getId());
@@ -167,11 +154,10 @@ public class OppgaveTjeneste {
         oppgaveBehandlingKoblingRepository.lagre(aktivOppgave);
     }
 
-    public void avsluttOppgaveOgStartTask(Behandling behandling, OppgaveÅrsak oppgaveÅrsak, TaskType taskType) {
+    public void avsluttOppgaveOgStartTask(Behandling behandling, OppgaveÅrsak oppgaveÅrsak) {
         var taskGruppe = new ProsessTaskGruppe();
         taskGruppe.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         opprettTaskAvsluttOppgave(behandling, oppgaveÅrsak, false).ifPresent(taskGruppe::addNesteSekvensiell);
-        taskGruppe.addNesteSekvensiell(opprettProsessTask(behandling, taskType));
 
         taskGruppe.setCallIdFraEksisterende();
 
@@ -248,6 +234,18 @@ public class OppgaveTjeneste {
             return oppgaver != null && !oppgaver.isEmpty();
         } catch (Exception e) {
             throw new TekniskException("FP-395340", String.format("Feil ved henting av oppgaver for oppgavetype=%s.", oppgavetype.getKode()));
+        }
+    }
+
+    public List<Oppgave> alleÅpneOppgaver() {
+        try {
+            return restKlient.finnÅpneOppgaver(null, Tema.FOR.getOffisiellKode(), List.of(Oppgavetype.GODKJENNE_VEDTAK.getKode(),
+                Oppgavetype.BEHANDLE_SAK.getKode(),
+                Oppgavetype.REVURDER.getKode(),
+                Oppgavetype.REGISTRER_SØKNAD.getKode(),
+                Oppgavetype.BEHANDLE_SAK_INFOTRYGD.getKode()));
+        } catch (Exception e) {
+            throw new TekniskException("FP-395340", "Feil ved henting av alle åpne oppgaver.");
         }
     }
 
@@ -335,7 +333,7 @@ public class OppgaveTjeneste {
      * Forvaltningsrelatert
      */
     public void ferdigstillOppgaveForForvaltning() {
-        oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverBehandlingAvsluttet().stream()
+        oppgaveBehandlingKoblingRepository.hentUferdigeOppgaver().stream()
             .filter(o -> !o.isFerdigstilt())
             .forEach(o -> {
                 restKlient.ferdigstillOppgave(o.getOppgaveId());
@@ -352,12 +350,5 @@ public class OppgaveTjeneste {
 
     }
 
-    public void feilregistrerOppgaveForForvaltning(String oppgaveId) {
-        var oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId);
-        oppgave.filter(o -> !o.isFerdigstilt()).ifPresent(this::ferdigstillOppgaveBehandlingKobling);
-        restKlient.feilregistrerOppgave(oppgaveId);
-        LOG.info("FPSAK GOSYS forvaltning feilregistrerte oppgave {}", oppgaveId);
-
-    }
 
 }

@@ -13,7 +13,6 @@ import javax.persistence.EntityManager;
 import org.hibernate.jpa.QueryHints;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
@@ -92,13 +91,11 @@ public class OppgaveBehandlingKoblingRepository {
         return query.getResultList();
     }
 
-    public List<OppgaveBehandlingKobling> hentUferdigeOppgaverBehandlingAvsluttet() {
+    public List<OppgaveBehandlingKobling> hentUferdigeOppgaver() {
         var query = entityManager.
-                createQuery("select obk from OppgaveBehandlingKobling obk inner join Behandling behandling on obk.behandlingId = behandling.id " +
-                    " where obk.ferdigstilt=:ferdig and behandling.status = :avsluttet ",
+                createQuery("select obk from OppgaveBehandlingKobling obk where obk.ferdigstilt=:ferdig ",
                 OppgaveBehandlingKobling.class)
-            .setParameter("avsluttet", BehandlingStatus.AVSLUTTET)
             .setParameter("ferdig", Boolean.FALSE);
-        return query.getResultList();
+        return query.getResultList().stream().limit(100).toList();
     }
 }
