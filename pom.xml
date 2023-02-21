@@ -35,11 +35,11 @@
 
         <fp-uttak.version>14.3.7</fp-uttak.version>
         <svp-uttak.version>2.3.7</svp-uttak.version>
-        <felles.version>4.2.22</felles.version>
-        <prosesstask.version>3.1.17</prosesstask.version>
-        <fp-jms.version>2.2.0</fp-jms.version>
+        <felles.version>4.2.26</felles.version>
+        <prosesstask.version>3.1.20</prosesstask.version>
+        <fp-jms.version>2.2.1</fp-jms.version>
 
-        <fp-kontrakter.version>6.2.9</fp-kontrakter.version>
+        <fp-kontrakter.version>6.2.10</fp-kontrakter.version>
         <fp-tidsserie.version>2.6.6</fp-tidsserie.version>
         <fp-nare.version>2.5.3</fp-nare.version>
         <abakus-kontrakt.version>1.3.40</abakus-kontrakt.version>

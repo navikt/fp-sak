@@ -7,7 +7,7 @@ import org.apache.commons.lang3.BooleanUtils;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.web.app.util.LdapUtil;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @ApplicationScoped
 public class TilgangerTjeneste {
@@ -50,7 +50,7 @@ public class TilgangerTjeneste {
     }
 
     public InnloggetNavAnsattDto innloggetBruker() {
-        var ident = SubjectHandler.getSubjectHandler().getUid();
+        var ident = KontekstHolder.getKontekst().getUid();
         var ldapBruker = new LdapBrukeroppslag().hentBrukerinformasjon(ident);
         return getInnloggetBruker(ident, ldapBruker);
     }

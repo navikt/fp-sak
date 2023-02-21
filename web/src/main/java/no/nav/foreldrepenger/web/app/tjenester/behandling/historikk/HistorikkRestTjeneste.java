@@ -54,7 +54,7 @@ public class HistorikkRestTjeneste {
                                     @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer")
                                     @TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
                                     @Valid SaksnummerDto saksnummerDto) {
-        var url = historikkTjeneste.getRequestPath(request);
+        var url = HistorikkRequestPath.getRequestPath(request);
 
         var historikkInnslagDtoList = historikkTjeneste.hentAlleHistorikkInnslagForSak(new Saksnummer(saksnummerDto.getVerdi()), url);
         return Response.ok().entity(historikkInnslagDtoList).build();

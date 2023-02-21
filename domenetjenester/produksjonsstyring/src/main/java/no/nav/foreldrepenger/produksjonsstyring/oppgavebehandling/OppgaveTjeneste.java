@@ -38,7 +38,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @ApplicationScoped
 public class OppgaveTjeneste {
@@ -163,7 +163,7 @@ public class OppgaveTjeneste {
     }
 
     private void ferdigstillOppgaveBehandlingKobling(OppgaveBehandlingKobling aktivOppgave) {
-        aktivOppgave.ferdigstillOppgave(SubjectHandler.getSubjectHandler().getUid());
+        aktivOppgave.ferdigstillOppgave(KontekstHolder.getKontekst().getUid());
         oppgaveBehandlingKoblingRepository.lagre(aktivOppgave);
     }
 

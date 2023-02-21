@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingslager;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,7 +10,8 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 
 import no.nav.foreldrepenger.behandlingslager.diff.DiffIgnore;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.sikkerhet.kontekst.Kontekst;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 /**
  * En basis {@link Entity} klasse som håndtere felles standarder for utformign
@@ -56,7 +58,7 @@ public abstract class BaseCreateableEntitet implements Serializable {
     }
 
     protected static String finnBrukernavn() {
-        var brukerident = SubjectHandler.getSubjectHandler().getUid();
-        return brukerident != null ? brukerident : BRUKERNAVN_NÅR_SIKKERHETSKONTEKST_IKKE_FINNES;
+        return Optional.ofNullable(KontekstHolder.getKontekst()).map(Kontekst::getKompaktUid)
+            .orElse(BRUKERNAVN_NÅR_SIKKERHETSKONTEKST_IKKE_FINNES);
     }
 }
