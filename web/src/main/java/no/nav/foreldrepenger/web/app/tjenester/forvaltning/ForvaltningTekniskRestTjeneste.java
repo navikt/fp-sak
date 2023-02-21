@@ -69,7 +69,7 @@ public class ForvaltningTekniskRestTjeneste {
     }
 
     @POST
-    @Path("/ferdigstill-oppgaver-avsluttet-behandling")
+    @Path("/ferdigstill-hundre-aapne-oppgaver")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Operation(description = "Ferdigstill Gosys-oppgave", tags = "FORVALTNING-teknisk", responses = {
@@ -77,7 +77,7 @@ public class ForvaltningTekniskRestTjeneste {
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response ferdigstillOppgaverAvsluttetBehandling() {
+    public Response ferdigstillHundreAapneOppgaver() {
         oppgaveTjeneste.ferdigstillOppgaveForForvaltning();
         return Response.ok().build();
     }
@@ -105,7 +105,7 @@ public class ForvaltningTekniskRestTjeneste {
     }
 
     @POST
-    @Path("/sett-oppgave-feilreg")
+    @Path("/hent-alle-aapne-oppgaver")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Operation(description = "Ferdigstill Gosys-oppgave", tags = "FORVALTNING-teknisk", responses = {
@@ -114,16 +114,13 @@ public class ForvaltningTekniskRestTjeneste {
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response feilregistrerOppgave(
-            @TilpassetAbacAttributt(supplierClass = ForvaltningTekniskRestTjeneste.AbacDataSupplier.class)
-            @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto) {
+    public Response hentAlleÅpneOppgaver() {
         try {
-            oppgaveTjeneste.feilregistrerOppgaveForForvaltning(oppgaveIdDto.getProsessTaskId().toString());
+            return Response.ok().entity(oppgaveTjeneste.alleÅpneOppgaver()).build();
         } catch (Exception e) {
-            LOG.info("Feil fra Gosys ved ferdigstillelse", e);
+            LOG.info("Feil fra Gosys ved henting", e);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        return Response.ok().build();
     }
 
     @POST

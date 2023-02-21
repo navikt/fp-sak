@@ -23,11 +23,9 @@ import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveForBehandlingSendtTilbakeTask;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ApplicationScoped
 public class FatteVedtakTjeneste {
@@ -99,8 +97,7 @@ public class FatteVedtakTjeneste {
         if (behandling.isToTrinnsBehandling()) {
             var totrinnaksjonspunktvurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId());
             if (sendesTilbakeTilSaksbehandler(totrinnaksjonspunktvurderinger)) {
-                oppgaveTjeneste.avsluttOppgaveOgStartTask(behandling, OppgaveÅrsak.GODKJENNE_VEDTAK,
-                    TaskType.forProsessTask(OpprettOppgaveForBehandlingSendtTilbakeTask.class));
+                oppgaveTjeneste.avsluttOppgaveOgStartTask(behandling, OppgaveÅrsak.GODKJENNE_VEDTAK);
                 var aksjonspunktDefinisjoner = totrinnaksjonspunktvurderinger.stream()
                         .filter(a -> !TRUE.equals(a.isGodkjent()))
                         .map(Totrinnsvurdering::getAksjonspunktDefinisjon).collect(Collectors.toList());
