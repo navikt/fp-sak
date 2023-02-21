@@ -75,7 +75,9 @@ public class VilkårUtfallOversetter {
             .filter(e -> e.getOutcome() != null)
             .map(e -> mapEvaluationResultToUtfallType(e.result()))
             .collect(Collectors.toSet());
-        if (alleUtfall.size() != 1) {
+        if (alleUtfall.isEmpty() && VilkårUtfallType.OPPFYLT.equals(oldestResult) && VilkårUtfallType.OPPFYLT.equals(oldResult)) {
+            LOG.info("REGELOVERSETTER vilkår {} ingen utfall, gamle er oppfylt", vilkårType);
+        } else if (alleUtfall.size() != 1) {
             LOG.info("REGELOVERSETTER vilkår {} flere utfall {} oldres = {} oldest = {}", vilkårType, alleUtfall, oldResult, oldestResult);
         } else if (!alleUtfall.contains(oldResult)) {
             LOG.info("REGELOVERSETTER vilkår {} annet svar {} oldres = {} oldest = {}", vilkårType, alleUtfall, oldResult, oldestResult);
