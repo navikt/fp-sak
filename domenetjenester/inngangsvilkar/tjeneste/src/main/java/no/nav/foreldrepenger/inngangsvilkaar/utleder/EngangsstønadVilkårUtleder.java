@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.inngangsvilkaar.impl;
+package no.nav.foreldrepenger.inngangsvilkaar.utleder;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.ADOPSJON;
 import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.FØDSEL;
@@ -9,13 +9,12 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårT
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.MEDLEMSKAPSVILKÅRET;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKERSOPPLYSNINGSPLIKT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKNADSFRISTVILKÅRET;
-import static no.nav.foreldrepenger.inngangsvilkaar.impl.VilkårUtlederFeil.behandlingsmotivKanIkkeUtledes;
-import static no.nav.foreldrepenger.inngangsvilkaar.impl.VilkårUtlederFeil.kunneIkkeUtledeVilkårFor;
+import static no.nav.foreldrepenger.inngangsvilkaar.utleder.VilkårUtlederFeil.behandlingsmotivKanIkkeUtledes;
+import static no.nav.foreldrepenger.inngangsvilkaar.utleder.VilkårUtlederFeil.kunneIkkeUtledeVilkårFor;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
@@ -37,22 +36,18 @@ public final class EngangsstønadVilkårUtleder  {
             throw new IllegalArgumentException("Ulovlig ytelsetype " + behandling.getFagsakYtelseType() + " ventet SVP");
         }
         var type = hendelseType.orElseThrow(() -> behandlingsmotivKanIkkeUtledes(behandling.getId()));
-        return Optional.ofNullable(finnFamilieHendelseVilkår(behandling, type))
-            .map(EngangsstønadVilkårUtleder::alleVilkår)
-            .orElseGet(() -> STANDARDVILKÅR.stream().collect(Collectors.toUnmodifiableSet()));
+        var vilkårene = new HashSet<>(STANDARDVILKÅR);
+        finnFamilieHendelseVilkår(behandling, type).ifPresent(vilkårene::add);
+        return vilkårene;
     }
 
-    private static Set<VilkårType> alleVilkår(VilkårType familieHendelseVilkår) {
-        return Stream.concat(Stream.of(familieHendelseVilkår), STANDARDVILKÅR.stream()).collect(Collectors.toUnmodifiableSet());
-    }
-
-    private static VilkårType finnFamilieHendelseVilkår(Behandling behandling, FamilieHendelseType hendelseType) {
+    private static Optional<VilkårType> finnFamilieHendelseVilkår(Behandling behandling, FamilieHendelseType hendelseType) {
         if (ADOPSJON.equals(hendelseType)) {
-            return ADOPSJONSVILKÅRET_ENGANGSSTØNAD;
+            return Optional.of(ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
         } else if (OMSORG.equals(hendelseType)) {
-            return null; // Vilkåret velges manuelt som del av Aksjonspunkt AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE
+            return Optional.empty(); // Vilkåret velges manuelt som del av Aksjonspunkt AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE
         } else if (FØDSEL.equals(hendelseType) || TERMIN.equals(hendelseType)) {
-            return FØDSELSVILKÅRET_MOR;
+            return Optional.of(FØDSELSVILKÅRET_MOR);
         }
         throw kunneIkkeUtledeVilkårFor(behandling.getId(), hendelseType.getNavn());
     }

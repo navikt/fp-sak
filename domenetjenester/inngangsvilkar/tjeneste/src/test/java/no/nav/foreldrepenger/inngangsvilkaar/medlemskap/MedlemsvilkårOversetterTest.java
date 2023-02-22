@@ -1,12 +1,10 @@
-package no.nav.foreldrepenger.inngangsvilkaar.impl;
+package no.nav.foreldrepenger.inngangsvilkaar.medlemskap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -16,18 +14,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
-import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -46,16 +40,14 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelKjønn;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 @CdiDbAwareTest
-public class InngangsvilkårOversetterTest {
+public class MedlemsvilkårOversetterTest {
 
-    private InngangsvilkårOversetter oversetter;
+    private MedlemsvilkårOversetter medlemsoversetter;
 
     @Inject
     private PersonopplysningTjeneste personopplysningTjeneste;
@@ -72,133 +64,11 @@ public class InngangsvilkårOversetterTest {
     public void oppsett() {
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
                 new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
-        oversetter = new InngangsvilkårOversetter(repositoryProvider, personopplysningTjeneste,
-                new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
-                iayTjeneste,
-                null);
+        medlemsoversetter = new MedlemsvilkårOversetter(repositoryProvider, personopplysningTjeneste, iayTjeneste);
     }
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
         return scenario.lagre(repositoryProvider);
-    }
-
-    @Test
-    public void skal_mappe_fra_domenefødsel_til_regelfødsel() {
-        var now = LocalDate.now();
-        var søknadsdato = now;
-        var fødselFødselsdato = now.plusDays(7);
-        var behandling = opprettBehandlingForFødsel(now, søknadsdato, fødselFødselsdato, RelasjonsRolleType.MORA);
-
-        var grunnlag = oversetter.oversettTilRegelModellFødsel(lagRef(behandling));
-
-        // Assert
-        assertThat(grunnlag.søkersKjønn()).isEqualTo(RegelKjønn.KVINNE);
-        assertThat(grunnlag.bekreftetFødselsdato()).isEqualTo(fødselFødselsdato);
-        assertThat(grunnlag.antallBarn()).isEqualTo(1);
-        assertThat(grunnlag.terminbekreftelseTermindato()).isNull();
-        assertThat(grunnlag.søkerRolle()).isEqualTo(RegelSøkerRolle.MORA);
-        assertThat(grunnlag.behandlingsdato()).isEqualTo(søknadsdato);
-        assertThat(grunnlag.erSøktOmTermin()).isFalse();
-    }
-
-    @Test
-    public void skal_mappe_fra_domenefødsel_til_regelfødsel_dersom_søker_er_medmor() {
-        var now = LocalDate.now();
-        var søknadsdato = now;
-        var fødselFødselsdato = now.plusDays(7);
-        var behandling = opprettBehandlingForFødsel(now, søknadsdato, fødselFødselsdato, RelasjonsRolleType.FARA);
-
-        var grunnlag = oversetter.oversettTilRegelModellFødsel(lagRef(behandling));
-
-        // Assert
-        assertThat(grunnlag.søkersKjønn()).isEqualTo(RegelKjønn.KVINNE); // snodig, men søker er kvinne her med rolle FARA
-        assertThat(grunnlag.bekreftetFødselsdato()).isEqualTo(fødselFødselsdato);
-        assertThat(grunnlag.terminbekreftelseTermindato()).isNull();
-        assertThat(grunnlag.søkerRolle()).isEqualTo(RegelSøkerRolle.FARA);
-        assertThat(grunnlag.behandlingsdato()).isEqualTo(søknadsdato);
-        assertThat(grunnlag.erSøktOmTermin()).isFalse();
-    }
-
-    private Behandling opprettBehandlingForFødsel(LocalDate now, LocalDate søknadsdato, LocalDate fødselFødselsdato,
-            RelasjonsRolleType rolle) {
-        // Arrange
-        var søknadFødselsdato = now.plusDays(2);
-
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-
-        scenario.medSøknad()
-                .medSøknadsdato(søknadsdato);
-
-        scenario.medSøknadHendelse().medFødselsDato(søknadFødselsdato);
-
-        scenario.medBekreftetHendelse()
-                // Fødsel
-                .leggTilBarn(fødselFødselsdato)
-                .medAntallBarn(1);
-
-        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
-        var barnAktørId = AktørId.dummy();
-        var søkerAktørId = scenario.getDefaultBrukerAktørId();
-
-        var fødtBarn = builderForRegisteropplysninger
-                .medPersonas()
-                .fødtBarn(barnAktørId, LocalDate.now().plusDays(7))
-                .relasjonTil(søkerAktørId, rolle, null)
-                .build();
-
-        var søker = builderForRegisteropplysninger
-                .medPersonas()
-                .kvinne(søkerAktørId, SivilstandType.GIFT)
-                .statsborgerskap(Landkoder.NOR)
-                .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, null)
-                .build();
-        scenario.medRegisterOpplysninger(søker);
-        scenario.medRegisterOpplysninger(fødtBarn);
-
-        return lagre(scenario);
-    }
-
-    @Test
-    public void skal_mappe_fra_domeneadoosjon_til_regeladopsjon() {
-        // Arrange
-        var søknadsdato = LocalDate.now().plusDays(1);
-        var søknadFødselsdato = LocalDate.now().plusDays(2);
-        var fødselAdopsjonsdatoFraSøknad = LocalDate.now().plusDays(8);
-        Map<Integer, LocalDate> map = new HashMap<>();
-        map.put(1, fødselAdopsjonsdatoFraSøknad);
-
-        var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
-        scenario.medSøknad()
-                .medSøknadsdato(søknadsdato)
-                .build();
-        scenario.medSøknadHendelse().medFødselsDato(søknadFødselsdato);
-
-        scenario.medBekreftetHendelse().medAdopsjon(
-                scenario.medBekreftetHendelse().getAdopsjonBuilder()
-                        .medErEktefellesBarn(true)
-                        .medAdoptererAlene(true)
-                        .medOmsorgsovertakelseDato(fødselAdopsjonsdatoFraSøknad))
-                .leggTilBarn(fødselAdopsjonsdatoFraSøknad)
-                // Adosjon
-                .build();
-
-        var søker = scenario.opprettBuilderForRegisteropplysninger()
-                .medPersonas()
-                .mann(scenario.getDefaultBrukerAktørId(), SivilstandType.UOPPGITT)
-                .statsborgerskap(Landkoder.NOR)
-                .build();
-        scenario.medRegisterOpplysninger(søker);
-
-        var behandling = lagre(scenario);
-
-        var grunnlag = oversetter.oversettTilRegelModellAdopsjon(lagRef(behandling));
-
-        // Assert
-        assertThat(grunnlag.søkersKjønn()).isEqualTo(RegelKjønn.MANN);
-        assertThat(grunnlag.bekreftetAdopsjonBarn().get(0).fødselsdato()).isEqualTo(map.get(1));
-        assertThat(grunnlag.ektefellesBarn()).isTrue();
-        assertThat(grunnlag.mannAdoptererAlene()).isTrue();
-        assertThat(grunnlag.omsorgsovertakelsesdato()).isEqualTo(fødselAdopsjonsdatoFraSøknad);
     }
 
     @Test
@@ -222,7 +92,7 @@ public class InngangsvilkårOversetterTest {
         medlemskapRepository.lagreMedlemskapVurdering(behandling.getId(), vurdertMedlemskap);
 
         // Act
-        var grunnlag = oversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
+        var grunnlag = medlemsoversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
 
         // Assert
         assertThat(grunnlag.brukerAvklartBosatt()).isTrue();
@@ -244,7 +114,7 @@ public class InngangsvilkårOversetterTest {
         opprettArbeidOgInntektForBehandling(behandling, skjæringstidspunkt.minusMonths(5), skjæringstidspunkt.minusDays(1), true);
 
         // Act
-        var grunnlag = oversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
+        var grunnlag = medlemsoversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
 
         // Assert
         assertThat(grunnlag.harSøkerArbeidsforholdOgInntekt()).isFalse();
@@ -260,7 +130,7 @@ public class InngangsvilkårOversetterTest {
         opprettArbeidOgInntektForBehandling(behandling, skjæringstidspunkt.minusMonths(5), skjæringstidspunkt.plusDays(10), false);
 
         // Act
-        var grunnlag = oversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
+        var grunnlag = medlemsoversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
 
         // Assert
         assertThat(grunnlag.harSøkerArbeidsforholdOgInntekt()).isFalse();

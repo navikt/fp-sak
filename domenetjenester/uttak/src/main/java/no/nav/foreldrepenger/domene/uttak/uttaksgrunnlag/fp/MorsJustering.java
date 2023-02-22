@@ -319,8 +319,8 @@ class MorsJustering implements ForelderFødselJustering {
         if (overlappendeIkkeFlyttbar.isEmpty()) {
             return true;
         }
-        return overlappendeIkkeFlyttbar.get() instanceof JusterPeriodeHull &&
-            gammelFamiliehendelse.isBefore(nyFamiliehendelse) && overlappendeIkkeFlyttbar.get().getFom().isEqual(tilOgMed(gammelFamiliehendelse.plusDays(1)));
+        return overlappendeIkkeFlyttbar.get() instanceof JusterPeriodeHull jph &&
+            gammelFamiliehendelse.isBefore(nyFamiliehendelse) && jph.getFom().isEqual(tilOgMed(gammelFamiliehendelse.plusDays(1)));
     }
 
     private List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder(List<OppgittPeriodeEntitet> oppgittePerioder) {

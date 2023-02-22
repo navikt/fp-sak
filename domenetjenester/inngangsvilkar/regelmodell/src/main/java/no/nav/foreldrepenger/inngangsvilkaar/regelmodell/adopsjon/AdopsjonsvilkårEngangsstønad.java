@@ -48,13 +48,14 @@ public class AdopsjonsvilkårEngangsstønad implements RuleService<Adopsjonsvilk
 
         Specification<AdopsjonsvilkårGrunnlag> kvinneAdoptererNode =
             rs.hvisRegel(SjekkKvinneAdopterer.ID, "Hvis ikke kvinne adopterer ...")
-                .hvisIkke(new SjekkKvinneAdopterer(), mannAdoptererNode)
-                .ellers(new Oppfylt());
+                .hvis(new SjekkKvinneAdopterer(), new Oppfylt())
+                .ellers(mannAdoptererNode);
 
         Specification<AdopsjonsvilkårGrunnlag> ektefelleEllerSamboersBarnNode =
             rs.hvisRegel(SjekkEktefellesEllerSamboersBarn.ID_ES, "Hvis ikke ektefelles eller samboers barn ...")
-                .hvisIkke(new SjekkEktefellesEllerSamboersBarn(SjekkEktefellesEllerSamboersBarn.ID_ES), kvinneAdoptererNode)
-                .ellers(new IkkeOppfylt(SjekkEktefellesEllerSamboersBarn.IKKE_OPPFYLT_ADOPSJON_AV_EKTEFELLE_ELLER_SAMBOERS_BARN));
+                .hvis(new SjekkEktefellesEllerSamboersBarn(SjekkEktefellesEllerSamboersBarn.ID_ES),
+                    new IkkeOppfylt(SjekkEktefellesEllerSamboersBarn.IKKE_OPPFYLT_ADOPSJON_AV_EKTEFELLE_ELLER_SAMBOERS_BARN))
+                .ellers(kvinneAdoptererNode);
 
         Specification<AdopsjonsvilkårGrunnlag> barnUnder15ÅrNode =
             rs.hvisRegel(SjekkBarnUnder15År.ID_ES, "Hvis barn under 15 år ved omsorgsovertakelsen ...")

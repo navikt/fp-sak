@@ -1,11 +1,17 @@
-package no.nav.foreldrepenger.inngangsvilkaar.impl;
+package no.nav.foreldrepenger.inngangsvilkaar;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.MerknadRuleReasonRef;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelEvalueringResultat;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelUtfallMerknad;
 
-public class MapRegelMerknadTilVilkårUtfallMerknad {
+public class RegelResultatOversetter {
 
     private static final Map<RegelUtfallMerknad, VilkårUtfallMerknad> UTFALL_MERKNAD_MAP = Map.ofEntries(
         Map.entry(RegelUtfallMerknad.RVM_1001, VilkårUtfallMerknad.VM_1001),
@@ -25,6 +31,27 @@ public class MapRegelMerknadTilVilkårUtfallMerknad {
         Map.entry(RegelUtfallMerknad.RVM_1035, VilkårUtfallMerknad.VM_1035),
         Map.entry(RegelUtfallMerknad.RVM_1051, VilkårUtfallMerknad.VM_1051),
         Map.entry(RegelUtfallMerknad.UDEFINERT, VilkårUtfallMerknad.UDEFINERT));
+
+    private RegelResultatOversetter() {
+    }
+
+    public static VilkårData oversett(VilkårType vilkårType, RegelEvalueringResultat resultat) {
+        var vilkårUtfallMerknad = Optional.ofNullable(resultat.merknad())
+            .map(MerknadRuleReasonRef::regelUtfallMerknad)
+            .map(RegelResultatOversetter::mapRegelMerknad).orElse(null);
+
+        return new VilkårData(vilkårType, mapRegelResultUtfallToUtfallType(resultat), vilkårUtfallMerknad, List.of(), resultat.regelEvaluering(),
+            resultat.regelInput(), resultat.resultatData());
+
+    }
+
+    private static VilkårUtfallType mapRegelResultUtfallToUtfallType(RegelEvalueringResultat resultat) {
+        return switch (resultat.utfall()) {
+            case OPPFYLT -> VilkårUtfallType.OPPFYLT;
+            case IKKE_OPPFYLT -> VilkårUtfallType.IKKE_OPPFYLT;
+            case IKKE_VURDERT -> VilkårUtfallType.IKKE_VURDERT;
+        };
+    }
 
     public static VilkårUtfallMerknad mapRegelMerknad(RegelUtfallMerknad merknad) {
         if (merknad == null) {

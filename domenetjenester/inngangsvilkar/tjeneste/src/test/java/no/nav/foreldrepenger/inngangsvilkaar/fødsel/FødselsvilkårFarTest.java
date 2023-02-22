@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
@@ -46,19 +45,15 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private MinsterettBehandling2022 mockMinsterett;
 
-    private InngangsvilkårOversetter oversetter;
+    private FødselsvilkårOversetter oversetter;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-        var personopplysningTjeneste = new PersonopplysningTjeneste(
-            repositoryProvider.getPersonopplysningRepository());
-        oversetter = new InngangsvilkårOversetter(repositoryProvider,
-            personopplysningTjeneste, new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
-            iayTjeneste, Period.parse("P6M"));
-        var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
-            new RelatertBehandlingTjeneste(repositoryProvider));
+        var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
+        oversetter = new FødselsvilkårOversetter(repositoryProvider, personopplysningTjeneste, Period.parse("P6M"));
+        var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider));
         mockMinsterett = mock(MinsterettBehandling2022.class);
         when(mockMinsterett.utenMinsterett(any())).thenReturn(false);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, stputil,

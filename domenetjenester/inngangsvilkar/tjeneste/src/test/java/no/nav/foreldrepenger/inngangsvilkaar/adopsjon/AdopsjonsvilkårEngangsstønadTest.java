@@ -2,14 +2,11 @@ package no.nav.foreldrepenger.inngangsvilkaar.adopsjon;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
@@ -25,11 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
@@ -37,10 +31,9 @@ import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteI
 public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
 
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private InngangsvilkårOversetter oversetter;
+    private AdopsjonsvilkårOversetter oversetter;
 
     @BeforeEach
     void setUp() {
@@ -49,9 +42,8 @@ public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         var personopplysningTjeneste = new PersonopplysningTjeneste(
             repositoryProvider.getPersonopplysningRepository());
-        oversetter = new InngangsvilkårOversetter(repositoryProvider,
-            personopplysningTjeneste, new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
-            iayTjeneste, null);
+        oversetter = new AdopsjonsvilkårOversetter(repositoryProvider,
+            personopplysningTjeneste, new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)));
     }
 
     @Test

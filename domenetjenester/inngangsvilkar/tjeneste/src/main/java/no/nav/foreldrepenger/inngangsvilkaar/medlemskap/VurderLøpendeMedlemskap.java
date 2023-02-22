@@ -38,9 +38,9 @@ import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
 import no.nav.foreldrepenger.domene.medlem.UtledVurderingsdatoerForMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.inngangsvilkaar.RegelResultatOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.Medlemskapsvilkår;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.InngangsvilkårRegler;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.MedlemskapsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.RegelPersonStatusType;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -103,8 +103,8 @@ public class VurderLøpendeMedlemskap {
     }
 
     private VilkårData evaluerGrunnlag(MedlemskapsvilkårGrunnlag grunnlag) {
-        var evaluation = new Medlemskapsvilkår().evaluer(grunnlag);
-        return InngangsvilkårOversetter.tilVilkårData(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, evaluation, grunnlag);
+        var resultat = InngangsvilkårRegler.medlemskap(grunnlag);
+        return RegelResultatOversetter.oversett(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, resultat);
     }
 
     private Map<LocalDate, MedlemskapsvilkårGrunnlag> lagGrunnlag(Long behandlingId) {

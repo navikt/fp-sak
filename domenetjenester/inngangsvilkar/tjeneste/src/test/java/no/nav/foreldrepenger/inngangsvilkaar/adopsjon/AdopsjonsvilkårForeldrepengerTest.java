@@ -25,11 +25,8 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
@@ -37,22 +34,19 @@ import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteI
 public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private InntektArbeidYtelseTjeneste iayTjeneste;
 
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
-    private InngangsvilkårOversetter oversetter;
+    private AdopsjonsvilkårOversetter oversetter;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
-        oversetter = new InngangsvilkårOversetter(repositoryProvider,
-            personopplysningTjeneste, new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
-            iayTjeneste, null);
+        oversetter = new AdopsjonsvilkårOversetter(repositoryProvider,
+            personopplysningTjeneste, new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)));
     }
 
     @Test
@@ -78,9 +72,7 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
         var beregnMorsMaksdatoTjenesteMock = Mockito.mock(YtelseMaksdatoTjeneste.class);
         Mockito.when(beregnMorsMaksdatoTjenesteMock.beregnMaksdatoForeldrepenger(any())).thenReturn(Optional.of(maksdatoForeldrepenger));
 
-        var oversetter = new InngangsvilkårOversetter(repositoryProvider,
-            personopplysningTjeneste, beregnMorsMaksdatoTjenesteMock,
-            iayTjeneste, null);
+        var oversetter = new AdopsjonsvilkårOversetter(repositoryProvider, personopplysningTjeneste, beregnMorsMaksdatoTjenesteMock);
 
         var behandling = settOppAdopsjonBehandlingFor(10, true, NavBrukerKjønn.KVINNE, false, omsorgsovertakelsedato);
 
@@ -104,9 +96,7 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
         var beregnMorsMaksdatoTjenesteMock = Mockito.mock(YtelseMaksdatoTjeneste.class);
         Mockito.when(beregnMorsMaksdatoTjenesteMock.beregnMaksdatoForeldrepenger(any())).thenReturn(Optional.of(maksdatoForeldrepenger));
 
-        var oversetter = new InngangsvilkårOversetter(repositoryProvider,
-            personopplysningTjeneste, beregnMorsMaksdatoTjenesteMock,
-            iayTjeneste, null);
+        var oversetter = new AdopsjonsvilkårOversetter(repositoryProvider, personopplysningTjeneste, beregnMorsMaksdatoTjenesteMock);
 
         var behandling = settOppAdopsjonBehandlingFor(
             10, true, NavBrukerKjønn.KVINNE, false, omsorgsovertakelsedato);

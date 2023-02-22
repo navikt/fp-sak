@@ -61,8 +61,8 @@ public class FødselsvilkårMor implements RuleService<FødselsvilkårGrunnlag> 
 
         Specification<FødselsvilkårGrunnlag> harSøkerFødtNode = rs
             .hvisRegel("FP_VK_1.2", "Hvis ikke fødsel er registert ...")
-            .hvisIkke(new SjekkFødselErRegistrert(), burdeFødselHaInntruffetNode)
-            .ellers(søkerErMorNode);
+            .hvis(new SjekkFødselErRegistrert(), søkerErMorNode)
+            .ellers(burdeFødselHaInntruffetNode);
 
         Specification<FødselsvilkårGrunnlag> søkerErKvinneNode =
             rs.hvisRegel("FP_VK_1.1", "Hvis søker er kvinne ...")

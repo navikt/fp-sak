@@ -2,15 +2,15 @@ package no.nav.foreldrepenger.økonomistøtte.queue.consumer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import jakarta.jms.JMSException;
-import jakarta.jms.Message;
-import jakarta.jms.TextMessage;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.UnmarshalException;
 import javax.xml.stream.XMLStreamException;
 
 import org.xml.sax.SAXException;
 
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.TextMessage;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Mmel;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag;
@@ -50,8 +50,8 @@ public class ØkonomioppdragAsyncJmsConsumerImpl extends ExternalQueueConsumer i
     @Override
     public void handle(Message message) throws JMSException {
         log.debug("Mottar melding");
-        if (message instanceof TextMessage) {
-            handle(((TextMessage) message).getText());
+        if (message instanceof TextMessage tm) {
+            handle(tm.getText());
         } else {
             log.warn("Mottok på ikkestøttet message av klasse {}. Kø-elementet ble ignorert", message.getClass());
         }

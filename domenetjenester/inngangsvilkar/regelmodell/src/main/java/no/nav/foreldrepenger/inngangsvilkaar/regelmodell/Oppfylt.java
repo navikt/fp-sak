@@ -7,7 +7,7 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
 public class Oppfylt extends LeafSpecification {
 
     public Oppfylt(){
-        super("Oppfylt"); //TODO: skal det være noe annet her?
+        super("Oppfylt");
     }
     @Override
     public Evaluation evaluate(Object grunnlag) {

@@ -10,12 +10,12 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningInntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.inngangsvilkaar.RegelResultatOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.OpptjeningsVilkårTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.OpptjeningsgrunnlagAdapter;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårResultat;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.InngangsvilkårRegler;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelYtelse;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
@@ -47,11 +47,8 @@ public class OpptjeningsVilkårTjenesteImpl implements OpptjeningsVilkårTjenest
             opptjening.getTom())
             .mapTilGrunnlag(relevanteOpptjeningAktiveter, relevanteOpptjeningInntekter);
 
-        // returner egen output i tillegg for senere lagring
-        var output = new OpptjeningsvilkårResultat();
-        var evaluation = new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);
+        var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.FORELDREPENGER, grunnlag);
 
-        var vilkårData = InngangsvilkårOversetter.tilVilkårData(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag, output);
-        return vilkårData;
+        return RegelResultatOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, resultat);
     }
 }
