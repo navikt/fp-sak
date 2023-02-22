@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -280,7 +279,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
                 //Bryr seg bare om perioder der dok er godkjent
                 if (uttakDokumentasjonType != null) {
                     var dokPeriode = personopplysningDvhObjectFactory.createDokumentasjonPeriode();
-                    dokPeriode.setDokumentasjontype(VedtakXmlUtil.lagKodeverksOpplysning(uttakDokumentasjonType));
+                    dokPeriode.setDokumentasjontype(uttakDokumentasjonType.tilKodeverksOpplysning());
                     dokPeriode.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periode.getFom(), periode.getTom()));
                     dokumentasjonsperioder.getDokumentasjonperiode().add(dokPeriode);
                 }
@@ -291,7 +290,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
             leggTilPerioderMedAleneomsorg(aggregat, dokumentasjonsperioder);
             if (!aggregat.harOmsorg()) {
                 var dokumentasjonPeriode = personopplysningDvhObjectFactory.createDokumentasjonPeriode();
-                dokumentasjonPeriode.setDokumentasjontype(VedtakXmlUtil.lagKodeverksOpplysning(UttakDokumentasjonType.UTEN_OMSORG));
+                dokumentasjonPeriode.setDokumentasjontype(UttakDokumentasjonType.UTEN_OMSORG.tilKodeverksOpplysning());
                 dokumentasjonPeriode.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(skjæringstidspunkt, skjæringstidspunkt.plusYears(3)));
                 dokumentasjonsperioder.getDokumentasjonperiode().add(dokumentasjonPeriode);
             }
@@ -335,7 +334,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
 
     private List<? extends DokumentasjonPeriode> lagEnkelDokumentasjonPeriode(UttakDokumentasjonType dokumentasjonType) {
         var dokumentasjonPeriode = personopplysningDvhObjectFactory.createDokumentasjonPeriode();
-        dokumentasjonPeriode.setDokumentasjontype(VedtakXmlUtil.lagKodeverksOpplysning(dokumentasjonType));
+        dokumentasjonPeriode.setDokumentasjontype(dokumentasjonType.tilKodeverksOpplysning());
         dokumentasjonPeriode.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(LocalDate.now(), LocalDate.now()));
         return List.of(dokumentasjonPeriode);
     }
