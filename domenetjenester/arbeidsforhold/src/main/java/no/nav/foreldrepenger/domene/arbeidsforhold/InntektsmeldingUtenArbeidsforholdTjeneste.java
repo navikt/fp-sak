@@ -62,14 +62,15 @@ public class InntektsmeldingUtenArbeidsforholdTjeneste {
                                       AktørId aktørId,
                                       LocalDate utledetStp) {
         var erRegistrertSomFrilans = gjelderFrilans(aktørId, grunnlag, inntektsmelding);
-        if (erRegistrertSomFrilans) {
+        boolean erAmbasade = erArbeidsgiverAmbasade(inntektsmelding.getArbeidsgiver());
+        if (erRegistrertSomFrilans && !erAmbasade) {
             // Arbeidsgiver sender av og til inntektsmeldinger på frilansforhold.
             // Dette er ikke riktig praksis, og saksbehandlingen ignorerer disse så vi trenger ikke lage arbeidsforhold på de.
             return false;
         }
         var harRapportertInntektHosArbeidsgiver = harRapportertInntekt(new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId)), utledetStp, inntektsmelding.getArbeidsgiver());
         var harIngenArbeidsforholdHosArbeidsgiver = !harArbeidsforholdIRegistreHosArbeidsgiver(aktørId, grunnlag, inntektsmelding.getArbeidsgiver());
-        var erAmbasadeUtenArbeidsforhold = erArbeidsgiverAmbasade(inntektsmelding.getArbeidsgiver()) && harIngenArbeidsforholdHosArbeidsgiver;
+        var erAmbasadeUtenArbeidsforhold = erAmbasade && harIngenArbeidsforholdHosArbeidsgiver;
         var finnesInntektUtenArbeidsforhold = harRapportertInntektHosArbeidsgiver && harIngenArbeidsforholdHosArbeidsgiver;
         return finnesInntektUtenArbeidsforhold || erFiskerUtenAktivtArbeid(aktørId, utledetStp, grunnlag, inntektsmelding) || erAmbasadeUtenArbeidsforhold;
     }
