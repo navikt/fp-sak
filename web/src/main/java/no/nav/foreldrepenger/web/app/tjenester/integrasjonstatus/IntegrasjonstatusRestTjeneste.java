@@ -10,8 +10,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.lang3.BooleanUtils;
-
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -35,7 +33,7 @@ public class IntegrasjonstatusRestTjeneste {
     public IntegrasjonstatusRestTjeneste(IntegrasjonstatusTjeneste integrasjonstatusTjeneste,
             @KonfigVerdi(value = "vise.detaljerte.feilmeldinger", defaultVerdi = "true") Boolean viseDetaljerteFeilmeldinger) {
         this.integrasjonstatusTjeneste = integrasjonstatusTjeneste;
-        this.skalViseDetaljerteFeilmeldinger = BooleanUtils.toBoolean(viseDetaljerteFeilmeldinger);
+        this.skalViseDetaljerteFeilmeldinger = viseDetaljerteFeilmeldinger != null && viseDetaljerteFeilmeldinger;
     }
 
     @GET

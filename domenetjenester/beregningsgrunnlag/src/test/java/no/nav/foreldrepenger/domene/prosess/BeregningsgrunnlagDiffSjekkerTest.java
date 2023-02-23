@@ -10,25 +10,25 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
-import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
 import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
 import no.nav.foreldrepenger.domene.entiteter.SammenligningsgrunnlagPrStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
+import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
 import no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType;
 
 public class BeregningsgrunnlagDiffSjekkerTest {
 
     public static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
     private static final Arbeidsgiver ARBEIDSGIVER1 = Arbeidsgiver.fra(
-        new Virksomhet.Builder().medOrgnr("238201321").build());
+        new Virksomhet.Builder().medOrgnr("111111111").build());
     private static final Arbeidsgiver ARBEIDSGIVER2 = Arbeidsgiver.fra(
-        new Virksomhet.Builder().medOrgnr("490830958").build());
+        new Virksomhet.Builder().medOrgnr("999999999").build());
 
 
     @Test

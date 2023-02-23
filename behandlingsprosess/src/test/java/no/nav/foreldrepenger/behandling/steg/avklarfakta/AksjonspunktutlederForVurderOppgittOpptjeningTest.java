@@ -196,7 +196,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
                 .medBegrunnelse("Vet ikke")
                 .medBruttoInntekt(BigDecimal.valueOf(100000))
                 .medRegnskapsførerNavn("Jacob")
-                .medRegnskapsførerTlf("+46678456345")
+                .medRegnskapsførerTlf("TELEFON")
                 .medVirksomhetType(VirksomhetType.FISKE)
                 .medVirksomhet(KUNSTIG_ORG);
         var oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
@@ -260,7 +260,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
                 .medBegrunnelse("Vet ikke")
                 .medBruttoInntekt(BigDecimal.valueOf(100000))
                 .medRegnskapsførerNavn("Jacob")
-                .medRegnskapsførerTlf("+46678456345")
+                .medRegnskapsførerTlf("TELEFON")
                 .medVirksomhetType(VirksomhetType.FISKE);
         var oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
         oppgittOpptjeningBuilder

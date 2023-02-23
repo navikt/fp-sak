@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.tilganger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.apache.commons.lang3.BooleanUtils;
-
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.web.app.util.LdapUtil;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
@@ -46,7 +44,7 @@ public class TilgangerTjeneste {
         this.gruppenavnEgenAnsatt = gruppenavnEgenAnsatt;
         this.gruppenavnKode6 = gruppenavnKode6;
         this.gruppenavnKode7 = gruppenavnKode7;
-        this.skalViseDetaljerteFeilmeldinger = BooleanUtils.toBoolean(viseDetaljerteFeilmeldinger);
+        this.skalViseDetaljerteFeilmeldinger = viseDetaljerteFeilmeldinger != null && viseDetaljerteFeilmeldinger;
     }
 
     public InnloggetNavAnsattDto innloggetBruker() {

@@ -8,43 +8,35 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 public class PersonIdentTest {
 
+    private static final String NASJONALT_TEST_FNR = "10108000398";
+
     @Test
     public void gyldigFoedselsnummer_Fnr() {
-        var nasjoaltTestFnr = "10108000398";
-        var gyldig = PersonIdent.erGyldigFnr(nasjoaltTestFnr);
-        assertThat(gyldig).isTrue();
+        assertThat(PersonIdent.erGyldigFnr(NASJONALT_TEST_FNR)).isTrue();
 
-        assertThat(new PersonIdent(nasjoaltTestFnr).erDnr()).isFalse();
+        assertThat(new PersonIdent(NASJONALT_TEST_FNR).erDnr()).isFalse();
     }
 
     @Test
     public void gyldigFoedselsnummer_Masker() {
-        var nasjoaltTestFnr = "10108000398";
-
-        assertThat(new PersonIdent(nasjoaltTestFnr)).hasToString("PersonIdent<ident=1010******8>");
+        assertThat(new PersonIdent(NASJONALT_TEST_FNR)).hasToString("PersonIdent<ident=1010******8>");
     }
 
     @Test
     public void gyldigFoedselsnummer_Dnr() {
-        var dnr = "65038300827";
-        var gyldig = PersonIdent.erGyldigFnr(dnr);
-        assertThat(gyldig).isTrue();
+        var testDnr = "65038300827";
+        assertThat(PersonIdent.erGyldigFnr(testDnr)).isTrue();
 
-        assertThat(new PersonIdent(dnr).erDnr()).isTrue();
+        assertThat(new PersonIdent(testDnr).erDnr()).isTrue();
     }
 
     @Test
     public void ugyldigFoedselsnummer() {
-        var foedselsnummer = "10108000388";
-        var gyldig = PersonIdent.erGyldigFnr(foedselsnummer);
-        assertThat(gyldig).isFalse();
+        var foedselsnummer = NASJONALT_TEST_FNR.replace("398", "388");
+        assertThat(PersonIdent.erGyldigFnr(foedselsnummer)).isFalse();
 
-        foedselsnummer = "9999999999";
-        gyldig = PersonIdent.erGyldigFnr(foedselsnummer);
-        assertThat(gyldig).isFalse();
+        assertThat(PersonIdent.erGyldigFnr("9999999999")).isFalse();
 
-        foedselsnummer = "101080-0388";
-        gyldig = PersonIdent.erGyldigFnr(foedselsnummer);
-        assertThat(gyldig).isFalse();
+        assertThat(PersonIdent.erGyldigFnr("101080-0388")).isFalse();
     }
 }
