@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.arbeidsforhold;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.Ambasade;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -68,8 +69,13 @@ public class InntektsmeldingUtenArbeidsforholdTjeneste {
         }
         var harRapportertInntektHosArbeidsgiver = harRapportertInntekt(new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId)), utledetStp, inntektsmelding.getArbeidsgiver());
         var harIngenArbeidsforholdHosArbeidsgiver = !harArbeidsforholdIRegistreHosArbeidsgiver(aktørId, grunnlag, inntektsmelding.getArbeidsgiver());
-        boolean finnesInntektUtenArbeidsforhold = harRapportertInntektHosArbeidsgiver && harIngenArbeidsforholdHosArbeidsgiver;
-        return finnesInntektUtenArbeidsforhold || erFiskerUtenAktivtArbeid(aktørId, utledetStp, grunnlag, inntektsmelding);
+        var erAmbasadeUtenArbeidsforhold = erArbeidsgiverAmbasade(inntektsmelding.getArbeidsgiver()) && harIngenArbeidsforholdHosArbeidsgiver;
+        var finnesInntektUtenArbeidsforhold = harRapportertInntektHosArbeidsgiver && harIngenArbeidsforholdHosArbeidsgiver;
+        return finnesInntektUtenArbeidsforhold || erFiskerUtenAktivtArbeid(aktørId, utledetStp, grunnlag, inntektsmelding) || erAmbasadeUtenArbeidsforhold;
+    }
+
+    private static boolean erArbeidsgiverAmbasade(Arbeidsgiver arbeidsgiver) {
+        return arbeidsgiver != null && arbeidsgiver.getErVirksomhet() && Ambasade.erAmbasade(arbeidsgiver.getOrgnr());
     }
 
     private static boolean gjelderFrilans(AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag, Inntektsmelding inntektsmelding) {
