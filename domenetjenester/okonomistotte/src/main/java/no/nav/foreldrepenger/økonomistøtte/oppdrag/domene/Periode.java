@@ -66,9 +66,9 @@ public class Periode {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Periode) {
-            return Objects.equals(getFom(), ((Periode) o).getFom())
-                && Objects.equals(getTom(), ((Periode) o).getTom());
+        if (o instanceof Periode per) {
+            return Objects.equals(getFom(), per.getFom())
+                && Objects.equals(getTom(), per.getTom());
         }
         return false;
     }

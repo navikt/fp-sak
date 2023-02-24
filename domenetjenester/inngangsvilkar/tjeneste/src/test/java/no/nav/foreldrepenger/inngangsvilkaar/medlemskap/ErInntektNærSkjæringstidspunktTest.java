@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.inngangsvilkaar.impl;
+package no.nav.foreldrepenger.inngangsvilkaar.medlemskap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

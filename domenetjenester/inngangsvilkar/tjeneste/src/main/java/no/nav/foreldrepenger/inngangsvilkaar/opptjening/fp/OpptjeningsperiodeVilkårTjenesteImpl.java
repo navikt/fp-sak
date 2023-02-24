@@ -16,15 +16,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Terminb
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.inngangsvilkaar.RegelResultatOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.OpptjeningsperiodeVilkårTjeneste;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.InngangsvilkårRegler;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelYtelse;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.FagsakÅrsak;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.LovVersjoner;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeGrunnlag;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp.RegelFastsettOpptjeningsperiode;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
@@ -50,11 +50,9 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
 
         var grunnlag = opprettGrunnlag(behandlingReferanse);
 
-        final var data = new OpptjeningsPeriode();
-        var evaluation = new RegelFastsettOpptjeningsperiode().evaluer(grunnlag, data);
+        var resultat = InngangsvilkårRegler.opptjeningsperiode(RegelYtelse.FORELDREPENGER, grunnlag);
 
-        var resultat = InngangsvilkårOversetter.tilVilkårData(VilkårType.OPPTJENINGSPERIODEVILKÅR, evaluation, grunnlag, data);
-        return resultat;
+        return RegelResultatOversetter.oversett(VilkårType.OPPTJENINGSPERIODEVILKÅR, resultat);
     }
 
     private OpptjeningsperiodeGrunnlag opprettGrunnlag(BehandlingReferanse ref) {

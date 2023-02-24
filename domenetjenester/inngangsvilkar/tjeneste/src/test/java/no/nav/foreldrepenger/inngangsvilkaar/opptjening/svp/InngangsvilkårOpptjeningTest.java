@@ -11,11 +11,12 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.VilkårUtfallOversetter;
+import no.nav.foreldrepenger.inngangsvilkaar.RegelResultatOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp.InngangsvilkårOpptjening;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.InngangsvilkårRegler;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelYtelse;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsgrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårResultat;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.svp.OpptjeningsvilkårSvangerskapspenger;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -27,10 +28,11 @@ public class InngangsvilkårOpptjeningTest {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-wait-1.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
-        var output = new OpptjeningsvilkårResultat();
-        var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);
+        var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.SVANGERSKAPSPENGER, grunnlag);
 
-        var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
+        var vilkårData = RegelResultatOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, resultat);
+
+        var output = (OpptjeningsvilkårResultat) vilkårData.ekstraVilkårresultat();
 
         assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
@@ -46,10 +48,11 @@ public class InngangsvilkårOpptjeningTest {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-wait.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
-        var output = new OpptjeningsvilkårResultat();
-        var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);
+        var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.SVANGERSKAPSPENGER, grunnlag);
 
-        var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
+        var vilkårData = RegelResultatOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, resultat);
+
+        var output = (OpptjeningsvilkårResultat) vilkårData.ekstraVilkårresultat();
 
         assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
@@ -65,10 +68,11 @@ public class InngangsvilkårOpptjeningTest {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-deny.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
-        var output = new OpptjeningsvilkårResultat();
-        var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);
+        var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.SVANGERSKAPSPENGER, grunnlag);
 
-        var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
+        var vilkårData = RegelResultatOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, resultat);
+
+        var output = (OpptjeningsvilkårResultat) vilkårData.ekstraVilkårresultat();
 
         assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
 
@@ -84,10 +88,11 @@ public class InngangsvilkårOpptjeningTest {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-broken.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
-        var output = new OpptjeningsvilkårResultat();
-        var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);
+        var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.SVANGERSKAPSPENGER, grunnlag);
 
-        var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
+        var vilkårData = RegelResultatOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, resultat);
+
+        var output = (OpptjeningsvilkårResultat) vilkårData.ekstraVilkårresultat();
 
         assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
 
@@ -105,10 +110,11 @@ public class InngangsvilkårOpptjeningTest {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-ok.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
-        var output = new OpptjeningsvilkårResultat();
-        var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);
+        var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.SVANGERSKAPSPENGER, grunnlag);
 
-        var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
+        var vilkårData = RegelResultatOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, resultat);
+
+        var output = (OpptjeningsvilkårResultat) vilkårData.ekstraVilkårresultat();
 
         assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 

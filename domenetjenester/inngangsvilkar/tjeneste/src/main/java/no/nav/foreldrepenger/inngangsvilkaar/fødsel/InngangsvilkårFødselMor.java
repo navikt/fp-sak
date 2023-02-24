@@ -6,10 +6,11 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.inngangsvilkaar.Inngangsvilkår;
+import no.nav.foreldrepenger.inngangsvilkaar.RegelResultatOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårMor;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.InngangsvilkårRegler;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 
 /**
  * Adapter for å evaluere fødselsvilkåret.
@@ -18,23 +19,23 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.Fødselsvilkår
 @VilkårTypeRef(VilkårType.FØDSELSVILKÅRET_MOR)
 public class InngangsvilkårFødselMor implements Inngangsvilkår {
 
-    private InngangsvilkårOversetter inngangsvilkårOversetter;
+    private FødselsvilkårOversetter fødselsvilkårOversetter;
 
     InngangsvilkårFødselMor() {
         // for CDI proxy
     }
 
     @Inject
-    public InngangsvilkårFødselMor(InngangsvilkårOversetter inngangsvilkårOversetter) {
-        this.inngangsvilkårOversetter = inngangsvilkårOversetter;
+    public InngangsvilkårFødselMor(FødselsvilkårOversetter fødselsvilkårOversetter) {
+        this.fødselsvilkårOversetter = fødselsvilkårOversetter;
     }
 
     @Override
     public VilkårData vurderVilkår(BehandlingReferanse ref) {
-        var grunnlag = inngangsvilkårOversetter.oversettTilRegelModellFødsel(ref);
+        var grunnlag = fødselsvilkårOversetter.oversettTilRegelModellFødsel(ref);
 
-        var evaluation = new FødselsvilkårMor().evaluer(grunnlag);
+        var resultat = InngangsvilkårRegler.fødsel(RegelSøkerRolle.MORA, grunnlag);
 
-        return InngangsvilkårOversetter.tilVilkårData(VilkårType.FØDSELSVILKÅRET_MOR, evaluation, grunnlag);
+        return RegelResultatOversetter.oversett(VilkårType.FØDSELSVILKÅRET_MOR, resultat);
     }
 }

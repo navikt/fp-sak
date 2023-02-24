@@ -56,18 +56,18 @@ public class Medlemskapsvilkår implements RuleService<MedlemskapsvilkårGrunnla
 
         Specification<MedlemskapsvilkårGrunnlag> brukerAvklartEuEøsStatsborgerNode =
             rs.hvisRegel(SjekkBrukerErAvklartSomEUEØSStatsborger.ID, "Hvis ikke bruker er avklart som EU/EØS statsborger ...")
-                .hvisIkke(new SjekkBrukerErAvklartSomEUEØSStatsborger(), brukerAvklartLovligOppholdNode)
-                .ellers(brukerAvklartOppholdsrettNode);
+                .hvis(new SjekkBrukerErAvklartSomEUEØSStatsborger(), brukerAvklartOppholdsrettNode)
+                .ellers(brukerAvklartLovligOppholdNode);
 
         Specification<MedlemskapsvilkårGrunnlag> brukerHarOppholdstillatelseForStønadsperiodeNode =
             rs.hvisRegel(SjekkBrukerHarOppholdstillatelseForStønadsperioden.ID, "Hvis ikke bruker er avklart som nordisk statsborger ...")
-                .hvisIkke(new SjekkBrukerHarOppholdstillatelseForStønadsperioden(), brukerAvklartEuEøsStatsborgerNode)
-                .ellers(new Oppfylt());
+                .hvis(new SjekkBrukerHarOppholdstillatelseForStønadsperioden(), new Oppfylt())
+                .ellers(brukerAvklartEuEøsStatsborgerNode);
 
         Specification<MedlemskapsvilkårGrunnlag> brukerAvklartNordiskStatsborgerNode =
             rs.hvisRegel(SjekkBrukerErAvklartSomNordiskStatsborger.ID, "Hvis ikke bruker er avklart som nordisk statsborger ...")
-                .hvisIkke(new SjekkBrukerErAvklartSomNordiskStatsborger(), brukerHarOppholdstillatelseForStønadsperiodeNode)
-                .ellers(new Oppfylt());
+                .hvis(new SjekkBrukerErAvklartSomNordiskStatsborger(), new Oppfylt())
+                .ellers(brukerHarOppholdstillatelseForStønadsperiodeNode);
 
         Specification<MedlemskapsvilkårGrunnlag> sjekkOmBrukHarArbeidsforholdOgInntektVedStatusIkkeBosattNode =
             rs.hvisRegel(SjekkOmBrukerHarArbeidsforholdOgInntekt.ID, "Har bruker minst ett aktivt arbeidsforhold med inntekt i relevant periode")
@@ -76,16 +76,17 @@ public class Medlemskapsvilkår implements RuleService<MedlemskapsvilkårGrunnla
 
         Specification<MedlemskapsvilkårGrunnlag> brukerAvklartSomIkkeBosattNode =
             rs.hvisRegel(SjekkBrukerErAvklartSomIkkeBosatt.ID, "Hvis ikke bruker er avklart som ikke bosatt")
-                .hvisIkke(new SjekkBrukerErAvklartSomIkkeBosatt(), brukerAvklartNordiskStatsborgerNode)
-                .ellers(sjekkOmBrukHarArbeidsforholdOgInntektVedStatusIkkeBosattNode);
+                .hvis(new SjekkBrukerErAvklartSomIkkeBosatt(), sjekkOmBrukHarArbeidsforholdOgInntektVedStatusIkkeBosattNode)
+                .ellers(brukerAvklartNordiskStatsborgerNode);
 
         Specification<MedlemskapsvilkårGrunnlag> brukerPliktigEllerFrivilligMedlemNode =
             rs.hvisRegel(SjekkBrukerErAvklartSomPliktigEllerFrivilligMedlem.ID, "Hvis bruker ikke er avklart som pliktig eller frivillig medlem ...")
-                .hvisIkke(new SjekkBrukerErAvklartSomPliktigEllerFrivilligMedlem(), brukerAvklartSomIkkeBosattNode)
-                .ellers(new Oppfylt());
+                .hvis(new SjekkBrukerErAvklartSomPliktigEllerFrivilligMedlem(), new Oppfylt())
+                .ellers(brukerAvklartSomIkkeBosattNode);
 
         return rs.hvisRegel(SjekkBrukerErAvklartSomIkkeMedlem.ID, "Hvis ikke bruker er avklart som ikke medlem ...")
-            .hvisIkke(new SjekkBrukerErAvklartSomIkkeMedlem(), brukerPliktigEllerFrivilligMedlemNode)
-            .ellers(new IkkeOppfylt(SjekkBrukerErAvklartSomIkkeMedlem.IKKE_OPPFYLT_BRUKER_ER_OPPFØRT_SOM_IKKE_MEDLEM));
+            .hvis(new SjekkBrukerErAvklartSomIkkeMedlem(),
+                new IkkeOppfylt(SjekkBrukerErAvklartSomIkkeMedlem.IKKE_OPPFYLT_BRUKER_ER_OPPFØRT_SOM_IKKE_MEDLEM))
+            .ellers(brukerPliktigEllerFrivilligMedlemNode);
     }
 }

@@ -7,14 +7,14 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.inngangsvilkaar.RegelResultatOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.OpptjeningsperiodeVilkårTjeneste;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.InngangsvilkårRegler;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelYtelse;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.FagsakÅrsak;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeGrunnlag;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.svp.RegelFastsettOpptjeningsperiode;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
@@ -36,10 +36,8 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
             null,
             null);
 
-        final var data = new OpptjeningsPeriode();
-        var evaluation = new RegelFastsettOpptjeningsperiode().evaluer(grunnlag, data);
+        var resultat = InngangsvilkårRegler.opptjeningsperiode(RegelYtelse.SVANGERSKAPSPENGER, grunnlag);
 
-        var resultat = InngangsvilkårOversetter.tilVilkårData(VilkårType.OPPTJENINGSPERIODEVILKÅR, evaluation, grunnlag, data);
-        return resultat;
+        return RegelResultatOversetter.oversett(VilkårType.OPPTJENINGSPERIODEVILKÅR, resultat);
     }
 }

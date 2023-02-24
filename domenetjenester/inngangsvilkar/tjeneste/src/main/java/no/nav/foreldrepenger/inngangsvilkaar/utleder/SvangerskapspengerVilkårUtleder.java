@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.inngangsvilkaar.impl;
+package no.nav.foreldrepenger.inngangsvilkaar.utleder;
 
 import static java.util.Arrays.asList;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.BEREGNINGSGRUNNLAGVILKÅR;
@@ -8,9 +8,9 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårT
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SVANGERSKAPSPENGERVILKÅR;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKERSOPPLYSNINGSPLIKT;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -30,6 +30,6 @@ public final class SvangerskapspengerVilkårUtleder  {
         if (!FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
             throw new IllegalArgumentException("Ulovlig ytelsetype " + behandling.getFagsakYtelseType() + " ventet SVP");
         }
-        return STANDARDVILKÅR.stream().collect(Collectors.toUnmodifiableSet());
+        return new HashSet<>(STANDARDVILKÅR);
     }
 }

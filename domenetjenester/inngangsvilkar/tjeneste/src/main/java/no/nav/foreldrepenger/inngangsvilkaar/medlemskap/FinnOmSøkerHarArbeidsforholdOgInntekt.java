@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.inngangsvilkaar.impl;
+package no.nav.foreldrepenger.inngangsvilkaar.medlemskap;
 
 import static java.util.stream.Collectors.toList;
 

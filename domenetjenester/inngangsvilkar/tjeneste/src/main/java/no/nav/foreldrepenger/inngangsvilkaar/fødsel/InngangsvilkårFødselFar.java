@@ -6,10 +6,11 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.inngangsvilkaar.Inngangsvilkår;
+import no.nav.foreldrepenger.inngangsvilkaar.RegelResultatOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårFar;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.InngangsvilkårRegler;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 
 /**
  * Adapter for å evaluere fødselsvilkåret for far.
@@ -17,23 +18,23 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.Fødselsvilkår
 @ApplicationScoped
 @VilkårTypeRef(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR)
 class InngangsvilkårFødselFar implements Inngangsvilkår {
-    private InngangsvilkårOversetter inngangsvilkårOversetter;
+    private FødselsvilkårOversetter fødselsvilkårOversetter;
 
     InngangsvilkårFødselFar() {
         // for CDI proxy
     }
 
     @Inject
-    public InngangsvilkårFødselFar(InngangsvilkårOversetter inngangsvilkårOversetter) {
-        this.inngangsvilkårOversetter = inngangsvilkårOversetter;
+    public InngangsvilkårFødselFar(FødselsvilkårOversetter fødselsvilkårOversetter) {
+        this.fødselsvilkårOversetter = fødselsvilkårOversetter;
     }
 
     @Override
     public VilkårData vurderVilkår(BehandlingReferanse ref) {
-        var grunnlag = inngangsvilkårOversetter.oversettTilRegelModellFødsel(ref);
+        var grunnlag = fødselsvilkårOversetter.oversettTilRegelModellFødsel(ref);
 
-        var evaluation = new FødselsvilkårFar().evaluer(grunnlag);
+        var resultat = InngangsvilkårRegler.fødsel(RegelSøkerRolle.FARA, grunnlag);
 
-        return InngangsvilkårOversetter.tilVilkårData(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, evaluation, grunnlag);
+        return RegelResultatOversetter.oversett(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, resultat);
     }
 }

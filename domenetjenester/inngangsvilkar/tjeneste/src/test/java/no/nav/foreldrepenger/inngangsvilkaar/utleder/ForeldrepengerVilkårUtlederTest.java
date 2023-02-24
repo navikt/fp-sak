@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.inngangsvilkaar.impl;
+package no.nav.foreldrepenger.inngangsvilkaar.utleder;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.ADOPSJONSVILKARET_FORELDREPENGER;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.BEREGNINGSGRUNNLAGVILKÅR;

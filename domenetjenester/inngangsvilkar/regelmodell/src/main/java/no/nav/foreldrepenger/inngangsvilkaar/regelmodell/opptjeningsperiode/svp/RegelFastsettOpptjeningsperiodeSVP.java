@@ -15,13 +15,13 @@ import no.nav.fpsak.nare.specification.Specification;
  * Det mangler dokumentasjon
  */
 
-@RuleDocumentation(value = RegelFastsettOpptjeningsperiode.ID, specificationReference = "https://confluence.adeo.no/display/MODNAV/OMR11+-+A1+Vurdering+for+opptjeningsvilkår+-+Funksjonell+beskrivelse")
-public class RegelFastsettOpptjeningsperiode implements RuleService<OpptjeningsperiodeGrunnlag> {
+@RuleDocumentation(value = RegelFastsettOpptjeningsperiodeSVP.ID, specificationReference = "https://confluence.adeo.no/display/MODNAV/OMR11+-+A1+Vurdering+for+opptjeningsvilkår+-+Funksjonell+beskrivelse")
+public class RegelFastsettOpptjeningsperiodeSVP implements RuleService<OpptjeningsperiodeGrunnlag> {
 
     static final String ID = "FP_VK_21";
     static final String BESKRIVELSE = "Fastsett opptjeningsperiode";
 
-    public RegelFastsettOpptjeningsperiode() {
+    public RegelFastsettOpptjeningsperiodeSVP() {
     }
 
     @Override

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.inngangsvilkaar.impl;
+package no.nav.foreldrepenger.inngangsvilkaar.utleder;
 
 import no.nav.vedtak.exception.TekniskException;
 

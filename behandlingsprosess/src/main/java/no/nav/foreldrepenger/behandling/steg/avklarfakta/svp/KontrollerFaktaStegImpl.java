@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.SvangerskapspengerVilkårUtleder;
+import no.nav.foreldrepenger.inngangsvilkaar.utleder.SvangerskapspengerVilkårUtleder;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @BehandlingStegRef(BehandlingStegType.KONTROLLER_FAKTA)
