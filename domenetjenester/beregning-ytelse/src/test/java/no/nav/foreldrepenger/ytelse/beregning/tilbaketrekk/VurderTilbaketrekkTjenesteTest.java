@@ -105,23 +105,21 @@ public class VurderTilbaketrekkTjenesteTest {
         // Bygg IAY
         var behandling = opprettBehandling();
         var registerBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
-        var arbeidsgiver = Arbeidsgiver.virksomhet("977011833");
         var arbeidsforholdId1 = InternArbeidsforholdRef.nyRef();
-        var ya1 = lagYrkesaktivitet(arbeidsgiver, arbeidsforholdId1,
+        var ya1 = lagYrkesaktivitet(ARBEIDSGIVER1, arbeidsforholdId1,
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.minusMonths(3)));
-        var arbeidsgiver2 = Arbeidsgiver.virksomhet("924042648");
-        var ya2 = lagYrkesaktivitet(arbeidsgiver2, InternArbeidsforholdRef.nullRef(),
+        var ya2 = lagYrkesaktivitet(ARBEIDSGIVER2, InternArbeidsforholdRef.nullRef(),
                 DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1)));
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
-        var ya3 = lagYrkesaktivitet(arbeidsgiver, arbeidsforholdId,
+        var ya3 = lagYrkesaktivitet(ARBEIDSGIVER1, arbeidsforholdId,
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1).minusDays(1)));
         leggTilYrkesaktiviteter(behandling, registerBuilder, ya1, ya2, ya3);
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), registerBuilder);
 
         // ALLEREDE UTBETALT
-        lagUtbetaltBeregningsresultatMedEnAndelTilBruker(arbeidsgiver, SKJÆRINGSTIDSPUNKT.plusMonths(1));
+        lagUtbetaltBeregningsresultatMedEnAndelTilBruker(ARBEIDSGIVER1, SKJÆRINGSTIDSPUNKT.plusMonths(1));
         // NYTT RESULTAT
-        lagBeregningsresultatForTilkommetArbeidMedRefusjon(arbeidsgiver2, arbeidsgiver, SKJÆRINGSTIDSPUNKT.plusMonths(1), behandling.getId());
+        lagBeregningsresultatForTilkommetArbeidMedRefusjon(ARBEIDSGIVER2, ARBEIDSGIVER1, SKJÆRINGSTIDSPUNKT.plusMonths(1), behandling.getId());
 
         // Act
         var aksjonspunktResultater = vurderTilbaketrekkTjeneste.skalVurdereTilbaketrekk(mockReferanse(behandling));

@@ -251,7 +251,7 @@ public class IAYDtoMapperRoundtripTest {
                                                 .medNærRelasjon(false)
                                                 .medOppgittVirksomhetNavn("DuGamleDuFria", Landkode.SWE)
                                                 .medRegnskapsførerNavn("Regnskapsfører")
-                                                .medRegnskapsførerTlf("+47902348732")
+                                                .medRegnskapsførerTlf("TELEFON")
                                                 .medVarigEndring(true)
                                                 .medVirksomhet(org)
                                                 .medVirksomhetType(VirksomhetType.ANNEN)))

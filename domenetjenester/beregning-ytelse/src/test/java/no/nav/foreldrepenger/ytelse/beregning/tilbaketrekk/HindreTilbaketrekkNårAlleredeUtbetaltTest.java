@@ -8,7 +8,6 @@ import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
@@ -18,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -27,26 +27,20 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.of(2019, Month.JANUARY, 20);
     private static final LocalDate SISTE_UTTAKSDAG = LocalDate.of(2019, Month.APRIL, 4);
-    private static final Arbeidsgiver ARBEIDSGIVER1 = Arbeidsgiver.virksomhet("900050001");
-    private static final Arbeidsgiver ARBEIDSGIVER2 = Arbeidsgiver.virksomhet("900050002");
-    private static final Arbeidsgiver ARBEIDSGIVER3 = Arbeidsgiver.virksomhet("900050003");
+    private static final Arbeidsgiver ARBEIDSGIVER1 = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG + "1");
+    private static final Arbeidsgiver ARBEIDSGIVER2 = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG + "2");
+    private static final Arbeidsgiver ARBEIDSGIVER3 = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG + "3");
     private static final InternArbeidsforholdRef MED_INTERNREFERANSE = InternArbeidsforholdRef.nyRef();
     private static final InternArbeidsforholdRef UTEN_INTERNREFERANSE = InternArbeidsforholdRef.nullRef();
 
-    private HindreTilbaketrekkNårAlleredeUtbetalt tjeneste;
-
-    @BeforeEach
-    public void setup() {
-        tjeneste = new HindreTilbaketrekkNårAlleredeUtbetalt();
-    }
 
     @Test
     public void omfordeling_med_2_tilkomne_arbeidsforhold_skal_ikke_ta_med_tilkommet_i_flyttbar_dagsats() {
         // Arrange
         final var PERIODE_FOM = LocalDate.of(2020, 3, 24);
-        final var GAMMELT_ARBEID = Arbeidsgiver.virksomhet("923186956");
-        final var TILKOMMET1 = Arbeidsgiver.virksomhet("916272421");
-        final var TILKOMMET2 = Arbeidsgiver.virksomhet("919852925");
+        final var GAMMELT_ARBEID = ARBEIDSGIVER1;
+        final var TILKOMMET1 = ARBEIDSGIVER2;
+        final var TILKOMMET2 = ARBEIDSGIVER3;
 
         var forrigeBrp = lagBeregningsresultatPeriode(PERIODE_FOM, LocalDate.of(2020, 3, 31));
         lagSNAndel(forrigeBrp, 1225);

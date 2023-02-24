@@ -4,13 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetAggregatEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
-import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregat;
-import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 
 class FraEntitetTilBehandlingsmodellMapperTest {
 
@@ -183,7 +178,7 @@ class FraEntitetTilBehandlingsmodellMapperTest {
                       "opprettetAv" : "vtp",
                       "opprettetTidspunkt" : "2022-06-30T12:13:05.9591278",
                       "arbeidsgiver" : {
-                        "arbeidsgiverOrgnr" : "910909088"
+                        "arbeidsgiverOrgnr" : "342352362"
                       },
                       "arbeidsforholdRef" : { },
                       "arbeidsperiodeFom" : "2021-08-30",
@@ -231,7 +226,7 @@ class FraEntitetTilBehandlingsmodellMapperTest {
                     "tomDato" : "2022-01-29"
                   },
                   "arbeidsgiver" : {
-                    "arbeidsgiverOrgnr" : "910909088"
+                    "arbeidsgiverOrgnr" : "342352362"
                   },
                   "arbeidsforholdRef" : { },
                   "opptjeningAktivitetType" : "ARBEID"
@@ -267,7 +262,7 @@ class FraEntitetTilBehandlingsmodellMapperTest {
                     "tomDato" : "2022-01-29"
                   },
                   "arbeidsgiver" : {
-                    "arbeidsgiverOrgnr" : "910909088"
+                    "arbeidsgiverOrgnr" : "342352362"
                   },
                   "handlingType" : "BENYTT",
                   "opptjeningAktivitetType" : "ARBEID"
