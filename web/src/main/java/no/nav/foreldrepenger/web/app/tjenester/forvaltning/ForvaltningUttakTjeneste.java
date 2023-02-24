@@ -74,7 +74,7 @@ public class ForvaltningUttakTjeneste {
         }
     }
 
-    public void endreAnnenForelderHarRettEØS(UUID behandlingUUID, boolean annenForelderHarRettEØS) {
+    public void endreAnnenForelderHarRettEØS(UUID behandlingUUID, boolean annenForelderHarRettEØS, boolean annenForelderHarOppholdEØS) {
         var behandling = behandlingRepository.hentBehandling(behandlingUUID);
         if (behandling.erRevurdering()) {
             throw new ForvaltningException("Kan ikke endre EØS rett i revurdering. Hvis nødvendig må vi utvide tjenesten til å lagre bekreftet versjon");
@@ -86,7 +86,7 @@ public class ForvaltningUttakTjeneste {
                 + "Hopp behandlingen tilbake til tidligere steg for å fjerne avklaringen. Senest steg KONTROLLER_OMSORG_RETT");
         }
 
-        var nyRettighet = new OppgittRettighetEntitet(false, false, false, annenForelderHarRettEØS);
+        var nyRettighet = new OppgittRettighetEntitet(false, false, false, annenForelderHarRettEØS, annenForelderHarOppholdEØS);
         ytelseFordelingTjeneste.endreOppgittRettighet(behandlingId, nyRettighet);
         var begrunnelse = annenForelderHarRettEØS ? "FORVALTNING - Endret til at bruker har oppgitt at annen forelder har rett i EØS" :
             "FORVALTNING - Endret til at bruker har oppgitt at annen forelder ikke har rett i EØS";

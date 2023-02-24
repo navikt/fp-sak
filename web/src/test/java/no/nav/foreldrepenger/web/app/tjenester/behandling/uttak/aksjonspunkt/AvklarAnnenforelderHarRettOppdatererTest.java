@@ -120,7 +120,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknad();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-        var rettighet = new OppgittRettighetEntitet(false, false, true, false);
+        var rettighet = new OppgittRettighetEntitet(false, false, true, false, false);
         scenario.medOppgittRettighet(rettighet);
         scenario.leggTilAksjonspunkt(AKSONSPUNKT_DEF, BehandlingStegType.VURDER_UTTAK);
         var behandling = scenario.lagre(repositoryProvider);

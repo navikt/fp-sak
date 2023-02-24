@@ -39,7 +39,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
             .build();
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
-            .medOppgittRettighet(beggeRett())
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
             .lagre(repositoryProvider);
 
         var yfa = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
@@ -52,10 +52,6 @@ class TidligOppstartFarDokumentasjonUtlederTest {
         assertThat(behov).isEmpty();
     }
 
-    private static OppgittRettighetEntitet beggeRett() {
-        return new OppgittRettighetEntitet(true, false, false, false);
-    }
-
     @Test
     void farEllerMedmorSøktOmTidligOppstartFedrekvote() {
         var oppgittPeriode = OppgittPeriodeBuilder.ny()
@@ -64,7 +60,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
             .build();
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
-            .medOppgittRettighet(beggeRett())
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
             .lagre(repositoryProvider);
 
         var yfa = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
@@ -88,7 +84,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
             .build();
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
-            .medOppgittRettighet(beggeRett())
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
             .lagre(repositoryProvider);
 
         var yfa = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
@@ -108,7 +104,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
             .medPeriode(FOM, FOM.plusWeeks(1))
             .build();
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, false))
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, false, false))
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
             .lagre(repositoryProvider);
 
@@ -129,7 +125,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
             .medPeriode(FOM, FOM.plusWeeks(1))
             .build();
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false, false))
+            .medOppgittRettighet(OppgittRettighetEntitet.aleneomsorg())
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
             .lagre(repositoryProvider);
 
@@ -151,7 +147,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
             .medPeriode(FOM, FOM.plusWeeks(1))
             .build();
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(beggeRett())
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
             .lagre(repositoryProvider);
 
@@ -174,7 +170,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
             .medPeriode(FOM, FOM.plusWeeks(2))
             .build();
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(beggeRett())
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
             .lagre(repositoryProvider);
 
@@ -198,7 +194,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
             .build();
 
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(beggeRett())
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
             .lagre(repositoryProvider);
 
@@ -226,7 +222,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
             .build();
 
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(beggeRett())
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
             .lagre(repositoryProvider);
 
@@ -249,7 +245,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
             .build();
 
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(beggeRett())
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
             .lagre(repositoryProvider);
 

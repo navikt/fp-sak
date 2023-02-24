@@ -1,5 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -9,10 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenforelderHarRettDto;
-
-import javax.persistence.EntityManager;
-import java.time.LocalDate;
-import java.util.List;
 
 public class AvklarFaktaTestUtil {
 
@@ -49,7 +50,7 @@ public class AvklarFaktaTestUtil {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknad();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-        var rettighet = new OppgittRettighetEntitet(false, true, false, false);
+        var rettighet = OppgittRettighetEntitet.aleneomsorg();
         scenario.medOppgittRettighet(rettighet);
         return scenario;
     }

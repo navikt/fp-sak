@@ -1,0 +1,2 @@
+ALTER TABLE SO_RETTIGHET ADD ANNEN_FORELDER_OPPHOLD_EOS VARCHAR2(1 CHAR);
+COMMENT ON COLUMN SO_RETTIGHET.ANNEN_FORELDER_OPPHOLD_EOS IS 'Oppgitt at annen forelder har oppholdt seg fast i et annet EØS-land før barnet ble født';

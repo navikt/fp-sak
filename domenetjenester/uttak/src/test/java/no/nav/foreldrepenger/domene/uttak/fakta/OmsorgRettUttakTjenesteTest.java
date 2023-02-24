@@ -45,7 +45,7 @@ public class OmsorgRettUttakTjenesteTest {
     @Test
     public void automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_oppgitt_rett_og_annenpart_uten_norsk_id() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var behandling = scenario.lagre(repositoryProvider);
         var ref = BehandlingReferanse.fra(behandling);
         when(personopplysninger.oppgittAnnenpartUtenNorskID(ref)).thenReturn(true);
@@ -62,7 +62,7 @@ public class OmsorgRettUttakTjenesteTest {
     @Test
     public void automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_ikke_oppgitt_rett_og_annenpart_uten_norsk_id() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, false));
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, false, false));
         var behandling = scenario.lagre(repositoryProvider);
         var ref = BehandlingReferanse.fra(behandling);
         when(personopplysninger.oppgittAnnenpartUtenNorskID(ref)).thenReturn(true);
@@ -78,7 +78,7 @@ public class OmsorgRettUttakTjenesteTest {
     @Test
     public void ikke_automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_annen_forelder_er_i_tps() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var behandling = scenario.lagre(repositoryProvider);
         var ref = BehandlingReferanse.fra(behandling);
         when(personopplysninger.oppgittAnnenpartUtenNorskID(ref)).thenReturn(false);
@@ -94,7 +94,7 @@ public class OmsorgRettUttakTjenesteTest {
     @Test
     public void ikke_automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_annen_forelder_ikke_finnes() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var behandling = scenario.lagre(repositoryProvider);
 
         tjeneste.avklarOmAnnenForelderHarRett(BehandlingReferanse.fra(behandling));

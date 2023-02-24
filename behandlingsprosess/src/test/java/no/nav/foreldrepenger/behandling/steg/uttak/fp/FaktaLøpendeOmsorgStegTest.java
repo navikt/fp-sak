@@ -68,7 +68,7 @@ class FaktaLøpendeOmsorgStegTest {
 
         scenario.medRegisterOpplysninger(personInformasjon);
 
-        var rettighet = new OppgittRettighetEntitet(true, false, false, false);
+        var rettighet = OppgittRettighetEntitet.beggeRett();
         scenario.medOppgittRettighet(rettighet);
         scenario.medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)

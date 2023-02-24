@@ -67,7 +67,7 @@ class FaktaUttakStegTest {
             .medPeriode(fødselsdato, fødselsdato.plusWeeks(2).minusDays(1))
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false))
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
             .medFordeling(new OppgittFordelingEntitet(List.of(utsettelse), true))
             .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(fødselsdato.minusWeeks(2)).build())
             .medFødselAdopsjonsdato(fødselsdato);

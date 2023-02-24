@@ -760,7 +760,7 @@ public class FastsettePerioderRegelAdapterTest {
         var morScenarioRevurdering = ScenarioMorSøkerForeldrepenger.forFødsel();
         morScenarioRevurdering.medFordeling(new OppgittFordelingEntitet(List.of(morUtsettelseRevurdering), true));
         morScenarioRevurdering.medOriginalBehandling(morBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING);
-        morScenarioRevurdering.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
+        morScenarioRevurdering.medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
 
         var morBehandlingRevurdering = morScenarioRevurdering.lagre(repositoryProvider);
 
@@ -950,7 +950,7 @@ public class FastsettePerioderRegelAdapterTest {
             .leggTilAktørArbeid(InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(Optional.empty())
                 .medAktørId(aktørId)
                 .leggTilYrkesaktivitet(yrkesaktivitet2));
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
+        scenario.medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var behandling = lagre(scenario);
         lagreUttaksgrunnlag(behandling, fødselsdato);
 
@@ -1035,7 +1035,7 @@ public class FastsettePerioderRegelAdapterTest {
                 .medAktørId(aktørId)
                 .leggTilYrkesaktivitet(yrkesaktivitet1));
 
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
+        scenario.medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var behandling = lagre(scenario);
         lagreUttaksgrunnlag(behandling, fødselsdato);
 
@@ -1456,7 +1456,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medFordeling(new OppgittFordelingEntitet(List.of(mk, utsettelse), true));
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
+        scenario.medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
 
         var aktivitetsAvtale = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato.minusYears(1), utsettelse.getTom()))
@@ -1529,7 +1529,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(mk1, gradering1, gradering2, mk2), true))
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         scenario.getInntektArbeidYtelseScenarioTestBuilder()
             .getKladd()
             .leggTilAktørArbeid(InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(Optional.empty())
@@ -1638,7 +1638,7 @@ public class FastsettePerioderRegelAdapterTest {
                 .medAktørId(aktørId)
                 .leggTilYrkesaktivitet(yrkesaktivitet));
 
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
+        scenario.medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var behandling = lagre(scenario);
         lagreUttaksgrunnlag(behandling, fødselsdato);
 
@@ -1701,7 +1701,7 @@ public class FastsettePerioderRegelAdapterTest {
                 .medAktørId(aktørId)
                 .leggTilYrkesaktivitet(yrkesaktivitet));
 
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
+        scenario.medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var behandling = lagre(scenario);
         lagreUttaksgrunnlag(behandling, fødselsdato);
 
@@ -1821,7 +1821,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         scenario.medFordeling(new OppgittFordelingEntitet(oppgittPerioder, true));
         scenario.medOverstyrtOmsorg(overstyrtOmsorg);
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
+        scenario.medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
 
         var aktivitetsAvtale = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(arbeidFom, arbeidTom))

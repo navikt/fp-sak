@@ -179,8 +179,8 @@ public class VedtakXmlTest {
                 .medFødselsDato(FØDSELSDATO_BARN);
 
         scenario.medFordeling(opprettOppgittFordeling());
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
-        scenario.medOverstyrtRettighet(new OppgittRettighetEntitet(true, false, false, false));
+        scenario.medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
+        scenario.medOverstyrtRettighet(OppgittRettighetEntitet.beggeRett());
 
         var behandling = lagre(scenario);
         var behandlingsresultat = opprettBehandlingsresultatMedVilkårResultatForBehandling(em, behandling);
