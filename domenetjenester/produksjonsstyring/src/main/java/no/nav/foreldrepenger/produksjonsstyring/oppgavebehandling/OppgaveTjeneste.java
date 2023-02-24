@@ -335,20 +335,22 @@ public class OppgaveTjeneste {
     public void ferdigstillOppgaveForForvaltning() {
         oppgaveBehandlingKoblingRepository.hentUferdigeOppgaver().stream()
             .filter(o -> !o.isFerdigstilt())
-            .forEach(o -> {
-                restKlient.ferdigstillOppgave(o.getOppgaveId());
-                LOG.info("FPSAK GOSYS forvaltning ferdigstilte oppgave {}", o.getOppgaveId());
-                ferdigstillOppgaveBehandlingKobling(o);
-            });
+            .forEach(this::opprettTaskAvsluttOppgave);
     }
 
     public void ferdigstillOppgaveForForvaltning(String oppgaveId) {
         var oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId);
-        oppgave.filter(o -> !o.isFerdigstilt()).ifPresent(this::ferdigstillOppgaveBehandlingKobling);
-        restKlient.ferdigstillOppgave(oppgaveId);
-        LOG.info("FPSAK GOSYS forvaltning ferdigstilte oppgave {}", oppgaveId);
+        oppgave.filter(o -> !o.isFerdigstilt()).ifPresent(this::opprettTaskAvsluttOppgave);
 
     }
+    public void opprettTaskAvsluttOppgave(OppgaveBehandlingKobling oppgave) {
+        var behandling = behandlingRepository.hentBehandling(oppgave.getBehandlingId());
 
+        ferdigstillOppgaveBehandlingKobling(oppgave);
+        var avsluttOppgaveTask = opprettProsessTask(behandling, TaskType.forProsessTask(AvsluttOppgaveTask.class));
+        setOppgaveId(avsluttOppgaveTask, oppgave.getOppgaveId());
+        avsluttOppgaveTask.setCallIdFraEksisterende();
+        taskTjeneste.lagre(avsluttOppgaveTask);
+    }
 
 }
