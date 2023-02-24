@@ -138,7 +138,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     private Behandling behandlingMedUttak(UttakResultatPerioderEntitet perioder, AbstractTestScenario<?> scenario, LocalDateTime vedtakstidspunkt) {
         scenario.medUttak(perioder);
         scenario.medDefaultOppgittDekningsgrad();
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
+        scenario.medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         scenario.medBehandlingVedtak().medVedtakstidspunkt(vedtakstidspunkt);
         var behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
@@ -348,7 +348,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     @Test
     void setter_eøs_rett_oppgitt_men_ikke_avklart() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, true));
+            .medOppgittRettighet(bareSøkerRettAnnenPartEøs());
         var behandling = scenario.lagre(repositoryProvider);
 
         var tjeneste = tjeneste();
@@ -359,10 +359,14 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(dto.oppgittAnnenForelderRettEØS()).isTrue();
     }
 
+    private static OppgittRettighetEntitet bareSøkerRettAnnenPartEøs() {
+        return new OppgittRettighetEntitet(false, false, false, true, true);
+    }
+
     @Test
     void setter_eøs_rett_avklart_ikke_eøs_rett() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, true));
+            .medOppgittRettighet(bareSøkerRettAnnenPartEøs());
         var behandling = scenario.lagre(repositoryProvider);
 
         avklarEøsRett(behandling, false);
@@ -377,7 +381,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     @Test
     void setter_eøs_rett_avklart_eøs_rett() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, true));
+            .medOppgittRettighet(bareSøkerRettAnnenPartEøs());
         var behandling = scenario.lagre(repositoryProvider);
 
         avklarEøsRett(behandling, true);
@@ -427,7 +431,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false, false));
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false, false, false));
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         var result = tjeneste().mapFra(behandling);

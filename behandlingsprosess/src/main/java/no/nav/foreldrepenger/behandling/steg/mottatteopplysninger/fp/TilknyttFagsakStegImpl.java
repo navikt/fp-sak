@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
@@ -78,13 +77,16 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
         // Vurder automatisk merking av opptjening utland
         List<AksjonspunktResultat> aksjonspunkter = new ArrayList<>();
 
-        if (!behandling.harAksjonspunktMedType(MANUELL_MARKERING_AV_UTLAND_SAKSTYPE) && !behandling.erRevurdering()
-                && (harOppgittUtenlandskInntekt(kontekst.getBehandlingId()) || harOppgittAnnenForelderHarOpptjentRettFraEØS(kontekst.getBehandlingId()))) {
+        if (!behandling.harAksjonspunktMedType(MANUELL_MARKERING_AV_UTLAND_SAKSTYPE) && !behandling.erRevurdering() && harOppgittUtland(kontekst)) {
             aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AUTOMATISK_MARKERING_AV_UTENLANDSSAK));
         }
 
         return aksjonspunkter.isEmpty() ? BehandleStegResultat.utførtUtenAksjonspunkter()
                 : BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
+    }
+
+    private boolean harOppgittUtland(BehandlingskontrollKontekst kontekst) {
+        return harOppgittUtenlandskInntekt(kontekst.getBehandlingId()) || harOppgittAnnenForelderTilknytningEØS(kontekst.getBehandlingId());
     }
 
     private void avsluttTidligereRegistreringsoppgave(Behandling behandling) {
@@ -98,10 +100,11 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
                 .anyMatch(OppgittArbeidsforhold::erUtenlandskInntekt)).orElse(false);
     }
 
-    private boolean harOppgittAnnenForelderHarOpptjentRettFraEØS(Long behandlingId) {
+    private boolean harOppgittAnnenForelderTilknytningEØS(Long behandlingId) {
         return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
             .map(YtelseFordelingAggregat::getOppgittRettighet)
-            .filter(OppgittRettighetEntitet::getAnnenForelderRettEØS)
+            //Tidligere søknaden hadde ikke spørsmål om opphold, bare rett
+            .filter(rettighet -> rettighet.getAnnenForelderOppholdEØS() == null ? rettighet.getAnnenForelderRettEØS() : rettighet.getAnnenForelderOppholdEØS())
             .isPresent();
     }
 

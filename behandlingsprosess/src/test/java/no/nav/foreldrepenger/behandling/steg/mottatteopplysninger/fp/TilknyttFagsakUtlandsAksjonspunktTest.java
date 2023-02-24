@@ -43,7 +43,7 @@ public class TilknyttFagsakUtlandsAksjonspunktTest {
         var fødselsdato = LocalDate.now().minusDays(15); // > 14 dager for å unngå ApDef.VENT_PÅ_FØDSEL
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato).medAntallBarn(1);
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, true));
+        scenario.medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, true, true));
         var behandling = scenario.lagre(provider);
 
         when(kobleSakerTjeneste.finnFagsakRelasjonDersomOpprettet(behandling)).thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null,

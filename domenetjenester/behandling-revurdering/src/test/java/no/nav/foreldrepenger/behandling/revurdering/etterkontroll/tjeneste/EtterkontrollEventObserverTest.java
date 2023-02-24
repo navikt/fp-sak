@@ -126,7 +126,7 @@ public class EtterkontrollEventObserverTest {
                 .build();
         scenario.medRegisterOpplysninger(søker);
 
-        var rettighet = new OppgittRettighetEntitet(true, false, false, false);
+        var rettighet = OppgittRettighetEntitet.beggeRett();
         scenario.medOppgittRettighet(rettighet);
         return scenario.lagre(repositoryProvider);
     }

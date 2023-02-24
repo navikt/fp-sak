@@ -192,7 +192,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
     private Behandling opprettBehandling(OppgittFordelingEntitet fordeling) {
         // Arrange
         var termindato = LocalDate.now().plusWeeks(16);
-        var rettighet = new OppgittRettighetEntitet(false, true, false, false);
+        var rettighet = OppgittRettighetEntitet.aleneomsorg();
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
             LocalDate.now().minusDays(20)).medOpprinneligEndringsdato(LocalDate.now().minusDays(20)).build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()

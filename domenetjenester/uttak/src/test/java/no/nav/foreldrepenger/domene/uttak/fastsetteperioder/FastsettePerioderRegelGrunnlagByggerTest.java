@@ -383,7 +383,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             .medFordeling(new OppgittFordelingEntitet(Collections.singletonList(uttakFPFar), true))
             .medAvklarteUttakDatoer(avklarteUttakDatoerEntitet)
             .medDefaultInntektArbeidYtelse()
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var farsBehandling = lagre(scenarioFarSøkerForeldrepenger);
 
         repositoryProvider.getFagsakRelasjonRepository()
@@ -639,7 +639,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
     private Behandling setupScenario(List<OppgittPeriodeEntitet> oppgittPerioder) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medFordeling(new OppgittFordelingEntitet(oppgittPerioder, true));
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
+        scenario.medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var førsteUttaksdag = oppgittPerioder.stream()
             .min(Comparator.comparing(OppgittPeriodeEntitet::getFom))
             .get()

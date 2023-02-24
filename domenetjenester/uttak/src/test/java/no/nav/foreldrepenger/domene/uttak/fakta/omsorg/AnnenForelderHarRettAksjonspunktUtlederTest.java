@@ -46,7 +46,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
-        var rettighet = new OppgittRettighetEntitet(false, false, false, false);
+        var rettighet = new OppgittRettighetEntitet(false, false, false, false, false);
         scenario.medOppgittRettighet(rettighet);
 
         //mockPersonopplysninger(AKTØR_ID_FAR);
@@ -82,7 +82,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
-        var rettighet = new OppgittRettighetEntitet(false, false, false, false);
+        var rettighet = new OppgittRettighetEntitet(false, false, false, false, false);
         scenario.medOppgittRettighet(rettighet);
 
         var behandling = scenario.lagre(repositoryProvider);
@@ -105,7 +105,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
-        var rettighet = new OppgittRettighetEntitet(false, false, false, false);
+        var rettighet = new OppgittRettighetEntitet(false, false, false, false, false);
         scenario.medOppgittRettighet(rettighet);
 
         var behandling = scenario.lagre(repositoryProvider);
@@ -129,7 +129,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
-        var rettighet = new OppgittRettighetEntitet(false, false, false, false);
+        var rettighet = new OppgittRettighetEntitet(false, false, false, false, false);
         scenario.medOppgittRettighet(rettighet);
 
         var behandling = scenario.lagre(repositoryProvider);
@@ -149,13 +149,13 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
         var fødselsdato = LocalDate.now().minusMonths(1);
         var mores = ScenarioMorSøkerEngangsstønad.forFødsel(AKTØR_ID_MOR);
 
-        var morEngang = mores.lagre(repositoryProvider);
+        mores.lagre(repositoryProvider);
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
-        var rettighet = new OppgittRettighetEntitet(false, false, false, false);
+        var rettighet = new OppgittRettighetEntitet(false, false, false, false, false);
         scenario.medOppgittRettighet(rettighet);
-        var overstyrt = new OppgittRettighetEntitet(null, null, true, null);
+        var overstyrt = new OppgittRettighetEntitet(null, null, true, null, null);
         scenario.medOverstyrtRettighet(overstyrt);
 
         var behandling = scenario.lagre(repositoryProvider);
@@ -183,7 +183,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
-        var rettighet = new OppgittRettighetEntitet(false, false, false, false);
+        var rettighet = new OppgittRettighetEntitet(false, false, false, false, false);
         scenario.medOppgittRettighet(rettighet);
 
         var behandling = scenario.lagre(repositoryProvider);
@@ -217,7 +217,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
-        var rettighet = new OppgittRettighetEntitet(true, false, false, false);
+        var rettighet = OppgittRettighetEntitet.beggeRett();
         scenario.medOppgittRettighet(rettighet);
 
         var behandling = scenario.lagre(repositoryProvider);
@@ -236,7 +236,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
             .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
-        var rettighet = new OppgittRettighetEntitet(true, false, false, false);
+        var rettighet = OppgittRettighetEntitet.beggeRett();
         scenario.medOppgittRettighet(rettighet);
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -254,7 +254,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
-        var rettighet = new OppgittRettighetEntitet(false, true, false, false);
+        var rettighet = OppgittRettighetEntitet.aleneomsorg();
         scenario.medOppgittRettighet(rettighet);
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -272,7 +272,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
-        var rettighet = new OppgittRettighetEntitet(false, true, false, false);
+        var rettighet = OppgittRettighetEntitet.aleneomsorg();
         scenario.medOppgittRettighet(rettighet);
         var behandling = scenario.lagre(repositoryProvider);
 

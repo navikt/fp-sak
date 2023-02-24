@@ -176,7 +176,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
             .forFødselMedGittAktørId(GITT_MOR_AKTØR_ID);
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(førsteUttaksdato).build());
 
-        var rettighet = new OppgittRettighetEntitet(true, false, false, false);
+        var rettighet = OppgittRettighetEntitet.beggeRett();
         scenario.medOppgittRettighet(rettighet);
         return scenario.lagre(repositoryProvider);
     }
@@ -195,7 +195,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     private Behandling opprettBehandlingForFødselOgBarnBorSammenMedMorIkkeFarOgFarSøker() {
         var scenario = ScenarioMorSøkerForeldrepenger
             .forFødselMedGittAktørId(GITT_FAR_AKTØR_ID);
-        var rettighet = new OppgittRettighetEntitet(true, false, false, false);
+        var rettighet = OppgittRettighetEntitet.beggeRett();
         scenario.medOppgittRettighet(rettighet);
 
         var behandling = scenario.lagre(repositoryProvider);
@@ -211,7 +211,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
 
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(fødselsdato).build());
 
-        var rettighet = new OppgittRettighetEntitet(true, false, false, false);
+        var rettighet = OppgittRettighetEntitet.beggeRett();
         scenario.medOppgittRettighet(rettighet);
 
         var behandling = scenario.lagre(repositoryProvider);
@@ -227,7 +227,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
 
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(fødselsdato).build());
 
-        var rettighet = new OppgittRettighetEntitet(true, false, false, false);
+        var rettighet = OppgittRettighetEntitet.beggeRett();
         scenario.medOppgittRettighet(rettighet);
 
         var behandling = scenario.lagre(repositoryProvider);
@@ -242,7 +242,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
             .forFødselMedGittAktørId(GITT_MOR_AKTØR_ID);
 
 
-        var rettighet = new OppgittRettighetEntitet(true, false, false, false);
+        var rettighet = OppgittRettighetEntitet.beggeRett();
         scenario.medOppgittRettighet(rettighet);
 
         var fordeling = new OppgittFordelingEntitet(søknadsPerioder, true);

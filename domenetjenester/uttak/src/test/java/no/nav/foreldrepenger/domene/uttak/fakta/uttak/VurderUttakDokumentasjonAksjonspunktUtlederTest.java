@@ -65,7 +65,7 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
             .build();
         var perioder = List.of(tidligOppstart, utsettelseSykdom, fellesperiode, overføring, fedrekvote);
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false))
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
             .medJustertFordeling(new OppgittFordelingEntitet(perioder, true));
         var behandling = scenario.lagre(uttakRepositoryProvider);
 

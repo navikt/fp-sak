@@ -83,7 +83,7 @@ public class BrukerHarAleneomsorgAksjonspunktUtlederTest {
     }
 
     private OppgittRettighetEntitet oppgittRettighet(Boolean harAnnenForeldreRett, Boolean harAleneomsorgForBarnet) {
-        return new OppgittRettighetEntitet(harAnnenForeldreRett, harAleneomsorgForBarnet, false, false);
+        return new OppgittRettighetEntitet(harAnnenForeldreRett, harAleneomsorgForBarnet, false, false, false);
     }
 
 }

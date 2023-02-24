@@ -142,7 +142,7 @@ public class FastsettePerioderTjenesteTest {
 
         var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
         var fordeling = new OppgittFordelingEntitet(List.of(fedrekvote), true);
-        var rettighet = beggeRett();
+        var rettighet = OppgittRettighetEntitet.beggeRett();
 
         var behandling = ScenarioMedMorSøkerForeldrepenger.forFødsel()
             .medOppgittDekningsgrad(dekningsgrad)
@@ -310,7 +310,7 @@ public class FastsettePerioderTjenesteTest {
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittMødrekvote1, oppgittFriUtsettelse, oppgittMødrekvote2), true))
-            .medOppgittRettighet(beggeRett());
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var behandling = scenario.lagre(repositoryProvider);
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
         byggArbeidForBehandling(behandling, fødselsdato, List.of(arbeidsgiver));
@@ -376,11 +376,7 @@ public class FastsettePerioderTjenesteTest {
     }
 
     private OppgittRettighetEntitet bareFarHarRett() {
-        return new OppgittRettighetEntitet(false, false, false, false);
-    }
-
-    private OppgittRettighetEntitet beggeRett() {
-        return new OppgittRettighetEntitet(true, false, false, false);
+        return new OppgittRettighetEntitet(false, false, false, false, false);
     }
 
     @Test
@@ -467,7 +463,7 @@ public class FastsettePerioderTjenesteTest {
 
         var behandling = behandlingMedSøknadsperioder(List.of(fpffSøknadsperiode, foreldrepengerSøknadsperiode));
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false, false));
+            .medOppgittRettighet(OppgittRettighetEntitet.aleneomsorg());
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         byggArbeidForBehandling(behandling, fødselsdato, List.of(virksomhet));
@@ -525,7 +521,7 @@ public class FastsettePerioderTjenesteTest {
         var behandling = behandlingMedSøknadsperioder(List.of(fpffSøknadsperiode, foreldrepengerSøknadsperiode));
 
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false, false));
+            .medOppgittRettighet(OppgittRettighetEntitet.aleneomsorg());
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         byggArbeidForBehandling(behandling, fødselsdato, List.of(virksomhet, person));
@@ -587,7 +583,7 @@ public class FastsettePerioderTjenesteTest {
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittFpff, oppgittMødrekvote), true))
-            .medOppgittRettighet(beggeRett());
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var behandling = scenario.lagre(repositoryProvider);
         relasjonRepository.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
         opprettStønadskontoerForFarOgMor(behandling);
@@ -819,7 +815,7 @@ public class FastsettePerioderTjenesteTest {
     private Behandling behandlingMedSøknadsperioder(List<OppgittPeriodeEntitet> perioder) {
         var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
         var fordeling = new OppgittFordelingEntitet(perioder, true);
-        var rettighet = beggeRett();
+        var rettighet = OppgittRettighetEntitet.beggeRett();
 
         return ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOppgittDekningsgrad(dekningsgrad)

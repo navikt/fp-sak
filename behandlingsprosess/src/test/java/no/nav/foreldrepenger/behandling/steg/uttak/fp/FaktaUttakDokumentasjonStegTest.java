@@ -66,7 +66,7 @@ class FaktaUttakDokumentasjonStegTest {
             .medPeriode(fom, fom.plusWeeks(2).minusDays(1))
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false))
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
             .medFordeling(new OppgittFordelingEntitet(List.of(utsettelse), true))
             .medFødselAdopsjonsdato(fom);
 

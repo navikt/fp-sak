@@ -316,8 +316,8 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
     }
 
     private void opprettPeriodeAleneomsorg(ScenarioMorSøkerForeldrepenger scenario) {
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false, false));
-        scenario.medOverstyrtRettighet(new OppgittRettighetEntitet(true, false, false, false));
+        scenario.medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
+        scenario.medOverstyrtRettighet(OppgittRettighetEntitet.beggeRett());
     }
 
     private BeregningsresultatEntitet lagBeregningsresultatFP() {
