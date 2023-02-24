@@ -298,7 +298,7 @@ public class FordelRestTjeneste {
     }
 
     private SakInfoDto mapTilSakInfoDto(Fagsak fagsak, LocalDate gjeldendeFamiliehendelseDato) {
-        return new SakInfoDto(new SaksnummerDto(fagsak.getSaksnummer().getVerdi()), fagsak.getYtelseType(), fagsak.getOpprettetTidspunkt().toLocalDate(), fagsak.getEndretTidspunkt().toLocalDate(), fagsak.getStatus(), gjeldendeFamiliehendelseDato);
+        return new SakInfoDto(new SaksnummerDto(fagsak.getSaksnummer().getVerdi()), fagsak.getYtelseType(), fagsak.getOpprettetTidspunkt().toLocalDate(), fagsak.getEndretTidspunkt() != null ? fagsak.getEndretTidspunkt().toLocalDate() : null, fagsak.getStatus(), gjeldendeFamiliehendelseDato);
     }
 
     public record SakInfoDto(SaksnummerDto saksnummer, FagsakYtelseType ytelseType, LocalDate opprettetDato, LocalDate endretDato, FagsakStatus status, LocalDate gjeldendeFamiliehendelseDato ) {}
