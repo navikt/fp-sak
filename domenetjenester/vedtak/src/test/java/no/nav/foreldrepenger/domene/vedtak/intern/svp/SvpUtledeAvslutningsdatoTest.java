@@ -64,7 +64,6 @@ public class SvpUtledeAvslutningsdatoTest {
     public void setUp() {
         var maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(svpUttakRepository);
 
-        repositoryProvider = mock(BehandlingRepositoryProvider.class);
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(familieHendelseRepository);
 
