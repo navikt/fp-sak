@@ -155,7 +155,6 @@ public class FordelRestTjenesteTest {
 
         Fagsak fagsak1 = Fagsak.opprettNy(foreldrepenger, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr1);
         fagsak1.setOpprettetTidspunkt(opprettetTidSak1);
-        fagsak1.setEndretTidspunkt(opprettetTidSak1);
         fagsak1.setId(125L);
         var behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
 
@@ -186,7 +185,7 @@ public class FordelRestTjenesteTest {
         assertThat(sakInfoDto1.saksnummer().getSaksnummer()).isEqualTo(saknr1.getVerdi());
         assertThat(sakInfoDto1.status()).isEqualTo(FagsakStatus.OPPRETTET);
         assertThat(sakInfoDto1.opprettetDato()).isEqualTo(opprettetTidSak1.toLocalDate());
-        assertThat(sakInfoDto1.endretDato()).isEqualTo(opprettetTidSak1.toLocalDate());
+        assertThat(sakInfoDto1.endretDato()).isNull();
         assertThat(sakInfoDto1.ytelseType()).isEqualTo(foreldrepenger);
         assertThat(sakInfoDto1.gjeldendeFamiliehendelseDato()).isEqualTo(skjæringstidspunkt);
 
