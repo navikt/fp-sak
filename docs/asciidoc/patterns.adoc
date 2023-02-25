@@ -1,7 +1,6 @@
 = Patterns
 
 include::eksponerteTjenester.adoc[]
-include::gsak.adoc[]
 
 == Asynkron lesing fra meldingskø
 Det er laget generell støtte for meldingsdrevne bønner. Selve konsumerings-loopen vises i diagrammet under.

@@ -15,8 +15,6 @@ import no.nav.foreldrepenger.domene.vedtak.intern.AvsluttBehandlingTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SendVedtaksbrevTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvslutningsdatoTask;
 import no.nav.foreldrepenger.domene.vedtak.task.VurderOgSendØkonomiOppdragTask;
-import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -26,7 +24,6 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 public class OpprettProsessTaskIverksett {
 
     private ProsessTaskTjeneste taskTjeneste;
-    private OppgaveTjeneste oppgaveTjeneste;
 
 
     public OpprettProsessTaskIverksett() {
@@ -34,22 +31,18 @@ public class OpprettProsessTaskIverksett {
     }
 
     @Inject
-    public OpprettProsessTaskIverksett(ProsessTaskTjeneste taskTjeneste,
-                                       OppgaveTjeneste oppgaveTjeneste) {
+    public OpprettProsessTaskIverksett(ProsessTaskTjeneste taskTjeneste) {
         this.taskTjeneste = taskTjeneste;
-        this.oppgaveTjeneste = oppgaveTjeneste;
     }
 
     public void opprettIverksettingTasks(Behandling behandling) {
         var taskGruppe = new ProsessTaskGruppe();
         // Felles
         var avsluttBehandling = getProsesstaskFor(TaskType.forProsessTask(AvsluttBehandlingTask.class));
-        var avsluttOppgave = oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling, behandling.erRevurdering() ? OppgaveÅrsak.REVURDER : OppgaveÅrsak.BEHANDLE_SAK, false);
 
         // Send brev og oppdrag i parallell
         List<ProsessTaskData> parallelle = new ArrayList<>();
         parallelle.add(getProsesstaskFor(TaskType.forProsessTask(SendVedtaksbrevTask.class)));
-        avsluttOppgave.ifPresent(parallelle::add);
         if (behandling.erYtelseBehandling()) {
             parallelle.add(getProsesstaskFor(TaskType.forProsessTask(VurderOgSendØkonomiOppdragTask.class)));
         }

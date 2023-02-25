@@ -15,12 +15,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -29,17 +26,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKobling;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 
 @CdiDbAwareTest
 public class BehandlingsutredningTjenesteTest {
-    @Inject
-    private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -49,15 +40,6 @@ public class BehandlingsutredningTjenesteTest {
 
     @Inject
     private BehandlingskontrollServiceProvider behandlingskontrollServiceProvider;
-
-    @Mock
-    private OppgaveTjeneste oppgaveTjenesteMock;
-
-    @Mock
-    private BehandlingModellRepository behandlingModellRepositoryMock;
-
-    @Mock
-    private RevurderingTjeneste revurderingTjenesteMock;
 
     @Mock
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
@@ -82,7 +64,6 @@ public class BehandlingsutredningTjenesteTest {
         behandlingsutredningTjeneste = new BehandlingsutredningTjeneste(
                 Period.parse("P4W"),
                 repositoryProvider,
-                oppgaveTjenesteMock,
                 behandlendeEnhetTjeneste,
                 behandlingskontrollTjenesteImpl);
     }
@@ -122,24 +103,6 @@ public class BehandlingsutredningTjenesteTest {
         // Act
         assertThrows(FunksjonellException.class,
                 () -> behandlingsutredningTjeneste.endreBehandlingPaVent(behandlingId, toUkerFrem, Venteårsak.AVV_FODSEL));
-    }
-
-    @Test
-    public void skal_sette_behandling_med_oppgave_pa_vent_og_opprette_task_avslutt_oppgave() {
-        // Arrange
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var oppgave = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "1",
-                behandling.getFagsak().getSaksnummer(), behandling.getId());
-        oppgaveBehandlingKoblingRepository.lagre(oppgave);
-
-        // Act
-        behandlingsutredningTjeneste.settBehandlingPaVent(behandlingId, LocalDate.now(), Venteårsak.AVV_DOK);
-
-        // Assert
-        verify(oppgaveTjenesteMock).opprettTaskAvsluttOppgave(any(Behandling.class));
-        assertThat(behandling.isBehandlingPåVent()).isTrue();
-        assertThat(behandling.getÅpneAksjonspunkter()).hasSize(1);
-        assertThat(behandling.getÅpneAksjonspunkter().get(0)).isExactlyInstanceOf(Aksjonspunkt.class);
     }
 
     @Test

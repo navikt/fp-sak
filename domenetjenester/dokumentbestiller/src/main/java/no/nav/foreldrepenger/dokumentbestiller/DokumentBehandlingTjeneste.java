@@ -29,11 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKobling;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 
 @ApplicationScoped
 public class DokumentBehandlingTjeneste {
@@ -44,9 +40,7 @@ public class DokumentBehandlingTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private OppgaveTjeneste oppgaveTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
-    private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private HistorikkRepository historikkRepository;
 
@@ -56,16 +50,12 @@ public class DokumentBehandlingTjeneste {
 
     @Inject
     public DokumentBehandlingTjeneste(BehandlingRepositoryProvider repositoryProvider,
-            OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
-            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-            OppgaveTjeneste oppgaveTjeneste,
-            BehandlingDokumentRepository behandlingDokumentRepository) {
+                                      BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                      BehandlingDokumentRepository behandlingDokumentRepository) {
         Objects.requireNonNull(repositoryProvider, "repositoryProvider");
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.oppgaveBehandlingKoblingRepository = oppgaveBehandlingKoblingRepository;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.oppgaveTjeneste = oppgaveTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
     }
@@ -97,19 +87,8 @@ public class DokumentBehandlingTjeneste {
 
     public void settBehandlingPåVent(Long behandlingId, Venteårsak venteårsak) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        opprettTaskAvsluttOppgave(behandling);
         behandlingskontrollTjeneste.settBehandlingPåVentUtenSteg(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT,
                 LocalDateTime.now().plus(MANUELT_VENT_FRIST), venteårsak);
-    }
-
-    private void opprettTaskAvsluttOppgave(Behandling behandling) {
-        var oppgaveÅrsak = behandling.erRevurdering() ? OppgaveÅrsak.REVURDER : OppgaveÅrsak.BEHANDLE_SAK;
-        var oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
-        if (OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(oppgaveÅrsak, oppgaver).isPresent()) {
-            oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling, oppgaveÅrsak);
-        } else if (OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(OppgaveÅrsak.REGISTRER_SØKNAD, oppgaver).isPresent()) {
-            oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling, OppgaveÅrsak.REGISTRER_SØKNAD);
-        }
     }
 
     public void utvidBehandlingsfristManuelt(Long behandlingId) {

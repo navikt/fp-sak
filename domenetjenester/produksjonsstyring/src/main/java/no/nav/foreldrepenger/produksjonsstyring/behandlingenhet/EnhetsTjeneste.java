@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Temagrupper;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.nom.SkjermetPersonKlient;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingRequest;
@@ -35,7 +34,7 @@ public class EnhetsTjeneste {
 
     private static final String TEMAGRUPPE = Temagrupper.FAMILIEYTELSER.getOffisiellKode(); // Kodeverk Temagrupper - dekker FOR + OMS
     private static final String TEMA = Tema.FOR.getOffisiellKode(); // Kodeverk Tema
-    private static final String OPPGAVETYPE = OppgaveÅrsak.BEHANDLE_SAK.getKode(); // Kodeverk Oppgavetype - NFP , uten spesialenheter
+    private static final String OPPGAVETYPE = "BEH_SAK"; // Kodeverk Oppgavetype - NFP , uten spesialenheter
     private static final String ENHET_TYPE_NFP = "FPY"; // NOSONAR Kodeverk EnhetstyperNORG - NFP , uten spesialenheter (alt dropp behtype og filter på denne)
     private static final String BEHANDLINGTYPE = BehandlingType.FØRSTEGANGSSØKNAD.getOffisiellKode(); // Kodeverk Behandlingstype, bruker søknad
     private static final String NK_ENHET_ID = "4292"; // Klageinstans

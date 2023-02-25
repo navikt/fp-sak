@@ -1,11 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.vedtak;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,9 +12,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
@@ -27,25 +20,13 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.abakus.vedtak.ytelse.Ytelse;
-import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
-import no.nav.foreldrepenger.behandling.FagsakTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.RegenererVedtaksXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.ValiderOgRegenererVedtaksXmlTask;
 import no.nav.foreldrepenger.domene.vedtak.innsyn.VedtakInnsynTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.observer.VedtattYtelseTjeneste;
-import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.FeedDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
-import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.AktørParam;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -66,16 +47,9 @@ public class VedtakRestTjeneste {
     public static final String REGENERER_PATH = BASE_PATH + REGENERER_PART_PATH; // NOSONAR TFP-2234
     private static final String VALIDATE_PART_PATH = "/validate";
     public static final String VALIDATE_PATH = BASE_PATH + VALIDATE_PART_PATH; // NOSONAR TFP-2234
-    private static final String VEDTAK_FP_SNAPSHOT_PART_PATH = "/gjeldendevedtak-foreldrepenger";
-    public static final String VEDTAK_FP_SNAPSHOT_PATH = BASE_PATH + VEDTAK_FP_SNAPSHOT_PART_PATH; // NOSONAR TFP-2234
-    private static final String VEDTAK_SVP_SNAPSHOT_PART_PATH = "/gjeldendevedtak-svangerskapspenger";
-    public static final String VEDTAK_SVP_SNAPSHOT_PATH = BASE_PATH + VEDTAK_SVP_SNAPSHOT_PART_PATH; // NOSONAR TFP-2234
 
     private VedtakInnsynTjeneste vedtakInnsynTjeneste;
     private VedtakTjeneste vedtakTjeneste;
-    private FagsakTjeneste fagsakTjeneste;
-    private VedtattYtelseTjeneste vedtattYtelseTjeneste;
-    private BehandlingRepository behandlingRepository;
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
     private ProsessTaskTjeneste taskTjeneste;
     private RegenererVedtaksXmlTjeneste regenererVedtaksXmlTjeneste;
@@ -90,63 +64,14 @@ public class VedtakRestTjeneste {
                               ProsessTaskTjeneste taskTjeneste,
                               VedtakInnsynTjeneste vedtakInnsynTjeneste,
                               VedtakTjeneste vedtakTjeneste,
-                              FagsakTjeneste fagsakTjeneste,
-                              VedtattYtelseTjeneste vedtattYtelseTjeneste,
-                              BehandlingRepository behandlingRepository,
                               RegenererVedtaksXmlTjeneste regenererVedtaksXmlTjeneste) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.vedtakInnsynTjeneste = vedtakInnsynTjeneste;
         this.vedtakTjeneste = vedtakTjeneste;
         this.taskTjeneste = taskTjeneste;
         this.regenererVedtaksXmlTjeneste = regenererVedtaksXmlTjeneste;
-        this.fagsakTjeneste = fagsakTjeneste;
-        this.vedtattYtelseTjeneste = vedtattYtelseTjeneste;
-        this.behandlingRepository = behandlingRepository;
     }
 
-    @GET
-    @Path(VEDTAK_FP_SNAPSHOT_PART_PATH)
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(description = "Henter informasjon om Foreldrepenger for en aktør - POC for Sykepenger", tags = "vedtak", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer vedtak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeedDto.class)))
-    })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public List<Ytelse> vedtakForeldrepengerForBruker(
-            @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid @NotNull AktørParam aktørParam) {
-        if (aktørParam.get().isEmpty()) {
-            return new ArrayList<>();
-        }
-        var ytelser = hentVedtakMedPerioderSiste12M(aktørParam.get().get(), FagsakYtelseType.FORELDREPENGER);
-        LOG.info("vedtakForeldrepengerForBruker antall {}", ytelser.size());
-        return ytelser;
-    }
-
-    @GET
-    @Path(VEDTAK_SVP_SNAPSHOT_PART_PATH)
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(description = "Henter informasjon om Svangerskapspenger for en aktør - POC for Sykepenger", tags = "vedtak", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer vedtak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FeedDto.class)))
-    })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public List<Ytelse> vedtakSvangerskapspengerForBruker(
-            @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid @NotNull AktørParam aktørParam) {
-        if (aktørParam.get().isEmpty()) {
-            return new ArrayList<>();
-        }
-        var ytelser = hentVedtakMedPerioderSiste12M(aktørParam.get().get(), FagsakYtelseType.SVANGERSKAPSPENGER);
-        LOG.info("vedtakSvangerskapspengerForBruker antall {}", ytelser.size());
-        return ytelser;
-    }
-
-    private List<Ytelse> hentVedtakMedPerioderSiste12M(AktørId aktørId, FagsakYtelseType ytelseType) {
-        return fagsakTjeneste.finnFagsakerForAktør(aktørId).stream()
-                .filter(f -> ytelseType.equals(f.getYtelseType()))
-                .map(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()))
-                .flatMap(Optional::stream)
-                .map(b -> (YtelseV1) vedtattYtelseTjeneste.genererYtelse(b, false))
-                .filter(y -> y.getPeriode().getTom().isAfter(LocalDate.now().minusMonths(12)))
-                .collect(Collectors.toList());
-    }
 
     @GET
     @Path(HENT_VEDTAKSDOKUMENT_PART_PATH)

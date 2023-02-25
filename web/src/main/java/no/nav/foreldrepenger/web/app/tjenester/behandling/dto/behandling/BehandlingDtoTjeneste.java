@@ -284,7 +284,6 @@ public class BehandlingDtoTjeneste {
         dto.leggTil(get(AksjonspunktRestTjeneste.AKSJONSPUNKT_V2_PATH, "aksjonspunkter", uuidDto));
         var aksjonspunkt = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, getBehandlingsresultat(behandling.getId()),
             totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId()));
-        dto.setAksjonspunktene(aksjonspunkt);
         dto.setAksjonspunkt(aksjonspunkt);
 
         // FIXME hvorfor ytelsspesifikk url her?  Bør kun ha en tilrettelegging url

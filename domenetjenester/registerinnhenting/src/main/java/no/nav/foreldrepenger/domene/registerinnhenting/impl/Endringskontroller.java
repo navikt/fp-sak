@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -27,8 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.registerinnhenting.KontrollerFaktaInngangsVilkårUtleder;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
-import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 /**
@@ -42,7 +39,6 @@ public class Endringskontroller {
     private static final Set<BehandlingStegType> STARTPUNKT_STEG_INNGANG_VILKÅR = StartpunktType.inngangsVilkårStartpunkt().stream().map(StartpunktType::getBehandlingSteg).collect(Collectors.toSet());
     private static final AksjonspunktDefinisjon SPESIALHÅNDTERT_AKSJONSPUNKT = AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private OppgaveTjeneste oppgaveTjeneste;
     private RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste;
     private Instance<KontrollerFaktaInngangsVilkårUtleder> kontrollerFaktaTjenester;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -54,15 +50,12 @@ public class Endringskontroller {
 
     @Inject
     public Endringskontroller(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                              @Any Instance<StartpunktTjeneste> startpunktTjenester,
-                              OppgaveTjeneste oppgaveTjeneste,
-                              RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste,
+                              @Any Instance<StartpunktTjeneste> startpunktTjenester, RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste,
                               @Any Instance<KontrollerFaktaInngangsVilkårUtleder> kontrollerFaktaTjenester,
                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.startpunktTjenester = startpunktTjenester;
-        this.oppgaveTjeneste = oppgaveTjeneste;
         this.historikkinnslagTjeneste = historikkinnslagTjeneste;
         this.kontrollerFaktaTjenester = kontrollerFaktaTjenester;
     }
@@ -116,8 +109,6 @@ public class Endringskontroller {
         }
 
         if (tilbakeføres) {
-            // Fjern evt Gokjenn vedtak
-            avsluttOppgaverIGsak(behandling, behandling.getStatus());
             // Eventuelt ta behandling av vent
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
             // Spol tilbake
@@ -155,13 +146,6 @@ public class Endringskontroller {
         } else {
             LOG.info("Behandling {} har mottatt en endring som ikke medførte spoling tilbake. Før-steg {}, etter-steg {}", behandling.getId(),
                 førSteg.getNavn(), etterSteg.getNavn());// NOSONAR //$NON-NLS-1$
-        }
-    }
-
-    private void avsluttOppgaverIGsak(Behandling behandling, BehandlingStatus før) {
-        var behandlingIFatteVedtak = BehandlingStatus.FATTER_VEDTAK.equals(før);
-        if (behandlingIFatteVedtak) {
-            oppgaveTjeneste.avslutt(behandling.getId(), OppgaveÅrsak.GODKJENNE_VEDTAK);
         }
     }
 

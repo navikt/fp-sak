@@ -85,7 +85,6 @@ import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -126,7 +125,6 @@ public class FatteVedtakStegTest {
     public void oppsett(EntityManager entityManager) {
         var vedtakRepository = new LagretVedtakRepository(entityManager);
 
-        var oppgaveTjeneste = mock(OppgaveTjeneste.class);
         var personinfoAdapter = Mockito.mock(PersoninfoAdapter.class);
         var personopplysningTjeneste = Mockito.mock(PersonopplysningTjeneste.class);
 
@@ -158,8 +156,7 @@ public class FatteVedtakStegTest {
 
         behandlingVedtakTjeneste = new BehandlingVedtakTjeneste(behandlingVedtakEventPubliserer, repositoryProvider);
         var klageanke = new KlageAnkeVedtakTjeneste(klageRepository, mock(AnkeRepository.class));
-        var fatteVedtakTjeneste = new FatteVedtakTjeneste(vedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste,
-                oppgaveTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
+        var fatteVedtakTjeneste = new FatteVedtakTjeneste(vedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
         var simuler = new SimulerInntrekkSjekkeTjeneste(null, null, null, null);
         fatteVedtakSteg = new FatteVedtakSteg(repositoryProvider, fatteVedtakTjeneste, simuler);
     }
@@ -345,7 +342,6 @@ public class FatteVedtakStegTest {
         // Arrange
         var vedtakRepository = new LagretVedtakRepository(entityManager);
 
-        var oppgaveTjeneste = mock(OppgaveTjeneste.class);
         var søknadRepository = mock(SøknadRepository.class);
         var personinfoAdapter = mock(PersoninfoAdapter.class);
         var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
@@ -390,8 +386,7 @@ public class FatteVedtakStegTest {
         totrinnsvurderings.add(ttvurdering);
         when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(totrinnsvurderings);
         var klageanke = new KlageAnkeVedtakTjeneste(klageRepository, mock(AnkeRepository.class));
-        var fvtei = new FatteVedtakTjeneste(vedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste,
-                oppgaveTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
+        var fvtei = new FatteVedtakTjeneste(vedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
 
         var simuler = new SimulerInntrekkSjekkeTjeneste(null, null, null, null);
         fatteVedtakSteg = new FatteVedtakSteg(repositoryProvider, fvtei, simuler);
@@ -408,7 +403,6 @@ public class FatteVedtakStegTest {
     public void tilbakefører_og_reåpner_aksjonspunkt_når_totrinnskontroll_ikke_godkjent(EntityManager entityManager) {
         var vedtakRepository = new LagretVedtakRepository(entityManager);
 
-        var oppgaveTjeneste = mock(OppgaveTjeneste.class);
         var søknadRepository = mock(SøknadRepository.class);
         var personinfoAdapter = Mockito.mock(PersoninfoAdapter.class);
         var personopplysningTjeneste = Mockito.mock(PersonopplysningTjeneste.class);
@@ -464,8 +458,7 @@ public class FatteVedtakStegTest {
         totrinnsvurderings.add(vurderesOk);
         when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(totrinnsvurderings);
         var klageanke = new KlageAnkeVedtakTjeneste(klageRepository, mock(AnkeRepository.class));
-        var fvtei = new FatteVedtakTjeneste(vedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste,
-                oppgaveTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
+        var fvtei = new FatteVedtakTjeneste(vedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
 
         var simuler = new SimulerInntrekkSjekkeTjeneste(null, null, null, null);
         fatteVedtakSteg = new FatteVedtakSteg(repositoryProvider, fvtei, simuler);

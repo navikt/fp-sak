@@ -21,8 +21,6 @@ import no.nav.foreldrepenger.datavarehus.xml.FatteVedtakXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
-import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.vedtak.exception.TekniskException;
@@ -58,7 +56,6 @@ public class FatteVedtakTjeneste {
     private LagretVedtakRepository lagretVedtakRepository;
     private FatteVedtakXmlTjeneste vedtakXmlTjeneste;
     private VedtakTjeneste vedtakTjeneste;
-    private OppgaveTjeneste oppgaveTjeneste;
     private TotrinnTjeneste totrinnTjeneste;
     private BehandlingVedtakTjeneste behandlingVedtakTjeneste;
     private KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste;
@@ -71,15 +68,12 @@ public class FatteVedtakTjeneste {
     public FatteVedtakTjeneste(LagretVedtakRepository vedtakRepository,
             KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
             FatteVedtakXmlTjeneste vedtakXmlTjeneste,
-            VedtakTjeneste vedtakTjeneste,
-            OppgaveTjeneste oppgaveTjeneste,
-            TotrinnTjeneste totrinnTjeneste,
+            VedtakTjeneste vedtakTjeneste, TotrinnTjeneste totrinnTjeneste,
             BehandlingVedtakTjeneste behandlingVedtakTjeneste) {
         this.lagretVedtakRepository = vedtakRepository;
         this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
         this.vedtakXmlTjeneste = vedtakXmlTjeneste;
         this.vedtakTjeneste = vedtakTjeneste;
-        this.oppgaveTjeneste = oppgaveTjeneste;
         this.totrinnTjeneste = totrinnTjeneste;
         this.behandlingVedtakTjeneste = behandlingVedtakTjeneste;
     }
@@ -97,14 +91,12 @@ public class FatteVedtakTjeneste {
         if (behandling.isToTrinnsBehandling()) {
             var totrinnaksjonspunktvurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId());
             if (sendesTilbakeTilSaksbehandler(totrinnaksjonspunktvurderinger)) {
-                oppgaveTjeneste.avsluttOppgaveOgStartTask(behandling, OppgaveÅrsak.GODKJENNE_VEDTAK);
                 var aksjonspunktDefinisjoner = totrinnaksjonspunktvurderinger.stream()
                         .filter(a -> !TRUE.equals(a.isGodkjent()))
                         .map(Totrinnsvurdering::getAksjonspunktDefinisjon).collect(Collectors.toList());
 
                 return BehandleStegResultat.tilbakeførtMedAksjonspunkter(aksjonspunktDefinisjoner);
             }
-            oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling);
         } else {
             vedtakTjeneste.lagHistorikkinnslagFattVedtak(behandling);
         }

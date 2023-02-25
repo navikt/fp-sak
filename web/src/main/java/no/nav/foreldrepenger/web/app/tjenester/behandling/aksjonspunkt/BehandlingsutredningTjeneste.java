@@ -19,17 +19,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt√
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
+import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
 public class BehandlingsutredningTjeneste {
 
     private Period defaultVenteFrist;
     private BehandlingRepository behandlingRepository;
-    private OppgaveTjeneste oppgaveTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
@@ -40,13 +38,11 @@ public class BehandlingsutredningTjeneste {
     @Inject
     public BehandlingsutredningTjeneste(@KonfigVerdi(value = "behandling.default.ventefrist.periode", defaultVerdi = "P4W") Period defaultVenteFrist,
                                         BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                        OppgaveTjeneste oppgaveTjeneste,
                                         BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                         BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.defaultVenteFrist = defaultVenteFrist;
         Objects.requireNonNull(behandlingRepositoryProvider, "behandlingRepositoryProvider");
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
-        this.oppgaveTjeneste = oppgaveTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
     }
@@ -73,7 +69,6 @@ public class BehandlingsutredningTjeneste {
         var fristTid = bestemFristForBehandlingVent(frist);
 
         var behandling = behandlingRepository.hentBehandling(behandlingsId);
-        oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling);
         var behandlingStegFunnet = behandling.getAksjonspunktMedDefinisjonOptional(apDef)
             .map(Aksjonspunkt::getBehandlingStegFunnet)
             .orElse(null); // Dersom autopunkt ikke allerede er opprettet, s√• er det ikke tilknyttet steg
