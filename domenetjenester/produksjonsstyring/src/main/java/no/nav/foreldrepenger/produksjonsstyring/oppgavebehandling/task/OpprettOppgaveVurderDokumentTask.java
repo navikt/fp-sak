@@ -20,6 +20,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettOppgaveVurderDokumentTask extends GenerellProsessTask {
 
+    public static final String KEY_JOURNALPOST_ID = "journalpostId";
     public static final String KEY_BEHANDLENDE_ENHET = "behandlendEnhetsId";
     public static final String KEY_DOKUMENT_TYPE = "dokumentTypeId";
     private static final Logger LOG = LoggerFactory.getLogger(OpprettOppgaveVurderDokumentTask.class);
@@ -38,6 +39,7 @@ public class OpprettOppgaveVurderDokumentTask extends GenerellProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
+        var journalpostId = prosessTaskData.getPropertyValue(KEY_JOURNALPOST_ID);
         var behandlendeEnhet = prosessTaskData.getPropertyValue(KEY_BEHANDLENDE_ENHET);
         var dokumentTypeId = Optional.ofNullable(prosessTaskData.getPropertyValue(KEY_DOKUMENT_TYPE))
             .map(DokumentTypeId::fraKode).orElse(DokumentTypeId.UDEFINERT);
@@ -46,7 +48,7 @@ public class OpprettOppgaveVurderDokumentTask extends GenerellProsessTask {
             beskrivelse = dokumentTypeId.getKode();
         }
 
-        var oppgaveId = oppgaveTjeneste.opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(fagsakId, behandlendeEnhet, "VL: " + beskrivelse);
+        var oppgaveId = oppgaveTjeneste.opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(fagsakId, journalpostId, behandlendeEnhet, "VL: " + beskrivelse);
         LOG.info("Oppgave opprettet i GSAK for å vurdere dokument på enhet {}. Oppgavenummer: {}", behandlendeEnhet, oppgaveId);
     }
 }

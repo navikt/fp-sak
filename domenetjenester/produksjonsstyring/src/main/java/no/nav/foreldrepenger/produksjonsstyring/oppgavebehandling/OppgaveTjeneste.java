@@ -94,12 +94,13 @@ public class OppgaveTjeneste {
         }
     }
 
-    public String opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(Long fagsakId, String enhetsId, String beskrivelse) {
+    public String opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(Long fagsakId, String journalpostId, String enhetsId, String beskrivelse) {
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
 
         var orequest = createRestRequestBuilder(Oppgavetype.VURDER_DOKUMENT, fagsak.getSaksnummer(), fagsak.getAktørId(), enhetsId, beskrivelse,
             Prioritet.NORM, DEFAULT_OPPGAVEFRIST_DAGER)
-            .medBehandlingstema(BehandlingTema.fraFagsak(fagsak, null).getOffisiellKode());
+            .medBehandlingstema(BehandlingTema.fraFagsak(fagsak, null).getOffisiellKode())
+            .medJournalpostId(journalpostId);
         var oppgave = restKlient.opprettetOppgave(orequest.build());
         LOG.info("FPSAK GOSYS opprettet VURDER VL oppgave {}", oppgave.id());
         return oppgave.id().toString();

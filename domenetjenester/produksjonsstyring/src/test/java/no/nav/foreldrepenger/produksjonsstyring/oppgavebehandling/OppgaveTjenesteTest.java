@@ -73,7 +73,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
         var captor = ArgumentCaptor.forClass(OpprettOppgave.class);
         when(oppgaveRestKlient.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
         var behandling = lagBehandling();
-        var oppgaveId = tjeneste.opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(behandling.getFagsakId(), "2010",
+        var oppgaveId = tjeneste.opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(behandling.getFagsakId(), null, "2010",
                 "bla bla");
 
         var request = captor.getValue();
