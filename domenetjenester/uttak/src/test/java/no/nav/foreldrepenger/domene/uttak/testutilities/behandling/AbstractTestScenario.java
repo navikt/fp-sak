@@ -56,6 +56,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private OppgittDekningsgradEntitet oppgittDekningsgrad;
     private OppgittFordelingEntitet oppgittFordeling;
     private OppgittFordelingEntitet justertFordeling;
+    private OppgittFordelingEntitet overstyrtFordeling;
     private AvklarteUttakDatoerEntitet avklarteUttakDatoer;
 
     private Behandling originalBehandling;
@@ -150,7 +151,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private void lagreYtelseFordeling(UttakRepositoryProvider repositoryProvider, Behandling behandling) {
         if (oppgittRettighet == null && oppgittDekningsgrad == null && oppgittFordeling == null && overstyrtRettighet == null
-            && avklarteUttakDatoer == null && justertFordeling == null && overstyrtOmsorg == null) {
+            && avklarteUttakDatoer == null && justertFordeling == null && overstyrtFordeling == null && overstyrtOmsorg == null) {
             return;
         }
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
@@ -160,6 +161,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             .medOppgittDekningsgrad(oppgittDekningsgrad)
             .medOppgittFordeling(oppgittFordeling)
             .medJustertFordeling(justertFordeling)
+            .medOverstyrtFordeling(overstyrtFordeling)
             .medAvklarteDatoer(avklarteUttakDatoer)
             .medOverstyrtOmsorg(overstyrtOmsorg)
             ;
@@ -257,6 +259,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S medJustertFordeling(OppgittFordelingEntitet justertFordeling) {
         this.justertFordeling = justertFordeling;
+        return (S) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public S medOverstyrtFordeling(OppgittFordelingEntitet overstyrtFordeling) {
+        this.overstyrtFordeling = overstyrtFordeling;
         return (S) this;
     }
 

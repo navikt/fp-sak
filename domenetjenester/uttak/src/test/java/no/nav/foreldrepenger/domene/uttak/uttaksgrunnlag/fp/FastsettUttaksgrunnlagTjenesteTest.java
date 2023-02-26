@@ -116,6 +116,69 @@ public class FastsettUttaksgrunnlagTjenesteTest {
     }
 
     @Test
+    public void skal_beholde_overstyrt_dersom_uendret_justering() {
+
+        var førsteUttaksdato = LocalDate.now();
+        var periode = OppgittPeriodeBuilder.ny()
+            .medPeriode(førsteUttaksdato, LocalDate.now().plusDays(10))
+            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .build();
+        var fordeling = new OppgittFordelingEntitet(List.of(periode), true);
+        var justertFordeling = new OppgittFordelingEntitet(List.of(periode), true);
+        var overstyrtFordeling = new OppgittFordelingEntitet(List.of(OppgittPeriodeBuilder.fraEksisterende(periode)
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE).build()), true);
+
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        scenario.medFordeling(fordeling).medJustertFordeling(justertFordeling).medOverstyrtFordeling(overstyrtFordeling);
+        var behandling = scenario.lagre(repositoryProvider);
+
+        var endringsdato = LocalDate.of(2020, 10, 10);
+        when(endringsdatoUtleder.utledEndringsdato(behandling.getId(), List.of(periode))).thenReturn(endringsdato);
+
+        var familieHendelse = FamilieHendelse.forFødsel(null, førsteUttaksdato, List.of(), 0);
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
+        tjeneste.fastsettUttaksgrunnlag(lagInput(behandling, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser)));
+
+        var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
+
+        assertThat(resultat.getJustertFordeling().orElse(null)).isEqualTo(justertFordeling);
+        assertThat(resultat.getOverstyrtFordeling()).isPresent();
+    }
+
+    @Test
+    public void skal_fjerne_overstyrt_dersom_endret_justering() {
+
+        var førsteUttaksdato = LocalDate.now();
+        var periode = OppgittPeriodeBuilder.ny()
+            .medPeriode(førsteUttaksdato, LocalDate.now().plusDays(10))
+            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .build();
+        var periodeMK = OppgittPeriodeBuilder.ny()
+            .medPeriode(førsteUttaksdato, LocalDate.now().plusDays(10))
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .build();
+        var fordeling = new OppgittFordelingEntitet(List.of(periode), true);
+        var justertFordeling = new OppgittFordelingEntitet(List.of(periodeMK), true);
+        var overstyrtFordeling = new OppgittFordelingEntitet(List.of(periodeMK), true);
+
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        scenario.medFordeling(fordeling).medJustertFordeling(justertFordeling).medOverstyrtFordeling(overstyrtFordeling);
+        var behandling = scenario.lagre(repositoryProvider);
+
+        var endringsdato = LocalDate.of(2020, 10, 10);
+        when(endringsdatoUtleder.utledEndringsdato(behandling.getId(), List.of(periode))).thenReturn(endringsdato);
+
+        var familieHendelse = FamilieHendelse.forFødsel(null, førsteUttaksdato, List.of(), 0);
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
+        tjeneste.fastsettUttaksgrunnlag(lagInput(behandling, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser)));
+
+        var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
+
+        assertThat(resultat.getJustertFordeling().orElse(null)).isEqualTo(fordeling);
+        assertThat(resultat.getOverstyrtFordeling()).isEmpty();
+    }
+
+    @Test
     public void skal_ikke_forskyve_søknadsperioder_hvis_både_termin_og_fødsel_er_oppgitt_i_søknad() {
         var søknadFom = LocalDate.of(2019, 7, 31);
         var periode = OppgittPeriodeBuilder.ny()

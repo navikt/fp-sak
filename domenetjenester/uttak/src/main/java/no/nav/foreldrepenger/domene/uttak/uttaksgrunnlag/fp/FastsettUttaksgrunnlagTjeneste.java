@@ -47,6 +47,8 @@ public class FastsettUttaksgrunnlagTjeneste {
 
     public void fastsettUttaksgrunnlag(UttakInput input) {
         var endringsdatoRevurdering = utledEndringsdatoVedRevurdering(input);
+        var eksisterendeJustertFordeling = ytelsesFordelingRepository.hentAggregat(input.getBehandlingReferanse().behandlingId())
+            .getJustertFordeling().orElse(null);
         var justertFordeling = justerFordeling(input, endringsdatoRevurdering);
         var behandlingId = input.getBehandlingReferanse().behandlingId();
         //Endringsdato skal utledes før justering ved revurdering, men etter justering for førstegangsbehandlinger
@@ -58,9 +60,11 @@ public class FastsettUttaksgrunnlagTjeneste {
                     justertFordeling.getPerioder());
         }
         var avklarteUttakDatoer = avklarteDatoerMedEndringsdato(behandlingId, endringsdato);
-        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
-                .medJustertFordeling(justertFordeling)
-                .medAvklarteDatoer(avklarteUttakDatoer);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId).medAvklarteDatoer(avklarteUttakDatoer);
+
+        if (!SammenlignFordeling.erLikeFordelinger(eksisterendeJustertFordeling, justertFordeling)) {
+            yfBuilder.medJustertFordeling(justertFordeling).medOverstyrtFordeling(null);
+        }
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
     }
 
