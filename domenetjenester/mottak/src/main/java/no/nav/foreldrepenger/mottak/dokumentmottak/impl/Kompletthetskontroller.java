@@ -70,7 +70,7 @@ public class Kompletthetskontroller {
 
         if (!kompletthetResultat.erOppfylt() && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD)) {
             var åpenKompletthet = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD).orElseThrow();
-            if (!Objects.equals(åpenKompletthet.getVenteårsak(), kompletthetResultat.venteårsak())) {
+            if (!kompletthetResultat.erFristUtløpt() && !Objects.equals(åpenKompletthet.getVenteårsak(), kompletthetResultat.venteårsak())) {
                 behandlingProsesseringTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, kompletthetResultat.ventefrist(), kompletthetResultat.venteårsak());
             }
         }
