@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.mottak.sakskompleks.KobleSakerTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 
 @CdiDbAwareTest
 public class TilknyttFagsakUtlandsAksjonspunktTest {
@@ -51,8 +50,7 @@ public class TilknyttFagsakUtlandsAksjonspunktTest {
         var kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
             provider.getBehandlingRepository().taSkriveLås(behandling));
 
-        tilknyttFagsakSteg = new TilknyttFagsakStegImpl(provider, kobleSakerTjeneste, mock(BehandlendeEnhetTjeneste.class), mock(OppgaveTjeneste.class),
-            mock(InntektArbeidYtelseTjeneste.class));
+        tilknyttFagsakSteg = new TilknyttFagsakStegImpl(provider, kobleSakerTjeneste, mock(BehandlendeEnhetTjeneste.class), mock(InntektArbeidYtelseTjeneste.class));
 
         // Act
         var resultat = tilknyttFagsakSteg.utførSteg(kontekst);

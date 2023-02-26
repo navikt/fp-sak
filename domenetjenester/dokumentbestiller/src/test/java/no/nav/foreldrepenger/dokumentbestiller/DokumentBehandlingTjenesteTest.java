@@ -46,8 +46,7 @@ public class DokumentBehandlingTjenesteTest {
     public void setUp(EntityManager em) {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingDokumentRepository = new BehandlingDokumentRepository(em);
-        dokumentBehandlingTjeneste = new DokumentBehandlingTjeneste(repositoryProvider, null, behandlingskontrollTjeneste, null,
-                behandlingDokumentRepository);
+        dokumentBehandlingTjeneste = new DokumentBehandlingTjeneste(repositoryProvider, behandlingskontrollTjeneste, behandlingDokumentRepository);
         this.scenario = ScenarioMorSøkerEngangsstønad
                 .forFødsel()
                 .medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().minusDays(3)));

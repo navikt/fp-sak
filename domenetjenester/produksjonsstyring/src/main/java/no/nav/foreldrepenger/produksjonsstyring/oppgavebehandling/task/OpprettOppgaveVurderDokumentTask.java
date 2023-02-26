@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task;
 
-import static no.nav.foreldrepenger.historikk.OppgaveÅrsak.VURDER_DOKUMENT;
-
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -48,8 +46,7 @@ public class OpprettOppgaveVurderDokumentTask extends GenerellProsessTask {
             beskrivelse = dokumentTypeId.getKode();
         }
 
-        var oppgaveId = oppgaveTjeneste.opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(prosessTaskData.getFagsakId(),
-            VURDER_DOKUMENT, behandlendeEnhet, "VL: " + beskrivelse, false);
+        var oppgaveId = oppgaveTjeneste.opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(fagsakId, behandlendeEnhet, "VL: " + beskrivelse);
         LOG.info("Oppgave opprettet i GSAK for å vurdere dokument på enhet {}. Oppgavenummer: {}", behandlendeEnhet, oppgaveId);
     }
 }

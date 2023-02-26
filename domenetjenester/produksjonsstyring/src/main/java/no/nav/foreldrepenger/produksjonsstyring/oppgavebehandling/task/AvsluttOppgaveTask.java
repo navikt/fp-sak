@@ -1,19 +1,21 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task;
 
 
+import java.util.Optional;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
 @ProsessTask("oppgavebehandling.avsluttOppgave")
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class AvsluttOppgaveTask extends GenerellProsessTask {
+public class AvsluttOppgaveTask implements ProsessTaskHandler {
+
+    private static final String OPPGAVE_ID_TASK_KEY = "oppgaveId";
 
     private OppgaveTjeneste oppgaveTjeneste;
 
@@ -28,10 +30,14 @@ public class AvsluttOppgaveTask extends GenerellProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        var oppgaveId = OppgaveTjeneste.getOppgaveId(prosessTaskData)
+    public void doTask(ProsessTaskData prosessTaskData) {
+        var oppgaveId = Optional.ofNullable(prosessTaskData.getPropertyValue(OPPGAVE_ID_TASK_KEY))
             .orElseThrow(() -> new IllegalStateException("Mangler oppgaveId"));
 
-        oppgaveTjeneste.avslutt(behandlingId, oppgaveId);
+        oppgaveTjeneste.avslutt(oppgaveId);
+    }
+
+    public static void setOppgaveId(ProsessTaskData prosessTaskData, String oppgaveId) {
+        prosessTaskData.setProperty(OPPGAVE_ID_TASK_KEY, oppgaveId);
     }
 }

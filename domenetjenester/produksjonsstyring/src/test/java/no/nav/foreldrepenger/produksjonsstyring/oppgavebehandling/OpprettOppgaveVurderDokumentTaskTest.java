@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
-import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderDokumentTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -46,19 +45,15 @@ public class OpprettOppgaveVurderDokumentTaskTest {
         prosessTaskData.setFagsakId(FAGSAK_ID);
         prosessTaskData.setProperty(OpprettOppgaveVurderDokumentTask.KEY_DOKUMENT_TYPE, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getKode());
         var fagsakIdCaptor = ArgumentCaptor.forClass(Long.class);
-        var årsakCaptor = ArgumentCaptor.forClass(OppgaveÅrsak.class);
         var fordelingsoppgaveEnhetsIdCaptor = ArgumentCaptor.forClass(String.class);
         var beskrivelseCaptor = ArgumentCaptor.forClass(String.class);
-        var priCaptor = ArgumentCaptor.forClass(Boolean.class);
 
         // Act
         opprettOppgaveVurderDokumentTask.doTask(prosessTaskData);
 
         // Assert
-        verify(oppgaveTjeneste).opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(fagsakIdCaptor.capture(), årsakCaptor.capture(),
-                fordelingsoppgaveEnhetsIdCaptor.capture(), beskrivelseCaptor.capture(), priCaptor.capture());
+        verify(oppgaveTjeneste).opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(fagsakIdCaptor.capture(), fordelingsoppgaveEnhetsIdCaptor.capture(), beskrivelseCaptor.capture());
         assertThat(fagsakIdCaptor.getValue()).isEqualTo(FAGSAK_ID);
-        assertThat(årsakCaptor.getValue()).isEqualTo(OppgaveÅrsak.VURDER_DOKUMENT);
         var dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
         assertThat(beskrivelseCaptor.getValue()).isEqualTo("VL: " + dokumentTypeId.getNavn()); // Antar testhelper, ellers bruk finn+navn
     }

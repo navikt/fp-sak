@@ -1,13 +1,8 @@
 package no.nav.foreldrepenger.domene.vedtak.es;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -24,9 +19,6 @@ import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.intern.AvsluttBehandlingTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SendVedtaksbrevTask;
 import no.nav.foreldrepenger.domene.vedtak.task.VurderOgSendØkonomiOppdragTask;
-import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -38,20 +30,16 @@ public class OpprettProsessTaskIverksettTest {
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
 
-    private OppgaveTjeneste oppgaveTjeneste;
-
     private OpprettProsessTaskIverksett opprettProsessTaskIverksett;
 
     @BeforeEach
     void setUp() {
-        oppgaveTjeneste = mock(OppgaveTjeneste.class);
-        opprettProsessTaskIverksett = new OpprettProsessTaskIverksett(taskTjeneste, oppgaveTjeneste);
+        opprettProsessTaskIverksett = new OpprettProsessTaskIverksett(taskTjeneste);
     }
 
     @Test
     public void skalIkkeAvslutteOppgave() {
         // Arrange
-        when(oppgaveTjeneste.opprettTaskAvsluttOppgave(any(Behandling.class), any(OppgaveÅrsak.class), anyBoolean())).thenReturn(Optional.empty());
 
         // Act
         opprettProsessTaskIverksett.opprettIverksettingTasks(opprettBehandling());
@@ -69,7 +57,6 @@ public class OpprettProsessTaskIverksettTest {
     public void testOpprettIverksettingstasker() {
         // Arrange
         var behandling = opprettBehandling();
-        mockOpprettTaskAvsluttOppgave(behandling);
 
         // Act
         opprettProsessTaskIverksett.opprettIverksettingTasks(behandling);
@@ -80,7 +67,7 @@ public class OpprettProsessTaskIverksettTest {
         var prosessTaskDataList = captor.getValue().getTasks().stream().map(ProsessTaskGruppe.Entry::task).toList();
         var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).collect(Collectors.toList());
         assertThat(tasktyper).contains(TaskType.forProsessTask(AvsluttBehandlingTask.class), TaskType.forProsessTask(SendVedtaksbrevTask.class),
-            TaskType.forProsessTask(AvsluttOppgaveTask.class), TaskType.forProsessTask(VurderOgSendØkonomiOppdragTask.class), TaskType.forProsessTask(VedtakTilDatavarehusTask.class));
+            TaskType.forProsessTask(VurderOgSendØkonomiOppdragTask.class), TaskType.forProsessTask(VedtakTilDatavarehusTask.class));
     }
 
     private Behandling opprettBehandling() {
@@ -88,10 +75,4 @@ public class OpprettProsessTaskIverksettTest {
         return scenario.lagMocked();
     }
 
-    private void mockOpprettTaskAvsluttOppgave(Behandling behandling) {
-        var prosessTaskData = ProsessTaskData.forProsessTask(AvsluttOppgaveTask.class);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        OppgaveTjeneste.setOppgaveId(prosessTaskData, "1001");
-        when(oppgaveTjeneste.opprettTaskAvsluttOppgave(any(Behandling.class), any(OppgaveÅrsak.class), anyBoolean())).thenReturn(Optional.of(prosessTaskData));
-    }
 }

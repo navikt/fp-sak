@@ -69,20 +69,6 @@ public class ForvaltningTekniskRestTjeneste {
     }
 
     @POST
-    @Path("/ferdigstill-hundre-aapne-oppgaver")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Ferdigstill Gosys-oppgave", tags = "FORVALTNING-teknisk", responses = {
-            @ApiResponse(responseCode = "200", description = "Oppgaver satt til ferdig."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response ferdigstillHundreAapneOppgaver() {
-        oppgaveTjeneste.ferdigstillOppgaveForForvaltning();
-        return Response.ok().build();
-    }
-
-    @POST
     @Path("/sett-oppgave-ferdigstilt")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)

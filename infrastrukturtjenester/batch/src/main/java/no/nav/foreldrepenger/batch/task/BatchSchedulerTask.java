@@ -59,8 +59,7 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
             new BatchConfig(1, 58, "BVL010", null), // Oppdatering DVH. Bør kjøre før kl 03-04.
             new BatchConfig(6, 5, "BVL004", null), // Gjenoppta - 24 min spread
             new BatchConfig(7, 0, "BVL002", null), // Etterkontroll
-            new BatchConfig(7, 1, "BVL006", null), // Fagsakavslutning
-            new BatchConfig(7, 20, "BVL007", null) // Oppdatering dagsgamle oppgaver - 24 min spread
+            new BatchConfig(7, 1, "BVL006", null) // Fagsakavslutning
     );
 
     private static final List<DagligTaskConfig> TASKS_VIRKEDAGER = List.of(

@@ -30,10 +30,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
-import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.mottak.sakskompleks.KobleSakerTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 
 @BehandlingStegRef(BehandlingStegType.INNHENT_SØKNADOPP)
 @BehandlingTypeRef
@@ -45,7 +43,6 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private KobleSakerTjeneste kobleSakTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
-    private OppgaveTjeneste oppgaveTjeneste;
     private InntektArbeidYtelseTjeneste iayTjeneste;
 
     TilknyttFagsakStegImpl() {
@@ -55,21 +52,17 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
     @Inject
     public TilknyttFagsakStegImpl(BehandlingRepositoryProvider provider, // NOSONAR
             KobleSakerTjeneste kobleSakTjeneste,
-            BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
-            OppgaveTjeneste oppgaveTjeneste,
-            InntektArbeidYtelseTjeneste iayTjeneste) {// NOSONAR
+            BehandlendeEnhetTjeneste behandlendeEnhetTjeneste, InntektArbeidYtelseTjeneste iayTjeneste) {// NOSONAR
         this.iayTjeneste = iayTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();
         this.ytelsesFordelingRepository = provider.getYtelsesFordelingRepository();
         this.kobleSakTjeneste = kobleSakTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
-        this.oppgaveTjeneste = oppgaveTjeneste;
     }
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        avsluttTidligereRegistreringsoppgave(behandling);
 
         // Prøve å koble fagsaker
         kobleSakerOppdaterEnhetVedBehov(behandling);
@@ -87,10 +80,6 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     private boolean harOppgittUtland(BehandlingskontrollKontekst kontekst) {
         return harOppgittUtenlandskInntekt(kontekst.getBehandlingId()) || harOppgittAnnenForelderTilknytningEØS(kontekst.getBehandlingId());
-    }
-
-    private void avsluttTidligereRegistreringsoppgave(Behandling behandling) {
-        oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling, OppgaveÅrsak.REGISTRER_SØKNAD);
     }
 
     private boolean harOppgittUtenlandskInntekt(Long behandlingId) {
