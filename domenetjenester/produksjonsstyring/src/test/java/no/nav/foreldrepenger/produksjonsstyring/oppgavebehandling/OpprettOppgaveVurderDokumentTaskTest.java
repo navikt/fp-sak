@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -52,7 +53,7 @@ public class OpprettOppgaveVurderDokumentTaskTest {
         opprettOppgaveVurderDokumentTask.doTask(prosessTaskData);
 
         // Assert
-        verify(oppgaveTjeneste).opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(fagsakIdCaptor.capture(), fordelingsoppgaveEnhetsIdCaptor.capture(), beskrivelseCaptor.capture());
+        verify(oppgaveTjeneste).opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(fagsakIdCaptor.capture(), any(), fordelingsoppgaveEnhetsIdCaptor.capture(), beskrivelseCaptor.capture());
         assertThat(fagsakIdCaptor.getValue()).isEqualTo(FAGSAK_ID);
         var dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
         assertThat(beskrivelseCaptor.getValue()).isEqualTo("VL: " + dokumentTypeId.getNavn()); // Antar testhelper, ellers bruk finn+navn
