@@ -15,20 +15,23 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
  */
 public class AksjonspunktResultat {
 
-    private AksjonspunktDefinisjon aksjonspunktDefinisjon;
-    private Venteårsak venteårsak;
-    private LocalDateTime frist;
-
-    private AksjonspunktResultat(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        this.aksjonspunktDefinisjon = aksjonspunktDefinisjon;
-    }
+    private final AksjonspunktDefinisjon aksjonspunktDefinisjon;
+    private final Venteårsak venteårsak;
+    private final LocalDateTime frist;
+    private final boolean avbruttTilUtført;
 
     private AksjonspunktResultat(AksjonspunktDefinisjon aksjonspunktDefinisjon,
-            Venteårsak venteårsak,
-            LocalDateTime ventefrist) {
+                                 Venteårsak venteårsak,
+                                 LocalDateTime ventefrist,
+                                 boolean avbruttTilUtført) {
         this.aksjonspunktDefinisjon = aksjonspunktDefinisjon;
         this.venteårsak = venteårsak;
         this.frist = ventefrist;
+        this.avbruttTilUtført = avbruttTilUtført;
+    }
+
+    private AksjonspunktResultat(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+        this(aksjonspunktDefinisjon, null, null, false);
     }
 
     /**
@@ -53,7 +56,16 @@ public class AksjonspunktResultat {
      */
     public static AksjonspunktResultat opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon aksjonspunktDefinisjon, Venteårsak venteårsak,
             LocalDateTime ventefrist) {
-        return new AksjonspunktResultat(aksjonspunktDefinisjon, venteårsak, ventefrist);
+        return new AksjonspunktResultat(aksjonspunktDefinisjon, venteårsak, ventefrist, false);
+    }
+
+    /**
+     * Hvis AP ikke eksisterer - Oppretter AP
+     * Hvis AP utført - Gjenåpner AP
+     * Hvis AP er avbrutt - AP settes utført, begrunnelse kopieres
+     */
+    public static AksjonspunktResultat opprettAvbruttTilUtførtForAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+        return new AksjonspunktResultat(aksjonspunktDefinisjon, null, null, true);
     }
 
     public AksjonspunktDefinisjon getAksjonspunktDefinisjon() {
@@ -68,10 +80,14 @@ public class AksjonspunktResultat {
         return frist;
     }
 
+    public boolean erAvbruttTilUtført() {
+        return avbruttTilUtført;
+    }
+
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + aksjonspunktDefinisjon.getKode() + ":" + aksjonspunktDefinisjon.getNavn()
-                + ", frist=" + getFrist() + ", venteårsak=" + getVenteårsak() + ">";
+        return "AksjonspunktResultat{" + "aksjonspunktDefinisjon=" + aksjonspunktDefinisjon + ", venteårsak=" + venteårsak + ", frist=" + frist
+            + ", avbruttTilUtført=" + avbruttTilUtført + '}';
     }
 
     @Override

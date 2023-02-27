@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.steg.uttak.UttakSteg;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
@@ -48,7 +49,8 @@ public class FaktaUttakDokumentasjonSteg implements UttakSteg {
         var utledetAp = vurderUttakDokumentasjonAksjonspunktUtleder.utledAksjonspunktFor(uttakInput);
         if (utledetAp || (behandling.harAvbruttAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON)
             && !vurderUttakDokumentasjonAksjonspunktUtleder.utledDokumentasjonVurderingBehov(uttakInput).isEmpty())) {
-            return BehandleStegResultat.utførtMedAksjonspunkter(List.of(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON));
+            var aksjonspunktResultat = AksjonspunktResultat.opprettAvbruttTilUtførtForAksjonspunkt(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON);
+            return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(aksjonspunktResultat));
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }

@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttak.FaktaUttakAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
 @BehandlingStegRef(BehandlingStegType.FAKTA_UTTAK)
 @BehandlingTypeRef
@@ -29,17 +28,14 @@ public class FaktaUttakSteg implements UttakSteg {
     private FaktaUttakAksjonspunktUtleder faktaUttakAksjonspunktUtleder;
     private UttakInputTjeneste uttakInputTjeneste;
     private BehandlingRepository behandlingRepository;
-    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
 
     @Inject
     public FaktaUttakSteg(FaktaUttakAksjonspunktUtleder faktaUttakAksjonspunktUtleder,
                           UttakInputTjeneste uttakInputTjeneste,
-                          BehandlingRepository behandlingRepository,
-                          YtelseFordelingTjeneste ytelseFordelingTjeneste) {
+                          BehandlingRepository behandlingRepository) {
         this.faktaUttakAksjonspunktUtleder = faktaUttakAksjonspunktUtleder;
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.behandlingRepository = behandlingRepository;
-        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
     }
 
     FaktaUttakSteg() {
