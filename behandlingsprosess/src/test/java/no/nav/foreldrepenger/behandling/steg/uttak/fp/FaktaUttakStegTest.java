@@ -7,11 +7,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -26,11 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.uttak.fakta.uttak.FaktaUttakAksjonspunktUtleder;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @CdiDbAwareTest
 class FaktaUttakStegTest {
@@ -40,23 +32,6 @@ class FaktaUttakStegTest {
     private FaktaUttakSteg steg;
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
-    @Inject
-    private FaktaUttakAksjonspunktUtleder faktaUttakAksjonspunktUtleder;
-    @Inject
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    @Inject
-    private MedlemTjeneste medlemTjeneste;
-    @Inject
-    private BeregningUttakTjeneste beregningUttakTjeneste;
-
-
-    @BeforeEach
-    void setup() {
-        var entityManager = repositoryProvider.getEntityManager();
-        var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, new HentOgLagreBeregningsgrunnlagTjeneste(entityManager),
-            new AbakusInMemoryInntektArbeidYtelseTjeneste(), skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste);
-        steg = new FaktaUttakSteg(faktaUttakAksjonspunktUtleder, uttakInputTjeneste, repositoryProvider.getBehandlingRepository());
-    }
 
     @Test
     void skal_utlede_ap() {
@@ -68,7 +43,7 @@ class FaktaUttakStegTest {
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
-            .medFordeling(new OppgittFordelingEntitet(List.of(utsettelse), true))
+            .medJustertFordeling(new OppgittFordelingEntitet(List.of(utsettelse), true))
             .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(fødselsdato.minusWeeks(2)).build())
             .medFødselAdopsjonsdato(fødselsdato);
 

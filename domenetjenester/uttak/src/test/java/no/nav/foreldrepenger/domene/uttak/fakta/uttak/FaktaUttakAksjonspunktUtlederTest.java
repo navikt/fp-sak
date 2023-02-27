@@ -39,7 +39,7 @@ class FaktaUttakAksjonspunktUtlederTest {
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFordeling(new OppgittFordelingEntitet(List.of(periode), true))
+            .medJustertFordeling(new OppgittFordelingEntitet(List.of(periode), true))
             .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(avklartDato).build());
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -53,7 +53,7 @@ class FaktaUttakAksjonspunktUtlederTest {
     @Test
     void ap_hvis_ingen_perioder() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFordeling(new OppgittFordelingEntitet(List.of(), true));
+            .medJustertFordeling(new OppgittFordelingEntitet(List.of(), true));
         var behandling = scenario.lagre(repositoryProvider);
 
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null);
@@ -73,7 +73,7 @@ class FaktaUttakAksjonspunktUtlederTest {
             .medGraderingAktivitetType(GraderingAktivitetType.FRILANS)
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFordeling(new OppgittFordelingEntitet(List.of(gradering), true));
+            .medJustertFordeling(new OppgittFordelingEntitet(List.of(gradering), true));
         var behandling = scenario.lagre(repositoryProvider);
 
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null)
@@ -94,7 +94,7 @@ class FaktaUttakAksjonspunktUtlederTest {
             .medGraderingAktivitetType(GraderingAktivitetType.FRILANS)
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFordeling(new OppgittFordelingEntitet(List.of(gradering), true));
+            .medJustertFordeling(new OppgittFordelingEntitet(List.of(gradering), true));
         var behandling = scenario.lagre(repositoryProvider);
 
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null)

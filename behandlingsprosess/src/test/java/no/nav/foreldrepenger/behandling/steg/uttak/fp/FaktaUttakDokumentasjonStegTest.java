@@ -7,11 +7,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -25,11 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.uttak.fakta.uttak.VurderUttakDokumentasjonAksjonspunktUtleder;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @CdiDbAwareTest
 class FaktaUttakDokumentasjonStegTest {
@@ -39,23 +31,6 @@ class FaktaUttakDokumentasjonStegTest {
     private FaktaUttakDokumentasjonSteg steg;
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
-    @Inject
-    private VurderUttakDokumentasjonAksjonspunktUtleder vurderUttakDokumentasjonAksjonspunktUtleder;
-    @Inject
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    @Inject
-    private MedlemTjeneste medlemTjeneste;
-    @Inject
-    private BeregningUttakTjeneste beregningUttakTjeneste;
-
-
-    @BeforeEach
-    void setup() {
-        var entityManager = repositoryProvider.getEntityManager();
-        steg = new FaktaUttakDokumentasjonSteg(vurderUttakDokumentasjonAksjonspunktUtleder,
-            new UttakInputTjeneste(repositoryProvider, new HentOgLagreBeregningsgrunnlagTjeneste(entityManager), new AbakusInMemoryInntektArbeidYtelseTjeneste(),
-                skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste));
-    }
 
     @Test
     void skal_utlede_ap() {

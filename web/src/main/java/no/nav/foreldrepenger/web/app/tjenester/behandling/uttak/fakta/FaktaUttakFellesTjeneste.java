@@ -1,5 +1,15 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -7,7 +17,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -20,15 +35,6 @@ import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.TidligstMottattOppda
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.FørsteUttaksdatoTjeneste;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
 
 @ApplicationScoped
 class FaktaUttakFellesTjeneste {
@@ -95,13 +101,15 @@ class FaktaUttakFellesTjeneste {
     }
 
     private LocalDate førsteUttaksdagIBehandling(Long behandlingId) {
-        return ytelseFordelingTjeneste.hentAggregat(behandlingId)
-            .getGjeldendeFordeling()
-            .getPerioder()
+        return hentGjeldendeFordeling(behandlingId)
             .stream()
             .map(p -> p.getFom())
             .min(LocalDate::compareTo)
             .orElse(LocalDate.MIN);
+    }
+
+    private List<OppgittPeriodeEntitet> hentGjeldendeFordeling(Long behandlingId) {
+        return ytelseFordelingTjeneste.hentAggregat(behandlingId).getGjeldendeFordeling().getPerioder();
     }
 
     private List<FaktaUttakPeriodeDto> finnPerioderFraFørsteEndring(List<FaktaUttakPeriodeDto> gjeldendePerioder,
@@ -126,7 +134,8 @@ class FaktaUttakFellesTjeneste {
     private void validerReutledetAksjonspunkt(Long behandlingId) {
         //Burde ikke kunne lagre et uttak som fører til AP
         var input = uttakInputtjeneste.lagInput(behandlingId);
-        var reutlededAp = utleder.utledAksjonspunkterFor(input);
+        var perioder = hentGjeldendeFordeling(behandlingId);
+        var reutlededAp = utleder.utledAksjonspunkterFor(input, perioder);
         if (!reutlededAp.isEmpty()) {
             throw new IllegalStateException("Lagrede perioder fører til at aksjonspunkt reutledes");
         }
@@ -162,12 +171,12 @@ class FaktaUttakFellesTjeneste {
         var begrunnelse = periodeKilde == FordelingPeriodeKilde.SAKSBEHANDLER || gjeldendeSomOmslutter.isEmpty() ? null : gjeldendeSomOmslutter.get()
             .getBegrunnelse()
             .orElse(null);
+        var dokumentasjonVurdering = periodeKilde == FordelingPeriodeKilde.SAKSBEHANDLER ? null : gjeldendeSomOmslutter.map(op -> op.getDokumentasjonVurdering()).orElse(null);
         var builder = OppgittPeriodeBuilder.ny().medPeriode(dto.fom(), dto.tom())
             .medPeriodeKilde(periodeKilde)
             .medMottattDato(gjeldendeSomOmslutter.map(OppgittPeriodeEntitet::getMottattDato).orElseGet(LocalDate::now))
             .medTidligstMottattDato(gjeldendeSomOmslutter.flatMap(OppgittPeriodeEntitet::getTidligstMottattDato).orElse(null))
-            //Setter dokvurdering til null for å sikre at dokumentasjons AP reutledes ved tilbakehopp. TFP-5381. Kan sannsynligvis optimaliseres til å være mer presis
-            .medDokumentasjonVurdering(null)
+            .medDokumentasjonVurdering(dokumentasjonVurdering)
             .medBegrunnelse(begrunnelse)
             .medMorsAktivitet(dto.morsAktivitet())
             .medFlerbarnsdager(dto.flerbarnsdager())

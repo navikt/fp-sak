@@ -13,6 +13,8 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttak.VurderUttakDokumentasjonAksjonspunktUtleder;
 
@@ -24,12 +26,15 @@ public class FaktaUttakDokumentasjonSteg implements UttakSteg {
 
     private VurderUttakDokumentasjonAksjonspunktUtleder vurderUttakDokumentasjonAksjonspunktUtleder;
     private UttakInputTjeneste uttakInputTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     @Inject
     public FaktaUttakDokumentasjonSteg(VurderUttakDokumentasjonAksjonspunktUtleder vurderUttakDokumentasjonAksjonspunktUtleder,
-                                       UttakInputTjeneste uttakInputTjeneste) {
+                                       UttakInputTjeneste uttakInputTjeneste,
+                                       BehandlingRepository behandlingRepository) {
         this.vurderUttakDokumentasjonAksjonspunktUtleder = vurderUttakDokumentasjonAksjonspunktUtleder;
         this.uttakInputTjeneste = uttakInputTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
     FaktaUttakDokumentasjonSteg() {
@@ -38,8 +43,13 @@ public class FaktaUttakDokumentasjonSteg implements UttakSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
-        var dokumentasjonAP = vurderUttakDokumentasjonAksjonspunktUtleder.utledAksjonspunkterFor(uttakInput);
-        return BehandleStegResultat.utførtMedAksjonspunkter(dokumentasjonAP.map(ad -> List.of(ad)).orElse(List.of()));
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var uttakInput = uttakInputTjeneste.lagInput(behandling);
+        var utledetAp = vurderUttakDokumentasjonAksjonspunktUtleder.utledAksjonspunktFor(uttakInput);
+        if (utledetAp || (behandling.harAvbruttAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON)
+            && !vurderUttakDokumentasjonAksjonspunktUtleder.utledDokumentasjonVurderingBehov(uttakInput).isEmpty())) {
+            return BehandleStegResultat.utførtMedAksjonspunkter(List.of(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON));
+        }
+        return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 }

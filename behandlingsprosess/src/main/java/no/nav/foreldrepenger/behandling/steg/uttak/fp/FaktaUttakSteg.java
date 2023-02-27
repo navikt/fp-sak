@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttak.FaktaUttakAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
 @BehandlingStegRef(BehandlingStegType.FAKTA_UTTAK)
 @BehandlingTypeRef
@@ -28,14 +29,17 @@ public class FaktaUttakSteg implements UttakSteg {
     private FaktaUttakAksjonspunktUtleder faktaUttakAksjonspunktUtleder;
     private UttakInputTjeneste uttakInputTjeneste;
     private BehandlingRepository behandlingRepository;
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
 
     @Inject
     public FaktaUttakSteg(FaktaUttakAksjonspunktUtleder faktaUttakAksjonspunktUtleder,
                           UttakInputTjeneste uttakInputTjeneste,
-                          BehandlingRepository behandlingRepository) {
+                          BehandlingRepository behandlingRepository,
+                          YtelseFordelingTjeneste ytelseFordelingTjeneste) {
         this.faktaUttakAksjonspunktUtleder = faktaUttakAksjonspunktUtleder;
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
     }
 
     FaktaUttakSteg() {
@@ -50,7 +54,12 @@ public class FaktaUttakSteg implements UttakSteg {
     }
 
     private List<AksjonspunktDefinisjon> utledAp(UttakInput uttakInput) {
-        return harÅpentOverstyringAp(uttakInput.getBehandlingReferanse().behandlingId()) ? List.of() : faktaUttakAksjonspunktUtleder.utledAksjonspunkterFor(uttakInput);
+        var behandlingId = uttakInput.getBehandlingReferanse().behandlingId();
+        if (harÅpentOverstyringAp(behandlingId)) {
+            return List.of();
+        }
+        //Bruker justert her for å reutlede avbrutt AP ved tilbakehopp
+        return faktaUttakAksjonspunktUtleder.utledAksjonspunkterFor(uttakInput);
     }
 
     private boolean harÅpentOverstyringAp(Long behandlingId) {

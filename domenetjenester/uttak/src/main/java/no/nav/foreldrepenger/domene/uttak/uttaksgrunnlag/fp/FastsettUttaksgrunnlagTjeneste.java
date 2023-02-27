@@ -46,9 +46,11 @@ public class FastsettUttaksgrunnlagTjeneste {
     }
 
     public void fastsettUttaksgrunnlag(UttakInput input) {
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(input.getBehandlingReferanse().behandlingId());
+        var eksisterendeJustertFordeling = ytelseFordelingAggregat.getJustertFordeling().orElse(null);
+        var eksisterendeEndringsdato = ytelseFordelingAggregat.getAvklarteDatoer().map(a -> a.getOpprinneligEndringsdato()).orElse(LocalDate.MIN);
+
         var endringsdatoRevurdering = utledEndringsdatoVedRevurdering(input);
-        var eksisterendeJustertFordeling = ytelsesFordelingRepository.hentAggregat(input.getBehandlingReferanse().behandlingId())
-            .getJustertFordeling().orElse(null);
         var justertFordeling = justerFordeling(input, endringsdatoRevurdering);
         var behandlingId = input.getBehandlingReferanse().behandlingId();
         //Endringsdato skal utledes før justering ved revurdering, men etter justering for førstegangsbehandlinger
@@ -59,13 +61,15 @@ public class FastsettUttaksgrunnlagTjeneste {
             endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(input.getBehandlingReferanse().behandlingId(),
                     justertFordeling.getPerioder());
         }
-        var avklarteUttakDatoer = avklarteDatoerMedEndringsdato(behandlingId, endringsdato);
-        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId).medAvklarteDatoer(avklarteUttakDatoer);
 
-        if (!SammenlignFordeling.erLikeFordelinger(eksisterendeJustertFordeling, justertFordeling)) {
-            yfBuilder.medJustertFordeling(justertFordeling).medOverstyrtFordeling(null);
+        if (!SammenlignFordeling.erLikeFordelinger(eksisterendeJustertFordeling, justertFordeling) || !endringsdato.isEqual(eksisterendeEndringsdato)) {
+            var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId);
+            var avklarteUttakDatoer = avklarteDatoerMedEndringsdato(behandlingId, endringsdato);
+            yfBuilder.medJustertFordeling(justertFordeling)
+                .medAvklarteDatoer(avklarteUttakDatoer)
+                .medOverstyrtFordeling(null);
+            ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
         }
-        ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
     }
 
     private OppgittFordelingEntitet justerFordeling(UttakInput input, LocalDate endringsdatoRevurdering) {
@@ -149,7 +153,7 @@ public class FastsettUttaksgrunnlagTjeneste {
     private AvklarteUttakDatoerEntitet avklarteDatoerMedEndringsdato(Long behandlingId, LocalDate endringsdato) {
         var avklarteUttakDatoer = ytelsesFordelingRepository.hentAggregat(behandlingId).getAvklarteDatoer();
         var builder = new AvklarteUttakDatoerEntitet.Builder(avklarteUttakDatoer);
-        return builder.medOpprinneligEndringsdato(endringsdato).build();
+        return builder.medOpprinneligEndringsdato(endringsdato).medJustertEndringsdato(null).build();
     }
 
     private List<OppgittPeriodeEntitet> kopierVedtaksperioderFomEndringsdato(List<OppgittPeriodeEntitet> oppgittePerioder,

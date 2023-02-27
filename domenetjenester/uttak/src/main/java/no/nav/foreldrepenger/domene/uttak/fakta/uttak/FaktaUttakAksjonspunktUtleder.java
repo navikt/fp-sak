@@ -8,6 +8,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType.FRILANS;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -19,7 +20,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.uttak.PerioderUtenHelgUtil;
@@ -43,37 +43,42 @@ public class FaktaUttakAksjonspunktUtleder {
 
     public List<AksjonspunktDefinisjon> utledAksjonspunkterFor(UttakInput input) {
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(input.getBehandlingReferanse().behandlingId());
+        return utledAksjonspunkterFor(input, ytelseFordelingAggregat.getJustertFordeling().orElseThrow().getPerioder());
+    }
+
+    public List<AksjonspunktDefinisjon> utledAksjonspunkterFor(UttakInput input, List<OppgittPeriodeEntitet> perioder) {
 
         var list = new ArrayList<AksjonspunktDefinisjon>();
-        if (ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder().isEmpty()) {
+        if (perioder.isEmpty()) {
             list.add(FAKTA_UTTAK_INGEN_PERIODER);
         }
         if (input.finnesAndelerMedGraderingUtenBeregningsgrunnlag()) {
             list.add(FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG);
         }
-        if (graderingPåUkjentAktivitet(input.getBeregningsgrunnlagStatuser(), ytelseFordelingAggregat)) {
+        if (graderingPåUkjentAktivitet(input.getBeregningsgrunnlagStatuser(), perioder)) {
             list.add(FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET);
         }
-        if (!avklartStartdatLikFørsteDagIPerioder(ytelseFordelingAggregat)) {
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(input.getBehandlingReferanse().behandlingId());
+        if (!avklartStartdatLikFørsteDagIPerioder(perioder,
+            ytelseFordelingAggregat.getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato))) {
             list.add(FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO);
         }
         return list;
     }
 
-    private static boolean avklartStartdatLikFørsteDagIPerioder(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        var avklartFUD = ytelseFordelingAggregat.getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato);
-        return avklartFUD.map(localDate -> førsteSøkteDag(ytelseFordelingAggregat).map(
+    private static boolean avklartStartdatLikFørsteDagIPerioder(List<OppgittPeriodeEntitet> perioder, Optional<LocalDate> avklartFUD) {
+        return avklartFUD.map(localDate -> førsteSøkteDag(perioder).map(
             oppgittPeriode -> PerioderUtenHelgUtil.datoerLikeNårHelgIgnoreres(oppgittPeriode.getFom(), localDate)).orElse(true)).orElse(true);
     }
 
-    private static Optional<OppgittPeriodeEntitet> førsteSøkteDag(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder()
+    private static Optional<OppgittPeriodeEntitet> førsteSøkteDag(List<OppgittPeriodeEntitet> perioder) {
+        return perioder
             .stream()
             .min(Comparator.comparing(OppgittPeriodeEntitet::getFom));
     }
 
-    private static boolean graderingPåUkjentAktivitet(Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser, YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder().stream()
+    private static boolean graderingPåUkjentAktivitet(Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser, List<OppgittPeriodeEntitet> perioder) {
+        return perioder.stream()
             .filter(periode -> periode.isGradert())
             .anyMatch(periode -> gradererUkjentAktivitet(periode, beregningsgrunnlagStatuser));
     }
