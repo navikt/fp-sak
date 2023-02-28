@@ -8,7 +8,7 @@ import com.ibm.msg.client.jakarta.jms.JmsConstants;
 import com.ibm.msg.client.jakarta.wmq.WMQConstants;
 import com.ibm.msg.client.jakarta.wmq.compat.jms.internal.JMSC;
 
-import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
+import no.nav.foreldrepenger.felles.jms.JmsKonfig;
 
 public class FellesJmsKonfig {
 

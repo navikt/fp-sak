@@ -4,7 +4,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.økonomistøtte.queue.Mq;
-import no.nav.vedtak.felles.integrasjon.jms.JmsMessage;
+import no.nav.foreldrepenger.felles.jms.JmsMessage;
 
 @ApplicationScoped
 @Mq

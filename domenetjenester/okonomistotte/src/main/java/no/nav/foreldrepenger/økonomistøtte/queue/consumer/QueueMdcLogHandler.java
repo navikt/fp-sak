@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.økonomistøtte.queue.consumer;
 
-import no.nav.vedtak.felles.integrasjon.jms.MdcHandler;
+import no.nav.foreldrepenger.felles.jms.MdcHandler;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 class QueueMdcLogHandler implements MdcHandler {

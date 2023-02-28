@@ -52,7 +52,7 @@
             <artifactId>felles-xmlutils</artifactId>
         </dependency>
 		<dependency>
-            <groupId>no.nav.vedtak.felles.fp-jms-integrasjon</groupId>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>jms-integrasjon</artifactId>
 		</dependency>
 		<dependency>

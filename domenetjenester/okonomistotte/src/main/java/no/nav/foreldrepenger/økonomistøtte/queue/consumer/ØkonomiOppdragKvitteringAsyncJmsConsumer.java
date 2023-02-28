@@ -22,12 +22,12 @@ import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.queue.config.DatabasePreconditionChecker;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.jms.ExternalQueueConsumer;
-import no.nav.vedtak.felles.integrasjon.jms.precond.PreconditionChecker;
+import no.nav.foreldrepenger.felles.jms.QueueConsumer;
+import no.nav.foreldrepenger.felles.jms.precond.PreconditionChecker;
 import no.nav.vedtak.log.metrics.Controllable;
 
 @ApplicationScoped
-public class ØkonomiOppdragKvitteringAsyncJmsConsumer extends ExternalQueueConsumer implements Controllable {
+public class ØkonomiOppdragKvitteringAsyncJmsConsumer extends QueueConsumer implements Controllable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ØkonomiOppdragKvitteringAsyncJmsConsumer.class);
 

@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.økonomistøtte.queue.producer;
 
-import no.nav.vedtak.felles.integrasjon.jms.ExternalQueueProducer;
-import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
+import no.nav.foreldrepenger.felles.jms.JmsKonfig;
+import no.nav.foreldrepenger.felles.jms.QueueProducer;
 
-public abstract class ØkonomioppdragJmsProducer extends ExternalQueueProducer {
+public abstract class ØkonomioppdragJmsProducer extends QueueProducer {
     public ØkonomioppdragJmsProducer() {
     }
 
