@@ -1,20 +1,24 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
-import java.util.List;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.steg.uttak.UttakSteg;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttak.VurderUttakDokumentasjonAksjonspunktUtleder;
+import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 
 @BehandlingStegRef(BehandlingStegType.FAKTA_UTTAK_DOKUMENTASJON)
 @BehandlingTypeRef
@@ -24,12 +28,15 @@ public class FaktaUttakDokumentasjonSteg implements UttakSteg {
 
     private VurderUttakDokumentasjonAksjonspunktUtleder vurderUttakDokumentasjonAksjonspunktUtleder;
     private UttakInputTjeneste uttakInputTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     @Inject
     public FaktaUttakDokumentasjonSteg(VurderUttakDokumentasjonAksjonspunktUtleder vurderUttakDokumentasjonAksjonspunktUtleder,
-                                       UttakInputTjeneste uttakInputTjeneste) {
+                                       UttakInputTjeneste uttakInputTjeneste,
+                                       BehandlingRepository behandlingRepository) {
         this.vurderUttakDokumentasjonAksjonspunktUtleder = vurderUttakDokumentasjonAksjonspunktUtleder;
         this.uttakInputTjeneste = uttakInputTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
     FaktaUttakDokumentasjonSteg() {
@@ -38,8 +45,20 @@ public class FaktaUttakDokumentasjonSteg implements UttakSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
-        var dokumentasjonAP = vurderUttakDokumentasjonAksjonspunktUtleder.utledAksjonspunkterFor(uttakInput);
-        return BehandleStegResultat.utførtMedAksjonspunkter(dokumentasjonAP.map(ad -> List.of(ad)).orElse(List.of()));
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var uttakInput = uttakInputTjeneste.lagInput(behandling);
+        var utledetAp = vurderUttakDokumentasjonAksjonspunktUtleder.utledAksjonspunktFor(uttakInput);
+        if (utledetAp) {
+            return BehandleStegResultat.utførtMedAksjonspunkt(VURDER_UTTAK_DOKUMENTASJON);
+        }
+        if (behandling.harAvbruttAksjonspunktMedType(VURDER_UTTAK_DOKUMENTASJON) && harDokVurderingBehov(uttakInput)) {
+            var aksjonspunktResultat = AksjonspunktResultat.opprettForAksjonspunkt(VURDER_UTTAK_DOKUMENTASJON, AksjonspunktStatus.UTFØRT);
+            return BehandleStegResultat.utførtMedAksjonspunktResultat(aksjonspunktResultat);
+        }
+        return BehandleStegResultat.utførtUtenAksjonspunkter();
+    }
+
+    private boolean harDokVurderingBehov(UttakInput uttakInput) {
+        return !vurderUttakDokumentasjonAksjonspunktUtleder.utledDokumentasjonVurderingBehov(uttakInput).isEmpty();
     }
 }

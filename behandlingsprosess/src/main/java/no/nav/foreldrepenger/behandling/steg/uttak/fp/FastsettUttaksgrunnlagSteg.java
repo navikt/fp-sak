@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -14,9 +12,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.KopierForeldrepengerUttaktjeneste;
 import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttakTjeneste;
@@ -28,7 +23,6 @@ import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.FastsettUttaksgrunnl
 @ApplicationScoped
 public class FastsettUttaksgrunnlagSteg implements BehandlingSteg {
 
-    private final YtelsesFordelingRepository ytelsesFordelingRepository;
     private final FastsettUttaksgrunnlagTjeneste fastsettUttaksgrunnlagTjeneste;
     private final UttakInputTjeneste uttakInputTjeneste;
     private final SkalKopiereUttakTjeneste skalKopiereUttakTjeneste;
@@ -36,12 +30,10 @@ public class FastsettUttaksgrunnlagSteg implements BehandlingSteg {
 
     @Inject
     public FastsettUttaksgrunnlagSteg(UttakInputTjeneste uttakInputTjeneste,
-                                      YtelsesFordelingRepository ytelsesFordelingRepository,
                                       FastsettUttaksgrunnlagTjeneste fastsettUttaksgrunnlagTjeneste,
                                       SkalKopiereUttakTjeneste skalKopiereUttakTjeneste,
                                       KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
-        this.ytelsesFordelingRepository = ytelsesFordelingRepository;
         this.fastsettUttaksgrunnlagTjeneste = fastsettUttaksgrunnlagTjeneste;
         this.skalKopiereUttakTjeneste = skalKopiereUttakTjeneste;
         this.kopierForeldrepengerUttaktjeneste = kopierForeldrepengerUttaktjeneste;
@@ -57,24 +49,6 @@ public class FastsettUttaksgrunnlagSteg implements BehandlingSteg {
 
         // Returner eventuelt aksjonspunkt ifm søknadsfrist
         return BehandleStegResultat.utførtUtenAksjonspunkter();
-    }
-
-    @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
-                                   BehandlingStegModell modell,
-                                   BehandlingStegType førsteSteg,
-                                   BehandlingStegType sisteSteg) {
-        ytelsesFordelingRepository.hentAggregatHvisEksisterer(kontekst.getBehandlingId())
-            .ifPresent(a -> {
-                var ytelseFordelingBuilder = YtelseFordelingAggregat.Builder.oppdatere(Optional.of(a))
-                    .medJustertFordeling(null)
-                    .medOverstyrtFordeling(null)
-                    .medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder(a.getAvklarteDatoer())
-                        .medOpprinneligEndringsdato(null)
-                        .medJustertEndringsdato(null)
-                        .build());
-                ytelsesFordelingRepository.lagre(kontekst.getBehandlingId(), ytelseFordelingBuilder.build());
-            });
     }
 
     @Override

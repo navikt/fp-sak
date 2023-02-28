@@ -40,6 +40,10 @@ public class BehandleStegResultat {
         return new BehandleStegResultat(FellesTransisjoner.UTFØRT, aksjonspunktResultater);
     }
 
+    public static BehandleStegResultat utførtMedAksjonspunktResultat(AksjonspunktResultat aksjonspunktResultat) {
+        return utførtMedAksjonspunktResultater(List.of(aksjonspunktResultat));
+    }
+
     /**
      * Factory-metode for liste av {@link AksjonspunktDefinisjon}. Ingen callback
      * for consumer.
@@ -47,6 +51,10 @@ public class BehandleStegResultat {
     public static BehandleStegResultat utførtMedAksjonspunkter(List<AksjonspunktDefinisjon> aksjonspunktListe) {
         var aksjonspunktResultater = konverterTilAksjonspunktResultat(aksjonspunktListe);
         return new BehandleStegResultat(FellesTransisjoner.UTFØRT, aksjonspunktResultater);
+    }
+
+    public static BehandleStegResultat utførtMedAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+        return utførtMedAksjonspunkter(List.of(aksjonspunktDefinisjon));
     }
 
     public static BehandleStegResultat utførtUtenAksjonspunkter() {

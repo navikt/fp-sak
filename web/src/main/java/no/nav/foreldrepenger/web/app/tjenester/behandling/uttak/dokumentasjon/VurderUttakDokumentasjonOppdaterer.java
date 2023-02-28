@@ -99,7 +99,7 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
 
     private boolean harLøstAksjonspunktet(AksjonspunktOppdaterParameter param) {
         var input = uttakInputTjeneste.lagInput(param.getBehandlingId());
-        return utleder.utledAksjonspunkterFor(input).isEmpty();
+        return !utleder.utledAksjonspunktFor(input);
     }
 
     static DokumentasjonVurdering mapVurdering(DokumentasjonVurderingBehovDto dto) {

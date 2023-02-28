@@ -1,12 +1,14 @@
 package no.nav.foreldrepenger.behandlingskontroll;
 
 import static java.util.Collections.singletonList;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 
 /**
@@ -15,28 +17,35 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
  */
 public class AksjonspunktResultat {
 
-    private AksjonspunktDefinisjon aksjonspunktDefinisjon;
-    private Venteårsak venteårsak;
-    private LocalDateTime frist;
-
-    private AksjonspunktResultat(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        this.aksjonspunktDefinisjon = aksjonspunktDefinisjon;
-    }
+    private final AksjonspunktDefinisjon aksjonspunktDefinisjon;
+    private final AksjonspunktStatus målStatus;
+    private final Venteårsak venteårsak;
+    private final LocalDateTime frist;
 
     private AksjonspunktResultat(AksjonspunktDefinisjon aksjonspunktDefinisjon,
-            Venteårsak venteårsak,
-            LocalDateTime ventefrist) {
+                                 Venteårsak venteårsak,
+                                 LocalDateTime ventefrist,
+                                 AksjonspunktStatus målStatus) {
         this.aksjonspunktDefinisjon = aksjonspunktDefinisjon;
         this.venteårsak = venteårsak;
         this.frist = ventefrist;
+        this.målStatus = målStatus;
+    }
+
+    private AksjonspunktResultat(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+        this(aksjonspunktDefinisjon, null, null, OPPRETTET);
     }
 
     /**
      * Factory-metode direkte basert på {@link AksjonspunktDefinisjon}. Ingen frist
      * eller årsak.
      */
+    public static AksjonspunktResultat opprettForAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon, AksjonspunktStatus aksjonspunktStatus) {
+        return new AksjonspunktResultat(aksjonspunktDefinisjon, null, null, aksjonspunktStatus);
+    }
+
     public static AksjonspunktResultat opprettForAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        return new AksjonspunktResultat(aksjonspunktDefinisjon);
+        return opprettForAksjonspunkt(aksjonspunktDefinisjon, OPPRETTET);
     }
 
     /**
@@ -53,7 +62,7 @@ public class AksjonspunktResultat {
      */
     public static AksjonspunktResultat opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon aksjonspunktDefinisjon, Venteårsak venteårsak,
             LocalDateTime ventefrist) {
-        return new AksjonspunktResultat(aksjonspunktDefinisjon, venteårsak, ventefrist);
+        return new AksjonspunktResultat(aksjonspunktDefinisjon, venteårsak, ventefrist, OPPRETTET);
     }
 
     public AksjonspunktDefinisjon getAksjonspunktDefinisjon() {
@@ -68,10 +77,14 @@ public class AksjonspunktResultat {
         return frist;
     }
 
+    public AksjonspunktStatus getMålStatus() {
+        return målStatus;
+    }
+
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + aksjonspunktDefinisjon.getKode() + ":" + aksjonspunktDefinisjon.getNavn()
-                + ", frist=" + getFrist() + ", venteårsak=" + getVenteårsak() + ">";
+        return "AksjonspunktResultat{" + "aksjonspunktDefinisjon=" + aksjonspunktDefinisjon + ", målStatus=" + målStatus + ", venteårsak="
+            + venteårsak + ", frist=" + frist + '}';
     }
 
     @Override

@@ -9,7 +9,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
@@ -73,10 +72,9 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
         var fpGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(familieHendelse));
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, fpGrunnlag);
-        var aksjonspunktDefinisjon = utleder.utledAksjonspunkterFor(input);
+        var utledetAp = utleder.utledAksjonspunktFor(input);
 
-        assertThat(aksjonspunktDefinisjon).isPresent();
-        assertThat(aksjonspunktDefinisjon.get()).isEqualTo(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON);
+        assertThat(utledetAp).isTrue();
 
         var behov = utleder.utledDokumentasjonVurderingBehov(input)
             .stream().sorted(Comparator.comparing(dokumentasjonVurderingBehov -> dokumentasjonVurderingBehov.oppgittPeriode().getFom()))
@@ -112,10 +110,10 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
         var fpGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(familieHendelse));
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, fpGrunnlag);
-        var aksjonspunktDefinisjon = utleder.utledAksjonspunkterFor(input);
+        var aksjonspunktDefinisjon = utleder.utledAksjonspunktFor(input);
         var behov = utleder.utledDokumentasjonVurderingBehov(input);
 
-        assertThat(aksjonspunktDefinisjon).isEmpty();
+        assertThat(aksjonspunktDefinisjon).isFalse();
         assertThat(behov).isEmpty();
     }
 }

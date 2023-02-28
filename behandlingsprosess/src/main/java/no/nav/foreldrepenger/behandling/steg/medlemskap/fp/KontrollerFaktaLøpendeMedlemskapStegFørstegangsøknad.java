@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.medlemskap.fp;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -48,7 +46,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegFørstegangsøknad implements 
         if (flytkontroll.uttaksProsessenSkalVente(kontekst.getBehandlingId())) {
             LOG.info("Flytkontroll UTTAK: Setter behandling {} førstegang på vent grunnet annen part", kontekst.getBehandlingId());
             var køAutopunkt = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_KØET_BEHANDLING, Venteårsak.VENT_ÅPEN_BEHANDLING, null);
-            return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(køAutopunkt));
+            return BehandleStegResultat.utførtMedAksjonspunktResultat(køAutopunkt);
         }
         // kan utvides ved behov for sjekk av løpende medlemskap.
         // er tomt nå fordi startpunktutlederen peker på KOFAK_LOP_MEDL for uttak.

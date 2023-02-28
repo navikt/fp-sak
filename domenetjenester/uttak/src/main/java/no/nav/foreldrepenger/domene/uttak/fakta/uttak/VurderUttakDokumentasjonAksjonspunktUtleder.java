@@ -2,12 +2,10 @@ package no.nav.foreldrepenger.domene.uttak.fakta.uttak;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -31,10 +29,9 @@ public class VurderUttakDokumentasjonAksjonspunktUtleder {
         //CDI
     }
 
-    public Optional<AksjonspunktDefinisjon> utledAksjonspunkterFor(UttakInput input) {
+    public boolean utledAksjonspunktFor(UttakInput input) {
         List<DokumentasjonVurderingBehov> dokumentasjonVurderingBehov = utledDokumentasjonVurderingBehov(input);
-        var minstEnPeriodeMåVurderes = dokumentasjonVurderingBehov.stream().anyMatch(periodeBehov -> periodeBehov.måVurderes());
-        return minstEnPeriodeMåVurderes ? Optional.of(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON) : Optional.empty();
+        return dokumentasjonVurderingBehov.stream().anyMatch(periodeBehov -> periodeBehov.måVurderes());
     }
 
     public List<DokumentasjonVurderingBehov> utledDokumentasjonVurderingBehov(UttakInput input) {
@@ -49,7 +46,7 @@ public class VurderUttakDokumentasjonAksjonspunktUtleder {
             .orElse(List.of());
     }
 
-    public DokumentasjonVurderingBehov dokumentasjonVurderingBehov(OppgittPeriodeEntitet oppgittPeriode,
+    private DokumentasjonVurderingBehov dokumentasjonVurderingBehov(OppgittPeriodeEntitet oppgittPeriode,
                                                                    UttakInput input) {
         var tidligereVurdering = oppgittPeriode.getDokumentasjonVurdering();
         var familiehendelse = finnGjeldendeFamiliehendelse(input);

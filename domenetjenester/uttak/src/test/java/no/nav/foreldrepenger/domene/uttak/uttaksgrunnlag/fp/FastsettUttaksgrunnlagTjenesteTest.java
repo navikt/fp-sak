@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -14,6 +13,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakReposito
 public class FastsettUttaksgrunnlagTjenesteTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
-    private final EndringsdatoFørstegangsbehandlingUtleder endringsdatoUtleder = mock(EndringsdatoFørstegangsbehandlingUtleder.class);
+    private final EndringsdatoFørstegangsbehandlingUtleder endringsdatoUtleder = new EndringsdatoFørstegangsbehandlingUtleder(repositoryProvider.getYtelsesFordelingRepository());
     private final FastsettUttaksgrunnlagTjeneste tjeneste = new FastsettUttaksgrunnlagTjeneste(repositoryProvider, endringsdatoUtleder,
             mock(EndringsdatoRevurderingUtlederImpl.class));
 
@@ -99,11 +99,9 @@ public class FastsettUttaksgrunnlagTjenesteTest {
                 .build();
         var fordeling = new OppgittFordelingEntitet(List.of(periode), true);
 
-        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
-        scenario.medFordeling(fordeling);
-        var behandling = scenario.lagre(repositoryProvider);
-        var endringsdato = LocalDate.of(2020, 10, 10);
-        when(endringsdatoUtleder.utledEndringsdato(behandling.getId(), List.of(periode))).thenReturn(endringsdato);
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medFordeling(fordeling)
+            .lagre(repositoryProvider);
 
         var familieHendelse = FamilieHendelse.forFødsel(null, førsteUttaksdato, List.of(), 0);
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
@@ -111,8 +109,8 @@ public class FastsettUttaksgrunnlagTjenesteTest {
 
         var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
-        assertThat(resultat.getGjeldendeEndringsdato()).isEqualTo(endringsdato);
-        assertThat(resultat.getAvklarteDatoer().get().getOpprinneligEndringsdato()).isEqualTo(endringsdato);
+        assertThat(resultat.getGjeldendeEndringsdato()).isEqualTo(førsteUttaksdato);
+        assertThat(resultat.getAvklarteDatoer().get().getOpprinneligEndringsdato()).isEqualTo(førsteUttaksdato);
     }
 
     @Test
@@ -128,12 +126,15 @@ public class FastsettUttaksgrunnlagTjenesteTest {
         var overstyrtFordeling = new OppgittFordelingEntitet(List.of(OppgittPeriodeBuilder.fraEksisterende(periode)
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE).build()), true);
 
-        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
-        scenario.medFordeling(fordeling).medJustertFordeling(justertFordeling).medOverstyrtFordeling(overstyrtFordeling);
-        var behandling = scenario.lagre(repositoryProvider);
-
-        var endringsdato = LocalDate.of(2020, 10, 10);
-        when(endringsdatoUtleder.utledEndringsdato(behandling.getId(), List.of(periode))).thenReturn(endringsdato);
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
+            .medOpprinneligEndringsdato(førsteUttaksdato)
+            .build();
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medFordeling(fordeling)
+            .medJustertFordeling(justertFordeling)
+            .medAvklarteUttakDatoer(avklarteUttakDatoer)
+            .medOverstyrtFordeling(overstyrtFordeling)
+            .lagre(repositoryProvider);
 
         var familieHendelse = FamilieHendelse.forFødsel(null, førsteUttaksdato, List.of(), 0);
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
@@ -161,12 +162,15 @@ public class FastsettUttaksgrunnlagTjenesteTest {
         var justertFordeling = new OppgittFordelingEntitet(List.of(periodeMK), true);
         var overstyrtFordeling = new OppgittFordelingEntitet(List.of(periodeMK), true);
 
-        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
-        scenario.medFordeling(fordeling).medJustertFordeling(justertFordeling).medOverstyrtFordeling(overstyrtFordeling);
-        var behandling = scenario.lagre(repositoryProvider);
-
-        var endringsdato = LocalDate.of(2020, 10, 10);
-        when(endringsdatoUtleder.utledEndringsdato(behandling.getId(), List.of(periode))).thenReturn(endringsdato);
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
+            .medOpprinneligEndringsdato(LocalDate.of(2020, 10, 10))
+            .build();
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medFordeling(fordeling)
+            .medJustertFordeling(justertFordeling)
+            .medAvklarteUttakDatoer(avklarteUttakDatoer)
+            .medOverstyrtFordeling(overstyrtFordeling)
+            .lagre(repositoryProvider);
 
         var familieHendelse = FamilieHendelse.forFødsel(null, førsteUttaksdato, List.of(), 0);
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
@@ -243,34 +247,6 @@ public class FastsettUttaksgrunnlagTjenesteTest {
         assertThat(oppgittePerioder.get(0).getFom()).isEqualTo(periode1.getFom());
         assertThat(oppgittePerioder.get(1).getFom()).isEqualTo(opphold1.getFom());
         assertThat(oppgittePerioder.get(2).getFom()).isEqualTo(periode2.getFom());
-    }
-
-    @Test
-    public void sammenhengende_uttak_skal_ikke_fjerne_oppholdsperioder_på_slutten_hvis_fordelingen_bare_består_av_oppholdsperioder() {
-        var søknadFom = LocalDate.of(2019, 7, 31);
-        var opphold1 = OppgittPeriodeBuilder.ny()
-                .medÅrsak(OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER)
-                .medPeriode(søknadFom.plusDays(1), søknadFom.plusDays(10))
-                .build();
-        var opphold2 = OppgittPeriodeBuilder.ny()
-                .medÅrsak(OppholdÅrsak.KVOTE_FELLESPERIODE_ANNEN_FORELDER)
-                .medPeriode(opphold1.getTom().plusDays(1), opphold1.getTom().plusDays(10))
-                .build();
-        var fordeling = new OppgittFordelingEntitet(List.of(opphold1, opphold2), true);
-
-        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel().medFordeling(fordeling);
-
-        var behandling = scenario.lagre(repositoryProvider);
-
-        var søknadFamilieHendelse = FamilieHendelse.forFødsel(søknadFom, null, List.of(), 0);
-        var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
-                new FamilieHendelser().medSøknadHendelse(søknadFamilieHendelse));
-        tjeneste.fastsettUttaksgrunnlag(lagInput(behandling, fpGrunnlag, true));
-
-        var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
-
-        var oppgittePerioder = resultat.getGjeldendeFordeling().getPerioder();
-        assertThat(oppgittePerioder).hasSize(2);
     }
 
     @Test

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.kompletthet;
 
-import static java.util.Collections.singletonList;
 import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettForAksjonspunktMedFrist;
 
 import javax.enterprise.context.Dependent;
@@ -35,7 +34,7 @@ public class VurderKompletthetStegFelles {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
         var autopunkt = byggAutopunkt(kompletthetResultat, apDef);
-        return BehandleStegResultat.utførtMedAksjonspunktResultater(singletonList(autopunkt));
+        return BehandleStegResultat.utførtMedAksjonspunktResultat(autopunkt);
     }
 
     public static boolean autopunktAlleredeUtført(AksjonspunktDefinisjon apDef, Behandling behandling) {

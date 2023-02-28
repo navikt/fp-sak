@@ -50,7 +50,12 @@ public class FaktaUttakSteg implements UttakSteg {
     }
 
     private List<AksjonspunktDefinisjon> utledAp(UttakInput uttakInput) {
-        return harÅpentOverstyringAp(uttakInput.getBehandlingReferanse().behandlingId()) ? List.of() : faktaUttakAksjonspunktUtleder.utledAksjonspunkterFor(uttakInput);
+        var behandlingId = uttakInput.getBehandlingReferanse().behandlingId();
+        if (harÅpentOverstyringAp(behandlingId)) {
+            return List.of();
+        }
+        //Bruker justert her for å reutlede avbrutt AP ved tilbakehopp
+        return faktaUttakAksjonspunktUtleder.utledAksjonspunkterFor(uttakInput);
     }
 
     private boolean harÅpentOverstyringAp(Long behandlingId) {
