@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.uttak.TidsperiodeForbeholdtMor;
-import no.nav.foreldrepenger.regler.uttak.UttakParametre;
 
 final class UtsettelseDokumentasjonUtleder {
 
@@ -74,14 +73,9 @@ final class UtsettelseDokumentasjonUtleder {
     }
 
     static boolean søktPeriodeInnenforTidsperiodeForbeholdtMor(OppgittPeriodeEntitet søknadsperiode, LocalDate familiehendelse) {
-        var tidsperiodeForbeholdtMor = new SimpleLocalDateInterval(fomTidsperiodeForbeholdtMor(familiehendelse),
-            TidsperiodeForbeholdtMor.tilOgMed(familiehendelse));
+        var tidsperiodeForbeholdtMor = TidsperiodeForbeholdtMor.tidsperiode(familiehendelse);
         var søktTidsperiode = new SimpleLocalDateInterval(søknadsperiode.getFom(), søknadsperiode.getTom());
         return søktTidsperiode.overlapper(tidsperiodeForbeholdtMor);
-    }
-
-    private static LocalDate fomTidsperiodeForbeholdtMor(LocalDate familiehendelse) {
-        return familiehendelse.minusWeeks(UttakParametre.ukerFørTerminSenestUttak(familiehendelse));
     }
 
     private static boolean erAvklartAvVedtakOmPleiepenger(OppgittPeriodeEntitet søknadsperiode, List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {

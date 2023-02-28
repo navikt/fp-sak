@@ -82,9 +82,9 @@ public class FastsettePerioderRegelResultatKonverterer {
         var perioder = new UttakResultatPerioderEntitet();
 
         var periodeSøknader = lagPeriodeSøknader(oppgittFordeling);
-        var resultatSomSkalKonverteres = resultat.stream().sorted(Comparator.comparing(periodeRes -> periodeRes.getUttakPeriode().getFom()))
+        var resultatSomSkalKonverteres = resultat.stream().sorted(Comparator.comparing(periodeRes -> periodeRes.uttakPeriode().getFom()))
             //Trenger ikke å ta vare på "fri-utsettelse" perioder
-            .filter(p -> !InnvilgetÅrsak.UTSETTELSE_GYLDIG.equals(p.getUttakPeriode().getPeriodeResultatÅrsak())).toList();
+            .filter(p -> !InnvilgetÅrsak.UTSETTELSE_GYLDIG.equals(p.uttakPeriode().getPeriodeResultatÅrsak())).toList();
 
         var uttakAktiviteter = lagUttakAktiviteter(resultat);
         for (var fastsettePeriodeResultat : resultatSomSkalKonverteres) {
@@ -129,7 +129,7 @@ public class FastsettePerioderRegelResultatKonverterer {
 
     private Set<UttakAktivitetEntitet> lagUttakAktiviteter(List<FastsettePeriodeResultat> resultat) {
         return resultat.stream()
-            .flatMap(periode -> periode.getUttakPeriode().getAktiviteter().stream())
+            .flatMap(periode -> periode.uttakPeriode().getAktiviteter().stream())
             .map(a -> a.getIdentifikator())
             .map(this::lagUttakAktivitet)
             .collect(Collectors.toSet());
@@ -155,7 +155,7 @@ public class FastsettePerioderRegelResultatKonverterer {
                                                                 Set<UttakAktivitetEntitet> uttakAktiviteter,
                                                                 UttakYrkesaktiviteter uttakYrkesaktiviteter,
                                                                 RegelGrunnlag grunnlag) {
-        var uttakPeriode = resultat.getUttakPeriode();
+        var uttakPeriode = resultat.uttakPeriode();
 
         var dokRegel = lagDokRegel(resultat);
         var periode = lagPeriode(uttakPeriode, dokRegel, periodeSøknad);
@@ -177,10 +177,10 @@ public class FastsettePerioderRegelResultatKonverterer {
     private void loggManueltSamtidigUttak(FastsettePeriodeResultat resultat, RegelGrunnlag grunnlag) {
         try {
             if (!ER_PROD || !resultat.isManuellBehandling() ||
-                !Manuellbehandlingårsak.VURDER_SAMTIDIG_UTTAK.equals(resultat.getUttakPeriode().getManuellbehandlingårsak())) {
+                !Manuellbehandlingårsak.VURDER_SAMTIDIG_UTTAK.equals(resultat.uttakPeriode().getManuellbehandlingårsak())) {
                 return;
             }
-            var periode = resultat.getUttakPeriode();
+            var periode = resultat.uttakPeriode();
 
             var annenpartOverlappOpt = Optional.ofNullable(grunnlag.getAnnenPart())
                 .map(AnnenPart::getUttaksperioder).orElse(List.of()).stream()
@@ -266,7 +266,7 @@ public class FastsettePerioderRegelResultatKonverterer {
     private UttakResultatPeriodeSøknadEntitet periodeSomHarUtledetResultat(FastsettePeriodeResultat resultat,
                                                                            List<PeriodeSøknad> periodeSøknader) {
         return periodeSøknader.stream()
-            .filter(søknad -> søknad.harUtledet(resultat.getUttakPeriode()))
+            .filter(søknad -> søknad.harUtledet(resultat.uttakPeriode()))
             .map(søknad -> søknad.entitet)
             .findFirst()
             .orElse(null);
@@ -277,11 +277,11 @@ public class FastsettePerioderRegelResultatKonverterer {
     }
 
     private UttakResultatDokRegelEntitet lagDokRegel(FastsettePeriodeResultat resultat) {
-        var manuellBehandlingÅrsak = UttakEnumMapper.map(resultat.getUttakPeriode().getManuellbehandlingårsak());
+        var manuellBehandlingÅrsak = UttakEnumMapper.map(resultat.uttakPeriode().getManuellbehandlingårsak());
         var builder = resultat.isManuellBehandling() ? UttakResultatDokRegelEntitet.medManuellBehandling(
             manuellBehandlingÅrsak) : UttakResultatDokRegelEntitet.utenManuellBehandling();
-        return builder.medRegelEvaluering(resultat.getEvalueringResultat())
-            .medRegelInput(resultat.getInnsendtGrunnlag())
+        return builder.medRegelEvaluering(resultat.evalueringResultat())
+            .medRegelInput(resultat.innsendtGrunnlag())
             .build();
     }
 

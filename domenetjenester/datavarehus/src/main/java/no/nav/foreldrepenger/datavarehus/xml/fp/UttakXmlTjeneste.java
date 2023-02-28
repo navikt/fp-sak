@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlUtil;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 import no.nav.vedtak.felles.xml.vedtak.uttak.fp.v2.FordelingPeriode;
 import no.nav.vedtak.felles.xml.vedtak.uttak.fp.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.uttak.fp.v2.Stoenadskonto;

@@ -33,10 +33,6 @@
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-feil</artifactId>
         </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger</groupId>
-            <artifactId>uttak-regler</artifactId>
-        </dependency>
 
 
         <!-- Test -->

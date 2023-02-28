@@ -1,9 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.slåSammenLikePerioder;
-import static no.nav.foreldrepenger.regler.uttak.felles.Virkedager.beregnAntallVirkedager;
-import static no.nav.foreldrepenger.regler.uttak.felles.Virkedager.justerHelgTilMandag;
-import static no.nav.foreldrepenger.regler.uttak.felles.Virkedager.plusVirkedager;
 import static no.nav.fpsak.tidsserie.LocalDateInterval.min;
 
 import java.time.LocalDate;
@@ -17,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.domene.uttak.TidsperiodeFarRundtFødsel;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 class FarsJustering implements ForelderFødselJustering {
@@ -28,8 +26,8 @@ class FarsJustering implements ForelderFødselJustering {
     private final boolean ønskerJustertVedFødsel;
 
     FarsJustering(LocalDate termindato, LocalDate fødselsdato, boolean ønskerJustertVedFødsel) {
-        this.termindato = justerHelgTilMandag(termindato);
-        this.fødselsdato = justerHelgTilMandag(fødselsdato);
+        this.termindato = Virkedager.justerHelgTilMandag(termindato);
+        this.fødselsdato = Virkedager.justerHelgTilMandag(fødselsdato);
         this.ønskerJustertVedFødsel = ønskerJustertVedFødsel;
     }
 
@@ -79,8 +77,8 @@ class FarsJustering implements ForelderFødselJustering {
     }
 
     private OppgittPeriodeEntitet justerFødselFørTermin(OppgittPeriodeEntitet periode) {
-        var virkedagerIPeriode = beregnAntallVirkedager(periode.getFom(), periode.getTom());
-        var nyTom = plusVirkedager(fødselsdato, virkedagerIPeriode - 1);
+        var virkedagerIPeriode = Virkedager.beregnAntallVirkedager(periode.getFom(), periode.getTom());
+        var nyTom = Virkedager.plusVirkedager(fødselsdato, virkedagerIPeriode - 1);
         return OppgittPeriodeBuilder.fraEksisterende(periode).medPeriode(fødselsdato, nyTom).build();
     }
 
@@ -89,8 +87,8 @@ class FarsJustering implements ForelderFødselJustering {
         if (!fødselsdato.isBefore(tomGrense)) {
             return Optional.empty();
         }
-        var virkedagerIPeriode = beregnAntallVirkedager(periode.getFom(), periode.getTom());
-        var nyTom = min(plusVirkedager(fødselsdato, virkedagerIPeriode - 1), tomGrense);
+        var virkedagerIPeriode = Virkedager.beregnAntallVirkedager(periode.getFom(), periode.getTom());
+        var nyTom = min(Virkedager.plusVirkedager(fødselsdato, virkedagerIPeriode - 1), tomGrense);
         return Optional.of(OppgittPeriodeBuilder.fraEksisterende(periode).medPeriode(fødselsdato, nyTom).build());
     }
 
@@ -103,7 +101,7 @@ class FarsJustering implements ForelderFødselJustering {
     }
 
     private boolean likTermindato(LocalDate dato) {
-        return termindato.isEqual(justerHelgTilMandag(dato));
+        return termindato.isEqual(Virkedager.justerHelgTilMandag(dato));
     }
 
     private boolean erFedrekvoteRundtTermin(OppgittPeriodeEntitet op) {
