@@ -15,8 +15,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.batch.BatchSupportTjeneste;
-import no.nav.foreldrepenger.regler.uttak.felles.BevegeligeHelligdagerUtil;
-import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.LukketPeriode;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -158,7 +156,7 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
 
     private boolean erStengtDag(LocalDate dato) {
         if (bevegeligeHelligdager.isEmpty() || bevegeligeHelligdager.get(dato.getYear()) == null) {
-            bevegeligeHelligdager.put(dato.getYear(), BevegeligeHelligdagerUtil.finnBevegeligeHelligdagerUtenHelg(new LukketPeriode(dato, dato)));
+            bevegeligeHelligdager.put(dato.getYear(), bevegeligeHelligdager(dato));
         }
         return fasteStengteDager.contains(MonthDay.from(dato)) || bevegeligeHelligdager.get(dato.getYear()).contains(dato);
     }
@@ -180,5 +178,35 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
         LocalTime getKjøreTidspunkt() {
             return LocalTime.of(time(), minutt());
         }
+    }
+
+    private List<LocalDate> bevegeligeHelligdager(LocalDate dato) {
+        var helligdager = new ArrayList<LocalDate>();
+        var påskedag = utledPåskedag(dato.getYear());
+        helligdager.add(påskedag.minusDays(3)); // Skjærtorsdag
+        helligdager.add(påskedag.minusDays(2)); // Langfredag
+        helligdager.add(påskedag.plusDays(1)); // Andre påskedag
+        helligdager.add(påskedag.plusDays(39)); // Himmelfarten
+        helligdager.add(påskedag.plusDays(50)); // Andre pinsedag
+        return helligdager;
+    }
+
+    private static LocalDate utledPåskedag(int år) {
+        var a = år % 19;
+        var b = år / 100;
+        var c = år % 100;
+        var d = b / 4;
+        var e = b % 4;
+        var f = (b + 8) / 25;
+        var g = (b - f + 1) / 3;
+        var h = ((19 * a) + b - d - g + 15) % 30;
+        var i = c / 4;
+        var k = c % 4;
+        var l = (32 + (2 * e) + (2 * i) - h - k) % 7;
+        var m = (a + (11 * h) + (22 * l)) / 451;
+        var n = (h + l - (7 * m) + 114) / 31; // Tallet på måneden
+        var p = (h + l - (7 * m) + 114) % 31; // Tallet på dagen
+
+        return LocalDate.of(år, n, p + 1);
     }
 }

@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
 @ApplicationScoped
 public class AktivitetskravDokumentasjonUtleder {

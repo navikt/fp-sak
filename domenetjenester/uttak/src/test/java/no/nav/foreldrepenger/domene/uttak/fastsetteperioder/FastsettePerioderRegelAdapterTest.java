@@ -91,25 +91,20 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.Personopplysn
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
+import no.nav.foreldrepenger.regler.uttak.UttakParametre;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ArbeidsgiverIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.Manuellbehandlingårsak;
-import no.nav.foreldrepenger.regler.uttak.konfig.Konfigurasjon;
-import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
 
 public class FastsettePerioderRegelAdapterTest {
 
     private final LocalDate fødselsdato = LocalDate.of(2018, 6, 22);
     private final LocalDate mottattDato = LocalDate.of(2018, 6, 22);
 
-    private final Konfigurasjon konfigurasjon = Konfigurasjon.STANDARD;
-    private final int uker_før_fødsel_fellesperiode_grense = konfigurasjon.getParameter(
-        Parametertype.LOVLIG_UTTAK_FØR_FØDSEL_UKER, fødselsdato);
-    private final int uker_før_fødsel_foreldrepenger_grense = konfigurasjon.getParameter(
-        Parametertype.UTTAK_FELLESPERIODE_FØR_FØDSEL_UKER, fødselsdato);
-    private final int veker_etter_fødsel_mødrekvote_grense = konfigurasjon.getParameter(
-        Parametertype.UTTAK_MØDREKVOTE_ETTER_FØDSEL_UKER, fødselsdato);
+    private final int uker_før_fødsel_fellesperiode_grense = UttakParametre.ukerFørTerminTidligstUttak(fødselsdato);
+    private final int uker_før_fødsel_foreldrepenger_grense = UttakParametre.ukerFørTerminSenestUttak(fødselsdato);
+    private final int veker_etter_fødsel_mødrekvote_grense = UttakParametre.ukerReservertMorEtterFødsel(fødselsdato);
     private final int maxDagerForeldrepengerFørFødsel = 15;
 
     private final AktivitetIdentifikator arbeidsforhold = AktivitetIdentifikator.forArbeid(new Orgnummer("1234"), "123");

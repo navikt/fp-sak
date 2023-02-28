@@ -7,7 +7,7 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FarUttakRundtFødsel;
+import no.nav.foreldrepenger.regler.uttak.UttakParametre;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 public final class TidsperiodeFarRundtFødsel {
@@ -32,7 +32,7 @@ public final class TidsperiodeFarRundtFødsel {
                                                                       boolean gjelderFødsel,
                                                                       LocalDate familiehendelseDato,
                                                                       LocalDate termindato) {
-        return FarUttakRundtFødsel.utledFarsPeriodeRundtFødsel(utenMinsterett, gjelderFødsel, familiehendelseDato, termindato)
+        return UttakParametre.utledFarsPeriodeRundtFødsel(utenMinsterett, gjelderFødsel, familiehendelseDato, termindato)
             .map(p -> new LocalDateInterval(p.getFom(), p.getTom()));
     }
 }

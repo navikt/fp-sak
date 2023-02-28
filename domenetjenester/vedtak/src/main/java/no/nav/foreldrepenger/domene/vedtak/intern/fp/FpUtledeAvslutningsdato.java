@@ -27,8 +27,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.intern.UtledeAvslutningsdatoFagsak;
-import no.nav.foreldrepenger.regler.uttak.konfig.Konfigurasjon;
-import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
+import no.nav.foreldrepenger.regler.uttak.UttakParametre;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
@@ -77,8 +76,7 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
                 var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
 
                 if (familieHendelse.erAlleBarnDøde()) {
-                    return leggPåSøknadsfristMåneder(hentSisteDødsdatoOgEnDag(familieHendelse).plusWeeks(
-                        Konfigurasjon.STANDARD.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now())));
+                    return leggPåSøknadsfristMåneder(hentSisteDødsdatoOgEnDag(familieHendelse).plusWeeks(UttakParametre.ukerTilgjengeligEtterDødsfall(LocalDate.now())));
                 }
 
                 //Nytt barn (ny stønadsperiode)
@@ -150,7 +148,7 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
     }
 
     private static LocalDate leggPåMaksSøknadsfrist(LocalDate fraDato) {
-        return fraDato.plusYears(Konfigurasjon.STANDARD.getParameter(Parametertype.GRENSE_ETTER_FØDSELSDATO_ÅR, LocalDate.now()));
+        return fraDato.plusYears(UttakParametre.årMaksimalStønadsperiode(LocalDate.now()));
     }
 
     private static Optional<LocalDate> avslutningsdatoFraEksisterendeFagsakRelasjon(FagsakRelasjon fagsakRelasjon) {

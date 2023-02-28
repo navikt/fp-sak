@@ -21,9 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.Etterkontroll;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollRepository;
-import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.KontrollType;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.task.AutomatiskEtterkontrollTask;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -67,7 +65,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
-import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Periode;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Periode;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 

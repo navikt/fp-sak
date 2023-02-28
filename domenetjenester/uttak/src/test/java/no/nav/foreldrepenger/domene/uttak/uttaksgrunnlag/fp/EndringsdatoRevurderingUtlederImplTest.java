@@ -80,7 +80,7 @@ import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
-import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
 public class EndringsdatoRevurderingUtlederImplTest {
 

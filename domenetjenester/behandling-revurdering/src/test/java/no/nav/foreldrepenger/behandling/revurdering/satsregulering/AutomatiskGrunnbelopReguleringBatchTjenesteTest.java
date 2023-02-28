@@ -44,15 +44,15 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
-import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Periode;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Periode;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;

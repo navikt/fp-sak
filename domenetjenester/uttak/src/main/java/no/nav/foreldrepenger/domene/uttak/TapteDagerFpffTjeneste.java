@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
 @ApplicationScoped
 public class TapteDagerFpffTjeneste {
