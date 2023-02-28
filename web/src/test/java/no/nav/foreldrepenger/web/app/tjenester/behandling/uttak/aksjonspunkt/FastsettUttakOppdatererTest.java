@@ -156,8 +156,8 @@ public class FastsettUttakOppdatererTest {
         var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
         var avbrutt = resultat.getEkstraAksjonspunktResultat().stream()
-                .anyMatch(aer -> AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER.equals(aer.aksjonspunktResultat().getAksjonspunktDefinisjon())
-                        && AksjonspunktStatus.AVBRUTT.equals(aer.aksjonspunktStatus()));
+                .anyMatch(aer -> AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER.equals(aer.getAksjonspunktDefinisjon())
+                        && AksjonspunktStatus.AVBRUTT.equals(aer.getMålStatus()));
         assertThat(avbrutt).isTrue();
     }
 

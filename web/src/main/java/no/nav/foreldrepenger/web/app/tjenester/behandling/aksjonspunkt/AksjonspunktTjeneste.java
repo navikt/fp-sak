@@ -255,7 +255,7 @@ public class AksjonspunktTjeneste {
         });
 
         var totrinn = overhoppResultat.finnTotrinn();
-        overhoppResultat.finnEkstraAksjonspunktResultat().forEach(res -> håndterEkstraAksjonspunktResultat(kontekst, behandling, totrinn, res.aksjonspunktResultat(), res.aksjonspunktStatus(), true));
+        overhoppResultat.finnEkstraAksjonspunktResultat().forEach(res -> håndterEkstraAksjonspunktResultat(kontekst, behandling, totrinn, res, true));
 
         return overhoppResultat;
     }
@@ -273,7 +273,8 @@ public class AksjonspunktTjeneste {
         }
     }
 
-    private void håndterEkstraAksjonspunktResultat(BehandlingskontrollKontekst kontekst, Behandling behandling, boolean totrinn, AksjonspunktResultat apRes, AksjonspunktStatus nyStatus, boolean overstyring) {
+    private void håndterEkstraAksjonspunktResultat(BehandlingskontrollKontekst kontekst, Behandling behandling, boolean totrinn, AksjonspunktResultat apRes, boolean overstyring) {
+        var nyStatus = apRes.getMålStatus();
         var eksisterendeAksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(apRes.getAksjonspunktDefinisjon());
         var aksjonspunkt = eksisterendeAksjonspunkt.orElseGet(() -> opprettEkstraAksjonspunktForResultat(kontekst, behandling, apRes, overstyring));
 
@@ -334,7 +335,7 @@ public class AksjonspunktTjeneste {
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
         var totrinn = overhoppResultat.finnTotrinn();
-        overhoppResultat.finnEkstraAksjonspunktResultat().forEach(res -> håndterEkstraAksjonspunktResultat(kontekst, behandling, totrinn, res.aksjonspunktResultat(), res.aksjonspunktStatus(), false));
+        overhoppResultat.finnEkstraAksjonspunktResultat().forEach(res -> håndterEkstraAksjonspunktResultat(kontekst, behandling, totrinn, res, false));
 
         return overhoppResultat;
     }
