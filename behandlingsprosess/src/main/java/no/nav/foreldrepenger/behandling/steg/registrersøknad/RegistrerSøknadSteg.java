@@ -10,7 +10,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -191,7 +190,7 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
         // TODO: Bestill brev (Venter på PK-50295)
         var venteårsak = kompletthetResultat.venteårsak() != null ? kompletthetResultat.venteårsak() : Venteårsak.AVV_DOK;
 
-        return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections
-                .singletonList(AksjonspunktResultat.opprettForAksjonspunktMedFrist(apDef, venteårsak, kompletthetResultat.ventefrist())));
+        var aksjonspunktResultat = AksjonspunktResultat.opprettForAksjonspunktMedFrist(apDef, venteårsak, kompletthetResultat.ventefrist());
+        return BehandleStegResultat.utførtMedAksjonspunktResultat(aksjonspunktResultat);
     }
 }

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
-import java.util.Collections;
 import java.util.Objects;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -55,7 +54,7 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandlingId);
         beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsgrunnlag(input);
-        return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections.emptyList());
+        return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 
     @Override

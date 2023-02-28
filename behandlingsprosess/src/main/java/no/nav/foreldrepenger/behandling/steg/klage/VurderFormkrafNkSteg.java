@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.steg.klage;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -71,7 +70,7 @@ public class VurderFormkrafNkSteg implements BehandlingSteg {
                 return BehandleStegResultat.utførtUtenAksjonspunkter();
             } else if (erAlleredeSendtTilKabal(behandling)) {
                 var apResultat = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_VENT_PÅ_KABAL_KLAGE, Venteårsak.VENT_KABAL, null);
-                return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(apResultat));
+                return BehandleStegResultat.utførtMedAksjonspunktResultat(apResultat);
             } else {
                 var klageHjemmel = klageVurderingResultat.getKlageHjemmel() == null || KlageHjemmel.UDEFINERT.equals(klageVurderingResultat.getKlageHjemmel()) ?
                     KlageHjemmel.standardHjemmelForYtelse(behandling.getFagsakYtelseType()) : klageVurderingResultat.getKlageHjemmel();
@@ -83,7 +82,7 @@ public class VurderFormkrafNkSteg implements BehandlingSteg {
                 taskTjeneste.lagre(tilKabalTask);
                 var frist = LocalDateTime.now().plusYears(3);
                 var apVent = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE, Venteårsak.VENT_KABAL, frist);
-                return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(apVent));
+                return BehandleStegResultat.utførtMedAksjonspunktResultat(apVent);
             }
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();

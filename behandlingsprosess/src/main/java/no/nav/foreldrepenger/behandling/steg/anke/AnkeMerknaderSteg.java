@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.anke;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -52,7 +50,7 @@ public class AnkeMerknaderSteg implements BehandlingSteg {
                 }
             }
             if (klageAnkeVedtakTjeneste.erOversendtTrygdretten(behandling)) {
-                return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(ventPåTrygderetten()));
+                return BehandleStegResultat.utførtMedAksjonspunktResultat(ventPåTrygderetten());
             }
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         } else {
@@ -66,7 +64,7 @@ public class AnkeMerknaderSteg implements BehandlingSteg {
             }
             if (klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling) && klageAnkeVedtakTjeneste.harSattOversendelseDato(behandling)) {
                 return klageAnkeVedtakTjeneste.harKjennelseTrygdretten(behandling) ? BehandleStegResultat.utførtUtenAksjonspunkter() :
-                    BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(ventPåTrygderetten()));
+                    BehandleStegResultat.utførtMedAksjonspunktResultat(ventPåTrygderetten());
             }
             return BehandleStegResultat.utførtUtenAksjonspunkter();
 

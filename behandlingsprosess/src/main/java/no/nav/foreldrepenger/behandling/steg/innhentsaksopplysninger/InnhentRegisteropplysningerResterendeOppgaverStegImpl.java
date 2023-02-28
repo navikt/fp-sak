@@ -78,8 +78,8 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
             // Dette autopunktet har tilbakehopp/gjenopptak. Går ut av steget hvis auto utført før frist (manuelt av vent).
             // Utført på/etter frist antas automatisk gjenopptak.
             if (!etterlysIM.erFristUtløpt() && !autopunktAlleredeUtført(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, behandling)) {
-                return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(opprettForAksjonspunktMedFrist(AUTO_VENT_ETTERLYST_INNTEKTSMELDING,
-                    Venteårsak.VENT_OPDT_INNTEKTSMELDING, etterlysIM.ventefrist())));
+                return BehandleStegResultat.utførtMedAksjonspunktResultat(opprettForAksjonspunktMedFrist(AUTO_VENT_ETTERLYST_INNTEKTSMELDING,
+                    Venteårsak.VENT_OPDT_INNTEKTSMELDING, etterlysIM.ventefrist()));
             }
         }
 

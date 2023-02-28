@@ -8,7 +8,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VARSEL_REVURDERING_MANUELL;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -66,7 +65,7 @@ public class VarselRevurderingStegImpl implements VarselRevurderingSteg {
             // Se autopunktobserver for brev
             var resultat = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_SATT_PÅ_VENT_REVURDERING, Venteårsak.AVV_DOK,
                     LocalDateTime.now().plus(AUTO_SATT_PÅ_VENT_REVURDERING.getFristPeriod()));
-            return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections.singletonList(resultat));
+            return BehandleStegResultat.utførtMedAksjonspunktResultat(resultat);
         }
 
         if (behandling.harBehandlingÅrsak(RE_HENDELSE_FØDSEL)) {

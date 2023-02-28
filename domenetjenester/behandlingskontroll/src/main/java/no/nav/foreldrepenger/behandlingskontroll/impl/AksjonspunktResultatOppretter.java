@@ -75,16 +75,36 @@ class AksjonspunktResultatOppretter {
             oppdatert = aksjonspunktKontrollRepository.leggTilAksjonspunkt(behandling, resultat.getAksjonspunktDefinisjon(), behandlingStegType);
             eksisterende.putIfAbsent(oppdatert.getAksjonspunktDefinisjon(), oppdatert);
         }
-        if (oppdatert.erUtført() || oppdatert.erAvbrutt()) {
-            aksjonspunktKontrollRepository.setReåpnet(oppdatert);
-            if (resultat.erAvbruttTilUtført()) {
-                aksjonspunktKontrollRepository.setTilUtført(oppdatert, oppdatert.getBegrunnelse());
-            }
+        switch (resultat.getMålStatus()) {
+            case OPPRETTET -> reåpne(oppdatert);
+            case AVBRUTT -> avbryt(oppdatert);
+            case UTFØRT -> utfør(oppdatert);
         }
         if (resultat.getFrist() != null || resultat.getVenteårsak() != null) {
             aksjonspunktKontrollRepository.setFrist(behandling, oppdatert, resultat.getFrist(), resultat.getVenteårsak());
         }
         return oppdatert;
+    }
+
+    private void utfør(Aksjonspunkt oppdatert) {
+        if (!oppdatert.erUtført()) {
+            if (oppdatert.erAvbrutt()) {
+                aksjonspunktKontrollRepository.setReåpnet(oppdatert);
+            }
+            aksjonspunktKontrollRepository.setTilUtført(oppdatert, oppdatert.getBegrunnelse());
+        }
+    }
+
+    private void reåpne(Aksjonspunkt oppdatert) {
+        if (oppdatert.erUtført() || oppdatert.erAvbrutt()) {
+            aksjonspunktKontrollRepository.setReåpnet(oppdatert);
+        }
+    }
+
+    private void avbryt(Aksjonspunkt oppdatert) {
+        if (!oppdatert.erAvbrutt()) {
+            aksjonspunktKontrollRepository.setTilAvbrutt(oppdatert);
+        }
     }
 
 }

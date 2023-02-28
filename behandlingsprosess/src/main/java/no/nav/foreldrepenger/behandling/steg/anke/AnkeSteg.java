@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.anke;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -91,7 +90,7 @@ public class AnkeSteg implements BehandlingSteg {
             // Første gang med kabalRef -> vent på kabal
             // Tatt av vent med kabalref -> har mottatt resultat fra kabal. gå videre
             if (!harVentKabal || manglerAnkeVurdering(behandling)) {
-                return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(ventPåKabal()));
+                return BehandleStegResultat.utførtMedAksjonspunktResultat(ventPåKabal());
             } else {
                 return BehandleStegResultat.utførtUtenAksjonspunkter();
             }
@@ -108,7 +107,7 @@ public class AnkeSteg implements BehandlingSteg {
             tilKabalTask.setProperty(SendTilKabalTask.HJEMMEL_KEY, hjemmel.getKode());
             prosessTaskTjeneste.lagre(tilKabalTask);
         }
-        return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(ventPåKabal()));
+        return BehandleStegResultat.utførtMedAksjonspunktResultat(ventPåKabal());
     }
 
     private AksjonspunktResultat ventPåKabal() {

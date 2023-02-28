@@ -1,12 +1,14 @@
 package no.nav.foreldrepenger.behandlingskontroll;
 
 import static java.util.Collections.singletonList;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 
 /**
@@ -16,30 +18,34 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 public class AksjonspunktResultat {
 
     private final AksjonspunktDefinisjon aksjonspunktDefinisjon;
+    private final AksjonspunktStatus målStatus;
     private final Venteårsak venteårsak;
     private final LocalDateTime frist;
-    private final boolean avbruttTilUtført;
 
     private AksjonspunktResultat(AksjonspunktDefinisjon aksjonspunktDefinisjon,
                                  Venteårsak venteårsak,
                                  LocalDateTime ventefrist,
-                                 boolean avbruttTilUtført) {
+                                 AksjonspunktStatus målStatus) {
         this.aksjonspunktDefinisjon = aksjonspunktDefinisjon;
         this.venteårsak = venteårsak;
         this.frist = ventefrist;
-        this.avbruttTilUtført = avbruttTilUtført;
+        this.målStatus = målStatus;
     }
 
     private AksjonspunktResultat(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        this(aksjonspunktDefinisjon, null, null, false);
+        this(aksjonspunktDefinisjon, null, null, OPPRETTET);
     }
 
     /**
      * Factory-metode direkte basert på {@link AksjonspunktDefinisjon}. Ingen frist
      * eller årsak.
      */
+    public static AksjonspunktResultat opprettForAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon, AksjonspunktStatus aksjonspunktStatus) {
+        return new AksjonspunktResultat(aksjonspunktDefinisjon, null, null, aksjonspunktStatus);
+    }
+
     public static AksjonspunktResultat opprettForAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        return new AksjonspunktResultat(aksjonspunktDefinisjon);
+        return opprettForAksjonspunkt(aksjonspunktDefinisjon, OPPRETTET);
     }
 
     /**
@@ -56,16 +62,7 @@ public class AksjonspunktResultat {
      */
     public static AksjonspunktResultat opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon aksjonspunktDefinisjon, Venteårsak venteårsak,
             LocalDateTime ventefrist) {
-        return new AksjonspunktResultat(aksjonspunktDefinisjon, venteårsak, ventefrist, false);
-    }
-
-    /**
-     * Hvis AP ikke eksisterer - Oppretter AP
-     * Hvis AP utført - Gjenåpner AP
-     * Hvis AP er avbrutt - AP settes utført, begrunnelse kopieres
-     */
-    public static AksjonspunktResultat opprettAvbruttTilUtførtForAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        return new AksjonspunktResultat(aksjonspunktDefinisjon, null, null, true);
+        return new AksjonspunktResultat(aksjonspunktDefinisjon, venteårsak, ventefrist, OPPRETTET);
     }
 
     public AksjonspunktDefinisjon getAksjonspunktDefinisjon() {
@@ -80,14 +77,14 @@ public class AksjonspunktResultat {
         return frist;
     }
 
-    public boolean erAvbruttTilUtført() {
-        return avbruttTilUtført;
+    public AksjonspunktStatus getMålStatus() {
+        return målStatus;
     }
 
     @Override
     public String toString() {
-        return "AksjonspunktResultat{" + "aksjonspunktDefinisjon=" + aksjonspunktDefinisjon + ", venteårsak=" + venteårsak + ", frist=" + frist
-            + ", avbruttTilUtført=" + avbruttTilUtført + '}';
+        return "AksjonspunktResultat{" + "aksjonspunktDefinisjon=" + aksjonspunktDefinisjon + ", målStatus=" + målStatus + ", venteårsak="
+            + venteårsak + ", frist=" + frist + '}';
     }
 
     @Override

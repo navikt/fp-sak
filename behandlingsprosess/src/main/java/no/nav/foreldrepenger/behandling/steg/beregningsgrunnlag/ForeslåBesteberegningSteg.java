@@ -1,13 +1,11 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
-import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -70,7 +68,7 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
             return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
         }
 
-        return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections.emptyList());
+        return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 
     private boolean skalBeregnesAutomatisk(BehandlingReferanse ref) {

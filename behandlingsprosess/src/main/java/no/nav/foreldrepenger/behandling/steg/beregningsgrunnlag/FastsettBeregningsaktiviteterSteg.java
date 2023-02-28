@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -83,8 +82,7 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         }
         // Hvis det ikke allerede er utledet ventepunkt og vi har ventepunkt for sykemelding
         if (aksjonspunktResultater.stream().noneMatch(BeregningAvklaringsbehovResultat::harFrist) && ventPåSykemeldingAksjonspunkt.isPresent()) {
-            return BehandleStegResultat
-                .utførtMedAksjonspunktResultater(Collections.singletonList(ventPåSykemeldingAksjonspunkt.get()));
+            return BehandleStegResultat.utførtMedAksjonspunktResultat(ventPåSykemeldingAksjonspunkt.get());
         }
         // hent på nytt i tilfelle lagret og flushet
         return BehandleStegResultat

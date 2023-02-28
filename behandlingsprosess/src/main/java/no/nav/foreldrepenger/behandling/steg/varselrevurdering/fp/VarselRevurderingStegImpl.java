@@ -71,7 +71,7 @@ public class VarselRevurderingStegImpl implements VarselRevurderingSteg {
         if (behandling.harBehandlingÅrsak(RE_MANGLER_FØDSEL)) {
             var resultat = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_SATT_PÅ_VENT_REVURDERING, Venteårsak.AVV_DOK,
                     LocalDateTime.now().plus(AUTO_SATT_PÅ_VENT_REVURDERING.getFristPeriod()));
-            return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections.singletonList(resultat));
+            return BehandleStegResultat.utførtMedAksjonspunktResultat(resultat);
         }
 
         return BehandleStegResultat.utførtUtenAksjonspunkter();
