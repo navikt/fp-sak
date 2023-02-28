@@ -18,10 +18,10 @@ import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.regler.uttak.beregnkontoer.Minsterett;
-import no.nav.foreldrepenger.regler.uttak.beregnkontoer.grunnlag.BeregnMinsterettGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Konto;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Kontoer;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.Minsterett;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnMinsterettGrunnlag;
 
 @ApplicationScoped
 public class KontoerGrunnlagBygger {

@@ -15,8 +15,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>no.nav.foreldrepenger</groupId>
-			<artifactId>uttak-regler</artifactId>
+			<artifactId>stonadskonto-regler</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>uttak-regler</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>no.nav.foreldrepenger</groupId>
 			<artifactId>svp-uttak</artifactId>

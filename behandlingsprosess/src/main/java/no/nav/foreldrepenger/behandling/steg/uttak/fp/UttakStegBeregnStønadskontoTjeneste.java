@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTje
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.felles.PrematurukerUtil;
-import no.nav.foreldrepenger.regler.uttak.konfig.Konfigurasjon;
 
 @ApplicationScoped
 public class UttakStegBeregnStønadskontoTjeneste {

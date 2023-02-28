@@ -13,8 +13,9 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
-import no.nav.foreldrepenger.regler.uttak.beregnkontoer.StønadskontoRegelOrkestrering;
-import no.nav.foreldrepenger.regler.uttak.beregnkontoer.StønadskontoResultat;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoRegelOrkestrering;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoResultat;
+
 
 @ApplicationScoped
 public class StønadskontoRegelAdapter {
