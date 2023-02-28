@@ -10,16 +10,8 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import javax.persistence.EntityManager;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,9 +25,10 @@ import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -43,6 +36,7 @@ import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
@@ -73,11 +67,10 @@ public class FordelRestTjenesteTest {
     @Mock
     private BehandlingRepositoryProvider behandlingRepositoryProviderMock;
     @Mock
-    private FamilieHendelseGrunnlagEntitet familieHendelseGrunnlagEntitetMock;
-    @Mock
     private BehandlingRepository behandlingRepositoryMock;
     @Mock
-    private FamilieHendelseEntitet familieHendelseEntitetMock;
+    private SakInfoDtoTjeneste sakInfoDtoTjenesteMock;
+
     private FordelRestTjeneste fordelRestTjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -85,7 +78,7 @@ public class FordelRestTjenesteTest {
     public void setup(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         FagsakTjeneste fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository(), null);
-        fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjeneste, opprettSakOrchestratorMock, opprettSakTjenesteMock, repositoryProvider, vurderFagsystemTjenesteMock);
+        fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjeneste, opprettSakOrchestratorMock, opprettSakTjenesteMock, repositoryProvider, vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock);
     }
 
     @Test
@@ -148,15 +141,17 @@ public class FordelRestTjenesteTest {
         var saknr1 = new Saksnummer("TEST3");
         var saknr2 = new Saksnummer("TEST4");
         var foreldrepenger = FagsakYtelseType.FORELDREPENGER;
+        var forventetYtelseType = SakInfoDto.FagsakYtelseTypeDto.FORELDREPENGER;
+        var forventetStatus = SakInfoDto.FagsakStatusDto.UNDER_BEHANDLING;
         var opprettetTidSak1 = LocalDateTime.now().minusMonths(16);
         var opprettetTidSak2 = LocalDateTime.now();
         var skjæringstidspunkt = LocalDate.now().minusMonths(15);
+        var førsteuttaksdato = LocalDate.now().minusMonths(6);
 
 
         Fagsak fagsak1 = Fagsak.opprettNy(foreldrepenger, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr1);
         fagsak1.setOpprettetTidspunkt(opprettetTidSak1);
         fagsak1.setId(125L);
-        var behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
 
         Fagsak fagsak2 = Fagsak.opprettNy(foreldrepenger, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr2);
         fagsak2.setOpprettetTidspunkt(opprettetTidSak2);
@@ -165,44 +160,26 @@ public class FordelRestTjenesteTest {
 
         when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
         when(behandlingRepositoryProviderMock.getFamilieHendelseRepository()).thenReturn(familieHendelseRepositoryMock);
-        //Sak 1 - har familienhendelse dato
-        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak1.getId())).thenReturn(Optional.of(behandling1));
-        when(familieHendelseRepositoryMock.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelseGrunnlagEntitetMock));
-        when(familieHendelseGrunnlagEntitetMock.getGjeldendeVersjon()).thenReturn(familieHendelseEntitetMock);
-        when(familieHendelseEntitetMock.getSkjæringstidspunkt()).thenReturn(skjæringstidspunkt);
-        //Sak 2 - har ingen familiehendelse dato
-        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak2.getId())).thenReturn(Optional.empty());
 
+        var sakDto1 = new SakInfoDto(new SaksnummerDto(saknr1.getVerdi()),  forventetYtelseType, opprettetTidSak1.toLocalDate(), forventetStatus, new SakInfoDto.FamiliehendelseInfoDto(skjæringstidspunkt, SakInfoDto.FamilieHendelseTypeDto.FØDSEL), førsteuttaksdato);
+        var sakDto2 = new SakInfoDto(new SaksnummerDto(saknr2.getVerdi()), forventetYtelseType, opprettetTidSak2.toLocalDate(), forventetStatus, null, null);
+
+        when(sakInfoDtoTjenesteMock.mapSakInfoDto(fagsak1)).thenReturn(sakDto1);
+        when(sakInfoDtoTjenesteMock.mapSakInfoDto(fagsak2)).thenReturn(sakDto2);
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1, fagsak2));
 
-        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, null, behandlingRepositoryProviderMock, null);
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
 
         var result = tjeneste.finnAlleSakerForBruker(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()));
 
         assertThat(result).hasSize(2);
-
-        var sakInfoDto1 = result.get(0);
-        assertThat(sakInfoDto1.saksnummer().getSaksnummer()).isEqualTo(saknr1.getVerdi());
-        assertThat(sakInfoDto1.status()).isEqualTo(FagsakStatus.OPPRETTET);
-        assertThat(sakInfoDto1.opprettetDato()).isEqualTo(opprettetTidSak1.toLocalDate());
-        assertThat(sakInfoDto1.endretDato()).isNull();
-        assertThat(sakInfoDto1.ytelseType()).isEqualTo(foreldrepenger);
-        assertThat(sakInfoDto1.gjeldendeFamiliehendelseDato()).isEqualTo(skjæringstidspunkt);
-
-        var sakInfoDto2 = result.get(1);
-        assertThat(sakInfoDto2.saksnummer().getSaksnummer()).isEqualTo(saknr2.getVerdi());
-        assertThat(sakInfoDto2.status()).isEqualTo(FagsakStatus.OPPRETTET);
-        assertThat(sakInfoDto2.opprettetDato()).isEqualTo(opprettetTidSak2.toLocalDate());
-        assertThat(sakInfoDto2.endretDato()).isEqualTo(opprettetTidSak2.toLocalDate());
-        assertThat(sakInfoDto2.ytelseType()).isEqualTo(foreldrepenger);
-        assertThat(sakInfoDto2.gjeldendeFamiliehendelseDato()).isNull();
     }
 
     @Test
     @DisplayName("Skal kaste exceptions om aktørId er ikke gyldig.")
     void exception_om_ikke_gyldig_aktørId() {
         var tjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjenesteMock, opprettSakOrchestratorMock, opprettSakTjenesteMock, mock(
-            BehandlingRepositoryProvider.class), vurderFagsystemTjenesteMock);
+            BehandlingRepositoryProvider.class), vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock);
 
         var aktørIdDto = new FordelRestTjeneste.AktørIdDto("ikke_gyldig_id_haha:)");
         var exception = assertThrows(IllegalArgumentException.class, () -> tjeneste.finnAlleSakerForBruker(aktørIdDto));
