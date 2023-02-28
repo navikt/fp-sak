@@ -1,9 +1,12 @@
 package no.nav.foreldrepenger.web.app.healthchecks;
 
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.OK;
+import static javax.ws.rs.core.Response.Status.SERVICE_UNAVAILABLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import javax.ws.rs.core.Response;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,70 +14,55 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.web.app.jackson.HealthCheckRestService;
+import no.nav.foreldrepenger.web.app.tjenester.ApplicationServiceStarter;
+import no.nav.vedtak.log.metrics.LivenessAware;
+import no.nav.vedtak.log.metrics.ReadinessAware;
 
 @ExtendWith(MockitoExtension.class)
-public class HealthCheckRestServiceTest {
+class HealthCheckRestServiceTest {
 
-    private HealthCheckRestService restTjeneste;
+    private HealthCheckRestService sjekk;
 
     @Mock
-    private Selftests selftests;
+    private ApplicationServiceStarter starter;
+
+    @Mock
+    private LivenessAware kafka;
+    @Mock
+    private ReadinessAware db;
 
     @BeforeEach
-    public void setup() {
-        restTjeneste = new HealthCheckRestService(selftests);
+    void setup() {
+        sjekk = new HealthCheckRestService(starter, List.of(kafka), List.of(db));
     }
 
     @Test
-    public void test_isAlive_skal_returnere_status_200() {
-
-        when(selftests.isKafkaAlive()).thenReturn(true);
-
-        restTjeneste.setIsContextStartupReady(true);
-        var response = restTjeneste.isAlive();
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    void test_isAlive_skal_returnere_status_200() {
+        when(kafka.isAlive()).thenReturn(true);
+        assertThat(sjekk.isAlive().getStatus()).isEqualTo(OK.getStatusCode());
     }
 
     @Test
-    public void test_isReady_skal_returnere_service_unavailable_når_kritiske_selftester_feiler() {
-        when(selftests.isReady()).thenReturn(false);
-
-        restTjeneste.setIsContextStartupReady(true);
-        var responseReady = restTjeneste.isReady();
-
-        restTjeneste.setIsContextStartupReady(false);
-        var responseAlive = restTjeneste.isAlive();
-
-        assertThat(responseReady.getStatus()).isEqualTo(Response.Status.SERVICE_UNAVAILABLE.getStatusCode());
-        assertThat(responseAlive.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+    void test_isReady_skal_returnere_service_unavailable_når_kritiske_selftester_feiler() {
+        when(kafka.isAlive()).thenReturn(false);
+        assertThat(sjekk.isReady().getStatus()).isEqualTo(SERVICE_UNAVAILABLE.getStatusCode());
+        assertThat(sjekk.isAlive().getStatus()).isEqualTo(INTERNAL_SERVER_ERROR.getStatusCode());
     }
 
     @Test
-    public void test_isReady_skal_returnere_status_delvis_når_db_feiler() {
-        when(selftests.isReady()).thenReturn(false);
-        when(selftests.isKafkaAlive()).thenReturn(true);
-
-        restTjeneste.setIsContextStartupReady(true);
-        var responseReady = restTjeneste.isReady();
-        var responseAlive = restTjeneste.isAlive();
-
-        assertThat(responseReady.getStatus()).isEqualTo(Response.Status.SERVICE_UNAVAILABLE.getStatusCode());
-        assertThat(responseAlive.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    void test_isReady_skal_returnere_status_delvis_når_db_feiler() {
+        when(kafka.isAlive()).thenReturn(true);
+        when(db.isReady()).thenReturn(false);
+        assertThat(sjekk.isReady().getStatus()).isEqualTo(SERVICE_UNAVAILABLE.getStatusCode());
+        assertThat(sjekk.isAlive().getStatus()).isEqualTo(OK.getStatusCode());
     }
 
     @Test
-    public void test_isReady_skal_returnere_status_ok_når_selftester_er_ok() {
-        when(selftests.isReady()).thenReturn(true);
-        when(selftests.isKafkaAlive()).thenReturn(true);
-
-        restTjeneste.setIsContextStartupReady(true);
-        var responseReady = restTjeneste.isReady();
-        var responseAlive = restTjeneste.isAlive();
-
-        assertThat(responseReady.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(responseAlive.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    void test_isReady_skal_returnere_status_ok_når_selftester_er_ok() {
+        when(kafka.isAlive()).thenReturn(true);
+        when(db.isReady()).thenReturn(true);
+        assertThat(sjekk.isReady().getStatus()).isEqualTo(OK.getStatusCode());
+        assertThat(sjekk.isAlive().getStatus()).isEqualTo(OK.getStatusCode());
     }
 
 }

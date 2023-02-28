@@ -5,28 +5,20 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-import no.nav.vedtak.felles.prosesstask.impl.TaskManager;
-
-/**
- * Initialiserer bakgrunns tasks.
- */
 @WebListener
-public class ProsessTaskStarter implements ServletContextListener {
+public class ServiceStarterListener implements ServletContextListener {
 
     @Inject
-    private TaskManager taskManager;  // NOSONAR
-
-    public ProsessTaskStarter() { // NOSONAR
-    }
+    private ApplicationServiceStarter applicationServiceStarter; //NOSONAR - vil ikke fungere med constructor innjection
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        taskManager.start();
+        applicationServiceStarter.startServices();
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        taskManager.stop();
+        applicationServiceStarter.stopServices();
     }
 
 }

@@ -1,58 +1,36 @@
 package no.nav.foreldrepenger.web.app.healthchecks.checks;
 
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Locale;
 
+import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.log.metrics.LiveAndReadinessAware;
+
 @ApplicationScoped
-public class DatabaseHealthCheck {
+public class DatabaseHealthCheck implements LiveAndReadinessAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseHealthCheck.class);
     private static final String JDBC_DEFAULT_DS = "jdbc/defaultDS";
+    private static final String SQL_QUERY = "select 1 from DUAL";
 
-    private String jndiName;
+    @Resource(mappedName = JDBC_DEFAULT_DS)
+    private DataSource dataSource;
 
-    private static final String SQL_QUERY = "select 1 from dual";
-    // må være rask, og bruke et stabilt tabell-navn
-
-    private String endpoint = null; // ukjent frem til første gangs test
-
-    public DatabaseHealthCheck() {
-        this.jndiName = JDBC_DEFAULT_DS;
+    DatabaseHealthCheck() {
+        // CDI
     }
 
-    public String getDescription() {
-        return "Test av databaseforbindelse (" + jndiName + ")";
-    }
-
-    public String getEndpoint() {
-        return endpoint;
-    }
-
-    public boolean isOK() {
-
-        DataSource dataSource = null;
-        try {
-            dataSource = (DataSource) new InitialContext().lookup(jndiName);
-        } catch (NamingException e) {
-            return false;
-        }
-
+    private boolean isOK() {
         try (var connection = dataSource.getConnection()) {
-            if (endpoint == null) {
-                endpoint = extractEndpoint(connection);
-            }
             try (var statement = connection.createStatement()) {
                 if (!statement.execute(SQL_QUERY)) {
-                    throw new SQLException("SQL-spørring ga ikke et resultatsett");
+                    LOG.warn("Feil ved SQL-spørring {} mot databasen", SQL_QUERY);
+                    return false;
                 }
             }
         } catch (SQLException e) {
@@ -63,20 +41,13 @@ public class DatabaseHealthCheck {
         return true;
     }
 
-    private String extractEndpoint(Connection connection) {
-        var result = "?";
-        try {
-            var metaData = connection.getMetaData();
-            var url = metaData.getURL();
-            if (url != null) {
-                if (!url.toUpperCase(Locale.US).contains("SERVICE_NAME=")) { // don't care about Norwegian letters here
-                    url = url + "/" + connection.getSchema();
-                }
-                result = url;
-            }
-        } catch (SQLException e) { //NOSONAR
-            // ikke fatalt
-        }
-        return result;
+    @Override
+    public boolean isReady() {
+        return isOK();
+    }
+
+    @Override
+    public boolean isAlive() {
+        return isOK();
     }
 }

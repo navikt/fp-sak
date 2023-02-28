@@ -58,7 +58,6 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTekniskRes
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttrekkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.integrasjonstatus.IntegrasjonstatusRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.KodeverkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.los.LosRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.InitielleLinksRestTjeneste;
@@ -102,7 +101,6 @@ public class RestImplementationClasses {
         classes.add(AnkeRestTjeneste.class);
         classes.add(InnsynRestTjeneste.class);
         classes.add(KontrollRestTjeneste.class);
-        classes.add(IntegrasjonstatusRestTjeneste.class);
         classes.add(PipRestTjeneste.class);
         classes.add(TilbakekrevingRestTjeneste.class);
         classes.add(AktoerRestTjeneste.class);
