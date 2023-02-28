@@ -39,8 +39,7 @@ import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
-import no.nav.foreldrepenger.regler.uttak.konfig.Konfigurasjon;
-import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
+import no.nav.foreldrepenger.regler.uttak.UttakParametre;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 public abstract class RevurderingBehandlingsresultatutlederFelles {
@@ -355,7 +354,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
             behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER) &&
             nesteSakRepository.hentGrunnlag(behandling.getId()).map(NesteSakGrunnlagEntitet::getHendelsedato)
                 .filter(h -> h.isBefore(gjeldendeFamilieHendelsedato.plusDays(1)
-                    .plusWeeks(Konfigurasjon.STANDARD.getParameter(Parametertype.TETTE_SAKER_MELLOMROM_UKER, gjeldendeFamilieHendelsedato))))
+                    .plusWeeks(UttakParametre.ukerMellomTetteFødsler(gjeldendeFamilieHendelsedato))))
                 .isPresent();
     }
 

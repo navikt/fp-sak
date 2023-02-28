@@ -54,11 +54,10 @@ import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.fp.MaksDatoUttakTjenesteImpl;
+import no.nav.foreldrepenger.regler.uttak.UttakParametre;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
-import no.nav.foreldrepenger.regler.uttak.konfig.Konfigurasjon;
-import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -159,7 +158,7 @@ public class FpUtledeAvslutningsdatoTest {
             new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
 
         var forventetAvslutningsdato = dødsdato.plusDays(1)
-            .plusWeeks(Konfigurasjon.STANDARD.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now()))
+            .plusWeeks(UttakParametre.ukerTilgjengeligEtterDødsfall(LocalDate.now()))
             .plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
 
         // Act and assert
@@ -188,7 +187,7 @@ public class FpUtledeAvslutningsdatoTest {
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
             new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
 
-        var forventetAvslutningsdato = fødselsdato.plusYears(Konfigurasjon.STANDARD.getParameter(Parametertype.GRENSE_ETTER_FØDSELSDATO_ÅR, LocalDate.now()));
+        var forventetAvslutningsdato = fødselsdato.plusYears(UttakParametre.årMaksimalStønadsperiode(LocalDate.now()));
         // Act and assert
         assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isEqualTo(forventetAvslutningsdato);
 
