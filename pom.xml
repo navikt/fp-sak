@@ -34,6 +34,7 @@
         <java.version>17</java.version>
 
         <fp-uttak.version>14.3.7</fp-uttak.version>
+        <fp-stonadskonto.version>1.0.0</fp-stonadskonto.version>
         <svp-uttak.version>2.3.7</svp-uttak.version>
         <felles.version>4.2.30</felles.version>
         <prosesstask.version>3.1.21</prosesstask.version>
@@ -232,6 +233,17 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
+                <artifactId>stonadskonto-regler</artifactId>
+                <version>${fp-stonadskonto.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger</groupId>
+                <artifactId>stonadskonto-regler</artifactId>
+                <version>${fp-stonadskonto.version}</version>
+                <classifier>sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger</groupId>
                 <artifactId>uttak-regler</artifactId>
                 <version>${fp-uttak.version}</version>
             </dependency>
@@ -241,7 +253,6 @@
                 <version>${fp-uttak.version}</version>
                 <classifier>sources</classifier>
             </dependency>
-
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
                 <artifactId>svp-uttak</artifactId>
