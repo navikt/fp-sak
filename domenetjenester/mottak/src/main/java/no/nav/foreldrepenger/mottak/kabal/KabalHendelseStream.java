@@ -12,19 +12,17 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.domene.liveness.KafkaIntegration;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.vedtak.apptjeneste.AppServiceHandler;
 import no.nav.vedtak.felles.integrasjon.kafka.KafkaProperties;
-import no.nav.vedtak.log.metrics.LivenessAware;
-import no.nav.vedtak.log.metrics.ReadinessAware;
+import no.nav.vedtak.log.metrics.Controllable;
+import no.nav.vedtak.log.metrics.LiveAndReadinessAware;
 
 /*
  * Dokumentasjon https://github.com/navikt/kabal-api/tree/main/docs/integrasjon
  */
 @ApplicationScoped
-public class KabalHendelseStream implements LivenessAware, ReadinessAware, AppServiceHandler, KafkaIntegration {
+public class KabalHendelseStream implements LiveAndReadinessAware, Controllable {
 
     private static final Logger LOG = LoggerFactory.getLogger(KabalHendelseStream.class);
     private static final String APPLICATION_ID = "fpsak"; // Hold konstant pga offset commit !!

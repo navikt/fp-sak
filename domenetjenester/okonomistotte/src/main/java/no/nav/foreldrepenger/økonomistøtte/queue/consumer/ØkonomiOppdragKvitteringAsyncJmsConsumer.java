@@ -6,6 +6,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.UnmarshalException;
 import javax.xml.stream.XMLStreamException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import jakarta.jms.JMSException;
@@ -22,22 +24,29 @@ import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.jms.ExternalQueueConsumer;
 import no.nav.vedtak.felles.integrasjon.jms.precond.PreconditionChecker;
+import no.nav.vedtak.log.metrics.Controllable;
 
 @ApplicationScoped
-public class ØkonomioppdragAsyncJmsConsumerImpl extends ExternalQueueConsumer implements ØkonomioppdragAsyncJmsConsumer {
+public class ØkonomiOppdragKvitteringAsyncJmsConsumer extends ExternalQueueConsumer implements Controllable {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ØkonomiOppdragKvitteringAsyncJmsConsumer.class);
+
     private BehandleØkonomioppdragKvittering behandleØkonomioppdragKvittering;
     private DatabasePreconditionChecker preconditionChecker;
 
-    public ØkonomioppdragAsyncJmsConsumerImpl() {
+    ØkonomiOppdragKvitteringAsyncJmsConsumer() {
+        // CDI
     }
 
     @Inject
-    public ØkonomioppdragAsyncJmsConsumerImpl(BehandleØkonomioppdragKvittering behandleØkonomioppdragKvittering,
-                                              DatabasePreconditionChecker preconditionChecker,
-                                              ØkonomioppdragJmsConsumerKonfig konfig) {
+    public ØkonomiOppdragKvitteringAsyncJmsConsumer(BehandleØkonomioppdragKvittering behandleØkonomioppdragKvittering,
+                                                    DatabasePreconditionChecker preconditionChecker,
+                                                    ØkonomioppdragJmsConsumerKonfig konfig) {
         super(konfig.getJmsKonfig());
         super.setConnectionFactory(konfig.getMqConnectionFactory());
         super.setQueue(konfig.getMqQueue());
+        super.setToggleJms(new FellesJmsToggle());
+        super.setMdcHandler(new QueueMdcLogHandler());
         this.behandleØkonomioppdragKvittering = behandleØkonomioppdragKvittering;
         this.preconditionChecker = preconditionChecker;
     }
@@ -53,12 +62,11 @@ public class ØkonomioppdragAsyncJmsConsumerImpl extends ExternalQueueConsumer i
         if (message instanceof TextMessage tm) {
             handle(tm.getText());
         } else {
-            log.warn("Mottok på ikkestøttet message av klasse {}. Kø-elementet ble ignorert", message.getClass());
+            log.warn("Mottok en ikke støttet melding av klasse {}. Kø-elementet ble ignorert.", message.getClass());
         }
     }
 
-    @Override
-    public void handle(String message) {
+    private void handle(String message) {
         try {
             var kvitteringsmelding = unmarshalOgKorriger(message);
             if (inneholderOppdragslinjer(kvitteringsmelding)) {
@@ -131,4 +139,21 @@ public class ØkonomioppdragAsyncJmsConsumerImpl extends ExternalQueueConsumer i
         kvittering.setFagsystemId(Long.parseLong(fagsystemId));
     }
 
+    @Override
+    public void start() {
+        if (!isDisabled()) {
+            LOGGER.debug("Starter {}", ØkonomiOppdragKvitteringAsyncJmsConsumer.class.getSimpleName());
+            super.start();
+            LOGGER.info("Startet: {}", ØkonomiOppdragKvitteringAsyncJmsConsumer.class.getSimpleName());
+        }
+    }
+
+    @Override
+    public void stop() {
+        if (!isDisabled()) {
+            LOGGER.debug("Stoping {}", ØkonomiOppdragKvitteringAsyncJmsConsumer.class.getSimpleName());
+            super.stop();
+            LOGGER.info("Stoppet: {}", ØkonomiOppdragKvitteringAsyncJmsConsumer.class.getSimpleName());
+        }
+    }
 }

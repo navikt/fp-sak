@@ -14,16 +14,19 @@ spec:
   {{/each}}
   liveness:
     path: /fpsak/internal/health/isAlive
-    initialDelay: 30
-    timeout: 5
+    initialDelay: 10
     periodSeconds: 10
-    failureThreshold: 27
+    failureThreshold: 20
+    timeout: 3
   readiness:
     path: /fpsak/internal/health/isReady
-    initialDelay: 30
-    timeout: 5
+    initialDelay: 10
     periodSeconds: 10
-    failureThreshold: 27
+    failureThreshold: 20
+    timeout: 3
+  preStopHook:
+    http:
+      path: /fpsak/internal/health/preStop
   prometheus:
     enabled: true
     path: /fpsak/internal/metrics/prometheus

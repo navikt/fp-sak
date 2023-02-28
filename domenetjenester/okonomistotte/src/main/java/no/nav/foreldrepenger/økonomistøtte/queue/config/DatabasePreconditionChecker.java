@@ -19,14 +19,9 @@ public class DatabasePreconditionChecker implements PreconditionChecker {
         // for CDI proxy
     }
 
-    // for enhetstest
-    void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
     @Override
     public PreconditionCheckerResult check() {
-        try (var connection = dataSource.getConnection()) {
+        try (var ignored = dataSource.getConnection()) {
             // Connection pool validerer connections for oss, så trenger ikke gjøre noen spørring her (ønsker
             // bare å se om db er tilgjengelig)
             return PreconditionCheckerResult.fullfilled();

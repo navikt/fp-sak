@@ -1,12 +1,9 @@
-package no.nav.foreldrepenger.økonomistøtte.queue.config;
-
-import javax.enterprise.context.ApplicationScoped;
+package no.nav.foreldrepenger.økonomistøtte.queue.consumer;
 
 import no.nav.vedtak.felles.integrasjon.jms.MdcHandler;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
-@ApplicationScoped
-public class QueueMdcLogHandler implements MdcHandler {
+class QueueMdcLogHandler implements MdcHandler {
     @Override
     public void setCallId(String callId) {
         MDCOperations.putCallId(callId);

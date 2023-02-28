@@ -29,22 +29,21 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
 
 @ExtendWith(MockitoExtension.class)
-public class ØkonomioppdragAsyncJmsConsumerImplTest {
+public class ØkonomiOppdragKvitteringAsyncJmsConsumerTest {
 
     private static final long BEHANDLINGID = 802L;
 
     @Mock
     private BehandleØkonomioppdragKvittering behandleØkonomioppdragKvittering;
-
     private ArgumentCaptor<ØkonomiKvittering> captor;
-    private ØkonomioppdragAsyncJmsConsumerImpl økonomioppdragAsyncJmsConsumerImpl;
+    private ØkonomiOppdragKvitteringAsyncJmsConsumer kvitteringAsyncJmsConsumer;
 
     @BeforeEach
     public void setUp() {
         final var mockDefaultDatabaseOppePreconditionChecker = mock(DatabasePreconditionChecker.class);
         var jmsKonfig = mock(ØkonomioppdragJmsConsumerKonfig.class);
         when(jmsKonfig.getJmsKonfig()).thenReturn(new JmsKonfig("test", 1234,"test", "test", "test", "test", "test", null ));
-        økonomioppdragAsyncJmsConsumerImpl = new ØkonomioppdragAsyncJmsConsumerImpl(behandleØkonomioppdragKvittering, mockDefaultDatabaseOppePreconditionChecker, jmsKonfig);
+        kvitteringAsyncJmsConsumer = new ØkonomiOppdragKvitteringAsyncJmsConsumer(behandleØkonomioppdragKvittering, mockDefaultDatabaseOppePreconditionChecker, jmsKonfig);
         captor = ArgumentCaptor.forClass(ØkonomiKvittering.class);
     }
 
@@ -54,7 +53,7 @@ public class ØkonomioppdragAsyncJmsConsumerImplTest {
         var message = opprettKvitteringXml("parsingFeil.xml");
 
         // Act
-        assertThrows(TekniskException.class, () -> økonomioppdragAsyncJmsConsumerImpl.handle(message));
+        assertThrows(TekniskException.class, () -> kvitteringAsyncJmsConsumer.handle(message));
     }
 
     @Test
@@ -63,7 +62,7 @@ public class ØkonomioppdragAsyncJmsConsumerImplTest {
         var message = opprettKvitteringXml("statusOk.xml");
 
         // Act
-        økonomioppdragAsyncJmsConsumerImpl.handle(message);
+        kvitteringAsyncJmsConsumer.handle(message);
 
         // Assert
         verify(behandleØkonomioppdragKvittering).behandleKvittering(captor.capture());
@@ -78,7 +77,7 @@ public class ØkonomioppdragAsyncJmsConsumerImplTest {
         var message = opprettKvitteringXml("statusFeil.xml");
 
         // Act
-        økonomioppdragAsyncJmsConsumerImpl.handle(message);
+        kvitteringAsyncJmsConsumer.handle(message);
 
         // Assert
         verify(behandleØkonomioppdragKvittering).behandleKvittering(captor.capture());
