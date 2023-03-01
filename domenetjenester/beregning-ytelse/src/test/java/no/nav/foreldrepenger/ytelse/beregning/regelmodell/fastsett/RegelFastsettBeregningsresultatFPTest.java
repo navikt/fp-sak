@@ -11,12 +11,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatGrunnlag;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegler;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Beregningsgrunnlag;
@@ -45,24 +44,16 @@ public class RegelFastsettBeregningsresultatFPTest {
     private static final Arbeidsforhold ARBEIDSFORHOLD_1 = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet("111", UUID.randomUUID().toString());
     private static final Arbeidsforhold ARBEIDSFORHOLD_3 = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet("333",UUID.randomUUID().toString());
 
-    private RegelFastsettBeregningsresultat regel;
-
-    @BeforeEach
-    public void setup() {
-        regel = new RegelFastsettBeregningsresultat();
-    }
-
     @Test
     public void skalLageAndelForBrukerOgArbeidsgiverForEnPeriode() {
         // Arrange
         var modell = opprettRegelmodellEnPeriode();
-        var output = Beregningsresultat.opprett();
 
         // Act
-        regel.evaluer(modell, output);
+        var resultat = BeregningsresultatRegler.fastsettBeregningsresultat(modell);
 
         // Assert
-        var perioder = output.getBeregningsresultatPerioder();
+        var perioder = resultat.beregningsresultat().getBeregningsresultatPerioder();
         assertThat(perioder).hasSize(1);
         var periode = perioder.get(0);
         assertThat(periode.getFom()).isEqualTo(DAGEN_ETTER_FØDSEL);
@@ -89,13 +80,12 @@ public class RegelFastsettBeregningsresultatFPTest {
                 FELLESPERIODE_FØR_FØDSEL,
                 MØDREKVOTE_PERIODE);
         var modell = opprettRegelmodell(intervalList, AktivitetStatus.ATFL);
-        var output = Beregningsresultat.opprett();
 
         // Act
-        regel.evaluer(modell, output);
+        var resultat = BeregningsresultatRegler.fastsettBeregningsresultat(modell);
 
         // Assert
-        var perioder = output.getBeregningsresultatPerioder();
+        var perioder = resultat.beregningsresultat().getBeregningsresultatPerioder();
         assertThat(perioder).hasSize(2);
         var periode0 = perioder.get(0);
         assertThat(periode0.getFom()).isEqualTo(TRE_UKER_FØR_FØDSEL_DT);
@@ -114,13 +104,13 @@ public class RegelFastsettBeregningsresultatFPTest {
         var arb3 = lagPrArbeidsforhold(1000.0, 500.0, ARBEIDSFORHOLD_3);
 
         var modell = opprettRegelmodellMedArbeidsforhold(arb1, arb2, arb3);
-        var output = Beregningsresultat.opprett();
 
         // Act
-        regel.evaluer(modell, output);
+        var resultat = BeregningsresultatRegler.fastsettBeregningsresultat(modell);
 
         // Assert
-        var perioder = output.getBeregningsresultatPerioder();
+        var perioder = resultat.beregningsresultat().getBeregningsresultatPerioder();
+
         assertThat(perioder).hasSize(1);
         var periode = perioder.get(0);
         assertThat(periode.getFom()).isEqualTo(DAGEN_ETTER_FØDSEL);
@@ -155,13 +145,13 @@ public class RegelFastsettBeregningsresultatFPTest {
         var arb2 = lagPrArbeidsforhold(0.0, 1500.0, ARBEIDSFORHOLD_2);
 
         var modell = opprettRegelmodellMedArbeidsforhold(arb1, arb2);
-        var output = Beregningsresultat.opprett();
 
         // Act
-        regel.evaluer(modell, output);
+        var resultat = BeregningsresultatRegler.fastsettBeregningsresultat(modell);
 
         // Assert
-        var perioder = output.getBeregningsresultatPerioder();
+        var perioder = resultat.beregningsresultat().getBeregningsresultatPerioder();
+
         assertThat(perioder).hasSize(1);
         var periode = perioder.get(0);
         assertThat(periode.getFom()).isEqualTo(DAGEN_ETTER_FØDSEL);
@@ -189,13 +179,13 @@ public class RegelFastsettBeregningsresultatFPTest {
     public void skalPeriodisereFlereUttaksPerioderOgBeregningsgrunnlagPerioder() {
         // Arrange
         var modell = opprettRegelmodellMedFlereBGOgUttakPerioder();
-        var output = Beregningsresultat.opprett();
 
         // Act
-        regel.evaluer(modell, output);
+        var resultat = BeregningsresultatRegler.fastsettBeregningsresultat(modell);
 
         // Assert
-        var perioder = output.getBeregningsresultatPerioder();
+        var perioder = resultat.beregningsresultat().getBeregningsresultatPerioder();
+
         assertThat(perioder).hasSize(4);
 
         var periode1 = perioder.get(0);
@@ -239,13 +229,14 @@ public class RegelFastsettBeregningsresultatFPTest {
         var arb3 = lagPrArbeidsforhold(1001.50, 500.49, ARBEIDSFORHOLD_3);
 
         var modell = opprettRegelmodellMedArbeidsforhold(arb1, arb2, arb3);
-        var output = Beregningsresultat.opprett();
 
         // Act
-        regel.evaluer(modell, output);
+        var resultat = BeregningsresultatRegler.fastsettBeregningsresultat(modell);
 
         // Assert
-        var andelList = output.getBeregningsresultatPerioder().get(0).getBeregningsresultatAndelList();
+        var perioder = resultat.beregningsresultat().getBeregningsresultatPerioder();
+
+        var andelList = perioder.get(0).getBeregningsresultatAndelList();
         assertThat(andelList).hasSize(5);
 
         var brukerAndeler = andelList.stream().filter(BeregningsresultatAndel::erBrukerMottaker)

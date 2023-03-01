@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatGrunnlag;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegler;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Beregningsgrunnlag;
@@ -38,13 +39,6 @@ public class RegelFastsettBeregningsresultatSVPTest {
     private static final Arbeidsforhold ARBEIDSFORHOLD_2 = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet("222", UUID.randomUUID().toString());
     private static final Arbeidsforhold ARBEIDSFORHOLD_3 = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet("333", UUID.randomUUID().toString());
 
-    private RegelFastsettBeregningsresultat regel;
-
-    @BeforeEach
-    public void setup() {
-        regel = new RegelFastsettBeregningsresultat();
-    }
-
     @Test
     public void skalTesteSVPUttaksperioderMedForskjelligeAntallAktiviteter() {
         // Arrange
@@ -56,10 +50,10 @@ public class RegelFastsettBeregningsresultatSVPTest {
         var output = Beregningsresultat.opprett();
 
         // Act
-        regel.evaluer(modell, output);
+        var resultat = BeregningsresultatRegler.fastsettBeregningsresultat(modell);
 
         // Assert
-        var perioder = output.getBeregningsresultatPerioder();
+        var perioder = resultat.beregningsresultat().getBeregningsresultatPerioder();
         assertThat(perioder).hasSize(3);
         assertThat(perioder.get(0).getBeregningsresultatAndelList()).hasSize(2);
         assertThat(perioder.get(1).getBeregningsresultatAndelList()).hasSize(4);
