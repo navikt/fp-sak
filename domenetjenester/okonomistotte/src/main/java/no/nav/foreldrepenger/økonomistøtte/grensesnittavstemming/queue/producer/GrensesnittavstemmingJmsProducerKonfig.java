@@ -6,7 +6,7 @@ import jakarta.jms.JMSException;
 
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.økonomistøtte.queue.config.FellesJmsKonfig;
-import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
+import no.nav.foreldrepenger.felles.jms.JmsKonfig;
 
 @ApplicationScoped
 public class GrensesnittavstemmingJmsProducerKonfig extends FellesJmsKonfig {

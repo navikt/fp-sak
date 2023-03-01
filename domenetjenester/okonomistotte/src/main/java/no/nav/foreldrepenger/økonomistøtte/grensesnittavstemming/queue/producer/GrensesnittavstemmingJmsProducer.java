@@ -3,11 +3,11 @@ package no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.produc
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.vedtak.felles.integrasjon.jms.ExternalQueueProducer;
-import no.nav.vedtak.felles.integrasjon.jms.JmsMessage;
+import no.nav.foreldrepenger.felles.jms.JmsMessage;
+import no.nav.foreldrepenger.felles.jms.QueueProducer;
 
 @ApplicationScoped
-public class GrensesnittavstemmingJmsProducer extends ExternalQueueProducer {
+public class GrensesnittavstemmingJmsProducer extends QueueProducer {
 
     public GrensesnittavstemmingJmsProducer() {
         // CDI

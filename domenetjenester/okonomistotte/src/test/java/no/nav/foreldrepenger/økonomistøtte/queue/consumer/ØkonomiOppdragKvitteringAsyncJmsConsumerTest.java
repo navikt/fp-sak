@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.queue.config.DatabasePreconditionChecker;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
+import no.nav.foreldrepenger.felles.jms.JmsKonfig;
 
 @ExtendWith(MockitoExtension.class)
 public class ØkonomiOppdragKvitteringAsyncJmsConsumerTest {

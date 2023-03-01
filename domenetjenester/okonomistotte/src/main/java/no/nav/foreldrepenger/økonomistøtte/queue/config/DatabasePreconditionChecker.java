@@ -6,8 +6,8 @@ import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.sql.DataSource;
 
-import no.nav.vedtak.felles.integrasjon.jms.precond.PreconditionChecker;
-import no.nav.vedtak.felles.integrasjon.jms.precond.PreconditionCheckerResult;
+import no.nav.foreldrepenger.felles.jms.precond.PreconditionChecker;
+import no.nav.foreldrepenger.felles.jms.precond.PreconditionCheckerResult;
 
 @ApplicationScoped
 public class DatabasePreconditionChecker implements PreconditionChecker {

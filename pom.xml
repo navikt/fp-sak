@@ -38,7 +38,6 @@
         <svp-uttak.version>2.3.7</svp-uttak.version>
         <felles.version>4.2.30</felles.version>
         <prosesstask.version>3.1.21</prosesstask.version>
-        <fp-jms.version>2.2.1</fp-jms.version>
 
         <fp-kontrakter.version>6.2.11</fp-kontrakter.version>
         <fp-tidsserie.version>2.6.6</fp-tidsserie.version>
@@ -46,7 +45,6 @@
         <abakus-kontrakt.version>1.3.40</abakus-kontrakt.version>
         <kalkulus.version>2.2.0</kalkulus.version>
         <fp-konfig.version>1.1.7</fp-konfig.version>
-
     </properties>
 
 
@@ -137,16 +135,16 @@
                 <version>${kalkulus.version}</version>
             </dependency>
 
-            <!-- flytt til fp-bom og fjerne her og tilbake? -->
+            <!-- Flytt til bom og fjern herfra -->
             <dependency>
                 <groupId>jakarta.jms</groupId>
                 <artifactId>jakarta.jms-api</artifactId>
                 <version>3.0.0</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.vedtak.felles.fp-jms-integrasjon</groupId>
+                <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>jms-integrasjon</artifactId>
-                <version>${fp-jms.version}</version>
+                <version>3.0.2</version>
             </dependency>
 
             <dependency>
