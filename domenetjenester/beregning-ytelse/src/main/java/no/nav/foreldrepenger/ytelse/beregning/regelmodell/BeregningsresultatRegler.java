@@ -7,6 +7,7 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.fastsett.RegelFastsett
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerRegelModell;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.RegelBeregnFeriepenger;
 import no.nav.fpsak.nare.evaluation.summary.EvaluationSerializer;
+import no.nav.fpsak.nare.evaluation.summary.NareVersion;
 import no.nav.fpsak.nare.json.JsonOutput;
 import no.nav.fpsak.nare.json.NareJsonException;
 
@@ -19,7 +20,7 @@ public final class BeregningsresultatRegler {
         // Kalle regel
         var outputContainer = Beregningsresultat.opprett();
         var evaluation = new RegelFastsettBeregningsresultat().evaluer(grunnlag, outputContainer);
-        var sporing = EvaluationSerializer.asJson(evaluation);
+        var sporing = EvaluationSerializer.asJson(evaluation, NareVersion.NARE_VERSION);
 
         // Map tilbake til domenemodell fra regelmodell
         return new FastsattBeregningsresultat(outputContainer, grunnlag, toJson(grunnlag), sporing, null); // TODO versjon når eget repo
@@ -34,7 +35,7 @@ public final class BeregningsresultatRegler {
         var mellomregning = new BeregningsresultatFeriepengerRegelModell(grunnlag, mellomregningsperioder);
 
         var evaluation = new RegelBeregnFeriepenger().evaluer(mellomregning);
-        var sporing = EvaluationSerializer.asJson(evaluation);
+        var sporing = EvaluationSerializer.asJson(evaluation, NareVersion.NARE_VERSION);
 
         var resultat = new BeregningsresultatFeriepengerResultat(mellomregning.getBeregningsresultatPerioder(), mellomregning.getFeriepengerPeriode());
 
