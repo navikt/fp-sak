@@ -15,4 +15,5 @@ jobs:
     uses: navikt/fp-gha-workflows/.github/workflows/snyk.yml@main
     with:
       build-version: snyk-snapshot
+      publish-sarif: false
     secrets: inherit
