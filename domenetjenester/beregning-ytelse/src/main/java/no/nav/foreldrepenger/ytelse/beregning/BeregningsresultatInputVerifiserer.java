@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodell;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakAktivitet;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultatPeriode;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatGrunnlag;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPrArbeidsforhold;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPrStatus;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakAktivitet;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultatPeriode;
 import no.nav.vedtak.exception.TekniskException;
 
 public final class BeregningsresultatInputVerifiserer {
@@ -22,7 +22,7 @@ public final class BeregningsresultatInputVerifiserer {
         // Skjuler default
     }
 
-    public static void verifiserAndelerIUttakLiggerIBeregning(BeregningsresultatRegelmodell input) {
+    public static void verifiserAndelerIUttakLiggerIBeregning(BeregningsresultatGrunnlag input) {
         if (brukerHarUttak(input)) {
             var bGAndeler = hentBGAndeler(input);
             var uttakAndeler = hentUttakAndeler(input);
@@ -30,11 +30,11 @@ public final class BeregningsresultatInputVerifiserer {
         }
     }
 
-    private static boolean brukerHarUttak(BeregningsresultatRegelmodell input) {
-        return !input.getUttakResultat().getUttakResultatPerioder().isEmpty();
+    private static boolean brukerHarUttak(BeregningsresultatGrunnlag input) {
+        return !input.uttakResultat().uttakResultatPerioder().isEmpty();
     }
 
-    public static void verifiserAlleAndelerIBeregningErIUttak(BeregningsresultatRegelmodell input) {
+    public static void verifiserAlleAndelerIBeregningErIUttak(BeregningsresultatGrunnlag input) {
         if (brukerHarUttak(input)) {
             var bGAndeler = hentBGAndeler(input);
             var uttakAndeler = hentUttakAndeler(input);
@@ -42,38 +42,38 @@ public final class BeregningsresultatInputVerifiserer {
         }
     }
 
-    private static LocalDate finnSisteUttaksdato(BeregningsresultatRegelmodell input) {
-        return input.getUttakResultat()
-            .getUttakResultatPerioder()
+    private static LocalDate finnSisteUttaksdato(BeregningsresultatGrunnlag input) {
+        return input.uttakResultat()
+            .uttakResultatPerioder()
             .stream()
-            .max(Comparator.comparing(UttakResultatPeriode::getTom))
-            .map(UttakResultatPeriode::getTom)
+            .max(Comparator.comparing(UttakResultatPeriode::tom))
+            .map(UttakResultatPeriode::tom)
             .orElseThrow();
     }
 
-    private static List<UttakAktivitet> hentUttakAndeler(BeregningsresultatRegelmodell input) {
-        return input.getUttakResultat()
-            .getUttakResultatPerioder()
+    private static List<UttakAktivitet> hentUttakAndeler(BeregningsresultatGrunnlag input) {
+        return input.uttakResultat()
+            .uttakResultatPerioder()
             .stream()
-            .map(UttakResultatPeriode::getUttakAktiviteter)
+            .map(UttakResultatPeriode::uttakAktiviteter)
             .flatMap(Collection::stream)
             .collect(Collectors.toList());
     }
 
-    private static List<BeregningsgrunnlagPrStatus> hentBGAndeler(BeregningsresultatRegelmodell input) {
+    private static List<BeregningsgrunnlagPrStatus> hentBGAndeler(BeregningsresultatGrunnlag input) {
         // Trenger kun å se på perioder som overlapper med beregning
         var sisteUttaksdato = finnSisteUttaksdato(input);
-        return input.getBeregningsgrunnlag()
-            .getBeregningsgrunnlagPerioder()
+        return input.beregningsgrunnlag()
+            .beregningsgrunnlagPerioder()
             .stream()
-            .filter(bgp -> !bgp.getBeregningsgrunnlagPeriode().getFom().isAfter(sisteUttaksdato))
-            .map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatus)
+            .filter(bgp -> !bgp.periode().getFomDato().isAfter(sisteUttaksdato))
+            .map(BeregningsgrunnlagPeriode::beregningsgrunnlagPrStatus)
             .flatMap(Collection::stream)
             .collect(Collectors.toList());
     }
 
     private static void verifiserUttak(UttakAktivitet uttakAndel, List<BeregningsgrunnlagPrStatus> bGAndeler) {
-        if (uttakAndel.getAktivitetStatus().equals(AktivitetStatus.ATFL)) {
+        if (uttakAndel.aktivitetStatus().equals(AktivitetStatus.ATFL)) {
             finnMatchendeBGArbeidsforhold(uttakAndel, bGAndeler);
         } else {
             finnMatchendeBGAndel(uttakAndel, bGAndeler);
@@ -92,14 +92,14 @@ public final class BeregningsresultatInputVerifiserer {
     private static void finnMatchendeBGArbeidsforhold(UttakAktivitet uttakAndel,
                                                       List<BeregningsgrunnlagPrStatus> bGAndeler) {
         var bgArbeidsforhold = bGAndeler.stream()
-            .filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.ATFL))
-            .map(BeregningsgrunnlagPrStatus::getArbeidsforhold)
+            .filter(a -> a.aktivitetStatus().equals(AktivitetStatus.ATFL))
+            .map(BeregningsgrunnlagPrStatus::arbeidsforhold)
             .flatMap(Collection::stream)
             .toList();
         var matchetBGArbfor = bgArbeidsforhold.stream()
             .filter(
-                a -> BeregningsgrunnlagUttakArbeidsforholdMatcher.matcherArbeidsforhold(uttakAndel.getArbeidsforhold(),
-                    a.getArbeidsforhold()))
+                a -> BeregningsgrunnlagUttakArbeidsforholdMatcher.matcherArbeidsforhold(uttakAndel.arbeidsforhold(),
+                    a.arbeidsforhold()))
             .findFirst();
         if (matchetBGArbfor.isEmpty()) {
             throw ikkeMatchendeBergeningandelException(uttakAndel.toString(), bGAndeler.toString());
@@ -108,8 +108,8 @@ public final class BeregningsresultatInputVerifiserer {
 
     private static void verifiserAtAndelerMatcher(BeregningsgrunnlagPrStatus bgAndel,
                                                   List<UttakAktivitet> uttakAndeler) {
-        if (bgAndel.getAktivitetStatus().equals(AktivitetStatus.ATFL)) {
-            matchArbeidsforhold(bgAndel.getArbeidsforhold(), uttakAndeler);
+        if (bgAndel.aktivitetStatus().equals(AktivitetStatus.ATFL)) {
+            matchArbeidsforhold(bgAndel.arbeidsforhold(), uttakAndeler);
         } else {
             matchAndel(bgAndel, uttakAndeler);
         }
@@ -139,7 +139,7 @@ public final class BeregningsresultatInputVerifiserer {
                                                                              List<UttakAktivitet> uttakAndeler) {
         return uttakAndeler.stream()
             .filter(ua -> BeregningsgrunnlagUttakArbeidsforholdMatcher.matcherArbeidsforhold(
-                beregningsgrunnlagArbeidsforhold.getArbeidsforhold(), ua.getArbeidsforhold()))
+                beregningsgrunnlagArbeidsforhold.arbeidsforhold(), ua.arbeidsforhold()))
             .findFirst();
     }
 

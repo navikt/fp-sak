@@ -12,13 +12,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFeriepengerFraRegelTilVL;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapInputFraVLTilRegelGrunnlag;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.SammenlignBeregningsresultatFeriepengerMedRegelResultat;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerRegelModell;
-import no.nav.foreldrepenger.ytelse.beregning.regler.feriepenger.RegelBeregnFeriepenger;
-import no.nav.fpsak.nare.evaluation.summary.EvaluationSerializer;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegler;
 
 public abstract class BeregnFeriepengerTjeneste {
 
@@ -32,7 +29,7 @@ public abstract class BeregnFeriepengerTjeneste {
         //NOSONAR
     }
 
-    public BeregnFeriepengerTjeneste(BehandlingRepositoryProvider repositoryProvider,
+    protected BeregnFeriepengerTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                      MapInputFraVLTilRegelGrunnlag inputTjeneste,
                                      int antallDagerFeriepenger) {
         if (antallDagerFeriepenger == 0) {
@@ -58,15 +55,12 @@ public abstract class BeregnFeriepengerTjeneste {
         var gjeldendeDekningsgrad = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(ref.fagsakId()).orElseThrow()
             .getGjeldendeDekningsgrad();
 
-        var regelModell = mapFra(ref, beregningsresultat, annenPartsBeregningsresultat, gjeldendeDekningsgrad,
+        var grunnlag = mapFra(ref, beregningsresultat, annenPartsBeregningsresultat, gjeldendeDekningsgrad,
             arbeidstakerVedSTP, finnTigjengeligeFeriepengedager(ref, beregningsresultat));
-        var regelInput = toJson(regelModell);
 
-        var regelBeregnFeriepenger = new RegelBeregnFeriepenger();
-        var evaluation = regelBeregnFeriepenger.evaluer(regelModell);
-        var sporing = EvaluationSerializer.asJson(evaluation);
+        var resultat = BeregningsresultatRegler.fastsettFeriepenger(grunnlag);
 
-        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelModell, regelInput, sporing);
+        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, resultat);
     }
 
     public boolean avvikBeregnetFeriepengerBeregningsresultat(BehandlingReferanse ref) {
@@ -85,13 +79,12 @@ public abstract class BeregnFeriepengerTjeneste {
         var gjeldendeDekningsgrad = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(ref.fagsakId()).orElseThrow()
             .getGjeldendeDekningsgrad();
 
-        var regelModell = mapFra(ref, beregningsresultat, annenPartsBeregningsresultat, gjeldendeDekningsgrad,
+        var grunnlag = mapFra(ref, beregningsresultat, annenPartsBeregningsresultat, gjeldendeDekningsgrad,
             arbeidstakerVedSTP, finnTigjengeligeFeriepengedager(ref, beregningsresultat));
 
-        var regelBeregnFeriepenger = new RegelBeregnFeriepenger();
-        regelBeregnFeriepenger.evaluer(regelModell);
+        var resultat = BeregningsresultatRegler.fastsettFeriepenger(grunnlag);
 
-        return SammenlignBeregningsresultatFeriepengerMedRegelResultat.erAvvik(beregningsresultat, regelModell);
+        return SammenlignBeregningsresultatFeriepengerMedRegelResultat.erAvvik(beregningsresultat, resultat.resultat());
     }
 
     private Optional<Behandling> finnAnnenPartsBehandling(BehandlingReferanse ref) {
@@ -102,10 +95,6 @@ public abstract class BeregnFeriepengerTjeneste {
     private Optional<Fagsak> finnAnnenPartsFagsak(BehandlingReferanse ref) {
         return fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(ref.fagsakId())
             .flatMap(fagsakRelasjon -> fagsakRelasjon.getRelatertFagsakFraId(ref.fagsakId()));
-    }
-
-    private String toJson(BeregningsresultatFeriepengerRegelModell grunnlag) {
-        return StandardJsonConfig.toJson(grunnlag);
     }
 
     protected abstract int finnTigjengeligeFeriepengedager(BehandlingReferanse ref, BeregningsresultatEntitet beregningsresultat);

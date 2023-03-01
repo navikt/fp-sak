@@ -9,32 +9,32 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerRegelModell;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.FastsattFeriepengeresultat;
 
 public class MapBeregningsresultatFeriepengerFraRegelTilVL {
     private MapBeregningsresultatFeriepengerFraRegelTilVL() {
         // unused
     }
 
-    public static void mapFra(BeregningsresultatEntitet resultat, BeregningsresultatFeriepengerRegelModell regelModell, String regelInput, String sporing) {
+    public static void mapFra(BeregningsresultatEntitet resultat, FastsattFeriepengeresultat feriepengeresultat) {
 
-        if (regelModell.getFeriepengerPeriode() == null) {
+        if (feriepengeresultat.resultat().feriepengerPeriode() == null) {
             // Lagrer sporing
             BeregningsresultatFeriepenger.builder()
-                .medFeriepengerRegelInput(regelInput)
-                .medFeriepengerRegelSporing(sporing)
+                .medFeriepengerRegelInput(feriepengeresultat.regelInput())
+                .medFeriepengerRegelSporing(feriepengeresultat.regelSporing())
                 .build(resultat);
             return;
         }
 
         var beregningsresultatFeriepenger = BeregningsresultatFeriepenger.builder()
-            .medFeriepengerPeriodeFom(regelModell.getFeriepengerPeriode().getFomDato())
-            .medFeriepengerPeriodeTom(regelModell.getFeriepengerPeriode().getTomDato())
-            .medFeriepengerRegelInput(regelInput)
-            .medFeriepengerRegelSporing(sporing)
+            .medFeriepengerPeriodeFom(feriepengeresultat.resultat().feriepengerPeriode().getFomDato())
+            .medFeriepengerPeriodeTom(feriepengeresultat.resultat().feriepengerPeriode().getTomDato())
+            .medFeriepengerRegelInput(feriepengeresultat.regelInput())
+            .medFeriepengerRegelSporing(feriepengeresultat.regelSporing())
             .build(resultat);
 
-        regelModell.getBeregningsresultatPerioder().forEach(regelBeregningsresultatPeriode ->
+        feriepengeresultat.resultat().beregningsresultatPerioder().forEach(regelBeregningsresultatPeriode ->
             mapPeriode(resultat, beregningsresultatFeriepenger, regelBeregningsresultatPeriode));
     }
 
@@ -54,7 +54,7 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVL {
         }
         var regelAndelAktivitetStatus = AktivitetStatusMapper.fraRegelTilVl(regelAndel);
         var regelArbeidsgiverId = regelAndel.getArbeidsforhold() == null ? null : regelAndel.getArbeidsgiverId();
-        var regelArbeidsforholdId = regelAndel.getArbeidsforhold() != null ? regelAndel.getArbeidsforhold().getArbeidsforholdId() : null;
+        var regelArbeidsforholdId = regelAndel.getArbeidsforhold() != null ? regelAndel.getArbeidsforhold().arbeidsforholdId() : null;
         var andel = vlBeregningsresultatPeriode.getBeregningsresultatAndelList().stream()
             .filter(vlAndel -> {
                 var vlArbeidsforholdRef = vlAndel.getArbeidsforholdRef() == null ? null : vlAndel.getArbeidsforholdRef().getReferanse();
@@ -78,7 +78,7 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVL {
         });
     }
 
-    private static boolean erAvrundetÅrsbeløpUlik0(no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerPrÅr prÅr) {
+    private static boolean erAvrundetÅrsbeløpUlik0(no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerPrÅr prÅr) {
         var årsbeløp = prÅr.getÅrsbeløp().setScale(0, RoundingMode.HALF_UP).longValue();
         return årsbeløp != 0L;
     }

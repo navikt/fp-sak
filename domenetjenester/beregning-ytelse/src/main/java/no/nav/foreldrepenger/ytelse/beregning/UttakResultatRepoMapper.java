@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultat;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultat;
 
 @FunctionalInterface
 public interface UttakResultatRepoMapper {

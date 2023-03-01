@@ -14,12 +14,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFeriepengerFraRegelTilVL;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerPrÅr;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerResultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.FastsattFeriepengeresultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerPrÅr;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerRegelModell;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
@@ -37,13 +38,11 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
         // Arrange
         var periode = lagPeriodeMedAndel(BigDecimal.valueOf(0.1));
         var beregningsresultat = lagVlBeregningsresultat();
-        var regelmodell = BeregningsresultatFeriepengerRegelModell.builder()
-                .medBeregningsresultatPerioder(List.of(periode))
-                .medFeriepengerPeriode(STP, STP.plusMonths(10))
-                .build();
+        var regelresultat = new BeregningsresultatFeriepengerResultat(List.of(periode), new LocalDateInterval(STP, STP.plusMonths(10)));
+        var resultat = new FastsattFeriepengeresultat(regelresultat, null, "input", "sporing", null);
 
         // Act
-        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelmodell, "input", "sporing");
+        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, resultat);
 
         // Assert
         var beregningsresultatFeriepengerPrÅrListe = beregningsresultat.getBeregningsresultatFeriepenger().get()
@@ -56,13 +55,12 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
         // Arrange
         var periode = lagPeriodeMedAndel(BigDecimal.valueOf(1.5));
         var beregningsresultat = lagVlBeregningsresultat();
-        var regelmodell = BeregningsresultatFeriepengerRegelModell.builder()
-                .medBeregningsresultatPerioder(List.of(periode))
-                .medFeriepengerPeriode(STP, STP.plusMonths(10))
-                .build();
+        var regelresultat = new BeregningsresultatFeriepengerResultat(List.of(periode), new LocalDateInterval(STP, STP.plusMonths(10)));
+        var resultat = new FastsattFeriepengeresultat(regelresultat, null, "input", "sporing", null);
 
         // Act
-        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelmodell, "input", "sporing");
+        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, resultat);
+
 
         // Assert
         var beregningsresultatFeriepengerPrÅrListe = beregningsresultat.getBeregningsresultatFeriepenger().get()
@@ -95,7 +93,6 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
     }
 
     private BeregningsresultatPeriode lagPeriodeMedAndel(BigDecimal årsbeløp) {
-        var periode = BeregningsresultatPeriode.builder().medPeriode(PERIODE).build();
         var andel = BeregningsresultatAndel.builder().medAktivitetStatus(AktivitetStatus.ATFL)
                 .medBrukerErMottaker(true)
                 .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
@@ -103,9 +100,14 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
                 .medDagsats(DAGSATS)
                 .medDagsatsFraBg(DAGSATS_FRA_BG)
                 .medUtbetalingssgrad(UTBETALINGSGRAD)
-                .build(periode);
-        BeregningsresultatFeriepengerPrÅr.builder().medÅrsbeløp(årsbeløp)
-                .medOpptjeningÅr(LocalDate.now()).build(andel);
+                .build();
+        andel.addBeregningsresultatFeriepengerPrÅr(BeregningsresultatFeriepengerPrÅr.builder().medÅrsbeløp(årsbeløp)
+                .medOpptjeningÅr(LocalDate.now())
+                .medBrukerErMottaker(andel.erBrukerMottaker())
+                .medArbeidsforhold(andel.getArbeidsforhold())
+                .build());
+        var periode = new BeregningsresultatPeriode(PERIODE);
+        periode.addBeregningsresultatAndel(andel);
         return periode;
     }
 }
