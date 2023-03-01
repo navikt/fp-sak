@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.behandlingskontroll;
 
 import static java.util.Collections.singletonList;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus.*;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus.OPPRETTET;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -63,6 +63,11 @@ public class AksjonspunktResultat {
     public static AksjonspunktResultat opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon aksjonspunktDefinisjon, Venteårsak venteårsak,
             LocalDateTime ventefrist) {
         return new AksjonspunktResultat(aksjonspunktDefinisjon, venteårsak, ventefrist, OPPRETTET);
+    }
+
+    public static AksjonspunktResultat opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon aksjonspunktDefinisjon, Venteårsak venteårsak,
+                                                                      LocalDateTime ventefrist, AksjonspunktStatus status) {
+        return new AksjonspunktResultat(aksjonspunktDefinisjon, venteårsak, ventefrist, status);
     }
 
     public AksjonspunktDefinisjon getAksjonspunktDefinisjon() {

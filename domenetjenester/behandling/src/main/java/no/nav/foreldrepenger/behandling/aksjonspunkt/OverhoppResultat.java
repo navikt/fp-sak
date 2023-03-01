@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
 
 public class OverhoppResultat {
@@ -39,9 +40,9 @@ public class OverhoppResultat {
                 .findFirst();
     }
 
-    public Set<AksjonspunktResultatMedStatus> finnEkstraAksjonspunktResultat() {
-        Set<AksjonspunktResultatMedStatus> resultater = new HashSet<>();
-        oppdatereResultater.stream().forEach(res -> resultater.addAll(res.getEkstraAksjonspunktResultat()));
+    public Set<AksjonspunktResultat> finnEkstraAksjonspunktResultat() {
+        Set<AksjonspunktResultat> resultater = new HashSet<>();
+        oppdatereResultater.forEach(res -> resultater.addAll(res.getEkstraAksjonspunktResultat()));
         return resultater;
     }
 

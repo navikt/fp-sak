@@ -30,7 +30,7 @@ public class OppdateringResultat {
     private boolean beholdAksjonspunktÅpent = false;
     private boolean totrinnsKontroll = false;
     private TransisjonIdentifikator transisjonId;
-    private List<AksjonspunktResultatMedStatus> ekstraAksjonspunktResultat = new ArrayList<>();
+    private final List<AksjonspunktResultat> ekstraAksjonspunktResultat = new ArrayList<>();
 
     private OppdateringResultat(BehandlingStegType nesteSteg, OverhoppKontroll overhoppKontroll, TransisjonIdentifikator transisjonId,
             boolean totrinn) {
@@ -121,7 +121,7 @@ public class OppdateringResultat {
         return vilkårTyperNyeIkkeVurdert;
     }
 
-    public List<AksjonspunktResultatMedStatus> getEkstraAksjonspunktResultat() {
+    public List<AksjonspunktResultat> getEkstraAksjonspunktResultat() {
         return ekstraAksjonspunktResultat;
     }
 
@@ -244,7 +244,7 @@ public class OppdateringResultat {
          * fra før. Bruk helst andre mekanismer.
          */
         public Builder medEkstraAksjonspunktResultat(AksjonspunktDefinisjon aksjonspunktDefinisjon, AksjonspunktStatus nyStatus) {
-            resultat.ekstraAksjonspunktResultat.add(new AksjonspunktResultatMedStatus(AksjonspunktResultat.opprettForAksjonspunkt(aksjonspunktDefinisjon), nyStatus));
+            resultat.ekstraAksjonspunktResultat.add(AksjonspunktResultat.opprettForAksjonspunkt(aksjonspunktDefinisjon, nyStatus));
             return this;
         }
 
@@ -252,8 +252,8 @@ public class OppdateringResultat {
          * Brukes dersom man absolutt må sette på vent. NB: Vil legge til dersom ikke
          * finnes fra før. Bruk helst andre mekanismer.
          */
-        public Builder medEkstraAksjonspunktResultat(AksjonspunktResultat aksjonspunktResultat, AksjonspunktStatus nyStatus) {
-            resultat.ekstraAksjonspunktResultat.add(new AksjonspunktResultatMedStatus(aksjonspunktResultat, nyStatus));
+        public Builder medEkstraAksjonspunktResultat(AksjonspunktResultat ar, AksjonspunktStatus nyStatus) {
+            resultat.ekstraAksjonspunktResultat.add(AksjonspunktResultat.opprettForAksjonspunktMedFrist(ar.getAksjonspunktDefinisjon(), ar.getVenteårsak(), ar.getFrist(), nyStatus));
             return this;
         }
 

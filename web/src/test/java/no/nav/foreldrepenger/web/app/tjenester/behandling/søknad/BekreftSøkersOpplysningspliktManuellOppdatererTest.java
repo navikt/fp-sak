@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktResultatMedStatus;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -65,7 +64,7 @@ public class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
         assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo(HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT.getKode());
 
-        var aksjonspunktSet = resultat.getEkstraAksjonspunktResultat().stream().map(AksjonspunktResultatMedStatus::aksjonspunktResultat)
+        var aksjonspunktSet = resultat.getEkstraAksjonspunktResultat().stream()
                 .map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toSet());
 
         assertThat(aksjonspunktSet).isEmpty();
