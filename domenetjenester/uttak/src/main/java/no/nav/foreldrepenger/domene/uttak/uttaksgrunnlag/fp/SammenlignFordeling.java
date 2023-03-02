@@ -45,12 +45,7 @@ public final class SammenlignFordeling {
     }
 
     private static LocalDateSegment<SammenligningPeriodeForOppgitt> segmentForOppgittPeriode(OppgittPeriodeEntitet periode) {
-        var fom = VirkedagUtil.lørdagSøndagTilMandag(periode.getFom());
-        var tom = VirkedagUtil.fredagLørdagTilSøndag(periode.getTom());
-        if (fom.isAfter(tom)) {
-            fom = periode.getFom();
-        }
-        return new LocalDateSegment<>(fom, tom, new SammenligningPeriodeForOppgitt(periode));
+        return new LocalDateSegment<>(periode.getFom(), periode.getTom(), new SammenligningPeriodeForOppgitt(periode));
     }
 
     private record SammenligningPeriodeForOppgitt(Årsak årsak, UttakPeriodeType periodeType, SamtidigUttaksprosent samtidigUttaksprosent, SammenligningGraderingForOppgitt gradering, boolean flerbarnsdager, MorsAktivitet morsAktivitet) {
