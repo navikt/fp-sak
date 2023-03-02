@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.ytelse.beregning.UttakResultatRepoMapper;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultat;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultat;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped

@@ -3,10 +3,10 @@ package no.nav.foreldrepenger.ytelse.beregning;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakAktivitet;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPrStatus;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakAktivitet;
 
 public final class BeregningsgrunnlagUttakArbeidsforholdMatcher {
 
@@ -19,15 +19,15 @@ public final class BeregningsgrunnlagUttakArbeidsforholdMatcher {
             // begge må være null for at de skal være like
             return Objects.equals(arbeidsforholdBeregning, arbeidsforholdUttak);
         }
-        var bgRef = InternArbeidsforholdRef.ref(arbeidsforholdBeregning.getArbeidsforholdId());
-        var uttakRef = InternArbeidsforholdRef.ref(arbeidsforholdUttak.getArbeidsforholdId());
-        return Objects.equals(arbeidsforholdBeregning.erFrilanser(), arbeidsforholdUttak.erFrilanser())
-            && Objects.equals(arbeidsforholdBeregning.getIdentifikator(), arbeidsforholdUttak.getIdentifikator())
+        var bgRef = InternArbeidsforholdRef.ref(arbeidsforholdBeregning.arbeidsforholdId());
+        var uttakRef = InternArbeidsforholdRef.ref(arbeidsforholdUttak.arbeidsforholdId());
+        return Objects.equals(arbeidsforholdBeregning.frilanser(), arbeidsforholdUttak.frilanser())
+            && Objects.equals(arbeidsforholdBeregning.identifikator(), arbeidsforholdUttak.identifikator())
             && bgRef.gjelderFor(uttakRef);
     }
 
     public static boolean matcherGenerellAndel(BeregningsgrunnlagPrStatus beregningsgrunnlagPrStatus, UttakAktivitet aktivitet) {
-        return aktivitet.getAktivitetStatus().equals(beregningsgrunnlagPrStatus.getAktivitetStatus())
-            || (aktivitet.getAktivitetStatus().equals(AktivitetStatus.ANNET) && !beregningsgrunnlagPrStatus.getAktivitetStatus().erGraderbar());
+        return aktivitet.aktivitetStatus().equals(beregningsgrunnlagPrStatus.aktivitetStatus())
+            || (aktivitet.aktivitetStatus().equals(AktivitetStatus.ANNET) && !beregningsgrunnlagPrStatus.aktivitetStatus().erGraderbar());
     }
 }

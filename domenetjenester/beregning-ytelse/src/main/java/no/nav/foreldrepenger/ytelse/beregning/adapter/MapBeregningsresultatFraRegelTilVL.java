@@ -40,7 +40,7 @@ public final class MapBeregningsresultatFraRegelTilVL {
             .medDagsatsFraBg(dagsatsFraBg)
             .medAktivitetStatus(AktivitetStatusMapper.fraRegelTilVl(bra))
             .medArbeidsforholdRef(bra.getArbeidsforhold() == null
-                ? null : InternArbeidsforholdRef.ref(bra.getArbeidsforhold().getArbeidsforholdId()))
+                ? null : InternArbeidsforholdRef.ref(bra.getArbeidsforhold().arbeidsforholdId()))
             .medInntektskategori(InntektskategoriMapper.fraRegelTilVL(bra.getInntektskategori()))
             .build(brp);
     }
@@ -49,8 +49,8 @@ public final class MapBeregningsresultatFraRegelTilVL {
         if (bra.getArbeidsforhold() == null) {
             return null;
         }
-        var identifikator = bra.getArbeidsforhold().getIdentifikator();
-        var referanseType = bra.getArbeidsforhold().getReferanseType();
+        var identifikator = bra.getArbeidsforhold().identifikator();
+        var referanseType = bra.getArbeidsforhold().referanseType();
         if (referanseType == ReferanseType.AKTØR_ID) {
             return Arbeidsgiver.person(new AktørId(identifikator));
         }

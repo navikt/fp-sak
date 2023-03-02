@@ -5,17 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerPrÅr;
 
 public class BeregningsresultatAndel {
 
-    @JsonBackReference
-    private BeregningsresultatPeriode beregningsresultatPeriode;
     private Boolean brukerErMottaker;
     private Arbeidsforhold arbeidsforhold;
     private Long dagsats;
@@ -29,9 +24,6 @@ public class BeregningsresultatAndel {
     private BeregningsresultatAndel() {
     }
 
-    public BeregningsresultatPeriode getBeregningsresultatPeriode() {
-        return beregningsresultatPeriode;
-    }
 
     public Boolean erBrukerMottaker() {
         return brukerErMottaker;
@@ -65,8 +57,15 @@ public class BeregningsresultatAndel {
         return beregningsresultatFeriepengerPrÅrListe;
     }
 
+    public void addBeregningsresultatFeriepengerPrÅr(BeregningsresultatFeriepengerPrÅr beregningsresultatFeriepengerPrÅr) {
+        Objects.requireNonNull(beregningsresultatFeriepengerPrÅr, "beregningsresultatFeriepengerPrÅr");
+        if (!beregningsresultatFeriepengerPrÅrListe.contains(beregningsresultatFeriepengerPrÅr)) {
+            beregningsresultatFeriepengerPrÅrListe.add(beregningsresultatFeriepengerPrÅr);
+        }
+    }
+
     public String getArbeidsgiverId() {
-        return arbeidsforhold == null ? null : arbeidsforhold.getIdentifikator();
+        return arbeidsforhold == null ? null : arbeidsforhold.identifikator();
     }
 
     public Inntektskategori getInntektskategori() {
@@ -77,29 +76,34 @@ public class BeregningsresultatAndel {
     public String toString() {
         return "BeregningsresultatAndel{" +
             "aktivitetStatus='" + aktivitetStatus.name() + '\'' +
-            ", arbeidsgiverId=" + (arbeidsforhold != null ? arbeidsforhold.getIdentifikator() : null) +
-            ", arbeidsforholdId=" + (arbeidsforhold != null ? arbeidsforhold.getArbeidsforholdId() : null) +
+            ", arbeidsgiverId=" + (arbeidsforhold != null ? arbeidsforhold.identifikator() : null) +
+            ", arbeidsforholdId=" + (arbeidsforhold != null ? arbeidsforhold.arbeidsforholdId() : null) +
             ", erBrukerMottaker=" + erBrukerMottaker() +
             '}';
+    }
+
+    public static BeregningsresultatAndel copyUtenFeriepenger(BeregningsresultatAndel andel) {
+        return BeregningsresultatAndel.builder()
+            .medAktivitetStatus(andel.aktivitetStatus)
+            .medArbeidsforhold(andel.arbeidsforhold)
+            .medBrukerErMottaker(andel.brukerErMottaker)
+            .medDagsats(andel.dagsats)
+            .medDagsatsFraBg(andel.dagsatsFraBg)
+            .medInntektskategori(andel.inntektskategori)
+            .medStillingsprosent(andel.stillingsprosent)
+            .medUtbetalingssgrad(andel.utbetalingsgrad)
+            .build();
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static Builder builder(BeregningsresultatAndel eksisterendeBeregningsresultatAndel) {
-        return new Builder(eksisterendeBeregningsresultatAndel);
-    }
-
     public static class Builder {
-        private BeregningsresultatAndel beregningsresultatAndelMal;
+        private final BeregningsresultatAndel beregningsresultatAndelMal;
 
         public Builder() {
             beregningsresultatAndelMal = new BeregningsresultatAndel();
-        }
-
-        public Builder(BeregningsresultatAndel eksisterendeBeregningsresultatAndel) {
-            beregningsresultatAndelMal = eksisterendeBeregningsresultatAndel;
         }
 
         public Builder medBrukerErMottaker(Boolean brukerErMottaker) {
@@ -142,21 +146,12 @@ public class BeregningsresultatAndel {
             return this;
         }
 
-        public Builder leggTilBeregningsresultatFeriepengerPrÅr(BeregningsresultatFeriepengerPrÅr beregningsresultatFeriepengerPrÅr) {
-            beregningsresultatAndelMal.beregningsresultatFeriepengerPrÅrListe.add(beregningsresultatFeriepengerPrÅr);
-            return this;
-        }
-
-        public BeregningsresultatAndel build(BeregningsresultatPeriode beregningsresultatPeriode) {
-            beregningsresultatAndelMal.beregningsresultatPeriode = beregningsresultatPeriode;
+        public BeregningsresultatAndel build() {
             verifyStateForBuild();
-            beregningsresultatAndelMal.getBeregningsresultatPeriode()
-                .addBeregningsresultatAndel(beregningsresultatAndelMal);
             return beregningsresultatAndelMal;
         }
 
         void verifyStateForBuild() {
-            Objects.requireNonNull(beregningsresultatAndelMal.beregningsresultatPeriode, "beregningsresultatPeriode");
             Objects.requireNonNull(beregningsresultatAndelMal.brukerErMottaker, "brukerErMottaker");
             Objects.requireNonNull(beregningsresultatAndelMal.dagsats, "dagsats");
             Objects.requireNonNull(beregningsresultatAndelMal.dagsatsFraBg, "dagsatsFraBg");

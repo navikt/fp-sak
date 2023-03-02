@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.UttakResultatRepoMapper;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodell;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatGrunnlag;
 
 @ApplicationScoped
 public class MapInputFraVLTilRegelGrunnlag {
@@ -32,13 +32,13 @@ public class MapInputFraVLTilRegelGrunnlag {
         this.uttakResultatRepoMapper = uttakResultatRepoMapper;
     }
 
-    public BeregningsresultatRegelmodell mapFra(BehandlingReferanse ref) {
+    public BeregningsresultatGrunnlag mapFra(BehandlingReferanse ref) {
         var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(ref.behandlingId());
         var input = uttakInputTjeneste.lagInput(ref.behandlingId());
         var mapper = FagsakYtelseTypeRef.Lookup.find(this.uttakResultatRepoMapper, input.getFagsakYtelseType()).orElseThrow();
         var regelBeregningsgrunnlag = MapBeregningsgrunnlagFraVLTilRegel.map(beregningsgrunnlag);
         var regelUttakResultat = mapper.hentOgMapUttakResultat(input);
-        return new BeregningsresultatRegelmodell(regelBeregningsgrunnlag, regelUttakResultat);
+        return new BeregningsresultatGrunnlag(regelBeregningsgrunnlag, regelUttakResultat);
     }
 
     public boolean arbeidstakerVedSkjæringstidspunkt(BehandlingReferanse ref) {

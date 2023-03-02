@@ -17,11 +17,10 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.ytelse.beregning.MapInntektskategoriFraBehandlingslagerTilBeregningsgrunnlag;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerGrunnlag;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerRegelModell;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 public final class MapBeregningsresultatFeriepengerFraVLTilRegel {
 
@@ -30,10 +29,10 @@ public final class MapBeregningsresultatFeriepengerFraVLTilRegel {
         //Skal ikke instansieres
     }
 
-    public static BeregningsresultatFeriepengerRegelModell mapFra(BehandlingReferanse ref, BeregningsresultatEntitet beregningsresultat,
-                                                                  Optional<BeregningsresultatEntitet> annenPartsBeregningsresultatFP,
-                                                                  Dekningsgrad dekningsgrad, boolean arbeidstakerVedSTP,
-                                                                  int antallDagerFeriepenger) {
+    public static BeregningsresultatFeriepengerGrunnlag mapFra(BehandlingReferanse ref, BeregningsresultatEntitet beregningsresultat,
+                                                               Optional<BeregningsresultatEntitet> annenPartsBeregningsresultatFP,
+                                                               Dekningsgrad dekningsgrad, boolean arbeidstakerVedSTP,
+                                                               int antallDagerFeriepenger) {
 
         var annenPartsBeregningsresultatPerioder = annenPartsBeregningsresultatFP.map(a -> a.getBeregningsresultatPerioder().stream()
             .map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapBeregningsresultatPerioder)
@@ -45,7 +44,7 @@ public final class MapBeregningsresultatFeriepengerFraVLTilRegel {
         var annenPartsInntektskategorier = annenPartsBeregningsresultatFP.map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapInntektskategorier).orElse(Collections.emptySet());
         var erForelder1 = RelasjonsRolleType.erMor(ref.relasjonRolle());
 
-        return BeregningsresultatFeriepengerRegelModell.builder()
+        return BeregningsresultatFeriepengerGrunnlag.builder()
             .medBeregningsresultatPerioder(beregningsresultatPerioder)
             .medInntektskategorier(inntektskategorier)
             .medArbeidstakerVedSkjæringstidspunkt(arbeidstakerVedSTP)
@@ -79,22 +78,20 @@ public final class MapBeregningsresultatFeriepengerFraVLTilRegel {
     }
 
     private static BeregningsresultatPeriode mapBeregningsresultatPerioder(no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode beregningsresultatPerioder) {
-        var periode = BeregningsresultatPeriode.builder()
-            .medPeriode(new LocalDateInterval(beregningsresultatPerioder.getBeregningsresultatPeriodeFom(), beregningsresultatPerioder.getBeregningsresultatPeriodeTom()))
-            .build();
-        beregningsresultatPerioder.getBeregningsresultatAndelList().forEach(andel -> mapBeregningsresultatAndel(andel, periode));
+        var periode = new BeregningsresultatPeriode(beregningsresultatPerioder.getBeregningsresultatPeriodeFom(), beregningsresultatPerioder.getBeregningsresultatPeriodeTom());
+        beregningsresultatPerioder.getBeregningsresultatAndelList().forEach(andel -> periode.addBeregningsresultatAndel(mapBeregningsresultatAndel(andel)));
         return periode;
     }
 
-    private static void mapBeregningsresultatAndel(no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel andel, BeregningsresultatPeriode periode) {
-        BeregningsresultatAndel.builder()
+    private static BeregningsresultatAndel mapBeregningsresultatAndel(no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel andel) {
+        return BeregningsresultatAndel.builder()
             .medBrukerErMottaker(andel.erBrukerMottaker())
             .medDagsats((long) andel.getDagsats())
             .medDagsatsFraBg((long) andel.getDagsatsFraBg())
             .medAktivitetStatus(AktivitetStatusMapper.fraVLTilRegel(mapAktivitetStatus(andel.getAktivitetStatus())))
             .medInntektskategori(InntektskategoriMapper.fraVLTilRegel(mapInntektskategori(andel.getInntektskategori())))
             .medArbeidsforhold(mapArbeidsforhold(andel))
-            .build(periode);
+            .build();
     }
 
     private static Arbeidsforhold mapArbeidsforhold(no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel andel) {

@@ -1,9 +1,12 @@
 package no.nav.foreldrepenger.ytelse.beregning.es;
 
+import java.time.LocalDateTime;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 
 @ApplicationScoped
@@ -26,10 +29,33 @@ public class BeregnYtelseTjenesteES {
         if (beregningOptional.isPresent()) {
             var forrigeBeregning = beregningOptional.get();
 
-            new TilkjentYtelseForEngangsstønad(beregningRepository)
-                    .overstyrTilkjentYtelse(behandling.getId(), forrigeBeregning, tilkjentYtelse);
+            overstyrTilkjentYtelse(behandling.getId(), forrigeBeregning, tilkjentYtelse);
 
         }
     }
+
+    private void overstyrTilkjentYtelse(Long behandlingId, LegacyESBeregning forrigeBeregning, Long tilkjentYtelse) {
+
+        var overstyrtBeregning = new LegacyESBeregning(forrigeBeregning.getSatsVerdi(),
+            forrigeBeregning.getAntallBarn(),
+            tilkjentYtelse,
+            LocalDateTime.now(),
+            true,
+            finnOpprinneligBeløp(forrigeBeregning));
+
+        beregningRepository.lagreBeregning(behandlingId, overstyrtBeregning);
+    }
+
+    private Long finnOpprinneligBeløp(LegacyESBeregning forrigeBeregning) {
+        Long opprinneligBeløp;
+        if (forrigeBeregning.isOverstyrt()) {
+            opprinneligBeløp = forrigeBeregning.getOpprinneligBeregnetTilkjentYtelse();
+        } else {
+            opprinneligBeløp = forrigeBeregning.getBeregnetTilkjentYtelse();
+        }
+        return opprinneligBeløp;
+    }
+
+
 
 }

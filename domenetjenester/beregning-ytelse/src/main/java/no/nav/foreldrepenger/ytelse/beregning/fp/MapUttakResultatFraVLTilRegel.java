@@ -18,10 +18,10 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.UttakYrkesaktiviteter;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.ArbeidsforholdMapper;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapUttakArbeidTypeTilAktivitetStatus;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakAktivitet;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultat;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultatPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakAktivitet;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultat;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultatPeriode;
 
 @ApplicationScoped
 public class MapUttakResultatFraVLTilRegel {

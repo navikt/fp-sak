@@ -68,17 +68,17 @@ public class MapUttakResultatFraVLTilRegelTest {
 
         // Assert
         assertThat(regelPlan).isNotNull();
-        assertThat(regelPlan.getUttakResultatPerioder()).hasSize(1);
-        var periode1 = regelPlan.getUttakResultatPerioder().iterator().next();
-        assertThat(periode1.getFom()).isEqualTo(fom);
-        assertThat(periode1.getTom()).isEqualTo(tom);
-        var uttakAktiviteter = periode1.getUttakAktiviteter();
+        assertThat(regelPlan.uttakResultatPerioder()).hasSize(1);
+        var periode1 = regelPlan.uttakResultatPerioder().iterator().next();
+        assertThat(periode1.fom()).isEqualTo(fom);
+        assertThat(periode1.tom()).isEqualTo(tom);
+        var uttakAktiviteter = periode1.uttakAktiviteter();
         assertThat(uttakAktiviteter).hasSize(1);
-        assertThat(uttakAktiviteter.get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
-        assertThat(uttakAktiviteter.get(0).getStillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(STILLING_70));
-        assertThat(uttakAktiviteter.get(0).getArbeidsforhold().getIdentifikator()).isEqualTo(ORGNR);
-        assertThat(uttakAktiviteter.get(0).getArbeidsforhold().getArbeidsforholdId()).isEqualTo(ARB_ID.getReferanse());
-        assertThat(uttakAktiviteter.get(0).getArbeidsforhold().getReferanseType()).isEqualTo(ReferanseType.ORG_NR);
+        assertThat(uttakAktiviteter.get(0).utbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
+        assertThat(uttakAktiviteter.get(0).stillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(STILLING_70));
+        assertThat(uttakAktiviteter.get(0).arbeidsforhold().identifikator()).isEqualTo(ORGNR);
+        assertThat(uttakAktiviteter.get(0).arbeidsforhold().arbeidsforholdId()).isEqualTo(ARB_ID.getReferanse());
+        assertThat(uttakAktiviteter.get(0).arbeidsforhold().referanseType()).isEqualTo(ReferanseType.ORG_NR);
     }
 
     @Test
@@ -94,15 +94,15 @@ public class MapUttakResultatFraVLTilRegelTest {
 
         // Assert
         assertThat(regelPlan).isNotNull();
-        assertThat(regelPlan.getUttakResultatPerioder()).hasSize(1);
-        var periode1 = regelPlan.getUttakResultatPerioder().iterator().next();
-        assertThat(periode1.getFom()).isEqualTo(fom);
-        assertThat(periode1.getTom()).isEqualTo(tom);
-        var uttakAktiviteter = periode1.getUttakAktiviteter();
+        assertThat(regelPlan.uttakResultatPerioder()).hasSize(1);
+        var periode1 = regelPlan.uttakResultatPerioder().iterator().next();
+        assertThat(periode1.fom()).isEqualTo(fom);
+        assertThat(periode1.tom()).isEqualTo(tom);
+        var uttakAktiviteter = periode1.uttakAktiviteter();
         assertThat(uttakAktiviteter).hasSize(1);
-        assertThat(uttakAktiviteter.get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
-        assertThat(uttakAktiviteter.get(0).getStillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
-        assertThat(uttakAktiviteter.get(0).getAktivitetStatus()).isEqualTo(AktivitetStatus.SN);
+        assertThat(uttakAktiviteter.get(0).utbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
+        assertThat(uttakAktiviteter.get(0).stillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
+        assertThat(uttakAktiviteter.get(0).aktivitetStatus()).isEqualTo(AktivitetStatus.SN);
     }
 
     @Test
@@ -121,20 +121,20 @@ public class MapUttakResultatFraVLTilRegelTest {
 
         // Assert
         assertThat(regelPlan).isNotNull();
-        var perioder = regelPlan.getUttakResultatPerioder();
+        var perioder = regelPlan.uttakResultatPerioder();
         assertThat(perioder).hasSize(2);
-        assertThat(perioder.get(0).getFom()).isEqualTo(fom);
-        assertThat(perioder.get(0).getTom()).isEqualTo(tom);
-        assertThat(perioder.get(1).getFom()).isEqualTo(fom2);
-        assertThat(perioder.get(1).getTom()).isEqualTo(tom2);
+        assertThat(perioder.get(0).fom()).isEqualTo(fom);
+        assertThat(perioder.get(0).tom()).isEqualTo(tom);
+        assertThat(perioder.get(1).fom()).isEqualTo(fom2);
+        assertThat(perioder.get(1).tom()).isEqualTo(tom2);
         perioder.forEach(periode -> {
-            var uttakAktiviteter = periode.getUttakAktiviteter();
+            var uttakAktiviteter = periode.uttakAktiviteter();
             assertThat(uttakAktiviteter).hasSize(1);
-            assertThat(uttakAktiviteter.get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
-            assertThat(uttakAktiviteter.get(0).getStillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(STILLING_70));
-            assertThat(uttakAktiviteter.get(0).getArbeidsforhold().getIdentifikator()).isEqualTo(ORGNR);
-            assertThat(uttakAktiviteter.get(0).getArbeidsforhold().getArbeidsforholdId()).isEqualTo(ARB_ID.getReferanse());
-            assertThat(uttakAktiviteter.get(0).getArbeidsforhold().getReferanseType()).isEqualTo(ReferanseType.ORG_NR);
+            assertThat(uttakAktiviteter.get(0).utbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
+            assertThat(uttakAktiviteter.get(0).stillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(STILLING_70));
+            assertThat(uttakAktiviteter.get(0).arbeidsforhold().identifikator()).isEqualTo(ORGNR);
+            assertThat(uttakAktiviteter.get(0).arbeidsforhold().arbeidsforholdId()).isEqualTo(ARB_ID.getReferanse());
+            assertThat(uttakAktiviteter.get(0).arbeidsforhold().referanseType()).isEqualTo(ReferanseType.ORG_NR);
         });
     }
 
@@ -166,23 +166,23 @@ public class MapUttakResultatFraVLTilRegelTest {
 
         // Assert
         assertThat(regelPlan).isNotNull();
-        var perioder = regelPlan.getUttakResultatPerioder();
+        var perioder = regelPlan.uttakResultatPerioder();
         assertThat(perioder).hasSize(5);
-        assertThat(perioder.get(0).getFom()).isEqualTo(fom);// 01.01
-        assertThat(perioder.get(0).getTom()).isEqualTo(fom3.minusDays(1));// 31.01
-        assertThat(perioder.get(0).getUttakAktiviteter()).hasSize(1);
-        assertThat(perioder.get(1).getFom()).isEqualTo(fom3);// 01.02
-        assertThat(perioder.get(1).getTom()).isEqualTo(tom);// 31.03
-        assertThat(perioder.get(1).getUttakAktiviteter()).hasSize(2);
-        assertThat(perioder.get(2).getFom()).isEqualTo(fom2);// 01.04
-        assertThat(perioder.get(2).getTom()).isEqualTo(tom3);// 15.04
-        assertThat(perioder.get(2).getUttakAktiviteter()).hasSize(2);
-        assertThat(perioder.get(3).getFom()).isEqualTo(fom4);// 16.04
-        assertThat(perioder.get(3).getTom()).isEqualTo(tom2);// 30.4
-        assertThat(perioder.get(3).getUttakAktiviteter()).hasSize(2);
-        assertThat(perioder.get(4).getFom()).isEqualTo(tom2.plusDays(1));// 01.05
-        assertThat(perioder.get(4).getTom()).isEqualTo(tom4);// 15.05
-        assertThat(perioder.get(4).getUttakAktiviteter()).hasSize(1);
+        assertThat(perioder.get(0).fom()).isEqualTo(fom);// 01.01
+        assertThat(perioder.get(0).tom()).isEqualTo(fom3.minusDays(1));// 31.01
+        assertThat(perioder.get(0).uttakAktiviteter()).hasSize(1);
+        assertThat(perioder.get(1).fom()).isEqualTo(fom3);// 01.02
+        assertThat(perioder.get(1).tom()).isEqualTo(tom);// 31.03
+        assertThat(perioder.get(1).uttakAktiviteter()).hasSize(2);
+        assertThat(perioder.get(2).fom()).isEqualTo(fom2);// 01.04
+        assertThat(perioder.get(2).tom()).isEqualTo(tom3);// 15.04
+        assertThat(perioder.get(2).uttakAktiviteter()).hasSize(2);
+        assertThat(perioder.get(3).fom()).isEqualTo(fom4);// 16.04
+        assertThat(perioder.get(3).tom()).isEqualTo(tom2);// 30.4
+        assertThat(perioder.get(3).uttakAktiviteter()).hasSize(2);
+        assertThat(perioder.get(4).fom()).isEqualTo(tom2.plusDays(1));// 01.05
+        assertThat(perioder.get(4).tom()).isEqualTo(tom4);// 15.05
+        assertThat(perioder.get(4).uttakAktiviteter()).hasSize(1);
     }
 
     private SvangerskapspengerUttakResultatEntitet lagUttak(SvangerskapspengerUttakResultatArbeidsforholdEntitet... uttakArbeidsforhold) {

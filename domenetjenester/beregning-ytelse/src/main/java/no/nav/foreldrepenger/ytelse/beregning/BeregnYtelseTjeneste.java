@@ -14,9 +14,9 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapInputFraVLTilRegelGrunnlag;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodell;
-import no.nav.fpsak.nare.json.JsonOutput;
-import no.nav.fpsak.nare.json.NareJsonException;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatGrunnlag;
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
 public class BeregnYtelseTjeneste {
@@ -66,11 +66,11 @@ public class BeregnYtelseTjeneste {
         return beregningsresultat;
     }
 
-    private void log(BeregningsresultatRegelmodell grunnlag) {
+    private void log(BeregningsresultatGrunnlag grunnlag) {
         try {
-            String maskertRegelinput = JsonOutput.asJson(grunnlag).replaceAll("\\d{13}|\\d{11}|\\d{9}", "*");
+            String maskertRegelinput = DefaultJsonMapper.toPrettyJson(grunnlag).replaceAll("\\d{13}|\\d{11}|\\d{9}", "*");
             LOG.info("Regelinput til beregning av tilkjent ytelse {}", maskertRegelinput);
-        } catch (NareJsonException jsonProcessingException) {
+        } catch (TekniskException jsonProcessingException) {
             LOG.warn("Feil ved logging av regelinput", jsonProcessingException);
         }
     }

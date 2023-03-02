@@ -43,7 +43,7 @@ final class AktivitetStatusMapper {
     static AktivitetStatus fraRegelTilVl(BeregningsresultatAndel andel) {
         if (andel.getAktivitetStatus().equals(no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus.ATFL)) {
             var arbeidsforhold = andel.getArbeidsforhold();
-            return arbeidsforhold != null && arbeidsforhold.erFrilanser() ? AktivitetStatus.FRILANSER : AktivitetStatus.ARBEIDSTAKER;
+            return arbeidsforhold != null && arbeidsforhold.frilanser() ? AktivitetStatus.FRILANSER : AktivitetStatus.ARBEIDSTAKER;
         }
         if (REGEL_TIL_VL_MAP.containsKey(andel.getAktivitetStatus())) {
             return REGEL_TIL_VL_MAP.get(andel.getAktivitetStatus());

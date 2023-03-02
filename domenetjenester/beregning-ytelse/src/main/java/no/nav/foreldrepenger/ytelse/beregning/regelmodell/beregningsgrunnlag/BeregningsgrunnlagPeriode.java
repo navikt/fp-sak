@@ -1,70 +1,25 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag;
 
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class BeregningsgrunnlagPeriode {
-    @JsonManagedReference
-    private List<BeregningsgrunnlagPrStatus> beregningsgrunnlagPrStatus = new ArrayList<>();
-    private Periode bgPeriode;
+public record BeregningsgrunnlagPeriode(LocalDateInterval periode, List<BeregningsgrunnlagPrStatus> beregningsgrunnlagPrStatus) {
 
-    public BeregningsgrunnlagPeriode() {
+    private static final LocalDate MIN_DATO = LocalDate.of(2000, Month.JANUARY, 1);
+    private static final LocalDate MAX_DATO = LocalDate.of(9999, Month.DECEMBER, 31);
+
+    public BeregningsgrunnlagPeriode(LocalDate fom, LocalDate tom, List<BeregningsgrunnlagPrStatus> beregningsgrunnlagPrStatus) {
+        this(new LocalDateInterval(fom != null ? fom : MIN_DATO, tom != null ? tom : MAX_DATO), beregningsgrunnlagPrStatus != null ? beregningsgrunnlagPrStatus : List.of());
     }
 
     public List<BeregningsgrunnlagPrStatus> getBeregningsgrunnlagPrStatus(AktivitetStatus aktivitetStatus) {
-        return beregningsgrunnlagPrStatus.stream()
-                .filter(af -> aktivitetStatus.equals(af.getAktivitetStatus()))
+        return beregningsgrunnlagPrStatus().stream()
+                .filter(af -> aktivitetStatus.equals(af.aktivitetStatus()))
                 .collect(Collectors.toList());
     }
 
-    public List<BeregningsgrunnlagPrStatus> getBeregningsgrunnlagPrStatus() {
-        return beregningsgrunnlagPrStatus;
-    }
-
-    void addBeregningsgrunnlagPrStatus(BeregningsgrunnlagPrStatus beregningsgrunnlagPrStatus) {
-        Objects.requireNonNull(beregningsgrunnlagPrStatus, "beregningsgrunnlagPrStatus");
-        Objects.requireNonNull(beregningsgrunnlagPrStatus.getAktivitetStatus(), "aktivitetStatus");
-        this.beregningsgrunnlagPrStatus.add(beregningsgrunnlagPrStatus);
-    }
-
-    public Periode getBeregningsgrunnlagPeriode() {
-        return bgPeriode;
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private BeregningsgrunnlagPeriode beregningsgrunnlagPeriodeMal;
-
-        public Builder() {
-            beregningsgrunnlagPeriodeMal = new BeregningsgrunnlagPeriode();
-        }
-
-        public Builder medPeriode(Periode beregningsgrunnlagPeriode) {
-            beregningsgrunnlagPeriodeMal.bgPeriode = beregningsgrunnlagPeriode;
-            return this;
-        }
-
-        public Builder medBeregningsgrunnlagPrStatus(BeregningsgrunnlagPrStatus beregningsgrunnlagPrStatus) {
-            beregningsgrunnlagPeriodeMal.addBeregningsgrunnlagPrStatus(beregningsgrunnlagPrStatus);
-            return this;
-        }
-
-        public BeregningsgrunnlagPeriode build() {
-            verifyStateForBuild();
-            return beregningsgrunnlagPeriodeMal;
-        }
-
-        public void verifyStateForBuild() {
-            Objects.requireNonNull(beregningsgrunnlagPeriodeMal.beregningsgrunnlagPrStatus, "beregningsgrunnlagPrStatus");
-            Objects.requireNonNull(beregningsgrunnlagPeriodeMal.bgPeriode, "bgPeriode");
-            Objects.requireNonNull(beregningsgrunnlagPeriodeMal.bgPeriode.getFom(), "bgPeriode.getFom()");
-        }
-    }
 }

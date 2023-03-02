@@ -42,9 +42,9 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultat;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultatPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultat;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultatPeriode;
 import no.nav.vedtak.konfig.Tid;
 
 public class MapUttakResultatFraVLTilRegelTest {
@@ -87,7 +87,7 @@ public class MapUttakResultatFraVLTilRegelTest {
 
         // Assert
         assertThat(regelPlan).isNotNull();
-        var uttakResultatPerioder = regelPlan.getUttakResultatPerioder();
+        var uttakResultatPerioder = regelPlan.uttakResultatPerioder();
         assertThat(uttakResultatPerioder).isNotNull();
         assertThat(uttakResultatPerioder).hasSize(3);
 
@@ -115,15 +115,15 @@ public class MapUttakResultatFraVLTilRegelTest {
         var resultat = overriddenMapper.mapFra(uttakPlan, lagRef(behandling));
         // Assert
         var resultPeriode = onlyOne(resultat);
-        var uttakAktivitet = resultPeriode.getUttakAktiviteter().get(0);
-        assertThat(uttakAktivitet.getUtbetalingsgrad()).isEqualByComparingTo(utbetalingsgrad.decimalValue());
-        assertThat(uttakAktivitet.getArbeidstidsprosent()).isEqualByComparingTo(prosentArbeid);
-        assertThat(uttakAktivitet.getStillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(50));
-        assertThat(uttakAktivitet.getAktivitetStatus()).isEqualTo(AktivitetStatus.ATFL);
-        assertThat(uttakAktivitet.isErGradering()).isTrue();
-        assertThat(uttakAktivitet.getArbeidsforhold().getIdentifikator()).isEqualTo(ARBEIDSFORHOLD_ORGNR);
-        assertThat(uttakAktivitet.getArbeidsforhold().getArbeidsforholdId()).isEqualTo(ARBEIDSFORHOLD_ID.getReferanse());
-        assertThat(uttakAktivitet.getArbeidsforhold().erFrilanser()).isFalse();
+        var uttakAktivitet = resultPeriode.uttakAktiviteter().get(0);
+        assertThat(uttakAktivitet.utbetalingsgrad()).isEqualByComparingTo(utbetalingsgrad.decimalValue());
+        assertThat(uttakAktivitet.arbeidstidsprosent()).isEqualByComparingTo(prosentArbeid);
+        assertThat(uttakAktivitet.stillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(50));
+        assertThat(uttakAktivitet.aktivitetStatus()).isEqualTo(AktivitetStatus.ATFL);
+        assertThat(uttakAktivitet.erGradering()).isTrue();
+        assertThat(uttakAktivitet.arbeidsforhold().identifikator()).isEqualTo(ARBEIDSFORHOLD_ORGNR);
+        assertThat(uttakAktivitet.arbeidsforhold().arbeidsforholdId()).isEqualTo(ARBEIDSFORHOLD_ID.getReferanse());
+        assertThat(uttakAktivitet.arbeidsforhold().frilanser()).isFalse();
     }
 
     private ArbeidsforholdInformasjon lagArbeidsforholdInformasjon(Arbeidsgiver arbeidsgiver) {
@@ -221,35 +221,35 @@ public class MapUttakResultatFraVLTilRegelTest {
         var resultat = mapper.mapFra(uttakPlan, lagRefMedIay(behandling, yrkesaktiviteter, iayGrunnlag));
         // Assert
         var resultPeriode = onlyOne(resultat);
-        var uttakAktivitet = resultPeriode.getUttakAktiviteter().get(0);
-        assertThat(uttakAktivitet.getUtbetalingsgrad()).isEqualByComparingTo(utbetalingsgrad1.decimalValue());
-        assertThat(uttakAktivitet.getArbeidstidsprosent()).isEqualByComparingTo(prosentArbeidAndel1);
-        assertThat(uttakAktivitet.getStillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(20));
-        assertThat(uttakAktivitet.getAktivitetStatus()).isEqualTo(AktivitetStatus.ATFL);
-        assertThat(uttakAktivitet.isErGradering()).isTrue();
-        assertThat(uttakAktivitet.getArbeidsforhold().getIdentifikator()).isEqualTo(ARBEIDSFORHOLD_ORGNR);
-        assertThat(uttakAktivitet.getArbeidsforhold().getArbeidsforholdId()).isEqualTo(ARBEIDSFORHOLD_ID.getReferanse());
-        assertThat(uttakAktivitet.getArbeidsforhold().erFrilanser()).isFalse();
+        var uttakAktivitet = resultPeriode.uttakAktiviteter().get(0);
+        assertThat(uttakAktivitet.utbetalingsgrad()).isEqualByComparingTo(utbetalingsgrad1.decimalValue());
+        assertThat(uttakAktivitet.arbeidstidsprosent()).isEqualByComparingTo(prosentArbeidAndel1);
+        assertThat(uttakAktivitet.stillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(20));
+        assertThat(uttakAktivitet.aktivitetStatus()).isEqualTo(AktivitetStatus.ATFL);
+        assertThat(uttakAktivitet.erGradering()).isTrue();
+        assertThat(uttakAktivitet.arbeidsforhold().identifikator()).isEqualTo(ARBEIDSFORHOLD_ORGNR);
+        assertThat(uttakAktivitet.arbeidsforhold().arbeidsforholdId()).isEqualTo(ARBEIDSFORHOLD_ID.getReferanse());
+        assertThat(uttakAktivitet.arbeidsforhold().frilanser()).isFalse();
 
-        var uttakAktivitet2 = resultPeriode.getUttakAktiviteter().get(1);
-        assertThat(uttakAktivitet2.getUtbetalingsgrad()).isEqualByComparingTo(utbetalingsgrad2.decimalValue());
-        assertThat(uttakAktivitet2.getArbeidstidsprosent()).isEqualByComparingTo(prosentArbeidAndel2);
-        assertThat(uttakAktivitet2.getStillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(60));
-        assertThat(uttakAktivitet2.isErGradering()).isTrue();
-        assertThat(uttakAktivitet2.getArbeidsforhold().getIdentifikator()).isEqualTo(ARBEIDSFORHOLD_ORGNR);
-        assertThat(uttakAktivitet2.getArbeidsforhold().getArbeidsforholdId()).isEqualTo(ARBEIDSFORHOLD_ID_2.getReferanse());
+        var uttakAktivitet2 = resultPeriode.uttakAktiviteter().get(1);
+        assertThat(uttakAktivitet2.utbetalingsgrad()).isEqualByComparingTo(utbetalingsgrad2.decimalValue());
+        assertThat(uttakAktivitet2.arbeidstidsprosent()).isEqualByComparingTo(prosentArbeidAndel2);
+        assertThat(uttakAktivitet2.stillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(60));
+        assertThat(uttakAktivitet2.erGradering()).isTrue();
+        assertThat(uttakAktivitet2.arbeidsforhold().identifikator()).isEqualTo(ARBEIDSFORHOLD_ORGNR);
+        assertThat(uttakAktivitet2.arbeidsforhold().arbeidsforholdId()).isEqualTo(ARBEIDSFORHOLD_ID_2.getReferanse());
 
     }
 
     private void assertPeriode(UttakResultatPeriode periode, LocalDate expectedFom, LocalDate expectedTom) {
         assertThat(periode).isNotNull();
-        assertThat(periode.getFom()).as("fom").isEqualTo(expectedFom);
-        assertThat(periode.getTom()).as("tom").isEqualTo(expectedTom);
-        assertThat(periode.getErOppholdsPeriode()).isFalse();
+        assertThat(periode.fom()).as("fom").isEqualTo(expectedFom);
+        assertThat(periode.tom()).as("tom").isEqualTo(expectedTom);
+        assertThat(periode.erOppholdsPeriode()).isFalse();
     }
 
     private UttakResultatPeriode getPeriodeByFom(List<UttakResultatPeriode> uttakResultatPerioder, LocalDate fom) {
-        return uttakResultatPerioder.stream().filter(a -> fom.equals(a.getFom())).findFirst().orElse(null);
+        return uttakResultatPerioder.stream().filter(a -> fom.equals(a.fom())).findFirst().orElse(null);
     }
 
     private List<ForeldrepengerUttakPeriode> lagUttakResultatPlan() {
@@ -267,8 +267,8 @@ public class MapUttakResultatFraVLTilRegelTest {
     }
 
     private UttakResultatPeriode onlyOne(UttakResultat resultat) {
-        assertThat(resultat.getUttakResultatPerioder()).hasSize(1);
-        return resultat.getUttakResultatPerioder().iterator().next();
+        assertThat(resultat.uttakResultatPerioder()).hasSize(1);
+        return resultat.uttakResultatPerioder().iterator().next();
     }
 
     private List<ForeldrepengerUttakPeriode> lagUttaksPeriode(BigDecimal prosentArbeid, Utbetalingsgrad prosentUtbetaling) {
