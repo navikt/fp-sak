@@ -7,7 +7,7 @@ jobs:
   promote-dev:
     name: Deploy dev
     if: contains(github.event.client_payload.slash_command.args.unnamed.all, 'dev')
-    uses: navikt/fp-gha-workflows/.github/workflows/deploy-app.yml@rydding
+    uses: navikt/fp-gha-workflows/.github/workflows/deploy-app.yml@main
     with:
       issue-number: ${{ github.event.client_payload.github.payload.issue.number }}
       environment: dev
@@ -18,7 +18,7 @@ jobs:
     name: Deploy prod
     needs: promote-dev
     if: success() && contains(github.event.client_payload.slash_command.args.unnamed.all, 'prod')
-    uses: navikt/fp-gha-workflows/.github/workflows/deploy-app.yml@rydding
+    uses: navikt/fp-gha-workflows/.github/workflows/deploy-app.yml@main
     with:
       issue-number: ${{ github.event.client_payload.github.payload.issue.number }}
       environment: prod
