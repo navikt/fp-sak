@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -85,6 +84,7 @@ public class FordelRestTjeneste {
     private VurderFagsystemFellesTjeneste vurderFagsystemTjeneste;
     private FamilieHendelseRepository familieGrunnlagRepository;
     private BehandlingRepository behandlingRepository;
+    private SakInfoDtoTjeneste sakInfoDtoTjeneste;
 
     public FordelRestTjeneste() {// For Rest-CDI
     }
@@ -95,7 +95,8 @@ public class FordelRestTjeneste {
                               OpprettSakOrchestrator opprettSakOrchestrator,
                               OpprettSakTjeneste opprettSakTjeneste,
                               BehandlingRepositoryProvider repositoryProvider,
-                              VurderFagsystemFellesTjeneste vurderFagsystemFellesTjeneste) { // NOSONAR
+                              VurderFagsystemFellesTjeneste vurderFagsystemFellesTjeneste,
+                              SakInfoDtoTjeneste sakInfoDtoTjeneste  ) { // NOSONAR
         this.dokumentmottakTjeneste = dokumentmottakTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
         this.opprettSakOrchestrator = opprettSakOrchestrator;
@@ -103,6 +104,7 @@ public class FordelRestTjeneste {
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.vurderFagsystemTjeneste = vurderFagsystemFellesTjeneste;
+        this.sakInfoDtoTjeneste = sakInfoDtoTjeneste;
     }
 
     @POST
@@ -249,25 +251,14 @@ public class FordelRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<SakInfoDto> finnAlleSakerForBruker( @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) @Parameter(description = "AktørId") @Valid AktørIdDto bruker) {
         ensureCallId();
-
         if (!AktørId.erGyldigAktørId(bruker.aktørId())) {
             throw new IllegalArgumentException("Oppgitt aktørId er ikke en gyldig ident.");
         }
         List<SakInfoDto> saksinfoDtoer = new ArrayList<>();
-
         var fagsaker = fagsakTjeneste.finnFagsakerForAktør(new AktørId(bruker.aktørId())).stream().toList();
-        fagsaker.forEach( fagsak -> {
-            var sisteYtelsesBehandling = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId()).orElse(null);
-            if (sisteYtelsesBehandling != null) {
-                var gjeldendeFamilieHendelsedato = familieGrunnlagRepository.hentAggregatHvisEksisterer(sisteYtelsesBehandling.getId())
-                    .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-                    .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
-                    .orElse(null);
-                saksinfoDtoer.add(mapTilSakInfoDto(fagsak, gjeldendeFamilieHendelsedato));
-            } else {
-                saksinfoDtoer.add(mapTilSakInfoDto(fagsak, null));
-            }
-        });
+        for (Fagsak fagsak : fagsaker) {
+            saksinfoDtoer.add(sakInfoDtoTjeneste.mapSakInfoDto(fagsak));
+        }
         return saksinfoDtoer;
     }
 
@@ -296,12 +287,6 @@ public class FordelRestTjeneste {
             return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
         }
     }
-
-    private SakInfoDto mapTilSakInfoDto(Fagsak fagsak, LocalDate gjeldendeFamiliehendelseDato) {
-        return new SakInfoDto(new SaksnummerDto(fagsak.getSaksnummer().getVerdi()), fagsak.getYtelseType(), fagsak.getOpprettetTidspunkt().toLocalDate(), fagsak.getEndretTidspunkt() != null ? fagsak.getEndretTidspunkt().toLocalDate() : null, fagsak.getStatus(), gjeldendeFamiliehendelseDato);
-    }
-
-    public record SakInfoDto(SaksnummerDto saksnummer, FagsakYtelseType ytelseType, LocalDate opprettetDato, LocalDate endretDato, FagsakStatus status, LocalDate gjeldendeFamiliehendelseDato ) {}
 
     private void ensureCallId() {
         var callId = MDCOperations.getCallId();
