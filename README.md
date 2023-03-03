@@ -1,5 +1,7 @@
 Foreldrepenger Vedtaksløsning (FPSAK)
 ===============
+[![Bygg og deploy](https://github.com/navikt/fp-sak/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/navikt/fp-sak/actions/workflows/build.yml)
+[![Promote](https://github.com/navikt/fp-sak/actions/workflows/promote.yml/badge.svg?branch=master)](https://github.com/navikt/fp-sak/actions/workflows/promote.yml)
 
 Dette er repository for kildkode som dekker applikasjonen bak Foreldrepenger og Engangsstønad
 
