@@ -44,8 +44,8 @@ public final class Databaseskjemainitialisering {
     }
 
     public static void migrerUnittestSkjemaer() {
-        //migrerUnittestSkjemaer(DEFAULTDS_SCHEMA, DEFAULTDS_USER);
-        //migrerUnittestSkjemaer("dvhDS", "fpsak_hist");
+        migrerUnittestSkjemaer(DEFAULTDS_SCHEMA, DEFAULTDS_USER);
+        migrerUnittestSkjemaer("dvhDS", "fpsak_hist");
     }
 
     private static void migrerUnittestSkjemaer(String schemaName, String user) {
