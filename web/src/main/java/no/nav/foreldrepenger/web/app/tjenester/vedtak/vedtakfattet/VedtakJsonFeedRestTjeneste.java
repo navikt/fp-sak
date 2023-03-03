@@ -12,6 +12,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import no.nav.vedtak.log.util.LoggerUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +39,7 @@ public class VedtakJsonFeedRestTjeneste {
 
     static final String BASE_PATH = "/feed/vedtak";
     private static final String FORELDREPENGER_PART_PATH = "/foreldrepenger";
-    public static final String FORELDREPENGER_PATH = BASE_PATH + FORELDREPENGER_PART_PATH; // NOSONAR TFP-2234
     private static final String SVANGERSKAPSPENGER_PART_PATH = "/svangerskapspenger";
-    public static final String SVANGERSKAPSPENGER_PATH = BASE_PATH + SVANGERSKAPSPENGER_PART_PATH; // NOSONAR TFP-2234
 
     private static final Logger LOG = LoggerFactory.getLogger(VedtakJsonFeedRestTjeneste.class);
 
@@ -65,10 +65,19 @@ public class VedtakJsonFeedRestTjeneste {
             @DefaultValue("100") @QueryParam("maxAntall") @Parameter(description = "max antall returnert") @Valid MaxAntallParam maxAntallParam,
             @DefaultValue("") @QueryParam("type") @Parameter(description = "Filtrerer på type hendelse") @Valid HendelseTypeParam hendelseTypeParam,
             @DefaultValue("") @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid AktørParam aktørParam) {
-        final var dto = tjeneste.hentFpVedtak(sistLesteSekvensIdParam.get(), maxAntallParam.get(), hendelseTypeParam.get(), aktørParam.get());
-        LOG.info("VedtakFeed FP sekvens {} max {} type {} aktør {} antall {}", sistLesteSekvensIdParam.get(), maxAntallParam.get(),
-                hendelseTypeParam.get() == null ? "notype" : hendelseTypeParam.get(), aktørParam.get().isPresent() ? "angitt" : "tom",
+
+        var hendelseType = LoggerUtils.removeLineBreaks(hendelseTypeParam.get());
+
+        final var dto = tjeneste.hentFpVedtak(sistLesteSekvensIdParam.get(), maxAntallParam.get(), hendelseType, aktørParam.get());
+
+        if (LOG.isInfoEnabled()) {
+            LOG.info("VedtakFeed FP sekvens {} max {} type {} aktør {} antall {}",
+                LoggerUtils.toStringWithoutLineBreaks(sistLesteSekvensIdParam.get()),
+                LoggerUtils.toStringWithoutLineBreaks(maxAntallParam.get()),
+                hendelseType == null ? "notype" : hendelseType,
+                aktørParam.get().isPresent() ? "angitt" : "tom",
                 dto.getElementer().size());
+        }
         return new FeedDto.Builder().medTittel("ForeldrepengerVedtak_v1").medElementer(dto.getElementer())
                 .medInneholderFlereElementer(dto.isHarFlereElementer()).build();
     }
@@ -85,10 +94,19 @@ public class VedtakJsonFeedRestTjeneste {
             @DefaultValue("100") @QueryParam("maxAntall") @Parameter(description = "max antall returnert") @Valid MaxAntallParam maxAntallParam,
             @DefaultValue("") @QueryParam("type") @Parameter(description = "Filtrerer på type hendelse") @Valid HendelseTypeParam hendelseTypeParam,
             @DefaultValue("") @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid AktørParam aktørParam) {
-        final var dto = tjeneste.hentSvpVedtak(sistLesteSekvensIdParam.get(), maxAntallParam.get(), hendelseTypeParam.get(), aktørParam.get());
-        LOG.info("VedtakFeed SVP sekvens {} max {} type {} aktør {} antall {}", sistLesteSekvensIdParam.get(), maxAntallParam.get(),
-                hendelseTypeParam.get() == null ? "notype" : hendelseTypeParam.get(), aktørParam.get().isPresent() ? "angitt" : "tom",
+
+        var hendelseType = LoggerUtils.removeLineBreaks(hendelseTypeParam.get());
+
+        final var dto = tjeneste.hentSvpVedtak(sistLesteSekvensIdParam.get(), maxAntallParam.get(), hendelseType, aktørParam.get());
+
+        if (LOG.isInfoEnabled()) {
+            LOG.info("VedtakFeed SVP sekvens {} max {} type {} aktør {} antall {}",
+                sistLesteSekvensIdParam.get(), maxAntallParam.get(),
+                hendelseType == null ? "notype" : hendelseType,
+                aktørParam.get().isPresent() ? "angitt" : "tom",
                 dto.getElementer().size());
+        }
+
         return new FeedDto.Builder().medTittel("SVPVedtak_v1").medElementer(dto.getElementer()).medInneholderFlereElementer(dto.isHarFlereElementer())
                 .build();
     }

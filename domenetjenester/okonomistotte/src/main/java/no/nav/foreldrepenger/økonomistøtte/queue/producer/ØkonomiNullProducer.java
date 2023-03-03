@@ -32,7 +32,7 @@ public class ØkonomiNullProducer extends ØkonomioppdragJmsProducer {
     private BehandleØkonomioppdragKvittering behandleØkonomioppdragKvittering;
 
     public ØkonomiNullProducer() {
-
+        // CDI
     }
 
     @Inject
@@ -48,7 +48,6 @@ public class ØkonomiNullProducer extends ØkonomioppdragJmsProducer {
         LOG.info("Sender økonomiOppdrag ut i intet");
 
         registrerKvittering(oppdragXML);
-
     }
 
     private void registrerKvittering(String oppdragXML) {
@@ -79,7 +78,7 @@ public class ØkonomiNullProducer extends ØkonomioppdragJmsProducer {
 
     @Override
     public void testConnection() {
-
+        // er dummy implementasjon og trenger ikke dette.
     }
 
     @Override
@@ -88,7 +87,9 @@ public class ØkonomiNullProducer extends ØkonomioppdragJmsProducer {
     }
 
     private Document getDocument(String xml) throws ParserConfigurationException, IOException, SAXException {
-        var documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        var factory = DocumentBuilderFactory.newInstance();
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        var documentBuilder = factory.newDocumentBuilder();
         return documentBuilder.parse(new ByteArrayInputStream(xml.getBytes()));
     }
 
