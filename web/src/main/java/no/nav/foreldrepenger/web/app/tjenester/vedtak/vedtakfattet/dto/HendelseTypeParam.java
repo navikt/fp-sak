@@ -10,7 +10,7 @@ import no.nav.vedtak.util.InputValideringRegex;
 public class HendelseTypeParam implements AbacDto {
 
     @Size(max = 100)
-    @Pattern(regexp = InputValideringRegex.FRITEKST) // TODO (humle) validering på type i kontrakten
+    @Pattern(regexp = InputValideringRegex.FRITEKST)
     private final String type;
 
     public HendelseTypeParam(String type) {

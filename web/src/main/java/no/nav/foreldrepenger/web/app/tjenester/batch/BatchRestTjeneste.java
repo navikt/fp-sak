@@ -14,9 +14,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,6 +25,9 @@ import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path("/batch")
 @ApplicationScoped
@@ -45,13 +45,6 @@ public class BatchRestTjeneste {
     @Inject
     public BatchRestTjeneste(BatchSupportTjeneste batchSupportTjeneste) {
         this.batchSupportTjeneste = batchSupportTjeneste;
-    }
-
-    private static String retrieveBatchServiceFrom(String executionId) {
-        if (executionId != null && executionId.contains("-")) {
-            return executionId.substring(0, executionId.indexOf('-'));
-        }
-        throw new IllegalStateException();
     }
 
     /**
@@ -89,7 +82,6 @@ public class BatchRestTjeneste {
             }
             throw BatchFeil.ugyldigeJobParametere(arguments);
         }
-        LOG.warn("Ugyldig job-navn " + name);
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
