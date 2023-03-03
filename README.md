@@ -1,7 +1,17 @@
 Foreldrepenger Vedtaksløsning (FPSAK)
 ===============
+
 [![Bygg og deploy](https://github.com/navikt/fp-sak/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/navikt/fp-sak/actions/workflows/build.yml)
 [![Promote](https://github.com/navikt/fp-sak/actions/workflows/promote.yml/badge.svg?branch=master)](https://github.com/navikt/fp-sak/actions/workflows/promote.yml)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-sak&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=navikt_fp-sak)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-sak&metric=coverage)](https://sonarcloud.io/summary/new_code?id=navikt_fp-sak)
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-sak&metric=alert_status)](https://sonarcloud.io/dashboard?id=navikt_fp-sak)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-sak&metric=bugs)](https://sonarcloud.io/dashboard?id=navikt_fp-sak)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-sak&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=navikt_fp-sak)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-sak&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=navikt_fp-sak)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-sak&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=navikt_fp-sak)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-sak&metric=sqale_index)](https://sonarcloud.io/dashboard?id=navikt_fp-sak)
 
 Dette er repository for kildkode som dekker applikasjonen bak Foreldrepenger og Engangsstønad
 
