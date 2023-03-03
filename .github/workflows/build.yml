@@ -49,6 +49,6 @@ jobs:
     uses: navikt/fp-gha-workflows/.github/workflows/snyk.yml@main
     with:
       build-version: ${{ needs.build-app.outputs.build-version }}
-      publish-sarif: false
+      upload-sarif: false
     secrets: inherit
 

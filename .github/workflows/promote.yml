@@ -17,7 +17,10 @@ jobs:
   promote-prod:
     name: Deploy prod
     needs: promote-dev
-    if: success() && contains(github.event.client_payload.slash_command.args.unnamed.all, 'prod')
+    if: |
+      always() &&
+      contains(github.event.client_payload.slash_command.args.unnamed.all, 'prod') &&
+      !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
     uses: navikt/fp-gha-workflows/.github/workflows/deploy-app.yml@main
     with:
       issue-number: ${{ github.event.client_payload.github.payload.issue.number }}
